@@ -93,7 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TRuntimeTarget Create()
         {
-            return MappingContext.MapperContext.ObjectFactory.Create<TRuntimeTarget>();
+            return MappingContext.MapperContext.ComplexTypeFactory.Create<TRuntimeTarget>();
         }
 
         public TMember Map<TMember>(Expression<Func<TRuntimeTarget, TMember>> complexChildMember)

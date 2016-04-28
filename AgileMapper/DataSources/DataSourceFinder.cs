@@ -8,22 +8,45 @@
 
     internal class DataSourceFinder
     {
-        private readonly MemberFinder _memberFinder;
-
-        public DataSourceFinder(MemberFinder memberFinder)
-        {
-            _memberFinder = memberFinder;
-        }
-
         public IDataSource GetBestMatchFor(Member childTargetMember, IObjectMappingContext omc)
         {
+            var qualifiedTargetMember = omc.TargetMember.Append(childTargetMember);
+
+            IDataSource configuredDataSource;
+
+            if (DataSourceIsConfigured(qualifiedTargetMember, omc, out configuredDataSource))
+            {
+                return configuredDataSource;
+            }
+
             if (childTargetMember.IsComplex)
             {
                 return new ComplexTypeMappingDataSource(childTargetMember);
             }
 
-            var qualifiedTargetMember = omc.TargetMember.Append(childTargetMember);
+            return GetSourceMemberDataSourceOrNull(qualifiedTargetMember, omc);
+        }
 
+        private static bool DataSourceIsConfigured(
+            QualifiedMember targetMember,
+            IObjectMappingContext omc,
+            out IDataSource configuredDataSource)
+        {
+            var configurationContext = new ConfigurationContext(targetMember, omc);
+
+            configuredDataSource = omc
+                .MappingContext
+                .MapperContext
+                .UserConfigurations
+                .GetConfiguredDataSourceOrNull(configurationContext);
+
+            return configuredDataSource != null;
+        }
+
+        private static IDataSource GetSourceMemberDataSourceOrNull(
+            QualifiedMember qualifiedTargetMember,
+            IObjectMappingContext omc)
+        {
             var bestMatchingSourceMember = GetSourceMemberMatching(qualifiedTargetMember, omc);
 
             if (bestMatchingSourceMember == null)
@@ -35,15 +58,17 @@
 
             var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember);
 
-            if (childTargetMember.IsEnumerable)
+            if (qualifiedTargetMember.IsEnumerable)
             {
-                return new EnumerableMappingDataSource(sourceMemberDataSource, childTargetMember);
+                return new EnumerableMappingDataSource(
+                    sourceMemberDataSource,
+                    qualifiedTargetMember.LeafMember);
             }
 
             return sourceMemberDataSource;
         }
 
-        private QualifiedMember GetSourceMemberMatching(
+        private static QualifiedMember GetSourceMemberMatching(
             QualifiedMember qualifiedTargetMember,
             IObjectMappingContext omc)
         {
@@ -51,16 +76,19 @@
                 .RootSource(omc.MappingContext.RootObjectMappingContext.SourceObject.Type);
 
             var qualifiedRootSourceMember = QualifiedMember.From(rootSourceMember);
+            var memberFinder = omc.MappingContext.GlobalContext.MemberFinder;
 
-            return GetAllSourceMembers(qualifiedRootSourceMember)
+            return GetAllSourceMembers(qualifiedRootSourceMember, memberFinder)
                 .FirstOrDefault(sm => sm.Matches(qualifiedTargetMember));
         }
 
-        private IEnumerable<QualifiedMember> GetAllSourceMembers(QualifiedMember parentMember)
+        private static IEnumerable<QualifiedMember> GetAllSourceMembers(
+            QualifiedMember parentMember,
+            MemberFinder memberFinder)
         {
             yield return parentMember;
 
-            foreach (var sourceMember in _memberFinder.GetSourceMembers(parentMember.Type))
+            foreach (var sourceMember in memberFinder.GetSourceMembers(parentMember.Type))
             {
                 var childMember = parentMember.Append(sourceMember);
 
@@ -70,7 +98,7 @@
                     continue;
                 }
 
-                foreach (var qualifiedMember in GetAllSourceMembers(childMember))
+                foreach (var qualifiedMember in GetAllSourceMembers(childMember, memberFinder))
                 {
                     yield return qualifiedMember;
                 }

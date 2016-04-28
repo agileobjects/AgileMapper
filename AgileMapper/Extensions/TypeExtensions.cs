@@ -43,6 +43,11 @@
             return Nullable.GetUnderlyingType(type) != null;
         }
 
+        public static Type GetNonNullableUnderlyingTypeIfAppropriate(this Type type)
+        {
+            return Nullable.GetUnderlyingType(type) ?? type;
+        }
+
         public static Type GetEnumerableElementType(this Type enumerableType)
         {
             return enumerableType.IsArray

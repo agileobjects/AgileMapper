@@ -8,7 +8,6 @@ namespace AgileObjects.AgileMapper.Members
     internal class QualifiedMember
     {
         private readonly Member[] _memberChain;
-        private readonly Member _leafMember;
 
         private QualifiedMember(Member member, QualifiedMember parent)
             : this(parent?._memberChain.Concat(member).ToArray() ?? new[] { member })
@@ -18,7 +17,7 @@ namespace AgileObjects.AgileMapper.Members
         private QualifiedMember(Member[] memberChain)
         {
             _memberChain = memberChain;
-            _leafMember = memberChain.Last();
+            LeafMember = memberChain.Last();
         }
 
         #region Factory Method
@@ -28,13 +27,20 @@ namespace AgileObjects.AgileMapper.Members
             return new QualifiedMember(member, null);
         }
 
+        public static QualifiedMember From(Member[] memberChain)
+        {
+            return new QualifiedMember(memberChain);
+        }
+
         #endregion
 
-        public Type Type => _leafMember.Type;
+        public Member LeafMember { get; }
 
-        public bool IsEnumerable => _leafMember.IsEnumerable;
+        public Type Type => LeafMember.Type;
 
-        public Type ElementType => _leafMember.ElementType;
+        public bool IsEnumerable => LeafMember.IsEnumerable;
+
+        public Type ElementType => LeafMember.ElementType;
 
         public QualifiedMember Append(Member childMember)
         {

@@ -44,5 +44,23 @@
 
             result.Address.ShouldNotBeNull();
         }
+
+        [Fact]
+        public void ShouldApplyAConfiguredExpression()
+        {
+            using (IMapper mapper = new Mapper())
+            {
+                mapper.When.Mapping
+                    .From<PersonViewModel>()
+                    .ToANew<Person>()
+                    .Map(x => x.Name + ", " + x.AddressLine1)
+                    .To(x => x.Address.Line1);
+
+                var source = new PersonViewModel { Name = "Fred", AddressLine1 = "Lala Land" };
+                var result = mapper.Map(source).ToNew<Person>();
+
+                result.Address.Line1.ShouldBe("Fred, Lala Land");
+            }
+        }
     }
 }

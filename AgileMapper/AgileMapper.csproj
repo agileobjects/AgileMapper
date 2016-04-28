@@ -34,11 +34,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Api\Configuration\ConfigStartingPoint.cs" />
+    <Compile Include="DataSources\ConfigurationContext.cs" />
+    <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
+    <Compile Include="Api\Configuration\IConfigurationContext.cs" />
+    <Compile Include="Api\Configuration\MappingConfigInfo.cs" />
+    <Compile Include="Api\Configuration\MappingConfigStartingPoint.cs" />
+    <Compile Include="Api\Configuration\MappingConfigurator.cs" />
+    <Compile Include="Api\Configuration\TargetTypeSpecifier.cs" />
+    <Compile Include="Api\Configuration\UserConfigurationSet.cs" />
     <Compile Include="DataSources\ComplexTypeMappingDataSource.cs" />
+    <Compile Include="DataSources\ConfiguredDataSource.cs" />
     <Compile Include="DataSources\DataSourceFinder.cs" />
     <Compile Include="DataSources\EnumerableMappingDataSource.cs" />
     <Compile Include="DataSources\IDataSource.cs" />
     <Compile Include="DataSources\SourceMemberDataSource.cs" />
+    <Compile Include="DataSources\UserConfiguredItemBase.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="GlobalContext.cs" />
@@ -55,7 +66,7 @@
     <Compile Include="Members\MemberType.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContext.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContextFactory.cs" />
-    <Compile Include="ObjectPopulation\ObjectFactory.cs" />
+    <Compile Include="ObjectPopulation\ComplexTypeFactory.cs" />
     <Compile Include="ObjectPopulation\MapperFunc.cs" />
     <Compile Include="Members\Member.cs" />
     <Compile Include="ObjectPopulation\MemberPopulation.cs" />
@@ -77,6 +88,9 @@
     <Compile Include="PopulationProcessing\NullNestedSourceMemberStrategyBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Api\ResultTypeSelector.cs" />
+    <Compile Include="TypeConversion\ConverterSet.cs" />
+    <Compile Include="TypeConversion\IValueConverter.cs" />
+    <Compile Include="Api\Configuration\MappingConfigurationException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AgileObjects.ReadableExpressions, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">

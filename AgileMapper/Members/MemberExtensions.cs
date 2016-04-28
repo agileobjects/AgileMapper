@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
+    using Extensions;
 
     internal static class MemberExtensions
     {
@@ -57,6 +59,39 @@
             var population = populationFactory.Invoke(instance, targetMember, value);
 
             return population;
+        }
+
+        public static QualifiedMember ToTargetMember(this Expression memberAccessExpression, MemberFinder memberFinder)
+        {
+            var expression = memberAccessExpression;
+            var memberAccesses = new List<Expression>();
+
+            while (expression.NodeType != ExpressionType.Parameter)
+            {
+                var memberExpression = expression.GetMemberAccess();
+                memberAccesses.Insert(0, memberExpression);
+                expression = memberExpression.GetParentOrNull();
+            }
+
+            var rootMember = Member.RootTarget(expression.Type);
+            var parentMember = rootMember;
+
+            var memberChain = memberAccesses
+                .Select(memberAccess =>
+                {
+                    var memberName = memberAccess.GetMemberName();
+                    var members = memberFinder.GetTargetMembers(parentMember.Type);
+                    var member = members.FirstOrDefault(m => m.Name == memberName);
+
+                    parentMember = member;
+
+                    return member;
+                })
+                .ToList();
+
+            memberChain.Insert(0, rootMember);
+
+            return QualifiedMember.From(memberChain.ToArray());
         }
     }
 }

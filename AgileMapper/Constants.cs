@@ -12,5 +12,11 @@
         public static readonly BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static;
 
         public static readonly BindingFlags PrivateStatic = BindingFlags.NonPublic | BindingFlags.Static;
+
+        public const string CreateNew = "CreateNew";
+
+        public const string Merge = "Merge";
+
+        public const string Overwrite = "Overwrite";
     }
 }

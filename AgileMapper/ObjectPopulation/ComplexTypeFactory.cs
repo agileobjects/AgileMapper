@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal class ObjectFactory
+    internal class ComplexTypeFactory
     {
         public T Create<T>()
         {

@@ -1,28 +1,35 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using Api.Configuration;
     using DataSources;
     using ObjectPopulation;
+    using TypeConversion;
 
     internal class MapperContext
     {
-        public static readonly MapperContext Default = new MapperContext(GlobalContext.Default);
+        public static readonly MapperContext Default = new MapperContext();
 
-        private MapperContext(GlobalContext globalContext)
+        public MapperContext()
         {
-            GlobalContext = globalContext;
+            DataSources = new DataSourceFinder();
+            ComplexTypeFactory = new ComplexTypeFactory();
             ObjectMapperFactory = new ObjectMapperFactory();
-            ObjectFactory = new ObjectFactory();
-            DataSources = new DataSourceFinder(globalContext.MemberFinder);
+            UserConfigurations = new UserConfigurationSet();
+            ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
         }
 
-        public GlobalContext GlobalContext { get; }
+        public GlobalContext GlobalContext => GlobalContext.Default;
+
+        public DataSourceFinder DataSources { get; }
+
+        public ComplexTypeFactory ComplexTypeFactory { get; }
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
-        public ObjectFactory ObjectFactory { get; }
+        public UserConfigurationSet UserConfigurations { get; }
 
-        public DataSourceFinder DataSources { get; }
+        public ConverterSet ValueConverters { get; }
 
         public MappingRuleSetCollection RuleSets { get; }
     }
