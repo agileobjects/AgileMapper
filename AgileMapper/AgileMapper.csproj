@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4E101600-EBEF-4E1F-9EC3-D6070F7417DD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
+    <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="DataSources\ComplexTypeMappingDataSource.cs" />
+    <Compile Include="DataSources\DataSourceFinder.cs" />
+    <Compile Include="DataSources\EnumerableMappingDataSource.cs" />
+    <Compile Include="DataSources\IDataSource.cs" />
+    <Compile Include="DataSources\SourceMemberDataSource.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.cs" />
+    <Compile Include="GlobalContext.cs" />
+    <Compile Include="ObjectPopulation\ComplexTypeMappingLambdaFactory.cs" />
+    <Compile Include="ObjectPopulation\EnumerableMappingLambdaFactory.cs" />
+    <Compile Include="ObjectPopulation\IObjectMapper.cs" />
+    <Compile Include="ObjectPopulation\IObjectMappingContext.cs" />
+    <Compile Include="MapperContext.cs" />
+    <Compile Include="MappingContext.cs" />
+    <Compile Include="MappingRuleSet.cs" />
+    <Compile Include="MappingRuleSetCollection.cs" />
+    <Compile Include="Members\MemberExtensions.cs" />
+    <Compile Include="Members\MemberFinder.cs" />
+    <Compile Include="Members\MemberType.cs" />
+    <Compile Include="ObjectPopulation\ObjectMappingContext.cs" />
+    <Compile Include="ObjectPopulation\ObjectMappingContextFactory.cs" />
+    <Compile Include="ObjectPopulation\ObjectFactory.cs" />
+    <Compile Include="ObjectPopulation\MapperFunc.cs" />
+    <Compile Include="Members\Member.cs" />
+    <Compile Include="ObjectPopulation\MemberPopulation.cs" />
+    <Compile Include="ObjectPopulation\MemberPopulationFactory.cs" />
+    <Compile Include="ObjectPopulation\ObjectMapper.cs" />
+    <Compile Include="ObjectPopulation\ObjectMapperFactory.cs" />
+    <Compile Include="ObjectPopulation\ObjectMapperKey.cs" />
+    <Compile Include="ObjectPopulation\ObjectMappingLambdaFactoryBase.cs" />
+    <Compile Include="Parameters.cs" />
+    <Compile Include="Members\QualifiedMember.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="IMapper.cs" />
+    <Compile Include="Mapper.cs" />
+    <Compile Include="PopulationProcessing\DefaultNullNestedSourceMemberStrategy.cs" />
+    <Compile Include="PopulationProcessing\INestedSourceMemberStrategy.cs" />
+    <Compile Include="PopulationProcessing\IPopulationProcessor.cs" />
+    <Compile Include="PopulationProcessing\NullNestedSourceMemberPopulationGuarder.cs" />
+    <Compile Include="PopulationProcessing\NullNestedSourceMemberStrategyBase.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Api\ResultTypeSelector.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.2.0.0\lib\portable-net40+sl50+win+wpa81+wp80\AgileObjects.ReadableExpressions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
