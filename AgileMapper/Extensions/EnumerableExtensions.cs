@@ -35,5 +35,13 @@
                 itemAction.Invoke(item, i++);
             }
         }
+
+        public static void Broadcast<T>(this IEnumerable<Action<T>> callbacks, T data)
+        {
+            foreach (var callback in callbacks)
+            {
+                callback.Invoke(data);
+            }
+        }
     }
 }

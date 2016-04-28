@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Api\Configuration\ConfigStartingPoint.cs" />
+    <Compile Include="Api\Configuration\InstanceCreationRuleSpecifier.cs" />
     <Compile Include="DataSources\ConfigurationContext.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
     <Compile Include="Api\Configuration\IConfigurationContext.cs" />
