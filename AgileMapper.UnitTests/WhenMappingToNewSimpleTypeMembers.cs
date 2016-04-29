@@ -15,5 +15,15 @@
             result.ShouldNotBeNull();
             result.Value.ShouldBe(source.Value);
         }
+
+        [Fact]
+        public void ShouldCopyAStringValue()
+        {
+            var source = new PublicProperty<string> { Value = "Oi 'Arry!" };
+            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBe(source.Value);
+        }
     }
 }

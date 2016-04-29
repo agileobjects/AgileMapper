@@ -75,9 +75,13 @@
             return typeof(ICollection<>).MakeGenericType(targetElementType);
         }
 
-        public static Member CreateElementMember(this Type elementType)
+        public static Member CreateElementMember(this Type enumerableType)
         {
-            return new Member(MemberType.EnumerableElement, "[i]", elementType);
+            return new Member(
+                MemberType.EnumerableElement,
+                Constants.EnumerableElementMemberName,
+                enumerableType,
+                enumerableType.GetEnumerableElementType());
         }
     }
 }

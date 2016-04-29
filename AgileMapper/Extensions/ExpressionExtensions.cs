@@ -49,6 +49,9 @@
                 case ExpressionType.Call:
                     return GetMethodCallMemberAccess((MethodCallExpression)expression);
 
+                case ExpressionType.Lambda:
+                    return GetMemberAccess(((LambdaExpression)expression).Body);
+
                 case ExpressionType.MemberAccess:
                     return expression;
             }

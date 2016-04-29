@@ -46,7 +46,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ? MemberType.Property
                 : MemberType.Field;
 
-            var childMember = new Member(childMemberType, childMemberInfo.Name, runtimeMemberType);
+            var childMember = new Member(
+                childMemberType,
+                childMemberInfo.Name,
+                typeof(TRuntimeTarget),
+                runtimeMemberType);
 
             var runtimeSourceType = childMember.IsComplex ? typeof(TRuntimeSource) : GetRuntimeSourceType(source);
 
@@ -69,7 +73,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetMember = mappingContext
                 .CurrentObjectMappingContext
                 .TargetMember
-                .ElementType
+                .Type
                 .CreateElementMember();
 
             return Create(

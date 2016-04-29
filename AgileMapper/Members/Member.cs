@@ -2,13 +2,15 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using Extensions;
+    using ObjectPopulation;
 
     internal class Member
     {
-        public Member(MemberType memberType, string name, Type type)
+        public Member(MemberType memberType, string name, Type declaringType, Type type)
         {
             MemberType = memberType;
             Name = name;
+            DeclaringType = declaringType;
             Type = type;
 
             IsEnumerable = type.IsEnumerable();
@@ -34,12 +36,14 @@ namespace AgileObjects.AgileMapper.Members
 
         private static Member Root(string name, Type type)
         {
-            return new Member(MemberType.Property, name, type);
+            return new Member(MemberType.Property, name, typeof(IObjectMappingContext), type);
         }
 
         #endregion
 
         public string Name { get; }
+
+        public Type DeclaringType { get; }
 
         public Type Type { get; }
 

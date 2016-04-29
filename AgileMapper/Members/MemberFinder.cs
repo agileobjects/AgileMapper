@@ -20,7 +20,7 @@
         {
             if (sourceMemberType.IsEnumerable())
             {
-                return new[] { sourceMemberType.GetEnumerableElementType().CreateElementMember() };
+                return new[] { sourceMemberType.CreateElementMember() };
             }
 
             var fields = GetFields(sourceMemberType, All);
@@ -46,7 +46,7 @@
             return targetType
                 .GetFields(Constants.PublicInstance)
                 .Where(filter)
-                .Select(f => new Member(MemberType.Field, f.Name, f.FieldType));
+                .Select(f => new Member(MemberType.Field, f.Name, f.DeclaringType, f.FieldType));
         }
 
         private static bool All(FieldInfo field)
@@ -69,7 +69,7 @@
                 .GetProperties(Constants.PublicInstance)
                 .Where(filter)
                 .Where(p => p.GetGetMethod(nonPublic: false) != null)
-                .Select(p => new Member(MemberType.Property, p.Name, p.PropertyType));
+                .Select(p => new Member(MemberType.Property, p.Name, p.DeclaringType, p.PropertyType));
         }
 
         private static bool OnlyGettable(PropertyInfo property)
@@ -95,7 +95,7 @@
             return targetType
                 .GetMethods(Constants.PublicInstance)
                 .Where(filter)
-                .Select(m => new Member(memberType, m.Name, typeSelector.Invoke(m)));
+                .Select(m => new Member(memberType, m.Name, m.DeclaringType, typeSelector.Invoke(m)));
         }
 
         private static readonly string[] _methodsToIgnore = { "GetHashCode", "GetType" };

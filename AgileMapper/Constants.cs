@@ -7,6 +7,8 @@
     {
         public static readonly Type[] NoTypeArguments = { };
 
+        public const string EnumerableElementMemberName = "[i]";
+
         public static readonly BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
 
         public static readonly BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static;

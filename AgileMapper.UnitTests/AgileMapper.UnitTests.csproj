@@ -66,6 +66,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Members\MemberFinderExtensions.cs" />
+    <Compile Include="Members\MemberFinderTestsBase.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\Child.cs" />
     <Compile Include="TestClasses\Customer.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="WhenMappingToNewEnumerableMembers.cs" />
     <Compile Include="WhenMappingToNewEnumerables.cs" />
     <Compile Include="WhenMappingToNewSimpleTypeMembers.cs" />
+    <Compile Include="Members\WhenMatchingSourceToTargetMembers.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">

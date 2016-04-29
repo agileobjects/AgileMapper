@@ -63,6 +63,14 @@
 
         public static QualifiedMember ToTargetMember(this Expression memberAccessExpression, MemberFinder memberFinder)
         {
+            return CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetTargetMembers);
+        }
+
+        internal static QualifiedMember CreateMember(
+            Expression memberAccessExpression,
+            Func<Type, Member> rootMemberFactory,
+            Func<Type, IEnumerable<Member>> membersFactory)
+        {
             var expression = memberAccessExpression;
             var memberAccesses = new List<Expression>();
 
@@ -73,14 +81,14 @@
                 expression = memberExpression.GetParentOrNull();
             }
 
-            var rootMember = Member.RootTarget(expression.Type);
+            var rootMember = rootMemberFactory.Invoke(expression.Type);
             var parentMember = rootMember;
 
             var memberChain = memberAccesses
                 .Select(memberAccess =>
                 {
                     var memberName = memberAccess.GetMemberName();
-                    var members = memberFinder.GetTargetMembers(parentMember.Type);
+                    var members = membersFactory.Invoke(parentMember.Type);
                     var member = members.FirstOrDefault(m => m.Name == memberName);
 
                     parentMember = member;

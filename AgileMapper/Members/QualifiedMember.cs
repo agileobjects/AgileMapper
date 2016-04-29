@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.Members
     internal class QualifiedMember
     {
         private readonly Member[] _memberChain;
+        private readonly QualifiedMemberName _qualifiedName;
 
         private QualifiedMember(Member member, QualifiedMember parent)
             : this(parent?._memberChain.Concat(member).ToArray() ?? new[] { member })
@@ -18,6 +19,11 @@ namespace AgileObjects.AgileMapper.Members
         {
             _memberChain = memberChain;
             LeafMember = memberChain.Last();
+
+            _qualifiedName = new QualifiedMemberName(
+                memberChain
+                    .Select(QualifiedMemberNamePart.For)
+                    .ToArray());
         }
 
         #region Factory Method
@@ -68,20 +74,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Matches(QualifiedMember otherMember)
         {
-            if (_memberChain.Length != otherMember._memberChain.Length)
-            {
-                return false;
-            }
-
-            for (var i = 1; i < _memberChain.Length; i++)
-            {
-                if (_memberChain[i].Name != otherMember._memberChain[i].Name)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return _qualifiedName.Matches(otherMember._qualifiedName);
         }
 
         public Expression GetAccess(Expression instance)
