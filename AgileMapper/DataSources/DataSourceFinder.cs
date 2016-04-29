@@ -2,27 +2,28 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
     using Members;
     using ObjectPopulation;
 
     internal class DataSourceFinder
     {
-        public IDataSource GetBestMatchFor(QualifiedMember childTargetMember, IObjectMappingContext omc)
+        public IDataSource GetBestMatchFor(Member childTargetMember, IObjectMappingContext omc)
         {
+            var qualifiedTargetMember = omc.TargetMember.Append(childTargetMember);
+
             IDataSource configuredDataSource;
 
-            if (DataSourceIsConfigured(childTargetMember, omc, out configuredDataSource))
+            if (DataSourceIsConfigured(qualifiedTargetMember, omc, out configuredDataSource))
             {
                 return configuredDataSource;
             }
 
             if (childTargetMember.IsComplex)
             {
-                return new ComplexTypeMappingDataSource(childTargetMember.LeafMember);
+                return new ComplexTypeMappingDataSource(childTargetMember);
             }
 
-            return GetSourceMemberDataSourceOrNull(childTargetMember, omc);
+            return GetSourceMemberDataSourceOrNull(qualifiedTargetMember, omc);
         }
 
         private static bool DataSourceIsConfigured(

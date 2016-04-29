@@ -56,5 +56,7 @@ namespace AgileObjects.AgileMapper.Members
         public Type ElementType { get; }
 
         public MemberType MemberType { get; }
+
+        public bool ExistingValueCanBeChecked => MemberType != MemberType.SetMethod;
     }
 }

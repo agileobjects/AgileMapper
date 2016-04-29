@@ -16,13 +16,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static MemberPopulation Create(Member targetMember, IObjectMappingContext omc)
         {
-            var qualifiedTargetMember = omc.TargetMember.Append(targetMember);
-
             var bestMatchingDataSource = omc
                 .MappingContext
                 .MapperContext
                 .DataSources
-                .GetBestMatchFor(qualifiedTargetMember, omc);
+                .GetBestMatchFor(targetMember, omc);
 
             if (bestMatchingDataSource == null)
             {
@@ -30,21 +28,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var value = bestMatchingDataSource.GetValue(omc);
-            var convertedValue = GetConvertedValue(value, qualifiedTargetMember, omc);
+            var convertedValue = GetConvertedValue(value, targetMember, omc);
             var population = targetMember.GetPopulation(omc.TargetVariable, convertedValue);
 
-            return new MemberPopulation(qualifiedTargetMember, value, population, omc);
+            return new MemberPopulation(targetMember, value, population, omc);
         }
         private static Expression GetConvertedValue(
             Expression value,
-            QualifiedMember qualifiedTargetMember,
+            Member targetMember,
             IObjectMappingContext omc)
         {
             var valueConversion = omc
                 .MappingContext
                 .MapperContext
                 .ValueConverters
-                .GetConversion(value, qualifiedTargetMember.Type);
+                .GetConversion(value, targetMember.Type);
 
             return valueConversion;
         }

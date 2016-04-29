@@ -78,6 +78,7 @@
     <Compile Include="ObjectPopulation\ObjectMapperFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMapperKey.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingLambdaFactoryBase.cs" />
+    <Compile Include="ObjectPopulation\ObjectPopulationExtensions.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="Members\QualifiedMember.cs" />
     <Compile Include="Constants.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="PopulationProcessing\DefaultNullNestedSourceMemberStrategy.cs" />
     <Compile Include="PopulationProcessing\INestedSourceMemberStrategy.cs" />
     <Compile Include="PopulationProcessing\IPopulationProcessor.cs" />
+    <Compile Include="PopulationProcessing\MapOverNullNestedSourceMemberStrategy.cs" />
     <Compile Include="PopulationProcessing\NullNestedSourceMemberPopulationGuarder.cs" />
     <Compile Include="PopulationProcessing\NullNestedSourceMemberStrategyBase.cs" />
     <Compile Include="PopulationProcessing\PopulatedMemberPopulationGuarder.cs" />

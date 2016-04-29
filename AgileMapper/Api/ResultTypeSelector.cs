@@ -23,6 +23,12 @@
             return PerformMapping(_mapperContext.RuleSets.Merge, existing);
         }
 
+        public TTarget Over<TTarget>(TTarget existing)
+            where TTarget : class
+        {
+            return PerformMapping(_mapperContext.RuleSets.Overwrite, existing);
+        }
+
         private TTarget PerformMapping<TTarget>(MappingRuleSet ruleSet, TTarget existing)
         {
             using (var mappingContext = new MappingContext(ruleSet, _mapperContext))

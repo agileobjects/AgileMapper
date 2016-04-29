@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static MemberPopulation Empty = new MemberPopulation(null, _emptyExpression, _emptyExpression, null);
 
         public MemberPopulation(
-            QualifiedMember targetMember,
+            Member targetMember,
             Expression value,
             Expression population,
             IObjectMappingContext omc)
@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ObjectMappingContext = omc;
         }
 
-        public QualifiedMember TargetMember { get; }
+        public Member TargetMember { get; }
 
         public Expression Value { get; }
 
@@ -30,6 +30,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingContext ObjectMappingContext { get; }
 
         public bool IsSuccessful => Population != _emptyExpression;
+
+        public MemberPopulation WithValue(Expression updatedValue)
+        {
+            return new MemberPopulation(
+                TargetMember,
+                updatedValue,
+                ObjectMappingContext.GetPopulation(TargetMember, updatedValue),
+                ObjectMappingContext);
+        }
 
         public MemberPopulation WithPopulation(Expression updatedPopulation)
         {

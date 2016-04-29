@@ -52,8 +52,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type ElementType => LeafMember.ElementType;
 
-        public bool ExistingValueCanBeChecked => LeafMember.MemberType != MemberType.SetMethod;
-
         public QualifiedMember Append(Member childMember)
         {
             return new QualifiedMember(childMember, this);

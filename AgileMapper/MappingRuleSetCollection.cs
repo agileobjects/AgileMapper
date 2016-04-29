@@ -22,10 +22,20 @@ namespace AgileObjects.AgileMapper
                     PopulatedMemberPopulationGuarder.Instance,
                     NullNestedSourceMemberPopulationGuarder.Instance
                 });
+
+            Overwrite = new MappingRuleSet(
+                Constants.Merge,
+                OverwriteNullNestedSourceMemberStrategy.Instance,
+                new[]
+                {
+                    NullNestedSourceMemberPopulationGuarder.Instance
+                });
         }
 
         public MappingRuleSet CreateNew { get; }
 
         public MappingRuleSet Merge { get; }
+
+        public MappingRuleSet Overwrite { get; set; }
     }
 }

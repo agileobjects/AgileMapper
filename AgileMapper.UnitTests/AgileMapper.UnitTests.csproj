@@ -85,7 +85,9 @@
     <Compile Include="TestClasses\ReadOnlyField.cs" />
     <Compile Include="TestClasses\Title.cs" />
     <Compile Include="TestExtensions.cs" />
+    <Compile Include="WhenMappingOnToComplexTypeMembers.cs" />
     <Compile Include="WhenMappingOnToComplexTypes.cs" />
+    <Compile Include="WhenMappingOverComplexTypes.cs" />
     <Compile Include="WhenMappingToNewComplexTypeMembers.cs" />
     <Compile Include="WhenMappingToNewComplexTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

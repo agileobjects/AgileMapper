@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Extensions;
+    using Members;
     using ObjectPopulation;
 
     internal class PopulatedMemberPopulationGuarder : IPopulationProcessor
