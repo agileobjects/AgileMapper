@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper
 {
+    using ObjectPopulation;
     using PopulationProcessing;
 
     internal class MappingRuleSetCollection
@@ -8,6 +9,7 @@ namespace AgileObjects.AgileMapper
         {
             CreateNew = new MappingRuleSet(
                 Constants.CreateNew,
+                CopySourceEnumerablePopulationStrategy.Instance,
                 DefaultNullNestedSourceMemberStrategy.Instance,
                 new[]
                 {
@@ -16,6 +18,7 @@ namespace AgileObjects.AgileMapper
 
             Merge = new MappingRuleSet(
                 Constants.Merge,
+                CopySourceEnumerablePopulationStrategy.Instance,
                 DefaultNullNestedSourceMemberStrategy.Instance,
                 new[]
                 {
@@ -24,7 +27,8 @@ namespace AgileObjects.AgileMapper
                 });
 
             Overwrite = new MappingRuleSet(
-                Constants.Merge,
+                Constants.Overwrite,
+                CopySourceEnumerablePopulationStrategy.Instance,
                 OverwriteNullNestedSourceMemberStrategy.Instance,
                 new[]
                 {

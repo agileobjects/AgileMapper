@@ -9,7 +9,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static IEnumerable<MemberPopulation> Create(IObjectMappingContext omc)
         {
-            return omc.MappingContext.GlobalContext.MemberFinder
+            return omc
+                .GlobalContext
+                .MemberFinder
                 .GetTargetMembers(omc.ExistingObject.Type)
                 .Select(targetMember => Create(targetMember, omc));
         }
@@ -17,7 +19,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static MemberPopulation Create(Member targetMember, IObjectMappingContext omc)
         {
             var bestMatchingDataSource = omc
-                .MappingContext
                 .MapperContext
                 .DataSources
                 .GetBestMatchFor(targetMember, omc);
@@ -39,7 +40,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IObjectMappingContext omc)
         {
             var valueConversion = omc
-                .MappingContext
                 .MapperContext
                 .ValueConverters
                 .GetConversion(value, targetMember.Type);

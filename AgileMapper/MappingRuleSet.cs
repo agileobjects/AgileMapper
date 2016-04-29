@@ -11,15 +11,19 @@ namespace AgileObjects.AgileMapper
 
         public MappingRuleSet(
             string name,
+            IEnumerablePopulationStrategy enumerablePopulationStrategy,
             INestedSourceMemberStrategy nullNestedSourceMemberStrategy,
             IEnumerable<IPopulationProcessor> populationProcessors)
         {
             Name = name;
+            EnumerablePopulationStrategy = enumerablePopulationStrategy;
             NullNestedSourceMemberStrategy = nullNestedSourceMemberStrategy;
             _populationProcessors = populationProcessors;
         }
 
         public string Name { get; }
+
+        public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 
         public INestedSourceMemberStrategy NullNestedSourceMemberStrategy { get; }
 

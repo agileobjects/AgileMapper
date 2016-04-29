@@ -7,6 +7,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         IObjectMappingContext Parent { get; }
 
+        GlobalContext GlobalContext { get; }
+
+        MapperContext MapperContext { get; }
+
         MappingContext MappingContext { get; }
 
         ParameterExpression Parameter { get; }

@@ -53,11 +53,16 @@
     <Compile Include="DataSources\UserConfiguredItemBase.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="GlobalContext.cs" />
     <Compile Include="Members\QualifiedMemberName.cs" />
     <Compile Include="Members\MemberName.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeMappingLambdaFactory.cs" />
+    <Compile Include="ObjectPopulation\CopySourceEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\EnumerableMappingLambdaFactory.cs" />
+    <Compile Include="ObjectPopulation\EnumerablePopulationBuilder.cs" />
+    <Compile Include="ObjectPopulation\EnumerablePopulationStrategyBase.cs" />
+    <Compile Include="ObjectPopulation\IEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\IObjectMapper.cs" />
     <Compile Include="ObjectPopulation\IObjectMappingContext.cs" />
     <Compile Include="MapperContext.cs" />

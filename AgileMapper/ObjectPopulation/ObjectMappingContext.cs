@@ -85,6 +85,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return 0;
         }
 
+        public GlobalContext GlobalContext => MapperContext.GlobalContext;
+
+        public MapperContext MapperContext => MappingContext.MapperContext;
+
         public MappingContext MappingContext { get; }
 
         public TRuntimeSource Source { get; }
@@ -93,7 +97,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TRuntimeTarget Create()
         {
-            return MappingContext.MapperContext.ComplexTypeFactory.Create<TRuntimeTarget>();
+            return MapperContext.ComplexTypeFactory.Create<TRuntimeTarget>();
         }
 
         public TMember Map<TMember>(Expression<Func<TRuntimeTarget, TMember>> complexChildMember)

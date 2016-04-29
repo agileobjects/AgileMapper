@@ -9,14 +9,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public Expression<MapperFunc<TSource, TTarget>> Create(IObjectMappingContext omc)
         {
-            var targetVariableAssignment = Expression.Assign(omc.TargetVariable, GetObjectResolution(omc));
-            var objectPopulation = GetObjectPopulation(omc);
+            var targetVariableValue = GetObjectResolution(omc);
+            var targetVariableAssignment = Expression.Assign(omc.TargetVariable, targetVariableValue);
+            var objectPopulation = GetObjectPopulation(targetVariableValue, omc);
+            var returnValue = GetReturnValue(targetVariableValue, omc);
 
             var mappingBlock = Expression.Block(
                 new[] { omc.TargetVariable },
                 new[] { targetVariableAssignment }
                     .Concat(objectPopulation)
-                    .Concat(omc.TargetVariable));
+                    .Concat(returnValue));
 
             var mapperLambda = Expression
                 .Lambda<MapperFunc<TSource, TTarget>>(mappingBlock, omc.Parameter);
@@ -26,6 +28,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract Expression GetObjectResolution(IObjectMappingContext omc);
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc);
+        protected abstract IEnumerable<Expression> GetObjectPopulation(Expression targetVariableValue, IObjectMappingContext omc);
+
+        protected abstract Expression GetReturnValue(Expression targetVariableValue, IObjectMappingContext omc);
     }
 }

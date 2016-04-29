@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return existingObjectOrCreate;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetObjectPopulation(Expression targetVariableValue, IObjectMappingContext omc)
         {
             var memberPopulations = MemberPopulationFactory
                .Create(omc)
@@ -33,6 +33,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .ToArray();
 
             return processedPopulations;
+        }
+
+        protected override Expression GetReturnValue(Expression targetVariableValue, IObjectMappingContext omc)
+        {
+            return omc.TargetVariable;
         }
     }
 }

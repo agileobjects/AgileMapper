@@ -49,11 +49,14 @@
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
         {
+            if (sourceValue.Type == targetType)
+            {
+                return sourceValue;
+            }
+
             if (targetType.IsAssignableFrom(sourceValue.Type))
             {
-                return (targetType != sourceValue.Type)
-                    ? Expression.Convert(sourceValue, targetType)
-                    : sourceValue;
+                return Expression.Convert(sourceValue, targetType);
             }
 
             var converter = GetConverterFor(targetType, sourceValue.Type);

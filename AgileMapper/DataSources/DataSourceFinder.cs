@@ -34,7 +34,6 @@
             var configurationContext = new ConfigurationContext(targetMember, omc);
 
             configuredDataSource = omc
-                .MappingContext
                 .MapperContext
                 .UserConfigurations
                 .GetConfiguredDataSourceOrNull(configurationContext);
@@ -75,7 +74,7 @@
                 .RootSource(omc.MappingContext.RootObjectMappingContext.SourceObject.Type);
 
             var qualifiedRootSourceMember = QualifiedMember.From(rootSourceMember);
-            var memberFinder = omc.MappingContext.GlobalContext.MemberFinder;
+            var memberFinder = omc.GlobalContext.MemberFinder;
 
             return GetAllSourceMembers(qualifiedRootSourceMember, memberFinder)
                 .FirstOrDefault(sm => sm.Matches(qualifiedTargetMember));

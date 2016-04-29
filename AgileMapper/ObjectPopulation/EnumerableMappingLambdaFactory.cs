@@ -44,52 +44,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.New(listConstructor, existingEnumerableOrEmpty);
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetObjectPopulation(Expression targetVariableValue, IObjectMappingContext omc)
         {
-            var sourceElementType = omc.SourceObject.Type.GetEnumerableElementType();
-            var sourceElementParameter = Expression.Parameter(sourceElementType, "s");
-            var targetElementType = omc.TargetMember.ElementType;
-            var targetElementParameter = Expression.Parameter(targetElementType, "t");
+            yield return omc.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(targetVariableValue, omc);
+        }
 
-            var selectMethod = typeof(Enumerable)
-                .GetMethods(Constants.PublicStatic)
-                .Last(m => m.Name == "Select")
-                .MakeGenericMethod(sourceElementType, targetElementType);
+        protected override Expression GetReturnValue(Expression targetVariableValue, IObjectMappingContext omc)
+        {
+            if (omc.TargetMember.Type.IsAssignableFrom(omc.TargetVariable.Type))
+            {
+                return omc.TargetVariable;
+            }
 
-            var mapCall = omc.GetMapCall(sourceElementParameter, Expression.Default(targetElementType));
+            if (omc.TargetMember.Type.IsAssignableFrom(targetVariableValue.Type))
+            {
+                return Expression.Convert(omc.TargetVariable, omc.TargetMember.Type);
+            }
 
-            var selectFuncLambda = Expression.Lambda(
-                Expression.GetFuncType(sourceElementType, typeof(int), targetElementType),
-                mapCall,
-                sourceElementParameter,
-                Parameters.EnumerableIndex);
-
-            var selectCall = Expression.Call(
-                selectMethod,
-                omc.SourceObject,
-                selectFuncLambda);
-
-            var forEachMethod = typeof(EnumerableExtensions)
-                .GetMethod("ForEach", Constants.PublicStatic)
-                .MakeGenericMethod(targetElementType);
-
-            var addCall = Expression.Call(
-                omc.TargetVariable,
-                omc.TargetVariable.Type.GetMethod("Add", Constants.PublicInstance),
-                targetElementParameter);
-
-            var forEachActionLambda = Expression.Lambda(
-                Expression.GetActionType(targetElementType, typeof(int)),
-                addCall,
-                targetElementParameter,
-                Parameters.EnumerableIndex);
-
-            var forEachCall = Expression.Call(
-                forEachMethod,
-                selectCall,
-                forEachActionLambda);
-
-            yield return forEachCall;
+            return omc.TargetVariable.WithToArrayCall();
         }
     }
 }
