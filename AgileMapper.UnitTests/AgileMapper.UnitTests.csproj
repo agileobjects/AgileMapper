@@ -66,6 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\WhenGettingAParentExpressionNode.cs" />
     <Compile Include="Members\MemberFinderExtensions.cs" />
     <Compile Include="Members\MemberFinderTestsBase.cs" />
     <Compile Include="Members\WhenCreatingTargetMembersFromExpressions.cs" />
