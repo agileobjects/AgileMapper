@@ -73,7 +73,38 @@ namespace AgileObjects.AgileMapper
 
         private TTarget Map<TSource, TTarget>()
         {
-            var mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(CurrentObjectMappingContext);
+            IObjectMapper<TTarget> mapper;
+
+            if (typeof(ObjectMappingContext<TSource, TTarget>).IsAssignableFrom(CurrentObjectMappingContext.Type))
+            {
+                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(CurrentObjectMappingContext);
+            }
+            else
+            {
+                var typedCreateMapperMethod = typeof(ObjectMapperFactory)
+                    .GetMethod("CreateFor", Constants.PublicInstance)
+                    .MakeGenericMethod(
+                        CurrentObjectMappingContext.SourceObject.Type,
+                        CurrentObjectMappingContext.ExistingObject.Type);
+
+                var mapperContext = Expression.Property(Parameters.ObjectMappingContext, "MapperContext");
+                var mapperFactory = Expression.Property(mapperContext, "ObjectMapperFactory");
+
+                var createMapperCall = Expression.Call(
+                    mapperFactory,
+                    typedCreateMapperMethod,
+                    Parameters.ObjectMappingContext);
+
+                var createMapperLambda = Expression
+                    .Lambda<Func<IObjectMappingContext, IObjectMapper<TTarget>>>(
+                        createMapperCall,
+                        Parameters.ObjectMappingContext);
+
+                var createMapperFunc = createMapperLambda.Compile();
+
+                mapper = createMapperFunc.Invoke(CurrentObjectMappingContext);
+            }
+
             var result = mapper.Execute(CurrentObjectMappingContext);
 
             CurrentObjectMappingContext = CurrentObjectMappingContext.Parent;

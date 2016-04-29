@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Linq.Expressions;
     using Members;
 
@@ -22,6 +23,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         bool HasSource<TSource>(TSource source);
 
         Expression ExistingObject { get; }
+
+        Type Type { get; }
 
         ParameterExpression TargetVariable { get; }
 

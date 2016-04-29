@@ -9,6 +9,38 @@
     public class WhenMappingToNewEnumerables
     {
         [Fact]
+        public void ShouldCreateARootSimpleTypeArray()
+        {
+            var source = new[] { 1, 2, 3 };
+            var result = Mapper.Map(source).ToNew<int[]>();
+
+            result.ShouldNotBeNull();
+            result.ShouldNotBeSameAs(source);
+            result.SequenceEqual(source).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldCreateARootSimpleTypeList()
+        {
+            var source = new[] { 'O', 'M', 'G' };
+            var result = Mapper.Map(source).ToNew<List<char>>();
+
+            result.ShouldNotBeNull();
+            result.SequenceEqual(source).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldCreateARootSimpleTypeEnumerable()
+        {
+            var source = new List<string> { "One", "Two", "Three" };
+            var result = Mapper.Map(source).ToNew<IEnumerable<string>>();
+
+            result.ShouldNotBeNull();
+            result.ShouldNotBeSameAs(source);
+            result.SequenceEqual(source).ShouldBeTrue();
+        }
+
+        [Fact]
         public void ShouldCreateARootComplexTypeList()
         {
             var source = new List<Person>

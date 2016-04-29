@@ -137,6 +137,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression IObjectMappingContext.ExistingObject => _existingObject;
 
+        Type IObjectMappingContext.Type => typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>);
+
         ParameterExpression IObjectMappingContext.TargetVariable => _targetVariable;
 
         QualifiedMember IObjectMappingContext.TargetMember => _qualifiedTargetMember;
