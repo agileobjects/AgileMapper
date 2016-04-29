@@ -5,11 +5,11 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using ReadableExpressions.Extensions;
 
-    internal class QualifiedMemberNamePart
+    internal class MemberName
     {
         private readonly List<string> _allNames;
 
-        private QualifiedMemberNamePart(string name, Type declaringType, MemberType memberType)
+        public MemberName(string name, Type declaringType, MemberType memberType)
         {
             _allNames = new List<string> { name };
 
@@ -67,24 +67,15 @@ namespace AgileObjects.AgileMapper.Members
 
         #endregion
 
-        #region Factory Method
-
-        public static QualifiedMemberNamePart For(Member member)
-        {
-            return new QualifiedMemberNamePart(member.Name, member.DeclaringType, member.MemberType);
-        }
-
-        #endregion
-
         public bool IsIdentifier { get; }
 
         public string JoiningName { get; }
 
         public IEnumerable<string> AllNames => _allNames;
 
-        public bool Matches(QualifiedMemberNamePart otherNamePart)
+        public bool Matches(MemberName otherName)
         {
-            return _allNames.Intersect(otherNamePart._allNames).Any();
+            return _allNames.Intersect(otherName._allNames).Any();
         }
     }
 }

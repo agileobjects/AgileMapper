@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.Members
 
             _qualifiedName = new QualifiedMemberName(
                 memberChain
-                    .Select(QualifiedMemberNamePart.For)
+                    .Select(m => m.MemberName)
                     .ToArray());
         }
 

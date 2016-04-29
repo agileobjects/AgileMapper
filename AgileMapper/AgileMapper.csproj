@@ -55,7 +55,7 @@
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="GlobalContext.cs" />
     <Compile Include="Members\QualifiedMemberName.cs" />
-    <Compile Include="Members\QualifiedMemberNamePart.cs" />
+    <Compile Include="Members\MemberName.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeMappingLambdaFactory.cs" />
     <Compile Include="ObjectPopulation\EnumerableMappingLambdaFactory.cs" />
     <Compile Include="ObjectPopulation\IObjectMapper.cs" />

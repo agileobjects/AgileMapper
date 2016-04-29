@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             MemberType = memberType;
             Name = name;
+            MemberName = new MemberName(name, declaringType, memberType);
             DeclaringType = declaringType;
             Type = type;
 
@@ -43,6 +44,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Name { get; }
 
+        public MemberName MemberName { get; }
+
         public Type DeclaringType { get; }
 
         public Type Type { get; }
@@ -52,6 +55,8 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsEnumerable { get; }
 
         public bool IsSimple => !(IsComplex || IsEnumerable);
+
+        public bool IsIdentifier => MemberName.IsIdentifier;
 
         public Type ElementType { get; }
 

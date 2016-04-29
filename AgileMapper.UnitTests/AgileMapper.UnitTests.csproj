@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Members\MemberFinderExtensions.cs" />
     <Compile Include="Members\MemberFinderTestsBase.cs" />
+    <Compile Include="Members\WhenDeterminingATypeIdentifier.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\Child.cs" />

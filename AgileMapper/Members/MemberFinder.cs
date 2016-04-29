@@ -8,13 +8,12 @@
 
     internal class MemberFinder
     {
-        //public Member GetIdentifierOrNull(Type type)
-        //{
-        //    var rootMember = Member.RootSource(type);
-        //    var typeMembers = GetSourceMembers(rootMember);
+        public Member GetIdentifierOrNull(Type type)
+        {
+            var typeMembers = GetSourceMembers(type);
 
-        //    return typeMembers.FirstOrDefault(member => member.IsIdentifier);
-        //}
+            return typeMembers.FirstOrDefault(member => member.IsIdentifier);
+        }
 
         public IEnumerable<Member> GetSourceMembers(Type sourceMemberType)
         {

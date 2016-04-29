@@ -6,10 +6,10 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class QualifiedMemberName
     {
-        private readonly QualifiedMemberNamePart[] _nameParts;
+        private readonly MemberName[] _nameParts;
         private readonly IEnumerable<string> _allJoinedNames;
 
-        public QualifiedMemberName(QualifiedMemberNamePart[] nameParts)
+        public QualifiedMemberName(MemberName[] nameParts)
         {
             _nameParts = nameParts;
             Joined = GetJoinedName(nameParts);
@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper.Members
                 .ToArray();
         }
 
-        private static string GetJoinedName(IEnumerable<QualifiedMemberNamePart> nameParts)
+        private static string GetJoinedName(IEnumerable<MemberName> nameParts)
         {
             return string.Join(string.Empty, nameParts.Select(np => np.JoiningName));
         }
