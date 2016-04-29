@@ -39,5 +39,36 @@
 
             target.Value.ShouldBe(ORIGINAL_VALUE);
         }
+
+        [Fact]
+        public void ShouldOverwriteADefaultSimpleTypePropertyValue()
+        {
+            var source = new PublicGetMethod<decimal>(6372.00m);
+            var target = new PublicField<decimal?> { Value = null };
+
+            Mapper.Map(source).OnTo(target);
+
+            target.Value.ShouldBe(source.GetValue());
+        }
+
+        [Fact]
+        public void ShouldMapOnToASetMethod()
+        {
+            var source = new PublicGetMethod<double>(5643723);
+            var target = new PublicSetMethod<double>();
+
+            Mapper.Map(source).OnTo(target);
+
+            target.Value.ShouldBe(source.GetValue());
+        }
+
+        [Fact]
+        public void ShouldHandleANullSourceObject()
+        {
+            var target = new PublicProperty<int>();
+            var result = Mapper.Map(default(PublicField<int>)).OnTo(target);
+
+            result.ShouldBe(target);
+        }
     }
 }

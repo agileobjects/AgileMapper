@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using Members;
 
     internal static class MemberPopulationFactory
@@ -29,9 +30,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var value = bestMatchingDataSource.GetValue(omc);
-            var population = targetMember.GetPopulation(omc.TargetVariable, value);
+            var convertedValue = GetConvertedValue(value, qualifiedTargetMember, omc);
+            var population = targetMember.GetPopulation(omc.TargetVariable, convertedValue);
 
             return new MemberPopulation(qualifiedTargetMember, value, population, omc);
+        }
+        private static Expression GetConvertedValue(
+            Expression value,
+            QualifiedMember qualifiedTargetMember,
+            IObjectMappingContext omc)
+        {
+            var valueConversion = omc
+                .MappingContext
+                .MapperContext
+                .ValueConverters
+                .GetConversion(value, qualifiedTargetMember.Type);
+
+            return valueConversion;
         }
     }
 }
