@@ -97,6 +97,7 @@
     <Compile Include="TypeConversion\ConverterSet.cs" />
     <Compile Include="TypeConversion\IValueConverter.cs" />
     <Compile Include="Api\Configuration\MappingConfigurationException.cs" />
+    <Compile Include="TypeConversion\ToStringConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AgileObjects.ReadableExpressions, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">

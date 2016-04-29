@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var convertedValue = GetConvertedValue(value, targetMember, omc);
             var population = targetMember.GetPopulation(omc.TargetVariable, convertedValue);
 
-            return new MemberPopulation(targetMember, value, population, omc);
+            return new MemberPopulation(targetMember, convertedValue, population, omc);
         }
         private static Expression GetConvertedValue(
             Expression value,

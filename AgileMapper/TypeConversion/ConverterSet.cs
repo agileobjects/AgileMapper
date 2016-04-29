@@ -14,7 +14,7 @@
         {
             _converters = new IValueConverter[]
             {
-                //new ToStringConverter(),
+                new ToStringConverter(),
                 //new ToDateTimeConverter(),
                 //new ToEnumConverter(),
                 //new ToNumericConverter<int>(),
