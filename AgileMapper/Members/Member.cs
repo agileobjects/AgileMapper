@@ -51,6 +51,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsEnumerable { get; }
 
+        public bool IsSimple => !(IsComplex || IsEnumerable);
+
         public Type ElementType { get; }
 
         public MemberType MemberType { get; }

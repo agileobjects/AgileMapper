@@ -74,6 +74,11 @@
             return Expression.Call(instance, methodInfo, valueParameter);
         }
 
+        public static BinaryExpression GetIsDefaultComparison(this Expression expression)
+        {
+            return Expression.Equal(expression, Expression.Default(expression.Type));
+        }
+
         public static BinaryExpression GetIsNotDefaultComparison(this Expression expression)
         {
             return Expression.NotEqual(expression, Expression.Default(expression.Type));

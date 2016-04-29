@@ -28,7 +28,7 @@
             return !type.IsSimple() && !type.IsEnumerable();
         }
 
-        public static bool IsSimple(this Type type)
+        private static bool IsSimple(this Type type)
         {
             return type.IsValueType || (type == typeof(string));
         }

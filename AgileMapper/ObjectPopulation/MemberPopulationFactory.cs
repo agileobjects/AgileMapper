@@ -15,11 +15,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static MemberPopulation Create(Member targetMember, IObjectMappingContext omc)
         {
+            var qualifiedTargetMember = omc.TargetMember.Append(targetMember);
+
             var bestMatchingDataSource = omc
                 .MappingContext
                 .MapperContext
                 .DataSources
-                .GetBestMatchFor(targetMember, omc);
+                .GetBestMatchFor(qualifiedTargetMember, omc);
 
             if (bestMatchingDataSource == null)
             {
@@ -29,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var value = bestMatchingDataSource.GetValue(omc);
             var population = targetMember.GetPopulation(omc.TargetVariable, value);
 
-            return new MemberPopulation(value, population, omc);
+            return new MemberPopulation(qualifiedTargetMember, value, population, omc);
         }
     }
 }

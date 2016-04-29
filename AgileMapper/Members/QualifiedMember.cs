@@ -44,9 +44,15 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type => LeafMember.Type;
 
+        public bool IsComplex => LeafMember.IsComplex;
+
         public bool IsEnumerable => LeafMember.IsEnumerable;
 
+        public bool IsSimple => LeafMember.IsSimple;
+
         public Type ElementType => LeafMember.ElementType;
+
+        public bool ExistingValueCanBeChecked => LeafMember.MemberType != MemberType.SetMethod;
 
         public QualifiedMember Append(Member childMember)
         {

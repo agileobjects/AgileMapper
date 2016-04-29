@@ -12,10 +12,23 @@
         }
 
         public TResult ToNew<TResult>()
+            where TResult : class
         {
-            var mappingContext = new MappingContext(_mapperContext.RuleSets.CreateNew, _mapperContext);
+            return PerformMapping(_mapperContext.RuleSets.CreateNew, default(TResult));
+        }
 
-            return mappingContext.MapStart(_source, default(TResult));
+        public TTarget OnTo<TTarget>(TTarget existing)
+            where TTarget : class
+        {
+            return PerformMapping(_mapperContext.RuleSets.Merge, existing);
+        }
+
+        private TTarget PerformMapping<TTarget>(MappingRuleSet ruleSet, TTarget existing)
+        {
+            using (var mappingContext = new MappingContext(ruleSet, _mapperContext))
+            {
+                return mappingContext.MapStart(_source, existing);
+            }
         }
     }
 }

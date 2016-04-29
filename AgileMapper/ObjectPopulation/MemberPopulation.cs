@@ -1,22 +1,27 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
+    using Members;
 
     internal class MemberPopulation
     {
         private static readonly Expression _emptyExpression = Expression.Empty();
 
-        public static MemberPopulation Empty = new MemberPopulation(_emptyExpression, _emptyExpression, null);
+        public static MemberPopulation Empty = new MemberPopulation(null, _emptyExpression, _emptyExpression, null);
 
         public MemberPopulation(
+            QualifiedMember targetMember,
             Expression value,
             Expression population,
             IObjectMappingContext omc)
         {
+            TargetMember = targetMember;
             Value = value;
             Population = population;
             ObjectMappingContext = omc;
         }
+
+        public QualifiedMember TargetMember { get; }
 
         public Expression Value { get; }
 
@@ -28,7 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MemberPopulation WithPopulation(Expression updatedPopulation)
         {
-            return new MemberPopulation(Value, updatedPopulation, ObjectMappingContext);
+            return new MemberPopulation(TargetMember, Value, updatedPopulation, ObjectMappingContext);
         }
     }
 }

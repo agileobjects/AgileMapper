@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper
     using System.Linq.Expressions;
     using ObjectPopulation;
 
-    internal class MappingContext
+    internal class MappingContext : IDisposable
     {
         internal MappingContext(MappingRuleSet ruleSet, MapperContext mapperContext)
         {
@@ -80,5 +80,17 @@ namespace AgileObjects.AgileMapper
 
             return result;
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            //foreach (var cleanupAction in _cleanupActions)
+            //{
+            //    cleanupAction.Invoke();
+            //}
+        }
+
+        #endregion
     }
 }
