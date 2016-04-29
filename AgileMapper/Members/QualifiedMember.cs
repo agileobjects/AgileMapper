@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
@@ -41,6 +42,8 @@ namespace AgileObjects.AgileMapper.Members
         #endregion
 
         public Member LeafMember { get; }
+
+        public IEnumerable<Member> Members => _memberChain;
 
         public Type Type => LeafMember.Type;
 
