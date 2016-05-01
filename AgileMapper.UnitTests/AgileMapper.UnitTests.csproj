@@ -97,6 +97,7 @@
     <Compile Include="TestExtensions.cs" />
     <Compile Include="WhenMappingOnToComplexTypeMembers.cs" />
     <Compile Include="WhenMappingOnToComplexTypes.cs" />
+    <Compile Include="WhenMappingOnToEnumerables.cs" />
     <Compile Include="WhenMappingOverComplexTypeMembers.cs" />
     <Compile Include="WhenMappingOverComplexTypes.cs" />
     <Compile Include="WhenMappingToNewComplexTypeMembers.cs" />

@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper
             Merge = new MappingRuleSet(
                 Constants.Merge,
                 ComplexTypeMappingShortCircuitStrategy.SourceAndExistingAreNull,
-                CopySourceEnumerablePopulationStrategy.Instance,
+                MergeEnumerablePopulationStrategy.Instance,
                 DefaultNullNestedSourceMemberStrategy.Instance,
                 new[]
                 {
