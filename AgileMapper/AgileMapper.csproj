@@ -112,6 +112,7 @@
     <Compile Include="TypeConversion\IValueConverter.cs" />
     <Compile Include="Api\Configuration\MappingConfigurationException.cs" />
     <Compile Include="TypeConversion\NumericValueIsInRangeComparison.cs" />
+    <Compile Include="TypeConversion\ToEnumConverter.cs" />
     <Compile Include="TypeConversion\ToNumericConverter.cs" />
     <Compile Include="TypeConversion\ToNumericConverterBase.cs" />
     <Compile Include="TypeConversion\ToStringConverter.cs" />

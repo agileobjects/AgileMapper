@@ -76,6 +76,7 @@
     <Compile Include="Members\WhenFindingSourceMembers.cs" />
     <Compile Include="Members\WhenFindingTargetMembers.cs" />
     <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToEnums.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToLongs.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />

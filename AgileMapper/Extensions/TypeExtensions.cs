@@ -150,6 +150,11 @@
             return typeOneMinValue < typeTwoMinValue;
         }
 
+        public static bool IsNumeric(this Type type)
+        {
+            return Constants.NumericTypes.Contains(type);
+        }
+
         public static bool IsWholeNumberNumeric(this Type type)
         {
             return Constants.WholeNumberNumericTypes.Contains(type);
