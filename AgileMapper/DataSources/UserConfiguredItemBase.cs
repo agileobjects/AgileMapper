@@ -28,7 +28,7 @@
                 return false;
             }
 
-            if (!context.TargetMember.Matches(_targetMember))
+            if (!context.TargetMember.Equals(_targetMember))
             {
                 return false;
             }

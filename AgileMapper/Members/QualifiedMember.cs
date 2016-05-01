@@ -92,5 +92,12 @@ namespace AgileObjects.AgileMapper.Members
                     instance,
                     (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
+
+        public bool Equals(QualifiedMember otherMember)
+        {
+            return (otherMember.Type == Type) &&
+                   (otherMember.LeafMember.Name == LeafMember.Name) &&
+                   otherMember.LeafMember.DeclaringType.IsAssignableFrom(LeafMember.DeclaringType);
+        }
     }
 }

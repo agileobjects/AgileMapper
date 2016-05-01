@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Linq;
+    using DataSources;
     using Members;
 
     internal static class MemberPopulationFactory
@@ -17,14 +18,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static MemberPopulation Create(Member targetMember, IObjectMappingContext omc)
         {
+            var qualifiedMember = omc.TargetMember.Append(targetMember);
+
+            if (TargetMemberIsIgnored(qualifiedMember, omc))
+            {
+                return MemberPopulation.IgnoredMember(targetMember, omc);
+            }
+
             var dataSource = omc
                 .MapperContext
                 .DataSources
-                .FindFor(targetMember, omc);
+                .FindFor(qualifiedMember, omc);
 
             return (dataSource != null)
                 ? new MemberPopulation(targetMember, dataSource, omc)
                 : MemberPopulation.NoDataSource(targetMember, omc);
+        }
+
+        private static bool TargetMemberIsIgnored(QualifiedMember qualifiedMember, IObjectMappingContext omc)
+        {
+            var configurationContext = new ConfigurationContext(qualifiedMember, omc);
+
+            return omc.MapperContext.UserConfigurations.IsIgnored(configurationContext);
         }
     }
 }

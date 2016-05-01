@@ -50,6 +50,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Factory Methods
 
+        public static MemberPopulation IgnoredMember(Member targetMember, IObjectMappingContext omc)
+            => new MemberPopulation(
+                   targetMember,
+                   Expression.Empty(),
+                   Enumerable.Empty<Expression>(),
+                   ReadableExpression.Comment(targetMember.Name + " is ignored"),
+                   omc);
+
         public static MemberPopulation NoDataSource(Member targetMember, IObjectMappingContext omc)
             => new MemberPopulation(
                    targetMember,

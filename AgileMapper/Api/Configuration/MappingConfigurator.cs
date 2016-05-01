@@ -78,14 +78,14 @@
 
         #endregion
 
-        //public void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
-        //{
-        //    var configuredIgnoredMember = ConfiguredIgnoredMember.For(
-        //        _configInfo,
-        //        typeof(TTarget),
-        //        targetMember.Body);
+        public void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
+        {
+            var configuredIgnoredMember = ConfiguredIgnoredMember.For(
+                _configInfo,
+                typeof(TTarget),
+                targetMember.Body);
 
-        //    _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
-        //}
+            _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+        }
     }
 }

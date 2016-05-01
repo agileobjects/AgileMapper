@@ -74,6 +74,15 @@
 
         #endregion
 
+        public static Type GetEnumerableElementType(this Type enumerableType)
+        {
+            return enumerableType.IsArray
+                ? enumerableType.GetElementType()
+                : enumerableType.IsGenericType
+                    ? enumerableType.GetGenericArguments().First()
+                    : typeof(object);
+        }
+
         public static bool CouldHaveADifferentRuntimeType(this Type type)
         {
             return !type.IsValueType &&
@@ -114,13 +123,62 @@
             return Nullable.GetUnderlyingType(type) ?? type;
         }
 
-        public static Type GetEnumerableElementType(this Type enumerableType)
+        public static IEnumerable<Type> GetCoercibleNumericTypes(this Type numericType)
         {
-            return enumerableType.IsArray
-                ? enumerableType.GetElementType()
-                : enumerableType.IsGenericType
-                    ? enumerableType.GetGenericArguments().First()
-                    : typeof(object);
+            var typeMaxValue = Constants.NumericTypeMaxValuesByType[numericType];
+
+            return Constants
+                .NumericTypeMaxValuesByType
+                .Where(kvp => kvp.Value < typeMaxValue)
+                .Select(kvp => kvp.Key)
+                .ToArray();
+        }
+
+        public static bool HasGreaterMaxValueThan(this Type typeOne, Type typeTwo)
+        {
+            var typeOneMaxValue = GetMaxValueFor(typeOne);
+            var typeTwoMaxValue = GetMaxValueFor(typeTwo);
+
+            return typeOneMaxValue > typeTwoMaxValue;
+        }
+
+        public static bool HasSmallerMinValueThan(this Type typeOne, Type typeTwo)
+        {
+            var typeOneMinValue = GetMinValueFor(typeOne);
+            var typeTwoMinValue = GetMinValueFor(typeTwo);
+
+            return typeOneMinValue < typeTwoMinValue;
+        }
+
+        public static bool IsWholeNumberNumeric(this Type type)
+        {
+            return Constants.WholeNumberNumericTypes.Contains(type);
+        }
+
+        private static double GetMaxValueFor(Type type)
+        {
+            return GetValueFor(type, Constants.NumericTypeMaxValuesByType, values => values.Max());
+        }
+
+        private static double GetMinValueFor(Type type)
+        {
+            return GetValueFor(type, Constants.NumericTypeMinValuesByType, values => values.Min());
+        }
+
+        private static double GetValueFor(
+            Type type,
+            IDictionary<Type, double> cache,
+            Func<IEnumerable<long>, long> enumValueFactory)
+        {
+            type = type.GetNonNullableUnderlyingTypeIfAppropriate();
+
+            return type.IsEnum ? enumValueFactory.Invoke(GetEnumValues(type)) : cache[type];
+        }
+
+        private static IEnumerable<long> GetEnumValues(Type enumType)
+        {
+            return from object value in Enum.GetValues(enumType)
+                   select Convert.ToInt64(value);
         }
 
         public static Type GetTargetVariableType(this Type targetType)

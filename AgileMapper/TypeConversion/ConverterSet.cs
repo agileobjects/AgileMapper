@@ -18,7 +18,7 @@
                 //new ToDateTimeConverter(),
                 //new ToEnumConverter(),
                 //new ToNumericConverter<int>(),
-                //new ToNumericConverter<long>(),
+                new ToNumericConverter<long>(),
                 //new DefaultTryParseConverter<Guid>()
             };
         }

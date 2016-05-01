@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Api\Configuration\ConfigStartingPoint.cs" />
+    <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\InstanceCreationRuleSpecifier.cs" />
     <Compile Include="DataSources\ConfigurationContext.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="ObjectPopulation\ObjectMapperKey.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingLambdaFactoryBase.cs" />
     <Compile Include="ObjectPopulation\ObjectPopulationExtensions.cs" />
+    <Compile Include="ObjectPopulation\OverwriteEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\ShortCircuitConditionBuilder.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="Members\QualifiedMember.cs" />
@@ -107,7 +109,11 @@
     <Compile Include="TypeConversion\ConverterSet.cs" />
     <Compile Include="TypeConversion\IValueConverter.cs" />
     <Compile Include="Api\Configuration\MappingConfigurationException.cs" />
+    <Compile Include="TypeConversion\NumericValueIsInRangeComparison.cs" />
+    <Compile Include="TypeConversion\ToNumericConverter.cs" />
+    <Compile Include="TypeConversion\ToNumericConverterBase.cs" />
     <Compile Include="TypeConversion\ToStringConverter.cs" />
+    <Compile Include="TypeConversion\TryParseConverterBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AgileObjects.ReadableExpressions, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">

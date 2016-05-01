@@ -66,6 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Configuration\WhenSettingInvalidConfiguration.cs" />
     <Compile Include="Extensions\WhenGettingAParentExpressionNode.cs" />
     <Compile Include="Members\MemberFinderExtensions.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Members\WhenFindingSourceMembers.cs" />
     <Compile Include="Members\WhenFindingTargetMembers.cs" />
     <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToLongs.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\Child.cs" />

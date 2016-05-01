@@ -7,11 +7,9 @@
 
     internal class DataSourceFinder
     {
-        public IDataSource FindFor(Member childTargetMember, IObjectMappingContext omc)
+        public IDataSource FindFor(QualifiedMember childTargetMember, IObjectMappingContext omc)
         {
-            var qualifiedMember = omc.TargetMember.Append(childTargetMember);
-
-            return FindFor(qualifiedMember, omc, returnComplexTypeMapper: true);
+            return FindFor(childTargetMember, omc, returnComplexTypeMapper: true);
         }
 
         public IDataSource FindBestMatchFor(QualifiedMember childTargetMember, IObjectMappingContext omc)

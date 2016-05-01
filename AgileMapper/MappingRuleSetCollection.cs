@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper
             Overwrite = new MappingRuleSet(
                 Constants.Overwrite,
                 ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
-                CopySourceEnumerablePopulationStrategy.Instance,
+                OverwriteEnumerablePopulationStrategy.Instance,
                 OverwriteNullNestedSourceMemberStrategy.Instance,
                 new[]
                 {
