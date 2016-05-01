@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperLambda;
         }
 
-        protected abstract IEnumerable<Expression> GetShortCircuitReturns(Expression returnNull, IObjectMappingContext omc);
+        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc);
 
         protected abstract Expression GetObjectResolution(IObjectMappingContext omc);
 

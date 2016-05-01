@@ -98,6 +98,7 @@
     <Compile Include="TestClasses\ReadOnlyField.cs" />
     <Compile Include="TestClasses\Title.cs" />
     <Compile Include="TestExtensions.cs" />
+    <Compile Include="WhenMappingCircularReferences.cs" />
     <Compile Include="WhenMappingDerivedTypes.cs" />
     <Compile Include="WhenMappingOnToComplexTypeMembers.cs" />
     <Compile Include="WhenMappingOnToComplexTypes.cs" />

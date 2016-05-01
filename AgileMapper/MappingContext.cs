@@ -1,15 +1,19 @@
 namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using ObjectPopulation;
 
     internal class MappingContext : IDisposable
     {
+        private readonly ICollection<Action> _cleanupActions;
+
         internal MappingContext(MappingRuleSet ruleSet, MapperContext mapperContext)
         {
             RuleSet = ruleSet;
             MapperContext = mapperContext;
+            _cleanupActions = new List<Action>();
         }
 
         internal GlobalContext GlobalContext => MapperContext.GlobalContext;
@@ -36,6 +40,18 @@ namespace AgileObjects.AgileMapper
                     ObjectMappingContextFactory.CreateRoot(source, existing, this);
 
             return Map<TDeclaredSource, TDeclaredTarget>();
+        }
+
+        public void Register<TKey, TComplex>(TKey key, TComplex complexType)
+        {
+            ObjectCache<TKey, TComplex>.Cache.Add(key, complexType);
+
+            _cleanupActions.Add(() => ObjectCache<TKey, TComplex>.Cache.Remove(key));
+        }
+
+        public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
+        {
+            return ObjectCache<TKey, TComplex>.Cache.TryGetValue(key, out complexType);
         }
 
         internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
@@ -116,12 +132,17 @@ namespace AgileObjects.AgileMapper
 
         public void Dispose()
         {
-            //foreach (var cleanupAction in _cleanupActions)
-            //{
-            //    cleanupAction.Invoke();
-            //}
+            foreach (var cleanupAction in _cleanupActions)
+            {
+                cleanupAction.Invoke();
+            }
         }
 
         #endregion
+
+        private static class ObjectCache<TKey, TObject>
+        {
+            public static readonly Dictionary<TKey, TObject> Cache = new Dictionary<TKey, TObject>();
+        }
     }
 }

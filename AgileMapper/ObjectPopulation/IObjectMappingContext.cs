@@ -30,12 +30,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         QualifiedMember TargetMember { get; }
 
+        MethodCallExpression GetTryGetCall();
+
         MethodCallExpression GetCreateCall();
+
+        MethodCallExpression GetObjectRegistrationCall();
 
         MethodCallExpression GetMapCall(Member complexTypeMember);
 
         MethodCallExpression GetMapCall(Expression sourceEnumerable, Member enumerableMember);
 
         MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement);
+        
     }
 }

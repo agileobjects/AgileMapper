@@ -15,32 +15,56 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>),
             "oc");
 
-        private static readonly MethodInfo _createMethod =
-            typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>)
-                .GetMethod("Create", Constants.PublicInstance);
+        // ReSharper disable StaticMemberInGenericType
+        private static readonly Expression _sourceObjectProperty = Expression.Property(_parameter, "Source");
+
+        private static readonly Expression _existingObjectProperty = Expression.Property(_parameter, "Existing");
+
+        private static readonly ParameterExpression _targetVariable =
+            Expression.Variable(typeof(TRuntimeTarget).GetTargetVariableType(), "target");
+
+        private static readonly Expression _mappingContextProperty = Expression.Property(_parameter, "MappingContext");
+
+        private static readonly MethodCallExpression _tryGetCall = Expression.Call(
+            _mappingContextProperty,
+                _mappingContextProperty.Type
+                    .GetMethod("TryGet", Constants.PublicInstance)
+                    .MakeGenericMethod(_sourceObjectProperty.Type, _targetVariable.Type),
+                _sourceObjectProperty,
+                _targetVariable);
+
+        private static readonly MethodCallExpression _createCall = Expression.Call(
+            _parameter,
+            _parameter.Type.GetMethod("Create", Constants.PublicInstance));
+
+        private static readonly MethodCallExpression _registrationCall = Expression.Call(
+            _mappingContextProperty,
+                _mappingContextProperty.Type
+                    .GetMethod("Register", Constants.PublicInstance)
+                    .MakeGenericMethod(_sourceObjectProperty.Type, _targetVariable.Type),
+                _sourceObjectProperty,
+                _targetVariable);
 
         private static readonly MethodInfo _mapComplexTypeMethod =
-            typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>)
+            _parameter.Type
                 .GetMethods(Constants.PublicInstance)
                 .First(m => m.Name == "Map" && m.GetParameters().Length == 1);
 
         private static readonly MethodInfo _mapEnumerableMethod =
-            typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>)
+            _parameter.Type
                 .GetMethods(Constants.PublicInstance)
                 .First(m => m.Name == "Map" && m.GetParameters().Length == 2);
 
         private static readonly MethodInfo _mapEnumerableElementMethod =
-            typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>)
+            _parameter.Type
                 .GetMethods(Constants.PublicInstance)
                 .First(m => m.Name == "Map" && m.GetParameters().Length == 3);
+        // ReSharper restore StaticMemberInGenericType
 
         #endregion
 
         private readonly IObjectMappingContext _parent;
-        private readonly Expression _sourceObject;
         private readonly int _sourceObjectDepth;
-        private readonly Expression _existingObject;
-        private readonly ParameterExpression _targetVariable;
         private readonly QualifiedMember _qualifiedTargetMember;
 
         public ObjectMappingContext(
@@ -55,12 +79,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Existing = existing;
 
             _parent = mappingContext.CurrentObjectMappingContext;
-            _sourceObject = Expression.Property(_parameter, "Source");
             _sourceObjectDepth = CalculateSourceObjectDepth();
-            _existingObject = Expression.Property(_parameter, "Existing");
-
-            var targetVariableType = typeof(TRuntimeTarget).GetTargetVariableType();
-            _targetVariable = Expression.Variable(targetVariableType, "target");
 
             _qualifiedTargetMember =
                 _parent?.TargetMember.Append(targetMember)
@@ -131,11 +150,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ReferenceEquals(Source, source);
         }
 
-        Expression IObjectMappingContext.SourceObject => _sourceObject;
+        Expression IObjectMappingContext.SourceObject => _sourceObjectProperty;
 
         int IObjectMappingContext.SourceObjectDepth => _sourceObjectDepth;
 
-        Expression IObjectMappingContext.ExistingObject => _existingObject;
+        Expression IObjectMappingContext.ExistingObject => _existingObjectProperty;
 
         Type IObjectMappingContext.Type => typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>);
 
@@ -143,7 +162,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         QualifiedMember IObjectMappingContext.TargetMember => _qualifiedTargetMember;
 
-        MethodCallExpression IObjectMappingContext.GetCreateCall() => Expression.Call(_parameter, _createMethod);
+        MethodCallExpression IObjectMappingContext.GetTryGetCall() => _tryGetCall;
+
+        MethodCallExpression IObjectMappingContext.GetCreateCall() => _createCall;
+
+        MethodCallExpression IObjectMappingContext.GetObjectRegistrationCall() => _registrationCall;
 
         MethodCallExpression IObjectMappingContext.GetMapCall(Member complexTypeMember)
         {

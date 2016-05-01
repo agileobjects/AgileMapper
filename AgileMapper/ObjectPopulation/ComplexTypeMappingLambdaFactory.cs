@@ -11,7 +11,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget> Instance =
             new ComplexTypeMappingLambdaFactory<TSource, TTarget>();
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(
+        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
+        {
+            yield return GetStrategyShortCircuitReturns(returnNull, omc);
+            yield return GetExistingObjectShortCircuit(returnNull.Target, omc);
+        }
+
+        private static Expression GetStrategyShortCircuitReturns(
             Expression returnNull,
             IObjectMappingContext omc)
         {
@@ -22,8 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (matchingSourceObject == null)
             {
-                yield return Expression.Empty();
-                yield break;
+                return Expression.Empty();
             }
 
             Expression sourceObject;
@@ -53,7 +58,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var shortCircuitBlock = builder.Invoke(shortCircuitConditions);
 
-            yield return shortCircuitBlock;
+            return shortCircuitBlock;
+        }
+
+        private static Expression GetExistingObjectShortCircuit(
+            LabelTarget returnTarget,
+            IObjectMappingContext omc)
+        {
+            var ifTryGetReturn = Expression.IfThen(
+                omc.GetTryGetCall(),
+                Expression.Return(returnTarget, omc.TargetVariable));
+
+            return ifTryGetReturn;
         }
 
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
@@ -66,6 +82,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetObjectPopulation(Expression targetVariableValue, IObjectMappingContext omc)
         {
+            var objectRegistration = omc.GetObjectRegistrationCall();
+
             var memberPopulations = MemberPopulationFactory
                .Create(omc)
                .Where(p => p.IsSuccessful)
@@ -78,7 +96,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Select(d => d.Population)
                 .ToArray();
 
-            return processedPopulations;
+            return new[] { objectRegistration }
+                .Concat(processedPopulations)
+                .ToArray();
         }
 
         protected override Expression GetReturnValue(Expression targetVariableValue, IObjectMappingContext omc)

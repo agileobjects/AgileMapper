@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget> Instance =
             new EnumerableMappingLambdaFactory<TSource, TTarget>();
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(Expression returnNull, IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
             => Enumerable.Empty<Expression>();
 
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
