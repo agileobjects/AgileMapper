@@ -1,21 +1,20 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Members;
     using ObjectPopulation;
 
     internal class ComplexTypeMappingDataSource : IDataSource
     {
-        private readonly Member _complexTypeMember;
-
-        public ComplexTypeMappingDataSource(Member complexTypeMember)
+        public ComplexTypeMappingDataSource(Member complexTypeMember, IObjectMappingContext omc)
         {
-            _complexTypeMember = complexTypeMember;
+            Value = omc.GetMapCall(complexTypeMember);
         }
 
-        public Expression GetValue(IObjectMappingContext omc)
-        {
-            return omc.GetMapCall(_complexTypeMember);
-        }
+        public IEnumerable<Expression> NestedSourceMemberAccesses => Enumerable.Empty<Expression>();
+
+        public Expression Value { get; }
     }
 }

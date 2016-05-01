@@ -23,23 +23,13 @@
 
         protected override MemberPopulation GetMultiplePopulation(
             Expression sourceMembersCheck,
-            IEnumerable<MemberPopulation> populationData)
+            IEnumerable<MemberPopulation> populations)
         {
-            var populations = populationData
-                .Select(p => new
-                {
-                    p.Population,
-                    SetToDefault = p.ObjectMappingContext
-                        .GetPopulation(p.TargetMember, Expression.Default(p.TargetMember.Type))
-                })
-                .ToArray();
-
-            var populateOrSetToDefault = Expression.IfThenElse(
+            var populate = Expression.IfThen(
                 sourceMembersCheck,
-                Expression.Block(populations.Select(p => p.Population).ToArray()),
-                Expression.Block(populations.Select(p => p.SetToDefault).ToArray()));
+                Expression.Block(populations.Select(p => p.Population)));
 
-            return MemberPopulation.Empty.WithPopulation(populateOrSetToDefault);
+            return populations.First().WithPopulation(populate);
         }
     }
 }

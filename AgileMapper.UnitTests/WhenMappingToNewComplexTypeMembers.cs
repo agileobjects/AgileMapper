@@ -32,7 +32,7 @@
             var result = Mapper.Map(source).ToNew<Person>();
 
             result.Name.ShouldBe(source.Name);
-            result.Address.ShouldNotBeNull();
+            result.Address.ShouldBeNull();
         }
 
         [Fact]

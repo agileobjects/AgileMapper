@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Linq.Expressions;
     using Members;
 
     internal interface IConfigurationContext
@@ -11,8 +12,12 @@
 
         QualifiedMember TargetMember { get; }
 
+        Expression SourceObject { get; }
+
         Type SourceObjectType { get; }
 
         Type ExistingObjectType { get; }
+
+        Expression TargetVariable { get; }
     }
 }

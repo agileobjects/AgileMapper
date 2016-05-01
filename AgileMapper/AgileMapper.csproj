@@ -46,15 +46,19 @@
     <Compile Include="Api\Configuration\UserConfigurationSet.cs" />
     <Compile Include="DataSources\ComplexTypeMappingDataSource.cs" />
     <Compile Include="DataSources\ConfiguredDataSource.cs" />
+    <Compile Include="DataSources\ConfiguredDataSourceFactory.cs" />
     <Compile Include="DataSources\DataSourceFinder.cs" />
     <Compile Include="DataSources\EnumerableMappingDataSource.cs" />
     <Compile Include="DataSources\IDataSource.cs" />
     <Compile Include="DataSources\SourceMemberDataSource.cs" />
+    <Compile Include="DataSources\SourceMemberDataSourceBase.cs" />
     <Compile Include="DataSources\UserConfiguredItemBase.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="GlobalContext.cs" />
+    <Compile Include="ObjectPopulation\ComplexTypeMappingShortCircuitStrategy.cs" />
+    <Compile Include="ObjectPopulation\IComplexTypeMappingShortCircuitStrategy.cs" />
     <Compile Include="Members\QualifiedMemberName.cs" />
     <Compile Include="Members\MemberName.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeMappingLambdaFactory.cs" />
@@ -84,6 +88,7 @@
     <Compile Include="ObjectPopulation\ObjectMapperKey.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingLambdaFactoryBase.cs" />
     <Compile Include="ObjectPopulation\ObjectPopulationExtensions.cs" />
+    <Compile Include="ObjectPopulation\ShortCircuitConditionBuilder.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="Members\QualifiedMember.cs" />
     <Compile Include="Constants.cs" />
@@ -93,7 +98,7 @@
     <Compile Include="PopulationProcessing\DefaultNullNestedSourceMemberStrategy.cs" />
     <Compile Include="PopulationProcessing\INestedSourceMemberStrategy.cs" />
     <Compile Include="PopulationProcessing\IPopulationProcessor.cs" />
-    <Compile Include="PopulationProcessing\MapOverNullNestedSourceMemberStrategy.cs" />
+    <Compile Include="PopulationProcessing\OverwriteNullNestedSourceMemberStrategy.cs" />
     <Compile Include="PopulationProcessing\NullNestedSourceMemberPopulationGuarder.cs" />
     <Compile Include="PopulationProcessing\NullNestedSourceMemberStrategyBase.cs" />
     <Compile Include="PopulationProcessing\PopulatedMemberPopulationGuarder.cs" />

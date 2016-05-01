@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System;
+    using System.Linq.Expressions;
     using Api.Configuration;
     using Members;
     using ObjectPopulation;
@@ -35,8 +36,12 @@
 
         public QualifiedMember TargetMember { get; }
 
-        public Type SourceObjectType => _omc.SourceObject.Type;
+        public Expression SourceObject => _omc.SourceObject;
+
+        public Type SourceObjectType => SourceObject.Type;
 
         public Type ExistingObjectType => _omc.ExistingObject.Type;
+
+        public Expression TargetVariable => _omc.TargetVariable;
     }
 }

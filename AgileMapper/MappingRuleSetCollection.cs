@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper
         {
             CreateNew = new MappingRuleSet(
                 Constants.CreateNew,
+                ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
                 CopySourceEnumerablePopulationStrategy.Instance,
                 DefaultNullNestedSourceMemberStrategy.Instance,
                 new[]
@@ -18,6 +19,7 @@ namespace AgileObjects.AgileMapper
 
             Merge = new MappingRuleSet(
                 Constants.Merge,
+                ComplexTypeMappingShortCircuitStrategy.SourceAndExistingAreNull,
                 CopySourceEnumerablePopulationStrategy.Instance,
                 DefaultNullNestedSourceMemberStrategy.Instance,
                 new[]
@@ -28,6 +30,7 @@ namespace AgileObjects.AgileMapper
 
             Overwrite = new MappingRuleSet(
                 Constants.Overwrite,
+                ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
                 CopySourceEnumerablePopulationStrategy.Instance,
                 OverwriteNullNestedSourceMemberStrategy.Instance,
                 new[]

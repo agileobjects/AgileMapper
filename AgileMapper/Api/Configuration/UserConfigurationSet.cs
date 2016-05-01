@@ -7,12 +7,12 @@
     internal class UserConfigurationSet
     {
         //private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
-        private readonly ICollection<ConfiguredDataSource> _dataSources;
+        private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
 
         public UserConfigurationSet()
         {
             //_ignoredMembers = new List<ConfiguredIgnoredMember>();
-            _dataSources = new List<ConfiguredDataSource>();
+            _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
         }
 
         //public void Add(ConfiguredIgnoredMember ignoredMember)
@@ -20,9 +20,9 @@
         //    _ignoredMembers.Add(ignoredMember);
         //}
 
-        public void Add(ConfiguredDataSource dataSource)
+        public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
-            _dataSources.Add(dataSource);
+            _dataSourceFactories.Add(dataSourceFactory);
         }
 
         //public bool IsIgnored(IConfigurationContext context)
@@ -30,12 +30,12 @@
         //    return _ignoredMembers.Any(im => im.AppliesTo(context));
         //}
 
-        public IDataSource GetConfiguredDataSourceOrNull(IConfigurationContext context)
+        public IDataSource GetDataSourceOrNull(IConfigurationContext context)
         {
-            var matchingDataSource = _dataSources
+            var matchingDataSourceFactory = _dataSourceFactories
                 .FirstOrDefault(ds => ds.AppliesTo(context));
 
-            return matchingDataSource;
+            return matchingDataSourceFactory?.Create(context);
         }
     }
 }

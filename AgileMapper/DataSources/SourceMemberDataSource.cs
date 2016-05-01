@@ -1,21 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Linq.Expressions;
     using Members;
     using ObjectPopulation;
 
-    internal class SourceMemberDataSource : IDataSource
+    internal class SourceMemberDataSource : SourceMemberDataSourceBase
     {
-        private readonly QualifiedMember _sourceMember;
-
-        public SourceMemberDataSource(QualifiedMember sourceMember)
+        public SourceMemberDataSource(QualifiedMember sourceMember, IObjectMappingContext omc)
+            : base(sourceMember.GetAccess(omc.SourceObject), omc.SourceObject)
         {
-            _sourceMember = sourceMember;
-        }
-
-        public Expression GetValue(IObjectMappingContext omc)
-        {
-            return _sourceMember.GetAccess(omc.SourceObject);
         }
     }
 }

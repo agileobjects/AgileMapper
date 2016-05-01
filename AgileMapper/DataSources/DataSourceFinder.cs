@@ -7,10 +7,23 @@
 
     internal class DataSourceFinder
     {
-        public IDataSource GetBestMatchFor(Member childTargetMember, IObjectMappingContext omc)
+        public IDataSource FindFor(Member childTargetMember, IObjectMappingContext omc)
         {
-            var qualifiedTargetMember = omc.TargetMember.Append(childTargetMember);
+            var qualifiedMember = omc.TargetMember.Append(childTargetMember);
 
+            return FindFor(qualifiedMember, omc, returnComplexTypeMapper: true);
+        }
+
+        public IDataSource FindBestMatchFor(QualifiedMember childTargetMember, IObjectMappingContext omc)
+        {
+            return FindFor(childTargetMember, omc, returnComplexTypeMapper: false);
+        }
+
+        private static IDataSource FindFor(
+            QualifiedMember qualifiedTargetMember,
+            IObjectMappingContext omc,
+            bool returnComplexTypeMapper)
+        {
             IDataSource configuredDataSource;
 
             if (DataSourceIsConfigured(qualifiedTargetMember, omc, out configuredDataSource))
@@ -18,9 +31,9 @@
                 return configuredDataSource;
             }
 
-            if (childTargetMember.IsComplex)
+            if (returnComplexTypeMapper && qualifiedTargetMember.IsComplex)
             {
-                return new ComplexTypeMappingDataSource(childTargetMember);
+                return new ComplexTypeMappingDataSource(qualifiedTargetMember.LeafMember, omc);
             }
 
             return GetSourceMemberDataSourceOrNull(qualifiedTargetMember, omc);
@@ -36,7 +49,7 @@
             configuredDataSource = omc
                 .MapperContext
                 .UserConfigurations
-                .GetConfiguredDataSourceOrNull(configurationContext);
+                .GetDataSourceOrNull(configurationContext);
 
             return configuredDataSource != null;
         }
@@ -54,13 +67,14 @@
 
             bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(omc.SourceObjectDepth);
 
-            var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember);
+            var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, omc);
 
             if (qualifiedTargetMember.IsEnumerable)
             {
                 return new EnumerableMappingDataSource(
                     sourceMemberDataSource,
-                    qualifiedTargetMember.LeafMember);
+                    qualifiedTargetMember.LeafMember,
+                    omc);
             }
 
             return sourceMemberDataSource;

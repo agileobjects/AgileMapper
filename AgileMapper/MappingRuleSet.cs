@@ -11,17 +11,21 @@ namespace AgileObjects.AgileMapper
 
         public MappingRuleSet(
             string name,
+            IComplexTypeMappingShortCircuitStrategy complexTypeMappingShortCircuitStrategy,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
             INestedSourceMemberStrategy nullNestedSourceMemberStrategy,
             IEnumerable<IPopulationProcessor> populationProcessors)
         {
             Name = name;
+            ComplexTypeMappingShortCircuitStrategy = complexTypeMappingShortCircuitStrategy;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             NullNestedSourceMemberStrategy = nullNestedSourceMemberStrategy;
             _populationProcessors = populationProcessors;
         }
 
         public string Name { get; }
+
+        public IComplexTypeMappingShortCircuitStrategy ComplexTypeMappingShortCircuitStrategy { get; }
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 

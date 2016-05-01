@@ -22,7 +22,7 @@
         {
             return GetGuardedPopulation(
                 sourceMembersCheck,
-                MemberPopulation.Empty,
+                populations.First(),
                 Expression.Block(populations.Select(d => d.Population)));
         }
 
