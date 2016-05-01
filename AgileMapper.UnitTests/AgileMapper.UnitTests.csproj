@@ -78,6 +78,7 @@
     <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToEnums.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToLongs.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />

@@ -60,7 +60,7 @@
             var source = new PublicField<string> { Value = "ihdfsjsda" };
             var result = Mapper.Map(source).OnTo(new PublicProperty<Title>());
 
-            result.Value.ShouldBe(default(Title));
+            result.Value.ShouldBeDefault();
         }
 
         [Fact]

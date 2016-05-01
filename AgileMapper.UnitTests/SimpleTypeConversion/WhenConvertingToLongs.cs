@@ -77,7 +77,7 @@
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
             var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
 
-            result.Value.ShouldBe(default(long));
+            result.Value.ShouldBeDefault();
         }
 
         [Fact]
@@ -113,7 +113,7 @@
             var source = new PublicProperty<float> { Value = float.MaxValue };
             var target = Mapper.Map(source).Over(new PublicProperty<long>());
 
-            target.Value.ShouldBe(default(long));
+            target.Value.ShouldBeDefault();
         }
 
         [Fact]
@@ -122,7 +122,7 @@
             var source = new PublicProperty<float> { Value = float.MinValue };
             var result = Mapper.Map(source).Over(new PublicProperty<long>());
 
-            result.Value.ShouldBe(default(long));
+            result.Value.ShouldBeDefault();
         }
 
         [Fact]
@@ -140,7 +140,7 @@
             var source = new PublicProperty<decimal> { Value = 637.5367m };
             var result = Mapper.Map(source).OnTo(new PublicSetMethod<long>());
 
-            result.Value.ShouldBe(default(long));
+            result.Value.ShouldBeDefault();
         }
 
         [Fact]
@@ -149,7 +149,7 @@
             var source = new PublicProperty<decimal> { Value = decimal.MaxValue };
             var target = Mapper.Map(source).Over(new PublicProperty<long>());
 
-            target.Value.ShouldBe(default(long));
+            target.Value.ShouldBeDefault();
         }
 
         [Fact]
@@ -176,7 +176,7 @@
             var source = new PublicProperty<double> { Value = double.MinValue };
             var result = Mapper.Map(source).Over(new PublicSetMethod<long>());
 
-            result.Value.ShouldBe(default(long));
+            result.Value.ShouldBeDefault();
         }
 
         [Fact]
@@ -223,7 +223,7 @@
             var source = new PublicProperty<string> { Value = "CATFISH" };
             var result = Mapper.Map(source).ToNew<PublicField<long>>();
 
-            result.Value.ShouldBe(default(long));
+            result.Value.ShouldBeDefault();
         }
 
         [Fact]
@@ -232,7 +232,7 @@
             var source = new PublicField<string> { Value = "6738732.637" };
             var target = Mapper.Map(source).Over(new PublicField<long>());
 
-            target.Value.ShouldBe(default(long));
+            target.Value.ShouldBeDefault();
         }
 
         [Fact]
