@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using AgileMapper.Extensions;
     using AgileMapper.Members;
 
     public abstract class MemberFinderTestsBase
@@ -14,7 +15,7 @@
             var sourceParameter = Expression.Parameter(typeof(T), "source");
             var sourceProperty = typeof(T).GetProperties(Constants.PublicInstance).First();
             var sourcePropertyAccess = Expression.Property(sourceParameter, sourceProperty);
-            var sourcePropertyCastToObject = Expression.Convert(sourcePropertyAccess, typeof(object));
+            var sourcePropertyCastToObject = sourcePropertyAccess.GetConversionTo(typeof(object));
             var sourcePropertyLambda = Expression.Lambda<Func<T, object>>(sourcePropertyCastToObject, sourceParameter);
 
             return SourceMemberFor(sourcePropertyLambda);

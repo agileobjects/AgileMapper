@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (omc.TargetMember.Type.IsAssignableFrom(targetVariableValue.Type))
             {
-                return Expression.Convert(omc.TargetVariable, omc.TargetMember.Type);
+                return omc.TargetVariable.GetConversionTo(omc.TargetMember.Type);
             }
 
             return omc.TargetVariable.WithToArrayCall();

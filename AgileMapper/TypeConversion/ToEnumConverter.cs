@@ -22,7 +22,7 @@
         {
             if (sourceValue.Type.IsNumeric())
             {
-                return Expression.Convert(sourceValue, targetType);
+                return sourceValue.GetConversionTo(targetType);
             }
 
             if (sourceValue.Type == typeof(string))

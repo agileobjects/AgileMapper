@@ -56,7 +56,7 @@
 
             if (targetType.IsAssignableFrom(sourceValue.Type))
             {
-                return Expression.Convert(sourceValue, targetType);
+                return sourceValue.GetConversionTo(targetType);
             }
 
             var converter = GetConverterFor(targetType, sourceValue.Type);

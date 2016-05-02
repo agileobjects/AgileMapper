@@ -43,9 +43,7 @@
                 var valueVariable = Expression.Variable(nonNullableValueType, "value");
                 var tryParseCall = tryParseCallFactory.Invoke(nonNullableValueType, stringValueParameter, valueVariable);
 
-                var successfulParseReturnValue = (nonNullableValueType != typeof(TValue))
-                    ? Expression.Convert(valueVariable, typeof(TValue))
-                    : (Expression)valueVariable;
+                var successfulParseReturnValue = valueVariable.GetConversionTo(typeof(TValue));
 
                 var defaultValue = Expression.Default(typeof(TValue));
                 var parsedValueOrDefault = Expression.Condition(tryParseCall, successfulParseReturnValue, defaultValue);

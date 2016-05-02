@@ -29,7 +29,7 @@
         {
             if (IsCoercible(sourceValue))
             {
-                return Expression.Convert(sourceValue, targetType);
+                return sourceValue.GetConversionTo(targetType);
             }
 
             return (sourceValue.Type != typeof(string))
@@ -42,7 +42,7 @@
         private static Expression GetCheckedNumericConversion(Expression sourceValue, Type targetType)
         {
             var numericValueIsValid = GetNumericValueValidityCheck(sourceValue, targetType);
-            var castSourceValue = Expression.Convert(sourceValue, targetType);
+            var castSourceValue = sourceValue.GetConversionTo(targetType);
             var defaultTargetType = Expression.Default(targetType);
             var inRangeValueOrDefault = Expression.Condition(numericValueIsValid, castSourceValue, defaultTargetType);
 
@@ -68,10 +68,10 @@
 
         private static Expression GetConstantValue(int value, Expression sourceValue)
         {
-            Expression constant = Expression.Constant(value);
+            var constant = Expression.Constant(value);
 
             return (sourceValue.Type != typeof(int))
-                ? Expression.Convert(constant, sourceValue.Type) : constant;
+                ? constant.GetConversionTo(sourceValue.Type) : constant;
         }
     }
 }

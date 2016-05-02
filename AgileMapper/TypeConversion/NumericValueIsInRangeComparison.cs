@@ -50,11 +50,11 @@
             if (sourceValue.Type.HasGreaterMaxValueThan(targetNonNullableType))
             {
                 maxValueComparisonLeftSide = sourceValue;
-                maxValueComparisonRightSide = Expression.Convert(numericMaxValue, sourceNonNullableType);
+                maxValueComparisonRightSide = numericMaxValue.GetConversionTo(sourceNonNullableType);
             }
             else
             {
-                maxValueComparisonLeftSide = Expression.Convert(sourceValue, targetNonNullableType);
+                maxValueComparisonLeftSide = sourceValue.GetConversionTo(targetNonNullableType);
                 maxValueComparisonRightSide = numericMaxValue;
             }
         }
@@ -71,11 +71,11 @@
             if (sourceValue.Type.HasSmallerMinValueThan(targetNonNullableType))
             {
                 minValueComparisonLeftSide = sourceValue;
-                minValueComparisonRightSide = Expression.Convert(numericMinValue, sourceNonNullableType);
+                minValueComparisonRightSide = numericMinValue.GetConversionTo(sourceNonNullableType);
             }
             else
             {
-                minValueComparisonLeftSide = Expression.Convert(sourceValue, targetNonNullableType);
+                minValueComparisonLeftSide = sourceValue.GetConversionTo(targetNonNullableType);
                 minValueComparisonRightSide = numericMinValue;
             }
         }

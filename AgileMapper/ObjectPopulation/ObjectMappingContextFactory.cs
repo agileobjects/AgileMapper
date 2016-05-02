@@ -126,8 +126,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var constructorCall = Expression.New(
                 contextType.GetConstructors().First(),
                 Parameters.TargetMember,
-                Expression.Convert(sourceParameter, runtimeTypes.Item1),
-                Expression.Convert(existingParameter, runtimeTypes.Item2),
+                sourceParameter.GetConversionTo(runtimeTypes.Item1),
+                existingParameter.GetConversionTo(runtimeTypes.Item2),
                 Parameters.EnumerableIndexNullable,
                 Parameters.MappingContext);
 

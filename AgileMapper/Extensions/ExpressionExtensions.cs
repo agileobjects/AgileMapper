@@ -84,6 +84,11 @@
             return Expression.NotEqual(expression, Expression.Default(expression.Type));
         }
 
+        public static Expression GetConversionTo(this Expression expression, Type targetType)
+        {
+            return (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
+        }
+
         public static Expression WithToArrayCall(this Expression enumerable)
         {
             var elementType = enumerable.Type.GetEnumerableElementType();
