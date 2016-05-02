@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Expression.Block(
                     updateExistingObjects,
                     addNewObjects,
-                    Expression.Empty());
+                    Constants.EmptyExpression);
             }
 
             return builder

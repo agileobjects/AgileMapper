@@ -3,12 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
 
     internal static class Constants
     {
         public static readonly Type[] NoTypeArguments = { };
+
+        public static readonly Expression EmptyExpression = Expression.Empty();
 
         public const string EnumerableElementMemberName = "[i]";
 

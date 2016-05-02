@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (matchingSourceObject == null)
             {
-                return Expression.Empty();
+                return Constants.EmptyExpression;
             }
 
             Expression sourceObject;

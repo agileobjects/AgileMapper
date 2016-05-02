@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static MemberPopulation IgnoredMember(Member targetMember, IObjectMappingContext omc)
             => new MemberPopulation(
                    targetMember,
-                   Expression.Empty(),
+                   Constants.EmptyExpression,
                    Enumerable.Empty<Expression>(),
                    ReadableExpression.Comment(targetMember.Name + " is ignored"),
                    omc);
@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static MemberPopulation NoDataSource(Member targetMember, IObjectMappingContext omc)
             => new MemberPopulation(
                    targetMember,
-                   Expression.Empty(),
+                   Constants.EmptyExpression,
                    Enumerable.Empty<Expression>(),
                    ReadableExpression.Comment("No data source for " + targetMember.Name),
                    omc);
