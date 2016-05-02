@@ -26,5 +26,35 @@
             result.Value.ShouldBeSameAs(target.Value);
             result.Value.SequenceEqual(r => r.ToString(), source.Value).ShouldBeTrue();
         }
+
+        [Fact]
+        public void ShouldHandleANullSourceMember()
+        {
+            var source = new PublicField<IEnumerable<int>> { Value = null };
+
+            var target = new PublicProperty<ICollection<int>>
+            {
+                Value = new[] { 1, 2, 4, 8 }
+            };
+
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleNoMatchingSourceMember()
+        {
+            var source = new { DooDeeDoo = "Jah jah jah" };
+
+            var target = new PublicProperty<List<long>>
+            {
+                Value = new List<long> { 1, 2, 3 }
+            };
+
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeSameAs(target.Value);
+        }
     }
 }
