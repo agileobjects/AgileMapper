@@ -10,7 +10,7 @@
     public class WhenMappingOnToEnumerableMembers
     {
         [Fact]
-        public void ShouldCreateANewGuidCollection()
+        public void ShouldMergeAGuidCollection()
         {
             var source = new PublicProperty<ICollection<Guid>>
             {

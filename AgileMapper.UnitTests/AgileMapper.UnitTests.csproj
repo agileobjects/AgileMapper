@@ -106,6 +106,7 @@
     <Compile Include="WhenMappingOnToEnumerables.cs" />
     <Compile Include="WhenMappingOverComplexTypeMembers.cs" />
     <Compile Include="WhenMappingOverComplexTypes.cs" />
+    <Compile Include="WhenMappingOverEnumerableMembers.cs" />
     <Compile Include="WhenMappingOverEnumerables.cs" />
     <Compile Include="WhenMappingToNewComplexTypeMembers.cs" />
     <Compile Include="WhenMappingToNewComplexTypes.cs" />

@@ -14,6 +14,11 @@
 
         public static bool SequenceEqual<T1, T2>(this IEnumerable<T1> first, Func<T1, T2> converter, params T2[] second)
         {
+            return first.SequenceEqual(converter, second.AsEnumerable());
+        }
+
+        public static bool SequenceEqual<T1, T2>(this IEnumerable<T1> first, Func<T1, T2> converter, IEnumerable<T2> second)
+        {
             return first.Select(converter).SequenceEqual(second);
         }
 

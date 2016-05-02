@@ -39,7 +39,8 @@
             }
 
             var removeExistingItems = builder.ClearTarget();
-            var addSourceItemsToTarget = builder.AddResultsToTarget();
+
+            var addSourceItemsToTarget = builder.ProjectToTargetType().AddResultsToTarget();
 
             return Expression.Block(removeExistingItems, addSourceItemsToTarget, Expression.Empty());
 
