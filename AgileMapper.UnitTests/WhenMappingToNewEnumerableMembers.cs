@@ -43,8 +43,7 @@
             result.Value.ShouldNotBeNull();
 
             result.Value
-                .Select(pvm => pvm.Name)
-                .SequenceEqual(source.Value.Select(p => p.Name))
+                .SequenceEqual(pvm => pvm.Name, source.Value.Select(p => p.Name))
                 .ShouldBeTrue();
         }
     }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -25,6 +26,51 @@
 
             result.Value.ShouldBeSameAs(target.Value);
             result.Value.SequenceEqual(r => r.ToString(), source.Value).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldOverwriteAComplexTypeCollection()
+        {
+            var source = new PublicField<PublicField<int>[]>
+            {
+                Value = new[] { new PublicField<int> { Value = 123 }, new PublicField<int> { Value = 456 } }
+            };
+
+            var target = new PublicField<ICollection<PublicField<int>>>
+            {
+                Value = new List<PublicField<int>> { new PublicField<int> { Value = 789 } }
+            };
+
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeSameAs(target.Value);
+            result.Value.SequenceEqual(r => r.Value, 123, 456).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldOverwriteAnIdentifiableComplexTypeList()
+        {
+            var source = new PublicProperty<Product[]>
+            {
+                Value = new[]
+                {
+                    new Product { ProductId = "Magic", Price = 0.01 },
+                    new Product { ProductId = "Science", Price = 1000.00 }
+                }
+            };
+
+            var target = new PublicField<IList<Product>>
+            {
+                Value = new List<Product> { new Product { ProductId = "Magic", Price = 1001.00 } }
+            };
+
+            var existingProduct = target.Value.First();
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeSameAs(target.Value);
+            result.Value.First().ShouldBeSameAs(existingProduct);
+            result.Value.First().Price.ShouldBe(0.01);
+            result.Value.SequenceEqual(r => r.ProductId, "Magic", "Science").ShouldBeTrue();
         }
 
         [Fact]
