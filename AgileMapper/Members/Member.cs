@@ -6,11 +6,16 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class Member
     {
-        public Member(MemberType memberType, string name, Type declaringType, Type type)
+        public Member(
+            MemberType memberType,
+            string name,
+            Type declaringType,
+            Type type,
+            bool isRoot = false)
         {
             MemberType = memberType;
             Name = name;
-            MemberName = new MemberName(name, declaringType, memberType);
+            MemberName = new MemberName(name, declaringType, memberType, isRoot);
             DeclaringType = declaringType;
             Type = type;
 
@@ -37,7 +42,12 @@ namespace AgileObjects.AgileMapper.Members
 
         private static Member Root(string name, Type type)
         {
-            return new Member(MemberType.Property, name, typeof(IObjectMappingContext), type);
+            return new Member(
+                MemberType.Property,
+                name,
+                typeof(IObjectMappingContext),
+                type,
+                isRoot: true);
         }
 
         #endregion

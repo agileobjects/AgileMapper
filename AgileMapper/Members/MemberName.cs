@@ -7,30 +7,24 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class MemberName
     {
+        private readonly bool _isRoot;
         private readonly List<string> _allNames;
 
-        public MemberName(string name, Type declaringType, MemberType memberType)
+        public MemberName(
+            string name,
+            Type declaringType,
+            MemberType memberType,
+            bool isRoot)
         {
-            _allNames = new List<string> { name };
+            _isRoot = isRoot;
 
-            bool isRootNamePart;
-
-            switch (name)
+            if (isRoot)
             {
-                case "Source":
-                    _allNames.Add("Target");
-                    isRootNamePart = true;
-                    break;
-
-                case "Target":
-                    _allNames.Add("Source");
-                    isRootNamePart = true;
-                    break;
-
-                default:
-                    isRootNamePart = false;
-                    break;
+                JoiningName = name;
+                return;
             }
+
+            _allNames = new List<string> { name };
 
             var idNameParts = GetIdNameParts(declaringType).ToArray();
             IsIdentifier = idNameParts.Contains(name);
@@ -43,8 +37,7 @@ namespace AgileObjects.AgileMapper.Members
                 _allNames.Add(name.Substring(3));
             }
 
-            JoiningName = (isRootNamePart || (name == Constants.EnumerableElementMemberName))
-                ? name : "." + name;
+            JoiningName = (name == Constants.EnumerableElementMemberName) ? name : "." + name;
         }
 
         #region Setup
@@ -75,7 +68,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Matches(MemberName otherName)
         {
-            return _allNames.Intersect(otherName._allNames).Any();
+            return (_isRoot && otherName._isRoot) ||
+                _allNames.Intersect(otherName._allNames).Any();
         }
     }
 }

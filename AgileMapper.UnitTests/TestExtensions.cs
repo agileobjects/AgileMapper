@@ -35,7 +35,11 @@
 
         public static void ShouldBe<TActual, TExpected>(this TActual value, TExpected expectedValue)
         {
-            ShouldBeTestExtensions.ShouldBe(value, Convert.ChangeType(expectedValue, typeof(TActual)));
+            var actualExpectedValue = typeof(TExpected).IsAssignableFrom(typeof(TActual))
+                ? expectedValue
+                : Convert.ChangeType(expectedValue, typeof(TActual));
+
+            ShouldBeTestExtensions.ShouldBe(value, actualExpectedValue);
         }
     }
 }
