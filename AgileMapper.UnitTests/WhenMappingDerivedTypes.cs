@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -26,7 +25,7 @@
             result.First().Price.ShouldBe(10.01);
         }
 
-        //[Fact]
+        [Fact]
         public void ShouldMapARootComplexTypeEnumerableElementFromItsAssignedType()
         {
             var source = new object[] { new Product { Price = 9.99 } };

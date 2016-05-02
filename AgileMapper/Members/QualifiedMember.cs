@@ -79,6 +79,21 @@ namespace AgileObjects.AgileMapper.Members
             return new QualifiedMember(relativeMemberChain);
         }
 
+        public QualifiedMember WithType(Type runtimeType)
+        {
+            if (runtimeType == Type)
+            {
+                return this;
+            }
+
+            var newMemberChain = new Member[_memberChain.Length];
+            Array.Copy(_memberChain, 0, newMemberChain, 0, newMemberChain.Length - 1);
+
+            newMemberChain[newMemberChain.Length - 1] = LeafMember.WithType(runtimeType);
+
+            return From(newMemberChain);
+        }
+
         public bool Matches(QualifiedMember otherMember)
         {
             return _qualifiedName.Matches(otherMember._qualifiedName);
@@ -99,5 +114,6 @@ namespace AgileObjects.AgileMapper.Members
                    (otherMember.LeafMember.Name == LeafMember.Name) &&
                    otherMember.LeafMember.DeclaringType.IsAssignableFrom(LeafMember.DeclaringType);
         }
+
     }
 }

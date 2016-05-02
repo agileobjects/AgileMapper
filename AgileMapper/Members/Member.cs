@@ -73,5 +73,12 @@ namespace AgileObjects.AgileMapper.Members
         public MemberType MemberType { get; }
 
         public bool ExistingValueCanBeChecked => MemberType != MemberType.SetMethod;
+
+        public Member WithType(Type runtimeType)
+        {
+            return (runtimeType == Type)
+                ? this
+                : new Member(MemberType, Name, DeclaringType, runtimeType);
+        }
     }
 }

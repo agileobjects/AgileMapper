@@ -63,27 +63,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
+        private readonly QualifiedMember _sourceMember;
+        private readonly QualifiedMember _targetMember;
         private readonly IObjectMappingContext _parent;
         private readonly int _sourceObjectDepth;
-        private readonly QualifiedMember _qualifiedTargetMember;
 
         public ObjectMappingContext(
-            Member targetMember,
+            QualifiedMember sourceMember,
+            QualifiedMember targetMember,
             TRuntimeSource source,
             TRuntimeTarget existing,
             int? enumerableIndex,
             MappingContext mappingContext)
         {
+            _sourceMember = sourceMember;
+            _targetMember = targetMember;
             MappingContext = mappingContext;
             Source = source;
             Existing = existing;
 
             _parent = mappingContext.CurrentObjectMappingContext;
             _sourceObjectDepth = CalculateSourceObjectDepth();
-
-            _qualifiedTargetMember =
-                _parent?.TargetMember.Append(targetMember)
-                    ?? QualifiedMember.From(targetMember);
         }
 
         private int CalculateSourceObjectDepth()
@@ -120,16 +120,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public TMember Map<TMember>(Expression<Func<TRuntimeTarget, TMember>> complexChildMember)
-        {
-            return MappingContext.MapChild(Source, Existing, complexChildMember);
-        }
+            => MappingContext.MapChild(Source, Existing, complexChildMember);
 
         public TMember Map<TDeclaredSource, TMember>(
             TDeclaredSource sourceEnumerable,
             Expression<Func<TRuntimeTarget, TMember>> enumerableChildMember)
-        {
-            return MappingContext.MapChild(sourceEnumerable, Existing, enumerableChildMember);
-        }
+            => MappingContext.MapChild(sourceEnumerable, Existing, enumerableChildMember);
 
         public TTargetElement Map<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
@@ -160,7 +156,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ParameterExpression IObjectMappingContext.TargetVariable => _targetVariable;
 
-        QualifiedMember IObjectMappingContext.TargetMember => _qualifiedTargetMember;
+        QualifiedMember IObjectMappingContext.SourceMember => _sourceMember;
+
+        QualifiedMember IObjectMappingContext.TargetMember => _targetMember;
 
         MethodCallExpression IObjectMappingContext.GetTryGetCall() => _tryGetCall;
 

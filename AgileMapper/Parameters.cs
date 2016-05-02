@@ -12,8 +12,11 @@ namespace AgileObjects.AgileMapper
         public static readonly ParameterExpression ObjectMappingContext =
             Expression.Parameter(typeof(IObjectMappingContext), "omc");
 
+        public static readonly ParameterExpression SourceMember =
+            Expression.Parameter(typeof(QualifiedMember), "sourceMember");
+
         public static readonly ParameterExpression TargetMember =
-            Expression.Parameter(typeof(Member), "targetMember");
+            Expression.Parameter(typeof(QualifiedMember), "targetMember");
 
         public static readonly ParameterExpression EnumerableIndex =
             Expression.Parameter(typeof(int), "i");

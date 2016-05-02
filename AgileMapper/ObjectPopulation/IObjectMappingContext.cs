@@ -28,6 +28,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ParameterExpression TargetVariable { get; }
 
+        QualifiedMember SourceMember { get; }
+
         QualifiedMember TargetMember { get; }
 
         MethodCallExpression GetTryGetCall();

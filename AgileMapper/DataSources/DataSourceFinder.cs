@@ -17,7 +17,7 @@
             return FindFor(childTargetMember, omc, returnComplexTypeMapper: false);
         }
 
-        private static IDataSource FindFor(
+        private IDataSource FindFor(
             QualifiedMember qualifiedTargetMember,
             IObjectMappingContext omc,
             bool returnComplexTypeMapper)
@@ -52,7 +52,7 @@
             return configuredDataSource != null;
         }
 
-        private static IDataSource GetSourceMemberDataSourceOrNull(
+        private IDataSource GetSourceMemberDataSourceOrNull(
             QualifiedMember qualifiedTargetMember,
             IObjectMappingContext omc)
         {
@@ -78,17 +78,12 @@
             return sourceMemberDataSource;
         }
 
-        private static QualifiedMember GetSourceMemberMatching(
-            QualifiedMember qualifiedTargetMember,
-            IObjectMappingContext omc)
+        public QualifiedMember GetSourceMemberMatching(QualifiedMember qualifiedTargetMember, IObjectMappingContext omc)
         {
-            var rootSourceMember = Member
-                .RootSource(omc.MappingContext.RootObjectMappingContext.SourceObject.Type);
-
-            var qualifiedRootSourceMember = QualifiedMember.From(rootSourceMember);
+            var rootSourceMember = omc.SourceMember;
             var memberFinder = omc.GlobalContext.MemberFinder;
 
-            return GetAllSourceMembers(qualifiedRootSourceMember, memberFinder)
+            return GetAllSourceMembers(rootSourceMember, memberFinder)
                 .FirstOrDefault(sm => sm.Matches(qualifiedTargetMember));
         }
 
