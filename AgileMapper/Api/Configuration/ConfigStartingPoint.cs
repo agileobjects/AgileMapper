@@ -1,7 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using AgileMapper.Configuration.Api;
-
     public class ConfigStartingPoint
     {
         private readonly MapperContext _mapperContext;

@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Configuration.Api
+﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
 

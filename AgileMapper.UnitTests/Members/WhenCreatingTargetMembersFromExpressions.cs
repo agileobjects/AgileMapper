@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Linq.Expressions;
     using AgileMapper.Members;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
