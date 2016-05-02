@@ -48,7 +48,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpression()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PersonViewModel>()

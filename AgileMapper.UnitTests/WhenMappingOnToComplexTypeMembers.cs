@@ -47,7 +47,7 @@
         [Fact]
         public void ShouldApplyAConfiguredConstant()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -68,7 +68,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpression()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -88,7 +88,7 @@
         [Fact]
         public void ShouldNotOverwriteWithAConfiguredConstant()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -107,7 +107,7 @@
         [Fact]
         public void ShouldHandleANullConfiguredSourceMember()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()

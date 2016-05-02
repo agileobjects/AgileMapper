@@ -18,7 +18,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatedCallback()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 var createdInstance = default(PublicProperty<int>);
 

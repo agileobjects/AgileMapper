@@ -12,7 +12,7 @@
         [Fact]
         public void ShouldApplyAConfiguredConstant()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PublicProperty<string>>()
@@ -30,7 +30,7 @@
         [Fact]
         public void ShouldApplyAConfiguredConstantFromAllSourceTypes()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .To<PublicProperty<decimal>>()
@@ -50,7 +50,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMember()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -68,7 +68,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMemberFromAllSourceTypes()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .OnTo<Person>()
@@ -93,7 +93,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMemberInARootEnumerable()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -111,7 +111,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMemberInAMemberEnumerable()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Customer>()
@@ -129,7 +129,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMemberFromADerivedSourceType()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -147,7 +147,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpression()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PublicProperty<int>>()
@@ -165,7 +165,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionWithMultipleSourceMembers()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -183,7 +183,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionToADerivedTargetType()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PersonViewModel>()
@@ -201,7 +201,7 @@
         [Fact]
         public void ShouldApplyAConfiguredFunction()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 Func<Person, string> combineAddressLine1 =
                     p => p.Name + ", " + p.Address.Line1;
@@ -223,7 +223,7 @@
         [Fact]
         public void ShouldMapAConfiguredFunction()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 Func<Person, string> combineAddressLine1 =
                     p => p.Name + ", " + p.Address.Line1;
@@ -244,7 +244,7 @@
         [Fact]
         public void ShouldIgnoreAConfiguredMember()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PersonViewModel>()
@@ -261,7 +261,7 @@
         [Fact]
         public void ShouldIgnoreAConfiguredMemberInARootCollection()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -280,7 +280,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionUsingExtensionMethods()
         {
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<Person>()
@@ -300,7 +300,7 @@
         {
             const int CONFIGURED_VALUE = 12345;
 
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PublicField<int>>()
@@ -324,7 +324,7 @@
         {
             const int CONFIGURED_VALUE = 98765;
 
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PublicField<int>>()
@@ -346,7 +346,7 @@
         {
             const int CONFIGURED_VALUE = 9999;
 
-            using (IMapper mapper = new Mapper())
+            using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PublicProperty<int>>()

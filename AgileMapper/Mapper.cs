@@ -5,19 +5,23 @@
 
     public sealed class Mapper : IMapper
     {
-        private static readonly IMapper _default = new Mapper();
+        private static readonly IMapper _default = Create();
 
         private readonly MapperContext _mapperContext;
-
-        public Mapper()
-            : this(new MapperContext())
-        {
-        }
 
         private Mapper(MapperContext mapperContext)
         {
             _mapperContext = mapperContext;
         }
+
+        #region Factory Methods
+
+        public static IMapper Create()
+        {
+            return new Mapper(new MapperContext());
+        }
+
+        #endregion
 
         public ConfigStartingPoint When => new ConfigStartingPoint(_mapperContext);
 

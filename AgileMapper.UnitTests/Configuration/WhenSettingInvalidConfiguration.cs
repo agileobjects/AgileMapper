@@ -12,7 +12,7 @@
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
-                using (var mapper = new Mapper())
+                using (var mapper = Mapper.Create())
                 {
                     mapper.When.Mapping
                         .From<PublicField<int>>()
