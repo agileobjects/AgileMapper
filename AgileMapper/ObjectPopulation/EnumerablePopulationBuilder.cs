@@ -38,7 +38,7 @@
         private readonly bool _elementsAreAssignable;
         private Expression _population;
 
-        public EnumerablePopulationBuilder(Expression targetVariableValue, IObjectMappingContext omc)
+        public EnumerablePopulationBuilder(IObjectMappingContext omc)
         {
             ObjectMappingContext = omc;
 
@@ -51,8 +51,6 @@
             _targetElementId = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(_targetElementType);
 
             _elementsAreAssignable = _targetElementType.IsAssignableFrom(_sourceElementType);
-
-            TargetVariableValue = targetVariableValue;
 
             SetPopulationToDefault();
         }
@@ -84,8 +82,6 @@
         public bool TypesAreIdentifiable => (_sourceElementId != null) && (_targetElementId != null);
 
         private Type TargetCollectionType => ObjectMappingContext.TargetVariable.Type;
-
-        public Expression TargetVariableValue { get; }
 
         public EnumerablePopulationBuilder IntersectTargetById()
         {

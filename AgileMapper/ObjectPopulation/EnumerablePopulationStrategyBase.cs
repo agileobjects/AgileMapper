@@ -5,7 +5,7 @@
     internal abstract class EnumerablePopulationStrategyBase : IEnumerablePopulationStrategy
     {
         public Expression GetPopulation(Expression targetVariableValue, IObjectMappingContext omc)
-            => GetEnumerablePopulation(new EnumerablePopulationBuilder(targetVariableValue, omc));
+            => GetEnumerablePopulation(new EnumerablePopulationBuilder(omc));
 
         protected abstract Expression GetEnumerablePopulation(EnumerablePopulationBuilder builder);
     }

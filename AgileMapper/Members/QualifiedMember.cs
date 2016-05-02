@@ -51,8 +51,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsEnumerable => LeafMember.IsEnumerable;
 
-        public bool IsSimple => LeafMember.IsSimple;
-
         public Type ElementType => LeafMember.ElementType;
 
         public QualifiedMember Append(Member childMember)

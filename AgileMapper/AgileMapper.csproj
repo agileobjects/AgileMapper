@@ -89,7 +89,6 @@
     <Compile Include="ObjectPopulation\ObjectMapperFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMapperKey.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingLambdaFactoryBase.cs" />
-    <Compile Include="ObjectPopulation\ObjectPopulationExtensions.cs" />
     <Compile Include="ObjectPopulation\OverwriteEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\ShortCircuitConditionBuilder.cs" />
     <Compile Include="Parameters.cs" />

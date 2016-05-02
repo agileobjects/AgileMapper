@@ -15,8 +15,7 @@
             {
                 { MemberType.Field, (instance, member) => Expression.Field(instance, member.Name) },
                 { MemberType.Property, (instance, member) => Expression.Property(instance, member.Name) },
-                { MemberType.GetMethod, (instance, member) => Expression.Call(instance, member.Name, Constants.NoTypeArguments) },
-                { MemberType.EnumerableElement, (instance, member) => instance }
+                { MemberType.GetMethod, (instance, member) => Expression.Call(instance, member.Name, Constants.NoTypeArguments) }
             };
 
         #endregion
