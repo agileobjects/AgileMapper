@@ -12,7 +12,7 @@
 
         internal QualifiedMember SourceMemberFor<T>(T sourceObject)
         {
-            var sourceParameter = Expression.Parameter(typeof(T), "source");
+            var sourceParameter = Parameters.Create<T>("source");
             var sourceProperty = typeof(T).GetProperties(Constants.PublicInstance).First();
             var sourcePropertyAccess = Expression.Property(sourceParameter, sourceProperty);
             var sourcePropertyCastToObject = sourcePropertyAccess.GetConversionTo(typeof(object));

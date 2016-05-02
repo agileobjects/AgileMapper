@@ -27,28 +27,33 @@
         {
             var typeIsEnumerable = type.IsEnumerable();
             var namingType = typeIsEnumerable ? type.GetEnumerableElementType() : type;
-            var variableRoot = namingType.Name;
+            var variableName = namingType.Name;
+
+            if (namingType.IsInterface)
+            {
+                variableName = variableName.Substring(1);
+            }
 
             if (namingType.IsGenericType)
             {
-                variableRoot = variableRoot.Substring(0, variableRoot.IndexOf('`'));
+                variableName = variableName.Substring(0, variableName.IndexOf('`'));
 
-                variableRoot += string.Join(
+                variableName += string.Join(
                     string.Empty,
                     namingType.GetGenericArguments().Select(arg => "_" + arg.GetVariableName(f => f.InPascalCase)));
             }
 
             if (formatter != null)
             {
-                variableRoot = formatter.Invoke(VariableFormatterSelector.Instance).Invoke(variableRoot);
+                variableName = formatter.Invoke(VariableFormatterSelector.Instance).Invoke(variableName);
             }
 
             if (typeIsEnumerable)
             {
-                variableRoot += "_c";
+                variableName += "_c";
             }
 
-            return variableRoot;
+            return variableName;
         }
 
         #region VariableFormatterSelector

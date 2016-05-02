@@ -69,7 +69,7 @@
             // ReSharper disable once PossibleNullReferenceException
             var methodInfo = (MethodInfo)((ConstantExpression)methodCall.Object).Value;
             var instance = methodCall.Arguments.Last();
-            var valueParameter = Expression.Parameter(methodInfo.GetParameters().First().ParameterType, "value");
+            var valueParameter = Parameters.Create(methodInfo.GetParameters().First().ParameterType, "value");
 
             return Expression.Call(instance, methodInfo, valueParameter);
         }

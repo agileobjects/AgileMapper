@@ -155,8 +155,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingContext mappingContext,
             int? enumerableIndex = null)
         {
-            var sourceParameter = Expression.Parameter(typeof(TDeclaredSource), "source");
-            var existingParameter = Expression.Parameter(typeof(TDeclaredTarget), "existing");
+            var sourceParameter = Parameters.Create<TDeclaredSource>("source");
+            var existingParameter = Parameters.Create<TDeclaredTarget>("existing");
 
             var contextType = typeof(ObjectMappingContext<,>)
                 .MakeGenericType(runtimeTypes.Item1, runtimeTypes.Item2);

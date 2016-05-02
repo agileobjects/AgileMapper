@@ -39,7 +39,7 @@
                 var nonNullableValueType = typeof(TValue)
                     .GetNonNullableUnderlyingTypeIfAppropriate();
 
-                var stringValueParameter = Expression.Parameter(typeof(string), "stringValue");
+                var stringValueParameter = Parameters.Create<string>("stringValue");
                 var valueVariable = Expression.Variable(nonNullableValueType, "value");
                 var tryParseCall = tryParseCallFactory.Invoke(nonNullableValueType, stringValueParameter, valueVariable);
 

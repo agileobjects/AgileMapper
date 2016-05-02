@@ -11,9 +11,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         #region Cached Items
 
-        private static readonly ParameterExpression _parameter = Expression.Parameter(
-            typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>),
-            "oc");
+        private static readonly ParameterExpression _parameter =
+            Parameters.Create<ObjectMappingContext<TRuntimeSource, TRuntimeTarget>>("omc");
 
         // ReSharper disable StaticMemberInGenericType
         private static readonly Expression _sourceObjectProperty = Expression.Property(_parameter, "Source");
@@ -178,7 +177,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static LambdaExpression GetTargetMemberLambda(Member objectMember)
         {
-            var targetObjectParameter = Expression.Parameter(typeof(TRuntimeTarget), "x");
+            var targetObjectParameter = Parameters.Create<TRuntimeTarget>("t");
             var targetMemberAccess = objectMember.GetAccess(targetObjectParameter);
 
             var targetMemberLambda = Expression.Lambda(

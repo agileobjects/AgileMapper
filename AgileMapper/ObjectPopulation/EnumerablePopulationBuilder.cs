@@ -43,11 +43,11 @@
             ObjectMappingContext = omc;
 
             _sourceElementType = omc.SourceObject.Type.GetEnumerableElementType();
-            _sourceElementParameter = GetParameterOfType(_sourceElementType);
+            _sourceElementParameter = Parameters.Create(_sourceElementType);
             _sourceElementId = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(_sourceElementType);
 
             _targetElementType = TargetCollectionType.GetEnumerableElementType();
-            _targetElementParameter = GetParameterOfType(_targetElementType);
+            _targetElementParameter = Parameters.Create(_targetElementType);
             _targetElementId = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(_targetElementType);
 
             _elementsAreAssignable = _targetElementType.IsAssignableFrom(_sourceElementType);
@@ -58,14 +58,6 @@
         }
 
         #region Setup
-
-        private static ParameterExpression GetParameterOfType(Type type)
-        {
-            var parameterName = type.GetShortVariableName();
-            var parameter = Expression.Parameter(type, parameterName);
-
-            return parameter;
-        }
 
         private void SetPopulationToDefault()
         {
@@ -266,7 +258,7 @@
             var elementType = subject.Type.GetEnumerableElementType();
             var typedForEachMethod = _forEachMethod.MakeGenericMethod(elementType);
             var forEachActionType = Expression.GetActionType(elementType, typeof(int));
-            var parameter = GetParameterOfType(elementType);
+            var parameter = Parameters.Create(elementType);
             var forEachAction = forEachActionFactory.Invoke(parameter);
             var forEachLambda = Expression.Lambda(forEachActionType, forEachAction, parameter, Parameters.EnumerableIndex);
             var forEachCall = Expression.Call(typedForEachMethod, subject, forEachLambda);
