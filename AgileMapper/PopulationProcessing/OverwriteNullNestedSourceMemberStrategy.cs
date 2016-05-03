@@ -1,35 +1,25 @@
 ﻿namespace AgileObjects.AgileMapper.PopulationProcessing
 {
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using ObjectPopulation;
 
-    internal class OverwriteNullNestedSourceMemberStrategy : NullNestedSourceMemberStrategyBase
+    internal class OverwriteNullNestedSourceMemberStrategy : DefaultNullNestedSourceMemberStrategy
     {
-        internal static readonly INestedSourceMemberStrategy Instance = new OverwriteNullNestedSourceMemberStrategy();
+        internal new static readonly INestedSourceMemberStrategy Instance = new OverwriteNullNestedSourceMemberStrategy();
 
-        protected override MemberPopulation GetSinglePopulation(
-            Expression sourceMembersCheck,
-            MemberPopulation population)
+        protected override IMemberPopulation Update(IMemberPopulation population, Expression sourceMembersCheck)
         {
+            if (population.IsMultiplePopulation)
+            {
+                return base.Update(population, sourceMembersCheck);
+            }
+
             var valueOrDefault = Expression.Condition(
                 sourceMembersCheck,
                 population.Value,
                 Expression.Default(population.Value.Type));
 
             return population.WithValue(valueOrDefault);
-        }
-
-        protected override MemberPopulation GetMultiplePopulation(
-            Expression sourceMembersCheck,
-            IEnumerable<MemberPopulation> populations)
-        {
-            var populate = Expression.IfThen(
-                sourceMembersCheck,
-                Expression.Block(populations.Select(p => p.Population)));
-
-            return populations.First().WithPopulation(populate);
         }
     }
 }

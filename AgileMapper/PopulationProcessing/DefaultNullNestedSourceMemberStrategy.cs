@@ -1,39 +1,25 @@
 ﻿namespace AgileObjects.AgileMapper.PopulationProcessing
 {
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
+    using Extensions;
     using ObjectPopulation;
 
-    internal class DefaultNullNestedSourceMemberStrategy : NullNestedSourceMemberStrategyBase
+    internal class DefaultNullNestedSourceMemberStrategy : INestedSourceMemberStrategy
     {
         public static readonly INestedSourceMemberStrategy Instance = new DefaultNullNestedSourceMemberStrategy();
 
-        protected override MemberPopulation GetSinglePopulation(
-            Expression sourceMembersCheck,
-            MemberPopulation population)
+        public IMemberPopulation Process(IMemberPopulation population)
         {
-            return GetGuardedPopulation(sourceMembersCheck, population, population.Population);
+            var allSourceMembersNotNullCheck = population
+                .NestedSourceMemberAccesses
+                .GetIsNotDefaultComparisons();
+
+            return Update(population, allSourceMembersNotNullCheck);
         }
 
-        protected override MemberPopulation GetMultiplePopulation(
-            Expression sourceMembersCheck,
-            IEnumerable<MemberPopulation> populations)
+        protected virtual IMemberPopulation Update(IMemberPopulation population, Expression sourceMembersCheck)
         {
-            return GetGuardedPopulation(
-                sourceMembersCheck,
-                populations.First(),
-                Expression.Block(populations.Select(d => d.Population)));
-        }
-
-        private static MemberPopulation GetGuardedPopulation(
-            Expression sourceMembersCheck,
-            MemberPopulation population,
-            Expression populationExpression)
-        {
-            var guardedPopulation = Expression.IfThen(sourceMembersCheck, populationExpression);
-
-            return population.WithPopulation(guardedPopulation);
+            return population.AddCondition(sourceMembersCheck);
         }
     }
 }

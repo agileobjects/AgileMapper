@@ -1,14 +1,19 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
+    using Extensions;
     using Members;
     using ReadableExpressions;
 
-    internal class MemberPopulation
+    internal class MemberPopulation : IMemberPopulation
     {
+        private readonly Func<Expression, Expression> _populationFactory;
+        private readonly ICollection<Expression> _conditions;
+
         public MemberPopulation(
             Member targetMember,
             IDataSource dataSource,
@@ -30,7 +35,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   targetMember,
                   value,
                   nestedSourceMemberAccesses,
-                  targetMember.GetPopulation(omc.TargetVariable, value), omc)
+                  finalValue => targetMember.GetPopulation(omc.TargetVariable, finalValue),
+                  omc)
         {
         }
 
@@ -38,32 +44,34 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Member targetMember,
             Expression value,
             IEnumerable<Expression> nestedSourceMemberAccesses,
-            Expression population,
+            Func<Expression, Expression> populationFactory,
             IObjectMappingContext omc)
         {
             TargetMember = targetMember;
             Value = value;
             NestedSourceMemberAccesses = nestedSourceMemberAccesses;
-            Population = population;
+            _populationFactory = populationFactory;
             ObjectMappingContext = omc;
+
+            _conditions = new List<Expression>();
         }
 
         #region Factory Methods
 
-        public static MemberPopulation IgnoredMember(Member targetMember, IObjectMappingContext omc)
+        public static IMemberPopulation IgnoredMember(Member targetMember, IObjectMappingContext omc)
             => new MemberPopulation(
                    targetMember,
                    Constants.EmptyExpression,
                    Enumerable.Empty<Expression>(),
-                   ReadableExpression.Comment(targetMember.Name + " is ignored"),
+                   _ => ReadableExpression.Comment(targetMember.Name + " is ignored"),
                    omc);
 
-        public static MemberPopulation NoDataSource(Member targetMember, IObjectMappingContext omc)
+        public static IMemberPopulation NoDataSource(Member targetMember, IObjectMappingContext omc)
             => new MemberPopulation(
                    targetMember,
                    Constants.EmptyExpression,
                    Enumerable.Empty<Expression>(),
-                   ReadableExpression.Comment("No data source for " + targetMember.Name),
+                   _ => ReadableExpression.Comment("No data source for " + targetMember.Name),
                    omc);
 
         #endregion
@@ -74,16 +82,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IEnumerable<Expression> NestedSourceMemberAccesses { get; }
 
-        public Expression Population { get; }
+        public bool IsMultiplePopulation => false;
 
-        public bool IsSuccessful => Population != null;
+        public IMemberPopulation AddCondition(Expression condition)
+        {
+            _conditions.Add(condition);
+            return this;
+        }
+
+        public Expression GetPopulation()
+        {
+            var population = _populationFactory.Invoke(Value);
+
+            if (_conditions.Any())
+            {
+                var allConditions = _conditions.GetIsNotDefaultComparisons();
+
+                population = Expression.IfThen(allConditions, population);
+            }
+
+            return population;
+        }
+
+        public bool IsSuccessful => Value != null;
 
         public IObjectMappingContext ObjectMappingContext { get; }
 
-        public MemberPopulation WithValue(Expression updatedValue)
+        public IMemberPopulation WithValue(Expression updatedValue)
             => new MemberPopulation(TargetMember, updatedValue, NestedSourceMemberAccesses, ObjectMappingContext);
-
-        public MemberPopulation WithPopulation(Expression updatedPopulation)
-            => new MemberPopulation(TargetMember, Value, NestedSourceMemberAccesses, updatedPopulation, ObjectMappingContext);
     }
 }

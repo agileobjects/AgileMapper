@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -74,6 +75,19 @@
             return Expression.Call(instance, methodInfo, valueParameter);
         }
 
+        public static Expression GetIsNotDefaultComparisons(this IEnumerable<Expression> expressions)
+        {
+            var notNullChecks = expressions
+                .Select(expression => expression.GetIsNotDefaultComparison())
+                .ToArray();
+
+            var allNotNullCheck = notNullChecks
+                .Skip(1)
+                .Aggregate(notNullChecks.First(), Expression.AndAlso);
+
+            return allNotNullCheck;
+        }
+
         public static BinaryExpression GetIsDefaultComparison(this Expression expression)
         {
             return Expression.Equal(expression, Expression.Default(expression.Type));
@@ -121,30 +135,45 @@
             return false;
         }
 
-        public static Expression Replace(this Expression subject, Expression target, Expression replacement)
+        public static Expression ReplaceParameter(this LambdaExpression lambda, Expression replacement)
         {
-            return new ExpressionReplacer(target, replacement).ReplaceIn(subject);
+            return ReplaceParameters(lambda, replacement);
+        }
+
+        public static Expression ReplaceParameters(this LambdaExpression lambda, params Expression[] replacements)
+        {
+            var replacementsByParameter = lambda
+                .Parameters
+                .Cast<Expression>()
+                .Select((p, i) => new { Parameter = p, Replacement = replacements[i] })
+                .ToDictionary(d => d.Parameter, d => d.Replacement);
+
+            return new ExpressionReplacer(replacementsByParameter).ReplaceIn(lambda.Body);
         }
 
         #region Replace Helper
 
         private class ExpressionReplacer
         {
-            private readonly Expression _target;
-            private readonly Expression _replacement;
+            private readonly Dictionary<Expression, Expression> _replacementsByTarget;
 
-            public ExpressionReplacer(Expression target, Expression replacement)
+            public ExpressionReplacer(Dictionary<Expression, Expression> replacementsByTarget)
             {
-                _target = target;
-                _replacement = replacement;
+                _replacementsByTarget = replacementsByTarget;
             }
 
             public Expression ReplaceIn(Expression expression)
             {
-                switch (expression?.NodeType)
+                switch (expression.NodeType)
                 {
                     case ExpressionType.Add:
                     case ExpressionType.Divide:
+                    case ExpressionType.Equal:
+                    case ExpressionType.NotEqual:
+                    case ExpressionType.GreaterThan:
+                    case ExpressionType.GreaterThanOrEqual:
+                    case ExpressionType.LessThan:
+                    case ExpressionType.LessThanOrEqual:
                     case ExpressionType.Multiply:
                     case ExpressionType.Subtract:
                         return ReplaceIn((BinaryExpression)expression);
@@ -184,7 +213,16 @@
 
             private Expression Replace(Expression expression)
             {
-                return expression == _target ? _replacement : ReplaceIn(expression);
+                if (expression == null)
+                {
+                    return null;
+                }
+
+                Expression replacement;
+
+                return _replacementsByTarget.TryGetValue(expression, out replacement)
+                    ? replacement
+                    : ReplaceIn(expression);
             }
         }
 

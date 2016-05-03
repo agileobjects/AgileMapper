@@ -19,7 +19,7 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                instance => valueFactoryExpression.Body.Replace(valueFactoryExpression.Parameters.First(), instance));
+                valueFactoryExpression.ReplaceParameter);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
@@ -78,7 +78,7 @@
 
         #endregion
 
-        public void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
+        public ConditionSpecifier<TSource, TTarget> Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             var configuredIgnoredMember = ConfiguredIgnoredMember.For(
                 _configInfo,
@@ -86,6 +86,8 @@
                 targetMember.Body);
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+
+            return new ConditionSpecifier<TSource, TTarget>(configuredIgnoredMember);
         }
     }
 }

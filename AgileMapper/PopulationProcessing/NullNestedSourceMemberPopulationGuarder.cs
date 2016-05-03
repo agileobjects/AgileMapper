@@ -9,30 +9,31 @@
     {
         internal static readonly IPopulationProcessor Instance = new NullNestedSourceMemberPopulationGuarder();
 
-        public IEnumerable<MemberPopulation> Process(IEnumerable<MemberPopulation> populations)
+        public IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations)
         {
             var guardedPopulations = populations
                 .GroupBy(p => string.Join(",", p.NestedSourceMemberAccesses.Select(m => m.ToString())))
                 .OrderBy(grp => grp.Key)
-                .SelectMany(grp => (grp.Key == string.Empty)
-                    ? grp.ToArray()
-                    : GroupedAndGuardedPopulationData(
-                        grp.First().NestedSourceMemberAccesses,
-                        grp.ToArray()))
+                .Select(grp => new CompositeMemberPopulation(grp.ToArray()))
+                .Select(GetGuardedPopulation)
                 .ToArray();
 
             return guardedPopulations;
         }
 
-        private static IEnumerable<MemberPopulation> GroupedAndGuardedPopulationData(
-            IEnumerable<Expression> accessedNestedSourceMembers,
-            IEnumerable<MemberPopulation> populations)
+        private static IMemberPopulation GetGuardedPopulation(IMemberPopulation population)
         {
-            yield return populations
-                .First()
-                .ObjectMappingContext.MappingContext.RuleSet
+            if (!population.NestedSourceMemberAccesses.Any())
+            {
+                return population;
+            }
+
+            return population
+                .ObjectMappingContext
+                .MappingContext
+                .RuleSet
                 .NullNestedSourceMemberStrategy
-                .Process(accessedNestedSourceMembers, populations);
+                .Process(population);
         }
     }
 }

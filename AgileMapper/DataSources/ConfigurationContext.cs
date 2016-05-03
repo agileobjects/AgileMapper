@@ -40,6 +40,8 @@
 
         public Type SourceObjectType => SourceObject.Type;
 
+        public Expression ExistingObject => _omc.ExistingObject;
+
         public Type ExistingObjectType => _omc.ExistingObject.Type;
 
         public Expression TargetVariable => _omc.TargetVariable;

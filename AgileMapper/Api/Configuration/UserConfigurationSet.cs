@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using DataSources;
 
     internal class UserConfigurationSet
@@ -25,9 +26,13 @@
             _dataSourceFactories.Add(dataSourceFactory);
         }
 
-        public bool IsIgnored(IConfigurationContext context)
+        public bool IsIgnored(IConfigurationContext context, out Expression ignoreCondition)
         {
-            return _ignoredMembers.Any(im => im.AppliesTo(context));
+            var matchingIgnoredMember = _ignoredMembers.FirstOrDefault(im => im.AppliesTo(context));
+
+            ignoreCondition = matchingIgnoredMember?.GetCondition(context);
+
+            return matchingIgnoredMember != null;
         }
 
         public IDataSource GetDataSourceOrNull(IConfigurationContext context)

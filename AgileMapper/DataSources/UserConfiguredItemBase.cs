@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System;
+    using System.Linq.Expressions;
     using Api.Configuration;
     using Members;
 
@@ -8,6 +9,7 @@
     {
         private readonly Type _targetType;
         private readonly QualifiedMember _targetMember;
+        private Func<IConfigurationContext, Expression> _conditionFactory;
 
         protected UserConfiguredItemBase(
             MappingConfigInfo configInfo,
@@ -20,6 +22,16 @@
         }
 
         protected MappingConfigInfo ConfigInfo { get; }
+
+        public void AddCondition(Func<IConfigurationContext, Expression> conditionFactory)
+        {
+            _conditionFactory = conditionFactory;
+        }
+
+        public Expression GetCondition(IConfigurationContext context)
+        {
+            return _conditionFactory?.Invoke(context);
+        }
 
         public bool AppliesTo(IConfigurationContext context)
         {

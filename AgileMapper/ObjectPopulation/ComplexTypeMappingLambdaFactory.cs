@@ -93,7 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .MappingContext
                 .RuleSet
                 .Process(memberPopulations)
-                .Select(d => d.Population)
+                .Select(d => d.GetPopulation())
                 .ToArray();
 
             return new[] { objectRegistration }

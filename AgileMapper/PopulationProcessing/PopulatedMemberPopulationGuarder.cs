@@ -10,7 +10,7 @@
     {
         internal static readonly IPopulationProcessor Instance = new PopulatedMemberPopulationGuarder();
 
-        public IEnumerable<MemberPopulation> Process(IEnumerable<MemberPopulation> populations)
+        public IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations)
         {
             foreach (var population in populations)
             {
@@ -19,9 +19,8 @@
                 {
                     var targetMemberAccess = GetTargetMemberAccess(population);
                     var targetMemberHasDefaultValue = targetMemberAccess.GetIsDefaultComparison();
-                    var ifDefaultValueThenPopulate = Expression.IfThen(targetMemberHasDefaultValue, population.Population);
 
-                    yield return population.WithPopulation(ifDefaultValueThenPopulate);
+                    yield return population.AddCondition(targetMemberHasDefaultValue);
                     continue;
                 }
 
@@ -29,7 +28,7 @@
             }
         }
 
-        private static Expression GetTargetMemberAccess(MemberPopulation population)
+        private static Expression GetTargetMemberAccess(IMemberPopulation population)
             => population.TargetMember.GetAccess(population.ObjectMappingContext.TargetVariable);
     }
 }

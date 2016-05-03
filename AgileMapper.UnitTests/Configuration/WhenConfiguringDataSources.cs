@@ -242,42 +242,6 @@
         }
 
         [Fact]
-        public void ShouldIgnoreAConfiguredMember()
-        {
-            using (var mapper = Mapper.Create())
-            {
-                mapper.When.Mapping
-                    .From<PersonViewModel>()
-                    .ToANew<Person>()
-                    .Ignore(x => x.Name);
-
-                var source = new PersonViewModel { Name = "Jon" };
-                var result = mapper.Map(source).ToNew<Person>();
-
-                result.Name.ShouldBeNull();
-            }
-        }
-
-        [Fact]
-        public void ShouldIgnoreAConfiguredMemberInARootCollection()
-        {
-            using (var mapper = Mapper.Create())
-            {
-                mapper.When.Mapping
-                    .From<Person>()
-                    .Over<Person>()
-                    .Ignore(x => x.Address);
-
-                var source = new[] { new Person { Name = "Jon", Address = new Address { Line1 = "Blah" } } };
-                var target = new[] { new Person() };
-                var result = mapper.Map(source).Over(target);
-
-                result.Length.ShouldBe(1);
-                result.First().Address.ShouldBeNull();
-            }
-        }
-
-        [Fact]
         public void ShouldApplyAConfiguredExpressionUsingExtensionMethods()
         {
             using (var mapper = Mapper.Create())

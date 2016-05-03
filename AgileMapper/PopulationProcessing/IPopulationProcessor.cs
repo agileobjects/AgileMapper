@@ -5,6 +5,6 @@
 
     internal interface IPopulationProcessor
     {
-        IEnumerable<MemberPopulation> Process(IEnumerable<MemberPopulation> populations);
+        IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations);
     }
 }

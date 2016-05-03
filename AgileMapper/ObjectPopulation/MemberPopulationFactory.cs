@@ -2,12 +2,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using DataSources;
     using Members;
 
     internal static class MemberPopulationFactory
     {
-        public static IEnumerable<MemberPopulation> Create(IObjectMappingContext omc)
+        public static IEnumerable<IMemberPopulation> Create(IObjectMappingContext omc)
         {
             return omc
                 .GlobalContext
@@ -16,11 +17,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Select(targetMember => Create(targetMember, omc));
         }
 
-        private static MemberPopulation Create(Member targetMember, IObjectMappingContext omc)
+        private static IMemberPopulation Create(Member targetMember, IObjectMappingContext omc)
         {
             var qualifiedMember = omc.TargetMember.Append(targetMember);
 
-            if (TargetMemberIsIgnored(qualifiedMember, omc))
+            Expression ignoreCondition;
+
+            if (TargetMemberIsIgnored(qualifiedMember, omc, out ignoreCondition) &&
+                (ignoreCondition == null))
             {
                 return MemberPopulation.IgnoredMember(targetMember, omc);
             }
@@ -30,16 +34,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .DataSources
                 .FindFor(qualifiedMember, omc);
 
-            return (dataSource != null)
-                ? new MemberPopulation(targetMember, dataSource, omc)
-                : MemberPopulation.NoDataSource(targetMember, omc);
+            if (dataSource == null)
+            {
+                return MemberPopulation.NoDataSource(targetMember, omc);
+            }
+
+            var population = new MemberPopulation(targetMember, dataSource, omc);
+
+            if (ignoreCondition != null)
+            {
+                population.AddCondition(ignoreCondition);
+            }
+
+            return population;
         }
 
-        private static bool TargetMemberIsIgnored(QualifiedMember qualifiedMember, IObjectMappingContext omc)
+        private static bool TargetMemberIsIgnored(
+            QualifiedMember qualifiedMember,
+            IObjectMappingContext omc,
+            out Expression ignoreCondition)
         {
             var configurationContext = new ConfigurationContext(qualifiedMember, omc);
 
-            return omc.MapperContext.UserConfigurations.IsIgnored(configurationContext);
+            return omc.MapperContext.UserConfigurations.IsIgnored(configurationContext, out ignoreCondition);
         }
     }
 }

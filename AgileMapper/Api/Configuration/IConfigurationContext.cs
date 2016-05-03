@@ -16,6 +16,8 @@
 
         Type SourceObjectType { get; }
 
+        Expression ExistingObject { get; }
+
         Type ExistingObjectType { get; }
 
         Expression TargetVariable { get; }

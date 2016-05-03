@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper
 
         public INestedSourceMemberStrategy NullNestedSourceMemberStrategy { get; }
 
-        public IEnumerable<MemberPopulation> Process(IEnumerable<MemberPopulation> populations)
+        public IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations)
         {
             var processedPopulationData = _populationProcessors
                 .Aggregate(
