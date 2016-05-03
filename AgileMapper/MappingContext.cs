@@ -142,26 +142,7 @@ namespace AgileObjects.AgileMapper
 
         private static class ObjectCache<TKey, TObject>
         {
-            private static Dictionary<TKey, TObject> _cache;
-
-            public static Dictionary<TKey, TObject> Cache
-            {
-                get
-                {
-                    if (_cache == null)
-                    {
-                        lock (typeof(ObjectCache<TKey, TObject>))
-                        {
-                            if (_cache == null)
-                            {
-                                _cache = new Dictionary<TKey, TObject>();
-                            }
-                        }
-                    }
-
-                    return _cache;
-                }
-            }
+            public static readonly Dictionary<TKey, TObject> Cache = new Dictionary<TKey, TObject>();
         }
     }
 }
