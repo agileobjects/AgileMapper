@@ -1,15 +1,28 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Api.Configuration;
     using Extensions;
 
     internal abstract class SourceMemberDataSourceBase : IDataSource
     {
-        protected SourceMemberDataSourceBase(Expression value, Expression sourceObject)
+        private readonly Func<IConfigurationContext, Expression> _conditionFactory;
+
+        protected SourceMemberDataSourceBase(
+            Expression value,
+            Expression sourceObject,
+            Func<IConfigurationContext, Expression> conditionFactory = null)
         {
+            _conditionFactory = conditionFactory;
             NestedSourceMemberAccesses = NestedSourceMemberAccessFinder.FindIn(value, sourceObject);
             Value = value;
+        }
+
+        public Expression GetConditionOrNull(IConfigurationContext context)
+        {
+            return _conditionFactory?.Invoke(context);
         }
 
         public IEnumerable<Expression> NestedSourceMemberAccesses { get; }

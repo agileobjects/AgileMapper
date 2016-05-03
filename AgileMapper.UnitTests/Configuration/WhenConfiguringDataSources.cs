@@ -48,6 +48,32 @@
         }
 
         [Fact]
+        public void ShouldConditionallyApplyAConfiguredConstant()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.When.Mapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicProperty<string>>()
+                    .Map("Too small!")
+                    .To(x => x.Value)
+                    .If((s, t) => t.Value.Length < 5);
+
+                var source = new PublicProperty<string> { Value = "Replaced" };
+
+                var nonMatchingTarget = new PublicProperty<string> { Value = "This has more than 5 characters" };
+                var nonMatchingResult = mapper.Map(source).Over(nonMatchingTarget);
+
+                nonMatchingResult.Value.ShouldBe("This has more than 5 characters");
+
+                var matchingTarget = new PublicProperty<string> { Value = "Tiny" };
+                var matchingResult = mapper.Map(source).Over(matchingTarget);
+
+                matchingResult.Value.ShouldBe("Too small!");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredMember()
         {
             using (var mapper = Mapper.Create())

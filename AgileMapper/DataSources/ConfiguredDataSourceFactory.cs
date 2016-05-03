@@ -41,7 +41,7 @@
             var instance = ConfigInfo.IsForAllSources ? context.TargetVariable : context.SourceObject;
             var value = _customSourceValueFactory.Invoke(instance);
 
-            return new ConfiguredDataSource(value, context.SourceObject);
+            return new ConfiguredDataSource(value, context.SourceObject, GetCondition);
         }
     }
 }

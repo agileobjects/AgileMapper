@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Api.Configuration;
     using Members;
     using ObjectPopulation;
 
@@ -17,6 +18,8 @@
             _sourceEnumerableDataSource = sourceEnumerableDataSource;
             Value = omc.GetMapCall(sourceEnumerableDataSource.Value, enumerableMember);
         }
+
+        public Expression GetConditionOrNull(IConfigurationContext context) => null;
 
         public IEnumerable<Expression> NestedSourceMemberAccesses
             => _sourceEnumerableDataSource.NestedSourceMemberAccesses;

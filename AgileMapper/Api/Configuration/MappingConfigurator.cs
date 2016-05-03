@@ -14,26 +14,26 @@
             _configInfo = configInfo;
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
                 valueFactoryExpression.ReplaceParameter);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
         {
             return GetConstantTargetMemberSpecifier(valueFunc);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(TSourceValue value)
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
         {
             Expression valueFactoryExpression;
             Type valueFactoryReturnType;
 
             return TryGetValueFactory(value, out valueFactoryExpression, out valueFactoryReturnType)
-                ? new CustomDataSourceTargetMemberSpecifier<TTarget>(
+                ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                     _configInfo.ForSourceValueType(valueFactoryReturnType),
                     instance => Expression.Invoke(valueFactoryExpression, instance))
                 : GetConstantTargetMemberSpecifier(value);
@@ -67,11 +67,11 @@
             return false;
         }
 
-        private CustomDataSourceTargetMemberSpecifier<TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(TSourceValue value)
+        private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(TSourceValue value)
         {
             var valueConstant = Expression.Constant(value, typeof(TSourceValue));
 
-            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(valueConstant.Type),
                 instance => valueConstant);
         }
@@ -87,7 +87,7 @@
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
 
-            return new ConditionSpecifier<TSource, TTarget>(configuredIgnoredMember);
+            return new ConditionSpecifier<TSource, TTarget>(configuredIgnoredMember, negateCondition: true);
         }
     }
 }

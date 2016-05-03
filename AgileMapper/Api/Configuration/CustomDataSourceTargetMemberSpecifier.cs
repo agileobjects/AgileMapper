@@ -4,7 +4,7 @@
     using System.Linq.Expressions;
     using DataSources;
 
-    public class CustomDataSourceTargetMemberSpecifier<TTarget>
+    public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly Func<Expression, Expression> _customValueFactory;
@@ -17,17 +17,17 @@
             _customValueFactory = customValueFactory;
         }
 
-        public void To<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
+        public ConditionSpecifier<TSource, TTarget> To<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
         {
-            RegisterDataSource<TTargetValue>(targetMember);
+            return RegisterDataSource<TTargetValue>(targetMember);
         }
 
-        public void To<TTargetValue>(Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
+        public ConditionSpecifier<TSource, TTarget> To<TTargetValue>(Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
         {
-            RegisterDataSource<TTargetValue>(targetSetMethod);
+            return RegisterDataSource<TTargetValue>(targetSetMethod);
         }
 
-        private void RegisterDataSource<TTargetValue>(LambdaExpression targetMemberLambda)
+        private ConditionSpecifier<TSource, TTarget> RegisterDataSource<TTargetValue>(LambdaExpression targetMemberLambda)
         {
             _configInfo.ThrowIfSourceTypeDoesNotMatch<TTargetValue>();
 
@@ -38,6 +38,8 @@
                 targetMemberLambda.Body);
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);
+
+            return new ConditionSpecifier<TSource, TTarget>(configuredDataSourceFactory, negateCondition: false);
         }
     }
 }

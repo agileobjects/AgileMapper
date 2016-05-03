@@ -16,8 +16,6 @@
 
         Type SourceObjectType { get; }
 
-        Expression ExistingObject { get; }
-
         Type ExistingObjectType { get; }
 
         Expression EnumerableIndex { get; }

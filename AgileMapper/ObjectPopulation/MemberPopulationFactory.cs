@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Api.Configuration;
     using DataSources;
     using Members;
 
@@ -20,10 +21,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IMemberPopulation Create(Member targetMember, IObjectMappingContext omc)
         {
             var qualifiedMember = omc.TargetMember.Append(targetMember);
+            var configurationContext = new ConfigurationContext(qualifiedMember, omc);
 
             Expression ignoreCondition;
 
-            if (TargetMemberIsIgnored(qualifiedMember, omc, out ignoreCondition) &&
+            if (TargetMemberIsIgnored(configurationContext, omc, out ignoreCondition) &&
                 (ignoreCondition == null))
             {
                 return MemberPopulation.IgnoredMember(targetMember, omc);
@@ -41,22 +43,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var population = new MemberPopulation(targetMember, dataSource, omc);
 
-            if (ignoreCondition != null)
-            {
-                population.AddCondition(ignoreCondition);
-            }
+            AddConditions(dataSource, configurationContext, population, ignoreCondition);
 
             return population;
         }
 
         private static bool TargetMemberIsIgnored(
-            QualifiedMember qualifiedMember,
+            IConfigurationContext configurationContext,
             IObjectMappingContext omc,
             out Expression ignoreCondition)
         {
-            var configurationContext = new ConfigurationContext(qualifiedMember, omc);
-
             return omc.MapperContext.UserConfigurations.IsIgnored(configurationContext, out ignoreCondition);
+        }
+
+        private static void AddConditions(
+            IDataSource dataSource,
+            IConfigurationContext context,
+            IMemberPopulation population,
+            Expression ignoreCondition)
+        {
+            var dataSourceUseCondition = dataSource.GetConditionOrNull(context);
+
+            if (dataSourceUseCondition != null)
+            {
+                population.AddCondition(dataSourceUseCondition);
+            }
+
+            if (ignoreCondition != null)
+            {
+                population.AddCondition(ignoreCondition);
+            }
         }
     }
 }
