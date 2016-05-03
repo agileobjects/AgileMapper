@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Shouldly;
@@ -48,6 +49,31 @@
             result.Value.ShouldNotBeNull();
             result.Value.Name.ShouldBe("Frank");
             result.Value.AddressLine1.ShouldBe("Here!");
+        }
+
+        [Fact]
+        public void ShouldMapAComplexTypeMemberInACollectionFromItsAssignedType()
+        {
+            var sourceObjectId = Guid.NewGuid();
+
+            var source = new object[]
+            {
+                new { Name = "Bob", Address = new { Line1 = "There!" } },
+                new { Id = sourceObjectId.ToString(), Address = (object)new Address { Line1 = "Somewhere!" } }
+            };
+
+            var result = Mapper.Map(source).ToNew<ICollection<PersonViewModel>>();
+
+            result.ShouldNotBeNull();
+            result.Count.ShouldBe(2);
+
+            result.First().Id.ShouldBeDefault();
+            result.First().Name.ShouldBe("Bob");
+            result.First().AddressLine1.ShouldBe("There!");
+
+            result.Second().Id.ShouldBe(sourceObjectId);
+            result.Second().Name.ShouldBeNull();
+            result.Second().AddressLine1.ShouldBe("Somewhere!");
         }
     }
 }
