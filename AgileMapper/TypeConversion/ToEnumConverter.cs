@@ -6,34 +6,36 @@
 
     internal class ToEnumConverter : IValueConverter
     {
+        private readonly ToStringConverter _toStringConverter;
+
+        public ToEnumConverter(ToStringConverter toStringConverter)
+        {
+            _toStringConverter = toStringConverter;
+        }
+
         public bool IsFor(Type nonNullableTargetType)
         {
             return nonNullableTargetType.IsEnum;
         }
 
-        public bool CanConvert(Type sourceType)
+        public bool CanConvert(Type nonNullableSourceType)
         {
-            return sourceType.IsEnum ||
-                (sourceType == typeof(string)) ||
-                sourceType.IsNumeric();
+            return nonNullableSourceType.IsEnum ||
+                (nonNullableSourceType == typeof(string)) ||
+                nonNullableSourceType.IsNumeric();
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
         {
-            if (sourceValue.Type.IsNumeric())
+            if (sourceValue.Type != typeof(string))
             {
-                return sourceValue.GetConversionTo(targetType);
+                sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
 
-            if (sourceValue.Type == typeof(string))
-            {
-                var tryParseMethod = StringExtensions.GetTryParseEnumMethodFor(targetType);
-                var tryParseCall = Expression.Call(tryParseMethod, sourceValue);
+            var tryParseMethod = StringExtensions.GetTryParseEnumMethodFor(targetType);
+            var tryParseCall = Expression.Call(tryParseMethod, sourceValue);
 
-                return tryParseCall;
-            }
-
-            return sourceValue;
+            return tryParseCall;
         }
     }
 }

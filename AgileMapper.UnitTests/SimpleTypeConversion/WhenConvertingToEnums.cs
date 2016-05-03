@@ -7,6 +7,33 @@
     public class WhenConvertingToEnums
     {
         [Fact]
+        public void ShouldMapAByteToAnEnum()
+        {
+            var source = new PublicField<byte> { Value = (byte)Title.Dr };
+            var result = Mapper.Map(source).ToNew<PublicField<Title>>();
+
+            result.Value.ShouldBe(Title.Dr);
+        }
+
+        [Fact]
+        public void ShouldMapAShortToAnEnum()
+        {
+            var source = new PublicField<short> { Value = (short)Title.Miss };
+            var result = Mapper.Map(source).ToNew<PublicField<Title>>();
+
+            result.Value.ShouldBe(Title.Miss);
+        }
+
+        [Fact]
+        public void ShouldMapANullableIntToAnEnum()
+        {
+            var source = new PublicProperty<int?> { Value = (int)Title.Lady };
+            var result = Mapper.Map(source).ToNew<PublicField<Title>>();
+
+            result.Value.ShouldBe(Title.Lady);
+        }
+
+        [Fact]
         public void ShouldMapAnIntToAnEnum()
         {
             var source = new PublicProperty<int> { Value = (int)Title.Dr };
@@ -16,12 +43,30 @@
         }
 
         [Fact]
+        public void ShouldMapANullNullableIntToAnEnum()
+        {
+            var source = new PublicProperty<int?> { Value = null };
+            var result = Mapper.Map(source).ToNew<PublicField<TitleShortlist>>();
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
         public void ShouldMapALongToAnEnum()
         {
             var source = new PublicProperty<long> { Value = (long)Title.Miss };
             var result = Mapper.Map(source).ToNew<PublicField<Title>>();
 
             result.Value.ShouldBe((Title)source.Value);
+        }
+
+        [Fact]
+        public void ShouldMapANonMatchingNullableLongToANullableEnum()
+        {
+            var source = new PublicProperty<long?> { Value = (long)Title.Earl };
+            var result = Mapper.Map(source).ToNew<PublicField<TitleShortlist?>>();
+
+            result.Value.ShouldBeNull();
         }
 
         [Fact]
@@ -70,6 +115,33 @@
             var result = Mapper.Map(source).ToNew<PublicProperty<Title?>>();
 
             result.Value.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldMapAnEnumToAnEnum()
+        {
+            var source = new PublicProperty<TitleShortlist> { Value = TitleShortlist.Mrs };
+            var result = Mapper.Map(source).ToNew<PublicProperty<Title>>();
+
+            result.Value.ShouldBe(Title.Mrs);
+        }
+
+        [Fact]
+        public void ShouldMapANonMatchingEnumToANullableEnum()
+        {
+            var source = new PublicProperty<Title> { Value = Title.Lord };
+            var result = Mapper.Map(source).ToNew<PublicProperty<TitleShortlist?>>();
+
+            result.Value.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldMapANullNullableEnumToAnEnum()
+        {
+            var source = new PublicProperty<Title?> { Value = null };
+            var result = Mapper.Map(source).ToNew<PublicProperty<Title>>();
+
+            result.Value.ShouldBeDefault();
         }
     }
 }

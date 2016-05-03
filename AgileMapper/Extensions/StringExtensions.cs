@@ -24,7 +24,16 @@
 
         public static TEnum TryParseEnum<TEnum>(this string stringValue)
         {
-            return EnumTryParser<TEnum>.Instance.Parse(stringValue);
+            var enumValue = EnumTryParser<TEnum>.Instance.Parse(stringValue);
+
+            if (enumValue == null)
+            {
+                return default(TEnum);
+            }
+
+            var nonNullableEnumType = typeof(TEnum).GetNonNullableUnderlyingTypeIfAppropriate();
+
+            return Enum.IsDefined(nonNullableEnumType, enumValue) ? enumValue : default(TEnum);
         }
 
         #region TryParser Classes
@@ -64,16 +73,16 @@
             public static readonly DefaultTryParser<TValue> Instance = new DefaultTryParser<TValue>();
 
             private DefaultTryParser()
-                : base(GetNumericTryParseCall)
+                : base(GetTryParseCall)
             {
             }
 
-            private static Expression GetNumericTryParseCall(
-                Type nonNullableNumericType,
+            private static Expression GetTryParseCall(
+                Type nonNullableType,
                 Expression stringValueParameter,
                 Expression valueVariable)
             {
-                var tryParseMethod = nonNullableNumericType
+                var tryParseMethod = nonNullableType
                     .GetMethods(Constants.PublicStatic)
                     .First(m => (m.Name == "TryParse") && (m.GetParameters().Length == 2));
 

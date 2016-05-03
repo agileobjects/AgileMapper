@@ -13,12 +13,18 @@
             return nonNullableTargetType == typeof(string);
         }
 
-        public bool CanConvert(Type sourceType)
+        public bool CanConvert(Type nonNullableSourceType)
         {
             return true;
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
+        {
+            // targetType is always 'string':
+            return GetConversion(sourceValue);
+        }
+
+        public Expression GetConversion(Expression sourceValue)
         {
             if (sourceValue.Type == typeof(byte[]))
             {

@@ -97,6 +97,7 @@
     <Compile Include="TestClasses\PublicWriteOnlyProperty.cs" />
     <Compile Include="TestClasses\ReadOnlyField.cs" />
     <Compile Include="TestClasses\Title.cs" />
+    <Compile Include="TestClasses\TitleShortlist.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="WhenMappingCircularReferences.cs" />
     <Compile Include="WhenMappingDerivedTypes.cs" />

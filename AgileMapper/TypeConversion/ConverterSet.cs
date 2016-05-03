@@ -12,11 +12,13 @@
 
         public ConverterSet()
         {
+            var toStringConverter = new ToStringConverter();
+
             _converters = new IValueConverter[]
             {
-                new ToStringConverter(),
+                toStringConverter,
                 //new ToDateTimeConverter(),
-                new ToEnumConverter(),
+                new ToEnumConverter(toStringConverter),
                 new ToNumericConverter<int>(),
                 new ToNumericConverter<long>(),
                 new DefaultTryParseConverter<Guid>()
@@ -41,6 +43,7 @@
 
         private IValueConverter GetConverterFor(Type targetValueType, Type sourceValueType)
         {
+            sourceValueType = sourceValueType.GetNonNullableUnderlyingTypeIfAppropriate();
             targetValueType = targetValueType.GetNonNullableUnderlyingTypeIfAppropriate();
 
             return _converters.FirstOrDefault(c =>

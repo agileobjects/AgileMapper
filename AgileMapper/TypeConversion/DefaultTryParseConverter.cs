@@ -9,10 +9,9 @@
         {
         }
 
-        public override bool CanConvert(Type sourceType)
+        public override bool CanConvert(Type nonNullableSourceType)
         {
-            return base.CanConvert(sourceType) ||
-                   (sourceType == typeof(string));
+            return base.CanConvert(nonNullableSourceType) || (nonNullableSourceType == typeof(string));
         }
     }
 }

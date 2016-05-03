@@ -10,7 +10,6 @@
         private static readonly Type[] _handledSourceTypes =
             Constants.NumericTypes
                 .Concat(typeof(string))
-                .Concat(Constants.NumericTypes.Select(t => typeof(Nullable<>).MakeGenericType(t)))
                 .ToArray();
 
         protected ToNumericConverterBase(Type numericType)
@@ -18,11 +17,11 @@
         {
         }
 
-        public override bool CanConvert(Type sourceType)
+        public override bool CanConvert(Type nonNullableSourceType)
         {
-            return base.CanConvert(sourceType) ||
-                   sourceType.IsEnum ||
-                   _handledSourceTypes.Contains(sourceType);
+            return base.CanConvert(nonNullableSourceType) ||
+                   nonNullableSourceType.IsEnum ||
+                   _handledSourceTypes.Contains(nonNullableSourceType);
         }
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)

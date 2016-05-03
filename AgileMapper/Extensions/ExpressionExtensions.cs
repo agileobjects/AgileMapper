@@ -84,6 +84,13 @@
             return Expression.NotEqual(expression, Expression.Default(expression.Type));
         }
 
+        public static Expression GetToValueOrDefaultCall(this Expression nullableExpression)
+        {
+            return Expression.Call(
+                nullableExpression,
+                nullableExpression.Type.GetMethod("GetValueOrDefault", Constants.NoTypeArguments));
+        }
+
         public static Expression GetConversionTo(this Expression expression, Type targetType)
         {
             return (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;

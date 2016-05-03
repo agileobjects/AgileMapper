@@ -20,18 +20,16 @@ namespace AgileObjects.AgileMapper.TypeConversion
             return nonNullableTargetType == _targetType;
         }
 
-        public virtual bool CanConvert(Type sourceType)
+        public virtual bool CanConvert(Type nonNullableSourceType)
         {
-            return sourceType == _nullableTargetType;
+            return nonNullableSourceType == _targetType;
         }
 
         public virtual Expression GetConversion(Expression sourceValue, Type targetType)
         {
             if (sourceValue.Type == _nullableTargetType)
             {
-                return Expression.Call(
-                    sourceValue,
-                    sourceValue.Type.GetMethod("GetValueOrDefault", Constants.NoTypeArguments));
+                return sourceValue.GetToValueOrDefaultCall();
             }
 
             var tryParseMethod = StringExtensions.GetTryParseMethodFor(targetType);

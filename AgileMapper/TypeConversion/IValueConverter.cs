@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     {
         bool IsFor(Type nonNullableTargetType);
 
-        bool CanConvert(Type sourceType);
+        bool CanConvert(Type nonNullableSourceType);
 
         Expression GetConversion(Expression sourceValue, Type targetType);
     }
