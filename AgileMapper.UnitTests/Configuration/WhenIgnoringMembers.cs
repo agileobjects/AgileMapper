@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System.Collections.Generic;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -44,7 +45,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
-        public void ShouldIgnoreAConfiguredMemberConditionally()
+        public void ShouldConditionallyIgnoreAConfiguredMember()
         {
             using (var mapper = Mapper.Create())
             {
@@ -52,7 +53,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .From<PersonViewModel>()
                     .ToANew<Person>()
                     .Ignore(x => x.Name)
-                    .If((s, t) => s.Name == "Bilbo");
+                    .If((pvm, p) => pvm.Name == "Bilbo");
 
                 var matchingSource = new PersonViewModel { Name = "Bilbo" };
                 var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
@@ -63,6 +64,32 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
 
                 nonMatchingResult.Name.ShouldBe("Frodo");
+            }
+        }
+
+        [Fact]
+        public void ShouldConditionallyIgnoreAConfiguredMemberInACollection()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.When.Mapping
+                    .From<PersonViewModel>()
+                    .ToANew<Person>()
+                    .Ignore(p => p.Name)
+                    .If(pvm => pvm.Name.StartsWith("F"));
+
+                var source = new[]
+                {
+                    new PersonViewModel { Name = "Bilbo" },
+                    new PersonViewModel { Name = "Frodo" }
+                };
+
+                var result = mapper.Map(source).ToNew<IEnumerable<Person>>();
+
+                result.Count().ShouldBe(2);
+
+                result.First().Name.ShouldBe("Bilbo");
+                result.Second().Name.ShouldBeNull();
             }
         }
     }

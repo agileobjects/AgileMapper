@@ -14,14 +14,27 @@
             _configuredItem = configuredItem;
         }
 
+        public void If(Expression<Func<TSource, bool>> condition)
+        {
+            AddCondition(condition, context => new[] { context.SourceObject });
+        }
+
         public void If(Expression<Func<TSource, TTarget, bool>> condition)
+        {
+            AddCondition(condition, context => new[] { context.SourceObject, context.ExistingObject });
+        }
+
+        private void AddCondition(
+            LambdaExpression condition,
+            Func<IConfigurationContext, Expression[]> parameterReplacementsFactory)
         {
             _configuredItem.AddCondition(context =>
             {
-                var contextualisedCondition = condition
-                    .ReplaceParameters(context.SourceObject, context.ExistingObject);
+                var parameterReplacements = parameterReplacementsFactory.Invoke(context);
+                var contextualisedCondition = condition.ReplaceParameters(parameterReplacements);
+                var negatedCondition = Expression.Not(contextualisedCondition);
 
-                return Expression.Not(contextualisedCondition);
+                return negatedCondition;
             });
         }
     }
