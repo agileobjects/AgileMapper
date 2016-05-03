@@ -1,19 +1,19 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using System;
-
-    public class InstanceCreationRuleSpecifier
+    public class InstanceCreationRuleSpecifier : CallbackSpecifier<object>
     {
-        private readonly MapperContext _context;
+        private readonly MapperContext _mapperContext;
 
-        internal InstanceCreationRuleSpecifier(MapperContext context)
+        internal InstanceCreationRuleSpecifier(MapperContext mapperContext)
+            : base(mapperContext)
         {
-            _context = context;
+            _mapperContext = mapperContext;
         }
 
-        public void Call(Action<object> callback)
+        public CallbackSpecifier<TTarget> Of<TTarget>()
+            where TTarget : class
         {
-            _context.ComplexTypeFactory.AddCreationCallback(callback);
+            return new CallbackSpecifier<TTarget>(_mapperContext);
         }
     }
 }

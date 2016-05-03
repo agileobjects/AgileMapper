@@ -151,14 +151,6 @@
             }
         }
 
-        public static void Broadcast<T>(this IEnumerable<Action<T>> callbacks, T data)
-        {
-            foreach (var callback in callbacks)
-            {
-                callback.Invoke(data);
-            }
-        }
-
         // With thanks to http://stackoverflow.com/questions/3093622/generating-all-possible-combinations:
         public static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sequences)
         {
