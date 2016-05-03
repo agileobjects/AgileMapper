@@ -18,7 +18,7 @@
 
             result.ShouldNotBeNull();
             result.ShouldNotBeSameAs(source);
-            result.SequenceEqual(target).ShouldBeTrue();
+            result.SequenceEqual(source).ShouldBeTrue();
         }
 
         [Fact]

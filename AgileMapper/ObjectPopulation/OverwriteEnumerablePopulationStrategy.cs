@@ -32,18 +32,11 @@
                     Constants.EmptyExpression);
             }
 
-            if (builder.ObjectMappingContext.TargetMember.Type.IsArray)
-            {
-                // No mapping needed, just overwrite the existing object:
-                return Constants.EmptyExpression;
-            }
-
             var removeExistingItems = builder.ClearTarget();
 
             var addSourceItemsToTarget = builder.ProjectToTargetType().AddResultsToTarget();
 
             return Expression.Block(removeExistingItems, addSourceItemsToTarget, Constants.EmptyExpression);
-
         }
     }
 }

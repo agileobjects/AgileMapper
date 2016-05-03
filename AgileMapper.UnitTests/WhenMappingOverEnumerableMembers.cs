@@ -6,6 +6,7 @@
     using Shouldly;
     using TestClasses;
     using Xunit;
+    using static System.Decimal;
 
     public class WhenMappingOverEnumerableMembers
     {
@@ -26,6 +27,27 @@
 
             result.Value.ShouldBeSameAs(target.Value);
             result.Value.SequenceEqual(r => r.ToString(), source.Value).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldOverwriteAnArray()
+        {
+            var source = new PublicProperty<IEnumerable<decimal>>
+            {
+                Value = new[] { MinusOne, Zero }
+            };
+
+            var target = new PublicField<decimal[]>
+            {
+                Value = new[] { MinValue, MaxValue }
+            };
+
+            var originalTargetArray = target.Value;
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldNotBeSameAs(source.Value);
+            result.Value.ShouldNotBeSameAs(originalTargetArray);
+            result.Value.SequenceEqual(MinusOne, Zero).ShouldBeTrue();
         }
 
         [Fact]
