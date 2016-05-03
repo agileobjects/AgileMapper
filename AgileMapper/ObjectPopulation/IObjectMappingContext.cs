@@ -22,6 +22,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         bool HasSource<TSource>(TSource source);
 
+        Type GetSourceMemberRuntimeType(QualifiedMember sourceMember);
+
         Expression ExistingObject { get; }
 
         Type Type { get; }
@@ -43,6 +45,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         MethodCallExpression GetMapCall(Expression sourceEnumerable, Member enumerableMember);
 
         MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement);
-        
     }
 }

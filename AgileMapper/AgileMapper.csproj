@@ -56,6 +56,7 @@
     <Compile Include="DataSources\UserConfiguredItemBase.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="GlobalContext.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeMappingShortCircuitStrategy.cs" />

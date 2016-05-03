@@ -126,9 +126,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Type GetRuntimeSourceType<TDeclaredSource>(TDeclaredSource source)
         {
-            return typeof(TDeclaredSource).CouldHaveADifferentRuntimeType()
-                ? source.GetType()
-                : typeof(TDeclaredSource);
+            return source.GetRuntimeType();
         }
 
         private static Type GetRuntimeTargetType<TDeclaredTarget>(TDeclaredTarget existing, Type sourceType)

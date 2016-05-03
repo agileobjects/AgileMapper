@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -32,6 +33,21 @@
             var result = Mapper.Map(source).ToNew<IEnumerable<Product>>();
 
             result.First().Price.ShouldBe(9.99);
+        }
+
+        [Fact]
+        public void ShouldMapAComplexTypeMemberFromItsAssignedType()
+        {
+            var source = new PublicProperty<object>
+            {
+                Value = new { Name = "Frank", Address = (object)new Address { Line1 = "Here!" } }
+            };
+
+            var result = Mapper.Map(source).ToNew<PublicProperty<PersonViewModel>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.Name.ShouldBe("Frank");
+            result.Value.AddressLine1.ShouldBe("Here!");
         }
     }
 }

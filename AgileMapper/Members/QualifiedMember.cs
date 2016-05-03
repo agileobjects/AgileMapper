@@ -103,7 +103,7 @@ namespace AgileObjects.AgileMapper.Members
                 .Skip(1)
                 .Aggregate(
                     instance,
-                    (accessSoFar, member) => member.GetAccess(accessSoFar));
+                    (accessSoFar, member) => member.GetAccess(accessSoFar.GetConversionTo(member.DeclaringType)));
         }
 
         public bool Equals(QualifiedMember otherMember)

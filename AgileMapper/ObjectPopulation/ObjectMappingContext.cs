@@ -145,6 +145,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ReferenceEquals(Source, source);
         }
 
+        Type IObjectMappingContext.GetSourceMemberRuntimeType(QualifiedMember sourceMember)
+        {
+            if (sourceMember.Members.Count() == 1)
+            {
+                // The root member is guaranteed to be the runtime type:
+                return typeof(TRuntimeSource);
+            }
+
+            var relativeMember = sourceMember.RelativeTo(_sourceObjectDepth);
+            var memberAccess = relativeMember.GetAccess(_sourceObjectProperty);
+
+            var getRuntimeTypeCall = Expression.Call(
+                typeof(ObjectExtensions)
+                    .GetMethod("GetRuntimeType", Constants.PublicStatic)
+                    .MakeGenericMethod(sourceMember.Type),
+                memberAccess);
+
+            var getRuntimeTypeLambda = Expression
+                .Lambda<Func<ObjectMappingContext<TRuntimeSource, TRuntimeTarget>, Type>>(
+                    getRuntimeTypeCall,
+                    _parameter);
+
+            var getRuntimeTypeFunc = getRuntimeTypeLambda.Compile();
+
+            return getRuntimeTypeFunc.Invoke(this);
+        }
+
         Expression IObjectMappingContext.SourceObject => _sourceObjectProperty;
 
         int IObjectMappingContext.SourceObjectDepth => _sourceObjectDepth;

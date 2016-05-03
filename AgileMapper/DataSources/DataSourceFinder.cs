@@ -81,19 +81,20 @@
         public QualifiedMember GetSourceMemberMatching(QualifiedMember qualifiedTargetMember, IObjectMappingContext omc)
         {
             var rootSourceMember = omc.SourceMember;
-            var memberFinder = omc.GlobalContext.MemberFinder;
 
-            return GetAllSourceMembers(rootSourceMember, memberFinder)
+            return GetAllSourceMembers(rootSourceMember, omc)
                 .FirstOrDefault(sm => sm.Matches(qualifiedTargetMember));
         }
 
         private static IEnumerable<QualifiedMember> GetAllSourceMembers(
             QualifiedMember parentMember,
-            MemberFinder memberFinder)
+            IObjectMappingContext currentOmc)
         {
             yield return parentMember;
 
-            foreach (var sourceMember in memberFinder.GetSourceMembers(parentMember.Type))
+            var parentMemberType = currentOmc.GetSourceMemberRuntimeType(parentMember);
+
+            foreach (var sourceMember in currentOmc.GlobalContext.MemberFinder.GetSourceMembers(parentMemberType))
             {
                 var childMember = parentMember.Append(sourceMember);
 
@@ -103,7 +104,7 @@
                     continue;
                 }
 
-                foreach (var qualifiedMember in GetAllSourceMembers(childMember, memberFinder))
+                foreach (var qualifiedMember in GetAllSourceMembers(childMember, currentOmc))
                 {
                     yield return qualifiedMember;
                 }
