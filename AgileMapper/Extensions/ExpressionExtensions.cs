@@ -174,6 +174,7 @@
                     case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
+                    case ExpressionType.Modulo:
                     case ExpressionType.Multiply:
                     case ExpressionType.Subtract:
                         return ReplaceIn((BinaryExpression)expression);

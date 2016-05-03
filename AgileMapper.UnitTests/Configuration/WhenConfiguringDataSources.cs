@@ -92,6 +92,30 @@
         }
 
         [Fact]
+        public void ShouldConditionallyApplyAConfiguredMember()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.When.Mapping
+                    .From<PublicField<int>>()
+                    .ToANew<PublicSetMethod<string>>()
+                    .Map(x => x.Value)
+                    .To<string>(x => x.SetValue)
+                    .If(s => s.Value % 2 == 0);
+
+                var matchingSource = new PublicField<int> { Value = 6 };
+                var matchingResult = mapper.Map(matchingSource).ToNew<PublicSetMethod<string>>();
+
+                matchingResult.Value.ShouldBe("6");
+
+                var nonMatchingSource = new PublicField<int> { Value = 7 };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicSetMethod<string>>();
+
+                nonMatchingResult.Value.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredMemberFromAllSourceTypes()
         {
             using (var mapper = Mapper.Create())
