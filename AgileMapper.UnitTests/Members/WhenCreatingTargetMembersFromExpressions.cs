@@ -4,12 +4,13 @@
     using System.Linq;
     using System.Linq.Expressions;
     using AgileMapper.Members;
+    using Caching;
     using TestClasses;
     using Xunit;
 
     public class WhenCreatingTargetMembersFromExpressions
     {
-        private static readonly MemberFinder _memberFinder = new MemberFinder();
+        private static readonly MemberFinder _memberFinder = new MemberFinder(new DictionaryCache());
 
         [Fact]
         public void ShouldCreateAFieldMember()

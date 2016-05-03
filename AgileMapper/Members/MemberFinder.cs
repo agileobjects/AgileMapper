@@ -4,15 +4,26 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Caching;
     using Extensions;
 
     internal class MemberFinder
     {
+        private readonly ICache _globalCache;
+
+        public MemberFinder(ICache globalCache)
+        {
+            _globalCache = globalCache;
+        }
+
         public Member GetIdentifierOrNull(Type type)
         {
-            var typeMembers = GetSourceMembers(type);
+            return _globalCache.GetOrAdd(type.FullName + ": Identifier", k =>
+            {
+                var typeMembers = GetSourceMembers(type);
 
-            return typeMembers.FirstOrDefault(member => member.IsIdentifier);
+                return typeMembers.FirstOrDefault(member => member.IsIdentifier);
+            });
         }
 
         public IEnumerable<Member> GetSourceMembers(Type sourceMemberType)

@@ -5,10 +5,11 @@
     using System.Linq.Expressions;
     using AgileMapper.Extensions;
     using AgileMapper.Members;
+    using Caching;
 
     public abstract class MemberFinderTestsBase
     {
-        private static readonly MemberFinder _memberFinder = new MemberFinder();
+        private static readonly MemberFinder _memberFinder = new MemberFinder(new DictionaryCache());
 
         internal QualifiedMember SourceMemberFor<T>(T sourceObject)
         {

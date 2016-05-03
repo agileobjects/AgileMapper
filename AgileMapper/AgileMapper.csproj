@@ -39,6 +39,8 @@
     <Compile Include="Api\Configuration\ConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\InstanceCreationRuleSpecifier.cs" />
+    <Compile Include="Caching\DictionaryCache.cs" />
+    <Compile Include="Caching\ICache.cs" />
     <Compile Include="DataSources\ConfigurationContext.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
     <Compile Include="Api\Configuration\IConfigurationContext.cs" />

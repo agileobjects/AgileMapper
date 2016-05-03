@@ -1,13 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Members
 {
     using AgileMapper.Members;
+    using Caching;
     using Shouldly;
     using TestClasses;
     using Xunit;
 
     public class WhenDeterminingATypeIdentifier
     {
-        private static readonly MemberFinder _memberFinder = new MemberFinder();
+        private static readonly MemberFinder _memberFinder = new MemberFinder(new DictionaryCache());
 
         [Fact]
         public void ShouldUseAnIdProperty()

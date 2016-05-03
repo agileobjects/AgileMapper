@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using AgileMapper.Members;
+    using Caching;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -10,7 +11,7 @@
     // ReSharper disable PossibleNullReferenceException
     public class WhenFindingSourceMembers
     {
-        private static readonly MemberFinder _memberFinder = new MemberFinder();
+        private static readonly MemberFinder _memberFinder = new MemberFinder(new DictionaryCache());
 
         [Fact]
         public void ShouldFindAPublicProperty()
