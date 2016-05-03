@@ -7,12 +7,33 @@ namespace AgileObjects.AgileMapper
     {
         public static readonly GlobalContext Default = new GlobalContext();
 
-        private static readonly object _syncLock = new object();
+        private static readonly object _memberFinderSyncLock = new object();
+        private static readonly object _cacheSyncLock = new object();
 
+        private ICache _cache;
         private MemberFinder _memberFinder;
 
         private GlobalContext()
         {
+        }
+
+        public ICache Cache
+        {
+            get
+            {
+                if (_cache == null)
+                {
+                    lock (_cacheSyncLock)
+                    {
+                        if (_cache == null)
+                        {
+                            _cache = CreateCache();
+                        }
+                    }
+                }
+
+                return _cache;
+            }
         }
 
         public MemberFinder MemberFinder
@@ -21,11 +42,11 @@ namespace AgileObjects.AgileMapper
             {
                 if (_memberFinder == null)
                 {
-                    lock (_syncLock)
+                    lock (_memberFinderSyncLock)
                     {
                         if (_memberFinder == null)
                         {
-                            _memberFinder = new MemberFinder(CreateCache());
+                            _memberFinder = new MemberFinder(Cache);
                         }
                     }
                 }

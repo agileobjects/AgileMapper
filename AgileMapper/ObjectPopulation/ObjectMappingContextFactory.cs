@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -153,32 +154,43 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingContext mappingContext,
             int? enumerableIndex = null)
         {
-            var sourceParameter = Parameters.Create<TDeclaredSource>("source");
-            var existingParameter = Parameters.Create<TDeclaredTarget>("existing");
+            var funcKey = string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}({1}),{2}({3}): ObjectMappingContextConstructor",
+                typeof(TDeclaredSource).FullName,
+                runtimeTypes.Item1,
+                typeof(TDeclaredTarget).FullName,
+                runtimeTypes.Item2);
 
-            var contextType = typeof(ObjectMappingContext<,>)
-                .MakeGenericType(runtimeTypes.Item1, runtimeTypes.Item2);
+            var constructionFunc = mappingContext.GlobalContext.Cache.GetOrAdd(funcKey, k =>
+            {
+                var sourceParameter = Parameters.Create<TDeclaredSource>("source");
+                var existingParameter = Parameters.Create<TDeclaredTarget>("existing");
 
-            var constructorCall = Expression.New(
-                contextType.GetConstructors().First(),
-                Parameters.SourceMember,
-                Parameters.TargetMember,
-                sourceParameter.GetConversionTo(runtimeTypes.Item1),
-                existingParameter.GetConversionTo(runtimeTypes.Item2),
-                Parameters.EnumerableIndexNullable,
-                Parameters.MappingContext);
+                var contextType = typeof(ObjectMappingContext<,>)
+                    .MakeGenericType(runtimeTypes.Item1, runtimeTypes.Item2);
 
-            var constructionLambda = Expression
-                .Lambda<ObjectMappingContextCreator<TDeclaredSource, TDeclaredTarget>>(
-                    constructorCall,
+                var constructorCall = Expression.New(
+                    contextType.GetConstructors().First(),
                     Parameters.SourceMember,
                     Parameters.TargetMember,
-                    sourceParameter,
-                    existingParameter,
+                    sourceParameter.GetConversionTo(runtimeTypes.Item1),
+                    existingParameter.GetConversionTo(runtimeTypes.Item2),
                     Parameters.EnumerableIndexNullable,
                     Parameters.MappingContext);
 
-            var constructionFunc = constructionLambda.Compile();
+                var constructionLambda = Expression
+                    .Lambda<ObjectMappingContextCreator<TDeclaredSource, TDeclaredTarget>>(
+                        constructorCall,
+                        Parameters.SourceMember,
+                        Parameters.TargetMember,
+                        sourceParameter,
+                        existingParameter,
+                        Parameters.EnumerableIndexNullable,
+                        Parameters.MappingContext);
+
+                return constructionLambda.Compile();
+            });
 
             return constructionFunc.Invoke(sourceMember, targetMember, source, existing, enumerableIndex, mappingContext);
         }
