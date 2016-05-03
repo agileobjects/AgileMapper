@@ -19,6 +19,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly Expression _existingObjectProperty = Expression.Property(_parameter, "Existing");
 
+        private static readonly Expression _enumerableIndexProperty = Expression.Property(_parameter, "EnumerableIndex");
+
         private static readonly ParameterExpression _targetVariable =
             Expression.Variable(typeof(TRuntimeTarget).GetTargetVariableType(), "target");
 
@@ -77,6 +79,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             _sourceMember = sourceMember;
             _targetMember = targetMember;
+            EnumerableIndex = enumerableIndex;
             MappingContext = mappingContext;
             Source = source;
             Existing = existing;
@@ -112,6 +115,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public TRuntimeSource Source { get; }
 
         public TRuntimeTarget Existing { get; }
+
+        public int? EnumerableIndex { get; }
 
         public TRuntimeTarget Create()
         {
@@ -178,7 +183,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression IObjectMappingContext.ExistingObject => _existingObjectProperty;
 
-        Type IObjectMappingContext.Type => typeof(ObjectMappingContext<TRuntimeSource, TRuntimeTarget>);
+        Expression IObjectMappingContext.EnumerableIndex => _enumerableIndexProperty;
 
         ParameterExpression IObjectMappingContext.TargetVariable => _targetVariable;
 

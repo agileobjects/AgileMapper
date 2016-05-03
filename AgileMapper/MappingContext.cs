@@ -91,7 +91,7 @@ namespace AgileObjects.AgileMapper
         {
             IObjectMapper<TTarget> mapper;
 
-            if (typeof(ObjectMappingContext<TSource, TTarget>).IsAssignableFrom(CurrentObjectMappingContext.Type))
+            if (typeof(ObjectMappingContext<TSource, TTarget>).IsAssignableFrom(CurrentObjectMappingContext.Parameter.Type))
             {
                 mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(CurrentObjectMappingContext);
             }

@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression ExistingObject { get; }
 
-        Type Type { get; }
+        Expression EnumerableIndex { get; }
 
         ParameterExpression TargetVariable { get; }
 

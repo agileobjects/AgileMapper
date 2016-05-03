@@ -92,5 +92,31 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 result.Second().Name.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldConditionallyIgnoreAConfiguredMemberByEnumerableElement()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.When.Mapping
+                    .From<PublicProperty<int>>()
+                    .ToANew<PublicProperty<string>>()
+                    .Ignore(p => p.Value)
+                    .If((s, t, i) => i > 0);
+
+                var source = new[]
+                {
+                    new PublicProperty<int> { Value = 123 },
+                    new PublicProperty<int> { Value = 456 }
+                };
+
+                var result = mapper.Map(source).ToNew<IEnumerable<PublicProperty<string>>>();
+
+                result.Count().ShouldBe(2);
+
+                result.First().Value.ShouldBe("123");
+                result.Second().Value.ShouldBeNull();
+            }
+        }
     }
 }

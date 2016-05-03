@@ -24,6 +24,13 @@
             AddCondition(condition, context => new[] { context.SourceObject, context.ExistingObject });
         }
 
+        public void If(Expression<Func<TSource, TTarget, int?, bool>> condition)
+        {
+            AddCondition(
+                condition,
+                context => new[] { context.SourceObject, context.ExistingObject, context.EnumerableIndex });
+        }
+
         private void AddCondition(
             LambdaExpression condition,
             Func<IConfigurationContext, Expression[]> parameterReplacementsFactory)

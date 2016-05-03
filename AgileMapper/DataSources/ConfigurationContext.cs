@@ -44,6 +44,8 @@
 
         public Type ExistingObjectType => _omc.ExistingObject.Type;
 
+        public Expression EnumerableIndex => _omc.EnumerableIndex;
+
         public Expression TargetVariable => _omc.TargetVariable;
     }
 }

@@ -20,6 +20,8 @@
 
         Type ExistingObjectType { get; }
 
+        Expression EnumerableIndex { get; }
+
         Expression TargetVariable { get; }
     }
 }
