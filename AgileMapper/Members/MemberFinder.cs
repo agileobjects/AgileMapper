@@ -26,27 +26,33 @@
             });
         }
 
-        public IEnumerable<Member> GetSourceMembers(Type sourceMemberType)
+        public IEnumerable<Member> GetSourceMembers(Type sourceType)
         {
-            if (sourceMemberType.IsEnumerable())
+            return _globalCache.GetOrAdd(sourceType.FullName + ": SourceMembers", k =>
             {
-                return new[] { sourceMemberType.CreateElementMember() };
-            }
+                if (sourceType.IsEnumerable())
+                {
+                    return new[] { sourceType.CreateElementMember() };
+                }
 
-            var fields = GetFields(sourceMemberType, All);
-            var properties = GetProperties(sourceMemberType, OnlyGettable);
-            var methods = GetMethods(sourceMemberType, MemberType.GetMethod, OnlyRelevantCallable, UseReturnType);
+                var fields = GetFields(sourceType, All);
+                var properties = GetProperties(sourceType, OnlyGettable);
+                var methods = GetMethods(sourceType, MemberType.GetMethod, OnlyRelevantCallable, UseReturnType);
 
-            return GetMembers(fields, properties, methods);
+                return GetMembers(fields, properties, methods);
+            });
         }
 
         public IEnumerable<Member> GetTargetMembers(Type targetType)
         {
-            var fields = GetFields(targetType, OnlyWriteable);
-            var properties = GetProperties(targetType, OnlySettable);
-            var methods = GetMethods(targetType, MemberType.SetMethod, OnlySettable, UseFirstArgumentType);
+            return _globalCache.GetOrAdd(targetType.FullName + ": TargetMembers", k =>
+            {
+                var fields = GetFields(targetType, OnlyWriteable);
+                var properties = GetProperties(targetType, OnlySettable);
+                var methods = GetMethods(targetType, MemberType.SetMethod, OnlySettable, UseFirstArgumentType);
 
-            return GetMembers(fields, properties, methods);
+                return GetMembers(fields, properties, methods);
+            });
         }
 
         #region Fields
