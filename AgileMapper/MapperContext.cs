@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using System;
     using Api.Configuration;
+    using Caching;
     using DataSources;
     using ObjectPopulation;
     using TypeConversion;
@@ -12,6 +14,7 @@
         public MapperContext()
         {
             DataSources = new DataSourceFinder();
+            Cache = GlobalContext.CreateCache();
             ComplexTypeFactory = new ComplexTypeFactory();
             ObjectMapperFactory = new ObjectMapperFactory();
             UserConfigurations = new UserConfigurationSet();
@@ -20,6 +23,8 @@
         }
 
         public GlobalContext GlobalContext => GlobalContext.Default;
+
+        public ICache Cache { get; }
 
         public DataSourceFinder DataSources { get; }
 

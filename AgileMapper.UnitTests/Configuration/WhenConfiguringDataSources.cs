@@ -358,14 +358,12 @@
         [Fact]
         public void ShouldRestrictConfigurationApplicationByMappingMode()
         {
-            const int CONFIGURED_VALUE = 9999;
-
             using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PublicProperty<int>>()
                     .ToANew<PublicProperty<long>>()
-                    .Map(CONFIGURED_VALUE)
+                    .Map(9999)
                     .To(x => x.Value);
 
                 var source = new PublicProperty<int> { Value = 64738 };
@@ -373,7 +371,7 @@
 
                 var nonMatchingModeTarget = mapper.Map(source).Over(new PublicProperty<long>());
 
-                matchingModeResult.Value.ShouldBe(CONFIGURED_VALUE);
+                matchingModeResult.Value.ShouldBe(9999);
                 nonMatchingModeTarget.Value.ShouldBe(source.Value);
             }
         }
