@@ -17,15 +17,7 @@ namespace AgileObjects.AgileMapper
             _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(Cache), isThreadSafe: false);
         }
 
-        public ICache Cache
-        {
-            get
-            {
-                // Changing this to an expression body 'inlines' it, which 
-                // causes the MemberFinder to be passed a null ICache:
-                return _cacheLoader.Value;
-            }
-        }
+        public ICache Cache => _cacheLoader.Value;
 
         public MemberFinder MemberFinder => _memberFinderLoader.Value;
 
