@@ -177,12 +177,22 @@
         }
 
         [Fact]
+        public void ShouldMapAnCharacterOverAString()
+        {
+            var source = new PublicField<char> { Value = 'Z' };
+            var target = new PublicField<string> { Value = "Nope" };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBe("Z");
+        }
+
+        [Fact]
         public void ShouldMapAnEnumOnToAString()
         {
             var source = new PublicField<Title> { Value = Title.Dr };
             var result = Mapper.Map(source).OnTo(new PublicField<string>());
 
-            result.Value.ShouldBe(source.Value.ToString());
+            result.Value.ShouldBe("Dr");
         }
     }
 }
