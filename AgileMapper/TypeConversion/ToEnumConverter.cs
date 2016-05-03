@@ -22,6 +22,7 @@
         {
             return nonNullableSourceType.IsEnum ||
                 (nonNullableSourceType == typeof(string)) ||
+                (nonNullableSourceType == typeof(char)) ||
                 nonNullableSourceType.IsNumeric();
         }
 

@@ -70,33 +70,48 @@
         }
 
         [Fact]
+        public void ShouldMapAMatchingCharacterOnToAnEnum()
+        {
+            var source = new PublicField<char> { Value = '6' };
+            var result = Mapper.Map(source).OnTo(new PublicProperty<TitleShortlist>());
+
+            result.Value.ShouldBe((TitleShortlist)6);
+        }
+
+        [Fact]
+        public void ShouldMapANonMatchingNullableCharacterOnToANullableEnum()
+        {
+            var source = new PublicField<char?> { Value = 'x' };
+            var result = Mapper.Map(source).OnTo(new PublicProperty<TitleShortlist?>());
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
         public void ShouldMapAMatchingStringOnToAnEnum()
         {
-            const Title VALUE = Title.Mrs;
-            var source = new PublicField<string> { Value = VALUE.ToString() };
+            var source = new PublicField<string> { Value = Title.Mrs.ToString() };
             var result = Mapper.Map(source).OnTo(new PublicProperty<Title>());
 
-            result.Value.ShouldBe(VALUE);
+            result.Value.ShouldBe(Title.Mrs);
         }
 
         [Fact]
         public void ShouldMapAMatchingStringOnToAnEnumCaseInsensitively()
         {
-            const Title VALUE = Title.Miss;
-            var source = new PublicField<string> { Value = VALUE.ToString().ToLowerInvariant() };
+            var source = new PublicField<string> { Value = Title.Miss.ToString().ToLowerInvariant() };
             var result = Mapper.Map(source).OnTo(new PublicProperty<Title>());
 
-            result.Value.ShouldBe(VALUE);
+            result.Value.ShouldBe(Title.Miss);
         }
 
         [Fact]
         public void ShouldMapAMatchingNumericStringOverAnEnum()
         {
-            const Title VALUE = Title.Dr;
-            var source = new PublicField<string> { Value = ((int)VALUE).ToString() };
+            var source = new PublicField<string> { Value = ((int)Title.Dr).ToString() };
             var result = Mapper.Map(source).Over(new PublicProperty<Title>());
 
-            result.Value.ShouldBe(VALUE);
+            result.Value.ShouldBe(Title.Dr);
         }
 
         [Fact]
