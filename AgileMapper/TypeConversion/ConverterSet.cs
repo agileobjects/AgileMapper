@@ -19,9 +19,9 @@
                 toStringConverter,
                 //new ToDateTimeConverter(),
                 new ToEnumConverter(toStringConverter),
-                new ToNumericConverter<int>(),
-                new ToNumericConverter<long>(),
-                new DefaultTryParseConverter<Guid>()
+                new ToNumericConverter<int>(toStringConverter),
+                new ToNumericConverter<long>(toStringConverter),
+                new DefaultTryParseConverter<Guid>(toStringConverter)
             };
         }
 

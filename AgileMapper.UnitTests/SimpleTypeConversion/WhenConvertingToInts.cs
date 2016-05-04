@@ -189,6 +189,24 @@
         }
 
         [Fact]
+        public void ShouldMapACharacterToAnInt()
+        {
+            var source = new PublicProperty<char> { Value = '4' };
+            var result = Mapper.Map(source).ToNew<PublicField<int>>();
+
+            result.Value.ShouldBe(4);
+        }
+
+        [Fact]
+        public void ShouldMapAnUnparsableNullableCharacterToAnInt()
+        {
+            var source = new PublicProperty<char?> { Value = 'h' };
+            var result = Mapper.Map(source).ToNew<PublicField<int>>();
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
         public void ShouldMapAParsableStringOnToAnInt()
         {
             const int VALUE = 63476387;

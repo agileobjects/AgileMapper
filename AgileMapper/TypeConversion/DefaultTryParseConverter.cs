@@ -4,14 +4,14 @@
 
     internal class DefaultTryParseConverter<T> : TryParseConverterBase
     {
-        public DefaultTryParseConverter()
-            : base(typeof(T))
+        public DefaultTryParseConverter(ToStringConverter toStringConverter)
+            : base(toStringConverter, typeof(T))
         {
         }
 
         public override bool CanConvert(Type nonNullableSourceType)
         {
-            return base.CanConvert(nonNullableSourceType) || (nonNullableSourceType == typeof(string));
+            return (nonNullableSourceType == typeof(string)) || base.CanConvert(nonNullableSourceType);
         }
     }
 }

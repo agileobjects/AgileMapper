@@ -13,8 +13,8 @@ namespace AgileObjects.AgileMapper
 
         private GlobalContext()
         {
-            _cacheLoader = new Lazy<ICache>(CreateCache, isThreadSafe: false);
-            _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(Cache), isThreadSafe: false);
+            _cacheLoader = new Lazy<ICache>(CreateCache, isThreadSafe: true);
+            _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(Cache), isThreadSafe: true);
         }
 
         public ICache Cache => _cacheLoader.Value;

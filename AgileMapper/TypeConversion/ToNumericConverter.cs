@@ -12,8 +12,8 @@
                 .GetCoercibleNumericTypes()
                 .ToArray();
 
-        public ToNumericConverter()
-            : base(typeof(TNumeric))
+        public ToNumericConverter(ToStringConverter toStringConverter)
+            : base(toStringConverter, typeof(TNumeric))
         {
         }
 

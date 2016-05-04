@@ -6,11 +6,15 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
     internal abstract class TryParseConverterBase : IValueConverter
     {
+        private readonly ToStringConverter _toStringConverter;
         private readonly Type _targetType;
         private readonly Type _nullableTargetType;
 
-        protected TryParseConverterBase(Type targetType)
+        protected TryParseConverterBase(
+            ToStringConverter toStringConverter,
+            Type targetType)
         {
+            _toStringConverter = toStringConverter;
             _targetType = targetType;
             _nullableTargetType = typeof(Nullable<>).MakeGenericType(targetType);
         }
@@ -30,6 +34,11 @@ namespace AgileObjects.AgileMapper.TypeConversion
             if (sourceValue.Type == _nullableTargetType)
             {
                 return sourceValue.GetToValueOrDefaultCall();
+            }
+
+            if ((sourceValue.Type == typeof(char)) || (sourceValue.Type == typeof(char?)))
+            {
+                sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
 
             var tryParseMethod = StringExtensions.GetTryParseMethodFor(targetType);

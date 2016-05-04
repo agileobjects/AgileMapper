@@ -189,6 +189,24 @@
         }
 
         [Fact]
+        public void ShouldMapACharacterToANullableLong()
+        {
+            var source = new PublicProperty<char> { Value = '9' };
+            var result = Mapper.Map(source).ToNew<PublicField<long?>>();
+
+            result.Value.ShouldBe(9);
+        }
+
+        [Fact]
+        public void ShouldMapAnUnparsableCharacterToALong()
+        {
+            var source = new PublicProperty<char> { Value = 't' };
+            var result = Mapper.Map(source).ToNew<PublicField<long>>();
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
         public void ShouldMapAParsableStringOnToALong()
         {
             const int VALUE = 63476387;

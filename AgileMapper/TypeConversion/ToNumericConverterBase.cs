@@ -9,11 +9,11 @@
     {
         private static readonly Type[] _handledSourceTypes =
             Constants.NumericTypes
-                .Concat(typeof(string))
+                .Concat(typeof(string), typeof(char))
                 .ToArray();
 
-        protected ToNumericConverterBase(Type numericType)
-            : base(numericType)
+        protected ToNumericConverterBase(ToStringConverter toStringConverter, Type numericType)
+            : base(toStringConverter, numericType)
         {
         }
 
@@ -31,9 +31,14 @@
                 return sourceValue.GetConversionTo(targetType);
             }
 
-            return (sourceValue.Type != typeof(string))
-                ? GetCheckedNumericConversion(sourceValue, targetType)
-                : base.GetConversion(sourceValue, targetType);
+            return IsStringType(sourceValue.Type)
+                ? base.GetConversion(sourceValue, targetType)
+                : GetCheckedNumericConversion(sourceValue, targetType);
+        }
+
+        private static bool IsStringType(Type type)
+        {
+            return (type == typeof(string)) || (type == typeof(char)) || (type == typeof(char?));
         }
 
         protected abstract bool IsCoercible(Expression sourceValue);

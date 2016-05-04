@@ -67,13 +67,10 @@
                 var sourceItemId = sourceIdFactory.Invoke(sourceItem);
                 int count;
 
-                if (excludedItemCountsById.TryGetValue(sourceItemId, out count))
+                if (excludedItemCountsById.TryGetValue(sourceItemId, out count) && (count > 0))
                 {
-                    if (count > 0)
-                    {
-                        excludedItemCountsById[sourceItemId] = count - 1;
-                        continue;
-                    }
+                    excludedItemCountsById[sourceItemId] = count - 1;
+                    continue;
                 }
 
                 yield return sourceItem;
