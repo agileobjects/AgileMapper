@@ -32,10 +32,10 @@
             value.ShouldBe(default(T));
         }
 
-        public static void ShouldBe<T>(this T? value, T expectedValue)
-            where T : struct
+        public static void ShouldBe<TActual, TExpected>(this TActual? value, TExpected expectedValue)
+            where TActual : struct
         {
-            ShouldBeTestExtensions.ShouldBe(value, expectedValue);
+            value.GetValueOrDefault().ShouldBe(expectedValue);
         }
 
         public static void ShouldBe<TActual, TExpected>(this TActual value, TExpected expectedValue)

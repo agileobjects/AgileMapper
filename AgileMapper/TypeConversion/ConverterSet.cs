@@ -21,6 +21,7 @@
                 new ToEnumConverter(toStringConverter),
                 new ToNumericConverter<int>(toStringConverter),
                 new ToNumericConverter<long>(toStringConverter),
+                new ToNumericConverter<short>(toStringConverter),
                 new DefaultTryParseConverter<Guid>(toStringConverter)
             };
         }
