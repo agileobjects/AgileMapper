@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
+    using Members;
 
     public class ConditionSpecifier<TSource, TTarget>
     {
@@ -37,7 +38,7 @@
 
         private void AddCondition(
             LambdaExpression condition,
-            Func<IConfigurationContext, Expression[]> parameterReplacementsFactory)
+            Func<IMemberMappingContext, Expression[]> parameterReplacementsFactory)
         {
             _configuredItem.AddCondition(context =>
             {

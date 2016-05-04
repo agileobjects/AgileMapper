@@ -24,6 +24,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly ParameterExpression _targetVariable =
             Expression.Variable(typeof(TRuntimeTarget).GetTargetVariableType(), "target");
 
+        private static readonly NestedSourceMemberAccessFinder _nestedSourceMemberAccessFinder =
+            null/*new NestedSourceMemberAccessFinder(_sourceObjectProperty)*/;
+
         private static readonly Expression _mappingContextProperty = Expression.Property(_parameter, "MappingContext");
 
         private static readonly MethodCallExpression _tryGetCall = Expression.Call(
@@ -139,6 +142,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return MappingContext.MapEnumerableElement(sourceElement, existingElement, enumerableIndex);
         }
 
+        #region IMemberMappingContext Members
+
+        IMemberMappingContext IMemberMappingContext.Parent => _parent;
+
+        string IMemberMappingContext.RuleSetName => MappingContext.RuleSet.Name;
+
+        Expression IMemberMappingContext.SourceObject => _sourceObjectProperty;
+
+        Expression IMemberMappingContext.ExistingObject => _existingObjectProperty;
+
+        Expression IMemberMappingContext.EnumerableIndex => _enumerableIndexProperty;
+
+        ParameterExpression IMemberMappingContext.TargetVariable => _targetVariable;
+
+        QualifiedMember IMemberMappingContext.TargetMember => _targetMember;
+
+        NestedSourceMemberAccessFinder IMemberMappingContext.NestedSourceMemberAccessFinder
+            => _nestedSourceMemberAccessFinder;
+
+        #endregion
+
         #region IObjectMappingContext Members
 
         IObjectMappingContext IObjectMappingContext.Parent => _parent;
@@ -177,19 +201,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return getRuntimeTypeFunc.Invoke(this);
         }
 
-        Expression IObjectMappingContext.SourceObject => _sourceObjectProperty;
-
         int IObjectMappingContext.SourceObjectDepth => _sourceObjectDepth;
 
-        Expression IObjectMappingContext.ExistingObject => _existingObjectProperty;
-
-        Expression IObjectMappingContext.EnumerableIndex => _enumerableIndexProperty;
-
-        ParameterExpression IObjectMappingContext.TargetVariable => _targetVariable;
-
         QualifiedMember IObjectMappingContext.SourceMember => _sourceMember;
-
-        QualifiedMember IObjectMappingContext.TargetMember => _targetMember;
 
         MethodCallExpression IObjectMappingContext.GetTryGetCall() => _tryGetCall;
 

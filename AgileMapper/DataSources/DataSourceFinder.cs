@@ -42,12 +42,12 @@
             IObjectMappingContext omc,
             out IDataSource configuredDataSource)
         {
-            var configurationContext = new ConfigurationContext(targetMember, omc);
+            var memberContext = new MemberMappingContext(targetMember, omc);
 
             configuredDataSource = omc
                 .MapperContext
                 .UserConfigurations
-                .GetDataSourceOrNull(configurationContext);
+                .GetDataSourceOrNull(memberContext);
 
             return configuredDataSource != null;
         }

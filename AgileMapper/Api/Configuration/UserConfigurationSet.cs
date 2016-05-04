@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
+    using Members;
 
     internal class UserConfigurationSet
     {
@@ -26,7 +27,7 @@
             _dataSourceFactories.Add(dataSourceFactory);
         }
 
-        public bool IsIgnored(IConfigurationContext context, out Expression ignoreCondition)
+        public bool IsIgnored(IMemberMappingContext context, out Expression ignoreCondition)
         {
             var matchingIgnoredMember = _ignoredMembers.FirstOrDefault(im => im.AppliesTo(context));
 
@@ -35,7 +36,7 @@
             return matchingIgnoredMember != null;
         }
 
-        public IDataSource GetDataSourceOrNull(IConfigurationContext context)
+        public IDataSource GetDataSourceOrNull(IMemberMappingContext context)
         {
             var matchingDataSourceFactory = _dataSourceFactories
                 .FirstOrDefault(ds => ds.AppliesTo(context));

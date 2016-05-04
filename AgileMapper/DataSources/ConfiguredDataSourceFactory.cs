@@ -36,12 +36,12 @@
 
         #endregion
 
-        public IDataSource Create(IConfigurationContext context)
+        public IDataSource Create(IMemberMappingContext context)
         {
             var instance = ConfigInfo.IsForAllSources ? context.TargetVariable : context.SourceObject;
             var value = _customSourceValueFactory.Invoke(instance);
 
-            return new ConfiguredDataSource(value, context.SourceObject, GetCondition);
+            return new ConfiguredDataSource(value, context, GetCondition);
         }
     }
 }

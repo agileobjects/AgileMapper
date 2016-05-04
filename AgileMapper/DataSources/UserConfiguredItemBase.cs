@@ -9,7 +9,7 @@
     {
         private readonly Type _targetType;
         private readonly QualifiedMember _targetMember;
-        private Func<IConfigurationContext, Expression> _conditionFactory;
+        private Func<IMemberMappingContext, Expression> _conditionFactory;
 
         protected UserConfiguredItemBase(
             MappingConfigInfo configInfo,
@@ -23,17 +23,17 @@
 
         protected MappingConfigInfo ConfigInfo { get; }
 
-        public void AddCondition(Func<IConfigurationContext, Expression> conditionFactory)
+        public void AddCondition(Func<IMemberMappingContext, Expression> conditionFactory)
         {
             _conditionFactory = conditionFactory;
         }
 
-        public Expression GetCondition(IConfigurationContext context)
+        public Expression GetCondition(IMemberMappingContext context)
         {
             return _conditionFactory?.Invoke(context);
         }
 
-        public bool AppliesTo(IConfigurationContext context)
+        public bool AppliesTo(IMemberMappingContext context)
         {
             if (!ConfigInfo.IsForRuleSet(context.RuleSetName))
             {
@@ -48,12 +48,12 @@
             return ConfigInfo.IsForAllSources || ObjectHeirarchyHasMatchingSourceAndTargetTypes(context);
         }
 
-        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IConfigurationContext context)
+        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IMemberMappingContext context)
         {
             while (context != null)
             {
-                if (_targetType.IsAssignableFrom(context.ExistingObjectType) &&
-                    ConfigInfo.IsForSourceType(context.SourceObjectType))
+                if (_targetType.IsAssignableFrom(context.ExistingObject.Type) &&
+                    ConfigInfo.IsForSourceType(context.SourceObject.Type))
                 {
                     return true;
                 }

@@ -2,11 +2,11 @@
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Api.Configuration;
+    using Members;
 
     internal interface IDataSource
     {
-        Expression GetConditionOrNull(IConfigurationContext context);
+        Expression GetConditionOrNull(IMemberMappingContext context);
 
         IEnumerable<Expression> NestedSourceMemberAccesses { get; }
 

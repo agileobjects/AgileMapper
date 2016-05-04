@@ -41,9 +41,8 @@
     <Compile Include="Api\Configuration\InstanceCreationRuleSpecifier.cs" />
     <Compile Include="Caching\DictionaryCache.cs" />
     <Compile Include="Caching\ICache.cs" />
-    <Compile Include="DataSources\ConfigurationContext.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
-    <Compile Include="Api\Configuration\IConfigurationContext.cs" />
+    <Compile Include="Members\IMemberMappingContext.cs" />
     <Compile Include="Api\Configuration\MappingConfigInfo.cs" />
     <Compile Include="Api\Configuration\MappingConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\MappingConfigurator.cs" />
@@ -55,6 +54,8 @@
     <Compile Include="DataSources\DataSourceFinder.cs" />
     <Compile Include="DataSources\EnumerableMappingDataSource.cs" />
     <Compile Include="DataSources\IDataSource.cs" />
+    <Compile Include="Members\MemberMappingContext.cs" />
+    <Compile Include="Members\NestedSourceMemberAccessFinder.cs" />
     <Compile Include="DataSources\SourceMemberDataSource.cs" />
     <Compile Include="DataSources\SourceMemberDataSourceBase.cs" />
     <Compile Include="DataSources\UserConfiguredItemBase.cs" />

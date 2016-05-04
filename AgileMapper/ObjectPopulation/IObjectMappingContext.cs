@@ -4,9 +4,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Members;
 
-    internal interface IObjectMappingContext
+    internal interface IObjectMappingContext : IMemberMappingContext
     {
-        IObjectMappingContext Parent { get; }
+        new IObjectMappingContext Parent { get; }
 
         GlobalContext GlobalContext { get; }
 
@@ -16,23 +16,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ParameterExpression Parameter { get; }
 
-        Expression SourceObject { get; }
-
         int SourceObjectDepth { get; }
 
         bool HasSource<TSource>(TSource source);
 
         Type GetSourceMemberRuntimeType(QualifiedMember sourceMember);
 
-        Expression ExistingObject { get; }
-
-        Expression EnumerableIndex { get; }
-
-        ParameterExpression TargetVariable { get; }
-
         QualifiedMember SourceMember { get; }
-
-        QualifiedMember TargetMember { get; }
 
         MethodCallExpression GetTryGetCall();
 

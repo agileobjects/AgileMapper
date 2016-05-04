@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Api.Configuration;
     using DataSources;
     using Members;
 
@@ -21,11 +20,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IMemberPopulation Create(Member targetMember, IObjectMappingContext omc)
         {
             var qualifiedMember = omc.TargetMember.Append(targetMember);
-            var configurationContext = new ConfigurationContext(qualifiedMember, omc);
+            var memberContext = new MemberMappingContext(qualifiedMember, omc);
 
             Expression ignoreCondition;
 
-            if (TargetMemberIsIgnored(configurationContext, omc, out ignoreCondition) &&
+            if (TargetMemberIsIgnored(memberContext, omc, out ignoreCondition) &&
                 (ignoreCondition == null))
             {
                 return MemberPopulation.IgnoredMember(targetMember, omc);
@@ -43,22 +42,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var population = new MemberPopulation(targetMember, dataSource, omc);
 
-            AddConditions(dataSource, configurationContext, population, ignoreCondition);
+            AddConditions(dataSource, memberContext, population, ignoreCondition);
 
             return population;
         }
 
         private static bool TargetMemberIsIgnored(
-            IConfigurationContext configurationContext,
+            IMemberMappingContext context,
             IObjectMappingContext omc,
             out Expression ignoreCondition)
         {
-            return omc.MapperContext.UserConfigurations.IsIgnored(configurationContext, out ignoreCondition);
+            return omc.MapperContext.UserConfigurations.IsIgnored(context, out ignoreCondition);
         }
 
         private static void AddConditions(
             IDataSource dataSource,
-            IConfigurationContext context,
+            IMemberMappingContext context,
             IMemberPopulation population,
             Expression ignoreCondition)
         {

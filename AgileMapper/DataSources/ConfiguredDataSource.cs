@@ -2,15 +2,15 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Api.Configuration;
+    using Members;
 
     internal class ConfiguredDataSource : SourceMemberDataSourceBase
     {
         public ConfiguredDataSource(
             Expression value,
-            Expression sourceObject,
-            Func<IConfigurationContext, Expression> conditionFactory)
-            : base(value, sourceObject, conditionFactory)
+            IMemberMappingContext context,
+            Func<IMemberMappingContext, Expression> conditionFactory)
+            : base(value, context, conditionFactory)
         {
         }
     }

@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Members;
     using ObjectPopulation;
 
@@ -14,7 +13,7 @@
             Value = omc.GetMapCall(complexTypeMember);
         }
 
-        public Expression GetConditionOrNull(IConfigurationContext context) => null;
+        public Expression GetConditionOrNull(IMemberMappingContext context) => null;
 
         public IEnumerable<Expression> NestedSourceMemberAccesses => Enumerable.Empty<Expression>();
 
