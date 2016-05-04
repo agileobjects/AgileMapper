@@ -268,7 +268,7 @@
             IEnumerable<string> source = new[] { "1", "2", "3" };
             var result = Mapper.Map(source).ToNew<IEnumerable<int>>();
 
-            result.SequenceEqual(1, 2, 3).ShouldBeTrue();
+            result.ShouldBe(1, 2, 3);
         }
     }
 }

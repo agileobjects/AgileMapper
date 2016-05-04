@@ -46,7 +46,7 @@
             var result = Mapper.Map(source).OnTo(target);
 
             result.Value.ShouldBeSameAs(target.Value);
-            result.Value.SequenceEqual(r => r.Value, 123, 456, 789).ShouldBeTrue();
+            result.Value.ShouldBe(r => r.Value, 123, 456, 789);
         }
 
         [Fact]
@@ -75,7 +75,7 @@
             result.Value.ShouldBeSameAs(target.Value);
             result.Value.Second().ShouldBeSameAs(existingProduct);
             result.Value.Second().Price.ShouldBe(1000.00);
-            result.Value.SequenceEqual(r => r.ProductId, "Magic", "Science").ShouldBeTrue();
+            result.Value.ShouldBe(r => r.ProductId, "Magic", "Science");
         }
 
         [Fact]

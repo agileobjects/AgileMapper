@@ -154,7 +154,7 @@
                 var source = new[] { new Person { Name = "Mr Thomas" } };
                 var result = mapper.Map(source).ToNew<List<PublicField<string>>>();
 
-                source.SequenceEqual(p => p.Name, result.Select(r => r.Value)).ShouldBeTrue();
+                source.ShouldBe(result.Select(r => r.Value), p => p.Name);
             }
         }
 
@@ -172,7 +172,7 @@
                 var source = new PublicProperty<Customer[]> { Value = new[] { new Customer { Name = "Mr Thomas" } } };
                 var result = mapper.Map(source).ToNew<PublicField<IEnumerable<PublicSetMethod<string>>>>();
 
-                source.Value.SequenceEqual(p => p.Name, result.Value.Select(r => r.Value)).ShouldBeTrue();
+                source.Value.ShouldBe(result.Value.Select(r => r.Value), p => p.Name);
             }
         }
 
@@ -231,7 +231,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredExpressionWithMultipleSourceMembers()
+        public void ShouldApplyAConfiguredExpressionWithMultipleNestedSourceMembers()
         {
             using (var mapper = Mapper.Create())
             {

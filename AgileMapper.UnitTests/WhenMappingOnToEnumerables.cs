@@ -29,7 +29,7 @@
             var result = Mapper.Map(source).OnTo(target);
 
             result.ShouldBeSameAs(target);
-            result.SequenceEqual("Oh", "Heck", "Yes", "I", "Will").ShouldBeTrue();
+            result.ShouldBe("Oh", "Heck", "Yes", "I", "Will");
         }
 
         [Fact]
@@ -40,7 +40,7 @@
             var result = Mapper.Map(source).OnTo(target);
 
             result.ShouldBeSameAs(target);
-            result.SequenceEqual("Four", "Three", "Two", "One").ShouldBeTrue();
+            result.ShouldBe("Four", "Three", "Two", "One");
         }
 
         [Fact]
@@ -51,7 +51,7 @@
             var result = Mapper.Map(source).OnTo(target);
 
             result.ShouldBeSameAs(target);
-            result.SequenceEqual("One", "Two", "Three").ShouldBeTrue();
+            result.ShouldBe("One", "Two", "Three");
         }
 
         [Fact]
@@ -62,7 +62,7 @@
             var result = Mapper.Map(source).OnTo(target);
 
             result.ShouldBeSameAs(target);
-            result.SequenceEqual("One", "Two", "Two", "Three").ShouldBeTrue();
+            result.ShouldBe("One", "Two", "Two", "Three");
         }
 
         [Fact]
@@ -81,7 +81,7 @@
             var result = Mapper.Map(source).OnTo(target);
 
             result.ShouldBeSameAs(target);
-            result.SequenceEqual(p => p.Name, "Kate", "Pete").ShouldBeTrue();
+            result.ShouldBe(p => p.Name, "Kate", "Pete");
         }
 
         [Fact]

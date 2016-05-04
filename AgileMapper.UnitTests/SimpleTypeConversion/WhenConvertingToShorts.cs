@@ -265,7 +265,7 @@
             var source = new[] { "10", "20", "30" };
             var result = Mapper.Map(source).ToNew<IEnumerable<short>>();
 
-            result.SequenceEqual(s => (int)s, 10, 20, 30).ShouldBeTrue();
+            result.ShouldBe(s => (int)s, 10, 20, 30);
         }
     }
 }

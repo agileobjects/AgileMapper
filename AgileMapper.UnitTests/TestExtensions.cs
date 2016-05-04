@@ -12,26 +12,6 @@
             return items.ElementAt(1);
         }
 
-        public static bool SequenceEqual<T1, T2>(this IEnumerable<T1> first, Func<T1, T2> converter, params T2[] second)
-        {
-            return first.SequenceEqual(converter, second.AsEnumerable());
-        }
-
-        public static bool SequenceEqual<T1, T2>(this IEnumerable<T1> first, Func<T1, T2> converter, IEnumerable<T2> second)
-        {
-            return first.Select(converter).SequenceEqual(second);
-        }
-
-        public static bool SequenceEqual<T>(this IEnumerable<T> first, params T[] second)
-        {
-            return first.SequenceEqual(second.AsEnumerable());
-        }
-
-        public static void ShouldBe<T>(this IEnumerable<T> actualValues, params T[] expectedValues)
-        {
-            actualValues.SequenceEqual(expectedValues).ShouldBeTrue();
-        }
-
         public static void ShouldBeDefault<T>(this T value)
         {
             value.ShouldBe(default(T));
@@ -50,6 +30,21 @@
                 : Convert.ChangeType(expectedValue, typeof(TActual));
 
             ShouldBeTestExtensions.ShouldBe(value, actualExpectedValue);
+        }
+
+        public static void ShouldBe<T>(this IEnumerable<T> actualValues, params T[] expectedValues)
+        {
+            actualValues.SequenceEqual(expectedValues).ShouldBeTrue();
+        }
+
+        public static void ShouldBe<T1, T2>(this IEnumerable<T1> actualValues, Func<T1, T2> converter, params T2[] expectedValues)
+        {
+            actualValues.ShouldBe(expectedValues, converter);
+        }
+
+        public static void ShouldBe<T1, T2>(this IEnumerable<T1> actualValues, IEnumerable<T2> expectedValues, Func<T1, T2> converter)
+        {
+            actualValues.Select(converter).SequenceEqual(expectedValues).ShouldBeTrue();
         }
     }
 }

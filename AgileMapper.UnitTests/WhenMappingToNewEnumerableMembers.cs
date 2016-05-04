@@ -41,10 +41,7 @@
             var result = Mapper.Map(source).ToNew<PublicField<IEnumerable<PersonViewModel>>>();
 
             result.Value.ShouldNotBeNull();
-
-            result.Value
-                .SequenceEqual(pvm => pvm.Name, source.Value.Select(p => p.Name))
-                .ShouldBeTrue();
+            result.Value.ShouldBe(source.Value.Select(p => p.Name), pvm => pvm.Name);
         }
     }
 }

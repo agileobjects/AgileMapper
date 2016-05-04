@@ -270,7 +270,7 @@
             var result = Mapper.Map(source).OnTo(target);
 
             result.ShouldBe(target);
-            result.SequenceEqual(9L, 9L, 9L, 1L, 1L).ShouldBeTrue();
+            result.ShouldBe(9L, 9L, 9L, 1L, 1L);
         }
     }
 }

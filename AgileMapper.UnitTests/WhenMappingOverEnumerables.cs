@@ -83,7 +83,7 @@
 
             result.ShouldBeSameAs(target);
             result.ShouldContain(originalObject);
-            result.SequenceEqual(p => p.Name, "Lisa", "Bart").ShouldBeTrue();
+            result.ShouldBe(p => p.Name, "Lisa", "Bart");
         }
 
         [Fact]

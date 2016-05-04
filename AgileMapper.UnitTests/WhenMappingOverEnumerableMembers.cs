@@ -26,7 +26,7 @@
             var result = Mapper.Map(source).Over(target);
 
             result.Value.ShouldBeSameAs(target.Value);
-            result.Value.SequenceEqual(r => r.ToString(), source.Value).ShouldBeTrue();
+            result.Value.ShouldBe(source.Value, r => r.ToString());
         }
 
         [Fact]
@@ -47,7 +47,7 @@
 
             result.Value.ShouldNotBeSameAs(source.Value);
             result.Value.ShouldNotBeSameAs(originalTargetArray);
-            result.Value.SequenceEqual(MinusOne, Zero).ShouldBeTrue();
+            result.Value.ShouldBe(MinusOne, Zero);
         }
 
         [Fact]
@@ -66,7 +66,7 @@
             var result = Mapper.Map(source).Over(target);
 
             result.Value.ShouldBeSameAs(target.Value);
-            result.Value.SequenceEqual(r => r.Value, 123, 456).ShouldBeTrue();
+            result.Value.ShouldBe(r => r.Value, 123, 456);
         }
 
         [Fact]
@@ -92,7 +92,7 @@
             result.Value.ShouldBeSameAs(target.Value);
             result.Value.First().ShouldBeSameAs(existingProduct);
             result.Value.First().Price.ShouldBe(0.01);
-            result.Value.SequenceEqual(r => r.ProductId, "Magic", "Science").ShouldBeTrue();
+            result.Value.ShouldBe(r => r.ProductId, "Magic", "Science");
         }
 
         [Fact]
