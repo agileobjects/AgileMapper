@@ -28,6 +28,12 @@
 
         public void ThrowIfUnconvertible(Type sourceValueType, Type targetValueType)
         {
+            if (sourceValueType.IsEnumerable() && targetValueType.IsEnumerable())
+            {
+                sourceValueType = sourceValueType.GetEnumerableElementType();
+                targetValueType = targetValueType.GetEnumerableElementType();
+            }
+
             if (targetValueType.IsAssignableFrom(sourceValueType))
             {
                 return;

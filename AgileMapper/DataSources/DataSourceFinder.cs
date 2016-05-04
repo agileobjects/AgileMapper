@@ -26,7 +26,7 @@
 
             if (DataSourceIsConfigured(qualifiedTargetMember, omc, out configuredDataSource))
             {
-                return configuredDataSource;
+                return GetFinalDataSource(qualifiedTargetMember, configuredDataSource, omc);
             }
 
             if (returnComplexTypeMapper && qualifiedTargetMember.IsComplex)
@@ -67,15 +67,23 @@
 
             var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, omc);
 
+            return GetFinalDataSource(qualifiedTargetMember, sourceMemberDataSource, omc);
+        }
+
+        private static IDataSource GetFinalDataSource(
+            QualifiedMember qualifiedTargetMember,
+            IDataSource foundDataSource,
+            IObjectMappingContext omc)
+        {
             if (qualifiedTargetMember.IsEnumerable)
             {
                 return new EnumerableMappingDataSource(
-                    sourceMemberDataSource,
+                    foundDataSource,
                     qualifiedTargetMember.LeafMember,
                     omc);
             }
 
-            return sourceMemberDataSource;
+            return foundDataSource;
         }
 
         public QualifiedMember GetSourceMemberMatching(QualifiedMember qualifiedTargetMember, IObjectMappingContext omc)

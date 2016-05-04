@@ -213,6 +213,24 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredExpressionToAnEnumerable()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.When.Mapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicField<int[]>>()
+                    .Map(x => x.Value.Split(':'))
+                    .To(x => x.Value);
+
+                var source = new PublicProperty<string> { Value = "8:7:6:5" };
+                var result = mapper.Map(source).ToNew<PublicField<int[]>>();
+
+                result.Value.ShouldBe(8, 7, 6, 5);
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredExpressionWithMultipleSourceMembers()
         {
             using (var mapper = Mapper.Create())

@@ -27,6 +27,11 @@
             return first.SequenceEqual(second.AsEnumerable());
         }
 
+        public static void ShouldBe<T>(this IEnumerable<T> actualValues, params T[] expectedValues)
+        {
+            actualValues.SequenceEqual(expectedValues).ShouldBeTrue();
+        }
+
         public static void ShouldBeDefault<T>(this T value)
         {
             value.ShouldBe(default(T));
