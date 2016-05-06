@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Member TargetMember { get; }
 
-        IEnumerable<Expression> NestedSourceMemberAccesses { get; }
+        IEnumerable<Expression> NestedAccesses { get; }
 
         bool IsMultiplePopulation { get; }
 

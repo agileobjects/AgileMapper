@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper
                 Constants.CreateNew,
                 ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
                 CopySourceEnumerablePopulationStrategy.Instance,
-                DefaultNullNestedSourceMemberStrategy.Instance,
+                DefaultNullNestedAccessStrategy.Instance,
                 new[]
                 {
                     NullNestedSourceMemberPopulationGuarder.Instance
@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper
                 Constants.Merge,
                 ComplexTypeMappingShortCircuitStrategy.SourceAndExistingAreNull,
                 MergeEnumerablePopulationStrategy.Instance,
-                DefaultNullNestedSourceMemberStrategy.Instance,
+                DefaultNullNestedAccessStrategy.Instance,
                 new[]
                 {
                     PopulatedMemberPopulationGuarder.Instance,
@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper
                 Constants.Overwrite,
                 ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
                 OverwriteEnumerablePopulationStrategy.Instance,
-                OverwriteNullNestedSourceMemberStrategy.Instance,
+                OverwriteNullNestedAccessStrategy.Instance,
                 new[]
                 {
                     NullNestedSourceMemberPopulationGuarder.Instance

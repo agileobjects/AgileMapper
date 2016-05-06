@@ -15,7 +15,7 @@
             Func<IMemberMappingContext, Expression> conditionFactory = null)
         {
             _conditionFactory = conditionFactory;
-            NestedSourceMemberAccesses = NestedSourceMemberAccessFinder.FindIn(value, context.SourceObject);
+            NestedSourceMemberAccesses = context.NestedAccessFinder.FindIn(value);
             Value = value;
         }
 

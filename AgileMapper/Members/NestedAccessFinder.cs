@@ -1,29 +1,38 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
 
-    internal class NestedSourceMemberAccessFinder : ExpressionVisitor
+    internal class NestedAccessFinder : ExpressionVisitor
     {
         private readonly Expression _contextSourceParameter;
         private readonly ICollection<Expression> _methodCallSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
-        private NestedSourceMemberAccessFinder(Expression contextSourceParameter)
+        public NestedAccessFinder(Expression contextSourceParameter)
         {
             _contextSourceParameter = contextSourceParameter;
             _methodCallSubjects = new List<Expression>();
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
 
-        public static IEnumerable<Expression> FindIn(Expression value, Expression sourceObject)
+        public IEnumerable<Expression> FindIn(Expression value)
         {
-            var visitor = new NestedSourceMemberAccessFinder(sourceObject);
+            IEnumerable<Expression> memberAccesses;
 
-            visitor.Visit(value);
+            lock (this)
+            {
+                Visit(value);
 
-            return visitor._memberAccessesByPath.Values;
+                memberAccesses = _memberAccessesByPath.Values.ToArray();
+
+                _methodCallSubjects.Clear();
+                _memberAccessesByPath.Clear();
+            }
+
+            return memberAccesses;
         }
 
         protected override Expression VisitMember(MemberExpression memberAccess)

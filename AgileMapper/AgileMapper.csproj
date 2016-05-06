@@ -55,7 +55,7 @@
     <Compile Include="DataSources\EnumerableMappingDataSource.cs" />
     <Compile Include="DataSources\IDataSource.cs" />
     <Compile Include="Members\MemberMappingContext.cs" />
-    <Compile Include="Members\NestedSourceMemberAccessFinder.cs" />
+    <Compile Include="Members\NestedAccessFinder.cs" />
     <Compile Include="DataSources\SourceMemberDataSource.cs" />
     <Compile Include="DataSources\SourceMemberDataSourceBase.cs" />
     <Compile Include="DataSources\UserConfiguredItemBase.cs" />
@@ -105,11 +105,11 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IMapper.cs" />
     <Compile Include="Mapper.cs" />
-    <Compile Include="PopulationProcessing\INestedSourceMemberStrategy.cs" />
+    <Compile Include="PopulationProcessing\INullNestedAccessStrategy.cs" />
     <Compile Include="PopulationProcessing\IPopulationProcessor.cs" />
-    <Compile Include="PopulationProcessing\OverwriteNullNestedSourceMemberStrategy.cs" />
+    <Compile Include="PopulationProcessing\OverwriteNullNestedAccessStrategy.cs" />
     <Compile Include="PopulationProcessing\NullNestedSourceMemberPopulationGuarder.cs" />
-    <Compile Include="PopulationProcessing\DefaultNullNestedSourceMemberStrategy.cs" />
+    <Compile Include="PopulationProcessing\DefaultNullNestedAccessStrategy.cs" />
     <Compile Include="PopulationProcessing\PopulatedMemberPopulationGuarder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Api\ResultTypeSelector.cs" />

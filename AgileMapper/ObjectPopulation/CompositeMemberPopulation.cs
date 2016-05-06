@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Member TargetMember => _examplePopulation.TargetMember;
 
-        public IEnumerable<Expression> NestedSourceMemberAccesses => _examplePopulation.NestedSourceMemberAccesses;
+        public IEnumerable<Expression> NestedAccesses => _examplePopulation.NestedAccesses;
 
         public bool IsMultiplePopulation => _memberPopulations.Count() > 1;
 

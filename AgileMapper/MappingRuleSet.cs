@@ -13,13 +13,13 @@ namespace AgileObjects.AgileMapper
             string name,
             IComplexTypeMappingShortCircuitStrategy complexTypeMappingShortCircuitStrategy,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
-            INestedSourceMemberStrategy nullNestedSourceMemberStrategy,
+            INullNestedAccessStrategy nullNestedAccessStrategy,
             IEnumerable<IPopulationProcessor> populationProcessors)
         {
             Name = name;
             ComplexTypeMappingShortCircuitStrategy = complexTypeMappingShortCircuitStrategy;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
-            NullNestedSourceMemberStrategy = nullNestedSourceMemberStrategy;
+            NullNestedAccessStrategy = nullNestedAccessStrategy;
             _populationProcessors = populationProcessors;
         }
 
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 
-        public INestedSourceMemberStrategy NullNestedSourceMemberStrategy { get; }
+        public INullNestedAccessStrategy NullNestedAccessStrategy { get; }
 
         public IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations)
         {

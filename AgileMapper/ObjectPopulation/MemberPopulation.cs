@@ -29,12 +29,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private MemberPopulation(
             Member targetMember,
             Expression value,
-            IEnumerable<Expression> nestedSourceMemberAccesses,
+            IEnumerable<Expression> nestedAccesses,
             IObjectMappingContext omc)
             : this(
                   targetMember,
                   value,
-                  nestedSourceMemberAccesses,
+                  nestedAccesses,
                   finalValue => targetMember.GetPopulation(omc.TargetVariable, finalValue),
                   omc)
         {
@@ -43,17 +43,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private MemberPopulation(
             Member targetMember,
             Expression value,
-            IEnumerable<Expression> nestedSourceMemberAccesses,
+            IEnumerable<Expression> nestedAccesses,
             Func<Expression, Expression> populationFactory,
             IObjectMappingContext omc)
         {
             TargetMember = targetMember;
             Value = value;
-            NestedSourceMemberAccesses = nestedSourceMemberAccesses;
+            NestedAccesses = nestedAccesses;
             _populationFactory = populationFactory;
             ObjectMappingContext = omc;
-
             _conditions = new List<Expression>();
+
+            //if (CacheValueInVariable(value))
+            //{
+            //    _valueVariable = Expression.Variable(value.Type, targetMember.Name.ToCamelCase() + "Value");
+            //    _valueVariableAssignment = Expression.Assign(_valueVariable, value);
+            //    Value = _valueVariable;
+            //}
+            //else
+            //{
+
+            //}
         }
 
         #region Factory Methods
@@ -81,7 +91,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression Value { get; }
 
-        public IEnumerable<Expression> NestedSourceMemberAccesses { get; }
+        public IEnumerable<Expression> NestedAccesses { get; }
 
         public bool IsMultiplePopulation => false;
 
@@ -102,14 +112,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 population = Expression.IfThen(allConditions, population);
             }
 
+            //if (_valueVariable == null)
+            //{
+            //    return population;
+            //}
+
+            //var populationBlock = Expression.Block(
+            //    new[] { _valueVariable },
+            //    _valueVariableAssignment,
+            //    population,
+            //    Constants.EmptyExpression);
+
             return population;
         }
+
+        //private static bool CacheValueInVariable(Expression value)
+        //{
+        //    return (value.NodeType == ExpressionType.Call) || (value.NodeType == ExpressionType.Invoke);
+        //}
 
         public bool IsSuccessful => Value != null;
 
         public IObjectMappingContext ObjectMappingContext { get; }
 
         public IMemberPopulation WithValue(Expression updatedValue)
-            => new MemberPopulation(TargetMember, updatedValue, NestedSourceMemberAccesses, ObjectMappingContext);
+            => new MemberPopulation(TargetMember, updatedValue, NestedAccesses, ObjectMappingContext);
     }
 }

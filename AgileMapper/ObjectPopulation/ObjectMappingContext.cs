@@ -24,8 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly ParameterExpression _targetVariable =
             Expression.Variable(typeof(TRuntimeTarget).GetTargetVariableType(), "target");
 
-        private static readonly NestedSourceMemberAccessFinder _nestedSourceMemberAccessFinder =
-            null/*new NestedSourceMemberAccessFinder(_sourceObjectProperty)*/;
+        private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_sourceObjectProperty);
 
         private static readonly Expression _mappingContextProperty = Expression.Property(_parameter, "MappingContext");
 
@@ -158,8 +157,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         QualifiedMember IMemberMappingContext.TargetMember => _targetMember;
 
-        NestedSourceMemberAccessFinder IMemberMappingContext.NestedSourceMemberAccessFinder
-            => _nestedSourceMemberAccessFinder;
+        NestedAccessFinder IMemberMappingContext.NestedAccessFinder => _nestedAccessFinder;
 
         #endregion
 

@@ -24,6 +24,6 @@
 
         public ParameterExpression TargetVariable => Parent.TargetVariable;
 
-        public NestedSourceMemberAccessFinder NestedSourceMemberAccessFinder => Parent.NestedSourceMemberAccessFinder;
+        public NestedAccessFinder NestedAccessFinder => Parent.NestedAccessFinder;
     }
 }

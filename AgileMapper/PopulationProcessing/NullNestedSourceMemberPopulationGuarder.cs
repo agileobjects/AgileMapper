@@ -12,7 +12,7 @@
         public IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations)
         {
             var guardedPopulations = populations
-                .GroupBy(p => string.Join(",", p.NestedSourceMemberAccesses.Select(m => m.ToString())))
+                .GroupBy(p => string.Join(",", p.NestedAccesses.Select(m => m.ToString())))
                 .OrderBy(grp => grp.Key)
                 .Select(grp => grp.HasOne()
                     ? grp.First()
@@ -25,7 +25,7 @@
 
         private static IMemberPopulation GetGuardedPopulation(IMemberPopulation population)
         {
-            if (!population.NestedSourceMemberAccesses.Any())
+            if (!population.NestedAccesses.Any())
             {
                 return population;
             }
@@ -34,7 +34,7 @@
                 .ObjectMappingContext
                 .MappingContext
                 .RuleSet
-                .NullNestedSourceMemberStrategy
+                .NullNestedAccessStrategy
                 .Process(population);
         }
     }

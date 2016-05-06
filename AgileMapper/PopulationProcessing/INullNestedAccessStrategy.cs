@@ -2,7 +2,7 @@
 {
     using ObjectPopulation;
 
-    internal interface INestedSourceMemberStrategy
+    internal interface INullNestedAccessStrategy
     {
         IMemberPopulation Process(IMemberPopulation population);
     }

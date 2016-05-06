@@ -18,6 +18,6 @@
 
         ParameterExpression TargetVariable { get; }
 
-        NestedSourceMemberAccessFinder NestedSourceMemberAccessFinder { get; }
+        NestedAccessFinder NestedAccessFinder { get; }
     }
 }

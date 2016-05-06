@@ -3,19 +3,19 @@
     using System.Linq.Expressions;
     using ObjectPopulation;
 
-    internal class OverwriteNullNestedSourceMemberStrategy : DefaultNullNestedSourceMemberStrategy
+    internal class OverwriteNullNestedAccessStrategy : DefaultNullNestedAccessStrategy
     {
-        internal new static readonly INestedSourceMemberStrategy Instance = new OverwriteNullNestedSourceMemberStrategy();
+        internal new static readonly INullNestedAccessStrategy Instance = new OverwriteNullNestedAccessStrategy();
 
-        protected override IMemberPopulation Update(IMemberPopulation population, Expression sourceMembersCheck)
+        protected override IMemberPopulation Update(IMemberPopulation population, Expression nestedAccessesCheck)
         {
             if (population.IsMultiplePopulation)
             {
-                return base.Update(population, sourceMembersCheck);
+                return base.Update(population, nestedAccessesCheck);
             }
 
             var valueOrDefault = Expression.Condition(
-                sourceMembersCheck,
+                nestedAccessesCheck,
                 population.Value,
                 Expression.Default(population.Value.Type));
 
