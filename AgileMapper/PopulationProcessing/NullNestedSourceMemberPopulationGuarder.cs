@@ -1,8 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.PopulationProcessing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
     using ObjectPopulation;
 
     internal class NullNestedSourceMemberPopulationGuarder : IPopulationProcessor
@@ -13,29 +13,43 @@
         {
             var guardedPopulations = populations
                 .GroupBy(p => string.Join(",", p.NestedAccesses.Select(m => m.ToString())))
-                .OrderBy(grp => grp.Key)
-                .Select(grp => grp.HasOne()
-                    ? grp.First()
-                    : new CompositeMemberPopulation(grp.ToArray()))
-                .Select(GetGuardedPopulation)
+                .Select(grp => grp.ToArray())
+                .Select(groupedPopulations => (groupedPopulations.Length == 1)
+                    ? GetSingleGuardedPopulation(groupedPopulations[0])
+                    : GetMultipleGuardedPopulation(groupedPopulations))
                 .ToArray();
 
             return guardedPopulations;
         }
 
-        private static IMemberPopulation GetGuardedPopulation(IMemberPopulation population)
+        private static IMemberPopulation GetSingleGuardedPopulation(IMemberPopulation population)
+        {
+            return GetGuardedPopulation(population, s => s.ProcessSingle);
+        }
+
+        private static IMemberPopulation GetMultipleGuardedPopulation(IEnumerable<IMemberPopulation> populations)
+        {
+            var composite = new CompositeMemberPopulation(populations);
+
+            return GetGuardedPopulation(composite, s => s.ProcessMultiple);
+        }
+
+        private static IMemberPopulation GetGuardedPopulation(
+            IMemberPopulation population,
+            Func<INullNestedAccessStrategy, Func<IMemberPopulation, IMemberPopulation>> processorFactory)
         {
             if (!population.NestedAccesses.Any())
             {
                 return population;
             }
 
-            return population
+            var processor = processorFactory.Invoke(population
                 .ObjectMappingContext
                 .MappingContext
                 .RuleSet
-                .NullNestedAccessStrategy
-                .Process(population);
+                .NullNestedAccessStrategy);
+
+            return processor.Invoke(population);
         }
     }
 }

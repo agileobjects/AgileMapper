@@ -7,19 +7,16 @@
     {
         internal new static readonly INullNestedAccessStrategy Instance = new OverwriteNullNestedAccessStrategy();
 
-        protected override IMemberPopulation Update(IMemberPopulation population, Expression nestedAccessesCheck)
+        public override IMemberPopulation ProcessSingle(IMemberPopulation singleMemberPopulation)
         {
-            if (population.IsMultiplePopulation)
-            {
-                return base.Update(population, nestedAccessesCheck);
-            }
+            var nestedAccessesCheck = GetNestedAccessesCheck(singleMemberPopulation);
 
             var valueOrDefault = Expression.Condition(
                 nestedAccessesCheck,
-                population.Value,
-                Expression.Default(population.Value.Type));
+                singleMemberPopulation.Value,
+                Expression.Default(singleMemberPopulation.Value.Type));
 
-            return population.WithValue(valueOrDefault);
+            return singleMemberPopulation.WithValue(valueOrDefault);
         }
     }
 }

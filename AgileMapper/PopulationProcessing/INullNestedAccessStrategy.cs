@@ -4,6 +4,8 @@
 
     internal interface INullNestedAccessStrategy
     {
-        IMemberPopulation Process(IMemberPopulation population);
+        IMemberPopulation ProcessSingle(IMemberPopulation singleMemberPopulation);
+
+        IMemberPopulation ProcessMultiple(IMemberPopulation multipleMemberPopulation);
     }
 }

@@ -66,6 +66,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             //}
         }
 
+        //private static bool CacheValueInVariable(Expression value)
+        //{
+        //    return (value.NodeType == ExpressionType.Call) || (value.NodeType == ExpressionType.Invoke);
+        //}
+
         #region Factory Methods
 
         public static IMemberPopulation IgnoredMember(Member targetMember, IObjectMappingContext omc)
@@ -125,11 +130,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return population;
         }
-
-        //private static bool CacheValueInVariable(Expression value)
-        //{
-        //    return (value.NodeType == ExpressionType.Call) || (value.NodeType == ExpressionType.Invoke);
-        //}
 
         public bool IsSuccessful => Value != null;
 

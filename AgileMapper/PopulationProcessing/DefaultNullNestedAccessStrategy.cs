@@ -8,18 +8,18 @@
     {
         public static readonly INullNestedAccessStrategy Instance = new DefaultNullNestedAccessStrategy();
 
-        public IMemberPopulation Process(IMemberPopulation population)
-        {
-            var allNestedAccessesNotNullCheck = population
-                .NestedAccesses
-                .GetIsNotDefaultComparisons();
+        public virtual IMemberPopulation ProcessSingle(IMemberPopulation singleMemberPopulation)
+            => AddCondition(singleMemberPopulation);
 
-            return Update(population, allNestedAccessesNotNullCheck);
-        }
+        public IMemberPopulation ProcessMultiple(IMemberPopulation multipleMemberPopulation)
+            => AddCondition(multipleMemberPopulation);
 
-        protected virtual IMemberPopulation Update(IMemberPopulation population, Expression nestedAccessesCheck)
+        private static IMemberPopulation AddCondition(IMemberPopulation population)
+            => population.AddCondition(GetNestedAccessesCheck(population));
+
+        protected static Expression GetNestedAccessesCheck(IMemberPopulation population)
         {
-            return population.AddCondition(nestedAccessesCheck);
+            return population.NestedAccesses.GetIsNotDefaultComparisons();
         }
     }
 }

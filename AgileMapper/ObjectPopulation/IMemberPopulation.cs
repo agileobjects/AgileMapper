@@ -12,8 +12,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IEnumerable<Expression> NestedAccesses { get; }
 
-        bool IsMultiplePopulation { get; }
-
         Expression Value { get; }
 
         bool IsSuccessful { get; }
