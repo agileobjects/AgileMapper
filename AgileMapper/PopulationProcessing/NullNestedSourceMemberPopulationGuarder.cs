@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions;
     using ObjectPopulation;
 
     internal class NullNestedSourceMemberPopulationGuarder : IPopulationProcessor
@@ -13,7 +14,9 @@
             var guardedPopulations = populations
                 .GroupBy(p => string.Join(",", p.NestedSourceMemberAccesses.Select(m => m.ToString())))
                 .OrderBy(grp => grp.Key)
-                .Select(grp => new CompositeMemberPopulation(grp.ToArray()))
+                .Select(grp => grp.HasOne()
+                    ? grp.First()
+                    : new CompositeMemberPopulation(grp.ToArray()))
                 .Select(GetGuardedPopulation)
                 .ToArray();
 
