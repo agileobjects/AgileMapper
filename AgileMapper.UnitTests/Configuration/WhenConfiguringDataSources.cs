@@ -213,24 +213,6 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredExpressionToAnEnumerable()
-        {
-            using (var mapper = Mapper.Create())
-            {
-                mapper.When.Mapping
-                    .From<PublicProperty<string>>()
-                    .To<PublicField<int[]>>()
-                    .Map(x => x.Value.Split(':'))
-                    .To(x => x.Value);
-
-                var source = new PublicProperty<string> { Value = "8:7:6:5" };
-                var result = mapper.Map(source).ToNew<PublicField<int[]>>();
-
-                result.Value.ShouldBe(8, 7, 6, 5);
-            }
-        }
-
-        [Fact]
         public void ShouldApplyAConfiguredExpressionWithMultipleNestedSourceMembers()
         {
             using (var mapper = Mapper.Create())
@@ -330,14 +312,12 @@
         [Fact]
         public void ShouldRestrictConfiguredConstantApplicationBySourceType()
         {
-            const int CONFIGURED_VALUE = 12345;
-
             using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PublicField<int>>()
                     .To<PublicSetMethod<int>>()
-                    .Map(CONFIGURED_VALUE)
+                    .Map(12345)
                     .To<int>(x => x.SetValue);
 
                 var matchingSource = new PublicField<int> { Value = 938726 };
@@ -346,7 +326,7 @@
                 var nonMatchingSource = new PublicProperty<int> { Value = matchingSource.Value };
                 var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToNew<PublicSetMethod<int>>();
 
-                matchingSourceResult.Value.ShouldBe(CONFIGURED_VALUE);
+                matchingSourceResult.Value.ShouldBe(12345);
                 nonMatchingSourceResult.Value.ShouldBe(nonMatchingSource.Value);
             }
         }
@@ -354,21 +334,19 @@
         [Fact]
         public void ShouldRestrictConfiguredConstantApplicationByTargetType()
         {
-            const int CONFIGURED_VALUE = 98765;
-
             using (var mapper = Mapper.Create())
             {
                 mapper.When.Mapping
                     .From<PublicField<int>>()
                     .To<PublicProperty<int>>()
-                    .Map(CONFIGURED_VALUE)
+                    .Map(98765)
                     .To(x => x.Value);
 
                 var source = new PublicField<int> { Value = 938726 };
                 var matchingTargetResult = mapper.Map(source).ToNew<PublicProperty<int>>();
                 var nonMatchingTargetResult = mapper.Map(source).ToNew<PublicSetMethod<int>>();
 
-                matchingTargetResult.Value.ShouldBe(CONFIGURED_VALUE);
+                matchingTargetResult.Value.ShouldBe(98765);
                 nonMatchingTargetResult.Value.ShouldBe(source.Value);
             }
         }

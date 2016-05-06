@@ -78,7 +78,14 @@
         public static Expression GetIsNotDefaultComparisons(this IEnumerable<Expression> expressions)
         {
             var notNullChecks = expressions
-                .Select(expression => expression.GetIsNotDefaultComparison())
+                .Select(exp => new
+                {
+                    Expression = exp,
+                    Depth = GetDepth(exp)
+                })
+                .OrderBy(d => d.Depth)
+                .ThenBy(d => d.Expression.ToString())
+                .Select(d => d.Expression.GetIsNotDefaultComparison())
                 .ToArray();
 
             var allNotNullCheck = notNullChecks
@@ -86,6 +93,20 @@
                 .Aggregate(notNullChecks.First(), Expression.AndAlso);
 
             return allNotNullCheck;
+        }
+
+        private static int GetDepth(Expression expression)
+        {
+            var depth = -1;
+            var parent = expression;
+
+            while (parent != null)
+            {
+                ++depth;
+                parent = parent.GetParentOrNull();
+            }
+
+            return depth;
         }
 
         public static BinaryExpression GetIsDefaultComparison(this Expression expression)
