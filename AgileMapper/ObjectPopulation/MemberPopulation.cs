@@ -12,6 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class MemberPopulation : IMemberPopulation
     {
         private readonly Func<Expression, Expression> _populationFactory;
+        private readonly ICollection<ParameterExpression> _variables;
         private readonly ICollection<Expression> _conditions;
 
         public MemberPopulation(
@@ -48,28 +49,56 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IObjectMappingContext omc)
         {
             TargetMember = targetMember;
-            Value = value;
-            NestedAccesses = nestedAccesses;
             _populationFactory = populationFactory;
             ObjectMappingContext = omc;
             _conditions = new List<Expression>();
 
-            //if (CacheValueInVariable(value))
-            //{
-            //    _valueVariable = Expression.Variable(value.Type, targetMember.Name.ToCamelCase() + "Value");
-            //    _valueVariableAssignment = Expression.Assign(_valueVariable, value);
-            //    Value = _valueVariable;
-            //}
-            //else
-            //{
+            Dictionary<Expression, Expression> nestedAccessVariableByNestedAccess;
 
-            //}
+            NestedAccesses = ProcessNestedAccesses(
+                nestedAccesses,
+                out nestedAccessVariableByNestedAccess,
+                out _variables);
+
+            Value = nestedAccessVariableByNestedAccess.Any()
+                ? value.Replace(nestedAccessVariableByNestedAccess)
+                : value;
         }
 
-        //private static bool CacheValueInVariable(Expression value)
-        //{
-        //    return (value.NodeType == ExpressionType.Call) || (value.NodeType == ExpressionType.Invoke);
-        //}
+        private static IEnumerable<Expression> ProcessNestedAccesses(
+            IEnumerable<Expression> nestedAccesses,
+            out Dictionary<Expression, Expression> nestedAccessVariableByNestedAccess,
+            out ICollection<ParameterExpression> variables)
+        {
+            nestedAccessVariableByNestedAccess = new Dictionary<Expression, Expression>();
+            variables = new List<ParameterExpression>();
+
+            var nestedAccessesArray = nestedAccesses
+                .OrderBy(access => access.GetDepth())
+                .ThenBy(access => access.ToString())
+                .ToArray();
+
+            for (var i = 0; i < nestedAccessesArray.Length; i++)
+            {
+                var nestedAccess = nestedAccessesArray[i];
+
+                if (CacheValueInVariable(nestedAccess))
+                {
+                    var valueVariable = Expression.Variable(nestedAccess.Type, "accessValue");
+                    nestedAccessesArray[i] = Expression.Assign(valueVariable, nestedAccess);
+
+                    nestedAccessVariableByNestedAccess.Add(nestedAccess, valueVariable);
+                    variables.Add(valueVariable);
+                }
+            }
+
+            return nestedAccessesArray;
+        }
+
+        private static bool CacheValueInVariable(Expression value)
+        {
+            return (value.NodeType == ExpressionType.Call) || (value.NodeType == ExpressionType.Invoke);
+        }
 
         #region Factory Methods
 
@@ -117,16 +146,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 population = Expression.IfThen(allConditions, population);
             }
 
-            //if (_valueVariable == null)
-            //{
-            //    return population;
-            //}
-
-            //var populationBlock = Expression.Block(
-            //    new[] { _valueVariable },
-            //    _valueVariableAssignment,
-            //    population,
-            //    Constants.EmptyExpression);
+            if (_variables.Any())
+            {
+                population = Expression.Block(_variables, population);
+            }
 
             return population;
         }

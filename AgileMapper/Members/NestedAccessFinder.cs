@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.Members
             {
                 Visit(value);
 
-                memberAccesses = _memberAccessesByPath.Values.ToArray();
+                memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
 
                 _methodCallSubjects.Clear();
                 _memberAccessesByPath.Clear();

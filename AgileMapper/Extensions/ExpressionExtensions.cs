@@ -78,14 +78,7 @@
         public static Expression GetIsNotDefaultComparisons(this IEnumerable<Expression> expressions)
         {
             var notNullChecks = expressions
-                .Select(exp => new
-                {
-                    Expression = exp,
-                    Depth = GetDepth(exp)
-                })
-                .OrderBy(d => d.Depth)
-                .ThenBy(d => d.Expression.ToString())
-                .Select(d => d.Expression.GetIsNotDefaultComparison())
+                .Select(exp => exp.GetIsNotDefaultComparison())
                 .ToArray();
 
             var allNotNullCheck = notNullChecks
@@ -95,7 +88,7 @@
             return allNotNullCheck;
         }
 
-        private static int GetDepth(Expression expression)
+        public static int GetDepth(this Expression expression)
         {
             var depth = -1;
             var parent = expression;
@@ -169,7 +162,12 @@
                 .Select((p, i) => new { Parameter = p, Replacement = replacements[i] })
                 .ToDictionary(d => d.Parameter, d => d.Replacement);
 
-            return new ExpressionReplacer(replacementsByParameter).ReplaceIn(lambda.Body);
+            return lambda.Body.Replace(replacementsByParameter);
+        }
+
+        public static Expression Replace(this Expression expression, Dictionary<Expression, Expression> replacementsByTarget)
+        {
+            return new ExpressionReplacer(replacementsByTarget).ReplaceIn(expression);
         }
 
         #region Replace Helper
