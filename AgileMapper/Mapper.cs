@@ -23,7 +23,9 @@
 
         #endregion
 
-        public ConfigStartingPoint When => new ConfigStartingPoint(_mapperContext);
+        public PostEventConfigStartingPoint After => new PostEventConfigStartingPoint(_mapperContext);
+
+        public MappingConfigStartingPoint WhenMapping => new MappingConfigStartingPoint(_mapperContext);
 
         #region Static Access Methods
 

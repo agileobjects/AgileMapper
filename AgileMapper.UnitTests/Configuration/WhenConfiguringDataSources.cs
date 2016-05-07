@@ -14,7 +14,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicProperty<string>>()
                     .Map("Hello there!")
@@ -32,7 +32,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .To<PublicProperty<decimal>>()
                     .Map(decimal.MaxValue)
                     .To(x => x.Value);
@@ -52,7 +52,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicProperty<string>>()
                     .Map("Too small!")
@@ -78,7 +78,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .To<PublicProperty<Guid>>()
                     .Map(x => x.Id)
@@ -96,7 +96,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicField<int>>()
                     .ToANew<PublicSetMethod<string>>()
                     .Map(x => x.Value)
@@ -120,7 +120,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .OnTo<Person>()
                     .Map(x => x.Id)
                     .To(x => x.Name);
@@ -145,7 +145,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .To<PublicField<string>>()
                     .Map(x => x.Name)
@@ -163,7 +163,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Customer>()
                     .To<PublicSetMethod<string>>()
                     .Map(x => x.Name)
@@ -181,7 +181,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .To<PersonViewModel>()
                     .Map(x => x.Id)
@@ -199,7 +199,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicProperty<int>>()
                     .To<PublicField<long>>()
                     .Map(x => x.Value * 10)
@@ -217,7 +217,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .To<PersonViewModel>()
                     .Map(x => x.Address.Line1 + ", " + x.Address.Line2)
@@ -235,7 +235,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
                     .Map(x => x.Name + "!")
@@ -256,7 +256,7 @@
                 Func<Person, string> combineAddressLine1 =
                     p => p.Name + ", " + p.Address.Line1;
 
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .To<PersonViewModel>()
                     .Map(combineAddressLine1)
@@ -278,7 +278,7 @@
                 Func<Person, string> combineAddressLine1 =
                     p => p.Name + ", " + p.Address.Line1;
 
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .To<PublicProperty<Func<Person, string>>>()
                     .MapFunc(combineAddressLine1)
@@ -296,7 +296,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .To<Customer>()
                     .Map(x => (decimal)x.Name.First())
@@ -314,7 +314,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicField<int>>()
                     .To<PublicSetMethod<int>>()
                     .Map(12345)
@@ -336,7 +336,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicField<int>>()
                     .To<PublicProperty<int>>()
                     .Map(98765)
@@ -356,7 +356,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicProperty<int>>()
                     .ToANew<PublicProperty<long>>()
                     .Map(9999)

@@ -50,7 +50,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
                     .Map(x => x.Name + ", " + x.AddressLine1)

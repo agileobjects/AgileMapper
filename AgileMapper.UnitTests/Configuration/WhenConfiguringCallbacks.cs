@@ -13,7 +13,7 @@
             {
                 var createdInstance = default(PublicProperty<int>);
 
-                mapper.When
+                mapper.After
                     .CreatingInstances
                     .Call(instance => createdInstance = (PublicProperty<int>)instance);
 
@@ -32,7 +32,7 @@
             {
                 var createdInstance = default(Person);
 
-                mapper.When
+                mapper.After
                     .CreatingInstancesOf<Person>()
                     .Call(instance => createdInstance = instance);
 

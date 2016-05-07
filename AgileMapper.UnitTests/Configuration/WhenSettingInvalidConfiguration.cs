@@ -14,7 +14,7 @@
             {
                 using (var mapper = Mapper.Create())
                 {
-                    mapper.When.Mapping
+                    mapper.WhenMapping
                         .From<PublicField<int>>()
                         .To<PublicField<DateTime>>()
                         .Map(new byte[] { 2, 4, 6, 8 })

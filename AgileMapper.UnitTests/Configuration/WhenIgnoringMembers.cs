@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
                     .Ignore(x => x.Name);
@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .Over<Person>()
                     .Ignore(x => x.Address);
@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
                     .Ignore(x => x.Name)
@@ -72,7 +72,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
                     .Ignore(p => p.Name)
@@ -98,7 +98,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicProperty<int>>()
                     .ToANew<PublicProperty<string>>()
                     .Ignore(p => p.Value)

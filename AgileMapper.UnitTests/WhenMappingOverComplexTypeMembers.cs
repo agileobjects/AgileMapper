@@ -59,7 +59,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .Over<Person>()
                     .Map("Big Timmy")
@@ -78,7 +78,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Customer>()
                     .Over<Person>()
                     .Map(x => x.Id)
@@ -97,7 +97,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .Over<Person>()
                     .Map(x => x.Address.Line1)

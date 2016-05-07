@@ -6,7 +6,9 @@
 
     public interface IMapper : IDisposable
     {
-        ConfigStartingPoint When { get; }
+        PostEventConfigStartingPoint After { get; }
+
+        MappingConfigStartingPoint WhenMapping { get; }
 
         ResultTypeSelector<TSource> Map<TSource>(TSource source);
     }

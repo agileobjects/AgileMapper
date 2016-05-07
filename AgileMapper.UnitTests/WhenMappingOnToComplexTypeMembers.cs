@@ -49,7 +49,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .OnTo<Person>()
                     .Map("Hello there!")
@@ -70,7 +70,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .OnTo<Person>()
                     .Map(x => x.Name + ", " + x.Address.Line1)
@@ -90,7 +90,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .OnTo<Person>()
                     .Map(x => x.Name + ", " + x.Address.Line1)
@@ -109,7 +109,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<Person>()
                     .OnTo<Person>()
                     .Map(x => x.Address.Line1)

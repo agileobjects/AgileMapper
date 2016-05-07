@@ -49,7 +49,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
                     .Map(x => x.Value.Split(':'))
@@ -67,7 +67,7 @@
         {
             using (var mapper = Mapper.Create())
             {
-                mapper.When.Mapping
+                mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
                     .Map(x => x.Value.Split(','))

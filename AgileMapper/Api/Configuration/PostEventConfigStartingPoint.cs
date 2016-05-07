@@ -1,10 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    public class ConfigStartingPoint
+    public class PostEventConfigStartingPoint
     {
         private readonly MapperContext _mapperContext;
 
-        internal ConfigStartingPoint(MapperContext mapperContext)
+        internal PostEventConfigStartingPoint(MapperContext mapperContext)
         {
             _mapperContext = mapperContext;
         }
@@ -14,7 +14,5 @@
 
         public CallbackSpecifier<TTarget> CreatingInstancesOf<TTarget>() where TTarget : class
             => new CallbackSpecifier<TTarget>(_mapperContext);
-
-        public MappingConfigStartingPoint Mapping => new MappingConfigStartingPoint(_mapperContext);
     }
 }
