@@ -67,7 +67,7 @@
                 var nonMatchingSource = new { Name = "Harry" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
 
-                createdInstance.ShouldBeDefault();
+                createdInstance.ShouldBeNull();
                 nonMatchingResult.Name.ShouldBe("Harry");
 
                 var matchingSource = new PersonViewModel { Name = "Tom" };
@@ -75,6 +75,35 @@
 
                 createdInstance.ShouldNotBeNull();
                 createdInstance.ShouldBe(matchingResult);
+            }
+        }
+
+        [Fact]
+        public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceTargetAndCreatedTypes()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var createdAddress = default(Address);
+
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .After
+                    .CreatingInstancesOf<Address>()
+                    .Call(instance => createdAddress = instance);
+
+                var nonMatchingSource = new { Address = new Address { Line1 = "Blah" } };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
+
+                createdAddress.ShouldBeNull();
+                nonMatchingResult.Address.Line1.ShouldBe("Blah");
+
+                var matchingSource = new PersonViewModel { AddressLine1 = "Bleh" };
+                var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
+
+                createdAddress.ShouldNotBeNull();
+                createdAddress.ShouldBe(matchingResult.Address);
+                matchingResult.Address.Line1.ShouldBe("Bleh");
             }
         }
     }

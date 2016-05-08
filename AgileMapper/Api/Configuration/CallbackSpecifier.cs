@@ -7,6 +7,7 @@
     public class CallbackSpecifier<TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
+        private readonly Type _targetType;
 
         internal CallbackSpecifier(MapperContext mapperContext)
             : this(new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes())
@@ -14,8 +15,14 @@
         }
 
         internal CallbackSpecifier(MappingConfigInfo configInfo)
+            : this(configInfo, typeof(TTarget))
+        {
+        }
+
+        internal CallbackSpecifier(MappingConfigInfo configInfo, Type targetType)
         {
             _configInfo = configInfo;
+            _targetType = targetType;
         }
 
         public void Call(Action<TTarget> callback)
@@ -27,7 +34,7 @@
 
             var creationCallback = new ObjectCreationCallback(
                 _configInfo,
-                typeof(TTarget),
+                _targetType,
                 callbackLambda);
 
             _configInfo.MapperContext.UserConfigurations.Add(creationCallback);
