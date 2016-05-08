@@ -154,7 +154,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return population;
         }
 
-        public bool IsSuccessful => Value != null;
+        public bool IsSuccessful => Value != Constants.EmptyExpression;
 
         public IObjectMappingContext ObjectMappingContext { get; }
 

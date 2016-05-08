@@ -14,7 +14,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GlobalContext
                 .MemberFinder
                 .GetTargetMembers(omc.ExistingObject.Type)
-                .Select(targetMember => Create(targetMember, omc));
+                .Select(targetMember => Create(targetMember, omc))
+                .ToArray();
         }
 
         private static IMemberPopulation Create(Member targetMember, IObjectMappingContext omc)

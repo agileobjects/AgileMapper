@@ -9,10 +9,10 @@
             _mapperContext = mapperContext;
         }
 
-        public CallbackSpecifier<object> CreatingInstances
-            => new CallbackSpecifier<object>(_mapperContext);
+        public TargetCallbackSpecifier<object> CreatingInstances
+            => new TargetCallbackSpecifier<object>(_mapperContext);
 
-        public CallbackSpecifier<TTarget> CreatingInstancesOf<TTarget>() where TTarget : class
-            => new CallbackSpecifier<TTarget>(_mapperContext);
+        public TargetCallbackSpecifier<TTarget> CreatingInstancesOf<TTarget>() where TTarget : class
+            => new TargetCallbackSpecifier<TTarget>(_mapperContext);
     }
 }

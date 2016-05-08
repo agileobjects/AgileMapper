@@ -39,6 +39,7 @@
     <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\PostEventConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PostEventMappingConfigStartingPoint.cs" />
+    <Compile Include="Api\Configuration\SourceAndTargetCallbackSpecifier.cs" />
     <Compile Include="Caching\DictionaryCache.cs" />
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />

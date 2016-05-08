@@ -11,21 +11,28 @@
     {
         private readonly Type _targetType;
         private readonly LambdaExpression _callback;
+        private readonly Func<IMemberMappingContext, Expression[]> _parameterReplacementsFactory;
 
         public ObjectCreationCallback(
             MappingConfigInfo configInfo,
             Type targetType,
-            LambdaExpression callback)
+            LambdaExpression callback,
+            Func<IMemberMappingContext, Expression[]> parameterReplacementsFactory)
             : base(configInfo, targetType, QualifiedMember.All)
         {
             _targetType = targetType;
             _callback = callback;
+            _parameterReplacementsFactory = parameterReplacementsFactory;
         }
 
         public override bool AppliesTo(IMemberMappingContext context)
             => _targetType.IsAssignableFrom(context.TargetVariable.Type) && base.AppliesTo(context);
 
         public Expression GetCallback(IMemberMappingContext context)
-            => _callback.ReplaceParameter(context.TargetVariable);
+        {
+            var parameterReplacements = _parameterReplacementsFactory.Invoke(context);
+
+            return _callback.ReplaceParameters(parameterReplacements);
+        }
     }
 }

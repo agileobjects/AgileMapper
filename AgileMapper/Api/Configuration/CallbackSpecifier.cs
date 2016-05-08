@@ -1,25 +1,27 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
+    using Members;
     using ObjectPopulation;
 
-    public class CallbackSpecifier<TTarget>
+    public class TargetCallbackSpecifier<TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly Type _targetType;
 
-        internal CallbackSpecifier(MapperContext mapperContext)
+        internal TargetCallbackSpecifier(MapperContext mapperContext)
             : this(new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes())
         {
         }
 
-        internal CallbackSpecifier(MappingConfigInfo configInfo)
+        internal TargetCallbackSpecifier(MappingConfigInfo configInfo)
             : this(configInfo, typeof(TTarget))
         {
         }
 
-        internal CallbackSpecifier(MappingConfigInfo configInfo, Type targetType)
+        internal TargetCallbackSpecifier(MappingConfigInfo configInfo, Type targetType)
         {
             _configInfo = configInfo;
             _targetType = targetType;
@@ -27,15 +29,29 @@
 
         public void Call(Action<TTarget> callback)
         {
-            var callbackConstant = Expression.Constant(callback);
-            var createdInstanceParameter = Parameters.Create<TTarget>("createdInstance");
-            var callbackInvocation = Expression.Invoke(callbackConstant, createdInstanceParameter);
-            var callbackLambda = Expression.Lambda<Action<TTarget>>(callbackInvocation, createdInstanceParameter);
+            AddCallback(
+                Expression.Constant(callback),
+                context => new Expression[] { context.TargetVariable },
+                typeof(TTarget));
+        }
+
+        internal void AddCallback(
+            Expression callbackConstant,
+            Func<IMemberMappingContext, Expression[]> parameterReplacementsFactory,
+            params Type[] parameterTypes)
+        {
+            var parameters = parameterTypes.Select(t => Parameters.Create(t)).ToArray();
+
+            var callbackLambda = Expression.Lambda(
+                callbackConstant.Type,
+                Expression.Invoke(callbackConstant, parameters.Cast<Expression>()),
+                parameters);
 
             var creationCallback = new ObjectCreationCallback(
                 _configInfo,
                 _targetType,
-                callbackLambda);
+                callbackLambda,
+                parameterReplacementsFactory);
 
             _configInfo.MapperContext.UserConfigurations.Add(creationCallback);
         }

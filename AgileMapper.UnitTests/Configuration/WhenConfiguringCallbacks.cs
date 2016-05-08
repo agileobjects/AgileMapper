@@ -106,5 +106,33 @@
                 matchingResult.Address.Line1.ShouldBe("Bleh");
             }
         }
+
+        [Fact]
+        public void ShouldCallAnObjectCreatedCallbackWithASourceObject()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .OnTo<Person>()
+                    .After
+                    .CreatingInstancesOf<Address>()
+                    .Call((s, t) => t.Line2 = s.Name);
+
+                var nonMatchingSource = new { Name = "Wilma" };
+                var nonMatchingTarget = new Person { Name = "Fred" };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).OnTo(nonMatchingTarget);
+
+                nonMatchingResult.Address.Line2.ShouldBeNull();
+                nonMatchingResult.Name.ShouldBe("Fred");
+
+                var matchingSource = new PersonViewModel { Name = "Betty" };
+                var matchingTarget = new Person { Name = "Fred" };
+                var matchingResult = mapper.Map(matchingSource).OnTo(matchingTarget);
+
+                matchingResult.Address.Line2.ShouldBe("Betty");
+                matchingResult.Name.ShouldBe("Fred");
+            }
+        }
     }
 }
