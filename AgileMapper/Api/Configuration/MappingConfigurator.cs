@@ -89,5 +89,7 @@
 
             return new ConditionSpecifier<TSource, TTarget>(configuredIgnoredMember, negateCondition: true);
         }
+
+        public PostEventMappingConfigStartingPoint<TTarget> After => new PostEventMappingConfigStartingPoint<TTarget>(_configInfo);
     }
 }

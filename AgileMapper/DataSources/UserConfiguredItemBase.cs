@@ -33,7 +33,7 @@
             return _conditionFactory?.Invoke(context);
         }
 
-        public bool AppliesTo(IMemberMappingContext context)
+        public virtual bool AppliesTo(IMemberMappingContext context)
         {
             if (!ConfigInfo.IsForRuleSet(context.RuleSetName))
             {

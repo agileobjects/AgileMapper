@@ -38,6 +38,7 @@
     <Compile Include="Api\Configuration\ConditionSpecifier.cs" />
     <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\PostEventConfigStartingPoint.cs" />
+    <Compile Include="Api\Configuration\PostEventMappingConfigStartingPoint.cs" />
     <Compile Include="Caching\DictionaryCache.cs" />
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Members\MemberFinder.cs" />
     <Compile Include="Members\MemberType.cs" />
     <Compile Include="ObjectPopulation\MergeEnumerablePopulationStrategy.cs" />
+    <Compile Include="ObjectPopulation\ObjectCreationCallback.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContext.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContextFactory.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeFactory.cs" />

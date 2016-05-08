@@ -204,6 +204,9 @@
                     case ExpressionType.Convert:
                         return ReplaceIn((UnaryExpression)expression);
 
+                    case ExpressionType.Invoke:
+                        return ReplaceIn((InvocationExpression)expression);
+
                     case ExpressionType.MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
                 }
@@ -212,24 +215,27 @@
             }
 
             private Expression ReplaceIn(BinaryExpression binary)
-            {
-                return binary.Update(Replace(binary.Left), binary.Conversion, Replace(binary.Right));
-            }
+                => binary.Update(Replace(binary.Left), binary.Conversion, Replace(binary.Right));
 
             private Expression ReplaceIn(MethodCallExpression call)
-            {
-                return call.Update(Replace(call.Object), call.Arguments.Select(Replace).ToArray());
-            }
+                => ReplaceInCall(call.Object, call.Arguments, call.Update);
 
             private Expression ReplaceIn(UnaryExpression unary)
+                => unary.Update(Replace(unary.Operand));
+
+            private Expression ReplaceIn(InvocationExpression invocation)
+                => ReplaceInCall(invocation.Expression, invocation.Arguments, invocation.Update);
+
+            private Expression ReplaceInCall(
+                Expression subject,
+                IEnumerable<Expression> arguments,
+                Func<Expression, IEnumerable<Expression>, Expression> replacer)
             {
-                return unary.Update(Replace(unary.Operand));
+                return replacer.Invoke(Replace(subject), arguments.Select(Replace).ToArray());
             }
 
             private Expression ReplaceIn(MemberExpression memberAccess)
-            {
-                return memberAccess.Update(Replace(memberAccess.Expression));
-            }
+                => memberAccess.Update(Replace(memberAccess.Expression));
 
             private Expression Replace(Expression expression)
             {

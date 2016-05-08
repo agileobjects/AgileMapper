@@ -83,6 +83,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override IEnumerable<Expression> GetObjectPopulation(Expression targetVariableValue, IObjectMappingContext omc)
         {
             var objectRegistration = omc.GetObjectRegistrationCall();
+            var objectCreationCallback = GetObjectCreatedCallback(omc);
 
             var memberPopulations = MemberPopulationFactory
                .Create(omc)
@@ -96,9 +97,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Select(d => d.GetPopulation())
                 .ToArray();
 
-            return new[] { objectRegistration }
+            return new[] { objectRegistration, objectCreationCallback }
                 .Concat(processedPopulations)
                 .ToArray();
+        }
+
+        private static Expression GetObjectCreatedCallback(IObjectMappingContext omc)
+        {
+            Expression callback;
+
+            if (omc.MapperContext.UserConfigurations.HasCreationCallback(omc, out callback))
+            {
+                return Expression.IfThen(
+                    Expression.NotEqual(omc.TargetVariable, omc.ExistingObject),
+                    callback);
+            }
+
+            return Constants.EmptyExpression;
         }
 
         protected override Expression GetReturnValue(Expression targetVariableValue, IObjectMappingContext omc)

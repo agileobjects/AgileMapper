@@ -21,7 +21,7 @@
                 var result = mapper.Map(source).ToNew<PublicProperty<int>>();
 
                 createdInstance.ShouldNotBeNull();
-                result.ShouldBe(createdInstance);
+                createdInstance.ShouldBe(result);
             }
         }
 
@@ -46,7 +46,35 @@
                 var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
 
                 createdInstance.ShouldNotBeNull();
-                matchingResult.ShouldBe(createdInstance);
+                createdInstance.ShouldBe(matchingResult);
+            }
+        }
+
+        [Fact]
+        public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceAndTargetTypes()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var createdInstance = default(Person);
+
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .After
+                    .CreatingTargetInstances
+                    .Call(instance => createdInstance = instance);
+
+                var nonMatchingSource = new { Name = "Harry" };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
+
+                createdInstance.ShouldBeDefault();
+                nonMatchingResult.Name.ShouldBe("Harry");
+
+                var matchingSource = new PersonViewModel { Name = "Tom" };
+                var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
+
+                createdInstance.ShouldNotBeNull();
+                createdInstance.ShouldBe(matchingResult);
             }
         }
     }

@@ -8,6 +8,8 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class QualifiedMember
     {
+        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], null);
+
         private readonly Member[] _memberChain;
         private readonly QualifiedMemberName _qualifiedName;
 
@@ -17,14 +19,15 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private QualifiedMember(Member[] memberChain)
+            : this(memberChain, new QualifiedMemberName(memberChain.Select(m => m.MemberName).ToArray()))
+        {
+        }
+
+        private QualifiedMember(Member[] memberChain, QualifiedMemberName qualifiedName)
         {
             _memberChain = memberChain;
-            LeafMember = memberChain.Last();
-
-            _qualifiedName = new QualifiedMemberName(
-                memberChain
-                    .Select(m => m.MemberName)
-                    .ToArray());
+            LeafMember = memberChain.LastOrDefault();
+            _qualifiedName = qualifiedName;
         }
 
         #region Factory Method
@@ -108,10 +111,14 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Equals(QualifiedMember otherMember)
         {
+            if ((this == All) || (otherMember == All))
+            {
+                return true;
+            }
+
             return (otherMember.Type == Type) &&
                    (otherMember.LeafMember.Name == LeafMember.Name) &&
                    otherMember.LeafMember.DeclaringType.IsAssignableFrom(LeafMember.DeclaringType);
         }
-
     }
 }
