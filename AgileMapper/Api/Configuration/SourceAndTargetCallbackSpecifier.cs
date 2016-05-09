@@ -21,7 +21,7 @@
 
         public void Call(Action<TSource, TTarget> callback)
         {
-            AddCallback(Expression.Constant(callback), typeof(TSource), typeof(TTarget));
+            AddCallback(callback);
         }
     }
 }

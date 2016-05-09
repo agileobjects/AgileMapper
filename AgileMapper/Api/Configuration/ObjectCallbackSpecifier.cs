@@ -17,12 +17,12 @@
         internal ObjectCallbackSpecifier(
             CallbackPosition callbackPosition,
             MapperContext mapperContext,
-            params KeyValuePair<int, Func<IMemberMappingContext, Expression[]>>[] parameterReplacementsFactoriesByParameterCount)
+            params Func<IMemberMappingContext, Expression[]>[] parameterReplacementsFactories)
             : this(
                   callbackPosition,
                   new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes(),
                   typeof(T),
-                  parameterReplacementsFactoriesByParameterCount)
+                  parameterReplacementsFactories)
         {
         }
 
@@ -30,31 +30,37 @@
             CallbackPosition callbackPosition,
             MappingConfigInfo configInfo,
             Type targetType,
-            params KeyValuePair<int, Func<IMemberMappingContext, Expression[]>>[] parameterReplacementsFactoriesByParameterCount)
+            params Func<IMemberMappingContext, Expression[]>[] parameterReplacementsFactories)
         {
             _callbackPosition = callbackPosition;
             _configInfo = configInfo;
             _targetType = targetType;
 
-            _parameterReplacementsFactoriesByParameterCount =
-                parameterReplacementsFactoriesByParameterCount.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            _parameterReplacementsFactoriesByParameterCount = parameterReplacementsFactories
+                .Select((f, i) => new { Index = i, Factory = f })
+                .ToDictionary(kvp => kvp.Index + 1, kvp => kvp.Factory);
         }
 
         public void Call(Action<T> callback)
         {
-            AddCallback(Expression.Constant(callback), typeof(T));
+            AddCallback(callback);
         }
 
-        internal void AddCallback(Expression callbackConstant, params Type[] parameterTypes)
+        protected void AddCallback<TAction>(TAction callback)
         {
-            var parameters = parameterTypes.Select(t => Parameters.Create(t)).ToArray();
+            var callbackConstant = Expression.Constant(callback);
+
+            var parameters = typeof(TAction)
+                .GetGenericArguments()
+                .Select(t => Parameters.Create(t))
+                .ToArray();
 
             var callbackLambda = Expression.Lambda(
-                callbackConstant.Type,
+                typeof(TAction),
                 Expression.Invoke(callbackConstant, parameters.Cast<Expression>()),
                 parameters);
 
-            var parameterReplacementsFactory = _parameterReplacementsFactoriesByParameterCount[parameterTypes.Length];
+            var parameterReplacementsFactory = _parameterReplacementsFactoriesByParameterCount[parameters.Length];
 
             var creationCallback = new ObjectCreationCallbackFactory(
                 _configInfo,
