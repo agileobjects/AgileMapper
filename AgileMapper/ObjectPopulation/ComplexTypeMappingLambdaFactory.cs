@@ -110,13 +110,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetObjectCreatedCallback(IObjectMappingContext omc)
         {
-            Expression callback;
+            ObjectCreationCallback callback;
 
             if (omc.MapperContext.UserConfigurations.HasCreationCallback(omc, out callback))
             {
-                return Expression.IfThen(
-                    Expression.NotEqual(omc.TargetVariable, omc.ExistingObject),
-                    callback);
+                return callback.IntegrateCallback(omc);
             }
 
             return Constants.EmptyExpression;

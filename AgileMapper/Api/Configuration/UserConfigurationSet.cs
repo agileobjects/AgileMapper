@@ -11,13 +11,13 @@
     {
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
         private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
-        private readonly ICollection<ObjectCreationCallback> _creationCallbacks;
+        private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
 
         public UserConfigurationSet()
         {
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
-            _creationCallbacks = new List<ObjectCreationCallback>();
+            _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
         }
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
@@ -47,18 +47,18 @@
             return matchingDataSourceFactory?.Create(context);
         }
 
-        public void Add(ObjectCreationCallback callback)
+        public void Add(ObjectCreationCallbackFactory callbackFactory)
         {
-            _creationCallbacks.Add(callback);
+            _creationCallbackFactories.Add(callbackFactory);
         }
 
-        public bool HasCreationCallback(IMemberMappingContext context, out Expression callback)
+        public bool HasCreationCallback(IMemberMappingContext context, out ObjectCreationCallback callback)
         {
-            var matchingCallback = _creationCallbacks.FirstOrDefault(im => im.AppliesTo(context));
+            var matchingCallbackFactory = _creationCallbackFactories.FirstOrDefault(im => im.AppliesTo(context));
 
-            callback = matchingCallback?.GetCallback(context);
+            callback = matchingCallbackFactory?.GetCallback(context);
 
-            return matchingCallback != null;
+            return matchingCallbackFactory != null;
         }
     }
 }

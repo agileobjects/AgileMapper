@@ -90,6 +90,8 @@
             return new ConditionSpecifier<TSource, TTarget>(configuredIgnoredMember, negateCondition: true);
         }
 
+        public PreEventMappingConfigStartingPoint<TSource, TTarget> Before => new PreEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
+
         public PostEventMappingConfigStartingPoint<TSource, TTarget> After => new PostEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
     }
 }

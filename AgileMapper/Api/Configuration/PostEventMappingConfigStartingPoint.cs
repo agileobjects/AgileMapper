@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using ObjectPopulation;
+
     public class PostEventMappingConfigStartingPoint<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
@@ -10,12 +12,15 @@
         }
 
         public SourceAndTargetCallbackSpecifier<TSource, object> CreatingInstances
-            => new SourceAndTargetCallbackSpecifier<TSource, object>(_configInfo);
+            => CreateCallbackSpecifier<object>();
 
         public SourceAndTargetCallbackSpecifier<TSource, TTarget> CreatingTargetInstances
-            => new SourceAndTargetCallbackSpecifier<TSource, TTarget>(_configInfo);
+            => CreateCallbackSpecifier<TTarget>();
 
         public SourceAndTargetCallbackSpecifier<TSource, TInstance> CreatingInstancesOf<TInstance>() where TInstance : class
-            => new SourceAndTargetCallbackSpecifier<TSource, TInstance>(_configInfo, typeof(TInstance));
+            => CreateCallbackSpecifier<TInstance>();
+
+        private SourceAndTargetCallbackSpecifier<TSource, TInstance> CreateCallbackSpecifier<TInstance>()
+            => new SourceAndTargetCallbackSpecifier<TSource, TInstance>(CallbackPosition.After, _configInfo, typeof(TInstance));
     }
 }

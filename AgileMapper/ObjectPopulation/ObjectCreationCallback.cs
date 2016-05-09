@@ -1,38 +1,29 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using System.Linq.Expressions;
-    using Api.Configuration;
-    using DataSources;
-    using Extensions;
     using Members;
 
-    internal class ObjectCreationCallback : UserConfiguredItemBase
+    internal class ObjectCreationCallback
     {
-        private readonly Type _targetType;
-        private readonly LambdaExpression _callback;
-        private readonly Func<IMemberMappingContext, Expression[]> _parameterReplacementsFactory;
+        private readonly CallbackPosition _callbackPosition;
+        private readonly Expression _callback;
 
-        public ObjectCreationCallback(
-            MappingConfigInfo configInfo,
-            Type targetType,
-            LambdaExpression callback,
-            Func<IMemberMappingContext, Expression[]> parameterReplacementsFactory)
-            : base(configInfo, targetType, QualifiedMember.All)
+        public ObjectCreationCallback(CallbackPosition callbackPosition, Expression callback)
         {
-            _targetType = targetType;
+            _callbackPosition = callbackPosition;
             _callback = callback;
-            _parameterReplacementsFactory = parameterReplacementsFactory;
         }
 
-        public override bool AppliesTo(IMemberMappingContext context)
-            => _targetType.IsAssignableFrom(context.TargetVariable.Type) && base.AppliesTo(context);
-
-        public Expression GetCallback(IMemberMappingContext context)
+        public Expression IntegrateCallback(IMemberMappingContext context)
         {
-            var parameterReplacements = _parameterReplacementsFactory.Invoke(context);
+            if (_callbackPosition == CallbackPosition.After)
+            {
+                return Expression.IfThen(
+                    Expression.NotEqual(context.TargetVariable, context.ExistingObject),
+                    _callback);
+            }
 
-            return _callback.ReplaceParameters(parameterReplacements);
+            return _callback;
         }
     }
 }

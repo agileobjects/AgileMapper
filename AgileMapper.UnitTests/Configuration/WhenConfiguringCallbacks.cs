@@ -30,23 +30,23 @@
         {
             using (var mapper = Mapper.Create())
             {
-                var createdInstance = default(Person);
+                var createdPerson = default(Person);
 
                 mapper.After
                     .CreatingInstancesOf<Person>()
-                    .Call(instance => createdInstance = instance);
+                    .Call(p => createdPerson = p);
 
                 var nonMatchingSource = new { Value = "12345" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicProperty<int>>();
 
-                createdInstance.ShouldBeDefault();
+                createdPerson.ShouldBeDefault();
                 nonMatchingResult.Value.ShouldBe(12345);
 
                 var matchingSource = new Person { Name = "Alex" };
                 var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
 
-                createdInstance.ShouldNotBeNull();
-                createdInstance.ShouldBe(matchingResult);
+                createdPerson.ShouldNotBeNull();
+                createdPerson.ShouldBe(matchingResult);
             }
         }
 
@@ -55,26 +55,26 @@
         {
             using (var mapper = Mapper.Create())
             {
-                var createdInstance = default(Person);
+                var createdPerson = default(Person);
 
                 mapper.WhenMapping
                     .From<PersonViewModel>()
                     .To<Person>()
                     .After
                     .CreatingTargetInstances
-                    .Call(instance => createdInstance = instance);
+                    .Call(p => createdPerson = p);
 
                 var nonMatchingSource = new { Name = "Harry" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
 
-                createdInstance.ShouldBeNull();
+                createdPerson.ShouldBeNull();
                 nonMatchingResult.Name.ShouldBe("Harry");
 
                 var matchingSource = new PersonViewModel { Name = "Tom" };
                 var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
 
-                createdInstance.ShouldNotBeNull();
-                createdInstance.ShouldBe(matchingResult);
+                createdPerson.ShouldNotBeNull();
+                createdPerson.ShouldBe(matchingResult);
             }
         }
 
@@ -90,7 +90,7 @@
                     .To<Person>()
                     .After
                     .CreatingInstancesOf<Address>()
-                    .Call(instance => createdAddress = instance);
+                    .Call(a => createdAddress = a);
 
                 var nonMatchingSource = new { Address = new Address { Line1 = "Blah" } };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
@@ -117,7 +117,7 @@
                     .OnTo<Person>()
                     .After
                     .CreatingInstancesOf<Address>()
-                    .Call((s, t) => t.Line2 = s.Name);
+                    .Call((pvm, a) => a.Line2 = pvm.Name);
 
                 var nonMatchingSource = new { Name = "Wilma" };
                 var nonMatchingTarget = new Person { Name = "Fred" };
@@ -132,6 +132,30 @@
 
                 matchingResult.Address.Line2.ShouldBe("Betty");
                 matchingResult.Name.ShouldBe("Fred");
+            }
+        }
+
+        [Fact]
+        public void ShouldCallAnObjectCreatingCallbackWithASourceObject()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .ToANew<PersonViewModel>()
+                    .Before
+                    .CreatingTargetInstances
+                    .Call(p => p.Name += $"! {p.Name}!");
+
+                var nonMatchingSource = new { Name = "Lester" };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PersonViewModel>();
+
+                nonMatchingResult.Name.ShouldBe("Lester");
+
+                var matchingSource = new Person { Name = "Carolin" };
+                var matchingResult = mapper.Map(matchingSource).ToNew<PersonViewModel>();
+
+                matchingResult.Name.ShouldBe("Carolin! Carolin!");
             }
         }
     }

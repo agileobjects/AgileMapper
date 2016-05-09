@@ -34,12 +34,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Api\Configuration\CallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\Callbacks.cs" />
+    <Compile Include="Api\Configuration\ObjectCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\ConditionSpecifier.cs" />
     <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\PostEventConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PostEventMappingConfigStartingPoint.cs" />
+    <Compile Include="Api\Configuration\PreEventMappingConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\SourceAndTargetCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\SourceCallbackSpecifier.cs" />
     <Compile Include="Caching\DictionaryCache.cs" />
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
@@ -65,6 +68,7 @@
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="GlobalContext.cs" />
+    <Compile Include="ObjectPopulation\CallbackPosition.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeMappingShortCircuitStrategy.cs" />
     <Compile Include="ObjectPopulation\CompositeMemberPopulation.cs" />
     <Compile Include="ObjectPopulation\IComplexTypeMappingShortCircuitStrategy.cs" />
@@ -88,6 +92,7 @@
     <Compile Include="Members\MemberType.cs" />
     <Compile Include="ObjectPopulation\MergeEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\ObjectCreationCallback.cs" />
+    <Compile Include="ObjectPopulation\ObjectCreationCallbackFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContext.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContextFactory.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeFactory.cs" />
