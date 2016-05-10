@@ -5,12 +5,19 @@
 
     internal static class ObjectExtensions
     {
-        public static Type GetRuntimeType<TDeclared>(this TDeclared item)
+        public static Type GetRuntimeSourceType<TDeclared>(this TDeclared item)
         {
             return !EqualityComparer<TDeclared>.Default.Equals(item, default(TDeclared)) &&
                    typeof(TDeclared).CouldHaveADifferentRuntimeType()
+                    ? item.GetType()
+                    : typeof(TDeclared);
+        }
+
+        public static Type GetRuntimeTargetType<TDeclared>(this TDeclared item, Type sourceType)
+        {
+            return (item != null)
                 ? item.GetType()
-                : typeof(TDeclared);
+                : typeof(TDeclared).IsAssignableFrom(sourceType) ? sourceType : typeof(TDeclared);
         }
     }
 }

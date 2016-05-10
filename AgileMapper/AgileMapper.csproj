@@ -35,13 +35,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Api\Configuration\Callbacks.cs" />
-    <Compile Include="Api\Configuration\ObjectCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
+    <Compile Include="Api\Configuration\ConditionSpecifierBase.cs" />
+    <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Members\ITypedMemberMappingContext.cs" />
+    <Compile Include="Members\TypedMemberMappingContext.cs" />
+    <Compile Include="ObjectPopulation\IInstanceCreationContext.cs" />
+    <Compile Include="Api\Configuration\InstanceCreationConditionSpecifier.cs" />
+    <Compile Include="ObjectPopulation\InstanceCreationContext.cs" />
+    <Compile Include="Api\Configuration\CallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\ConditionSpecifier.cs" />
     <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\PostEventConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PostEventMappingConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PreEventMappingConfigStartingPoint.cs" />
-    <Compile Include="Api\Configuration\SourceAndTargetCallbackSpecifier.cs" />
     <Compile Include="Caching\DictionaryCache.cs" />
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />

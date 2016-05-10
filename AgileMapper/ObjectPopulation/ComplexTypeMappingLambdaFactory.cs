@@ -5,11 +5,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
 
-    internal class ComplexTypeMappingLambdaFactory<TSource, TTarget>
-        : ObjectMappingLambdaFactoryBase<TSource, TTarget>
+    internal class ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>
+        : ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
     {
-        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget> Instance =
-            new ComplexTypeMappingLambdaFactory<TSource, TTarget>();
+        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance> Instance =
+            new ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>();
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
         {
@@ -67,7 +67,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var ifTryGetReturn = Expression.IfThen(
                 omc.GetTryGetCall(),
-                Expression.Return(returnTarget, omc.TargetVariable));
+                Expression.Return(returnTarget, omc.InstanceVariable));
 
             return ifTryGetReturn;
         }
@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return existingObjectOrCreate;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(Expression targetVariableValue, IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)
         {
             var objectRegistration = omc.GetObjectRegistrationCall();
             var objectCreationCallback = GetObjectCreatedCallback(omc);
@@ -103,8 +103,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .ToArray();
 
             return new[] { objectRegistration, objectCreationCallback }
-                .Concat(unsuccessfulPopulations)
                 .Concat(processedPopulations)
+                .Concat(unsuccessfulPopulations)
                 .ToArray();
         }
 
@@ -120,9 +120,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Constants.EmptyExpression;
         }
 
-        protected override Expression GetReturnValue(Expression targetVariableValue, IObjectMappingContext omc)
+        protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
         {
-            return omc.TargetVariable;
+            return omc.InstanceVariable;
         }
     }
 }

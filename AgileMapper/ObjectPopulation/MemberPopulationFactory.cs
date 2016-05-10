@@ -62,7 +62,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IMemberPopulation population,
             Expression ignoreCondition)
         {
-            var dataSourceUseCondition = dataSource.GetConditionOrNull(context);
+            var dataSourceUseCondition = dataSource.GetConditionOrNull(context.Parameter);
 
             if (dataSourceUseCondition != null)
             {

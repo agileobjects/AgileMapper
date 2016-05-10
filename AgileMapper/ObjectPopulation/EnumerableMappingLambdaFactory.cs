@@ -6,11 +6,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Extensions;
 
-    internal class EnumerableMappingLambdaFactory<TSource, TTarget>
-        : ObjectMappingLambdaFactoryBase<TSource, TTarget>
+    internal class EnumerableMappingLambdaFactory<TSource, TTarget, TInstance>
+        : ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
     {
-        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget> Instance =
-            new EnumerableMappingLambdaFactory<TSource, TTarget>();
+        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance> Instance =
+            new EnumerableMappingLambdaFactory<TSource, TTarget, TInstance>();
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
             => Enumerable.Empty<Expression>();
@@ -47,19 +47,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.New(listConstructor, existingEnumerableOrEmpty);
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(Expression targetVariableValue, IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)
         {
-            yield return omc.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(targetVariableValue, omc);
+            yield return omc.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(instanceVariableValue, omc);
         }
 
-        protected override Expression GetReturnValue(Expression targetVariableValue, IObjectMappingContext omc)
+        protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
         {
-            if (omc.TargetMember.Type.IsAssignableFrom(omc.TargetVariable.Type))
+            if (omc.TargetMember.Type.IsAssignableFrom(omc.InstanceVariable.Type))
             {
-                return omc.TargetVariable;
+                return omc.InstanceVariable;
             }
 
-            return omc.TargetVariable.WithToArrayCall();
+            return omc.InstanceVariable.WithToArrayCall();
         }
     }
 }

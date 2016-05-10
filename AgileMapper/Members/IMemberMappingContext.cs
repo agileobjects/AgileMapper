@@ -1,10 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
     using System.Linq.Expressions;
+    using ObjectPopulation;
 
     internal interface IMemberMappingContext
     {
-        IMemberMappingContext Parent { get; }
+        IObjectMappingContext Parent { get; }
+
+        ParameterExpression Parameter { get; }
 
         string RuleSetName { get; }
 
@@ -16,7 +19,7 @@
 
         Expression EnumerableIndex { get; }
 
-        ParameterExpression TargetVariable { get; }
+        ParameterExpression InstanceVariable { get; }
 
         NestedAccessFinder NestedAccessFinder { get; }
     }

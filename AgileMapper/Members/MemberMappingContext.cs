@@ -1,16 +1,19 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
     using System.Linq.Expressions;
+    using ObjectPopulation;
 
     internal class MemberMappingContext : IMemberMappingContext
     {
-        public MemberMappingContext(QualifiedMember targetMember, IMemberMappingContext parent)
+        public MemberMappingContext(QualifiedMember targetMember, IObjectMappingContext parent)
         {
             TargetMember = targetMember;
             Parent = parent;
         }
 
-        public IMemberMappingContext Parent { get; }
+        public IObjectMappingContext Parent { get; }
+
+        public ParameterExpression Parameter => Parent.Parameter;
 
         public string RuleSetName => Parent.RuleSetName;
 
@@ -22,7 +25,7 @@
 
         public Expression EnumerableIndex => Parent.EnumerableIndex;
 
-        public ParameterExpression TargetVariable => Parent.TargetVariable;
+        public ParameterExpression InstanceVariable => Parent.InstanceVariable;
 
         public NestedAccessFinder NestedAccessFinder => Parent.NestedAccessFinder;
     }

@@ -7,21 +7,21 @@
 
     internal abstract class SourceMemberDataSourceBase : IDataSource
     {
-        private readonly Func<IMemberMappingContext, Expression> _conditionFactory;
+        private readonly Func<ParameterExpression, Expression> _conditionFactory;
 
         protected SourceMemberDataSourceBase(
             Expression value,
             IMemberMappingContext context,
-            Func<IMemberMappingContext, Expression> conditionFactory = null)
+            Func<ParameterExpression, Expression> conditionFactory = null)
         {
             _conditionFactory = conditionFactory;
             NestedSourceMemberAccesses = context.NestedAccessFinder.FindIn(value);
             Value = value;
         }
 
-        public Expression GetConditionOrNull(IMemberMappingContext context)
+        public Expression GetConditionOrNull(ParameterExpression contextParameter)
         {
-            return _conditionFactory?.Invoke(context);
+            return _conditionFactory?.Invoke(contextParameter);
         }
 
         public IEnumerable<Expression> NestedSourceMemberAccesses { get; }

@@ -81,7 +81,7 @@
 
         public bool TypesAreIdentifiable => (_sourceElementId != null) && (_targetElementId != null);
 
-        private Type TargetCollectionType => ObjectMappingContext.TargetVariable.Type;
+        private Type TargetCollectionType => ObjectMappingContext.InstanceVariable.Type;
 
         public EnumerablePopulationBuilder IntersectTargetById()
         {
@@ -91,7 +91,7 @@
             var intersectByIdCall = Expression.Call(
                 typedIntersectByIdMethod,
                 ObjectMappingContext.SourceObject,
-                ObjectMappingContext.TargetVariable,
+                ObjectMappingContext.InstanceVariable,
                 GetSourceElementIdLambda(),
                 GetTargetElementIdLambda());
 
@@ -145,13 +145,13 @@
         {
             return _sourceElementType.IsSimple()
                 ? GetSimpleElementConversion(_sourceElementParameter, _targetElementType)
-                : GetElementPopulatorCall(_sourceElementParameter, Expression.Default(_targetElementType));
+                : GetMapElementCall(_sourceElementParameter, Expression.Default(_targetElementType));
         }
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
             => ObjectMappingContext.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
 
-        private Expression GetElementPopulatorCall(Expression sourceObject, Expression existingObject)
+        private Expression GetMapElementCall(Expression sourceObject, Expression existingObject)
             => ObjectMappingContext.GetMapCall(sourceObject, existingObject);
 
         public EnumerablePopulationBuilder ExcludeSourceById()
@@ -163,7 +163,7 @@
 
             var excludeByIdCall = Expression.Call(
                 typedExcludeByIdMethod,
-                ObjectMappingContext.TargetVariable,
+                ObjectMappingContext.InstanceVariable,
                 _population,
                 GetTargetElementIdLambda(),
                 GetSourceElementIdLambda());
@@ -182,7 +182,7 @@
             var excludeByIdCall = Expression.Call(
                 typedExcludeByIdMethod,
                 _population,
-                ObjectMappingContext.TargetVariable,
+                ObjectMappingContext.InstanceVariable,
                 GetSourceElementIdLambda(),
                 GetTargetElementIdLambda());
 
@@ -195,7 +195,7 @@
             _population = Expression.Call(
                 _excludeMethod.MakeGenericMethod(_targetElementType),
                 _population,
-                ObjectMappingContext.TargetVariable);
+                ObjectMappingContext.InstanceVariable);
 
             return this;
         }
@@ -203,7 +203,7 @@
         public Expression ClearTarget()
         {
             _population = Expression.Call(
-                ObjectMappingContext.TargetVariable,
+                ObjectMappingContext.InstanceVariable,
                 TargetCollectionType.GetMethod("Clear", Constants.PublicInstance));
 
             return this;
@@ -232,7 +232,7 @@
             var sourceObject = Expression.Property(tupleParameter, "Item1");
             var existingObject = Expression.Property(tupleParameter, "Item2");
 
-            return GetElementPopulatorCall(sourceObject, existingObject);
+            return GetMapElementCall(sourceObject, existingObject);
         }
 
         public Expression RemoveResultsFromTarget()
@@ -244,7 +244,7 @@
         private Expression GetTargetMethodCall(string methodName, Expression argument)
         {
             return Expression.Call(
-                ObjectMappingContext.TargetVariable,
+                ObjectMappingContext.InstanceVariable,
                 TargetCollectionType.GetMethod(methodName, Constants.PublicInstance),
                 argument);
         }

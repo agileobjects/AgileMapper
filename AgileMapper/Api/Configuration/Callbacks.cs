@@ -10,9 +10,9 @@
             context => new[] { context.SourceObject };
 
         public static readonly Func<IMemberMappingContext, Expression[]> Target =
-            context => new Expression[] { context.TargetVariable };
+            context => new Expression[] { context.InstanceVariable };
 
         public static readonly Func<IMemberMappingContext, Expression[]> SourceAndTarget =
-            context => new[] { context.SourceObject, context.TargetVariable };
+            context => new[] { context.SourceObject, context.InstanceVariable };
     }
 }

@@ -29,6 +29,6 @@
         }
 
         private static Expression GetTargetMemberAccess(IMemberPopulation population)
-            => population.TargetMember.GetAccess(population.ObjectMappingContext.TargetVariable);
+            => population.TargetMember.GetAccess(population.ObjectMappingContext.InstanceVariable);
     }
 }

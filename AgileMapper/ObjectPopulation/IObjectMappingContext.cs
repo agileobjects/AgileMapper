@@ -14,8 +14,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         MappingContext MappingContext { get; }
 
-        ParameterExpression Parameter { get; }
-
         int SourceObjectDepth { get; }
 
         bool HasSource<TSource>(TSource source);

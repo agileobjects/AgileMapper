@@ -121,6 +121,7 @@
 
         public static Expression GetConversionTo(this Expression expression, Type targetType)
         {
+            // TODO: Can is IsAssignableFrom?
             return (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
         }
 
@@ -149,12 +150,12 @@
             return false;
         }
 
-        public static Expression ReplaceParameter(this LambdaExpression lambda, Expression replacement)
+        public static Expression ReplaceParameterWith(this LambdaExpression lambda, Expression replacement)
         {
-            return ReplaceParameters(lambda, replacement);
+            return ReplaceParametersWith(lambda, replacement);
         }
 
-        public static Expression ReplaceParameters(this LambdaExpression lambda, params Expression[] replacements)
+        public static Expression ReplaceParametersWith(this LambdaExpression lambda, params Expression[] replacements)
         {
             var replacementsByParameter = lambda
                 .Parameters
@@ -163,6 +164,11 @@
                 .ToDictionary(d => d.Parameter, d => d.Replacement);
 
             return lambda.Body.Replace(replacementsByParameter);
+        }
+
+        public static Expression Replace(this Expression expression, Expression target, Expression replacement)
+        {
+            return expression.Replace(new Dictionary<Expression, Expression> { [target] = replacement });
         }
 
         public static Expression Replace(this Expression expression, Dictionary<Expression, Expression> replacementsByTarget)

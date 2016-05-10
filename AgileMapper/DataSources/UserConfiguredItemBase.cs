@@ -9,7 +9,7 @@
     {
         private readonly Type _mappingTargetType;
         private readonly QualifiedMember _targetMember;
-        private Func<IMemberMappingContext, Expression> _conditionFactory;
+        private Func<ParameterExpression, Expression> _conditionFactory;
 
         protected UserConfiguredItemBase(
             MappingConfigInfo configInfo,
@@ -23,14 +23,14 @@
 
         protected MappingConfigInfo ConfigInfo { get; }
 
-        public void AddCondition(Func<IMemberMappingContext, Expression> conditionFactory)
+        public void AddConditionFactory(Func<ParameterExpression, Expression> conditionFactory)
         {
             _conditionFactory = conditionFactory;
         }
 
-        public Expression GetCondition(IMemberMappingContext context)
+        public Expression GetCondition(ParameterExpression contextParameter)
         {
-            return _conditionFactory?.Invoke(context);
+            return _conditionFactory?.Invoke(contextParameter);
         }
 
         public virtual bool AppliesTo(IMemberMappingContext context)

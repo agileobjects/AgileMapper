@@ -12,31 +12,27 @@
         private readonly Type _creationTargetType;
         private readonly CallbackPosition _callbackPosition;
         private readonly LambdaExpression _callbackLambda;
-        private readonly Func<IMemberMappingContext, Expression[]> _parameterReplacementsFactory;
 
         public ObjectCreationCallbackFactory(
             MappingConfigInfo configInfo,
             Type mappingTargetType,
             Type creationTargetType,
             CallbackPosition callbackPosition,
-            LambdaExpression callbackLambda,
-            Func<IMemberMappingContext, Expression[]> parameterReplacementsFactory)
+            LambdaExpression callbackLambda)
             : base(configInfo, mappingTargetType, QualifiedMember.All)
         {
             _creationTargetType = creationTargetType;
             _callbackPosition = callbackPosition;
             _callbackLambda = callbackLambda;
-            _parameterReplacementsFactory = parameterReplacementsFactory;
         }
 
         public override bool AppliesTo(IMemberMappingContext context)
-            => _creationTargetType.IsAssignableFrom(context.TargetVariable.Type) && base.AppliesTo(context);
+            => _creationTargetType.IsAssignableFrom(context.InstanceVariable.Type) && base.AppliesTo(context);
 
         public ObjectCreationCallback GetCallback(IMemberMappingContext context)
         {
-            var parameterReplacements = _parameterReplacementsFactory.Invoke(context);
-            var callback = _callbackLambda.ReplaceParameters(parameterReplacements);
-            var condition = GetCondition(context);
+            var callback = _callbackLambda.ReplaceParameterWith(context.Parameter);
+            var condition = GetCondition(context.Parameter);
 
             return new ObjectCreationCallback(_callbackPosition, callback, condition);
         }

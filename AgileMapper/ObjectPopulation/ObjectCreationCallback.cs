@@ -28,7 +28,7 @@
         {
             if (_callbackPosition == CallbackPosition.After)
             {
-                _conditions.Insert(0, Expression.NotEqual(context.TargetVariable, context.ExistingObject));
+                _conditions.Insert(0, Expression.NotEqual(context.InstanceVariable, context.ExistingObject));
             }
 
             if (_conditions.Any())

@@ -18,7 +18,7 @@
             Value = omc.GetMapCall(sourceEnumerableDataSource.Value, enumerableMember);
         }
 
-        public Expression GetConditionOrNull(IMemberMappingContext context) => null;
+        public Expression GetConditionOrNull(ParameterExpression contextParameter) => null;
 
         public IEnumerable<Expression> NestedSourceMemberAccesses
             => _sourceEnumerableDataSource.NestedSourceMemberAccesses;

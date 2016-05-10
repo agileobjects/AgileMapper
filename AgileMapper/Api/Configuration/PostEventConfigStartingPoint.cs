@@ -11,17 +11,13 @@
             _mapperContext = mapperContext;
         }
 
-        public ObjectCallbackSpecifier<object, object, object> CreatingInstances
+        public InstanceCreationCallbackSpecifier<object, object, object> CreatingInstances
             => CreateCallbackSpecifier<object>();
 
-        public ObjectCallbackSpecifier<object, object, TInstance> CreatingInstancesOf<TInstance>() where TInstance : class
+        public InstanceCreationCallbackSpecifier<object, object, TInstance> CreatingInstancesOf<TInstance>() where TInstance : class
             => CreateCallbackSpecifier<TInstance>();
 
-        private ObjectCallbackSpecifier<object, object, TInstance> CreateCallbackSpecifier<TInstance>()
-            => new ObjectCallbackSpecifier<object, object, TInstance>(
-                   CallbackPosition.After,
-                   _mapperContext,
-                   Callbacks.Target,
-                   Callbacks.SourceAndTarget);
+        private InstanceCreationCallbackSpecifier<object, object, TInstance> CreateCallbackSpecifier<TInstance>()
+            => new InstanceCreationCallbackSpecifier<object, object, TInstance>(CallbackPosition.After, _mapperContext);
     }
 }

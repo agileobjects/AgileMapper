@@ -17,7 +17,7 @@
 
                 mapper.After
                     .CreatingInstances
-                    .Call(instance => createdInstance = (PublicProperty<int>)instance);
+                    .Call(ctx => createdInstance = (PublicProperty<int>)ctx.CreatedInstance);
 
                 var source = new PublicField<int>();
                 var result = mapper.Map(source).ToNew<PublicProperty<int>>();
@@ -36,7 +36,7 @@
 
                 mapper.After
                     .CreatingInstancesOf<Person>()
-                    .Call(p => createdPerson = p);
+                    .Call(ctx => createdPerson = ctx.CreatedInstance);
 
                 var nonMatchingSource = new { Value = "12345" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicProperty<int>>();
@@ -64,7 +64,7 @@
                     .To<Person>()
                     .After
                     .CreatingTargetInstances
-                    .Call(p => createdPerson = p);
+                    .Call(ctx => createdPerson = ctx.CreatedInstance);
 
                 var nonMatchingSource = new { Name = "Harry" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
@@ -92,7 +92,7 @@
                     .To<Person>()
                     .After
                     .CreatingInstancesOf<Address>()
-                    .Call(a => createdAddress = a);
+                    .Call(ctx => createdAddress = ctx.CreatedInstance);
 
                 var nonMatchingSource = new { Address = new Address { Line1 = "Blah" } };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
@@ -119,7 +119,7 @@
                     .OnTo<Person>()
                     .After
                     .CreatingInstancesOf<Address>()
-                    .Call((pvm, a) => a.Line2 = pvm.Name);
+                    .Call(ctx => ctx.CreatedInstance.Line2 = ctx.Source.Name);
 
                 var nonMatchingSource = new { Name = "Wilma" };
                 var nonMatchingTarget = new Person { Name = "Fred" };
@@ -148,8 +148,8 @@
                     .ToANew<Person>()
                     .After
                     .CreatingInstances
-                    .Call(o => createdInstanceTypes.Add(o.GetType()))
-                    .If((s, t) => t is Address);
+                    .Call(ctx => createdInstanceTypes.Add(ctx.CreatedInstance.GetType()))
+                    .If(ctx => ctx.CreatedInstance is Address);
 
                 var source = new { Name = "Homer", AddressLine1 = "Springfield" };
                 var nonMatchingResult = mapper.Map(source).ToNew<PersonViewModel>();
@@ -174,7 +174,7 @@
                     .ToANew<PersonViewModel>()
                     .Before
                     .CreatingTargetInstances
-                    .Call(p => p.Name += $"! {p.Name}!");
+                    .Call(ctx => ctx.Source.Name += $"! {ctx.Source.Name}!");
 
                 var nonMatchingSource = new { Name = "Lester" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PersonViewModel>();

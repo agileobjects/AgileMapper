@@ -191,22 +191,22 @@
                    select Convert.ToInt64(value);
         }
 
-        public static Type GetTargetVariableType(this Type targetType)
+        public static Type GetInstanceVariableType(this Type instanceType)
         {
-            if (!targetType.IsEnumerable())
+            if (!instanceType.IsEnumerable())
             {
-                return targetType;
+                return instanceType;
             }
 
-            var targetElementType = targetType.GetEnumerableElementType();
-            var listType = typeof(List<>).MakeGenericType(targetElementType);
+            var instanceElementType = instanceType.GetEnumerableElementType();
+            var listType = typeof(List<>).MakeGenericType(instanceElementType);
 
-            if (targetType.IsArray || listType.IsAssignableFrom(targetType))
+            if (instanceType.IsArray || listType.IsAssignableFrom(instanceType))
             {
                 return listType;
             }
 
-            return typeof(ICollection<>).MakeGenericType(targetElementType);
+            return typeof(ICollection<>).MakeGenericType(instanceElementType);
         }
 
         public static Member CreateElementMember(this Type enumerableType)

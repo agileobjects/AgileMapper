@@ -5,29 +5,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Extensions;
 
-    internal abstract class ObjectMappingLambdaFactoryBase<TSource, TTarget>
+    internal abstract class ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
     {
-        public Expression<MapperFunc<TSource, TTarget>> Create(IObjectMappingContext omc)
+        public Expression<MapperFunc<TSource, TTarget, TInstance>> Create(IObjectMappingContext omc)
         {
             var returnLabelTarget = Expression.Label(omc.ExistingObject.Type, "Return");
             var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omc.ExistingObject.Type));
 
             var shortCircuitReturns = GetShortCircuitReturns(returnNull, omc);
-            var targetVariableValue = GetObjectResolution(omc);
-            var targetVariableAssignment = Expression.Assign(omc.TargetVariable, targetVariableValue);
-            var objectPopulation = GetObjectPopulation(targetVariableValue, omc);
-            var returnValue = GetReturnValue(targetVariableValue, omc);
+            var instanceVariableValue = GetObjectResolution(omc);
+            var instanceVariableAssignment = Expression.Assign(omc.InstanceVariable, instanceVariableValue);
+            var objectPopulation = GetObjectPopulation(instanceVariableValue, omc);
+            var returnValue = GetReturnValue(instanceVariableValue, omc);
             var returnLabel = Expression.Label(returnLabelTarget, returnValue);
 
             var mappingBlock = Expression.Block(
-                new[] { omc.TargetVariable },
+                new[] { omc.InstanceVariable },
                 shortCircuitReturns
-                    .Concat(targetVariableAssignment)
+                    .Concat(instanceVariableAssignment)
                     .Concat(objectPopulation)
                     .Concat(returnLabel));
 
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(mappingBlock, omc.Parameter);
+                .Lambda<MapperFunc<TSource, TTarget, TInstance>>(mappingBlock, omc.Parameter);
 
             return mapperLambda;
         }
@@ -36,8 +36,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract Expression GetObjectResolution(IObjectMappingContext omc);
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(Expression targetVariableValue, IObjectMappingContext omc);
+        protected abstract IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc);
 
-        protected abstract Expression GetReturnValue(Expression targetVariableValue, IObjectMappingContext omc);
+        protected abstract Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc);
     }
 }

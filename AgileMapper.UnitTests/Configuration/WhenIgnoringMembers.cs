@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .From<PersonViewModel>()
                     .ToANew<Person>()
                     .Ignore(x => x.Name)
-                    .If((pvm, p) => pvm.Name == "Bilbo");
+                    .If(ctx => ctx.Source.Name == "Bilbo");
 
                 var matchingSource = new PersonViewModel { Name = "Bilbo" };
                 var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
@@ -76,7 +76,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .From<PersonViewModel>()
                     .ToANew<Person>()
                     .Ignore(p => p.Name)
-                    .If(pvm => pvm.Name.StartsWith("F"));
+                    .If(ctx => ctx.Source.Name.StartsWith("F"));
 
                 var source = new[]
                 {
@@ -102,7 +102,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .From<PublicProperty<int>>()
                     .ToANew<PublicProperty<string>>()
                     .Ignore(p => p.Value)
-                    .If((s, t, i) => i > 0);
+                    .If(ctx => ctx.EnumerableIndex > 0);
 
                 var source = new[]
                 {

@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Members;
     using ObjectPopulation;
 
     internal class MappingContext : IDisposable
@@ -39,7 +40,7 @@ namespace AgileObjects.AgileMapper
                 RootObjectMappingContext =
                     ObjectMappingContextFactory.CreateRoot(source, existing, this);
 
-            return Map<TDeclaredSource, TDeclaredTarget>();
+            return Map<TDeclaredSource, TDeclaredTarget, TDeclaredTarget>();
         }
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
@@ -56,16 +57,18 @@ namespace AgileObjects.AgileMapper
 
         internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
             TRuntimeSource source,
-            TRuntimeTarget existing,
-            Expression<Func<TRuntimeTarget, TDeclaredMember>> childMemberExpression)
+            TRuntimeTarget target,
+            QualifiedMember childMember,
+            TDeclaredMember childMemberValue)
         {
             CurrentObjectMappingContext = ObjectMappingContextFactory.Create(
                 source,
-                existing,
-                childMemberExpression,
+                target,
+                childMember,
+                childMemberValue,
                 this);
 
-            return Map<TRuntimeSource, TDeclaredMember>();
+            return Map<TRuntimeSource, TRuntimeTarget, TDeclaredMember>();
         }
 
         public TDeclaredTarget MapEnumerableElement<TDeclaredSource, TDeclaredTarget>(
@@ -84,24 +87,22 @@ namespace AgileObjects.AgileMapper
                 enumerableIndex,
                 this);
 
-            return Map<TDeclaredSource, TDeclaredTarget>();
+            return Map<TDeclaredSource, TDeclaredTarget, TDeclaredTarget>();
         }
 
-        private TTarget Map<TSource, TTarget>()
+        private TInstance Map<TSource, TTarget, TInstance>()
         {
-            IObjectMapper<TTarget> mapper;
+            IObjectMapper<TInstance> mapper;
 
-            if (typeof(ObjectMappingContext<TSource, TTarget>).IsAssignableFrom(CurrentObjectMappingContext.Parameter.Type))
+            if (typeof(ObjectMappingContext<TSource, TTarget, TInstance>).IsAssignableFrom(CurrentObjectMappingContext.Parameter.Type))
             {
-                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(CurrentObjectMappingContext);
+                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget, TInstance>(CurrentObjectMappingContext);
             }
             else
             {
                 var typedCreateMapperMethod = typeof(ObjectMapperFactory)
                     .GetMethod("CreateFor", Constants.PublicInstance)
-                    .MakeGenericMethod(
-                        CurrentObjectMappingContext.SourceObject.Type,
-                        CurrentObjectMappingContext.ExistingObject.Type);
+                    .MakeGenericMethod(CurrentObjectMappingContext.Parameter.Type.GetGenericArguments());
 
                 var mapperContext = Expression.Property(Parameters.ObjectMappingContext, "MapperContext");
                 var mapperFactory = Expression.Property(mapperContext, "ObjectMapperFactory");
@@ -112,7 +113,7 @@ namespace AgileObjects.AgileMapper
                     Parameters.ObjectMappingContext);
 
                 var createMapperLambda = Expression
-                    .Lambda<Func<IObjectMappingContext, IObjectMapper<TTarget>>>(
+                    .Lambda<Func<IObjectMappingContext, IObjectMapper<TInstance>>>(
                         createMapperCall,
                         Parameters.ObjectMappingContext);
 

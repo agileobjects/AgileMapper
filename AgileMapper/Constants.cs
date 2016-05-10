@@ -17,9 +17,11 @@
 
         public static readonly BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
 
+        public static readonly BindingFlags NonPublicInstance = BindingFlags.NonPublic | BindingFlags.Instance;
+
         public static readonly BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static;
 
-        public static readonly BindingFlags PrivateStatic = BindingFlags.NonPublic | BindingFlags.Static;
+        public static readonly BindingFlags NonPublicStatic = BindingFlags.NonPublic | BindingFlags.Static;
 
         public const string CreateNew = "CreateNew";
 

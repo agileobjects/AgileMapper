@@ -36,7 +36,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   targetMember,
                   value,
                   nestedAccesses,
-                  finalValue => targetMember.GetPopulation(omc.TargetVariable, finalValue),
+                  finalValue => targetMember.GetPopulation(omc.InstanceVariable, finalValue),
                   omc)
         {
         }

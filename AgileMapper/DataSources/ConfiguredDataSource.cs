@@ -9,7 +9,7 @@
         public ConfiguredDataSource(
             Expression value,
             IMemberMappingContext context,
-            Func<IMemberMappingContext, Expression> conditionFactory)
+            Func<ParameterExpression, Expression> conditionFactory)
             : base(value, context, conditionFactory)
         {
         }

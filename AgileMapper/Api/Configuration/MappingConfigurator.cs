@@ -19,7 +19,7 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                valueFactoryExpression.ReplaceParameter);
+                valueFactoryExpression.ReplaceParameterWith);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)

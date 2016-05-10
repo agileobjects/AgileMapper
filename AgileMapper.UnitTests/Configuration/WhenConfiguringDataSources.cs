@@ -53,11 +53,10 @@
             using (var mapper = Mapper.Create())
             {
                 mapper.WhenMapping
-                    .From<PublicProperty<string>>()
-                    .To<PublicProperty<string>>()
+                    .Over<PublicProperty<string>>()
                     .Map("Too small!")
                     .To(x => x.Value)
-                    .If((s, t) => t.Value.Length < 5);
+                    .If(ctx => ctx.Target.Value.Length < 5);
 
                 var source = new PublicProperty<string> { Value = "Replaced" };
 
@@ -101,7 +100,7 @@
                     .ToANew<PublicSetMethod<string>>()
                     .Map(x => x.Value)
                     .To<string>(x => x.SetValue)
-                    .If(s => s.Value % 2 == 0);
+                    .If(ctx => ctx.Source.Value % 2 == 0);
 
                 var matchingSource = new PublicField<int> { Value = 6 };
                 var matchingResult = mapper.Map(matchingSource).ToNew<PublicSetMethod<string>>();

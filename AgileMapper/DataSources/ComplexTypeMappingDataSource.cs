@@ -13,7 +13,7 @@
             Value = omc.GetMapCall(complexTypeMember);
         }
 
-        public Expression GetConditionOrNull(IMemberMappingContext context) => null;
+        public Expression GetConditionOrNull(ParameterExpression contextParameter) => null;
 
         public IEnumerable<Expression> NestedSourceMemberAccesses => Enumerable.Empty<Expression>();
 
