@@ -363,5 +363,37 @@
                 nonMatchingModeTarget.Value.ShouldBe(source.Value);
             }
         }
+
+        [Fact]
+        public void ShouldCallAnObjectCreatingCallbackInARootEnumerableConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var createdAddressesByIndex = new Dictionary<int, string>();
+
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .ToANew<Person>()
+                    .Before
+                    .CreatingInstancesOf<Address>()
+                    .Call(ctx => createdAddressesByIndex[ctx.EnumerableIndex.GetValueOrDefault()] = ctx.Source.AddressLine1)
+                    .If(ctx => ctx.EnumerableIndex > 0);
+
+                var source = new[]
+                {
+                    new PersonViewModel { AddressLine1 = "Zero!" },
+                    new PersonViewModel { AddressLine1 = "One!" },
+                    new PersonViewModel { AddressLine1 = "Two!" }
+                };
+
+                var result = mapper.Map(source).ToNew<Person[]>();
+
+                result.Select(p => p.Address.Line1).ShouldBe("Zero!", "One!", "Two!");
+
+                createdAddressesByIndex.ShouldNotContainKey(0);
+                createdAddressesByIndex.ShouldContainKeyAndValue(1, "One!");
+                createdAddressesByIndex.ShouldContainKeyAndValue(2, "Two!");
+            }
+        }
     }
 }

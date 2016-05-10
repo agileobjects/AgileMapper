@@ -206,6 +206,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ReferenceEquals(Source, source);
         }
 
+        public int? GetEnumerableIndex() => EnumerableIndex.HasValue ? EnumerableIndex : _parent?.GetEnumerableIndex();
+
         Type IObjectMappingContext.GetSourceMemberRuntimeType(QualifiedMember sourceMember)
         {
             if (sourceMember.Members.Count() == 1)

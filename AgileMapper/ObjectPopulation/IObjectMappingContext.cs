@@ -18,6 +18,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         bool HasSource<TSource>(TSource source);
 
+        int? GetEnumerableIndex();
+
         Type GetSourceMemberRuntimeType(QualifiedMember sourceMember);
 
         QualifiedMember SourceMember { get; }

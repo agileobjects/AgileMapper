@@ -160,6 +160,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return constructionLambda.Compile();
             });
 
+            if (enumerableIndex == null)
+            {
+                enumerableIndex = mappingContext.CurrentObjectMappingContext?.GetEnumerableIndex();
+            }
+
             return constructionFunc.Invoke(sourceMember, targetMember, source, target, existing, enumerableIndex, mappingContext);
         }
     }
