@@ -11,10 +11,10 @@
 
         private ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
-            Type targetType,
+            Type mappingTargetType,
             Func<Expression, Expression> customSourceValueFactory,
             QualifiedMember targetMember)
-            : base(configInfo, targetType, targetMember)
+            : base(configInfo, mappingTargetType, targetMember)
         {
             _customSourceValueFactory = customSourceValueFactory;
         }
@@ -38,8 +38,7 @@
 
         public IDataSource Create(IMemberMappingContext context)
         {
-            var instance = ConfigInfo.IsForAllSources ? context.TargetVariable : context.SourceObject;
-            var value = _customSourceValueFactory.Invoke(instance);
+            var value = _customSourceValueFactory.Invoke(context.SourceObject);
 
             return new ConfiguredDataSource(value, context, GetCondition);
         }

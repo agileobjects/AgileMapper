@@ -7,17 +7,17 @@
 
     internal abstract class UserConfiguredItemBase
     {
-        private readonly Type _targetType;
+        private readonly Type _mappingTargetType;
         private readonly QualifiedMember _targetMember;
         private Func<IMemberMappingContext, Expression> _conditionFactory;
 
         protected UserConfiguredItemBase(
             MappingConfigInfo configInfo,
-            Type targetType,
+            Type mappingTargetType,
             QualifiedMember targetMember)
         {
             ConfigInfo = configInfo;
-            _targetType = targetType;
+            _mappingTargetType = mappingTargetType;
             _targetMember = targetMember;
         }
 
@@ -45,14 +45,14 @@
                 return false;
             }
 
-            return ConfigInfo.IsForAllSources || ObjectHeirarchyHasMatchingSourceAndTargetTypes(context);
+            return ObjectHeirarchyHasMatchingSourceAndTargetTypes(context);
         }
 
         private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IMemberMappingContext context)
         {
             while (context != null)
             {
-                if (_targetType.IsAssignableFrom(context.ExistingObject.Type) &&
+                if (_mappingTargetType.IsAssignableFrom(context.ExistingObject.Type) &&
                     ConfigInfo.IsForSourceType(context.SourceObject.Type))
                 {
                     return true;

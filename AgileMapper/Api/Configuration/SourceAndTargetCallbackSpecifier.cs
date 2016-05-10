@@ -1,25 +1,21 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
-    using System.Linq.Expressions;
     using ObjectPopulation;
 
-    public class SourceAndTargetCallbackSpecifier<TSource, TTarget> : ObjectCallbackSpecifier<TTarget>
+    public class SourceAndTargetCallbackSpecifier<TSource, TTarget, TInstance> : ObjectCallbackSpecifier<TSource, TTarget, TInstance>
     {
         internal SourceAndTargetCallbackSpecifier(CallbackPosition callbackPosition, MappingConfigInfo configInfo)
-            : this(callbackPosition, configInfo, typeof(TTarget))
+            : base(
+                  callbackPosition,
+                  configInfo,
+                  typeof(TInstance),
+                  Callbacks.Target,
+                  Callbacks.SourceAndTarget)
         {
         }
 
-        internal SourceAndTargetCallbackSpecifier(
-            CallbackPosition callbackPosition,
-            MappingConfigInfo configInfo,
-            Type targetType)
-            : base(callbackPosition, configInfo, targetType, Callbacks.Target, Callbacks.SourceAndTarget)
-        {
-        }
-
-        public void Call(Action<TSource, TTarget> callback)
+        public void Call(Action<TSource, TInstance> callback)
         {
             AddCallback(callback);
         }

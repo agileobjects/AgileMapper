@@ -39,7 +39,7 @@
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);
 
-            return new ConditionSpecifier<TSource, TTarget>(configuredDataSourceFactory, negateCondition: false);
+            return new ConditionSpecifier<TSource, TTarget>(configuredDataSourceFactory);
         }
     }
 }

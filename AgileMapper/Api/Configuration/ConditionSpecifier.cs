@@ -13,21 +13,17 @@
 
         internal ConditionSpecifier(
             UserConfiguredItemBase configuredItem,
-            bool negateCondition)
+            bool negateCondition = false)
         {
             _configuredItem = configuredItem;
             _negateCondition = negateCondition;
         }
 
         public void If(Expression<Func<TSource, bool>> condition)
-        {
-            AddCondition(condition, context => new[] { context.SourceObject });
-        }
+            => AddCondition(condition, context => new[] { context.SourceObject });
 
         public void If(Expression<Func<TSource, TTarget, bool>> condition)
-        {
-            AddCondition(condition, context => new[] { context.SourceObject, context.TargetVariable });
-        }
+            => AddCondition(condition, context => new[] { context.SourceObject, context.TargetVariable });
 
         public void If(Expression<Func<TSource, TTarget, int?, bool>> condition)
         {

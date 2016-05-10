@@ -209,6 +209,9 @@
 
                     case ExpressionType.MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
+
+                    case ExpressionType.TypeIs:
+                        return ReplaceIn((TypeBinaryExpression)expression);
                 }
 
                 return expression;
@@ -236,6 +239,9 @@
 
             private Expression ReplaceIn(MemberExpression memberAccess)
                 => memberAccess.Update(Replace(memberAccess.Expression));
+
+            private Expression ReplaceIn(TypeBinaryExpression typeBinary)
+                => typeBinary.Update(Replace(typeBinary.Expression));
 
             private Expression Replace(Expression expression)
             {

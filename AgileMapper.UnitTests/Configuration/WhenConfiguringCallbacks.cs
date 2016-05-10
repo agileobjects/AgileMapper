@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
+    using System.Collections.Generic;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -132,6 +134,33 @@
 
                 matchingResult.Address.Line2.ShouldBe("Betty");
                 matchingResult.Name.ShouldBe("Fred");
+            }
+        }
+
+        [Fact]
+        public void ShouldCallAnObjectCreatedCallbackConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var createdInstanceTypes = new List<Type>();
+
+                mapper.WhenMapping
+                    .ToANew<Person>()
+                    .After
+                    .CreatingInstances
+                    .Call(o => createdInstanceTypes.Add(o.GetType()))
+                    .If((s, t) => t is Address);
+
+                var source = new { Name = "Homer", AddressLine1 = "Springfield" };
+                var nonMatchingResult = mapper.Map(source).ToNew<PersonViewModel>();
+
+                createdInstanceTypes.ShouldBeEmpty();
+                nonMatchingResult.Name.ShouldBe("Homer");
+
+                var matchingResult = mapper.Map(source).ToNew<Person>();
+
+                createdInstanceTypes.ShouldBe(new[] { typeof(Address) });
+                matchingResult.Name.ShouldBe("Homer");
             }
         }
 

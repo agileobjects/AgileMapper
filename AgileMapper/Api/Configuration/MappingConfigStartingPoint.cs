@@ -11,16 +11,33 @@
             _mapperContext = mapperContext;
         }
 
-        public MappingConfigurator<TTarget, TTarget> To<TTarget>()
+        public MappingConfigurator<object, TTarget> To<TTarget>()
             where TTarget : class
         {
-            return GetTargetTypeSpecifier<TTarget>(ci => ci.ForAllSourceTypes().ForAllRuleSets()).To<TTarget>();
+            return GetAllSourcesTargetTypeSpecifier(ci => ci.ForAllRuleSets()).To<TTarget>();
         }
 
-        public MappingConfigurator<TTarget, TTarget> OnTo<TTarget>()
+        public MappingConfigurator<object, TTarget> ToANew<TTarget>()
             where TTarget : class
         {
-            return GetTargetTypeSpecifier<TTarget>(ci => ci.ForAllSourceTypes().ForRuleSet(Constants.Merge)).To<TTarget>();
+            return GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.CreateNew)).ToANew<TTarget>();
+        }
+
+        public MappingConfigurator<object, TTarget> OnTo<TTarget>()
+            where TTarget : class
+        {
+            return GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Merge)).To<TTarget>();
+        }
+
+        private TargetTypeSpecifier<object> GetAllSourcesTargetTypeSpecifier(
+            Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)
+        {
+            return GetTargetTypeSpecifier<object>(ci =>
+            {
+                ci.ForAllSourceTypes();
+                configInfoConfigurator.Invoke(ci);
+                return ci;
+            });
         }
 
         public TargetTypeSpecifier<TSource> From<TSource>()

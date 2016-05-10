@@ -122,21 +122,14 @@
             {
                 mapper.WhenMapping
                     .OnTo<Person>()
-                    .Map(x => x.Id)
+                    .Map(x => x.GetType().Name)
                     .To(x => x.Name);
 
-                var targetPerson1 = new Person { Id = Guid.NewGuid() };
-                var mapOnToResult1 = mapper.Map(new PublicField<decimal>()).OnTo(targetPerson1);
+                var personResult = mapper.Map(new Person()).OnTo(new Person());
+                var customerResult = mapper.Map(new Customer()).OnTo(new Person());
 
-                var targetPerson2 = new Person { Id = Guid.NewGuid() };
-                var mapOnToResult2 = mapper.Map(new Customer()).OnTo(targetPerson2);
-
-                var targetPerson3 = new Person { Id = Guid.NewGuid() };
-                var mapOnToResult3 = mapper.Map(new PublicProperty<DateTime>()).OnTo(targetPerson3);
-
-                mapOnToResult1.Name.ShouldBe(targetPerson1.Id.ToString());
-                mapOnToResult2.Name.ShouldBe(targetPerson2.Id.ToString());
-                mapOnToResult3.Name.ShouldBe(targetPerson3.Id.ToString());
+                personResult.Name.ShouldBe("Person");
+                customerResult.Name.ShouldBe("Customer");
             }
         }
 

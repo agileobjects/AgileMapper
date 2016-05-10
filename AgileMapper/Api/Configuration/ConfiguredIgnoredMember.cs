@@ -9,9 +9,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     {
         public ConfiguredIgnoredMember(
             MappingConfigInfo configInfo,
-            Type targetType,
+            Type mappingTargetType,
             QualifiedMember targetMember)
-            : base(configInfo, targetType, targetMember)
+            : base(configInfo, mappingTargetType, targetMember)
         {
         }
 

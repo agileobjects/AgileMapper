@@ -20,8 +20,6 @@
 
         public MapperContext MapperContext { get; }
 
-        public bool IsForAllSources => _sourceType == _allSourceTypes;
-
         public MappingConfigInfo ForAllSourceTypes()
         {
             return ForSourceType(_allSourceTypes);
@@ -40,7 +38,7 @@
 
         public bool IsForSourceType(Type sourceType)
         {
-            return _sourceType.IsAssignableFrom(sourceType);
+            return (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
         }
 
         public MappingConfigInfo ForAllRuleSets()

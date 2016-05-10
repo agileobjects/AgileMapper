@@ -11,14 +11,14 @@
             _mapperContext = mapperContext;
         }
 
-        public ObjectCallbackSpecifier<object> CreatingInstances
+        public ObjectCallbackSpecifier<object, object, object> CreatingInstances
             => CreateCallbackSpecifier<object>();
 
-        public ObjectCallbackSpecifier<TTarget> CreatingInstancesOf<TTarget>() where TTarget : class
-            => CreateCallbackSpecifier<TTarget>();
+        public ObjectCallbackSpecifier<object, object, TInstance> CreatingInstancesOf<TInstance>() where TInstance : class
+            => CreateCallbackSpecifier<TInstance>();
 
-        private ObjectCallbackSpecifier<TInstance> CreateCallbackSpecifier<TInstance>()
-            => new ObjectCallbackSpecifier<TInstance>(
+        private ObjectCallbackSpecifier<object, object, TInstance> CreateCallbackSpecifier<TInstance>()
+            => new ObjectCallbackSpecifier<object, object, TInstance>(
                    CallbackPosition.After,
                    _mapperContext,
                    Callbacks.Target,

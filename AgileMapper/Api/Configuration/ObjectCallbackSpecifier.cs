@@ -7,11 +7,11 @@
     using Members;
     using ObjectPopulation;
 
-    public class ObjectCallbackSpecifier<T>
+    public class ObjectCallbackSpecifier<TSource, TTarget, TInstance>
     {
         private readonly CallbackPosition _callbackPosition;
         private readonly MappingConfigInfo _configInfo;
-        private readonly Type _targetType;
+        private readonly Type _creationTargetType;
         private readonly Dictionary<int, Func<IMemberMappingContext, Expression[]>> _parameterReplacementsFactoriesByParameterCount;
 
         internal ObjectCallbackSpecifier(
@@ -21,7 +21,7 @@
             : this(
                   callbackPosition,
                   new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes(),
-                  typeof(T),
+                  typeof(TInstance),
                   parameterReplacementsFactories)
         {
         }
@@ -29,24 +29,24 @@
         internal ObjectCallbackSpecifier(
             CallbackPosition callbackPosition,
             MappingConfigInfo configInfo,
-            Type targetType,
+            Type creationTargetType,
             params Func<IMemberMappingContext, Expression[]>[] parameterReplacementsFactories)
         {
             _callbackPosition = callbackPosition;
             _configInfo = configInfo;
-            _targetType = targetType;
+            _creationTargetType = creationTargetType;
 
             _parameterReplacementsFactoriesByParameterCount = parameterReplacementsFactories
                 .Select((f, i) => new { Index = i, Factory = f })
                 .ToDictionary(kvp => kvp.Index + 1, kvp => kvp.Factory);
         }
 
-        public void Call(Action<T> callback)
+        public ConditionSpecifier<TSource, TInstance> Call(Action<TInstance> callback)
         {
-            AddCallback(callback);
+            return AddCallback(callback);
         }
 
-        protected void AddCallback<TAction>(TAction callback)
+        protected ConditionSpecifier<TSource, TInstance> AddCallback<TAction>(TAction callback)
         {
             var callbackConstant = Expression.Constant(callback);
 
@@ -64,12 +64,15 @@
 
             var creationCallback = new ObjectCreationCallbackFactory(
                 _configInfo,
-                _targetType,
+                typeof(TTarget),
+                _creationTargetType,
                 _callbackPosition,
                 callbackLambda,
                 parameterReplacementsFactory);
 
             _configInfo.MapperContext.UserConfigurations.Add(creationCallback);
+
+            return new ConditionSpecifier<TSource, TInstance>(creationCallback);
         }
     }
 }

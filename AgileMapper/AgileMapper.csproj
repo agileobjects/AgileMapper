@@ -42,7 +42,6 @@
     <Compile Include="Api\Configuration\PostEventMappingConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PreEventMappingConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\SourceAndTargetCallbackSpecifier.cs" />
-    <Compile Include="Api\Configuration\SourceCallbackSpecifier.cs" />
     <Compile Include="Caching\DictionaryCache.cs" />
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
