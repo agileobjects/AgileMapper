@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
     using Members;
 
     public class MappingConfigurator<TSource, TTarget>
@@ -20,7 +19,8 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                context => valueFactoryExpression.ReplaceParameterWith(context.Parameter));
+                valueFactoryExpression,
+                Parameters.SwapForContextParameter);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
@@ -28,7 +28,17 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                context => valueFactoryExpression.ReplaceParametersWith(context.SourceObject, context.InstanceVariable));
+                valueFactoryExpression,
+                Parameters.SwapForSourceAndTarget);
+        }
+
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+            Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
+        {
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+                _configInfo.ForSourceValueType(typeof(TSourceValue)),
+                valueFactoryExpression,
+                Parameters.SwapForSourceTargetAndIndex);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
@@ -38,13 +48,14 @@
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
         {
-            Expression valueFactoryExpression;
+            LambdaExpression valueFactoryLambda;
             Type valueFactoryReturnType;
 
-            return TryGetValueFactory(value, out valueFactoryExpression, out valueFactoryReturnType)
+            return TryGetValueFactory(value, out valueFactoryLambda, out valueFactoryReturnType)
                 ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                     _configInfo.ForSourceValueType(valueFactoryReturnType),
-                    context => Expression.Invoke(valueFactoryExpression, context.Parameter))
+                    valueFactoryLambda,
+                    Parameters.SwapForContextParameter)
                 : GetConstantTargetMemberSpecifier(value);
         }
 
@@ -52,7 +63,7 @@
 
         private static bool TryGetValueFactory<TSourceValue>(
             TSourceValue value,
-            out Expression valueFactoryExpression,
+            out LambdaExpression valueFactoryLambda,
             out Type valueFactoryReturnType)
         {
             if (typeof(TSourceValue).IsGenericType &&
@@ -68,14 +79,22 @@
 
                     if (typeof(TSource).IsAssignableFrom(contextTypes.First()))
                     {
-                        valueFactoryExpression = Expression.Constant(value, typeof(TSourceValue));
+                        var parameters = funcTypeArguments
+                            .Take(funcTypeArguments.Length - 1)
+                            .Select(Parameters.Create)
+                            .ToArray();
+
+                        var valueFactory = Expression.Constant(value, typeof(TSourceValue));
+                        var valueFactoryInvocation = Expression.Invoke(valueFactory, parameters.Cast<Expression>());
+                        valueFactoryLambda = Expression.Lambda(typeof(TSourceValue), valueFactoryInvocation, parameters);
+
                         valueFactoryReturnType = funcTypeArguments.Last();
                         return true;
                     }
                 }
             }
 
-            valueFactoryExpression = null;
+            valueFactoryLambda = null;
             valueFactoryReturnType = null;
             return false;
         }
@@ -83,10 +102,12 @@
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(TSourceValue value)
         {
             var valueConstant = Expression.Constant(value, typeof(TSourceValue));
+            var valueLambda = Expression.Lambda<Func<TSourceValue>>(valueConstant);
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(valueConstant.Type),
-                instance => valueConstant);
+                valueLambda,
+                Parameters.SwapNothing);
         }
 
         #endregion

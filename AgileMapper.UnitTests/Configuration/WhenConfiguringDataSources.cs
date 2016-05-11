@@ -159,13 +159,14 @@
                 mapper.WhenMapping
                     .From<Customer>()
                     .To<PublicSetMethod<string>>()
-                    .Map(ctx => ctx.Source.Name)
+                    .Map((s, t, i) => (i + 1) + ": " + s.Name)
                     .To<string>(x => x.SetValue);
 
                 var source = new PublicProperty<Customer[]> { Value = new[] { new Customer { Name = "Mr Thomas" } } };
                 var result = mapper.Map(source).ToNew<PublicField<IEnumerable<PublicSetMethod<string>>>>();
 
-                source.Value.ShouldBe(result.Value.Select(r => r.Value), p => p.Name);
+                result.Value.ShouldHaveSingleItem();
+                result.Value.First().Value.ShouldBe("1: Mr Thomas");
             }
         }
 

@@ -8,13 +8,16 @@
     public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
-        private readonly Func<IMemberMappingContext, Expression> _customValueFactory;
+        private readonly LambdaExpression _dataSourceLambda;
+        private readonly Func<LambdaExpression, IMemberMappingContext, Expression> _customValueFactory;
 
         internal CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
-            Func<IMemberMappingContext, Expression> customValueFactory)
+            LambdaExpression dataSourceLambda,
+            Func<LambdaExpression, IMemberMappingContext, Expression> customValueFactory)
         {
             _configInfo = configInfo;
+            _dataSourceLambda = dataSourceLambda;
             _customValueFactory = customValueFactory;
         }
 
@@ -34,6 +37,7 @@
 
             var configuredDataSourceFactory = ConfiguredDataSourceFactory.For(
                 _configInfo,
+                _dataSourceLambda,
                 typeof(TTarget),
                 _customValueFactory,
                 targetMemberLambda.Body);
