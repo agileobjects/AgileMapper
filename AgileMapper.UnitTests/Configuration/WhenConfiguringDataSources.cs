@@ -269,7 +269,7 @@
             using (var mapper = Mapper.Create())
             {
                 Func<PersonViewModel, Address, string> combineAddressLine1 =
-                    (s, t) => s.Name + ", " + s.AddressLine1;
+                    (pvm, a) => pvm.Name + ", " + pvm.AddressLine1;
 
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -281,6 +281,28 @@
                 var result = mapper.Map(source).ToNew<Person>();
 
                 result.Address.Line1.ShouldBe("Francis, Over here");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredSourceTargetAndIndexFunction()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                Func<PersonViewModel, Person, int?, string> combineAddressLine1 =
+                    (pvm, p, i) => $"{i}: {pvm.Name}, {pvm.AddressLine1}";
+
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .Map(combineAddressLine1)
+                    .To(p => p.Address.Line1);
+
+                var source = new[] { new PersonViewModel { Name = "Jane", AddressLine1 = "Over here!" } };
+                var result = mapper.Map(source).ToNew<Person[]>();
+
+                result.ShouldHaveSingleItem();
+                result.First().Address.Line1.ShouldBe("0: Jane, Over here!");
             }
         }
 

@@ -70,7 +70,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private readonly QualifiedMember _sourceMember;
         private readonly QualifiedMember _targetMember;
-        private readonly IObjectMappingContext _parent;
         private readonly int _sourceObjectDepth;
 
         public ObjectMappingContext(
@@ -86,13 +85,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _sourceMember = sourceMember;
             _targetMember = targetMember;
             MappingContext = mappingContext;
-            _parent = mappingContext.CurrentObjectMappingContext;
+            Parent = mappingContext.CurrentObjectMappingContext;
             _sourceObjectDepth = CalculateSourceObjectDepth();
         }
 
         private int CalculateSourceObjectDepth()
         {
-            var parent = _parent;
+            var parent = Parent;
 
             while (parent != null)
             {
@@ -113,6 +112,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MapperContext MapperContext => MappingContext.MapperContext;
 
         public MappingContext MappingContext { get; }
+
+        public IObjectMappingContext Parent { get; }
 
         public TInstance Create() => (CreatedInstance = MapperContext.ComplexTypeFactory.Create<TInstance>());
 
@@ -177,8 +178,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region IMemberMappingContext Members
 
-        IObjectMappingContext IMemberMappingContext.Parent => _parent;
-
         ParameterExpression IMemberMappingContext.Parameter => _parameter;
 
         string IMemberMappingContext.RuleSetName => MappingContext.RuleSet.Name;
@@ -199,14 +198,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region IObjectMappingContext Members
 
-        IObjectMappingContext IObjectMappingContext.Parent => _parent;
-
         bool IObjectMappingContext.HasSource<TSource>(TSource source)
         {
             return ReferenceEquals(Source, source);
         }
 
-        public int? GetEnumerableIndex() => EnumerableIndex.HasValue ? EnumerableIndex : _parent?.GetEnumerableIndex();
+        T IObjectMappingContext.GetInstance<T>() => (T)(object)CreatedInstance;
+
+        public int? GetEnumerableIndex() => EnumerableIndex.HasValue ? EnumerableIndex : Parent?.GetEnumerableIndex();
 
         Type IObjectMappingContext.GetSourceMemberRuntimeType(QualifiedMember sourceMember)
         {

@@ -1,7 +1,9 @@
 namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Extensions;
     using Members;
     using ObjectPopulation;
@@ -30,9 +32,36 @@ namespace AgileObjects.AgileMapper
             (lambda, context) => lambda.ReplaceParameterWith(context.Parameter);
 
         public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceAndTarget =
-            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, context.InstanceVariable);
+            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, GetAppropriateTargetObject(lambda, context));
 
         public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetAndIndex =
-            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, context.InstanceVariable, context.EnumerableIndex);
+            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, GetAppropriateTargetObject(lambda, context), context.EnumerableIndex);
+
+        private static readonly MethodInfo _getInstanceMethod = typeof(IObjectMappingContext).GetMethod("GetInstance");
+
+        private static Expression GetAppropriateTargetObject(LambdaExpression lambda, IMemberMappingContext context)
+        {
+            var targetParameter = lambda.Parameters.ElementAt(1);
+
+            if (targetParameter.Type.IsAssignableFrom(context.ExistingObject.Type))
+            {
+                return context.InstanceVariable;
+            }
+
+            Expression contextAccess = context.Parameter;
+            context = context.Parent;
+
+            while (!targetParameter.Type.IsAssignableFrom(context.ExistingObject.Type))
+            {
+                context = context.Parent;
+                contextAccess = Expression.Property(contextAccess, "Parent");
+            }
+
+            var instanceVariable = Expression.Call(
+                contextAccess,
+                _getInstanceMethod.MakeGenericMethod(context.ExistingObject.Type));
+
+            return instanceVariable;
+        }
     }
 }

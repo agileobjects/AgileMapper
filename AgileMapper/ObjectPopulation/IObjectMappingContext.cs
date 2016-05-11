@@ -6,8 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal interface IObjectMappingContext : IMemberMappingContext
     {
-        new IObjectMappingContext Parent { get; }
-
         GlobalContext GlobalContext { get; }
 
         MapperContext MapperContext { get; }
@@ -17,6 +15,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         int SourceObjectDepth { get; }
 
         bool HasSource<TSource>(TSource source);
+
+        TInstance GetInstance<TInstance>();
 
         int? GetEnumerableIndex();
 
