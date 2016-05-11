@@ -37,7 +37,7 @@
     <Compile Include="Api\Configuration\Callbacks.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConditionSpecifierBase.cs" />
-    <Compile Include="Api\Configuration\ConfiguredValueFactory.cs" />
+    <Compile Include="Api\Configuration\ConfiguredLambdaInfo.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />

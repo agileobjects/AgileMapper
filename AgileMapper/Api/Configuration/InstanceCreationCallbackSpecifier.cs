@@ -18,9 +18,14 @@
         }
 
         public InstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
-            Action<IInstanceCreationContext<TSource, TTarget, TInstance>> callback)
+            Action<IInstanceCreationContext<TSource, TTarget, TInstance>> callback) => CreateCallback(callback);
+
+        public InstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
+            Action<TSource, TTarget, TInstance> callback) => CreateCallback(callback);
+
+        private InstanceCreationConditionSpecifier<TSource, TTarget, TInstance> CreateCallback<TAction>(TAction callback)
         {
-            var callbackLambda = CreateCallbackLambda(callback);
+            var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TInstance));
 
             var creationCallbackFactory = new ObjectCreationCallbackFactory(
                 ConfigInfo,

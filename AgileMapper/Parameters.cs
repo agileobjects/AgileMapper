@@ -26,16 +26,34 @@ namespace AgileObjects.AgileMapper
         public static ParameterExpression Create(Type type, string name)
             => Expression.Parameter(type, name ?? type.GetShortVariableName());
 
+        #region Parameter Swapping
+
         public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapNothing = (lambda, context) => lambda.Body;
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForContextParameter =
-            (lambda, context) => lambda.ReplaceParameterWith(context.Parameter);
+        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForContextParameter = (lambda, context) =>
+            lambda.ReplaceParameterWith(context.Parameter);
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceAndTarget =
-            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, GetAppropriateTargetObject(lambda, context));
+        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceAndTarget = (lambda, context) =>
+            lambda.ReplaceParametersWith(context.SourceObject, GetAppropriateTargetObject(lambda, context));
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetAndIndex =
-            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, GetAppropriateTargetObject(lambda, context), context.EnumerableIndex);
+        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetAndIndex = (lambda, context) =>
+            lambda.ReplaceParametersWith(
+                context.SourceObject,
+                GetAppropriateTargetObject(lambda, context),
+                context.EnumerableIndex);
+
+        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetAndInstance = (lambda, context) =>
+            lambda.ReplaceParametersWith(
+                context.SourceObject,
+                GetAppropriateTargetObject(lambda, context),
+                context.InstanceVariable);
+
+        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetInstanceAndIndex = (lambda, context) =>
+            lambda.ReplaceParametersWith(
+                context.SourceObject,
+                GetAppropriateTargetObject(lambda, context),
+                context.InstanceVariable,
+                context.EnumerableIndex);
 
         private static readonly MethodInfo _getInstanceMethod = typeof(IObjectMappingContext).GetMethod("GetInstance");
 
@@ -63,5 +81,7 @@ namespace AgileObjects.AgileMapper
 
             return instanceVariable;
         }
+
+        #endregion
     }
 }

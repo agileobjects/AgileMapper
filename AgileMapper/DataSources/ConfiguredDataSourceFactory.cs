@@ -7,35 +7,30 @@
 
     internal class ConfiguredDataSourceFactory : UserConfiguredItemBase
     {
-        private readonly LambdaExpression _dataSourceLambda;
-        private readonly Func<LambdaExpression, IMemberMappingContext, Expression> _customSourceValueFactory;
+        private readonly ConfiguredLambdaInfo _dataSourceLambda;
 
         private ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
-            LambdaExpression dataSourceLambda,
+            ConfiguredLambdaInfo dataSourceLambda,
             Type mappingTargetType,
-            Func<LambdaExpression, IMemberMappingContext, Expression> customSourceValueFactory,
             QualifiedMember targetMember)
             : base(configInfo, mappingTargetType, targetMember)
         {
             _dataSourceLambda = dataSourceLambda;
-            _customSourceValueFactory = customSourceValueFactory;
         }
 
         #region Factory Method
 
         public static ConfiguredDataSourceFactory For(
             MappingConfigInfo configInfo,
-            LambdaExpression dataSourceLambda,
+            ConfiguredLambdaInfo dataSourceLambda,
             Type targetType,
-            Func<LambdaExpression, IMemberMappingContext, Expression> customSourceValueFactory,
             Expression targetMember)
         {
             return new ConfiguredDataSourceFactory(
                 configInfo,
                 dataSourceLambda,
                 targetType,
-                customSourceValueFactory,
                 targetMember.ToTargetMember(configInfo.GlobalContext.MemberFinder));
         }
 
@@ -43,7 +38,7 @@
 
         public IDataSource Create(IMemberMappingContext context)
         {
-            var value = _customSourceValueFactory.Invoke(_dataSourceLambda, context);
+            var value = _dataSourceLambda.GetLambda(context);
 
             return new ConfiguredDataSource(value, context, GetCondition);
         }

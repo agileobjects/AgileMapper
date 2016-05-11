@@ -18,7 +18,7 @@
 
         public ConditionSpecifier<TSource, TTarget> Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback)
         {
-            var callbackLambda = CreateCallbackLambda(callback);
+            //var callbackLambda = CreateCallbackLambda(callback);
             //var callback = CreateCallbackFactory(callbackLambda, parameterReplacementsFactory);
 
             //ConfigInfo.MapperContext.UserConfigurations.Add(callback);

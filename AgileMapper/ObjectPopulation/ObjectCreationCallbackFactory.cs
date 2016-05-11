@@ -1,24 +1,22 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq.Expressions;
     using Api.Configuration;
     using DataSources;
-    using Extensions;
     using Members;
 
     internal class ObjectCreationCallbackFactory : UserConfiguredItemBase
     {
         private readonly Type _creationTargetType;
         private readonly CallbackPosition _callbackPosition;
-        private readonly LambdaExpression _callbackLambda;
+        private readonly ConfiguredLambdaInfo _callbackLambda;
 
         public ObjectCreationCallbackFactory(
             MappingConfigInfo configInfo,
             Type mappingTargetType,
             Type creationTargetType,
             CallbackPosition callbackPosition,
-            LambdaExpression callbackLambda)
+            ConfiguredLambdaInfo callbackLambda)
             : base(configInfo, mappingTargetType, QualifiedMember.All)
         {
             _creationTargetType = creationTargetType;
@@ -31,7 +29,7 @@
 
         public ObjectCreationCallback GetCallback(IMemberMappingContext context)
         {
-            var callback = _callbackLambda.ReplaceParameterWith(context.Parameter);
+            var callback = _callbackLambda.GetLambda(context);
             var condition = GetCondition(context.Parameter);
 
             return new ObjectCreationCallback(_callbackPosition, callback, condition);

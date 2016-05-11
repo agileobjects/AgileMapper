@@ -3,22 +3,18 @@
     using System;
     using System.Linq.Expressions;
     using DataSources;
-    using Members;
 
     public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
-        private readonly LambdaExpression _dataSourceLambda;
-        private readonly Func<LambdaExpression, IMemberMappingContext, Expression> _customValueFactory;
+        private readonly ConfiguredLambdaInfo _customValueLambda;
 
         internal CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
-            LambdaExpression dataSourceLambda,
-            Func<LambdaExpression, IMemberMappingContext, Expression> customValueFactory)
+            ConfiguredLambdaInfo customValueLambda)
         {
             _configInfo = configInfo;
-            _dataSourceLambda = dataSourceLambda;
-            _customValueFactory = customValueFactory;
+            _customValueLambda = customValueLambda;
         }
 
         public ConditionSpecifier<TSource, TTarget> To<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
@@ -37,9 +33,8 @@
 
             var configuredDataSourceFactory = ConfiguredDataSourceFactory.For(
                 _configInfo,
-                _dataSourceLambda,
+                _customValueLambda,
                 typeof(TTarget),
-                _customValueFactory,
                 targetMemberLambda.Body);
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);

@@ -18,8 +18,7 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                valueFactoryExpression,
-                Parameters.SwapForContextParameter);
+                ConfiguredLambdaInfo.For(valueFactoryExpression));
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
@@ -27,8 +26,7 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                valueFactoryExpression,
-                Parameters.SwapForSourceAndTarget);
+                ConfiguredLambdaInfo.For(valueFactoryExpression));
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
@@ -36,24 +34,20 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                valueFactoryExpression,
-                Parameters.SwapForSourceTargetAndIndex);
+                ConfiguredLambdaInfo.For(valueFactoryExpression));
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
-        {
-            return GetConstantTargetMemberSpecifier(valueFunc);
-        }
+            => GetConstantTargetMemberSpecifier(valueFunc);
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
         {
-            var valueFactory = ConfiguredValueFactory.For(value, typeof(TSource), typeof(TTarget));
+            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
 
-            return (valueFactory != null)
+            return (valueLambdaInfo != null)
                 ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                    _configInfo.ForSourceValueType(valueFactory.ReturnType),
-                    valueFactory.Lambda,
-                    valueFactory.ParametersSwapper)
+                    _configInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
+                    valueLambdaInfo)
                 : GetConstantTargetMemberSpecifier(value);
         }
 
@@ -66,8 +60,7 @@
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(valueConstant.Type),
-                valueLambda,
-                Parameters.SwapNothing);
+                ConfiguredLambdaInfo.For(valueLambda));
         }
 
         #endregion

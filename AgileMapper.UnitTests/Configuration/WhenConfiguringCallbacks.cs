@@ -37,7 +37,7 @@
 
                 mapper.After
                     .CreatingInstancesOf<Person>()
-                    .Call(ctx => createdPerson = ctx.CreatedInstance);
+                    .Call((s, t, o) => createdPerson = o);
 
                 var nonMatchingSource = new { Value = "12345" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicProperty<int>>();
