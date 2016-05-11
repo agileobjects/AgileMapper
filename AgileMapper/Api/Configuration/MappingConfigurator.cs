@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using Members;
 
@@ -48,56 +47,17 @@
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
         {
-            LambdaExpression valueFactoryLambda;
-            Type valueFactoryReturnType;
+            var valueFactory = ConfiguredValueFactory.For(value, typeof(TSource), typeof(TTarget));
 
-            return TryGetValueFactory(value, out valueFactoryLambda, out valueFactoryReturnType)
+            return (valueFactory != null)
                 ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                    _configInfo.ForSourceValueType(valueFactoryReturnType),
-                    valueFactoryLambda,
-                    Parameters.SwapForContextParameter)
+                    _configInfo.ForSourceValueType(valueFactory.ReturnType),
+                    valueFactory.Lambda,
+                    valueFactory.ParametersSwapper)
                 : GetConstantTargetMemberSpecifier(value);
         }
 
         #region Map Helpers
-
-        private static bool TryGetValueFactory<TSourceValue>(
-            TSourceValue value,
-            out LambdaExpression valueFactoryLambda,
-            out Type valueFactoryReturnType)
-        {
-            if (typeof(TSourceValue).IsGenericType &&
-                (typeof(TSourceValue).GetGenericTypeDefinition() == typeof(Func<,>)))
-            {
-                var funcTypeArguments = typeof(TSourceValue).GetGenericArguments();
-                var contextTypeArgument = funcTypeArguments.First();
-
-                if (contextTypeArgument.IsGenericType &&
-                    (contextTypeArgument.GetGenericTypeDefinition() == typeof(ITypedMemberMappingContext<,>)))
-                {
-                    var contextTypes = contextTypeArgument.GetGenericArguments();
-
-                    if (typeof(TSource).IsAssignableFrom(contextTypes.First()))
-                    {
-                        var parameters = funcTypeArguments
-                            .Take(funcTypeArguments.Length - 1)
-                            .Select(Parameters.Create)
-                            .ToArray();
-
-                        var valueFactory = Expression.Constant(value, typeof(TSourceValue));
-                        var valueFactoryInvocation = Expression.Invoke(valueFactory, parameters.Cast<Expression>());
-                        valueFactoryLambda = Expression.Lambda(typeof(TSourceValue), valueFactoryInvocation, parameters);
-
-                        valueFactoryReturnType = funcTypeArguments.Last();
-                        return true;
-                    }
-                }
-            }
-
-            valueFactoryLambda = null;
-            valueFactoryReturnType = null;
-            return false;
-        }
 
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(TSourceValue value)
         {

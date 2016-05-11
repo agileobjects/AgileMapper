@@ -254,12 +254,33 @@
                     .From<Person>()
                     .To<PersonViewModel>()
                     .Map(combineAddressLine1)
-                    .To(x => x.AddressLine1);
+                    .To(pvm => pvm.AddressLine1);
 
                 var source = new Person { Name = "Frank", Address = new Address { Line1 = "Over there" } };
                 var result = mapper.Map(source).ToNew<PersonViewModel>();
 
                 result.AddressLine1.ShouldBe("Frank, Over there");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredSourceAndTargetFunction()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                Func<PersonViewModel, Address, string> combineAddressLine1 =
+                    (s, t) => s.Name + ", " + s.AddressLine1;
+
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Address>()
+                    .Map(combineAddressLine1)
+                    .To(p => p.Line1);
+
+                var source = new PersonViewModel { Name = "Francis", AddressLine1 = "Over here" };
+                var result = mapper.Map(source).ToNew<Person>();
+
+                result.Address.Line1.ShouldBe("Francis, Over here");
             }
         }
 

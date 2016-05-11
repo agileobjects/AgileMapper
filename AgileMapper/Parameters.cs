@@ -30,9 +30,9 @@ namespace AgileObjects.AgileMapper
             (lambda, context) => lambda.ReplaceParameterWith(context.Parameter);
 
         public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceAndTarget =
-            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, context.ExistingObject);
+            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, context.InstanceVariable);
 
         public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetAndIndex =
-            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, context.ExistingObject, context.EnumerableIndex);
+            (lambda, context) => lambda.ReplaceParametersWith(context.SourceObject, context.InstanceVariable, context.EnumerableIndex);
     }
 }
