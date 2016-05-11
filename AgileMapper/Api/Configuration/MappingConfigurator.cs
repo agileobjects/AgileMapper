@@ -20,7 +20,15 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                valueFactoryExpression.ReplaceParameterWith);
+                context => valueFactoryExpression.ReplaceParameterWith(context.Parameter));
+        }
+
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+            Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
+        {
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+                _configInfo.ForSourceValueType(typeof(TSourceValue)),
+                context => valueFactoryExpression.ReplaceParametersWith(context.SourceObject, context.InstanceVariable));
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
@@ -36,7 +44,7 @@
             return TryGetValueFactory(value, out valueFactoryExpression, out valueFactoryReturnType)
                 ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                     _configInfo.ForSourceValueType(valueFactoryReturnType),
-                    instance => Expression.Invoke(valueFactoryExpression, instance))
+                    context => Expression.Invoke(valueFactoryExpression, context.Parameter))
                 : GetConstantTargetMemberSpecifier(value);
         }
 

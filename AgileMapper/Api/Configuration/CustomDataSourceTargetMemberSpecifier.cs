@@ -3,15 +3,16 @@
     using System;
     using System.Linq.Expressions;
     using DataSources;
+    using Members;
 
     public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
-        private readonly Func<Expression, Expression> _customValueFactory;
+        private readonly Func<IMemberMappingContext, Expression> _customValueFactory;
 
         internal CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
-            Func<Expression, Expression> customValueFactory)
+            Func<IMemberMappingContext, Expression> customValueFactory)
         {
             _configInfo = configInfo;
             _customValueFactory = customValueFactory;
