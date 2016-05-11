@@ -53,7 +53,7 @@
                 mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
-                    .Map(x => x.Name + ", " + x.AddressLine1)
+                    .Map(ctx => ctx.Source.Name + ", " + ctx.Source.AddressLine1)
                     .To(x => x.Address.Line1);
 
                 var source = new PersonViewModel { Name = "Fred", AddressLine1 = "Lala Land" };

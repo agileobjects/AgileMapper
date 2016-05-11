@@ -52,7 +52,7 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
-                    .Map(x => x.Value.Split(':'))
+                    .Map(ctx => ctx.Source.Value.Split(':'))
                     .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = "8:7:6:5" };
@@ -70,7 +70,7 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
-                    .Map(x => x.Value.Split(','))
+                    .Map(ctx => ctx.Source.Value.Split(','))
                     .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = null };

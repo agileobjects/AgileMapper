@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using Members;
 
     public class MappingConfigurator<TSource, TTarget>
     {
@@ -15,7 +16,7 @@
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
-            Expression<Func<TSource, TSourceValue>> valueFactoryExpression)
+            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
@@ -49,16 +50,20 @@
             if (typeof(TSourceValue).IsGenericType &&
                 (typeof(TSourceValue).GetGenericTypeDefinition() == typeof(Func<,>)))
             {
-                var typeArguments = typeof(TSourceValue).GetGenericArguments();
+                var funcTypeArguments = typeof(TSourceValue).GetGenericArguments();
+                var contextTypeArgument = funcTypeArguments.First();
 
-                if (typeof(TSource).IsAssignableFrom(typeArguments.First()))
+                if (contextTypeArgument.IsGenericType &&
+                    (contextTypeArgument.GetGenericTypeDefinition() == typeof(ITypedMemberMappingContext<,>)))
                 {
-                    valueFactoryExpression = Expression.Constant(
-                        value,
-                        typeof(Func<,>).MakeGenericType(typeArguments));
+                    var contextTypes = contextTypeArgument.GetGenericArguments();
 
-                    valueFactoryReturnType = typeArguments.Last();
-                    return true;
+                    if (typeof(TSource).IsAssignableFrom(contextTypes.First()))
+                    {
+                        valueFactoryExpression = Expression.Constant(value, typeof(TSourceValue));
+                        valueFactoryReturnType = funcTypeArguments.Last();
+                        return true;
+                    }
                 }
             }
 

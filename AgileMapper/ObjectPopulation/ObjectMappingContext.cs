@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly ParameterExpression _instanceVariable =
             Expression.Variable(typeof(TInstance).GetInstanceVariableType(), "instance");
 
-        private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_sourceObjectProperty);
+        private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_parameter);
 
         private static readonly Expression _mappingContextProperty = Expression.Property(_parameter, "MappingContext");
 

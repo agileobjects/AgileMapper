@@ -7,13 +7,13 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class NestedAccessFinder : ExpressionVisitor
     {
-        private readonly Expression _contextSourceParameter;
+        private readonly Expression _contextParameter;
         private readonly ICollection<Expression> _methodCallSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
-        public NestedAccessFinder(Expression contextSourceParameter)
+        public NestedAccessFinder(Expression contextParameter)
         {
-            _contextSourceParameter = contextSourceParameter;
+            _contextParameter = contextParameter;
             _methodCallSubjects = new List<Expression>();
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
@@ -67,7 +67,7 @@ namespace AgileObjects.AgileMapper.Members
             return ((memberAccess.Type != typeof(string)) || _methodCallSubjects.Contains(memberAccess)) &&
                    !_memberAccessesByPath.ContainsKey(memberAccess.ToString()) &&
                    memberAccess.Type.CanBeNull() &&
-                   memberAccess.IsRootedIn(_contextSourceParameter);
+                   memberAccess.IsRootedIn(_contextParameter);
         }
     }
 }

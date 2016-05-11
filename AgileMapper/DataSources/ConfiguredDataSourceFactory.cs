@@ -38,7 +38,7 @@
 
         public IDataSource Create(IMemberMappingContext context)
         {
-            var value = _customSourceValueFactory.Invoke(context.SourceObject);
+            var value = _customSourceValueFactory.Invoke(context.Parameter);
 
             return new ConfiguredDataSource(value, context, GetCondition);
         }

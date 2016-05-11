@@ -73,7 +73,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .OnTo<Person>()
-                    .Map(x => x.Name + ", " + x.Address.Line1)
+                    .Map(ctx => ctx.Source.Name + ", " + ctx.Source.Address.Line1)
                     .To(x => x.Address.Line1);
 
                 var source = new Person { Name = "Bob", Address = new Address { Line1 = "Booooom" } };
@@ -93,7 +93,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .OnTo<Person>()
-                    .Map(x => x.Name + ", " + x.Address.Line1)
+                    .Map(ctx => ctx.Source.Name + ", " + ctx.Source.Address.Line1)
                     .To(x => x.Address.Line1);
 
                 var source = new Person { Name = "Lilly", Address = new Address { Line1 = "Booooom" } };
@@ -112,7 +112,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .OnTo<Person>()
-                    .Map(x => x.Address.Line1)
+                    .Map(ctx => ctx.Source.Address.Line1)
                     .To(x => x.Address.Line2);
 
                 var source = new Person { Name = "Scott" };

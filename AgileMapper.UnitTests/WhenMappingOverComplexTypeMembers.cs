@@ -81,7 +81,7 @@
                 mapper.WhenMapping
                     .From<Customer>()
                     .Over<Person>()
-                    .Map(x => x.Id)
+                    .Map(ctx => ctx.Source.Id)
                     .To(x => x.Name);
 
                 var source = new Customer { Id = Guid.NewGuid() };
@@ -100,7 +100,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .Over<Person>()
-                    .Map(x => x.Address.Line1)
+                    .Map(ctx => ctx.Source.Address.Line1)
                     .To(x => x.Address.Line2);
 
                 var source = new Person { Name = "Scott" };

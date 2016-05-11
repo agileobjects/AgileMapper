@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Members;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -80,7 +81,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicProperty<Guid>>()
-                    .Map(x => x.Id)
+                    .Map(ctx => ctx.Source.Id)
                     .To(x => x.Value);
 
                 var source = new Person { Id = Guid.NewGuid() };
@@ -98,7 +99,7 @@
                 mapper.WhenMapping
                     .From<PublicField<int>>()
                     .ToANew<PublicSetMethod<string>>()
-                    .Map(x => x.Value)
+                    .Map(ctx => ctx.Source.Value)
                     .To<string>(x => x.SetValue)
                     .If(ctx => ctx.Source.Value % 2 == 0);
 
@@ -121,7 +122,7 @@
             {
                 mapper.WhenMapping
                     .OnTo<Person>()
-                    .Map(x => x.GetType().Name)
+                    .Map(x => x.Source.GetType().Name)
                     .To(x => x.Name);
 
                 var personResult = mapper.Map(new Person()).OnTo(new Person());
@@ -140,7 +141,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicField<string>>()
-                    .Map(x => x.Name)
+                    .Map(ctx => ctx.Source.Name)
                     .To(x => x.Value);
 
                 var source = new[] { new Person { Name = "Mr Thomas" } };
@@ -158,7 +159,7 @@
                 mapper.WhenMapping
                     .From<Customer>()
                     .To<PublicSetMethod<string>>()
-                    .Map(x => x.Name)
+                    .Map(ctx => ctx.Source.Name)
                     .To<string>(x => x.SetValue);
 
                 var source = new PublicProperty<Customer[]> { Value = new[] { new Customer { Name = "Mr Thomas" } } };
@@ -176,7 +177,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PersonViewModel>()
-                    .Map(x => x.Id)
+                    .Map(ctx => ctx.Source.Id)
                     .To(x => x.Name);
 
                 var source = new Customer { Id = Guid.NewGuid(), Address = new Address() };
@@ -194,7 +195,7 @@
                 mapper.WhenMapping
                     .From<PublicProperty<int>>()
                     .To<PublicField<long>>()
-                    .Map(x => x.Value * 10)
+                    .Map(ctx => ctx.Source.Value * 10)
                     .To(x => x.Value);
 
                 var source = new PublicProperty<int> { Value = 123 };
@@ -212,7 +213,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PersonViewModel>()
-                    .Map(x => x.Address.Line1 + ", " + x.Address.Line2)
+                    .Map(ctx => ctx.Source.Address.Line1 + ", " + ctx.Source.Address.Line2)
                     .To(x => x.AddressLine1);
 
                 var source = new Person { Address = new Address { Line1 = "One", Line2 = "Two" } };
@@ -230,7 +231,7 @@
                 mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
-                    .Map(x => x.Name + "!")
+                    .Map(ctx => ctx.Source.Name + "!")
                     .To(x => x.Name);
 
                 var source = new PersonViewModel { Name = "Harry" };
@@ -245,8 +246,8 @@
         {
             using (var mapper = Mapper.Create())
             {
-                Func<Person, string> combineAddressLine1 =
-                    p => p.Name + ", " + p.Address.Line1;
+                Func<ITypedMemberMappingContext<Person, PersonViewModel>, string> combineAddressLine1 =
+                    ctx => ctx.Source.Name + ", " + ctx.Source.Address.Line1;
 
                 mapper.WhenMapping
                     .From<Person>()
@@ -256,9 +257,8 @@
 
                 var source = new Person { Name = "Frank", Address = new Address { Line1 = "Over there" } };
                 var result = mapper.Map(source).ToNew<PersonViewModel>();
-                var expectedAddressLine1 = combineAddressLine1(source);
 
-                result.AddressLine1.ShouldBe(expectedAddressLine1);
+                result.AddressLine1.ShouldBe("Frank, Over there");
             }
         }
 
@@ -291,7 +291,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<Customer>()
-                    .Map(x => (decimal)x.Name.First())
+                    .Map(ctx => (decimal)ctx.Source.Name.First())
                     .To(x => x.Discount);
 
                 var source = new Person { Name = "Bob" };
