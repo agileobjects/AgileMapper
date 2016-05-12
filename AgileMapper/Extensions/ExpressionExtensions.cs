@@ -121,7 +121,6 @@
 
         public static Expression GetConversionTo(this Expression expression, Type targetType)
         {
-            // TODO: Can is IsAssignableFrom?
             return (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
         }
 

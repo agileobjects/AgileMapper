@@ -7,7 +7,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenConfiguringCallbacks
+    public class WhenConfiguringObjectCreationCallbacks
     {
         [Fact]
         public void ShouldCallAnObjectCreatedCallback()
@@ -218,6 +218,29 @@
                 createdAddressesByIndex.ShouldNotContainKey(0);
                 createdAddressesByIndex.ShouldContainKeyAndValue(1, "One!");
                 createdAddressesByIndex.ShouldContainKeyAndValue(2, "Two!");
+            }
+        }
+
+        [Fact]
+        public void ShouldCallAnObjectCreatingCallbackInAMemberEnumerable()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var sourceObjectTypesByIndex = new Dictionary<int, Type>();
+
+                mapper.WhenMapping
+                    .From<Person>()
+                    .ToANew<PersonViewModel>()
+                    .Before
+                    .CreatingInstances
+                    .Call((p, pvm, i) => sourceObjectTypesByIndex[i.GetValueOrDefault()] = p.GetType());
+
+                var source = new[] { new Person(), new Customer() };
+                var result = mapper.Map(source).ToNew<ICollection<PersonViewModel>>();
+
+                result.Count.ShouldBe(2);
+                sourceObjectTypesByIndex.ShouldContainKeyAndValue(0, typeof(Person));
+                sourceObjectTypesByIndex.ShouldContainKeyAndValue(1, typeof(Customer));
             }
         }
     }

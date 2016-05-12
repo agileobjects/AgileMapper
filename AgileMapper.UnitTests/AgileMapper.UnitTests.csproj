@@ -66,7 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\WhenConfiguringCallbacks.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectCreationCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Configuration\WhenSettingInvalidConfiguration.cs" />

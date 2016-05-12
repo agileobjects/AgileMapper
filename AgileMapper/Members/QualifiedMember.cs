@@ -104,9 +104,17 @@ namespace AgileObjects.AgileMapper.Members
         {
             return _memberChain
                 .Skip(1)
-                .Aggregate(
-                    instance,
-                    (accessSoFar, member) => member.GetAccess(accessSoFar.GetConversionTo(member.DeclaringType)));
+                .Aggregate(instance, GetMemberAccess);
+        }
+
+        private static Expression GetMemberAccess(Expression accessSoFar, Member member)
+        {
+            if (!member.DeclaringType.IsAssignableFrom(accessSoFar.Type))
+            {
+                accessSoFar = accessSoFar.GetConversionTo(member.DeclaringType);
+            }
+
+            return member.GetAccess(accessSoFar);
         }
 
         public bool Equals(QualifiedMember otherMember)

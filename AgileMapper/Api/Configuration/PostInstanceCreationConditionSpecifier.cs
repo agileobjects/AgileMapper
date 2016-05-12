@@ -3,10 +3,10 @@
     using DataSources;
     using ObjectPopulation;
 
-    public class InstanceCreationConditionSpecifier<TSource, TTarget, TInstance>
+    public class PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance>
         : ConditionSpecifierBase<IInstanceCreationContext<TSource, TTarget, TInstance>>
     {
-        internal InstanceCreationConditionSpecifier(UserConfiguredItemBase configuredItem, bool negateCondition = false)
+        internal PostInstanceCreationConditionSpecifier(UserConfiguredItemBase configuredItem, bool negateCondition = false)
             : base(configuredItem, negateCondition)
         {
         }

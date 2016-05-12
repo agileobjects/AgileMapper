@@ -39,10 +39,13 @@
     <Compile Include="Api\Configuration\ConditionSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConfiguredLambdaInfo.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifierBase.cs" />
+    <Compile Include="ObjectPopulation\PreInstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\PreInstanceCreationConditionSpecifier.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />
     <Compile Include="ObjectPopulation\IInstanceCreationContext.cs" />
-    <Compile Include="Api\Configuration\InstanceCreationConditionSpecifier.cs" />
+    <Compile Include="Api\Configuration\PostInstanceCreationConditionSpecifier.cs" />
     <Compile Include="ObjectPopulation\InstanceCreationContext.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\ConditionSpecifier.cs" />
