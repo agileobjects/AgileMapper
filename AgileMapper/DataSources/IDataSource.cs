@@ -2,12 +2,16 @@
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Members;
+    using ObjectPopulation;
 
     internal interface IDataSource
     {
-        Expression GetConditionOrNull(ParameterExpression contextParameter);
+        IEnumerable<ValueProvider> GetValueProviders(IMemberMappingContext context);
 
-        IEnumerable<Expression> NestedSourceMemberAccesses { get; }
+        Expression GetConditionOrNull(IMemberMappingContext context);
+
+        IEnumerable<Expression> NestedAccesses { get; }
 
         Expression Value { get; }
     }

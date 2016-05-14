@@ -12,7 +12,10 @@
         private readonly Expression _callback;
         private readonly IList<Expression> _conditions;
 
-        public ObjectCreationCallback(CallbackPosition callbackPosition, Expression callback, Expression condition)
+        public ObjectCreationCallback(
+            CallbackPosition callbackPosition,
+            Expression callback,
+            Expression condition)
         {
             _callbackPosition = callbackPosition;
             _callback = callback;
@@ -33,9 +36,7 @@
 
             if (_conditions.Any())
             {
-                return Expression.IfThen(
-                    _conditions.GetIsNotDefaultComparisons(),
-                    _callback);
+                return Expression.IfThen(_conditions.GetIsNotDefaultComparisons(), _callback);
             }
 
             return _callback;

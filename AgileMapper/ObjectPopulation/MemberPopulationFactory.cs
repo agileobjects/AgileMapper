@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using DataSources;
     using Members;
 
     internal static class MemberPopulationFactory
@@ -21,58 +20,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IMemberPopulation Create(Member targetMember, IObjectMappingContext omc)
         {
             var qualifiedMember = omc.TargetMember.Append(targetMember);
-            var memberContext = new MemberMappingContext(qualifiedMember, omc);
+            var context = new MemberMappingContext(qualifiedMember, omc);
 
             Expression ignoreCondition;
 
-            if (TargetMemberIsIgnored(memberContext, omc, out ignoreCondition) &&
-                (ignoreCondition == null))
+            if (TargetMemberIsIgnored(context, out ignoreCondition) && (ignoreCondition == null))
             {
-                return MemberPopulation.IgnoredMember(targetMember, omc);
+                return MemberPopulation.IgnoredMember(context);
             }
 
-            var dataSource = omc
-                .MapperContext
-                .DataSources
-                .FindFor(qualifiedMember, omc);
+            var dataSource = omc.MapperContext.DataSources.FindFor(context);
 
             if (dataSource == null)
             {
-                return MemberPopulation.NoDataSource(targetMember, omc);
+                return MemberPopulation.NoDataSource(context);
             }
 
-            var population = new MemberPopulation(targetMember, dataSource, omc);
+            var valueProviders = dataSource.GetValueProviders(context);
+            var memberPopulation = new MemberPopulation(context, valueProviders).WithCondition(ignoreCondition);
 
-            AddConditions(dataSource, memberContext, population, ignoreCondition);
-
-            return population;
+            return memberPopulation;
         }
 
-        private static bool TargetMemberIsIgnored(
-            IMemberMappingContext context,
-            IObjectMappingContext omc,
-            out Expression ignoreCondition)
-        {
-            return omc.MapperContext.UserConfigurations.IsIgnored(context, out ignoreCondition);
-        }
+        private static bool TargetMemberIsIgnored(IMemberMappingContext context, out Expression ignoreCondition)
+            => context.Parent.MapperContext.UserConfigurations.IsIgnored(context, out ignoreCondition);
 
-        private static void AddConditions(
-            IDataSource dataSource,
-            IMemberMappingContext context,
-            IMemberPopulation population,
-            Expression ignoreCondition)
-        {
-            var dataSourceUseCondition = dataSource.GetConditionOrNull(context.Parameter);
+        //var dataSourceValueFactory = ValueProvider.For(dataSource, context);
+        //var valueFactories = new List<ValueProvider> { dataSourceValueFactory };
 
-            if (dataSourceUseCondition != null)
-            {
-                population.AddCondition(dataSourceUseCondition);
-            }
+        //if (dataSourceCondition != null)
+        //{
+        //    var alternateDataSource = context.Parent
+        //        .MapperContext
+        //        .DataSources
+        //        .FindFor(targetMember, DataSourceOption.ExcludeConfigured, context.Parent);
 
-            if (ignoreCondition != null)
-            {
-                population.AddCondition(ignoreCondition);
-            }
-        }
+        //    if (alternateDataSource != null)
+        //    {
+        //        valueFactories.Add(ValueProvider.For(alternateDataSource, context));
+        //    }
+        //}
     }
 }

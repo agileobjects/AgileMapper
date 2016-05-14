@@ -38,7 +38,7 @@
 
         public IDataSource Create(IMemberMappingContext context)
         {
-            var value = _dataSourceLambda.GetLambda(context);
+            var value = _dataSourceLambda.GetBody(context);
 
             return new ConfiguredDataSource(value, context, GetCondition);
         }

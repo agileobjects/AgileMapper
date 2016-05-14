@@ -184,6 +184,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression IMemberMappingContext.SourceObject => _sourceObjectProperty;
 
+        int IMemberMappingContext.SourceObjectDepth => _sourceObjectDepth;
+
         Expression IMemberMappingContext.ExistingObject => _existingObjectProperty;
 
         Expression IMemberMappingContext.EnumerableIndex => _enumerableIndexProperty;
@@ -233,8 +235,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return getRuntimeTypeFunc.Invoke(this);
         }
-
-        int IObjectMappingContext.SourceObjectDepth => _sourceObjectDepth;
 
         QualifiedMember IObjectMappingContext.SourceMember => _sourceMember;
 

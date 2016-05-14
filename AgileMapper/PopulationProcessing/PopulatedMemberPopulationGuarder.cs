@@ -20,7 +20,7 @@
                     var targetMemberAccess = GetTargetMemberAccess(population);
                     var targetMemberHasDefaultValue = targetMemberAccess.GetIsDefaultComparison();
 
-                    yield return population.AddCondition(targetMemberHasDefaultValue);
+                    yield return population.WithCondition(targetMemberHasDefaultValue);
                     continue;
                 }
 

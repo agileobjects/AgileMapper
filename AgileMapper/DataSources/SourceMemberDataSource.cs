@@ -2,7 +2,7 @@
 {
     using Members;
 
-    internal class SourceMemberDataSource : SourceMemberDataSourceBase
+    internal class SourceMemberDataSource : DataSourceBase
     {
         public SourceMemberDataSource(QualifiedMember sourceMember, IMemberMappingContext context)
             : base(sourceMember.GetAccess(context.SourceObject), context)

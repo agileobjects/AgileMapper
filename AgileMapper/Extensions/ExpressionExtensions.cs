@@ -207,6 +207,7 @@
                         return ReplaceIn((MethodCallExpression)expression);
 
                     case ExpressionType.Convert:
+                    case ExpressionType.TypeAs:
                         return ReplaceIn((UnaryExpression)expression);
 
                     case ExpressionType.Invoke:

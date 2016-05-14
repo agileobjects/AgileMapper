@@ -2,10 +2,10 @@
 {
     using System;
     using System.Linq.Expressions;
-    using DataSources;
-    using Extensions;
+    using Members;
 
-    public abstract class ConditionSpecifierBase<TContext>
+    public abstract class ConditionSpecifierBase<TSource, TTarget, TContext>
+        where TContext : ITypedMemberMappingContext<TSource, TTarget>
     {
         private readonly UserConfiguredItemBase _configuredItem;
         private readonly bool _negateCondition;
@@ -16,11 +16,16 @@
             _negateCondition = negateCondition;
         }
 
-        public void If(Expression<Func<TContext, bool>> condition)
+        public void If(Expression<Func<TContext, bool>> condition) => AddConditionFactory(condition);
+
+        public void If(Expression<Func<TSource, TTarget, bool>> condition) => AddConditionFactory(condition);
+
+        protected void AddConditionFactory(LambdaExpression conditionLambda)
         {
-            _configuredItem.AddConditionFactory(contextParameter =>
+            _configuredItem.AddConditionFactory(context =>
             {
-                var contextualisedCondition = condition.ReplaceParameterWith(contextParameter);
+                var lambdaInfo = ConfiguredLambdaInfo.For(conditionLambda);
+                var contextualisedCondition = lambdaInfo.GetBody(context);
 
                 if (_negateCondition)
                 {

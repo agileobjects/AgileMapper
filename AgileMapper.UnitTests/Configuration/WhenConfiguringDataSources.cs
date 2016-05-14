@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using AgileMapper.Members;
     using Shouldly;
@@ -64,7 +65,7 @@
                 var nonMatchingTarget = new PublicProperty<string> { Value = "This has more than 5 characters" };
                 var nonMatchingResult = mapper.Map(source).Over(nonMatchingTarget);
 
-                nonMatchingResult.Value.ShouldBe("This has more than 5 characters");
+                nonMatchingResult.Value.ShouldBe("Replaced");
 
                 var matchingTarget = new PublicProperty<string> { Value = "Tiny" };
                 var matchingResult = mapper.Map(source).Over(matchingTarget);
@@ -152,25 +153,6 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredMemberInAMemberEnumerable()
-        {
-            using (var mapper = Mapper.Create())
-            {
-                mapper.WhenMapping
-                    .From<Customer>()
-                    .To<PublicSetMethod<string>>()
-                    .Map((s, t, i) => (i + 1) + ": " + s.Name)
-                    .To<string>(x => x.SetValue);
-
-                var source = new PublicProperty<Customer[]> { Value = new[] { new Customer { Name = "Mr Thomas" } } };
-                var result = mapper.Map(source).ToNew<PublicField<IEnumerable<PublicSetMethod<string>>>>();
-
-                result.Value.ShouldHaveSingleItem();
-                result.Value.First().Value.ShouldBe("1: Mr Thomas");
-            }
-        }
-
-        [Fact]
         public void ShouldApplyAConfiguredMemberFromADerivedSourceType()
         {
             using (var mapper = Mapper.Create())
@@ -207,6 +189,25 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredExpressionInAMemberEnumerable()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .To<PublicSetMethod<string>>()
+                    .Map((s, t, i) => (i + 1) + ": " + s.Name)
+                    .To<string>(x => x.SetValue);
+
+                var source = new PublicProperty<Customer[]> { Value = new[] { new Customer { Name = "Mr Thomas" } } };
+                var result = mapper.Map(source).ToNew<PublicField<IEnumerable<PublicSetMethod<string>>>>();
+
+                result.Value.ShouldHaveSingleItem();
+                result.Value.First().Value.ShouldBe("1: Mr Thomas");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredExpressionWithMultipleNestedSourceMembers()
         {
             using (var mapper = Mapper.Create())
@@ -239,6 +240,39 @@
                 var result = mapper.Map(source).ToNew<Customer>();
 
                 result.Name.ShouldBe(source.Name + "!");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredExpressionInARootCollectionConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .Over<PersonViewModel>()
+                    .Map((s, t) => t.Name + $" ({((Customer)s).Discount})")
+                    .To(pvm => pvm.Name)
+                    .If((s, t) => (s as Customer) != null);
+
+                var customerId = Guid.NewGuid();
+
+                var source = new[]
+                {
+                    new Customer { Id = customerId, Name = "Mr Thomas", Discount = 0.10m },
+                    new Person { Name = "Mrs Edison" }
+                };
+
+                var target = new Collection<PersonViewModel>
+                {
+                    new PersonViewModel { Id = customerId, Name = "Mrs Thomas" }
+                };
+
+                var result = mapper.Map(source).Over(target);
+
+                result.Count.ShouldBe(2);
+                result.First().Name.ShouldBe("Mrs Thomas (0.10)");
+                result.Second().Name.ShouldBe("Mrs Edison");
             }
         }
 

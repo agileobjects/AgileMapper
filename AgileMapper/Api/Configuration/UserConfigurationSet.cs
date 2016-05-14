@@ -29,7 +29,7 @@
         {
             var matchingIgnoredMember = _ignoredMembers.FirstOrDefault(im => im.AppliesTo(context));
 
-            ignoreCondition = matchingIgnoredMember?.GetCondition(context.Parameter);
+            ignoreCondition = matchingIgnoredMember?.GetCondition(context);
 
             return matchingIgnoredMember != null;
         }

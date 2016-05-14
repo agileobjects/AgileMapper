@@ -3,20 +3,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
     using Members;
 
     internal class CompositeMemberPopulation : IMemberPopulation
     {
         private readonly IEnumerable<IMemberPopulation> _memberPopulations;
         private readonly IMemberPopulation _examplePopulation;
-        private readonly ICollection<Expression> _conditions;
+        private Expression _condition;
 
         public CompositeMemberPopulation(IEnumerable<IMemberPopulation> memberPopulations)
         {
             _memberPopulations = memberPopulations;
             _examplePopulation = memberPopulations.First();
-            _conditions = new List<Expression>();
         }
 
         public IObjectMappingContext ObjectMappingContext => _examplePopulation.ObjectMappingContext;
@@ -25,32 +23,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IEnumerable<Expression> NestedAccesses => _examplePopulation.NestedAccesses;
 
-        public bool IsMultiplePopulation => _memberPopulations.Count() > 1;
-
-        public Expression Value => _examplePopulation.Value;
-
         public bool IsSuccessful => _memberPopulations.Any(p => p.IsSuccessful);
 
-        public IMemberPopulation AddCondition(Expression condition)
+        public IMemberPopulation WithCondition(Expression condition)
         {
-            _conditions.Add(condition);
+            _condition = condition;
             return this;
-        }
-
-        public IMemberPopulation WithValue(Expression updatedValue)
-        {
-            return _examplePopulation.WithValue(updatedValue);
         }
 
         public Expression GetPopulation()
         {
             Expression population = Expression.Block(_memberPopulations.Select(p => p.GetPopulation()));
 
-            if (_conditions.Any())
+            if (_condition != null)
             {
-                var allConditions = _conditions.GetIsNotDefaultComparisons();
-
-                population = Expression.IfThen(allConditions, population);
+                population = Expression.IfThen(_condition, population);
             }
 
             return population;

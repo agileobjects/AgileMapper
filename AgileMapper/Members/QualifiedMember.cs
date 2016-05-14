@@ -111,7 +111,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (!member.DeclaringType.IsAssignableFrom(accessSoFar.Type))
             {
-                accessSoFar = accessSoFar.GetConversionTo(member.DeclaringType);
+                accessSoFar = Expression.Convert(accessSoFar, member.DeclaringType);
             }
 
             return member.GetAccess(accessSoFar);

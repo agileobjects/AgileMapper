@@ -169,7 +169,7 @@
 
         public Type ReturnType { get; }
 
-        public Expression GetLambda(IMemberMappingContext context) => _parametersSwapper.Swap(_lambda, context);
+        public Expression GetBody(IMemberMappingContext context) => _parametersSwapper.Swap(_lambda, context);
 
         private class ParametersSwapper
         {

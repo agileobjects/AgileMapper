@@ -1,15 +1,14 @@
-﻿namespace AgileObjects.AgileMapper.DataSources
+﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Members;
 
     internal abstract class UserConfiguredItemBase
     {
         private readonly Type _mappingTargetType;
         private readonly QualifiedMember _targetMember;
-        private Func<ParameterExpression, Expression> _conditionFactory;
+        private Func<IMemberMappingContext, Expression> _conditionFactory;
 
         protected UserConfiguredItemBase(
             MappingConfigInfo configInfo,
@@ -23,15 +22,13 @@
 
         protected MappingConfigInfo ConfigInfo { get; }
 
-        public void AddConditionFactory(Func<ParameterExpression, Expression> conditionFactory)
+        public void AddConditionFactory(Func<IMemberMappingContext, Expression> conditionFactory)
         {
             _conditionFactory = conditionFactory;
         }
 
-        public Expression GetCondition(ParameterExpression contextParameter)
-        {
-            return _conditionFactory?.Invoke(contextParameter);
-        }
+        public Expression GetCondition(IMemberMappingContext context)
+            => _conditionFactory?.Invoke(context);
 
         public virtual bool AppliesTo(IMemberMappingContext context)
         {

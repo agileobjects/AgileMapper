@@ -1,28 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Members;
-    using ObjectPopulation;
 
-    internal class EnumerableMappingDataSource : IDataSource
+    internal class EnumerableMappingDataSource : DataSourceBase
     {
-        private readonly IDataSource _sourceEnumerableDataSource;
-
-        public EnumerableMappingDataSource(
-            IDataSource sourceEnumerableDataSource,
-            Member enumerableMember,
-            IObjectMappingContext omc)
+        public EnumerableMappingDataSource(IDataSource sourceEnumerableDataSource, IMemberMappingContext context)
+            : base(
+                context.Parent.GetMapCall(sourceEnumerableDataSource.Value, context.TargetMember.LeafMember),
+                sourceEnumerableDataSource.NestedAccesses)
         {
-            _sourceEnumerableDataSource = sourceEnumerableDataSource;
-            Value = omc.GetMapCall(sourceEnumerableDataSource.Value, enumerableMember);
         }
-
-        public Expression GetConditionOrNull(ParameterExpression contextParameter) => null;
-
-        public IEnumerable<Expression> NestedSourceMemberAccesses
-            => _sourceEnumerableDataSource.NestedSourceMemberAccesses;
-
-        public Expression Value { get; }
     }
 }

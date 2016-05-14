@@ -2,9 +2,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using Members;
 
     internal class EnumerableMappingLambdaFactory<TSource, TTarget, TInstance>
         : ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
@@ -19,18 +21,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var targetElementType = omc.TargetMember.ElementType;
             var listType = typeof(List<>).MakeGenericType(targetElementType);
+            var collectionType = typeof(Collection<>).MakeGenericType(targetElementType);
 
             var value = listType.IsAssignableFrom(omc.ExistingObject.Type)
                 ? Expression.Coalesce(omc.ExistingObject, Expression.New(listType))
-                : GetNewListCreation(listType, targetElementType, omc);
+                : collectionType.IsAssignableFrom(omc.ExistingObject.Type)
+                    ? GetNewCollectionCreation(collectionType, omc)
+                    : GetNewListCreation(listType, targetElementType, omc);
 
             return value;
+        }
+
+        private static Expression GetNewCollectionCreation(Type collectionType, IMemberMappingContext omc)
+        {
+            var existingCollectionOrNew = Expression.Condition(
+                omc.ExistingObject.GetIsNotDefaultComparison(),
+                omc.ExistingObject,
+                Expression.New(collectionType));
+
+            return existingCollectionOrNew;
         }
 
         private static Expression GetNewListCreation(
             Type listType,
             Type targetElementType,
-            IObjectMappingContext omc)
+            IMemberMappingContext omc)
         {
             var enumerableType = typeof(IEnumerable<>).MakeGenericType(targetElementType);
             var listConstructor = listType.GetConstructor(new[] { enumerableType });

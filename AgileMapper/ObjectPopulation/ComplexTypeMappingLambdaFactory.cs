@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using DataSources;
 
     internal class ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>
         : ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
@@ -24,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var matchingSourceObject = omc
                 .MapperContext
                 .DataSources
-                .FindBestMatchFor(omc.TargetMember, omc);
+                .FindFor(omc, DataSourceOption.ExcludeComplexTypeMapping);
 
             if (matchingSourceObject == null)
             {

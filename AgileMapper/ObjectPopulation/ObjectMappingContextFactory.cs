@@ -42,10 +42,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
+                var childMemberContext = new MemberMappingContext(childTargetMember, mappingContext.CurrentObjectMappingContext);
+
                 qualifiedSourceMember = mappingContext
                     .MapperContext
                     .DataSources
-                    .GetSourceMemberMatching(childTargetMember, mappingContext.CurrentObjectMappingContext);
+                    .GetSourceMemberMatching(childMemberContext);
 
                 sourceMemberRuntimeType = source.GetRuntimeSourceType();
                 qualifiedSourceMember = qualifiedSourceMember.WithType(sourceMemberRuntimeType);

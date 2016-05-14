@@ -37,10 +37,16 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override Expression VisitMember(MemberExpression memberAccess)
         {
-            AddMemberAccessIfAppropriate(memberAccess);
+            if (IsNotRootSoureObject(memberAccess))
+            {
+                AddMemberAccessIfAppropriate(memberAccess);
+            }
 
             return base.VisitMember(memberAccess);
         }
+
+        private bool IsNotRootSoureObject(MemberExpression memberAccess)
+            => !(memberAccess.Member.Name == "Source" && memberAccess.Expression == _contextParameter);
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {

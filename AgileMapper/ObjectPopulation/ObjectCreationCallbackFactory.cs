@@ -2,7 +2,6 @@
 {
     using System;
     using Api.Configuration;
-    using DataSources;
     using Members;
 
     internal class ObjectCreationCallbackFactory : UserConfiguredItemBase
@@ -29,8 +28,8 @@
 
         public ObjectCreationCallback GetCallback(IMemberMappingContext context)
         {
-            var callback = _callbackLambda.GetLambda(context);
-            var condition = GetCondition(context.Parameter);
+            var callback = _callbackLambda.GetBody(context);
+            var condition = GetCondition(context);
 
             return new ObjectCreationCallback(_callbackPosition, callback, condition);
         }

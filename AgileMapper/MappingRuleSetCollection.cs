@@ -11,32 +11,22 @@ namespace AgileObjects.AgileMapper
                 Constants.CreateNew,
                 ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
                 CopySourceEnumerablePopulationStrategy.Instance,
-                DefaultNullNestedAccessStrategy.Instance,
-                new[]
-                {
-                    NullNestedSourceMemberPopulationGuarder.Instance
-                });
+                NullValueProviderFactory.Instance,
+                new IPopulationProcessor[] { });
 
             Merge = new MappingRuleSet(
                 Constants.Merge,
                 ComplexTypeMappingShortCircuitStrategy.SourceAndExistingAreNull,
                 MergeEnumerablePopulationStrategy.Instance,
-                DefaultNullNestedAccessStrategy.Instance,
-                new[]
-                {
-                    PopulatedMemberPopulationGuarder.Instance,
-                    NullNestedSourceMemberPopulationGuarder.Instance
-                });
+                NullValueProviderFactory.Instance,
+                new[] { PopulatedMemberPopulationGuarder.Instance });
 
             Overwrite = new MappingRuleSet(
                 Constants.Overwrite,
                 ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
                 OverwriteEnumerablePopulationStrategy.Instance,
-                OverwriteNullNestedAccessStrategy.Instance,
-                new[]
-                {
-                    NullNestedSourceMemberPopulationGuarder.Instance
-                });
+                OverwriteFallbackValueProviderFactory.Instance,
+                new IPopulationProcessor[] { });
         }
 
         public MappingRuleSet CreateNew { get; }

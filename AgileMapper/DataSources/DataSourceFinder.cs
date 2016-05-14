@@ -7,91 +7,80 @@
 
     internal class DataSourceFinder
     {
-        public IDataSource FindFor(QualifiedMember childTargetMember, IObjectMappingContext omc)
-        {
-            return FindFor(childTargetMember, omc, returnComplexTypeMapper: true);
-        }
+        public IDataSource FindFor(IMemberMappingContext context) => FindFor(context, DataSourceOption.None);
 
-        public IDataSource FindBestMatchFor(QualifiedMember childTargetMember, IObjectMappingContext omc)
+        public IDataSource FindFor(IMemberMappingContext context, DataSourceOption options)
         {
-            return FindFor(childTargetMember, omc, returnComplexTypeMapper: false);
-        }
+            if (context.Parent == null)
+            {
+                return GetSourceMemberDataSourceFor(
+                    QualifiedMember.From(Member.RootSource(context.SourceObject.Type)),
+                    context);
+            }
 
-        private IDataSource FindFor(
-            QualifiedMember qualifiedTargetMember,
-            IObjectMappingContext omc,
-            bool returnComplexTypeMapper)
-        {
             IDataSource configuredDataSource;
 
-            if (DataSourceIsConfigured(qualifiedTargetMember, omc, out configuredDataSource))
+            if (!options.HasFlag(DataSourceOption.ExcludeConfigured) &&
+                DataSourceIsConfigured(context, out configuredDataSource))
             {
-                return GetFinalDataSource(qualifiedTargetMember, configuredDataSource, omc);
+                return configuredDataSource;
             }
 
-            if (returnComplexTypeMapper && qualifiedTargetMember.IsComplex)
+            if (!options.HasFlag(DataSourceOption.ExcludeComplexTypeMapping) &&
+                context.TargetMember.IsComplex)
             {
-                return new ComplexTypeMappingDataSource(qualifiedTargetMember.LeafMember, omc);
+                return new ComplexTypeMappingDataSource(context);
             }
 
-            return GetSourceMemberDataSourceOrNull(qualifiedTargetMember, omc);
+            return GetSourceMemberDataSourceOrNull(context);
         }
 
-        private static bool DataSourceIsConfigured(
-            QualifiedMember targetMember,
-            IObjectMappingContext omc,
-            out IDataSource configuredDataSource)
+        private static bool DataSourceIsConfigured(IMemberMappingContext context, out IDataSource configuredDataSource)
         {
-            var memberContext = new MemberMappingContext(targetMember, omc);
-
-            configuredDataSource = omc
+            configuredDataSource = (context.Parent ?? (IObjectMappingContext)context)
                 .MapperContext
                 .UserConfigurations
-                .GetDataSourceOrNull(memberContext);
+                .GetDataSourceOrNull(context);
 
-            return configuredDataSource != null;
+            if (configuredDataSource == null)
+            {
+                return false;
+            }
+
+            configuredDataSource = GetFinalDataSource(configuredDataSource, context);
+            return true;
         }
 
-        private IDataSource GetSourceMemberDataSourceOrNull(
-            QualifiedMember qualifiedTargetMember,
-            IObjectMappingContext omc)
+        private IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
         {
-            var bestMatchingSourceMember = GetSourceMemberMatching(qualifiedTargetMember, omc);
+            var bestMatchingSourceMember = GetSourceMemberMatching(context);
 
             if (bestMatchingSourceMember == null)
             {
                 return null;
             }
 
-            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(omc.SourceObjectDepth);
+            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(context.SourceObjectDepth);
 
-            var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, omc);
-
-            return GetFinalDataSource(qualifiedTargetMember, sourceMemberDataSource, omc);
+            return GetSourceMemberDataSourceFor(bestMatchingSourceMember, context);
         }
 
-        private static IDataSource GetFinalDataSource(
-            QualifiedMember qualifiedTargetMember,
-            IDataSource foundDataSource,
-            IObjectMappingContext omc)
+        private static IDataSource GetSourceMemberDataSourceFor(QualifiedMember sourceMember, IMemberMappingContext context)
         {
-            if (qualifiedTargetMember.IsEnumerable)
-            {
-                return new EnumerableMappingDataSource(
-                    foundDataSource,
-                    qualifiedTargetMember.LeafMember,
-                    omc);
-            }
+            var sourceMemberDataSource = new SourceMemberDataSource(sourceMember, context);
 
-            return foundDataSource;
+            return GetFinalDataSource(sourceMemberDataSource, context);
         }
 
-        public QualifiedMember GetSourceMemberMatching(QualifiedMember qualifiedTargetMember, IObjectMappingContext omc)
-        {
-            var rootSourceMember = omc.SourceMember;
+        private static IDataSource GetFinalDataSource(IDataSource foundDataSource, IMemberMappingContext context)
+            => context.TargetMember.IsEnumerable ? new EnumerableMappingDataSource(foundDataSource, context) : foundDataSource;
 
-            return GetAllSourceMembers(rootSourceMember, omc)
-                .FirstOrDefault(sm => sm.Matches(qualifiedTargetMember));
+        public QualifiedMember GetSourceMemberMatching(IMemberMappingContext context)
+        {
+            var rootSourceMember = context.Parent.SourceMember;
+
+            return GetAllSourceMembers(rootSourceMember, context.Parent)
+                .FirstOrDefault(sm => sm.Matches(context.TargetMember));
         }
 
         private static IEnumerable<QualifiedMember> GetAllSourceMembers(

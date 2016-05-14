@@ -4,146 +4,80 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using DataSources;
-    using Extensions;
     using Members;
     using ReadableExpressions;
 
     internal class MemberPopulation : IMemberPopulation
     {
-        private readonly Func<Expression, Expression> _populationFactory;
-        private readonly ICollection<ParameterExpression> _variables;
-        private readonly ICollection<Expression> _conditions;
+        private readonly IMemberMappingContext _context;
+        private readonly IEnumerable<ValueProvider> _valueProviders;
+        private readonly List<ParameterExpression> _variables;
+        private Expression _condition;
 
-        public MemberPopulation(
-            Member targetMember,
-            IDataSource dataSource,
-            IObjectMappingContext omc)
-            : this(
-                  targetMember,
-                  omc.MapperContext.ValueConverters.GetConversion(dataSource.Value, targetMember.Type),
-                  dataSource.NestedSourceMemberAccesses,
-                  omc)
+        public MemberPopulation(IMemberMappingContext context, IEnumerable<ValueProvider> valueProviders)
         {
-        }
+            _context = context;
+            _valueProviders = valueProviders;
+            TargetMember = context.TargetMember.LeafMember;
 
-        private MemberPopulation(
-            Member targetMember,
-            Expression value,
-            IEnumerable<Expression> nestedAccesses,
-            IObjectMappingContext omc)
-            : this(
-                  targetMember,
-                  value,
-                  nestedAccesses,
-                  finalValue => targetMember.GetPopulation(omc.InstanceVariable, finalValue),
-                  omc)
-        {
-        }
+            _variables = new List<ParameterExpression>();
 
-        private MemberPopulation(
-            Member targetMember,
-            Expression value,
-            IEnumerable<Expression> nestedAccesses,
-            Func<Expression, Expression> populationFactory,
-            IObjectMappingContext omc)
-        {
-            TargetMember = targetMember;
-            _populationFactory = populationFactory;
-            ObjectMappingContext = omc;
-            _conditions = new List<Expression>();
-
-            Dictionary<Expression, Expression> nestedAccessVariableByNestedAccess;
-
-            NestedAccesses = ProcessNestedAccesses(
-                nestedAccesses,
-                out nestedAccessVariableByNestedAccess,
-                out _variables);
-
-            Value = nestedAccessVariableByNestedAccess.Any()
-                ? value.Replace(nestedAccessVariableByNestedAccess)
-                : value;
-        }
-
-        private static IEnumerable<Expression> ProcessNestedAccesses(
-            IEnumerable<Expression> nestedAccesses,
-            out Dictionary<Expression, Expression> nestedAccessVariableByNestedAccess,
-            out ICollection<ParameterExpression> variables)
-        {
-            nestedAccessVariableByNestedAccess = new Dictionary<Expression, Expression>();
-            variables = new List<ParameterExpression>();
-
-            var nestedAccessesArray = nestedAccesses
-                .OrderBy(access => access.GetDepth())
-                .ThenBy(access => access.ToString())
-                .ToArray();
-
-            for (var i = 0; i < nestedAccessesArray.Length; i++)
+            foreach (var valueProvider in valueProviders)
             {
-                var nestedAccess = nestedAccessesArray[i];
+                _variables.AddRange(valueProvider.Variables);
 
-                if (CacheValueInVariable(nestedAccess))
+                if (valueProvider.IsSuccessful)
                 {
-                    var valueVariable = Expression.Variable(nestedAccess.Type, "accessValue");
-                    nestedAccessesArray[i] = Expression.Assign(valueVariable, nestedAccess);
-
-                    nestedAccessVariableByNestedAccess.Add(nestedAccess, valueVariable);
-                    variables.Add(valueVariable);
+                    IsSuccessful = true;
                 }
             }
-
-            return nestedAccessesArray;
-        }
-
-        private static bool CacheValueInVariable(Expression value)
-        {
-            return (value.NodeType == ExpressionType.Call) || (value.NodeType == ExpressionType.Invoke);
         }
 
         #region Factory Methods
 
-        public static IMemberPopulation IgnoredMember(Member targetMember, IObjectMappingContext omc)
-            => CreateNullMemberPopulation(targetMember, () => targetMember.Name + " is ignored", omc);
+        public static IMemberPopulation IgnoredMember(IMemberMappingContext context)
+            => CreateNullMemberPopulation(context, targetMember => targetMember.Name + " is ignored");
 
-        public static IMemberPopulation NoDataSource(Member targetMember, IObjectMappingContext omc)
-            => CreateNullMemberPopulation(targetMember, () => "No data source for " + targetMember.Name, omc);
+        public static IMemberPopulation NoDataSource(IMemberMappingContext context)
+            => CreateNullMemberPopulation(context, targetMember => "No data source for " + targetMember.Name);
 
-        private static IMemberPopulation CreateNullMemberPopulation(
-            Member targetMember,
-            Func<string> commentFactory,
-            IObjectMappingContext omc)
+        private static IMemberPopulation CreateNullMemberPopulation(IMemberMappingContext context, Func<Member, string> commentFactory)
             => new MemberPopulation(
-                   targetMember,
-                   Constants.EmptyExpression,
-                   Enumerable.Empty<Expression>(),
-                   _ => ReadableExpression.Comment(commentFactory.Invoke()),
-                   omc);
+                   context,
+                   new[]
+                   {
+                       ValueProvider.Null(ctx => ReadableExpression
+                           .Comment(commentFactory.Invoke(ctx.TargetMember.LeafMember)))
+                   });
 
         #endregion
 
+        public IObjectMappingContext ObjectMappingContext => _context.Parent;
+
         public Member TargetMember { get; }
 
-        public Expression Value { get; }
+        public bool IsSuccessful { get; }
 
-        public IEnumerable<Expression> NestedAccesses { get; }
+        public IEnumerable<Expression> NestedAccesses => null;
 
-        public bool IsMultiplePopulation => false;
-
-        public IMemberPopulation AddCondition(Expression condition)
+        public IMemberPopulation WithCondition(Expression condition)
         {
-            _conditions.Add(condition);
+            _condition = condition;
             return this;
         }
 
         public Expression GetPopulation()
         {
-            var population = _populationFactory.Invoke(Value);
+            var population = _valueProviders
+                .Reverse()
+                .Skip(1)
+                .Aggregate(
+                    _valueProviders.Last().GetIfGuardedPopulation(_context),
+                    (populationSoFar, valueProvider) => valueProvider.GetElseGuardedPopulation(populationSoFar, _context));
 
-            if (_conditions.Any())
+            if (_condition != null)
             {
-                var allConditions = _conditions.GetIsNotDefaultComparisons();
-
-                population = Expression.IfThen(allConditions, population);
+                population = Expression.IfThen(_condition, population);
             }
 
             if (_variables.Any())
@@ -153,12 +87,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return population;
         }
-
-        public bool IsSuccessful => Value != Constants.EmptyExpression;
-
-        public IObjectMappingContext ObjectMappingContext { get; }
-
-        public IMemberPopulation WithValue(Expression updatedValue)
-            => new MemberPopulation(TargetMember, updatedValue, NestedAccesses, ObjectMappingContext);
     }
 }

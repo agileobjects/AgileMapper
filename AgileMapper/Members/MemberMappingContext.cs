@@ -21,6 +21,8 @@
 
         public Expression SourceObject => Parent.SourceObject;
 
+        public int SourceObjectDepth => Parent.SourceObjectDepth;
+
         public Expression ExistingObject => Parent.ExistingObject;
 
         public Expression EnumerableIndex => Parent.EnumerableIndex;

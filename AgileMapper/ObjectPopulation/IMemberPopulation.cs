@@ -12,13 +12,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IEnumerable<Expression> NestedAccesses { get; }
 
-        Expression Value { get; }
-
         bool IsSuccessful { get; }
 
-        IMemberPopulation AddCondition(Expression condition);
-
-        IMemberPopulation WithValue(Expression updatedValue);
+        IMemberPopulation WithCondition(Expression condition);
 
         Expression GetPopulation();
     }

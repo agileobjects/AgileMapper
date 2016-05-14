@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Members;
 
@@ -204,6 +205,13 @@
             if (instanceType.IsArray || listType.IsAssignableFrom(instanceType))
             {
                 return listType;
+            }
+
+            var collectionType = typeof(Collection<>).MakeGenericType(instanceElementType);
+
+            if (collectionType.IsAssignableFrom(instanceType))
+            {
+                return collectionType;
             }
 
             return typeof(ICollection<>).MakeGenericType(instanceElementType);
