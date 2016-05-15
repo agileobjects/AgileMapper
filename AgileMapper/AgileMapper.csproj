@@ -38,14 +38,14 @@
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConditionSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConfiguredLambdaInfo.cs" />
-    <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\PostInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifierBase.cs" />
     <Compile Include="DataSources\DataSourceOption.cs" />
     <Compile Include="ObjectPopulation\EnumerableTypes.cs" />
     <Compile Include="ObjectPopulation\IValueProviderFactory.cs" />
     <Compile Include="ObjectPopulation\NullValueProviderFactory.cs" />
     <Compile Include="ObjectPopulation\OverwriteFallbackValueProviderFactory.cs" />
-    <Compile Include="ObjectPopulation\PreInstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\PreInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\PreInstanceCreationConditionSpecifier.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />

@@ -1,8 +1,8 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation
+﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
-    using Api.Configuration;
     using Members;
+    using ObjectPopulation;
 
     public class PreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance>
         : InstanceCreationCallbackSpecifierBase<TSource, TTarget, TInstance>
