@@ -230,6 +230,7 @@
             var source = new PublicProperty<IEnumerable<char>> { Value = new[] { '3', '2', '1' } };
             var result = Mapper.Map(source).ToNew<PublicField<ICollection<byte?>>>();
 
+            // ReSharper disable once PossibleInvalidOperationException
             result.Value.ShouldBe(s => (int)s, 3, 2, 1);
         }
 

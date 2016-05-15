@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Linq.Expressions;
-    using DataSources;
     using Members;
 
     internal class ConfiguredIgnoredMember : UserConfiguredItemBase
