@@ -236,7 +236,7 @@
                     .Before
                     .CreatingInstancesOf<Address>()
                     .Call(ctx => createdAddressesByIndex[ctx.EnumerableIndex.GetValueOrDefault()] = ctx.Source.AddressLine1)
-                    .If(ctx => ctx.EnumerableIndex > 0);
+                    .If((s, t, i) => (i == 1) || (i == 2));
 
                 var source = new[]
                 {
