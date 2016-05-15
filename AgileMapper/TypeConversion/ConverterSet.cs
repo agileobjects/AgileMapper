@@ -20,9 +20,10 @@
                 //new ToDateTimeConverter(),
                 new ToEnumConverter(toStringConverter),
                 new ToNumericConverter<int>(toStringConverter),
+                new DefaultTryParseConverter<Guid>(toStringConverter),
                 new ToNumericConverter<long>(toStringConverter),
                 new ToNumericConverter<short>(toStringConverter),
-                new DefaultTryParseConverter<Guid>(toStringConverter)
+                new ToNumericConverter<byte>(toStringConverter)
             };
         }
 

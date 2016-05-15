@@ -145,7 +145,7 @@
         [Fact]
         public void ShouldMapATooBigNonWholeNumberNullableDecimalOverAShort()
         {
-            var source = new PublicProperty<decimal> { Value = decimal.MaxValue };
+            var source = new PublicProperty<decimal> { Value = 637638.6373m };
             var target = Mapper.Map(source).Over(new PublicProperty<short>());
 
             target.Value.ShouldBeDefault();
