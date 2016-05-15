@@ -3,7 +3,6 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using Members;
 
@@ -97,6 +96,9 @@
                 (type != typeof(string));
         }
 
+        public static Type GetRuntimeTargetType(this Type declaredType, Type sourceType)
+            => declaredType.IsAssignableFrom(sourceType) ? sourceType : declaredType;
+
         public static bool IsEnumerable(this Type type)
         {
             return type.IsArray ||
@@ -187,35 +189,7 @@
         }
 
         private static IEnumerable<long> GetEnumValues(Type enumType)
-        {
-            return from object value in Enum.GetValues(enumType)
-                   select Convert.ToInt64(value);
-        }
-
-        public static Type GetInstanceVariableType(this Type instanceType)
-        {
-            if (!instanceType.IsEnumerable())
-            {
-                return instanceType;
-            }
-
-            var instanceElementType = instanceType.GetEnumerableElementType();
-            var listType = typeof(List<>).MakeGenericType(instanceElementType);
-
-            if (instanceType.IsArray || listType.IsAssignableFrom(instanceType))
-            {
-                return listType;
-            }
-
-            var collectionType = typeof(Collection<>).MakeGenericType(instanceElementType);
-
-            if (collectionType.IsAssignableFrom(instanceType))
-            {
-                return collectionType;
-            }
-
-            return typeof(ICollection<>).MakeGenericType(instanceElementType);
-        }
+            => Enum.GetValues(enumType).Cast<object>().Select(Convert.ToInt64);
 
         public static Member CreateElementMember(this Type enumerableType)
         {

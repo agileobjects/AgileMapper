@@ -12,6 +12,11 @@
             return items.ElementAt(1);
         }
 
+        public static T Third<T>(this IEnumerable<T> items)
+        {
+            return items.ElementAt(2);
+        }
+
         public static void ShouldBeDefault<T>(this T value)
         {
             value.ShouldBe(default(T));

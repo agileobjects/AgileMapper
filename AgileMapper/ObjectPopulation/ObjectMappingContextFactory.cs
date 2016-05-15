@@ -21,17 +21,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Create(source, target, target, runtimeTypes, sourceMember, targetMember, mappingContext);
         }
 
-        public static IObjectMappingContext Create<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
-            TRuntimeSource source,
-            TRuntimeTarget target,
+        public static IObjectMappingContext Create<TDeclaredSource, TDeclaredTarget, TDeclaredMember>(
+            TDeclaredSource source,
+            TDeclaredTarget target,
             QualifiedMember childTargetMember,
             TDeclaredMember childMemberValue,
             MappingContext mappingContext)
         {
-            var targetMemberRuntimeType = target != null
-                ? childMemberValue.GetRuntimeTargetType(typeof(TRuntimeSource))
-                : typeof(TDeclaredMember);
-
             QualifiedMember qualifiedSourceMember;
             Type sourceMemberRuntimeType;
 
@@ -55,8 +51,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var runtimeTypes = Tuple.Create(
                 sourceMemberRuntimeType,
-                typeof(TRuntimeTarget),
-                targetMemberRuntimeType);
+                typeof(TDeclaredTarget),
+                childTargetMember.Type);
 
             return Create(
                 source,
@@ -109,9 +105,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int? enumerableIndex,
             MappingContext mappingContext);
 
-        private static IObjectMappingContext Create<TSource, TTarget, TInstance>(
-            TSource source,
-            TTarget target,
+        private static IObjectMappingContext Create<TDeclaredSource, TDeclaredTarget, TInstance>(
+            TDeclaredSource source,
+            TDeclaredTarget target,
             TInstance existing,
             Tuple<Type, Type, Type> runtimeTypes,
             QualifiedMember sourceMember,
@@ -122,17 +118,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var funcKey = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}({1}),{2}({3}),{4}({5}): ObjectMappingContextConstructor",
-                typeof(TSource).FullName,
+                typeof(TDeclaredSource).FullName,
                 runtimeTypes.Item1,
-                typeof(TTarget).FullName,
+                typeof(TDeclaredTarget).FullName,
                 runtimeTypes.Item2,
                 typeof(TInstance).FullName,
                 runtimeTypes.Item3);
 
             var constructionFunc = mappingContext.GlobalContext.Cache.GetOrAdd(funcKey, k =>
             {
-                var sourceParameter = Parameters.Create<TSource>("source");
-                var targetParameter = Parameters.Create<TTarget>("target");
+                var sourceParameter = Parameters.Create<TDeclaredSource>("source");
+                var targetParameter = Parameters.Create<TDeclaredTarget>("target");
                 var existingInstanceParameter = Parameters.Create<TInstance>("existingInstance");
 
                 var contextType = typeof(ObjectMappingContext<,,>)
@@ -149,7 +145,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     Parameters.MappingContext);
 
                 var constructionLambda = Expression
-                    .Lambda<ObjectMappingContextCreator<TSource, TTarget, TInstance>>(
+                    .Lambda<ObjectMappingContextCreator<TDeclaredSource, TDeclaredTarget, TInstance>>(
                         constructorCall,
                         Parameters.SourceMember,
                         Parameters.TargetMember,

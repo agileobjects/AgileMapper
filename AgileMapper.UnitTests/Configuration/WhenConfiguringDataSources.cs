@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -204,6 +205,36 @@
 
                 result.Value.ShouldHaveSingleItem();
                 result.Value.First().Value.ShouldBe("1: Mr Thomas");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredExpressionInAMemberNonGenericEnumerableConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .ToANew<PersonViewModel>()
+                    .Map((c, pvm, i) => c.Name + " (" + i + ")")
+                    .To(pvm => pvm.Name)
+                    .If((c, pvm, i) => i > 0);
+
+                var source = new PublicProperty<IEnumerable>
+                {
+                    Value = new[]
+                    {
+                        new Customer { Name = "Miss G" },
+                        new Person { Name = "Mrs G" },
+                        new Customer { Name = "Lady G" }
+                    }
+                };
+                var result = mapper.Map(source).ToNew<PublicField<IEnumerable<PersonViewModel>>>();
+
+                result.Value.Count().ShouldBe(3);
+                result.Value.First().Name.ShouldBe("Miss G");
+                result.Value.Second().Name.ShouldBe("Mrs G");
+                result.Value.Third().Name.ShouldBe("Lady G (2)");
             }
         }
 

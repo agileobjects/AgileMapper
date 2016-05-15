@@ -23,8 +23,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly Expression _enumerableIndexProperty = Expression.Property(_parameter, "EnumerableIndex");
 
-        private static readonly ParameterExpression _instanceVariable =
-            Expression.Variable(typeof(TInstance).GetInstanceVariableType(), "instance");
+        private static readonly ParameterExpression _instanceVariable = Expression.Variable(
+            typeof(TInstance).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType<TInstance>() : typeof(TInstance),
+            "instance");
 
         private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_parameter);
 

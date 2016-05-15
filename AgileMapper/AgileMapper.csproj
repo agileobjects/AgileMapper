@@ -41,6 +41,7 @@
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifierBase.cs" />
     <Compile Include="DataSources\DataSourceOption.cs" />
+    <Compile Include="ObjectPopulation\EnumerableTypes.cs" />
     <Compile Include="ObjectPopulation\IValueProviderFactory.cs" />
     <Compile Include="ObjectPopulation\NullValueProviderFactory.cs" />
     <Compile Include="ObjectPopulation\OverwriteFallbackValueProviderFactory.cs" />

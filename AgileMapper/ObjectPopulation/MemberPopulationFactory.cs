@@ -44,21 +44,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool TargetMemberIsIgnored(IMemberMappingContext context, out Expression ignoreCondition)
             => context.Parent.MapperContext.UserConfigurations.IsIgnored(context, out ignoreCondition);
-
-        //var dataSourceValueFactory = ValueProvider.For(dataSource, context);
-        //var valueFactories = new List<ValueProvider> { dataSourceValueFactory };
-
-        //if (dataSourceCondition != null)
-        //{
-        //    var alternateDataSource = context.Parent
-        //        .MapperContext
-        //        .DataSources
-        //        .FindFor(targetMember, DataSourceOption.ExcludeConfigured, context.Parent);
-
-        //    if (alternateDataSource != null)
-        //    {
-        //        valueFactories.Add(ValueProvider.For(alternateDataSource, context));
-        //    }
-        //}
     }
 }

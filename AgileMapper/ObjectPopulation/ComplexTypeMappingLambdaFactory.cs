@@ -122,8 +122,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
-        {
-            return omc.InstanceVariable;
-        }
+            => omc.InstanceVariable;
     }
 }
