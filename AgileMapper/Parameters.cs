@@ -67,12 +67,16 @@ namespace AgileObjects.AgileMapper
             }
 
             Expression contextAccess = context.Parameter;
-            context = context.Parent;
+
+            if (context.TargetMember.IsSimple)
+            {
+                context = context.Parent;
+            }
 
             while (!targetParameter.Type.IsAssignableFrom(context.ExistingObject.Type))
             {
-                context = context.Parent;
                 contextAccess = Expression.Property(contextAccess, "Parent");
+                context = context.Parent;
             }
 
             var instanceVariable = Expression.Call(

@@ -12,6 +12,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         MappingContext MappingContext { get; }
 
+        new IObjectMappingContext Parent { get; }
+
         bool HasSource<TSource>(TSource source);
 
         TInstance GetInstance<TInstance>();

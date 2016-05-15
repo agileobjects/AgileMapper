@@ -22,6 +22,9 @@
         public PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
             Action<TSource, TTarget, TInstance> callback) => CreateCallback(callback);
 
+        public PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
+            Action<TSource, TTarget, TInstance, int?> callback) => CreateCallback(callback);
+
         private PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> CreateCallback<TAction>(TAction callback)
         {
             var creationCallbackFactory = CreateCallbackFactory(callback);

@@ -117,7 +117,8 @@
                 funcTypes => typeof(void),
                 typeof(Action<>),
                 typeof(Action<,>),
-                typeof(Action<,,>));
+                typeof(Action<,,>),
+                typeof(Action<,,,>));
         }
 
         private static ConfiguredLambdaInfo For<T>(
@@ -163,7 +164,7 @@
         }
 
         private static ParametersSwapper GetParametersSwapperFor(Type[] contextTypes, Type[] funcArguments)
-            => _parameterSwapOptions.FirstOrDefault(pso => pso.AppliesTo(contextTypes, funcArguments));
+            => _parameterSwapOptions.First(pso => pso.AppliesTo(contextTypes, funcArguments));
 
         #endregion
 

@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -241,6 +243,46 @@
                 result.Count.ShouldBe(2);
                 sourceObjectTypesByIndex.ShouldContainKeyAndValue(0, typeof(Person));
                 sourceObjectTypesByIndex.ShouldContainKeyAndValue(1, typeof(Customer));
+            }
+        }
+
+        [Fact]
+        public void ShouldCallAnObjectCreatingCallbackInAMemberCollectionConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var sourceAddressesByIndex = new Dictionary<int, Address>();
+
+                mapper.WhenMapping
+                    .From<Person>()
+                    .Over<Customer>()
+                    .After
+                    .CreatingInstances
+                    .Call((p, c, o, i) => sourceAddressesByIndex[i.GetValueOrDefault()] = (Address)o)
+                    .If((p, c, o, i) => (o is Address) && (i >= 1));
+
+                var source = new PublicField<Collection<Person>>
+                {
+                    Value = new Collection<Person>
+                    {
+                        new Person { Id = Guid.NewGuid(), Name = "Person 0" },
+                        new Person { Id = Guid.NewGuid(), Name = "Person 1", Address = new Address { Line1 = "My house" } }
+                    }
+                };
+                var target = new PublicProperty<IEnumerable>
+                {
+                    Value = new[]
+                    {
+                        new Person { Id = source.Value.First().Id },
+                        new Customer { Id = source.Value.Second().Id }
+                    }
+                };
+                var result = mapper.Map(source).Over(target);
+                var resultItems = result.Value.Cast<Person>().ToArray();
+
+                resultItems.Length.ShouldBe(2);
+                sourceAddressesByIndex.Count.ShouldBe(1);
+                sourceAddressesByIndex.ShouldContainKeyAndValue(1, resultItems.Second().Address);
             }
         }
     }

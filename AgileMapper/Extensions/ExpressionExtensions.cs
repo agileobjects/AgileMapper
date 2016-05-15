@@ -191,6 +191,8 @@
                 switch (expression.NodeType)
                 {
                     case ExpressionType.Add:
+                    case ExpressionType.And:
+                    case ExpressionType.AndAlso:
                     case ExpressionType.Divide:
                     case ExpressionType.Equal:
                     case ExpressionType.NotEqual:
@@ -200,6 +202,8 @@
                     case ExpressionType.LessThanOrEqual:
                     case ExpressionType.Modulo:
                     case ExpressionType.Multiply:
+                    case ExpressionType.Or:
+                    case ExpressionType.OrElse:
                     case ExpressionType.Subtract:
                         return ReplaceIn((BinaryExpression)expression);
 
