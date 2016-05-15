@@ -192,6 +192,38 @@
         }
 
         [Fact]
+        public void ShouldCallAnObjectCreatingCallbackWithASourceAndTargetConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .OnTo<Person>()
+                    .After
+                    .CreatingInstances
+                    .Call((pvm, p, o) => p.Name += " + " + pvm.Name)
+                    .If((pvm, p, i) => (i - 1) == 0);
+
+                var source = new[]
+                {
+                    new PersonViewModel { Id = Guid.NewGuid(), Name = "Mac", AddressLine1 = "Blah" },
+                    new PersonViewModel { Id = Guid.NewGuid(), Name = "Dennis", AddressLine1 = "Jah" }
+                };
+
+                var target = new[]
+                {
+                    new Person { Id = source.First().Id, Name = "Dee" },
+                    new Person { Id = source.Second().Id, Name = "Charlie" }
+                };
+
+                var result = mapper.Map(source).OnTo(target);
+
+                result.First().Name.ShouldBe("Dee");
+                result.Second().Name.ShouldBe("Charlie + Dennis");
+            }
+        }
+
+        [Fact]
         public void ShouldCallAnObjectCreatingCallbackInARootEnumerableConditionally()
         {
             using (var mapper = Mapper.Create())

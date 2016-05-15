@@ -206,7 +206,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ReferenceEquals(Source, source);
         }
 
-        T IObjectMappingContext.GetInstance<T>() => (T)(object)CreatedInstance;
+        T IObjectMappingContext.GetInstance<T>() => (T)((object)CreatedInstance ?? Target);
 
         public int? GetEnumerableIndex() => EnumerableIndex.HasValue ? EnumerableIndex : Parent?.GetEnumerableIndex();
 

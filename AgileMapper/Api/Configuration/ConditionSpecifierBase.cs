@@ -20,6 +20,8 @@
 
         public void If(Expression<Func<TSource, TTarget, bool>> condition) => AddConditionFactory(condition);
 
+        public void If(Expression<Func<TSource, TTarget, int?, bool>> condition) => AddConditionFactory(condition);
+
         protected void AddConditionFactory(LambdaExpression conditionLambda)
         {
             _configuredItem.AddConditionFactory(context =>

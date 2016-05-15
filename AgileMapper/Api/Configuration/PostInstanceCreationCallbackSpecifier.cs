@@ -20,6 +20,9 @@
             Action<IInstanceCreationContext<TSource, TTarget, TInstance>> callback) => CreateCallback(callback);
 
         public PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
+            Action<TSource, TTarget> callback) => CreateCallback(callback);
+
+        public PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
             Action<TSource, TTarget, TInstance> callback) => CreateCallback(callback);
 
         public PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
