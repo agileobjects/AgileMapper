@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.Members
     internal class MemberName
     {
         private readonly bool _isRoot;
+        private readonly string _name;
         private readonly List<string> _allNames;
 
         public MemberName(
@@ -16,6 +17,7 @@ namespace AgileObjects.AgileMapper.Members
             MemberType memberType,
             bool isRoot)
         {
+            _name = name;
             _isRoot = isRoot;
 
             if (isRoot)
@@ -69,7 +71,8 @@ namespace AgileObjects.AgileMapper.Members
         public bool Matches(MemberName otherName)
         {
             return (_isRoot && otherName._isRoot) ||
-                _allNames.Intersect(otherName._allNames).Any();
+                _name.Equals(otherName._name, StringComparison.OrdinalIgnoreCase) ||
+                _allNames.Intersect(otherName._allNames, CaseInsensitiveStringComparer.Instance).Any();
         }
     }
 }

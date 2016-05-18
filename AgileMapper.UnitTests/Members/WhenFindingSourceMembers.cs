@@ -21,7 +21,6 @@
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldNotBeNull();
-
             member.Type.ShouldBe(typeof(string));
         }
 
@@ -45,6 +44,16 @@
 
             member.ShouldNotBeNull();
             member.Type.ShouldBe(typeof(DateTime));
+        }
+
+        [Fact]
+        public void ShouldFindARootArrayElement()
+        {
+            var member = _memberFinder
+                .GetSourceMembers(typeof(int[]))
+                .FirstOrDefault();
+
+            member.ShouldNotBeNull();
         }
 
         [Fact]
@@ -105,16 +114,6 @@
                 .FirstOrDefault(m => m.Name.StartsWith("get_"));
 
             member.ShouldBeNull();
-        }
-
-        [Fact]
-        public void ShouldFindARootArrayElement()
-        {
-            var member = _memberFinder
-                .GetSourceMembers(typeof(int[]))
-                .FirstOrDefault();
-
-            member.ShouldNotBeNull();
         }
     }
     // ReSharper restore PossibleNullReferenceException

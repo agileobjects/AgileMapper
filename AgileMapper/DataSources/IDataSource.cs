@@ -3,16 +3,23 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Members;
-    using ObjectPopulation;
 
     internal interface IDataSource
     {
-        IEnumerable<ValueProvider> GetValueProviders(IMemberMappingContext context);
+        IQualifiedMember SourceMember { get; }
 
-        Expression GetConditionOrNull(IMemberMappingContext context);
+        bool IsSuccessful { get; }
+
+        IEnumerable<ParameterExpression> Variables { get; }
+
+        bool IsConditional { get; }
 
         IEnumerable<Expression> NestedAccesses { get; }
 
         Expression Value { get; }
+
+        Expression GetIfGuardedPopulation(IMemberMappingContext context);
+
+        Expression GetElseGuardedPopulation(Expression populationSoFar, IMemberMappingContext context);
     }
 }

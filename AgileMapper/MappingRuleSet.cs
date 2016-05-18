@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper
 {
     using System.Collections.Generic;
     using System.Linq;
+    using DataSources;
     using ObjectPopulation;
     using PopulationProcessing;
 
@@ -13,13 +14,13 @@ namespace AgileObjects.AgileMapper
             string name,
             IComplexTypeMappingShortCircuitStrategy complexTypeMappingShortCircuitStrategy,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
-            IValueProviderFactory fallbackValueProviderFactory,
+            IDataSourceFactory fallbackDataSourceFactory,
             IEnumerable<IPopulationProcessor> populationProcessors)
         {
             Name = name;
             ComplexTypeMappingShortCircuitStrategy = complexTypeMappingShortCircuitStrategy;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
-            FallbackValueProviderFactory = fallbackValueProviderFactory;
+            FallbackDataSourceFactory = fallbackDataSourceFactory;
             _populationProcessors = populationProcessors;
         }
 
@@ -29,7 +30,7 @@ namespace AgileObjects.AgileMapper
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 
-        public IValueProviderFactory FallbackValueProviderFactory { get; }
+        public IDataSourceFactory FallbackDataSourceFactory { get; }
 
         public IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations)
         {

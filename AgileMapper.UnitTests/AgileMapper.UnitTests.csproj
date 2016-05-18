@@ -75,6 +75,7 @@
     <Compile Include="Members\MemberFinderTestsBase.cs" />
     <Compile Include="Members\WhenCreatingTargetMembersFromExpressions.cs" />
     <Compile Include="Members\WhenDeterminingATypeIdentifier.cs" />
+    <Compile Include="Members\WhenFindingDataSources.cs" />
     <Compile Include="Members\WhenFindingSourceMembers.cs" />
     <Compile Include="Members\WhenFindingTargetMembers.cs" />
     <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />

@@ -6,12 +6,13 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq.Expressions;
     using Extensions;
 
-    internal class QualifiedMember
+    internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], null);
+        public static readonly IQualifiedMember All = new QualifiedMember(new Member[0], null);
 
         private readonly Member[] _memberChain;
-        private readonly QualifiedMemberName _qualifiedName;
+        private readonly Member _leafMember;
+        private readonly IQualifiedMemberName _qualifiedName;
 
         private QualifiedMember(Member member, QualifiedMember parent)
             : this(parent?._memberChain.Concat(member).ToArray() ?? new[] { member })
@@ -23,47 +24,43 @@ namespace AgileObjects.AgileMapper.Members
         {
         }
 
-        private QualifiedMember(Member[] memberChain, QualifiedMemberName qualifiedName)
+        private QualifiedMember(Member[] memberChain, IQualifiedMemberName qualifiedName)
         {
             _memberChain = memberChain;
-            LeafMember = memberChain.LastOrDefault();
+            _leafMember = memberChain.LastOrDefault();
             _qualifiedName = qualifiedName;
         }
 
         #region Factory Method
 
-        public static QualifiedMember From(Member member)
-        {
-            return new QualifiedMember(member, null);
-        }
+        public static QualifiedMember From(Member member) => new QualifiedMember(member, null);
 
-        public static QualifiedMember From(Member[] memberChain)
-        {
-            return new QualifiedMember(memberChain);
-        }
+        public static QualifiedMember From(Member[] memberChain) => new QualifiedMember(memberChain);
 
         #endregion
 
-        public Member LeafMember { get; }
+        internal IEnumerable<Member> Members => _memberChain;
 
-        public IEnumerable<Member> Members => _memberChain;
+        public string Name => _leafMember.Name;
 
-        public Type Type => LeafMember.Type;
+        public Type DeclaringType => _leafMember.DeclaringType;
 
-        public bool IsComplex => LeafMember.IsComplex;
+        public Type Type => _leafMember.Type;
 
-        public bool IsEnumerable => LeafMember.IsEnumerable;
+        public bool IsComplex => _leafMember.IsComplex;
 
-        public bool IsSimple => LeafMember.IsSimple;
+        public bool IsEnumerable => _leafMember.IsEnumerable;
 
-        public Type ElementType => LeafMember.ElementType;
+        public bool IsSimple => _leafMember.IsSimple;
 
-        public QualifiedMember Append(Member childMember)
+        public bool ExistingValueCanBeChecked => _leafMember.ExistingValueCanBeChecked;
+
+        public IQualifiedMember Append(Member childMember)
         {
             return new QualifiedMember(childMember, this);
         }
 
-        public QualifiedMember RelativeTo(int depth)
+        public IQualifiedMember RelativeTo(int depth)
         {
             if (depth == 0)
             {
@@ -74,7 +71,7 @@ namespace AgileObjects.AgileMapper.Members
 
             Array.Copy(
                 _memberChain,
-                _memberChain.Length - relativeMemberChain.Length,
+                depth,
                 relativeMemberChain,
                 0,
                 relativeMemberChain.Length);
@@ -82,7 +79,7 @@ namespace AgileObjects.AgileMapper.Members
             return new QualifiedMember(relativeMemberChain);
         }
 
-        public QualifiedMember WithType(Type runtimeType)
+        public IQualifiedMember WithType(Type runtimeType)
         {
             if (runtimeType == Type)
             {
@@ -92,22 +89,36 @@ namespace AgileObjects.AgileMapper.Members
             var newMemberChain = new Member[_memberChain.Length];
             Array.Copy(_memberChain, 0, newMemberChain, 0, newMemberChain.Length - 1);
 
-            newMemberChain[newMemberChain.Length - 1] = LeafMember.WithType(runtimeType);
+            newMemberChain[newMemberChain.Length - 1] = _leafMember.WithType(runtimeType);
 
             return From(newMemberChain);
         }
 
-        public bool Matches(QualifiedMember otherMember)
+        public bool IsSameAs(IQualifiedMember otherMember)
         {
-            return _qualifiedName.Matches(otherMember._qualifiedName);
+            if ((this == All) || (otherMember == All))
+            {
+                return true;
+            }
+
+            return (otherMember.Type == Type) &&
+                   (otherMember.Name == Name) &&
+                   otherMember.DeclaringType.IsAssignableFrom(DeclaringType);
         }
 
-        public Expression GetAccess(Expression instance)
+        public bool Matches(IQualifiedMember otherMember)
         {
-            return _memberChain
-                .Skip(1)
-                .Aggregate(instance, GetMemberAccess);
+            var otherQualifiedMember = otherMember as QualifiedMember;
+
+            return (otherQualifiedMember != null)
+                ? _qualifiedName.Matches(otherQualifiedMember._qualifiedName)
+                : otherMember.Matches(this);
         }
+
+        public Expression GetAccess(Expression instance) => _leafMember.GetAccess(instance);
+
+        public Expression GetQualifiedAccess(Expression instance)
+            => _memberChain.Skip(1).Aggregate(instance, GetMemberAccess);
 
         private static Expression GetMemberAccess(Expression accessSoFar, Member member)
         {
@@ -119,16 +130,7 @@ namespace AgileObjects.AgileMapper.Members
             return member.GetAccess(accessSoFar);
         }
 
-        public bool Equals(QualifiedMember otherMember)
-        {
-            if ((this == All) || (otherMember == All))
-            {
-                return true;
-            }
-
-            return (otherMember.Type == Type) &&
-                   (otherMember.LeafMember.Name == LeafMember.Name) &&
-                   otherMember.LeafMember.DeclaringType.IsAssignableFrom(LeafMember.DeclaringType);
-        }
+        public Expression GetPopulation(Expression instance, Expression value)
+            => _leafMember.GetPopulation(instance, value);
     }
 }

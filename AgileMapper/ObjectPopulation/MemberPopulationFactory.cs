@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Extensions;
     using Members;
 
     internal static class MemberPopulationFactory
@@ -24,25 +25,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Expression ignoreCondition;
 
-            if (TargetMemberIsIgnored(context, out ignoreCondition) && (ignoreCondition == null))
+            if (TargetMemberIsAlwaysIgnored(context, out ignoreCondition))
             {
                 return MemberPopulation.IgnoredMember(context);
             }
 
-            var dataSource = omc.MapperContext.DataSources.FindFor(context);
+            var dataSources = context.GetDataSources();
 
-            if (dataSource == null)
+            if (dataSources.None())
             {
                 return MemberPopulation.NoDataSource(context);
             }
 
-            var valueProviders = dataSource.GetValueProviders(context);
-            var memberPopulation = new MemberPopulation(context, valueProviders).WithCondition(ignoreCondition);
-
-            return memberPopulation;
+            return new MemberPopulation(context, dataSources).WithCondition(ignoreCondition);
         }
 
-        private static bool TargetMemberIsIgnored(IMemberMappingContext context, out Expression ignoreCondition)
-            => context.Parent.MapperContext.UserConfigurations.IsIgnored(context, out ignoreCondition);
+        private static bool TargetMemberIsAlwaysIgnored(IMemberMappingContext context, out Expression ignoreCondition)
+        {
+            var isIgnorable = context.Parent.MapperContext.UserConfigurations.IsIgnored(context, out ignoreCondition);
+
+            return isIgnorable && (ignoreCondition == null);
+        }
     }
 }

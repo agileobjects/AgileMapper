@@ -13,7 +13,7 @@
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo dataSourceLambda,
             Type mappingTargetType,
-            QualifiedMember targetMember)
+            IQualifiedMember targetMember)
             : base(configInfo, mappingTargetType, targetMember)
         {
             _dataSourceLambda = dataSourceLambda;
@@ -39,8 +39,9 @@
         public IDataSource Create(IMemberMappingContext context)
         {
             var value = _dataSourceLambda.GetBody(context);
+            var condition = GetCondition(context);
 
-            return new ConfiguredDataSource(value, context, GetCondition);
+            return new ConfiguredDataSource(value, context, condition);
         }
     }
 }

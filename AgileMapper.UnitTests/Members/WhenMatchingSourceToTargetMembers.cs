@@ -17,12 +17,13 @@
         }
 
         [Fact]
-        public void ShouldNotMatchADifferentNameSameTypeFieldToAProperty()
+        public void ShouldMatchSameNameSameTypePropertiesCaseInsensitively()
         {
-            var sourceMember = SourceMemberFor<PublicField<Guid>>(x => x.Value);
-            var targetMember = TargetMemberFor<Person>(x => x.Id);
+            var source = new { vaLuE = string.Empty };
+            var sourceMember = SourceMemberFor(source, x => x.vaLuE);
+            var targetMember = TargetMemberFor<PublicProperty<string>>(x => x.Value);
 
-            sourceMember.Matches(targetMember).ShouldBeFalse();
+            sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
         [Fact]
@@ -86,6 +87,15 @@
             var targetMember = TargetMemberFor<PublicProperty<Product>>(x => x.Value.ProductId);
 
             sourceMember.Matches(targetMember).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldNotMatchADifferentNameSameTypeFieldToAProperty()
+        {
+            var sourceMember = SourceMemberFor<PublicField<Guid>>(x => x.Value);
+            var targetMember = TargetMemberFor<Person>(x => x.Id);
+
+            sourceMember.Matches(targetMember).ShouldBeFalse();
         }
     }
 }

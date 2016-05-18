@@ -1,11 +1,52 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using DataSources;
     using Extensions;
     using Members;
+
+    internal class ObjectMappingRequest<TDeclaredSource, TDeclaredTarget, TDeclaredInstance>
+    {
+        public ObjectMappingRequest(
+            TDeclaredSource source,
+            IQualifiedMember sourceMember,
+            TDeclaredTarget target,
+            IQualifiedMember targetMember,
+            TDeclaredInstance existingTargetInstance,
+            IQualifiedMember existingTargetInstanceMember,
+            int? enumerableIndex,
+            MappingContext mappingContext)
+        {
+            Source = source;
+            SourceMember = sourceMember.WithType(source.GetRuntimeSourceType());
+            Target = target;
+            TargetMember = targetMember.WithType(target.GetRuntimeTargetType(SourceMember.Type));
+            ExistingTargetInstance = existingTargetInstance;
+            ExistingTargetInstanceMember = existingTargetInstanceMember.WithType(existingTargetInstance.GetRuntimeTargetType(SourceMember.Type));
+            EnumerableIndex = enumerableIndex ?? mappingContext.CurrentObjectMappingContext?.GetEnumerableIndex();
+            MappingContext = mappingContext;
+        }
+
+        public TDeclaredSource Source { get; }
+
+        public IQualifiedMember SourceMember { get; }
+
+        public TDeclaredTarget Target { get; }
+
+        public IQualifiedMember TargetMember { get; }
+
+        public TDeclaredInstance ExistingTargetInstance { get; }
+
+        public IQualifiedMember ExistingTargetInstanceMember { get; }
+
+        public int? EnumerableIndex { get; }
+
+        public MappingContext MappingContext { get; }
+    }
 
     internal class ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TInstance> :
         InstanceCreationContext<TRuntimeSource, TRuntimeTarget, TInstance>,
@@ -51,15 +92,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _sourceObjectProperty,
                 _instanceVariable);
 
-        private static readonly MethodInfo _mapComplexTypeMethod =
+        private static readonly MethodInfo _mapObjectMethod =
             _parameter.Type
                 .GetMethods(Constants.PublicInstance)
-                .First(m => (m.Name == "Map") && m.GetParameters().Length == 1);
-
-        private static readonly MethodInfo _mapEnumerableMethod =
-            _parameter.Type
-                .GetMethods(Constants.PublicInstance)
-                .First(m => (m.Name == "Map") && (m.GetParameters().First().Name == "sourceEnumerable"));
+                .First(m => (m.Name == "Map") && (m.GetParameters().Length == 4));
 
         private static readonly MethodInfo _mapEnumerableElementMethod =
             _parameter.Type
@@ -69,15 +105,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        private readonly QualifiedMember _sourceMember;
-        private readonly QualifiedMember _targetMember;
+        private readonly IQualifiedMember _sourceMember;
+        private readonly IQualifiedMember _targetMember;
         private readonly int _sourceObjectDepth;
 
         public ObjectMappingContext(
-            QualifiedMember sourceMember,
-            QualifiedMember targetMember,
             TRuntimeSource source,
+            IQualifiedMember sourceMember,
             TRuntimeTarget target,
+            IQualifiedMember targetMember,
             TInstance existingInstance,
             int? enumerableIndex,
             MappingContext mappingContext)
@@ -118,27 +154,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TInstance Create() => (CreatedInstance = MapperContext.ComplexTypeFactory.Create<TInstance>());
 
-        public TMember Map<TMember>(Expression<Func<TInstance, TMember>> complexChildMember)
+        public TDeclaredMember Map<TDeclaredSource, TDeclaredMember>(
+            TDeclaredSource source,
+            TDeclaredMember targetMemberValue,
+            string targetMemberName,
+            int dataSourceIndex)
         {
-            TMember existingInstance;
-            Type targetMemberRuntimeType;
+            var allTargetMembers = GlobalContext.MemberFinder.GetTargetMembers(_targetMember.Type);
+            var targetMember = allTargetMembers.First(tm => tm.Name == targetMemberName);
+            var qualifiedMember = _targetMember.Append(targetMember);
+            var context = new MemberMappingContext(qualifiedMember, this);
+            var sourceMember = context.GetDataSources().ElementAt(dataSourceIndex).SourceMember;
 
-            if (ExistingInstance != null)
-            {
-                existingInstance = complexChildMember.Compile().Invoke(ExistingInstance);
-                targetMemberRuntimeType = existingInstance.GetRuntimeTargetType(typeof(TRuntimeSource));
-            }
-            else
-            {
-                existingInstance = default(TMember);
-                targetMemberRuntimeType = typeof(TMember);
-            }
+            var complexTargetMappingRequest = new ObjectMappingRequest<TDeclaredSource, TRuntimeTarget, TDeclaredMember>(
+                source,
+                sourceMember,
+                Target,
+                _targetMember,
+                targetMemberValue,
+                context.TargetMember,
+                null,
+                MappingContext);
 
-            var childTargetMember = GetChildTargetMember(complexChildMember, targetMemberRuntimeType);
-
-            var qualifiedChildTargetMember = _targetMember.Append(childTargetMember);
-
-            return MappingContext.MapChild(Source, Target, qualifiedChildTargetMember, existingInstance);
+            return MappingContext.MapChild(complexTargetMappingRequest);
         }
 
         public TDeclaredMember Map<TDeclaredSource, TDeclaredMember>(
@@ -174,7 +212,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTargetElement existingElement,
             int enumerableIndex)
         {
-            return MappingContext.MapEnumerableElement(sourceElement, existingElement, enumerableIndex);
+            var sourceElementMember = _sourceMember.Append(_sourceMember.Type.CreateElementMember());
+            var targetElementMember = _targetMember.Append(_targetMember.Type.CreateElementMember());
+
+            var complexTargetMappingRequest = new ObjectMappingRequest<TSourceElement, TTargetElement, TTargetElement>(
+                sourceElement,
+                sourceElementMember,
+                existingElement,
+                targetElementMember,
+                existingElement,
+                targetElementMember,
+                enumerableIndex,
+                MappingContext);
+
+            return MappingContext.MapChild(complexTargetMappingRequest);
         }
 
         #region IMemberMappingContext Members
@@ -182,6 +233,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         ParameterExpression IMemberMappingContext.Parameter => _parameter;
 
         string IMemberMappingContext.RuleSetName => MappingContext.RuleSet.Name;
+
+        IQualifiedMember IMemberMappingContext.SourceMember => _sourceMember;
 
         Expression IMemberMappingContext.SourceObject => _sourceObjectProperty;
 
@@ -193,9 +246,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ParameterExpression IMemberMappingContext.InstanceVariable => _instanceVariable;
 
-        QualifiedMember IMemberMappingContext.TargetMember => _targetMember;
+        IQualifiedMember IMemberMappingContext.TargetMember => _targetMember;
 
         NestedAccessFinder IMemberMappingContext.NestedAccessFinder => _nestedAccessFinder;
+
+        IEnumerable<IDataSource> IMemberMappingContext.GetDataSources() => this.GetDataSources();
 
         #endregion
 
@@ -210,16 +265,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public int? GetEnumerableIndex() => EnumerableIndex.HasValue ? EnumerableIndex : Parent?.GetEnumerableIndex();
 
-        Type IObjectMappingContext.GetSourceMemberRuntimeType(QualifiedMember sourceMember)
+        Type IObjectMappingContext.GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {
-            if (sourceMember.Members.Count() == 1)
+            if (sourceMember.Name == "Source")
             {
                 // The root member is guaranteed to be the runtime type:
                 return typeof(TRuntimeSource);
             }
 
             var relativeMember = sourceMember.RelativeTo(_sourceObjectDepth);
-            var memberAccess = relativeMember.GetAccess(_sourceObjectProperty);
+            var memberAccess = relativeMember.GetQualifiedAccess(_sourceObjectProperty);
 
             var getRuntimeTypeCall = Expression.Call(
                 typeof(ObjectExtensions)
@@ -237,48 +292,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return getRuntimeTypeFunc.Invoke(this);
         }
 
-        QualifiedMember IObjectMappingContext.SourceMember => _sourceMember;
+        MethodCallExpression IObjectMappingContext.TryGetCall => _tryGetCall;
 
-        MethodCallExpression IObjectMappingContext.GetTryGetCall() => _tryGetCall;
+        MethodCallExpression IObjectMappingContext.CreateCall => _createCall;
 
-        MethodCallExpression IObjectMappingContext.GetCreateCall() => _createCall;
+        MethodCallExpression IObjectMappingContext.ObjectRegistrationCall => _registrationCall;
 
-        MethodCallExpression IObjectMappingContext.GetObjectRegistrationCall() => _registrationCall;
-
-        MethodCallExpression IObjectMappingContext.GetMapCall(Member complexTypeMember)
+        MethodCallExpression IObjectMappingContext.GetMapCall(Expression sourceObject, IQualifiedMember objectMember, int dataSourceIndex)
         {
             var mapCall = Expression.Call(
                 _parameter,
-                _mapComplexTypeMethod.MakeGenericMethod(complexTypeMember.Type),
-                GetTargetMemberLambda(complexTypeMember));
-
-            return mapCall;
-        }
-
-        private static LambdaExpression GetTargetMemberLambda(Member objectMember)
-        {
-            var targetObjectParameter = Parameters.Create<TInstance>("o");
-            var targetMemberAccess = objectMember.GetAccess(targetObjectParameter);
-
-            var targetMemberLambda = Expression.Lambda(
-                Expression.GetFuncType(targetObjectParameter.Type, objectMember.Type),
-                targetMemberAccess,
-                targetObjectParameter);
-
-            return targetMemberLambda;
-        }
-
-        MethodCallExpression IObjectMappingContext.GetMapCall(Expression sourceEnumerable, Member enumerableMember)
-        {
-            var typedMapMethod = _mapEnumerableMethod
-                .MakeGenericMethod(sourceEnumerable.Type, enumerableMember.Type);
-
-            var mapCall = Expression.Call(
-                _parameter,
-                typedMapMethod,
-                sourceEnumerable,
-                enumerableMember.GetAccess(_instanceVariable),
-                GetTargetMemberLambda(enumerableMember));
+                _mapObjectMethod.MakeGenericMethod(sourceObject.Type, objectMember.Type),
+                sourceObject,
+                objectMember.GetAccess(_instanceVariable),
+                Expression.Constant(objectMember.Name),
+                Expression.Constant(dataSourceIndex));
 
             return mapCall;
         }

@@ -4,32 +4,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using DataSources;
     using Members;
     using ReadableExpressions;
 
     internal class MemberPopulation : IMemberPopulation
     {
         private readonly IMemberMappingContext _context;
-        private readonly IEnumerable<ValueProvider> _valueProviders;
+        private readonly IEnumerable<IDataSource> _dataSources;
         private readonly List<ParameterExpression> _variables;
         private Expression _condition;
 
-        public MemberPopulation(IMemberMappingContext context, IEnumerable<ValueProvider> valueProviders)
+        public MemberPopulation(IMemberMappingContext context, IEnumerable<IDataSource> dataSources)
         {
             _context = context;
-            _valueProviders = valueProviders;
-            TargetMember = context.TargetMember.LeafMember;
+            _dataSources = dataSources;
 
             _variables = new List<ParameterExpression>();
 
-            foreach (var valueProvider in valueProviders)
+            foreach (var dataSource in dataSources)
             {
-                _variables.AddRange(valueProvider.Variables);
-
-                if (valueProvider.IsSuccessful)
-                {
-                    IsSuccessful = true;
-                }
+                IsSuccessful = true;
+                _variables.AddRange(dataSource.Variables);
             }
         }
 
@@ -41,20 +37,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static IMemberPopulation NoDataSource(IMemberMappingContext context)
             => CreateNullMemberPopulation(context, targetMember => "No data source for " + targetMember.Name);
 
-        private static IMemberPopulation CreateNullMemberPopulation(IMemberMappingContext context, Func<Member, string> commentFactory)
+        private static IMemberPopulation CreateNullMemberPopulation(IMemberMappingContext context, Func<IQualifiedMember, string> commentFactory)
             => new MemberPopulation(
                    context,
-                   new[]
-                   {
-                       ValueProvider.Null(ctx => ReadableExpression
-                           .Comment(commentFactory.Invoke(ctx.TargetMember.LeafMember)))
-                   });
+                   new[] { new NullDataSource(
+                       ReadableExpression.Comment(commentFactory.Invoke(context.TargetMember))) });
 
         #endregion
 
         public IObjectMappingContext ObjectMappingContext => _context.Parent;
 
-        public Member TargetMember { get; }
+        public IQualifiedMember TargetMember => _context.TargetMember;
 
         public bool IsSuccessful { get; }
 
@@ -68,11 +61,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression GetPopulation()
         {
-            var population = _valueProviders
+            var population = _dataSources
                 .Reverse()
                 .Skip(1)
                 .Aggregate(
-                    _valueProviders.Last().GetIfGuardedPopulation(_context),
+                    _dataSources.Last().GetIfGuardedPopulation(_context),
                     (populationSoFar, valueProvider) => valueProvider.GetElseGuardedPopulation(populationSoFar, _context));
 
             if (_condition != null)

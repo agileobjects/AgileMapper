@@ -5,12 +5,10 @@
 
     internal static class MemberFinderExtensions
     {
-        public static QualifiedMember ToSourceMember(this Expression memberAccessExpression, MemberFinder memberFinder)
+        public static IQualifiedMember ToSourceMember(this Expression memberAccessExpression, MemberFinder memberFinder)
         {
             return MemberExtensions
                 .CreateMember(memberAccessExpression, Member.RootSource, memberFinder.GetSourceMembers);
         }
-
-
     }
 }

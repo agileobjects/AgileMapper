@@ -11,7 +11,7 @@
     {
         private static readonly MemberFinder _memberFinder = new MemberFinder(new DictionaryCache());
 
-        internal QualifiedMember SourceMemberFor<T>(T sourceObject)
+        internal IQualifiedMember SourceMemberFor<T>(T sourceObject)
         {
             var sourceParameter = Parameters.Create<T>("source");
             var sourceProperty = typeof(T).GetProperties(Constants.PublicInstance).First();
@@ -19,17 +19,23 @@
             var sourcePropertyCastToObject = sourcePropertyAccess.GetConversionTo(typeof(object));
             var sourcePropertyLambda = Expression.Lambda<Func<T, object>>(sourcePropertyCastToObject, sourceParameter);
 
-            return SourceMemberFor(sourcePropertyLambda);
+            return SourceMemberFor(sourceObject, sourcePropertyLambda);
         }
 
-        internal QualifiedMember SourceMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
+        internal IQualifiedMember SourceMemberFor<T>(T sourceObject, Expression<Func<T, object>> childMemberExpression)
+            => SourceMemberFor(Member.RootSource(typeof(T)), childMemberExpression);
+
+        internal IQualifiedMember SourceMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
+            => SourceMemberFor(Member.RootSource(typeof(T)), childMemberExpression);
+
+        private static IQualifiedMember SourceMemberFor(Member rootSourceMember, LambdaExpression childMemberExpression)
         {
             return (childMemberExpression == null)
-                ? QualifiedMember.From(Member.RootSource(typeof(T)))
+                ? QualifiedMember.From(rootSourceMember)
                 : childMemberExpression.ToSourceMember(_memberFinder);
         }
 
-        internal QualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
+        internal IQualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
         {
             return (childMemberExpression == null)
                 ? QualifiedMember.From(Member.RootTarget(typeof(T)))

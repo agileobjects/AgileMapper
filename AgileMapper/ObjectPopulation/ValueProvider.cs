@@ -15,12 +15,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly Func<IMemberMappingContext, Expression, Expression> _populationFactory;
 
         private ValueProvider(
+            IQualifiedMember sourceMember,
             Expression value,
             IEnumerable<ParameterExpression> variables,
             IEnumerable<Expression> nestedAccesses,
             Expression condition,
             Func<IMemberMappingContext, Expression, Expression> populationFactory)
         {
+            SourceMember = sourceMember;
             _value = value;
             Variables = variables;
             NestedAccesses = nestedAccesses;
@@ -51,10 +53,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 : value;
 
             return new ValueProvider(
+                dataSource.SourceMember,
                 value,
                 variables,
                 nestedAccesses,
-                dataSource.GetConditionOrNull(context) ?? Constants.EmptyExpression,
+                null/*dataSource.GetConditionOrNull(context) ?? Constants.EmptyExpression*/,
                 GetTargetMemberPopulation);
         }
 
@@ -94,16 +97,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static Expression GetTargetMemberPopulation(IMemberMappingContext context, Expression finalValue)
-            => context.TargetMember.LeafMember.GetPopulation(context.InstanceVariable, finalValue);
+            => context.TargetMember.GetPopulation(context.InstanceVariable, finalValue);
 
-        public static ValueProvider Default(Type valueType) => For(Expression.Default(valueType), GetTargetMemberPopulation);
+        public static ValueProvider Default(IQualifiedMember sourceMember, Type valueType)
+            => For(sourceMember, Expression.Default(valueType), GetTargetMemberPopulation);
 
         public static ValueProvider Null(Func<IMemberMappingContext, Expression> populationFactory)
-            => For(Constants.EmptyExpression, (context, value) => populationFactory.Invoke(context));
+            => For(NullQualifiedMember.Instance, Constants.EmptyExpression, (context, value) => populationFactory.Invoke(context));
 
-        private static ValueProvider For(Expression value, Func<IMemberMappingContext, Expression, Expression> populationFactory)
+        private static ValueProvider For(IQualifiedMember sourceMember, Expression value, Func<IMemberMappingContext, Expression, Expression> populationFactory)
         {
             return new ValueProvider(
+                sourceMember,
                 value,
                 Enumerable.Empty<ParameterExpression>(),
                 Enumerable.Empty<Expression>(),
@@ -112,6 +117,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #endregion
+
+        public IQualifiedMember SourceMember { get; }
 
         public bool IsSuccessful => _value != Constants.EmptyExpression;
 

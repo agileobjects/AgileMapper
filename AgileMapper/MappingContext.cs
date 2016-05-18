@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Caching;
     using Members;
     using ObjectPopulation;
 
@@ -21,6 +22,7 @@ namespace AgileObjects.AgileMapper
             RuleSet = ruleSet;
             MapperContext = mapperContext;
             _cleanupActions = new List<Action>();
+            Cache = GlobalContext.CreateCache();
         }
 
         internal GlobalContext GlobalContext => MapperContext.GlobalContext;
@@ -29,9 +31,9 @@ namespace AgileObjects.AgileMapper
 
         public MappingRuleSet RuleSet { get; }
 
-        internal IObjectMappingContext RootObjectMappingContext { get; private set; }
-
         internal IObjectMappingContext CurrentObjectMappingContext { get; private set; }
+
+        public ICache Cache { get; }
 
         internal TDeclaredTarget MapStart<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource source,
@@ -42,9 +44,7 @@ namespace AgileObjects.AgileMapper
                 return existing;
             }
 
-            CurrentObjectMappingContext =
-                RootObjectMappingContext =
-                    ObjectMappingContextFactory.CreateRoot(source, existing, this);
+            CurrentObjectMappingContext = ObjectMappingContextFactory.CreateRoot(source, existing, this);
 
             return Map<TDeclaredSource, TDeclaredTarget, TDeclaredTarget>();
         }
@@ -65,9 +65,17 @@ namespace AgileObjects.AgileMapper
         }
 
         internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
+            ObjectMappingRequest<TRuntimeSource, TRuntimeTarget, TDeclaredMember> request)
+        {
+            CurrentObjectMappingContext = ObjectMappingContextFactory.Create(request);
+
+            return Map<TRuntimeSource, TRuntimeTarget, TDeclaredMember>();
+        }
+
+        internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
             TRuntimeSource source,
             TRuntimeTarget target,
-            QualifiedMember childMember,
+            IQualifiedMember childMember,
             TDeclaredMember childMemberValue)
         {
             CurrentObjectMappingContext = ObjectMappingContextFactory.Create(

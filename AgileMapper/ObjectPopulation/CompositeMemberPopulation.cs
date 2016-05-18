@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingContext ObjectMappingContext => _examplePopulation.ObjectMappingContext;
 
-        public Member TargetMember => _examplePopulation.TargetMember;
+        public IQualifiedMember TargetMember => _examplePopulation.TargetMember;
 
         public IEnumerable<Expression> NestedAccesses => _examplePopulation.NestedAccesses;
 

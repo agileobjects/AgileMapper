@@ -4,8 +4,16 @@
 
     internal class ComplexTypeMappingDataSource : DataSourceBase
     {
-        public ComplexTypeMappingDataSource(IMemberMappingContext context)
-            : base(context.Parent.GetMapCall(context.TargetMember.LeafMember))
+        public ComplexTypeMappingDataSource(
+            IQualifiedMember sourceMember,
+            IMemberMappingContext context,
+            int dataSourceIndex)
+            : base(
+                  sourceMember,
+                  context.Parent.GetMapCall(
+                      context.SourceObject,
+                      context.TargetMember,
+                      dataSourceIndex))
         {
         }
     }

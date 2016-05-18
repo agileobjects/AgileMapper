@@ -4,10 +4,16 @@
 
     internal class EnumerableMappingDataSource : DataSourceBase
     {
-        public EnumerableMappingDataSource(IDataSource sourceEnumerableDataSource, IMemberMappingContext context)
+        public EnumerableMappingDataSource(
+            IDataSource sourceEnumerableDataSource,
+            IMemberMappingContext context,
+            int dataSourceIndex)
             : base(
-                context.Parent.GetMapCall(sourceEnumerableDataSource.Value, context.TargetMember.LeafMember),
-                sourceEnumerableDataSource.NestedAccesses)
+                  sourceEnumerableDataSource,
+                  context.Parent.GetMapCall(
+                      sourceEnumerableDataSource.Value,
+                      context.TargetMember,
+                      dataSourceIndex))
         {
         }
     }

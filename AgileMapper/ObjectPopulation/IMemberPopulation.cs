@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         IObjectMappingContext ObjectMappingContext { get; }
 
-        Member TargetMember { get; }
+        IQualifiedMember TargetMember { get; }
 
         IEnumerable<Expression> NestedAccesses { get; }
 

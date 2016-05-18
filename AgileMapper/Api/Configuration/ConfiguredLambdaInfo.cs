@@ -193,7 +193,6 @@
 
             public Expression Swap(LambdaExpression lambda, IMemberMappingContext context)
                 => _parametersSwapper.Invoke(lambda, context);
-
         }
     }
 }

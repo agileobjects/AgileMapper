@@ -7,13 +7,13 @@
     internal abstract class UserConfiguredItemBase
     {
         private readonly Type _mappingTargetType;
-        private readonly QualifiedMember _targetMember;
+        private readonly IQualifiedMember _targetMember;
         private Func<IMemberMappingContext, Expression> _conditionFactory;
 
         protected UserConfiguredItemBase(
             MappingConfigInfo configInfo,
             Type mappingTargetType,
-            QualifiedMember targetMember)
+            IQualifiedMember targetMember)
         {
             ConfigInfo = configInfo;
             _mappingTargetType = mappingTargetType;
@@ -32,17 +32,9 @@
 
         public virtual bool AppliesTo(IMemberMappingContext context)
         {
-            if (!ConfigInfo.IsForRuleSet(context.RuleSetName))
-            {
-                return false;
-            }
-
-            if (!context.TargetMember.Equals(_targetMember))
-            {
-                return false;
-            }
-
-            return ObjectHeirarchyHasMatchingSourceAndTargetTypes(context);
+            return ConfigInfo.IsForRuleSet(context.RuleSetName) &&
+                context.TargetMember.IsSameAs(_targetMember) &&
+                ObjectHeirarchyHasMatchingSourceAndTargetTypes(context);
         }
 
         private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IMemberMappingContext context)

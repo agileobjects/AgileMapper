@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         public ConfiguredIgnoredMember(
             MappingConfigInfo configInfo,
             Type mappingTargetType,
-            QualifiedMember targetMember)
+            IQualifiedMember targetMember)
             : base(configInfo, mappingTargetType, targetMember)
         {
         }

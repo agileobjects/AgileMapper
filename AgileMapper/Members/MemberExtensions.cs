@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Extensions;
 
     internal static class MemberExtensions
@@ -13,10 +14,19 @@
         private static readonly Dictionary<MemberType, Func<Expression, Member, Expression>> _accessFactoriesByMemberType =
             new Dictionary<MemberType, Func<Expression, Member, Expression>>
             {
-                { MemberType.Field, (instance, member) => Expression.Field(instance, member.Name) },
-                { MemberType.Property, (instance, member) => Expression.Property(instance, member.Name) },
-                { MemberType.GetMethod, (instance, member) => Expression.Call(instance, member.Name, Constants.NoTypeArguments) }
+                { MemberType.Field, (instance, member) => Expression.Field(instance, FindMember<FieldInfo>(member)) },
+                { MemberType.Property, (instance, member) => Expression.Property(instance, FindMember<PropertyInfo>(member)) },
+                { MemberType.GetMethod, (instance, member) => Expression.Call(instance, FindMember<MethodInfo>(member)) }
             };
+
+        private static TMemberInfo FindMember<TMemberInfo>(Member member)
+            where TMemberInfo : MemberInfo
+        {
+            return (TMemberInfo)
+                member.DeclaringType
+                    .GetMember(member.Name, BindingFlags.Public | BindingFlags.Instance)
+                    .First();
+        }
 
         #endregion
 
@@ -42,14 +52,10 @@
 
 
         private static Expression AssignMember(Expression instance, Member targetMember, Expression value)
-        {
-            return Expression.Assign(targetMember.GetAccess(instance), value);
-        }
+            => Expression.Assign(targetMember.GetAccess(instance), value);
 
         private static Expression CallSetMethod(Expression instance, Member targetMember, Expression value)
-        {
-            return Expression.Call(instance, targetMember.Name, Constants.NoTypeArguments, value);
-        }
+            => Expression.Call(instance, targetMember.Name, Constants.NoTypeArguments, value);
 
         #endregion
 
@@ -61,12 +67,10 @@
             return population;
         }
 
-        public static QualifiedMember ToTargetMember(this Expression memberAccessExpression, MemberFinder memberFinder)
-        {
-            return CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetTargetMembers);
-        }
+        public static IQualifiedMember ToTargetMember(this Expression memberAccessExpression, MemberFinder memberFinder)
+            => CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetTargetMembers);
 
-        internal static QualifiedMember CreateMember(
+        internal static IQualifiedMember CreateMember(
             Expression memberAccessExpression,
             Func<Type, Member> rootMemberFactory,
             Func<Type, IEnumerable<Member>> membersFactory)

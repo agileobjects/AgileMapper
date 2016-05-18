@@ -18,18 +18,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceMember = QualifiedMember.From(Member.RootSource(runtimeTypes.Item1));
             var targetMember = QualifiedMember.From(Member.RootTarget(runtimeTypes.Item2));
 
-            return Create(source, target, target, runtimeTypes, sourceMember, targetMember, mappingContext);
+            return Create(new ObjectMappingRequest<TDeclaredSource, TDeclaredTarget, TDeclaredTarget>(
+                source,
+                sourceMember,
+                target,
+                targetMember,
+                target,
+                targetMember,
+                null,
+                mappingContext));
         }
 
         public static IObjectMappingContext Create<TDeclaredSource, TDeclaredTarget, TDeclaredMember>(
             TDeclaredSource source,
             TDeclaredTarget target,
-            QualifiedMember childTargetMember,
+            IQualifiedMember childTargetMember,
             TDeclaredMember childMemberValue,
             MappingContext mappingContext)
         {
-            QualifiedMember qualifiedSourceMember;
             Type sourceMemberRuntimeType;
+            IQualifiedMember qualifiedSourceMember;
 
             if (mappingContext.CurrentObjectMappingContext.HasSource(source))
             {
@@ -38,14 +46,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
+                sourceMemberRuntimeType = source.GetRuntimeSourceType();
+
                 var childMemberContext = new MemberMappingContext(childTargetMember, mappingContext.CurrentObjectMappingContext);
 
                 qualifiedSourceMember = mappingContext
                     .MapperContext
                     .DataSources
-                    .GetSourceMemberMatching(childMemberContext);
+                    .GetSourceMemberFor(childMemberContext);
 
-                sourceMemberRuntimeType = source.GetRuntimeSourceType();
                 qualifiedSourceMember = qualifiedSourceMember.WithType(sourceMemberRuntimeType);
             }
 
@@ -83,7 +92,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableIndex);
         }
 
-        private static QualifiedMember GetEnumerableElementMember(QualifiedMember enumerableMember, Type runtimeType)
+        private static IQualifiedMember GetEnumerableElementMember(IQualifiedMember enumerableMember, Type runtimeType)
             => enumerableMember.Append(enumerableMember.Type.CreateElementMember().WithType(runtimeType));
 
         private static Tuple<Type, Type, Type> GetRuntimeTypes<TDeclaredSource, TDeclaredTarget>(
@@ -97,10 +106,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private delegate IObjectMappingContext ObjectMappingContextCreator<in TSource, in TTarget, in TInstance>(
-            QualifiedMember sourceMember,
-            QualifiedMember targetMember,
             TSource source,
+            IQualifiedMember sourceMember,
             TTarget target,
+            IQualifiedMember targetMember,
             TInstance existing,
             int? enumerableIndex,
             MappingContext mappingContext);
@@ -110,47 +119,64 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredTarget target,
             TInstance existing,
             Tuple<Type, Type, Type> runtimeTypes,
-            QualifiedMember sourceMember,
-            QualifiedMember targetMember,
+            IQualifiedMember sourceMember,
+            IQualifiedMember targetMember,
             MappingContext mappingContext,
             int? enumerableIndex = null)
+        {
+            return null/*Create(
+                new ObjectMappingRequest<TDeclaredSource, TDeclaredTarget, TInstance>(
+                    source,
+                    sourceMember,
+                    target,
+                    mappingContext.CurrentObjectMappingContext?.TargetMember ?? typeof(TDeclaredTarget),
+                    existing,
+                    targetMember,
+                    enumerableIndex,
+                    mappingContext))*/;
+        }
+
+        public static IObjectMappingContext Create<TDeclaredSource, TDeclaredTarget, TDeclaredInstance>(
+            ObjectMappingRequest<TDeclaredSource, TDeclaredTarget, TDeclaredInstance> request)
         {
             var funcKey = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}({1}),{2}({3}),{4}({5}): ObjectMappingContextConstructor",
                 typeof(TDeclaredSource).FullName,
-                runtimeTypes.Item1,
+                request.SourceMember.Type.FullName,
                 typeof(TDeclaredTarget).FullName,
-                runtimeTypes.Item2,
-                typeof(TInstance).FullName,
-                runtimeTypes.Item3);
+                request.TargetMember.Type.FullName,
+                typeof(TDeclaredInstance).FullName,
+                request.ExistingTargetInstanceMember.Type.FullName);
 
-            var constructionFunc = mappingContext.GlobalContext.Cache.GetOrAdd(funcKey, k =>
+            var constructionFunc = request.MappingContext.GlobalContext.Cache.GetOrAdd(funcKey, k =>
             {
                 var sourceParameter = Parameters.Create<TDeclaredSource>("source");
                 var targetParameter = Parameters.Create<TDeclaredTarget>("target");
-                var existingInstanceParameter = Parameters.Create<TInstance>("existingInstance");
+                var existingInstanceParameter = Parameters.Create<TDeclaredInstance>("existingInstance");
 
-                var contextType = typeof(ObjectMappingContext<,,>)
-                    .MakeGenericType(runtimeTypes.Item1, runtimeTypes.Item2, runtimeTypes.Item3);
+                var contextType = typeof(ObjectMappingContext<,,>).MakeGenericType(
+                    request.SourceMember.Type,
+                    request.TargetMember.Type,
+                    request.ExistingTargetInstanceMember.Type);
 
                 var constructorCall = Expression.New(
                     contextType.GetConstructors().First(),
+                    sourceParameter.GetConversionTo(request.SourceMember.Type),
                     Parameters.SourceMember,
+                    targetParameter.GetConversionTo(request.TargetMember.Type),
                     Parameters.TargetMember,
-                    sourceParameter.GetConversionTo(runtimeTypes.Item1),
-                    targetParameter.GetConversionTo(runtimeTypes.Item2),
-                    existingInstanceParameter.GetConversionTo(runtimeTypes.Item3),
+                    existingInstanceParameter.GetConversionTo(request.ExistingTargetInstanceMember.Type),
                     Parameters.EnumerableIndexNullable,
                     Parameters.MappingContext);
 
                 var constructionLambda = Expression
-                    .Lambda<ObjectMappingContextCreator<TDeclaredSource, TDeclaredTarget, TInstance>>(
+                    .Lambda<ObjectMappingContextCreator<TDeclaredSource, TDeclaredTarget, TDeclaredInstance>>(
                         constructorCall,
-                        Parameters.SourceMember,
-                        Parameters.TargetMember,
                         sourceParameter,
+                        Parameters.SourceMember,
                         targetParameter,
+                        Parameters.TargetMember,
                         existingInstanceParameter,
                         Parameters.EnumerableIndexNullable,
                         Parameters.MappingContext);
@@ -158,12 +184,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return constructionLambda.Compile();
             });
 
-            if (enumerableIndex == null)
-            {
-                enumerableIndex = mappingContext.CurrentObjectMappingContext?.GetEnumerableIndex();
-            }
-
-            return constructionFunc.Invoke(sourceMember, targetMember, source, target, existing, enumerableIndex, mappingContext);
+            return constructionFunc.Invoke(
+                request.Source,
+                request.SourceMember,
+                request.Target,
+                request.ExistingTargetInstanceMember,
+                request.ExistingTargetInstance,
+                request.EnumerableIndex,
+                request.MappingContext);
         }
     }
 }

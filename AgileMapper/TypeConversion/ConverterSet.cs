@@ -27,35 +27,43 @@
             };
         }
 
-        public void ThrowIfUnconvertible(Type sourceValueType, Type targetValueType)
+        public void ThrowIfUnconvertible(Type sourceType, Type targetType)
         {
-            if (sourceValueType.IsEnumerable() && targetValueType.IsEnumerable())
+            if (!CanConvert(sourceType, targetType))
             {
-                sourceValueType = sourceValueType.GetEnumerableElementType();
-                targetValueType = targetValueType.GetEnumerableElementType();
+                throw new MappingConfigurationException(
+                    $"Unable to convert configured {sourceType.Name} to target type {targetType.Name}");
             }
-
-            if (targetValueType.IsAssignableFrom(sourceValueType))
-            {
-                return;
-            }
-
-            if (GetConverterFor(targetValueType, sourceValueType) != null)
-            {
-                return;
-            }
-
-            throw new MappingConfigurationException(
-                $"Unable to convert configured {sourceValueType.Name} to target type {targetValueType.Name}");
         }
 
-        private IValueConverter GetConverterFor(Type targetValueType, Type sourceValueType)
+        public bool CanConvert(Type sourceType, Type targetType)
         {
-            sourceValueType = sourceValueType.GetNonNullableUnderlyingTypeIfAppropriate();
-            targetValueType = targetValueType.GetNonNullableUnderlyingTypeIfAppropriate();
+            if (sourceType.IsEnumerable() && targetType.IsEnumerable())
+            {
+                sourceType = sourceType.GetEnumerableElementType();
+                targetType = targetType.GetEnumerableElementType();
+            }
+
+            if (targetType.IsAssignableFrom(sourceType))
+            {
+                return true;
+            }
+
+            if (targetType.IsComplex() && sourceType.IsComplex())
+            {
+                return true;
+            }
+
+            return GetConverterFor(sourceType, targetType) != null;
+        }
+
+        private IValueConverter GetConverterFor(Type sourceType, Type targetType)
+        {
+            sourceType = sourceType.GetNonNullableUnderlyingTypeIfAppropriate();
+            targetType = targetType.GetNonNullableUnderlyingTypeIfAppropriate();
 
             return _converters.FirstOrDefault(c =>
-                c.IsFor(targetValueType) && c.CanConvert(sourceValueType));
+                c.IsFor(targetType) && c.CanConvert(sourceType));
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
@@ -70,7 +78,12 @@
                 return sourceValue.GetConversionTo(targetType);
             }
 
-            var converter = GetConverterFor(targetType, sourceValue.Type);
+            if (!targetType.IsSimple())
+            {
+                return sourceValue;
+            }
+
+            var converter = GetConverterFor(sourceValue.Type, targetType);
 
             return converter.GetConversion(sourceValue, targetType);
         }

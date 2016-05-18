@@ -4,8 +4,8 @@
 
     internal class SourceMemberDataSource : DataSourceBase
     {
-        public SourceMemberDataSource(QualifiedMember sourceMember, IMemberMappingContext context)
-            : base(sourceMember.GetAccess(context.SourceObject), context)
+        public SourceMemberDataSource(IQualifiedMember sourceMember, IMemberMappingContext context)
+            : base(sourceMember, sourceMember.GetQualifiedAccess(context.SourceObject), context)
         {
         }
     }

@@ -8,9 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         GlobalContext GlobalContext { get; }
 
-        MapperContext MapperContext { get; }
-
-        MappingContext MappingContext { get; }
+        new MapperContext MapperContext { get; }
 
         new IObjectMappingContext Parent { get; }
 
@@ -20,19 +18,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         int? GetEnumerableIndex();
 
-        Type GetSourceMemberRuntimeType(QualifiedMember sourceMember);
+        Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);
 
-        QualifiedMember SourceMember { get; }
+        MethodCallExpression TryGetCall { get; }
 
-        MethodCallExpression GetTryGetCall();
+        MethodCallExpression CreateCall { get; }
 
-        MethodCallExpression GetCreateCall();
+        MethodCallExpression ObjectRegistrationCall { get; }
 
-        MethodCallExpression GetObjectRegistrationCall();
-
-        MethodCallExpression GetMapCall(Member complexTypeMember);
-
-        MethodCallExpression GetMapCall(Expression sourceEnumerable, Member enumerableMember);
+        MethodCallExpression GetMapCall(Expression sourceObject, IQualifiedMember objectMember, int dataSourceIndex);
 
         MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement);
     }

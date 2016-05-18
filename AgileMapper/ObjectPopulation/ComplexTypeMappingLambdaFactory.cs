@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using DataSources;
 
     internal class ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>
         : ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
@@ -18,34 +17,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             yield return GetExistingObjectShortCircuit(returnNull.Target, omc);
         }
 
-        private static Expression GetStrategyShortCircuitReturns(
-            Expression returnNull,
-            IObjectMappingContext omc)
+        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, IObjectMappingContext omc)
         {
-            var matchingSourceObject = omc
+            var matchingSourceMemberDataSource = omc
                 .MapperContext
                 .DataSources
-                .FindFor(omc, DataSourceOption.ExcludeComplexTypeMapping);
+                .GetSourceMemberDataSourceOrNull(omc);
 
-            if (matchingSourceObject == null)
+            if (matchingSourceMemberDataSource == null)
             {
                 return Constants.EmptyExpression;
             }
 
             Expression sourceObject;
-            Func<IEnumerable<Expression>, Expression> builder;
+            Func<IEnumerable<Expression>, Expression> blockBuilder;
 
-            if (matchingSourceObject.Value == omc.SourceObject)
+            if (matchingSourceMemberDataSource.Value == omc.SourceObject)
             {
                 sourceObject = omc.SourceObject;
-                builder = Expression.Block;
+                blockBuilder = Expression.Block;
             }
             else
             {
-                sourceObject = Expression.Variable(matchingSourceObject.Value.Type, "matchingSource");
-                Expression assignSourceObject = Expression.Assign(sourceObject, matchingSourceObject.Value);
+                sourceObject = Expression.Variable(matchingSourceMemberDataSource.Value.Type, "matchingSource");
+                Expression assignSourceObject = Expression.Assign(sourceObject, matchingSourceMemberDataSource.Value);
 
-                builder = conditions => Expression.Block(
+                blockBuilder = conditions => Expression.Block(
                     new[] { (ParameterExpression)sourceObject },
                     new[] { assignSourceObject }.Concat(conditions));
             }
@@ -57,33 +54,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Select(condition => Expression.IfThen(condition, returnNull))
                 .ToArray();
 
-            var shortCircuitBlock = builder.Invoke(shortCircuitConditions);
+            var shortCircuitBlock = blockBuilder.Invoke(shortCircuitConditions);
 
             return shortCircuitBlock;
         }
 
-        private static Expression GetExistingObjectShortCircuit(
-            LabelTarget returnTarget,
-            IObjectMappingContext omc)
+        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, IObjectMappingContext omc)
         {
             var ifTryGetReturn = Expression.IfThen(
-                omc.GetTryGetCall(),
+                omc.TryGetCall,
                 Expression.Return(returnTarget, omc.InstanceVariable));
 
             return ifTryGetReturn;
         }
 
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
-        {
-            var existingObjectOrCreate = Expression
-                .Coalesce(omc.ExistingObject, omc.GetCreateCall());
-
-            return existingObjectOrCreate;
-        }
+            => Expression.Coalesce(omc.ExistingObject, omc.CreateCall);
 
         protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)
         {
-            var objectRegistration = omc.GetObjectRegistrationCall();
+            var objectRegistration = omc.ObjectRegistrationCall;
             var objectCreationCallback = GetObjectCreatedCallback(omc);
             var memberPopulations = MemberPopulationFactory.Create(omc);
 
