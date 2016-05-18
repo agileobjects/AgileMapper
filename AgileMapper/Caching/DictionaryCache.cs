@@ -16,14 +16,17 @@
         {
             object value;
 
-            if (!_items.TryGetValue(key, out value))
+            // ReSharper disable once InconsistentlySynchronizedField
+            if (_items.TryGetValue(key, out value))
             {
-                lock (_items)
+                return (TValue)value;
+            }
+
+            lock (_items)
+            {
+                if (!_items.TryGetValue(key, out value))
                 {
-                    if (!_items.TryGetValue(key, out value))
-                    {
-                        _items.Add(key, (value = valueFactory.Invoke(key)));
-                    }
+                    _items.Add(key, (value = valueFactory.Invoke(key)));
                 }
             }
 
