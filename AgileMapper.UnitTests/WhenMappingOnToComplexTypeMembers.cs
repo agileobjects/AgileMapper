@@ -86,7 +86,7 @@
         }
 
         [Fact]
-        public void ShouldNotOverwriteWithAConfiguredConstant()
+        public void ShouldNotOverwriteWithAConfiguredExpression()
         {
             using (var mapper = Mapper.Create())
             {

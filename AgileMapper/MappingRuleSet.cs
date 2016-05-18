@@ -1,27 +1,23 @@
 namespace AgileObjects.AgileMapper
 {
-    using System.Collections.Generic;
-    using System.Linq;
     using DataSources;
     using ObjectPopulation;
     using PopulationProcessing;
 
     internal class MappingRuleSet
     {
-        private readonly IEnumerable<IPopulationProcessor> _populationProcessors;
-
         public MappingRuleSet(
             string name,
             IComplexTypeMappingShortCircuitStrategy complexTypeMappingShortCircuitStrategy,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
             IDataSourceFactory fallbackDataSourceFactory,
-            IEnumerable<IPopulationProcessor> populationProcessors)
+            IPopulationProcessor memberPopulationProcessor)
         {
             Name = name;
             ComplexTypeMappingShortCircuitStrategy = complexTypeMappingShortCircuitStrategy;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
-            _populationProcessors = populationProcessors;
+            MemberPopulationProcessor = memberPopulationProcessor;
         }
 
         public string Name { get; }
@@ -32,14 +28,6 @@ namespace AgileObjects.AgileMapper
 
         public IDataSourceFactory FallbackDataSourceFactory { get; }
 
-        public IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations)
-        {
-            var processedPopulationData = _populationProcessors
-                .Aggregate(
-                    populations,
-                    (populationDataSoFar, processor) => processor.Process(populationDataSoFar));
-
-            return processedPopulationData;
-        }
+        public IPopulationProcessor MemberPopulationProcessor { get; }
     }
 }

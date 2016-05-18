@@ -79,22 +79,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var successfulPopulations = memberPopulations
                 .Where(p => p.IsSuccessful)
-                .ToArray();
-
-            var unsuccessfulPopulations = memberPopulations
-                .Except(successfulPopulations)
                 .Select(p => p.GetPopulation())
                 .ToArray();
 
-            var processedPopulations = omc
-                .MappingContext
-                .RuleSet
-                .Process(successfulPopulations)
-                .Select(d => d.GetPopulation())
+            var unsuccessfulPopulations = memberPopulations
+                .Where(p => !p.IsSuccessful)
+                .Select(p => p.GetPopulation())
                 .ToArray();
 
             return new[] { objectRegistration, objectCreationCallback }
-                .Concat(processedPopulations)
+                .Concat(successfulPopulations)
                 .Concat(unsuccessfulPopulations)
                 .ToArray();
         }

@@ -27,6 +27,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 IsSuccessful = true;
                 _variables.AddRange(dataSource.Variables);
             }
+
+            context.MappingContext.RuleSet.MemberPopulationProcessor.Process(this);
         }
 
         #region Factory Methods
@@ -55,7 +57,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IMemberPopulation WithCondition(Expression condition)
         {
-            _condition = condition;
+            if (condition != null)
+            {
+                _condition = condition;
+            }
             return this;
         }
 

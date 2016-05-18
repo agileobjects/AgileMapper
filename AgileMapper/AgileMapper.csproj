@@ -133,6 +133,7 @@
     <Compile Include="IMapper.cs" />
     <Compile Include="Mapper.cs" />
     <Compile Include="PopulationProcessing\IPopulationProcessor.cs" />
+    <Compile Include="PopulationProcessing\NullPopulationProcessor.cs" />
     <Compile Include="PopulationProcessing\PopulatedMemberPopulationGuarder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Api\ResultTypeSelector.cs" />

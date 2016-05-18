@@ -1,30 +1,21 @@
 ﻿namespace AgileObjects.AgileMapper.PopulationProcessing
 {
-    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Extensions;
-    using Members;
     using ObjectPopulation;
 
     internal class PopulatedMemberPopulationGuarder : IPopulationProcessor
     {
         internal static readonly IPopulationProcessor Instance = new PopulatedMemberPopulationGuarder();
 
-        public IEnumerable<IMemberPopulation> Process(IEnumerable<IMemberPopulation> populations)
+        public void Process(IMemberPopulation population)
         {
-            foreach (var population in populations)
+            if (population.TargetMember.IsSimple && population.TargetMember.ExistingValueCanBeChecked)
             {
-                if (population.TargetMember.ExistingValueCanBeChecked &&
-                    population.TargetMember.IsSimple)
-                {
-                    var targetMemberAccess = GetTargetMemberAccess(population);
-                    var targetMemberHasDefaultValue = targetMemberAccess.GetIsDefaultComparison();
+                var targetMemberAccess = GetTargetMemberAccess(population);
+                var targetMemberHasDefaultValue = targetMemberAccess.GetIsDefaultComparison();
 
-                    yield return population.WithCondition(targetMemberHasDefaultValue);
-                    continue;
-                }
-
-                yield return population;
+                population.WithCondition(targetMemberHasDefaultValue);
             }
         }
 
