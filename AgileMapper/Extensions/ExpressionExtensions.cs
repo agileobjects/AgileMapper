@@ -150,9 +150,7 @@
         }
 
         public static Expression ReplaceParameterWith(this LambdaExpression lambda, Expression replacement)
-        {
-            return ReplaceParametersWith(lambda, replacement);
-        }
+            => ReplaceParametersWith(lambda, replacement);
 
         public static Expression ReplaceParametersWith(this LambdaExpression lambda, params Expression[] replacements)
         {
@@ -166,14 +164,10 @@
         }
 
         public static Expression Replace(this Expression expression, Expression target, Expression replacement)
-        {
-            return expression.Replace(new Dictionary<Expression, Expression> { [target] = replacement });
-        }
+            => expression.Replace(new Dictionary<Expression, Expression> { [target] = replacement });
 
         public static Expression Replace(this Expression expression, Dictionary<Expression, Expression> replacementsByTarget)
-        {
-            return new ExpressionReplacer(replacementsByTarget).ReplaceIn(expression);
-        }
+            => new ExpressionReplacer(replacementsByTarget).ReplaceIn(expression);
 
         #region Replace Helper
 
@@ -220,6 +214,9 @@
                     case ExpressionType.MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
 
+                    case ExpressionType.NewArrayInit:
+                        return ReplaceIn((NewArrayExpression)expression);
+
                     case ExpressionType.TypeIs:
                         return ReplaceIn((TypeBinaryExpression)expression);
                 }
@@ -228,16 +225,16 @@
             }
 
             private Expression ReplaceIn(BinaryExpression binary)
-                => binary.Update(Replace(binary.Left), binary.Conversion, Replace(binary.Right));
+                => ReplaceIn(binary, () => binary.Update(Replace(binary.Left), binary.Conversion, Replace(binary.Right)));
 
             private Expression ReplaceIn(MethodCallExpression call)
-                => ReplaceInCall(call.Object, call.Arguments, call.Update);
+                => ReplaceIn(call, () => ReplaceInCall(call.Object, call.Arguments, call.Update));
 
             private Expression ReplaceIn(UnaryExpression unary)
-                => unary.Update(Replace(unary.Operand));
+                => ReplaceIn(unary, () => unary.Update(Replace(unary.Operand)));
 
             private Expression ReplaceIn(InvocationExpression invocation)
-                => ReplaceInCall(invocation.Expression, invocation.Arguments, invocation.Update);
+                => ReplaceIn(invocation, () => ReplaceInCall(invocation.Expression, invocation.Arguments, invocation.Update));
 
             private Expression ReplaceInCall(
                 Expression subject,
@@ -248,12 +245,17 @@
             }
 
             private Expression ReplaceIn(MemberExpression memberAccess)
-                => memberAccess.Update(Replace(memberAccess.Expression));
+                => ReplaceIn(memberAccess, () => memberAccess.Update(Replace(memberAccess.Expression)));
+
+            private Expression ReplaceIn(NewArrayExpression newArray)
+                => ReplaceIn(newArray, () => newArray.Update(newArray.Expressions.Select(Replace)));
 
             private Expression ReplaceIn(TypeBinaryExpression typeBinary)
-                => typeBinary.Update(Replace(typeBinary.Expression));
+                => ReplaceIn(typeBinary, () => typeBinary.Update(Replace(typeBinary.Expression)));
 
-            private Expression Replace(Expression expression)
+            private Expression Replace(Expression expression) => ReplaceIn(expression, () => ReplaceIn(expression));
+
+            private Expression ReplaceIn(Expression expression, Func<Expression> replacer)
             {
                 if (expression == null)
                 {
@@ -264,7 +266,7 @@
 
                 return _replacementsByTarget.TryGetValue(expression, out replacement)
                     ? replacement
-                    : ReplaceIn(expression);
+                    : replacer.Invoke();
             }
         }
 
