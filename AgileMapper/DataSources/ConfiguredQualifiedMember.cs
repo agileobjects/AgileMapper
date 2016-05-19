@@ -11,21 +11,19 @@ namespace AgileObjects.AgileMapper.DataSources
     internal class ConfiguredQualifiedMember : IQualifiedMember
     {
         private readonly Expression _value;
-        private readonly int _sourceObjectDepth;
         private readonly IQualifiedMember _matchedTargetMember;
         private readonly IEnumerable<Member> _childMembers;
 
         public ConfiguredQualifiedMember(Expression value, IMemberMappingContext context)
-            : this(value, context.SourceObjectDepth, context.TargetMember)
+            : this(value, context.TargetMember)
         {
         }
 
-        private ConfiguredQualifiedMember(Expression value, int sourceObjectDepth, IQualifiedMember matchedTargetMember)
+        private ConfiguredQualifiedMember(Expression value, IQualifiedMember matchedTargetMember)
             : this(
                   value.Type,
                   value.ToReadableString(),
                   value,
-                  sourceObjectDepth + 1,
                   matchedTargetMember,
                   Enumerable.Empty<Member>())
         {
@@ -39,7 +37,6 @@ namespace AgileObjects.AgileMapper.DataSources
                   childMember.Type,
                   parent.Name + childMember.MemberName.JoiningName,
                   parent._value,
-                  parent._sourceObjectDepth,
                   parent._matchedTargetMember.Append(childMember),
                   parent._childMembers.Concat(childMember).ToArray())
         {
@@ -52,14 +49,12 @@ namespace AgileObjects.AgileMapper.DataSources
             Type type,
             string name,
             Expression value,
-            int sourceObjectDepth,
             IQualifiedMember matchedTargetMember,
             IEnumerable<Member> childMembers)
         {
             Type = type;
             Name = name;
             _value = value;
-            _sourceObjectDepth = sourceObjectDepth;
             _matchedTargetMember = matchedTargetMember;
             _childMembers = childMembers;
         }
@@ -81,11 +76,9 @@ namespace AgileObjects.AgileMapper.DataSources
         public IQualifiedMember Append(Member childMember)
             => new ConfiguredQualifiedMember(this, childMember);
 
-        public IQualifiedMember RelativeTo(int depth)
-            => (depth != _sourceObjectDepth) ? new ConfiguredQualifiedMember(_value, depth, _matchedTargetMember) : this;
+        public IQualifiedMember RelativeTo(int depth) => this;
 
-        public bool IsSameAs(IQualifiedMember otherMember)
-            => (otherMember as ConfiguredQualifiedMember)?._value == _value;
+        public bool IsSameAs(IQualifiedMember otherMember) => false;
 
         public bool Matches(IQualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
 
@@ -98,7 +91,7 @@ namespace AgileObjects.AgileMapper.DataSources
         public IQualifiedMember WithType(Type runtimeType)
         {
             return runtimeType != Type
-                ? new ConfiguredQualifiedMember(_value.GetConversionTo(runtimeType), _sourceObjectDepth, _matchedTargetMember)
+                ? new ConfiguredQualifiedMember(_value.GetConversionTo(runtimeType), _matchedTargetMember)
                 : this;
         }
     }

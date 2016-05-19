@@ -179,34 +179,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return MappingContext.MapChild(complexTargetMappingRequest);
         }
 
-        public TDeclaredMember Map<TDeclaredSource, TDeclaredMember>(
-            TDeclaredSource sourceEnumerable,
-            TDeclaredMember targetEnumerable,
-            Expression<Func<TInstance, TDeclaredMember>> targetEnumerableMember)
-        {
-            var runtimeSourceType = sourceEnumerable.GetRuntimeSourceType();
-            var targetMemberRuntimeType = targetEnumerable.GetRuntimeTargetType(runtimeSourceType);
-            var childTargetMember = GetChildTargetMember(targetEnumerableMember, targetMemberRuntimeType);
-
-            var qualifiedChildTargetMember = _targetMember.Append(childTargetMember);
-
-            return MappingContext.MapChild(sourceEnumerable, targetEnumerable, qualifiedChildTargetMember, targetEnumerable);
-        }
-
-        private static Member GetChildTargetMember<TDeclaredMember>(
-            Expression<Func<TInstance, TDeclaredMember>> childTargetMemberExpression,
-            Type targetMemberRuntimeType)
-        {
-            var childTargetMemberInfo = ((MemberExpression)childTargetMemberExpression.Body).Member;
-            var childTargetMemberType = (childTargetMemberInfo is PropertyInfo) ? MemberType.Property : MemberType.Field;
-
-            return new Member(
-                childTargetMemberType,
-                childTargetMemberInfo.Name,
-                typeof(TRuntimeTarget),
-                targetMemberRuntimeType);
-        }
-
         public TTargetElement Map<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement existingElement,

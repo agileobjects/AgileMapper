@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Caching;
-    using Members;
     using ObjectPopulation;
 
     internal class MappingContext : IDisposable
@@ -70,41 +69,6 @@ namespace AgileObjects.AgileMapper
             CurrentObjectMappingContext = ObjectMappingContextFactory.Create(request);
 
             return Map<TRuntimeSource, TRuntimeTarget, TDeclaredMember>();
-        }
-
-        internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
-            TRuntimeSource source,
-            TRuntimeTarget target,
-            IQualifiedMember childMember,
-            TDeclaredMember childMemberValue)
-        {
-            CurrentObjectMappingContext = ObjectMappingContextFactory.Create(
-                source,
-                target,
-                childMember,
-                childMemberValue,
-                this);
-
-            return Map<TRuntimeSource, TRuntimeTarget, TDeclaredMember>();
-        }
-
-        public TDeclaredTarget MapEnumerableElement<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceElement,
-            TDeclaredTarget existingElement,
-            int enumerableIndex)
-        {
-            if (sourceElement == null)
-            {
-                return existingElement;
-            }
-
-            CurrentObjectMappingContext = ObjectMappingContextFactory.Create(
-                sourceElement,
-                existingElement,
-                enumerableIndex,
-                this);
-
-            return Map<TDeclaredSource, TDeclaredTarget, TDeclaredTarget>();
         }
 
         private TInstance Map<TSource, TTarget, TInstance>()
