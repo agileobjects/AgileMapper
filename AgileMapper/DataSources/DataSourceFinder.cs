@@ -64,19 +64,13 @@
 
         private static bool DataSourcesAreConfigured(IMemberMappingContext context, out IEnumerable<IDataSource> configuredDataSources)
         {
-            var configuredDataSource = context
+            configuredDataSources = context
                 .MapperContext
                 .UserConfigurations
-                .GetDataSourceOrNull(context);
+                .GetDataSources(context)
+                .Select((ds, i) => GetFinalDataSource(ds, i, context));
 
-            if (configuredDataSource == null)
-            {
-                configuredDataSources = Enumerable.Empty<IDataSource>();
-                return false;
-            }
-
-            configuredDataSources = new[] { GetFinalDataSource(configuredDataSource, 0, context) };
-            return true;
+            return configuredDataSources.Any();
         }
 
         private static IDataSource FallbackDataSourceFor(IMemberMappingContext context)

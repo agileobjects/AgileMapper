@@ -39,12 +39,14 @@
             _dataSourceFactories.Add(dataSourceFactory);
         }
 
-        public IDataSource GetDataSourceOrNull(IMemberMappingContext context)
+        public IEnumerable<IDataSource> GetDataSources(IMemberMappingContext context)
         {
-            var matchingDataSourceFactory = _dataSourceFactories
-                .FirstOrDefault(ds => ds.AppliesTo(context));
+            var matchingDataSources = _dataSourceFactories
+                .Where(dsf => dsf.AppliesTo(context))
+                .Select((dsf, i) => dsf.Create(i, context))
+                .ToArray();
 
-            return matchingDataSourceFactory?.Create(0, context);
+            return matchingDataSources;
         }
 
         public void Add(ObjectCreationCallbackFactory callbackFactory)

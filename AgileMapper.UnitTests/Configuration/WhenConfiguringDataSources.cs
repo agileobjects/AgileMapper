@@ -118,6 +118,42 @@
         }
 
         [Fact]
+        public void ShouldConditionallyApplyMultipleConfiguredMembers()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .To<PublicProperty<string>>()
+                    .Map((c, t) => c.Id)
+                    .To(x => x.Value)
+                    .If((c, t) => c.Name.Length < 5);
+
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicProperty<string>>()
+                    .Map((p, t) => p.Title)
+                    .To(x => x.Value)
+                    .If((p, t) => p.Name.Length > 8);
+
+                var shortNameSource = new Customer { Id = Guid.NewGuid(), Name = "Fred", Title = Title.Count };
+                var shortNameResult = mapper.Map(shortNameSource).ToNew<PublicProperty<string>>();
+
+                shortNameResult.Value.ShouldBe(shortNameSource.Id.ToString());
+
+                var midNameSource = new Customer { Id = Guid.NewGuid(), Name = "Frankie", Title = Title.Count };
+                var midNameResult = mapper.Map(midNameSource).ToNew<PublicProperty<string>>();
+
+                midNameResult.Value.ShouldBeDefault();
+
+                var longNameSource = new Customer { Id = Guid.NewGuid(), Name = "Bartholomew", Title = Title.Duke };
+                var longNameResult = mapper.Map(longNameSource).ToNew<PublicProperty<string>>();
+
+                longNameResult.Value.ShouldBe("Duke");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredMemberFromAllSourceTypes()
         {
             using (var mapper = Mapper.Create())

@@ -15,7 +15,6 @@
                   GetFinalValue(dataSourceIndex, value, context),
                   context,
                   condition)
-
         {
         }
 
