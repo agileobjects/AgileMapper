@@ -11,6 +11,8 @@
             _mapperContext = mapperContext;
         }
 
+        public TargetTypeSpecifier<TSource> From<TSource>(TSource exampleInstance) => From<TSource>();
+
         public TargetTypeSpecifier<TSource> From<TSource>()
             => GetTargetTypeSpecifier<TSource>(ci => ci.ForSourceType<TSource>());
 

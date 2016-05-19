@@ -30,13 +30,21 @@
 
         #endregion
 
-        public static Expression GetAccess(this Member sourceMember, Expression instance)
+        public static Expression GetAccess(this Member member, Expression instance)
         {
-            var accessFactory = _accessFactoriesByMemberType[sourceMember.MemberType];
-            var access = accessFactory.Invoke(instance, sourceMember);
+            if (!member.DeclaringType.IsAssignableFrom(instance.Type))
+            {
+                instance = Expression.Convert(instance, member.DeclaringType);
+            }
+
+            var accessFactory = _accessFactoriesByMemberType[member.MemberType];
+            var access = accessFactory.Invoke(instance, member);
 
             return access;
         }
+
+        public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression instance)
+            => memberChain.Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
 
         #region PopulationFactoriesByMemberType
 

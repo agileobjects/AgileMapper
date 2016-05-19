@@ -329,6 +329,27 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredComplexType()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var source = new { Person = new Person { Name = "Anon" } };
+
+                mapper.WhenMapping
+                    .From(source)
+                    .Over<PublicProperty<Person>>()
+                    .Map((s, t) => s.Person)
+                    .To(pp => pp.Value);
+
+                var target = new PublicProperty<Person> { Value = new Person { Name = "Someone" } };
+                var result = mapper.Map(source).Over(target);
+
+                result.Value.ShouldNotBeSameAs(source.Person);
+                result.Value.Name.ShouldBe("Anon");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredSourceAndTargetFunction()
         {
             using (var mapper = Mapper.Create())

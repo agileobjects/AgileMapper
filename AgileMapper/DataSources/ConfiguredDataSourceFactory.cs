@@ -36,12 +36,12 @@
 
         #endregion
 
-        public IDataSource Create(IMemberMappingContext context)
+        public IDataSource Create(int dataSourceIndex, IMemberMappingContext context)
         {
             var value = _dataSourceLambda.GetBody(context);
             var condition = GetCondition(context);
 
-            return new ConfiguredDataSource(value, context, condition);
+            return new ConfiguredDataSource(dataSourceIndex, value, condition, context);
         }
     }
 }

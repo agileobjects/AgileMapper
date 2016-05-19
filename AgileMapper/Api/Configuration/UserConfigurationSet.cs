@@ -44,7 +44,7 @@
             var matchingDataSourceFactory = _dataSourceFactories
                 .FirstOrDefault(ds => ds.AppliesTo(context));
 
-            return matchingDataSourceFactory?.Create(context);
+            return matchingDataSourceFactory?.Create(0, context);
         }
 
         public void Add(ObjectCreationCallbackFactory callbackFactory)

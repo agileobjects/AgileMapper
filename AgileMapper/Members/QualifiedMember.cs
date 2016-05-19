@@ -118,17 +118,7 @@ namespace AgileObjects.AgileMapper.Members
         public Expression GetAccess(Expression instance) => _leafMember.GetAccess(instance);
 
         public Expression GetQualifiedAccess(Expression instance)
-            => _memberChain.Skip(1).Aggregate(instance, GetMemberAccess);
-
-        private static Expression GetMemberAccess(Expression accessSoFar, Member member)
-        {
-            if (!member.DeclaringType.IsAssignableFrom(accessSoFar.Type))
-            {
-                accessSoFar = Expression.Convert(accessSoFar, member.DeclaringType);
-            }
-
-            return member.GetAccess(accessSoFar);
-        }
+            => _memberChain.Skip(1).GetQualifiedAccess(instance);
 
         public Expression GetPopulation(Expression instance, Expression value)
             => _leafMember.GetPopulation(instance, value);

@@ -6,8 +6,8 @@
     {
         public EnumerableMappingDataSource(
             IDataSource sourceEnumerableDataSource,
-            IMemberMappingContext context,
-            int dataSourceIndex)
+            int dataSourceIndex,
+            IMemberMappingContext context)
             : base(
                   sourceEnumerableDataSource,
                   context.Parent.GetMapCall(

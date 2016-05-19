@@ -43,7 +43,7 @@
 
             if (context.TargetMember.IsComplex)
             {
-                yield return new ComplexTypeMappingDataSource(context.SourceMember, context, dataSourceIndex);
+                yield return new ComplexTypeMappingDataSource(context.SourceMember, dataSourceIndex, context);
                 yield return FallbackDataSourceFor(context);
                 yield break;
             }
@@ -60,7 +60,7 @@
         }
 
         private static IDataSource RootSourceMemberDataSourceFor(IMemberMappingContext context)
-            => GetSourceMemberDataSourceFor(QualifiedMember.From(Member.RootSource(context.SourceObject.Type)), context);
+            => GetSourceMemberDataSourceFor(QualifiedMember.From(Member.RootSource(context.SourceObject.Type)), 0, context);
 
         private static bool DataSourcesAreConfigured(IMemberMappingContext context, out IEnumerable<IDataSource> configuredDataSources)
         {
@@ -84,6 +84,16 @@
 
         public IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
         {
+            if (context.Parent == null)
+            {
+                return RootSourceMemberDataSourceFor(context);
+            }
+
+            return GetSourceMemberDataSourceOrNull(0, context);
+        }
+
+        private IDataSource GetSourceMemberDataSourceOrNull(int dataSourceIndex, IMemberMappingContext context)
+        {
             var bestMatchingSourceMember = GetSourceMemberFor(context);
 
             if (bestMatchingSourceMember == null)
@@ -93,11 +103,19 @@
 
             bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(context.SourceObjectDepth);
 
-            return GetSourceMemberDataSourceFor(bestMatchingSourceMember, context);
+            return GetSourceMemberDataSourceFor(bestMatchingSourceMember, dataSourceIndex, context);
         }
 
-        private static IDataSource GetSourceMemberDataSourceFor(IQualifiedMember sourceMember, IMemberMappingContext context)
-            => GetFinalDataSource(new SourceMemberDataSource(sourceMember, context), 0, context);
+        private static IDataSource GetSourceMemberDataSourceFor(
+            IQualifiedMember sourceMember,
+            int dataSourceIndex,
+            IMemberMappingContext context)
+        {
+            return GetFinalDataSource(
+                new SourceMemberDataSource(sourceMember, context),
+                dataSourceIndex,
+                context);
+        }
 
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
@@ -106,7 +124,7 @@
         {
             if (context.TargetMember.IsEnumerable)
             {
-                return new EnumerableMappingDataSource(foundDataSource, context, dataSourceIndex);
+                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, context);
             }
 
             return foundDataSource;

@@ -11,23 +11,14 @@
             _mapperContext = mapperContext;
         }
 
-        public TResult ToNew<TResult>()
-            where TResult : class
-        {
-            return PerformMapping(_mapperContext.RuleSets.CreateNew, default(TResult));
-        }
+        public TResult ToNew<TResult>() where TResult : class
+            => PerformMapping(_mapperContext.RuleSets.CreateNew, default(TResult));
 
-        public TTarget OnTo<TTarget>(TTarget existing)
-            where TTarget : class
-        {
-            return PerformMapping(_mapperContext.RuleSets.Merge, existing);
-        }
+        public TTarget OnTo<TTarget>(TTarget existing) where TTarget : class
+            => PerformMapping(_mapperContext.RuleSets.Merge, existing);
 
-        public TTarget Over<TTarget>(TTarget existing)
-            where TTarget : class
-        {
-            return PerformMapping(_mapperContext.RuleSets.Overwrite, existing);
-        }
+        public TTarget Over<TTarget>(TTarget existing) where TTarget : class
+            => PerformMapping(_mapperContext.RuleSets.Overwrite, existing);
 
         private TTarget PerformMapping<TTarget>(MappingRuleSet ruleSet, TTarget existing)
         {
