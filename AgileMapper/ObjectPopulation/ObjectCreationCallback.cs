@@ -36,7 +36,7 @@
 
             if (_conditions.Any())
             {
-                return Expression.IfThen(_conditions.GetIsNotDefaultComparisons(), _callback);
+                return Expression.IfThen(_conditions.GetIsNotDefaultComparisonsOrNull(), _callback);
             }
 
             return _callback;

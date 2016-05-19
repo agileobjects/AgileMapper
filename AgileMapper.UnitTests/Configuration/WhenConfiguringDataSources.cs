@@ -154,6 +154,30 @@
         }
 
         [Fact]
+        public void ShouldHandleANullMemberInACondition()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicField<long>>()
+                    .Map(ctx => int.Parse(ctx.Source.Value) / 2)
+                    .To(x => x.Value)
+                    .If(ctx => ctx.Source.Value.Length % 2 == 0);
+
+                var matchingSource = new PublicProperty<string> { Value = "20" };
+                var matchingResult = mapper.Map(matchingSource).ToNew<PublicField<long>>();
+
+                matchingResult.Value.ShouldBe(10L);
+
+                var nullSource = new PublicProperty<string> { Value = null };
+                var nullSourceResult = mapper.Map(nullSource).ToNew<PublicField<long>>();
+
+                nullSourceResult.Value.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredMemberFromAllSourceTypes()
         {
             using (var mapper = Mapper.Create())

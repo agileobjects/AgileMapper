@@ -18,15 +18,15 @@
             Expression condition = null)
         {
             SourceMember = sourceMember;
-            _condition = condition;
+            _condition = GetCondition(condition, context);
 
-            var nestedAccesses = context.NestedAccessFinder.FindIn(value);
+            var valueNestedAccesses = context.NestedAccessFinder.FindIn(value);
 
             Dictionary<Expression, Expression> nestedAccessVariableByNestedAccess;
             ICollection<ParameterExpression> variables;
 
             NestedAccesses = ProcessNestedAccesses(
-                nestedAccesses,
+                valueNestedAccesses,
                 out nestedAccessVariableByNestedAccess,
                 out variables);
 
@@ -41,6 +41,32 @@
                 .ValueConverters
                 .GetConversion(value, context.TargetMember.Type);
         }
+
+        #region Setup
+
+        private static Expression GetCondition(Expression condition, IMemberMappingContext context)
+        {
+            if (condition == null)
+            {
+                return null;
+            }
+
+            var conditionNestedAccessesChecks = context
+                .NestedAccessFinder
+                .FindIn(condition)
+                .GetIsNotDefaultComparisonsOrNull();
+
+            if (conditionNestedAccessesChecks == null)
+            {
+                return condition;
+            }
+
+            var checkedCondition = Expression.AndAlso(conditionNestedAccessesChecks, condition);
+
+            return checkedCondition;
+        }
+
+        #endregion
 
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
             : this(sourceMember, Enumerable.Empty<Expression>(), Enumerable.Empty<ParameterExpression>(), value)
@@ -134,7 +160,7 @@
                 return IsConditional ? guardedPopulationFactory.Invoke(_condition, population) : population;
             }
 
-            var nestedAccessChecks = NestedAccesses.GetIsNotDefaultComparisons();
+            var nestedAccessChecks = NestedAccesses.GetIsNotDefaultComparisonsOrNull();
 
             if (!IsConditional)
             {

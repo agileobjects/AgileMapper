@@ -8,27 +8,27 @@ namespace AgileObjects.AgileMapper.Members
     internal class NestedAccessFinder : ExpressionVisitor
     {
         private readonly Expression _contextParameter;
-        private readonly ICollection<Expression> _methodCallSubjects;
+        private readonly ICollection<Expression> _memberAccessSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
         public NestedAccessFinder(Expression contextParameter)
         {
             _contextParameter = contextParameter;
-            _methodCallSubjects = new List<Expression>();
+            _memberAccessSubjects = new List<Expression>();
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
 
-        public IEnumerable<Expression> FindIn(Expression value)
+        public IEnumerable<Expression> FindIn(Expression expression)
         {
             IEnumerable<Expression> memberAccesses;
 
             lock (this)
             {
-                Visit(value);
+                Visit(expression);
 
                 memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
 
-                _methodCallSubjects.Clear();
+                _memberAccessSubjects.Clear();
                 _memberAccessesByPath.Clear();
             }
 
@@ -37,22 +37,33 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override Expression VisitMember(MemberExpression memberAccess)
         {
-            if (IsNotRootSoureObject(memberAccess))
+            if (IsNotRootSourceObject(memberAccess))
             {
+                if ((memberAccess.Expression != null) && IsNotRootSourceObject(memberAccess.Expression))
+                {
+                    _memberAccessSubjects.Add(memberAccess.Expression);
+                }
+
                 AddMemberAccessIfAppropriate(memberAccess);
             }
 
             return base.VisitMember(memberAccess);
         }
 
-        private bool IsNotRootSoureObject(MemberExpression memberAccess)
+        private bool IsNotRootSourceObject(Expression expression)
+        {
+            return (expression.NodeType != ExpressionType.MemberAccess) ||
+                   IsNotRootSourceObject((MemberExpression)expression);
+        }
+
+        private bool IsNotRootSourceObject(MemberExpression memberAccess)
             => !(memberAccess.Member.Name == "Source" && memberAccess.Expression == _contextParameter);
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
             if (methodCall.Object != null)
             {
-                _methodCallSubjects.Add(methodCall.Object);
+                _memberAccessSubjects.Add(methodCall.Object);
             }
 
             AddMemberAccessIfAppropriate(methodCall);
@@ -70,7 +81,7 @@ namespace AgileObjects.AgileMapper.Members
 
         private bool Add(Expression memberAccess)
         {
-            return ((memberAccess.Type != typeof(string)) || _methodCallSubjects.Contains(memberAccess)) &&
+            return ((memberAccess.Type != typeof(string)) || _memberAccessSubjects.Contains(memberAccess)) &&
                    !_memberAccessesByPath.ContainsKey(memberAccess.ToString()) &&
                    memberAccess.Type.CanBeNull() &&
                    memberAccess.IsRootedIn(_contextParameter);

@@ -75,11 +75,16 @@
             return Expression.Call(instance, methodInfo, valueParameter);
         }
 
-        public static Expression GetIsNotDefaultComparisons(this IEnumerable<Expression> expressions)
+        public static Expression GetIsNotDefaultComparisonsOrNull(this IEnumerable<Expression> expressions)
         {
             var notNullChecks = expressions
                 .Select(exp => exp.GetIsNotDefaultComparison())
                 .ToArray();
+
+            if (notNullChecks.Length == 0)
+            {
+                return null;
+            }
 
             var allNotNullCheck = notNullChecks
                 .Skip(1)
