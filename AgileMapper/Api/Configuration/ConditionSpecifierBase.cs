@@ -34,7 +34,7 @@
                     contextualisedCondition = Expression.Not(contextualisedCondition);
                 }
 
-                return contextualisedCondition;
+                return context.GetTryCall(contextualisedCondition);
             });
         }
     }

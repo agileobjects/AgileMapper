@@ -178,6 +178,25 @@
         }
 
         [Fact]
+        public void ShouldHandleAnExceptionThrownInACondition()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicField<int>>()
+                    .Map(ctx => ctx.Source.Name)
+                    .To(x => x.Value)
+                    .If((p, t) => int.Parse(p.Name) > 0);
+
+                var source = new Person { Name = "CantParseThis" };
+                var result = mapper.Map(source).ToNew<PublicField<int>>();
+
+                result.Value.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredMemberFromAllSourceTypes()
         {
             using (var mapper = Mapper.Create())

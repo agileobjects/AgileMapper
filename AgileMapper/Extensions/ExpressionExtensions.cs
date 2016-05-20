@@ -194,13 +194,13 @@
                     case ExpressionType.AndAlso:
                     case ExpressionType.Divide:
                     case ExpressionType.Equal:
-                    case ExpressionType.NotEqual:
                     case ExpressionType.GreaterThan:
                     case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
                     case ExpressionType.Modulo:
                     case ExpressionType.Multiply:
+                    case ExpressionType.NotEqual:
                     case ExpressionType.Or:
                     case ExpressionType.OrElse:
                     case ExpressionType.Subtract:

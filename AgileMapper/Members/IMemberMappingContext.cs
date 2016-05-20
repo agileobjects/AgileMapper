@@ -34,5 +34,7 @@
         NestedAccessFinder NestedAccessFinder { get; }
 
         IEnumerable<IDataSource> GetDataSources();
+
+        Expression GetTryCall(Expression expression);
     }
 }

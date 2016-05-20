@@ -5,12 +5,6 @@
     using DataSources;
     using ObjectPopulation;
 
-    internal static class MemberMappingContextExtensions
-    {
-        public static IEnumerable<IDataSource> GetDataSources(this IMemberMappingContext context)
-            => context.MappingContext.MapperContext.DataSources.FindFor(context);
-    }
-
     internal class MemberMappingContext : IMemberMappingContext
     {
         public MemberMappingContext(IQualifiedMember targetMember, IObjectMappingContext parent)
@@ -46,5 +40,7 @@
         public NestedAccessFinder NestedAccessFinder => Parent.NestedAccessFinder;
 
         IEnumerable<IDataSource> IMemberMappingContext.GetDataSources() => this.GetDataSources();
+
+        Expression IMemberMappingContext.GetTryCall(Expression expression) => Parent.GetTryCall(expression);
     }
 }

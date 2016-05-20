@@ -9,45 +9,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ObjectMappingRequest<TDeclaredSource, TDeclaredTarget, TDeclaredInstance>
-    {
-        public ObjectMappingRequest(
-            TDeclaredSource source,
-            IQualifiedMember sourceMember,
-            TDeclaredTarget target,
-            IQualifiedMember targetMember,
-            TDeclaredInstance existingTargetInstance,
-            IQualifiedMember existingTargetInstanceMember,
-            int? enumerableIndex,
-            MappingContext mappingContext)
-        {
-            Source = source;
-            SourceMember = sourceMember.WithType(source.GetRuntimeSourceType());
-            Target = target;
-            TargetMember = targetMember.WithType(target.GetRuntimeTargetType(SourceMember.Type));
-            ExistingTargetInstance = existingTargetInstance;
-            ExistingTargetInstanceMember = existingTargetInstanceMember.WithType(existingTargetInstance.GetRuntimeTargetType(SourceMember.Type));
-            EnumerableIndex = enumerableIndex ?? mappingContext.CurrentObjectMappingContext?.GetEnumerableIndex();
-            MappingContext = mappingContext;
-        }
-
-        public TDeclaredSource Source { get; }
-
-        public IQualifiedMember SourceMember { get; }
-
-        public TDeclaredTarget Target { get; }
-
-        public IQualifiedMember TargetMember { get; }
-
-        public TDeclaredInstance ExistingTargetInstance { get; }
-
-        public IQualifiedMember ExistingTargetInstanceMember { get; }
-
-        public int? EnumerableIndex { get; }
-
-        public MappingContext MappingContext { get; }
-    }
-
     internal class ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TInstance> :
         InstanceCreationContext<TRuntimeSource, TRuntimeTarget, TInstance>,
         IObjectMappingContext
@@ -154,6 +115,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TInstance Create() => (CreatedInstance = MapperContext.ComplexTypeFactory.Create<TInstance>());
 
+        public TResult Try<TResult>(Func<TResult> funcToTry)
+        {
+            try
+            {
+                return funcToTry.Invoke();
+            }
+            catch
+            {
+                return default(TResult);
+            }
+        }
+
         public TDeclaredMember Map<TDeclaredSource, TDeclaredMember>(
             TDeclaredSource source,
             TDeclaredMember targetMemberValue,
@@ -223,6 +196,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         NestedAccessFinder IMemberMappingContext.NestedAccessFinder => _nestedAccessFinder;
 
         IEnumerable<IDataSource> IMemberMappingContext.GetDataSources() => this.GetDataSources();
+
+        Expression IMemberMappingContext.GetTryCall(Expression expression)
+        {
+            var tryMethod = _parameter.Type
+                .GetMethod("Try")
+                .MakeGenericMethod(expression.Type);
+
+            var tryArgument = Expression.Lambda(Expression.GetFuncType(expression.Type), expression);
+            var tryCall = Expression.Call(_parameter, tryMethod, tryArgument);
+
+            return tryCall;
+        }
 
         #endregion
 
