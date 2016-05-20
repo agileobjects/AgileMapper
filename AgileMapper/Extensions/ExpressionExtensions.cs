@@ -93,29 +93,11 @@
             return allNotNullCheck;
         }
 
-        public static int GetDepth(this Expression expression)
-        {
-            var depth = -1;
-            var parent = expression;
-
-            while (parent != null)
-            {
-                ++depth;
-                parent = parent.GetParentOrNull();
-            }
-
-            return depth;
-        }
-
         public static BinaryExpression GetIsDefaultComparison(this Expression expression)
-        {
-            return Expression.Equal(expression, Expression.Default(expression.Type));
-        }
+            => Expression.Equal(expression, Expression.Default(expression.Type));
 
         public static BinaryExpression GetIsNotDefaultComparison(this Expression expression)
-        {
-            return Expression.NotEqual(expression, Expression.Default(expression.Type));
-        }
+            => Expression.NotEqual(expression, Expression.Default(expression.Type));
 
         public static Expression GetToValueOrDefaultCall(this Expression nullableExpression)
         {
@@ -125,9 +107,7 @@
         }
 
         public static Expression GetConversionTo(this Expression expression, Type targetType)
-        {
-            return (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
-        }
+            => (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
 
         public static Expression WithToArrayCall(this Expression enumerable)
         {

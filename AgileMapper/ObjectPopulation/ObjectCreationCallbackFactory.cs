@@ -26,7 +26,7 @@
         public override bool AppliesTo(IMemberMappingContext context)
             => _creationTargetType.IsAssignableFrom(context.InstanceVariable.Type) && base.AppliesTo(context);
 
-        public ObjectCreationCallback GetCallback(IMemberMappingContext context)
+        public ObjectCreationCallback Create(IMemberMappingContext context)
         {
             var callback = _callbackLambda.GetBody(context);
             var condition = GetCondition(context);

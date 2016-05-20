@@ -11,7 +11,7 @@
     {
         #region Cached Items
 
-        private static readonly ParametersSwapper[] _parameterSwapOptions =
+        private static readonly ParametersSwapper[] _parameterSwappers =
         {
             new ParametersSwapper(0, (ct, ft) => true, Parameters.SwapNothing),
             new ParametersSwapper(1, IsMemberMappingContext, Parameters.SwapForContextParameter),
@@ -31,7 +31,7 @@
         private static bool Is(
             Type contextType,
             Type[] contextTypes,
-            Type[] funcArguments,
+            IList<Type> funcArguments,
             Func<Type[], Type[], bool> parametersChecker)
         {
             var contextTypeArgument = funcArguments[0];
@@ -164,7 +164,7 @@
         }
 
         private static ParametersSwapper GetParametersSwapperFor(Type[] contextTypes, Type[] funcArguments)
-            => _parameterSwapOptions.First(pso => pso.AppliesTo(contextTypes, funcArguments));
+            => _parameterSwappers.First(pso => pso.AppliesTo(contextTypes, funcArguments));
 
         #endregion
 

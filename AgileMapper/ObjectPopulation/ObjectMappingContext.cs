@@ -45,13 +45,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _parameter,
             _parameter.Type.GetMethod("Create", Constants.PublicInstance));
 
-        private static readonly MethodInfo _tryActionMethod = _parameter.Type
-            .GetMethods(Constants.PublicInstance)
-            .First(m => (m.Name == "Try") && (m.GetParameters().First().Name == "action"));
+        private static readonly MethodInfo _tryActionMethod = GetTryMethod("action", 1);
+        private static readonly MethodInfo _tryUntypedHandlerActionMethod = GetTryMethod("action", 2, untyped: true);
+        private static readonly MethodInfo _tryHandlerActionMethod = GetTryMethod("action", 2, untyped: false);
 
-        private static readonly MethodInfo _tryFuncMethod = _parameter.Type
-            .GetMethods(Constants.PublicInstance)
-            .First(m => (m.Name == "Try") && (m.GetParameters().First().Name == "funcToTry"));
+        private static readonly MethodInfo _tryFuncMethod = GetTryMethod("funcToTry", 1);
+        private static readonly MethodInfo _tryUntypedHandlerFuncMethod = GetTryMethod("funcToTry", 2, untyped: true);
+        private static readonly MethodInfo _tryHandlerFuncMethod = GetTryMethod("funcToTry", 2, untyped: false);
+
+        private static MethodInfo GetTryMethod(string firstParameterName, int numberOfParameters, bool? untyped = null)
+        {
+            return _parameter.Type
+                .GetMethods(Constants.PublicInstance)
+                .Select(m => new
+                {
+                    Method = m,
+                    Parameters = m.GetParameters()
+                })
+                .First(d =>
+                    (d.Method.Name == "Try") &&
+                    (d.Parameters[0].Name == firstParameterName) &&
+                    (d.Parameters.Length == numberOfParameters) &&
+                    (untyped == null ||
+                    (untyped.Value && (d.Parameters[1].ParameterType == typeof(Action<IUntypedMemberMappingExceptionContext>))) ||
+                    (!untyped.Value && (d.Parameters[1].ParameterType != typeof(Action<IUntypedMemberMappingExceptionContext>)))))
+                .Method;
+        }
 
         private static readonly MethodCallExpression _registrationCall = Expression.Call(
             _mappingContextProperty,
@@ -122,27 +141,66 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public TInstance Create() => (CreatedInstance = MapperContext.ComplexTypeFactory.Create<TInstance>());
 
         public void Try(Action action)
+            => Try(action, (ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget> ctx) => { });
+
+        public void Try(Action action, Action<IUntypedMemberMappingExceptionContext> callback)
+        {
+            Try(action,
+                (ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget> ctx)
+                    => callback((IUntypedMemberMappingExceptionContext)ctx));
+        }
+
+        public void Try(
+            Action action,
+            Action<ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>> callback)
         {
             try
             {
                 action.Invoke();
             }
-            catch
+            catch (Exception ex)
             {
-                // ignored
+                ReportException(callback, ex);
             }
         }
 
         public TResult Try<TResult>(Func<TResult> funcToTry)
+            => Try(funcToTry, (ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget> ctx) => { });
+
+        public void Try<TResult>(Func<TResult> funcToTry, Action<IUntypedMemberMappingExceptionContext> callback)
+        {
+            Try(funcToTry,
+                (ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget> ctx)
+                    => callback((IUntypedMemberMappingExceptionContext)ctx));
+        }
+
+        public TResult Try<TResult>(
+            Func<TResult> funcToTry,
+            Action<ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>> callback)
         {
             try
             {
                 return funcToTry.Invoke();
             }
-            catch
+            catch (Exception ex)
             {
+                ReportException(callback, ex);
                 return default(TResult);
             }
+        }
+
+        private void ReportException(
+            Action<ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>> callback,
+            Exception ex)
+        {
+            if (callback == null)
+            {
+                return;
+            }
+
+            var exceptionContext = MemberMappingExceptionContext.Create(this, ex);
+
+            callback.Invoke(exceptionContext);
         }
 
         public TDeclaredMember Map<TDeclaredSource, TDeclaredMember>(
@@ -222,21 +280,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return expression;
             }
 
+            var callback = MapperContext.UserConfigurations.GetExceptionCallbackOrNull(this);
+            var hasCallback = (callback != null);
+
             MethodInfo tryMethod;
             Expression tryArgument;
 
             if (expression.Type == typeof(void))
             {
-                tryMethod = _tryActionMethod;
+                tryMethod = hasCallback
+                    ? callback.IsUntyped ? _tryUntypedHandlerActionMethod : _tryHandlerActionMethod
+                    : _tryActionMethod;
+
                 tryArgument = Expression.Lambda<Action>(expression);
             }
             else
             {
-                tryMethod = _tryFuncMethod.MakeGenericMethod(expression.Type);
+                tryMethod = hasCallback
+                    ? callback.IsUntyped ? _tryUntypedHandlerFuncMethod : _tryHandlerFuncMethod
+                    : _tryFuncMethod;
+
+                tryMethod = tryMethod.MakeGenericMethod(expression.Type);
                 tryArgument = Expression.Lambda(Expression.GetFuncType(expression.Type), expression);
             }
 
-            var tryCall = Expression.Call(_parameter, tryMethod, tryArgument);
+            var tryCall = hasCallback
+                ? Expression.Call(_parameter, tryMethod, tryArgument, callback.Callback)
+                : Expression.Call(_parameter, tryMethod, tryArgument);
 
             return tryCall;
         }

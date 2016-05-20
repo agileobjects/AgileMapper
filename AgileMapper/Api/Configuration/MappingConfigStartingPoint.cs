@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Linq.Expressions;
+    using Members;
 
     public class MappingConfigStartingPoint
     {
@@ -9,6 +11,16 @@
         internal MappingConfigStartingPoint(MapperContext mapperContext)
         {
             _mapperContext = mapperContext;
+        }
+
+        public void PassExceptionsTo(Action<IUntypedMemberMappingExceptionContext> callback)
+        {
+            var callbackFactory = new ExceptionCallbackFactory(
+                new MappingConfigInfo(_mapperContext).ForAllSourceTypes().ForAllRuleSets(),
+                typeof(object),
+                Expression.Constant(callback));
+
+            _mapperContext.UserConfigurations.Add(callbackFactory);
         }
 
         public TargetTypeSpecifier<TSource> From<TSource>(TSource exampleInstance) => From<TSource>();
@@ -34,7 +46,7 @@
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Merge)).OnTo<TTarget>();
 
         public MappingConfigurator<object, TTarget> Over<TTarget>() where TTarget : class
-            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Merge)).Over<TTarget>();
+            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Overwrite)).Over<TTarget>();
 
         private TargetTypeSpecifier<object> GetAllSourcesTargetTypeSpecifier(
             Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)

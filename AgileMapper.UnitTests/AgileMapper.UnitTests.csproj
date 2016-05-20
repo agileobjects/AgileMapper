@@ -66,6 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\WhenConfiguringExceptionCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectCreationCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />

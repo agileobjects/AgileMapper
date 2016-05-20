@@ -12,12 +12,14 @@
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
         private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
         private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
+        private readonly ICollection<ExceptionCallbackFactory> _exceptionCallbackFactories;
 
         public UserConfigurationSet()
         {
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
+            _exceptionCallbackFactories = new List<ExceptionCallbackFactory>();
         }
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
@@ -58,9 +60,21 @@
         {
             var matchingCallbackFactory = _creationCallbackFactories.FirstOrDefault(im => im.AppliesTo(context));
 
-            callback = matchingCallbackFactory?.GetCallback(context);
+            callback = matchingCallbackFactory?.Create(context);
 
             return matchingCallbackFactory != null;
+        }
+
+        public void Add(ExceptionCallbackFactory callbackFactory)
+        {
+            _exceptionCallbackFactories.Add(callbackFactory);
+        }
+
+        public ExceptionCallback GetExceptionCallbackOrNull(IMemberMappingContext context)
+        {
+            var matchingCallbackFactory = _exceptionCallbackFactories.FirstOrDefault(im => im.AppliesTo(context));
+
+            return matchingCallbackFactory?.Create(context);
         }
     }
 }

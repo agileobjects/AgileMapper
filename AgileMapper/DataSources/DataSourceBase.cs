@@ -69,10 +69,7 @@
             nestedAccessVariableByNestedAccess = new Dictionary<Expression, Expression>();
             variables = new List<ParameterExpression>();
 
-            var nestedAccessesArray = nestedAccesses
-            //    .OrderBy(access => access.GetDepth())
-            //    .ThenBy(access => access.ToString())
-                .ToArray();
+            var nestedAccessesArray = nestedAccesses.ToArray();
 
             for (var i = 0; i < nestedAccessesArray.Length; i++)
             {
