@@ -45,7 +45,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _parameter,
             _parameter.Type.GetMethod("Create", Constants.PublicInstance));
 
-        private static readonly MethodInfo _tryMethod = _parameter.Type.GetMethod("Try", Constants.PublicInstance);
+        private static readonly MethodInfo _tryActionMethod = _parameter.Type
+            .GetMethods(Constants.PublicInstance)
+            .First(m => (m.Name == "Try") && (m.GetParameters().First().Name == "action"));
+
+        private static readonly MethodInfo _tryFuncMethod = _parameter.Type
+            .GetMethods(Constants.PublicInstance)
+            .First(m => (m.Name == "Try") && (m.GetParameters().First().Name == "funcToTry"));
 
         private static readonly MethodCallExpression _registrationCall = Expression.Call(
             _mappingContextProperty,
@@ -55,15 +61,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _sourceObjectProperty,
                 _instanceVariable);
 
-        private static readonly MethodInfo _mapObjectMethod =
-            _parameter.Type
-                .GetMethods(Constants.PublicInstance)
-                .First(m => (m.Name == "Map") && (m.GetParameters().Length == 4));
+        private static readonly MethodInfo _mapObjectMethod = _parameter.Type
+            .GetMethods(Constants.PublicInstance)
+            .First(m => (m.Name == "Map") && (m.GetParameters().Length == 4));
 
-        private static readonly MethodInfo _mapEnumerableElementMethod =
-            _parameter.Type
-                .GetMethods(Constants.PublicInstance)
-                .First(m => (m.Name == "Map") && (m.GetParameters().First().Name == "sourceElement"));
+        private static readonly MethodInfo _mapEnumerableElementMethod = _parameter.Type
+            .GetMethods(Constants.PublicInstance)
+            .First(m => (m.Name == "Map") && (m.GetParameters().First().Name == "sourceElement"));
         // ReSharper restore StaticMemberInGenericType
 
         #endregion
@@ -116,6 +120,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingContext Parent { get; }
 
         public TInstance Create() => (CreatedInstance = MapperContext.ComplexTypeFactory.Create<TInstance>());
+
+        public void Try(Action action)
+        {
+            try
+            {
+                action.Invoke();
+            }
+            catch
+            {
+                // ignored
+            }
+        }
 
         public TResult Try<TResult>(Func<TResult> funcToTry)
         {
@@ -206,8 +222,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return expression;
             }
 
-            var tryMethod = _tryMethod.MakeGenericMethod(expression.Type);
-            var tryArgument = Expression.Lambda(Expression.GetFuncType(expression.Type), expression);
+            MethodInfo tryMethod;
+            Expression tryArgument;
+
+            if (expression.Type == typeof(void))
+            {
+                tryMethod = _tryActionMethod;
+                tryArgument = Expression.Lambda<Action>(expression);
+            }
+            else
+            {
+                tryMethod = _tryFuncMethod.MakeGenericMethod(expression.Type);
+                tryArgument = Expression.Lambda(Expression.GetFuncType(expression.Type), expression);
+            }
+
             var tryCall = Expression.Call(_parameter, tryMethod, tryArgument);
 
             return tryCall;

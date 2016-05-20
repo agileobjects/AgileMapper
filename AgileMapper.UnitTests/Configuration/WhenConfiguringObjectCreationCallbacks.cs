@@ -31,6 +31,22 @@
         }
 
         [Fact]
+        public void ShouldHandleAnObjectCreatedCallbackException()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.After
+                    .CreatingInstances
+                    .Call(ctx => { throw new InvalidOperationException(); });
+
+                var source = new PublicProperty<int> { Value = 5117 };
+                var result = mapper.Map(source).ToNew<PublicField<int>>();
+
+                result.Value.ShouldBe(5117);
+            }
+        }
+
+        [Fact]
         public void ShouldCallAnObjectCreatedCallbackForASpecifiedType()
         {
             using (var mapper = Mapper.Create())
