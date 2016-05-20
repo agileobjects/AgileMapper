@@ -93,7 +93,6 @@
     <Compile Include="GlobalContext.cs" />
     <Compile Include="ObjectPopulation\CallbackPosition.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeMappingShortCircuitStrategy.cs" />
-    <Compile Include="ObjectPopulation\CompositeMemberPopulation.cs" />
     <Compile Include="ObjectPopulation\IComplexTypeMappingShortCircuitStrategy.cs" />
     <Compile Include="Members\QualifiedMemberName.cs" />
     <Compile Include="Members\MemberName.cs" />

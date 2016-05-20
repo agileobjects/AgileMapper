@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Members;
 
@@ -9,8 +8,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingContext ObjectMappingContext { get; }
 
         IQualifiedMember TargetMember { get; }
-
-        IEnumerable<Expression> NestedAccesses { get; }
 
         bool IsSuccessful { get; }
 

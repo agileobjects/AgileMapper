@@ -53,8 +53,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsSuccessful { get; }
 
-        public IEnumerable<Expression> NestedAccesses => null;
-
         public IMemberPopulation WithCondition(Expression condition)
         {
             if (condition != null)
