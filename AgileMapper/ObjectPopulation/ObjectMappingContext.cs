@@ -201,6 +201,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression IMemberMappingContext.WrapInTry(Expression expression)
         {
+            if (expression.NodeType == ExpressionType.Constant)
+            {
+                return expression;
+            }
+
             var tryMethod = _tryMethod.MakeGenericMethod(expression.Type);
             var tryArgument = Expression.Lambda(Expression.GetFuncType(expression.Type), expression);
             var tryCall = Expression.Call(_parameter, tryMethod, tryArgument);
