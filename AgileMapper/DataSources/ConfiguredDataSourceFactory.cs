@@ -36,7 +36,7 @@
 
         #endregion
 
-        public IDataSource Create(int dataSourceIndex, IMemberMappingContext context)
+        public IConfiguredDataSource Create(int dataSourceIndex, IMemberMappingContext context)
         {
             var value = _dataSourceLambda.GetBody(context);
             var condition = GetCondition(context);

@@ -41,6 +41,6 @@
 
         IEnumerable<IDataSource> IMemberMappingContext.GetDataSources() => this.GetDataSources();
 
-        Expression IMemberMappingContext.GetTryCall(Expression expression) => Parent.GetTryCall(expression);
+        Expression IMemberMappingContext.WrapInTry(Expression expression) => Parent.WrapInTry(expression);
     }
 }

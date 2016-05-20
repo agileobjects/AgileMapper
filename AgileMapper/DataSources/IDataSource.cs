@@ -12,8 +12,6 @@
 
         IEnumerable<ParameterExpression> Variables { get; }
 
-        bool IsConditional { get; }
-
         IEnumerable<Expression> NestedAccesses { get; }
 
         Expression Value { get; }

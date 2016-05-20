@@ -39,7 +39,7 @@
             _dataSourceFactories.Add(dataSourceFactory);
         }
 
-        public IEnumerable<IDataSource> GetDataSources(IMemberMappingContext context)
+        public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMappingContext context)
         {
             var matchingDataSources = _dataSourceFactories
                 .Where(dsf => dsf.AppliesTo(context))

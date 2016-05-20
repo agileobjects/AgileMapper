@@ -35,6 +35,6 @@
 
         IEnumerable<IDataSource> GetDataSources();
 
-        Expression GetTryCall(Expression expression);
+        Expression WrapInTry(Expression expression);
     }
 }

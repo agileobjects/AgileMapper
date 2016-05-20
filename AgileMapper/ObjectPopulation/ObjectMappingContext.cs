@@ -45,6 +45,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _parameter,
             _parameter.Type.GetMethod("Create", Constants.PublicInstance));
 
+        private static readonly MethodInfo _tryMethod = _parameter.Type.GetMethod("Try", Constants.PublicInstance);
+
         private static readonly MethodCallExpression _registrationCall = Expression.Call(
             _mappingContextProperty,
                 _mappingContextProperty.Type
@@ -197,12 +199,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IEnumerable<IDataSource> IMemberMappingContext.GetDataSources() => this.GetDataSources();
 
-        Expression IMemberMappingContext.GetTryCall(Expression expression)
+        Expression IMemberMappingContext.WrapInTry(Expression expression)
         {
-            var tryMethod = _parameter.Type
-                .GetMethod("Try")
-                .MakeGenericMethod(expression.Type);
-
+            var tryMethod = _tryMethod.MakeGenericMethod(expression.Type);
             var tryArgument = Expression.Lambda(Expression.GetFuncType(expression.Type), expression);
             var tryCall = Expression.Call(_parameter, tryMethod, tryArgument);
 

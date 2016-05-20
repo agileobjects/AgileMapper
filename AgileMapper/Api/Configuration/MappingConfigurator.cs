@@ -18,7 +18,7 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                ConfiguredLambdaInfo.For(valueFactoryExpression));
+                valueFactoryExpression);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
@@ -26,7 +26,7 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                ConfiguredLambdaInfo.For(valueFactoryExpression));
+                valueFactoryExpression);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
@@ -34,7 +34,7 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
-                ConfiguredLambdaInfo.For(valueFactoryExpression));
+                valueFactoryExpression);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
@@ -60,7 +60,7 @@
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(valueConstant.Type),
-                ConfiguredLambdaInfo.For(valueLambda));
+                valueLambda);
         }
 
         #endregion

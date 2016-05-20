@@ -20,8 +20,6 @@
 
         public IEnumerable<ParameterExpression> Variables => Enumerable.Empty<ParameterExpression>();
 
-        public bool IsConditional => false;
-
         public Expression GetConditionOrNull(IMemberMappingContext context) => null;
 
         public IEnumerable<Expression> NestedAccesses => Enumerable.Empty<Expression>();

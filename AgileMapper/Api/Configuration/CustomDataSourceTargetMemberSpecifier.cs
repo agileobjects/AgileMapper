@@ -9,23 +9,22 @@
         private readonly MappingConfigInfo _configInfo;
         private readonly ConfiguredLambdaInfo _customValueLambda;
 
-        internal CustomDataSourceTargetMemberSpecifier(
-            MappingConfigInfo configInfo,
-            ConfiguredLambdaInfo customValueLambda)
+        internal CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo, LambdaExpression customValueLambda)
+            : this(configInfo, ConfiguredLambdaInfo.For(customValueLambda))
+        {
+        }
+
+        internal CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo, ConfiguredLambdaInfo customValueLambda)
         {
             _configInfo = configInfo;
             _customValueLambda = customValueLambda;
         }
 
         public ConditionSpecifier<TSource, TTarget> To<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
-        {
-            return RegisterDataSource<TTargetValue>(targetMember);
-        }
+            => RegisterDataSource<TTargetValue>(targetMember);
 
         public ConditionSpecifier<TSource, TTarget> To<TTargetValue>(Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
-        {
-            return RegisterDataSource<TTargetValue>(targetSetMethod);
-        }
+            => RegisterDataSource<TTargetValue>(targetSetMethod);
 
         private ConditionSpecifier<TSource, TTarget> RegisterDataSource<TTargetValue>(LambdaExpression targetMemberLambda)
         {

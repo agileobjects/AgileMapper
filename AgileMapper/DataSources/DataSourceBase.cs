@@ -9,16 +9,12 @@
 
     internal abstract class DataSourceBase : IDataSource
     {
-        private readonly Expression _condition;
-
         protected DataSourceBase(
             IQualifiedMember sourceMember,
             Expression value,
-            IMemberMappingContext context,
-            Expression condition = null)
+            IMemberMappingContext context)
         {
             SourceMember = sourceMember;
-            _condition = GetCondition(condition, context);
 
             var valueNestedAccesses = context.NestedAccessFinder.FindIn(value);
 
@@ -32,41 +28,10 @@
 
             Variables = variables;
 
-            value = nestedAccessVariableByNestedAccess.Any()
+            Value = nestedAccessVariableByNestedAccess.Any()
                 ? value.Replace(nestedAccessVariableByNestedAccess)
                 : value;
-
-            Value = context
-                .MapperContext
-                .ValueConverters
-                .GetConversion(value, context.TargetMember.Type);
         }
-
-        #region Setup
-
-        private static Expression GetCondition(Expression condition, IMemberMappingContext context)
-        {
-            if (condition == null)
-            {
-                return null;
-            }
-
-            var conditionNestedAccessesChecks = context
-                .NestedAccessFinder
-                .FindIn(condition)
-                .GetIsNotDefaultComparisonsOrNull();
-
-            if (conditionNestedAccessesChecks == null)
-            {
-                return condition;
-            }
-
-            var checkedCondition = Expression.AndAlso(conditionNestedAccessesChecks, condition);
-
-            return checkedCondition;
-        }
-
-        #endregion
 
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
             : this(sourceMember, Enumerable.Empty<Expression>(), Enumerable.Empty<ParameterExpression>(), value)
@@ -137,9 +102,9 @@
 
         public IEnumerable<ParameterExpression> Variables { get; }
 
-        public bool IsConditional => _condition != null;
-
         public IEnumerable<Expression> NestedAccesses { get; }
+
+        public bool HasValue(Expression value) => false;
 
         public Expression Value { get; }
 
@@ -149,27 +114,20 @@
         public Expression GetElseGuardedPopulation(Expression populationSoFar, IMemberMappingContext context)
             => GetGuardedPopulation(context, (condition, value) => Expression.IfThenElse(condition, value, populationSoFar));
 
-        private Expression GetGuardedPopulation(
+        protected virtual Expression GetGuardedPopulation(
             IMemberMappingContext context,
             Func<Expression, Expression, Expression> guardedPopulationFactory)
         {
             var population = context.TargetMember.GetPopulation(context.InstanceVariable, Value);
 
-            if (!NestedAccesses.Any())
+            if (NestedAccesses.None())
             {
-                return IsConditional ? guardedPopulationFactory.Invoke(_condition, population) : population;
+                return population;
             }
 
             var nestedAccessChecks = NestedAccesses.GetIsNotDefaultComparisonsOrNull();
 
-            if (!IsConditional)
-            {
-                return guardedPopulationFactory.Invoke(nestedAccessChecks, population);
-            }
-
-            population = Expression.IfThen(nestedAccessChecks, population);
-
-            return guardedPopulationFactory.Invoke(_condition, population);
+            return guardedPopulationFactory.Invoke(nestedAccessChecks, population);
         }
     }
 }

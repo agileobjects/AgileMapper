@@ -24,13 +24,13 @@
 
             var dataSourceIndex = 0;
 
-            IEnumerable<IDataSource> configuredDataSources;
+            IEnumerable<IConfiguredDataSource> configuredDataSources;
 
             if (DataSourcesAreConfigured(context, out configuredDataSources))
             {
                 foreach (var configuredDataSource in configuredDataSources)
                 {
-                    yield return configuredDataSource;
+                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, context);
 
                     if (!configuredDataSource.IsConditional)
                     {
@@ -62,13 +62,12 @@
         private static IDataSource RootSourceMemberDataSourceFor(IMemberMappingContext context)
             => GetSourceMemberDataSourceFor(QualifiedMember.From(Member.RootSource(context.SourceObject.Type)), 0, context);
 
-        private static bool DataSourcesAreConfigured(IMemberMappingContext context, out IEnumerable<IDataSource> configuredDataSources)
+        private static bool DataSourcesAreConfigured(IMemberMappingContext context, out IEnumerable<IConfiguredDataSource> configuredDataSources)
         {
             configuredDataSources = context
                 .MapperContext
                 .UserConfigurations
-                .GetDataSources(context)
-                .Select((ds, i) => GetFinalDataSource(ds, i, context));
+                .GetDataSources(context);
 
             return configuredDataSources.Any();
         }
@@ -164,13 +163,13 @@
         }
 
         private static bool SourceMemberDataSourceIsUnconfigured(
-            IEnumerable<IDataSource> configuredDataSources,
+            IEnumerable<IConfiguredDataSource> configuredDataSources,
             IDataSource sourceMemberDataSource)
         {
             var sourceMemberDataSourceValue = sourceMemberDataSource.Value.ToString();
 
             return configuredDataSources
-                .Select(cds => cds.Value.ToString())
+                .Select(cds => cds.OriginalValue.ToString())
                 .All(cds => cds != sourceMemberDataSourceValue);
         }
     }

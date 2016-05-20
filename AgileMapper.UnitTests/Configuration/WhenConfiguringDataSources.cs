@@ -99,18 +99,18 @@
             using (var mapper = Mapper.Create())
             {
                 mapper.WhenMapping
-                    .From<PublicField<int>>()
+                    .From<PublicGetMethod<int>>()
                     .ToANew<PublicSetMethod<string>>()
-                    .Map(ctx => ctx.Source.Value)
+                    .Map(ctx => ctx.Source.GetValue())
                     .To<string>(x => x.SetValue)
-                    .If(ctx => ctx.Source.Value % 2 == 0);
+                    .If(ctx => ctx.Source.GetValue() % 2 == 0);
 
-                var matchingSource = new PublicField<int> { Value = 6 };
+                var matchingSource = new PublicGetMethod<int>(6);
                 var matchingResult = mapper.Map(matchingSource).ToNew<PublicSetMethod<string>>();
 
                 matchingResult.Value.ShouldBe("6");
 
-                var nonMatchingSource = new PublicField<int> { Value = 7 };
+                var nonMatchingSource = new PublicGetMethod<int>(7);
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicSetMethod<string>>();
 
                 nonMatchingResult.Value.ShouldBeNull();
@@ -265,6 +265,24 @@
                 var result = mapper.Map(source).ToNew<PublicField<long>>();
 
                 result.Value.ShouldBe(source.Value * 10);
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleAnExceptionThrownInAConfiguredExpression()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<PublicGetMethod<string>>()
+                    .To<PublicField<short>>()
+                    .Map((s, t) => int.Parse(s.GetValue()) / 0)
+                    .To(x => x.Value);
+
+                var source = new PublicGetMethod<string>("1234");
+                var result = mapper.Map(source).ToNew<PublicField<short>>();
+
+                result.Value.ShouldBeDefault();
             }
         }
 
