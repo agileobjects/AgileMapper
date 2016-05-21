@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Api.Configuration;
     using DataSources;
     using Extensions;
     using Members;
@@ -45,16 +46,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _parameter,
             _parameter.Type.GetMethod("Create", Constants.PublicInstance));
 
-        private static readonly MethodInfo _tryActionMethod = GetTryMethod("action", 1);
-        private static readonly MethodInfo _tryUntypedHandlerActionMethod = GetTryMethod("action", 2, untyped: true);
-        private static readonly MethodInfo _tryHandlerActionMethod = GetTryMethod("action", 2, untyped: false);
+        private static readonly MethodInfo _tryActionMethod = GetTryMethod("action");
+        private static readonly MethodInfo _tryUntypedHandlerActionMethod = GetTryMethod("action", typeof(IUntypedMemberMappingExceptionContext));
+        private static readonly MethodInfo _tryHalfTypedHandlerActionMethod = GetTryMethod("action", typeof(ITypedMemberMappingExceptionContext<object, TRuntimeTarget>));
+        private static readonly MethodInfo _tryTypedHandlerActionMethod = GetTryMethod("action", typeof(ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>));
 
-        private static readonly MethodInfo _tryFuncMethod = GetTryMethod("funcToTry", 1);
-        private static readonly MethodInfo _tryUntypedHandlerFuncMethod = GetTryMethod("funcToTry", 2, untyped: true);
-        private static readonly MethodInfo _tryHandlerFuncMethod = GetTryMethod("funcToTry", 2, untyped: false);
+        private static readonly MethodInfo _tryFuncMethod = GetTryMethod("funcToTry");
+        private static readonly MethodInfo _tryUntypedHandlerFuncMethod = GetTryMethod("funcToTry", typeof(IUntypedMemberMappingExceptionContext));
+        private static readonly MethodInfo _tryHalfTypedHandlerFuncMethod = GetTryMethod("funcToTry", typeof(ITypedMemberMappingExceptionContext<object, TRuntimeTarget>));
+        private static readonly MethodInfo _tryTypedHandlerFuncMethod = GetTryMethod("funcToTry", typeof(ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>));
 
-        private static MethodInfo GetTryMethod(string firstParameterName, int numberOfParameters, bool? untyped = null)
+        private static MethodInfo GetTryMethod(string firstParameterName, Type callbackType = null)
         {
+            if (callbackType != null)
+            {
+                callbackType = typeof(Action<>).MakeGenericType(callbackType);
+            }
+
             return _parameter.Type
                 .GetMethods(Constants.PublicInstance)
                 .Select(m => new
@@ -65,10 +73,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .First(d =>
                     (d.Method.Name == "Try") &&
                     (d.Parameters[0].Name == firstParameterName) &&
-                    (d.Parameters.Length == numberOfParameters) &&
-                    (untyped == null ||
-                    (untyped.Value && (d.Parameters[1].ParameterType == typeof(Action<IUntypedMemberMappingExceptionContext>))) ||
-                    (!untyped.Value && (d.Parameters[1].ParameterType != typeof(Action<IUntypedMemberMappingExceptionContext>)))))
+                    ((callbackType == null) ||
+                    (d.Parameters.Length > 1 && (d.Parameters[1].ParameterType == callbackType))))
                 .Method;
         }
 
@@ -140,19 +146,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TInstance Create() => (CreatedInstance = MapperContext.ComplexTypeFactory.Create<TInstance>());
 
+        #region Try
+
         public void Try(Action action)
-            => Try(action, (ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget> ctx) => { });
+            => Try(action, (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx) => { });
 
         public void Try(Action action, Action<IUntypedMemberMappingExceptionContext> callback)
         {
             Try(action,
-                (ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget> ctx)
+                (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx)
                     => callback((IUntypedMemberMappingExceptionContext)ctx));
         }
 
         public void Try(
             Action action,
-            Action<ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>> callback)
+            Action<ITypedMemberMappingExceptionContext<object, TRuntimeTarget>> callback)
+        {
+            Try(action,
+                (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx)
+                    => callback((ITypedMemberMappingExceptionContext<object, TRuntimeTarget>)ctx));
+        }
+
+        public void Try(
+            Action action,
+            Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>> callback)
         {
             try
             {
@@ -165,18 +182,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public TResult Try<TResult>(Func<TResult> funcToTry)
-            => Try(funcToTry, (ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget> ctx) => { });
+            => Try(funcToTry, (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx) => { });
 
-        public void Try<TResult>(Func<TResult> funcToTry, Action<IUntypedMemberMappingExceptionContext> callback)
+        public TResult Try<TResult>(Func<TResult> funcToTry, Action<IUntypedMemberMappingExceptionContext> callback)
         {
-            Try(funcToTry,
-                (ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget> ctx)
+            return Try(funcToTry,
+                (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx)
                     => callback((IUntypedMemberMappingExceptionContext)ctx));
+        }
+
+        public TResult Try<TResult>(Func<TResult> funcToTry, Action<ITypedMemberMappingExceptionContext<object, TRuntimeTarget>> callback)
+        {
+            return Try(funcToTry,
+                (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx)
+                    => callback((ITypedMemberMappingExceptionContext<object, TRuntimeTarget>)ctx));
         }
 
         public TResult Try<TResult>(
             Func<TResult> funcToTry,
-            Action<ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>> callback)
+            Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>> callback)
         {
             try
             {
@@ -190,7 +214,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private void ReportException(
-            Action<ITypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>> callback,
+            Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>> callback,
             Exception ex)
         {
             if (callback == null)
@@ -202,6 +226,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             callback.Invoke(exceptionContext);
         }
+
+        #endregion
 
         public TDeclaredMember Map<TDeclaredSource, TDeclaredMember>(
             TDeclaredSource source,
@@ -288,17 +314,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (expression.Type == typeof(void))
             {
-                tryMethod = hasCallback
-                    ? callback.IsUntyped ? _tryUntypedHandlerActionMethod : _tryHandlerActionMethod
-                    : _tryActionMethod;
+                tryMethod = GetTryMethod(
+                    callback,
+                    _tryActionMethod,
+                    _tryUntypedHandlerActionMethod,
+                    _tryHalfTypedHandlerActionMethod,
+                    _tryTypedHandlerActionMethod);
 
                 tryArgument = Expression.Lambda<Action>(expression);
             }
             else
             {
-                tryMethod = hasCallback
-                    ? callback.IsUntyped ? _tryUntypedHandlerFuncMethod : _tryHandlerFuncMethod
-                    : _tryFuncMethod;
+                tryMethod = GetTryMethod(
+                    callback,
+                    _tryFuncMethod,
+                    _tryUntypedHandlerFuncMethod,
+                    _tryHalfTypedHandlerFuncMethod,
+                    _tryTypedHandlerFuncMethod);
 
                 tryMethod = tryMethod.MakeGenericMethod(expression.Type);
                 tryArgument = Expression.Lambda(Expression.GetFuncType(expression.Type), expression);
@@ -309,6 +341,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 : Expression.Call(_parameter, tryMethod, tryArgument);
 
             return tryCall;
+        }
+
+        private static MethodInfo GetTryMethod(
+            ExceptionCallback callback,
+            MethodInfo noCallbackMethod,
+            MethodInfo untypedMethod,
+            MethodInfo halfTypedMethod,
+            MethodInfo typedMethod)
+        {
+            return (callback == null)
+                ? noCallbackMethod
+                : callback.IsUntyped
+                    ? untypedMethod
+                    : callback.IsSourceTyped
+                        ? typedMethod
+                        : halfTypedMethod;
         }
 
         #endregion

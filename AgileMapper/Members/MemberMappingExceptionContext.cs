@@ -12,18 +12,19 @@
 
     internal class MemberMappingExceptionContext<TSource, TTarget> :
         TypedMemberMappingContext<TSource, TTarget>,
+        ITypedMemberMappingExceptionContext<TSource, TTarget>,
         IUntypedMemberMappingExceptionContext
     {
-        public MemberMappingExceptionContext(TypedMemberMappingContext<TSource, TTarget> context, Exception exception)
+        public MemberMappingExceptionContext(ITypedMemberMappingContext<TSource, TTarget> context, Exception exception)
             : base(context.Source, context.Target, context.EnumerableIndex)
         {
             Exception = exception;
         }
 
+        object IUntypedMemberMappingExceptionContext.Source => Source;
+
+        object IUntypedMemberMappingExceptionContext.Target => Target;
+
         public Exception Exception { get; }
-
-        public new object Source => base.Source;
-
-        public new object Target => base.Target;
     }
 }

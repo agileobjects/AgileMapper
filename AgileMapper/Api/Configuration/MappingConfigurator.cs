@@ -65,6 +65,16 @@
 
         #endregion
 
+        public void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback)
+        {
+            var callbackFactory = new ExceptionCallbackFactory(
+                _configInfo,
+                typeof(TTarget),
+                Expression.Constant(callback));
+
+            _configInfo.MapperContext.UserConfigurations.Add(callbackFactory);
+        }
+
         public ConditionSpecifier<TSource, TTarget> Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             var configuredIgnoredMember = ConfiguredIgnoredMember.For(
