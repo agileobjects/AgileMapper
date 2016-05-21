@@ -8,7 +8,7 @@
     public class WhenConfiguringExceptionCallbacks
     {
         [Fact]
-        public void ShouldConfigureAGlobalHandler()
+        public void ShouldConfigureAGlobalCallback()
         {
             using (var mapper = Mapper.Create())
             {
@@ -31,7 +31,7 @@
         }
 
         [Fact]
-        public void ShouldConfigureAHandlerForASpecifiedTargetType()
+        public void ShouldRestrictACallbackByTargetType()
         {
             using (var mapper = Mapper.Create())
             {
@@ -55,6 +55,39 @@
 
                 thrownException.ShouldNotBeNull();
                 thrownException.Message.ShouldBe("ASPLODE");
+            }
+        }
+
+        [Fact]
+        public void ShouldRestrictACallbackBySourceAndTargetType()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var thrownException = default(Exception);
+
+                mapper
+                    .WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .PassExceptionsTo(ctx => thrownException = ctx.Exception);
+
+                mapper
+                    .After
+                    .CreatingInstances
+                    .Call(ctx => { throw new InvalidOperationException("WALLOP"); });
+
+                mapper.Map(new Customer()).ToNew<Person>();
+
+                thrownException.ShouldBeNull();
+
+                mapper.Map(new Person()).ToNew<PersonViewModel>();
+
+                thrownException.ShouldBeNull();
+
+                mapper.Map(new PersonViewModel()).ToNew<Person>();
+
+                thrownException.ShouldNotBeNull();
+                thrownException.Message.ShouldBe("WALLOP");
             }
         }
     }
