@@ -32,7 +32,7 @@
 
         public bool IsIgnored(IMemberMappingContext context, out Expression ignoreCondition)
         {
-            var matchingIgnoredMember = _ignoredMembers.FirstOrDefault(im => im.AppliesTo(context));
+            var matchingIgnoredMember = FindMatchingItem(_ignoredMembers, context);
 
             ignoreCondition = matchingIgnoredMember?.GetCondition(context);
 
@@ -61,7 +61,7 @@
 
         public bool HasCreationCallback(IMemberMappingContext context, out ObjectCreationCallback callback)
         {
-            var matchingCallbackFactory = _creationCallbackFactories.FirstOrDefault(im => im.AppliesTo(context));
+            var matchingCallbackFactory = FindMatchingItem(_creationCallbackFactories, context);
 
             callback = matchingCallbackFactory?.Create(context);
 
@@ -75,7 +75,7 @@
 
         public ExceptionCallback GetExceptionCallbackOrNull(IMemberMappingContext context)
         {
-            var matchingCallbackFactory = _exceptionCallbackFactories.FirstOrDefault(im => im.AppliesTo(context));
+            var matchingCallbackFactory = FindMatchingItem(_exceptionCallbackFactories, context);
 
             return matchingCallbackFactory?.Create(context);
         }
@@ -87,9 +87,13 @@
 
         public Type GetDerivedTypeOrNull(IMappingData data)
         {
-            var matchingTypePair = _typePairs.FirstOrDefault(im => im.AppliesTo(data));
+            var matchingTypePair = FindMatchingItem(_typePairs, data);
 
             return matchingTypePair?.DerivedTargetType;
         }
+
+        private static TItem FindMatchingItem<TItem>(IEnumerable<TItem> items, IMappingData data)
+            where TItem : UserConfiguredItemBase
+            => items.FirstOrDefault(im => im.AppliesTo(data));
     }
 }
