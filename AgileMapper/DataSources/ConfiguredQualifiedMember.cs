@@ -14,8 +14,8 @@ namespace AgileObjects.AgileMapper.DataSources
         private readonly IQualifiedMember _matchedTargetMember;
         private readonly IEnumerable<Member> _childMembers;
 
-        public ConfiguredQualifiedMember(Expression value, IMemberMappingContext context)
-            : this(value, context.TargetMember)
+        public ConfiguredQualifiedMember(Expression value, IMappingData data)
+            : this(value, data.TargetMember)
         {
         }
 
@@ -60,6 +60,8 @@ namespace AgileObjects.AgileMapper.DataSources
         }
 
         public Type DeclaringType => _value.Type.DeclaringType;
+
+        public bool IsRoot => _matchedTargetMember.IsRoot;
 
         public Type Type { get; }
 

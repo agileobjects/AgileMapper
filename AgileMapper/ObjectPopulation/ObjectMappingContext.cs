@@ -386,9 +386,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Type IObjectMappingContext.GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {
-            if (sourceMember.Name == "Source")
+            if (sourceMember.IsRoot)
             {
-                // The root member is guaranteed to be the runtime type:
                 return typeof(TRuntimeSource);
             }
 

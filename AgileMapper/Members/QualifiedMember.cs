@@ -41,11 +41,13 @@ namespace AgileObjects.AgileMapper.Members
 
         internal IEnumerable<Member> Members => _memberChain;
 
-        public string Name => _leafMember.Name;
-
         public Type DeclaringType => _leafMember.DeclaringType;
 
+        public bool IsRoot => _leafMember.MemberName.IsRoot;
+
         public Type Type => _leafMember.Type;
+
+        public string Name => _leafMember.Name;
 
         public bool IsComplex => _leafMember.IsComplex;
 
