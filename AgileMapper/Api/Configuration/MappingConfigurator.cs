@@ -65,6 +65,9 @@
 
         #endregion
 
+        public DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
+            => new DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget>(_configInfo);
+
         public void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback)
         {
             var callbackFactory = new ExceptionCallbackFactory(

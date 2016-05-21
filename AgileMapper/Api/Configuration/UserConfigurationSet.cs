@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -13,6 +14,7 @@
         private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
         private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
         private readonly ICollection<ExceptionCallbackFactory> _exceptionCallbackFactories;
+        private readonly ICollection<DerivedTypePair> _typePairs;
 
         public UserConfigurationSet()
         {
@@ -20,6 +22,7 @@
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
             _exceptionCallbackFactories = new List<ExceptionCallbackFactory>();
+            _typePairs = new List<DerivedTypePair>();
         }
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
@@ -75,6 +78,18 @@
             var matchingCallbackFactory = _exceptionCallbackFactories.FirstOrDefault(im => im.AppliesTo(context));
 
             return matchingCallbackFactory?.Create(context);
+        }
+
+        public void Add(DerivedTypePair typePair)
+        {
+            _typePairs.Add(typePair);
+        }
+
+        public Type GetDerivedTypeOrNull(IMappingData data)
+        {
+            var matchingTypePair = _typePairs.FirstOrDefault(im => im.AppliesTo(data));
+
+            return matchingTypePair?.DerivedTargetType;
         }
     }
 }

@@ -38,6 +38,8 @@
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConditionSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConfiguredLambdaInfo.cs" />
+    <Compile Include="Api\Configuration\DerivedPairTargetTypeSpecifier.cs" />
+    <Compile Include="Api\Configuration\DerivedTypePair.cs" />
     <Compile Include="Api\Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\ExceptionCallbackFactory.cs" />
     <Compile Include="Api\Configuration\PostInstanceCreationCallbackSpecifier.cs" />
@@ -47,6 +49,7 @@
     <Compile Include="DataSources\IConfiguredDataSource.cs" />
     <Compile Include="DataSources\NullDataSource.cs" />
     <Compile Include="Members\CaseInsensitiveStringComparer.cs" />
+    <Compile Include="Members\IMappingData.cs" />
     <Compile Include="Members\IQualifiedMember.cs" />
     <Compile Include="Members\IQualifiedMemberName.cs" />
     <Compile Include="Members\ITypedMemberMappingExceptionContext.cs" />

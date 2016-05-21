@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using Extensions;
     using Members;
 
@@ -16,13 +17,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingContext mappingContext)
         {
             Source = source;
-            SourceMember = sourceMember.WithType(source.GetRuntimeSourceType());
+            var runtimeSourceType = source.GetRuntimeSourceType();
+            SourceMember = sourceMember.WithType(runtimeSourceType);
+
             Target = target;
-            TargetMember = targetMember.WithType(target.GetRuntimeTargetType(SourceMember.Type));
+            var runtimeTargetType = GetTargetType(target, runtimeSourceType, mappingContext);
+            TargetMember = targetMember.WithType(runtimeTargetType);
+
             ExistingTargetInstance = existingTargetInstance;
-            ExistingTargetInstanceMember = existingTargetInstanceMember.WithType(existingTargetInstance.GetRuntimeTargetType(SourceMember.Type));
+            var runtimeInstanceType = GetTargetType(existingTargetInstance, runtimeSourceType, mappingContext);
+            ExistingTargetInstanceMember = existingTargetInstanceMember.WithType(runtimeInstanceType);
+
             EnumerableIndex = enumerableIndex ?? mappingContext.CurrentObjectMappingContext?.GetEnumerableIndex();
             MappingContext = mappingContext;
+        }
+
+        private static Type GetTargetType<TTarget>(TTarget target, Type sourceType, MappingContext mappingContext)
+        {
+            var mappingData =
+                mappingContext.CurrentObjectMappingContext ??
+                (IMappingData)new BasicMappingData(mappingContext.RuleSet, sourceType, typeof(TDeclaredTarget));
+
+            return mappingContext.MapperContext.UserConfigurations.GetDerivedTypeOrNull(mappingData)
+                ?? target.GetRuntimeTargetType(sourceType);
         }
 
         public TDeclaredSource Source { get; }
@@ -40,5 +57,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public int? EnumerableIndex { get; }
 
         public MappingContext MappingContext { get; }
+
+        #region Helper Class
+
+        private class BasicMappingData : IMappingData
+        {
+            public BasicMappingData(MappingRuleSet ruleSet, Type sourceType, Type targetType)
+            {
+                SourceType = sourceType;
+                TargetType = targetType;
+                RuleSetName = ruleSet.Name;
+            }
+
+            public IMappingData Parent => null;
+
+            public string RuleSetName { get; }
+
+            public Type SourceType { get; }
+
+            public Type TargetType { get; }
+
+            public IQualifiedMember TargetMember => QualifiedMember.All;
+        }
+
+        #endregion
     }
 }

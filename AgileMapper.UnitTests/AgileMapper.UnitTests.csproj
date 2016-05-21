@@ -66,6 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\WhenConfiguringDerivedTypePairs.cs" />
     <Compile Include="Configuration\WhenConfiguringExceptionCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectCreationCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\Child.cs" />
     <Compile Include="TestClasses\Customer.cs" />
+    <Compile Include="TestClasses\CustomerViewModel.cs" />
     <Compile Include="TestClasses\InternalField.cs" />
     <Compile Include="TestClasses\Parent.cs" />
     <Compile Include="TestClasses\Person.cs" />

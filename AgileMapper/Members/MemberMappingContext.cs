@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using DataSources;
@@ -7,40 +8,48 @@
 
     internal class MemberMappingContext : IMemberMappingContext
     {
+        private readonly IObjectMappingContext _parent;
+
         public MemberMappingContext(IQualifiedMember targetMember, IObjectMappingContext parent)
         {
+            _parent = parent;
             TargetMember = targetMember;
-            Parent = parent;
         }
 
-        public MapperContext MapperContext => Parent.MapperContext;
+        public MapperContext MapperContext => _parent.MapperContext;
 
-        public MappingContext MappingContext => Parent.MappingContext;
+        public MappingContext MappingContext => _parent.MappingContext;
 
-        public IObjectMappingContext Parent { get; }
+        IMappingData IMappingData.Parent => _parent;
 
-        public ParameterExpression Parameter => Parent.Parameter;
+        IObjectMappingContext IMemberMappingContext.Parent => _parent;
 
-        public string RuleSetName => Parent.RuleSetName;
+        public ParameterExpression Parameter => _parent.Parameter;
 
-        public IQualifiedMember SourceMember => Parent.SourceMember;
+        public string RuleSetName => _parent.RuleSetName;
 
-        public Expression SourceObject => Parent.SourceObject;
+        public IQualifiedMember SourceMember => _parent.SourceMember;
 
-        public int SourceObjectDepth => Parent.SourceObjectDepth;
+        public Expression SourceObject => _parent.SourceObject;
+
+        Type IMappingData.SourceType => SourceObject.Type;
+
+        public int SourceObjectDepth => _parent.SourceObjectDepth;
 
         public IQualifiedMember TargetMember { get; }
 
-        public Expression ExistingObject => Parent.ExistingObject;
+        public Expression ExistingObject => _parent.ExistingObject;
 
-        public Expression EnumerableIndex => Parent.EnumerableIndex;
+        Type IMappingData.TargetType => ExistingObject.Type;
 
-        public ParameterExpression InstanceVariable => Parent.InstanceVariable;
+        public Expression EnumerableIndex => _parent.EnumerableIndex;
 
-        public NestedAccessFinder NestedAccessFinder => Parent.NestedAccessFinder;
+        public ParameterExpression InstanceVariable => _parent.InstanceVariable;
+
+        public NestedAccessFinder NestedAccessFinder => _parent.NestedAccessFinder;
 
         IEnumerable<IDataSource> IMemberMappingContext.GetDataSources() => this.GetDataSources();
 
-        Expression IMemberMappingContext.WrapInTry(Expression expression) => Parent.WrapInTry(expression);
+        Expression IMemberMappingContext.WrapInTry(Expression expression) => _parent.WrapInTry(expression);
     }
 }

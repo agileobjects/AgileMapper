@@ -142,6 +142,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MappingContext MappingContext { get; }
 
+        IMappingData IMappingData.Parent => Parent;
+
+        IObjectMappingContext IMemberMappingContext.Parent => Parent;
+
         public IObjectMappingContext Parent { get; }
 
         public TInstance Create() => (CreatedInstance = MapperContext.ComplexTypeFactory.Create<TInstance>());
@@ -275,11 +279,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return MappingContext.MapChild(complexTargetMappingRequest);
         }
 
+        #region IMappingData Members
+
+        string IMappingData.RuleSetName => MappingContext.RuleSet.Name;
+
+        Type IMappingData.SourceType => typeof(TRuntimeSource);
+
+        Type IMappingData.TargetType => typeof(TRuntimeTarget);
+
+        IQualifiedMember IMappingData.TargetMember => _targetMember;
+
+        #endregion
+
         #region IMemberMappingContext Members
 
         ParameterExpression IMemberMappingContext.Parameter => _parameter;
-
-        string IMemberMappingContext.RuleSetName => MappingContext.RuleSet.Name;
 
         IQualifiedMember IMemberMappingContext.SourceMember => _sourceMember;
 
@@ -292,8 +306,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         Expression IMemberMappingContext.EnumerableIndex => _enumerableIndexProperty;
 
         ParameterExpression IMemberMappingContext.InstanceVariable => _instanceVariable;
-
-        IQualifiedMember IMemberMappingContext.TargetMember => _targetMember;
 
         NestedAccessFinder IMemberMappingContext.NestedAccessFinder => _nestedAccessFinder;
 

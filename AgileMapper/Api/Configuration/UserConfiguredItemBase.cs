@@ -10,6 +10,11 @@
         private readonly IQualifiedMember _targetMember;
         private Func<IMemberMappingContext, Expression> _conditionFactory;
 
+        protected UserConfiguredItemBase(MappingConfigInfo configInfo, Type mappingTargetType)
+            : this(configInfo, mappingTargetType, QualifiedMember.All)
+        {
+        }
+
         protected UserConfiguredItemBase(
             MappingConfigInfo configInfo,
             Type mappingTargetType,
@@ -30,24 +35,24 @@
         public Expression GetCondition(IMemberMappingContext context)
             => _conditionFactory?.Invoke(context);
 
-        public virtual bool AppliesTo(IMemberMappingContext context)
+        public virtual bool AppliesTo(IMappingData data)
         {
-            return ConfigInfo.IsForRuleSet(context.RuleSetName) &&
-                context.TargetMember.IsSameAs(_targetMember) &&
-                ObjectHeirarchyHasMatchingSourceAndTargetTypes(context);
+            return ConfigInfo.IsForRuleSet(data.RuleSetName) &&
+                data.TargetMember.IsSameAs(_targetMember) &&
+                ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
         }
 
-        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IMemberMappingContext context)
+        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IMappingData data)
         {
-            while (context != null)
+            while (data != null)
             {
-                if (_mappingTargetType.IsAssignableFrom(context.ExistingObject.Type) &&
-                    ConfigInfo.IsForSourceType(context.SourceObject.Type))
+                if (_mappingTargetType.IsAssignableFrom(data.TargetType) &&
+                    ConfigInfo.IsForSourceType(data.SourceType))
                 {
                     return true;
                 }
 
-                context = context.Parent;
+                data = data.Parent;
             }
 
             return false;

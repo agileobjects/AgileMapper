@@ -16,14 +16,14 @@
             Type creationTargetType,
             CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo, mappingTargetType, QualifiedMember.All)
+            : base(configInfo, mappingTargetType)
         {
             _creationTargetType = creationTargetType;
             _callbackPosition = callbackPosition;
             _callbackLambda = callbackLambda;
         }
 
-        public override bool AppliesTo(IMemberMappingContext context)
+        public bool AppliesTo(IMemberMappingContext context)
             => _creationTargetType.IsAssignableFrom(context.InstanceVariable.Type) && base.AppliesTo(context);
 
         public ObjectCreationCallback Create(IMemberMappingContext context)

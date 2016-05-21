@@ -12,7 +12,7 @@
             MappingConfigInfo configInfo,
             Type mappingTargetType,
             Expression callback)
-            : base(configInfo, mappingTargetType, QualifiedMember.All)
+            : base(configInfo, mappingTargetType)
         {
             _callback = callback;
         }

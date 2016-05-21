@@ -5,25 +5,21 @@
     using DataSources;
     using ObjectPopulation;
 
-    internal interface IMemberMappingContext
+    internal interface IMemberMappingContext : IMappingData
     {
         MapperContext MapperContext { get; }
 
         MappingContext MappingContext { get; }
 
-        IObjectMappingContext Parent { get; }
+        new IObjectMappingContext Parent { get; }
 
         ParameterExpression Parameter { get; }
-
-        string RuleSetName { get; }
 
         IQualifiedMember SourceMember { get; }
 
         Expression SourceObject { get; }
 
         int SourceObjectDepth { get; }
-
-        IQualifiedMember TargetMember { get; }
 
         Expression ExistingObject { get; }
 
