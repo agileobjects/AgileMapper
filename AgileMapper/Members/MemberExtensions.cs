@@ -32,6 +32,11 @@
 
         public static Expression GetAccess(this Member member, Expression instance)
         {
+            if (!member.ExistingValueCanBeChecked)
+            {
+                return Expression.Default(member.Type);
+            }
+
             if (!member.DeclaringType.IsAssignableFrom(instance.Type))
             {
                 instance = Expression.Convert(instance, member.DeclaringType);

@@ -20,15 +20,9 @@
 
         public MapperContext MapperContext { get; }
 
-        public MappingConfigInfo ForAllSourceTypes()
-        {
-            return ForSourceType(_allSourceTypes);
-        }
+        public MappingConfigInfo ForAllSourceTypes() => ForSourceType(_allSourceTypes);
 
-        public MappingConfigInfo ForSourceType<TSource>()
-        {
-            return ForSourceType(typeof(TSource));
-        }
+        public MappingConfigInfo ForSourceType<TSource>() => ForSourceType(typeof(TSource));
 
         private MappingConfigInfo ForSourceType(Type sourceType)
         {
@@ -37,14 +31,9 @@
         }
 
         public bool IsForSourceType(Type sourceType)
-        {
-            return (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
-        }
+            => (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
 
-        public MappingConfigInfo ForAllRuleSets()
-        {
-            return ForRuleSet(_allRuleSets);
-        }
+        public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 
         public MappingConfigInfo ForRuleSet(string name)
         {

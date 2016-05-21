@@ -17,30 +17,63 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingContext mappingContext)
         {
             Source = source;
-            var runtimeSourceType = source.GetRuntimeSourceType();
-            SourceMember = sourceMember.WithType(runtimeSourceType);
+            SourceMember = sourceMember.WithType(source.GetRuntimeSourceType());
 
             Target = target;
-            var runtimeTargetType = GetTargetType(target, runtimeSourceType, mappingContext);
+            var runtimeTargetType = GetTargetType(SourceMember, targetMember, target, mappingContext);
             TargetMember = targetMember.WithType(runtimeTargetType);
 
             ExistingTargetInstance = existingTargetInstance;
-            var runtimeInstanceType = GetTargetType(existingTargetInstance, runtimeSourceType, mappingContext);
+            var runtimeInstanceType = GetTargetType(SourceMember, existingTargetInstanceMember, existingTargetInstance, mappingContext);
             ExistingTargetInstanceMember = existingTargetInstanceMember.WithType(runtimeInstanceType);
 
             EnumerableIndex = enumerableIndex ?? mappingContext.CurrentObjectMappingContext?.GetEnumerableIndex();
             MappingContext = mappingContext;
         }
 
-        private static Type GetTargetType<TTarget>(TTarget target, Type sourceType, MappingContext mappingContext)
+        #region Setup
+
+        private static Type GetTargetType<TTarget>(
+            IQualifiedMember sourceMember,
+            IQualifiedMember targetMember,
+            TTarget target,
+            MappingContext mappingContext)
         {
-            var mappingData =
-                mappingContext.CurrentObjectMappingContext ??
-                (IMappingData)new BasicMappingData(mappingContext.RuleSet, sourceType, typeof(TDeclaredTarget));
+            var mappingData = new BasicMappingData(mappingContext.RuleSet, sourceMember.Type, typeof(TTarget));
+
+            var qualifiedSourceType = GetQualifiedSourceType(sourceMember, targetMember, mappingContext);
+
+            if (qualifiedSourceType != sourceMember.Type)
+            {
+                mappingData = new BasicMappingData(mappingContext.RuleSet, qualifiedSourceType, typeof(TTarget), mappingData);
+            }
 
             return mappingContext.MapperContext.UserConfigurations.GetDerivedTypeOrNull(mappingData)
-                ?? target.GetRuntimeTargetType(sourceType);
+                ?? target.GetRuntimeTargetType(sourceMember.Type);
         }
+
+        private static Type GetQualifiedSourceType(
+            IQualifiedMember sourceMember,
+            IQualifiedMember targetMember,
+            MappingContext mappingContext)
+        {
+            if ((mappingContext.CurrentObjectMappingContext == null) || sourceMember.Matches(targetMember))
+            {
+                return sourceMember.Type;
+            }
+
+            var memberMappingContext = new MemberMappingContext(targetMember, mappingContext.CurrentObjectMappingContext);
+            var matchingSourceMember = mappingContext.MapperContext.DataSources.GetSourceMemberFor(memberMappingContext);
+
+            if (matchingSourceMember == null)
+            {
+                return sourceMember.Type;
+            }
+
+            return mappingContext.CurrentObjectMappingContext.GetSourceMemberRuntimeType(matchingSourceMember);
+        }
+
+        #endregion
 
         public TDeclaredSource Source { get; }
 
@@ -62,14 +95,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private class BasicMappingData : IMappingData
         {
-            public BasicMappingData(MappingRuleSet ruleSet, Type sourceType, Type targetType)
+            public BasicMappingData(
+                MappingRuleSet ruleSet,
+                Type sourceType,
+                Type targetType,
+                IMappingData parent = null)
             {
+                Parent = parent;
                 SourceType = sourceType;
                 TargetType = targetType;
                 RuleSetName = ruleSet.Name;
             }
 
-            public IMappingData Parent => null;
+            public IMappingData Parent { get; }
 
             public string RuleSetName { get; }
 
