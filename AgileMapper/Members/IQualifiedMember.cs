@@ -21,6 +21,8 @@ namespace AgileObjects.AgileMapper.Members
 
         bool ExistingValueCanBeChecked { get; }
 
+        string Signature { get; }
+
         IQualifiedMember Append(Member childMember);
 
         IQualifiedMember RelativeTo(int depth);

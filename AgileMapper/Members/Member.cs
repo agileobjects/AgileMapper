@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using Extensions;
     using ObjectPopulation;
+    using ReadableExpressions.Extensions;
 
     internal class Member
     {
@@ -18,6 +19,7 @@ namespace AgileObjects.AgileMapper.Members
             MemberName = new MemberName(name, declaringType, memberType, isRoot);
             DeclaringType = declaringType;
             Type = type;
+            Signature = $"[{declaringType.GetFriendlyName()}].{name}";
 
             IsEnumerable = type.IsEnumerable();
             IsComplex = !IsEnumerable && type.IsComplex();
@@ -59,6 +61,8 @@ namespace AgileObjects.AgileMapper.Members
         public Type DeclaringType { get; }
 
         public Type Type { get; }
+
+        public string Signature { get; }
 
         public bool IsComplex { get; }
 

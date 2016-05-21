@@ -29,6 +29,7 @@ namespace AgileObjects.AgileMapper.Members
             _memberChain = memberChain;
             _leafMember = memberChain.LastOrDefault();
             _qualifiedName = qualifiedName;
+            Signature = string.Join(">", memberChain.Select(m => m.Signature));
         }
 
         #region Factory Method
@@ -56,6 +57,8 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsSimple => _leafMember.IsSimple;
 
         public bool ExistingValueCanBeChecked => _leafMember.ExistingValueCanBeChecked;
+
+        public string Signature { get; }
 
         public IQualifiedMember Append(Member childMember)
         {

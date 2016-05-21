@@ -57,6 +57,7 @@ namespace AgileObjects.AgileMapper.DataSources
             _value = value;
             _matchedTargetMember = matchedTargetMember;
             _childMembers = childMembers;
+            Signature = string.Join(">", new[] { value.ToString() }.Concat(childMembers.Select(cm => cm.Signature)));
         }
 
         public Type DeclaringType => _value.Type.DeclaringType;
@@ -74,6 +75,8 @@ namespace AgileObjects.AgileMapper.DataSources
         public bool IsSimple { get; }
 
         public bool ExistingValueCanBeChecked => true;
+
+        public string Signature { get; }
 
         public IQualifiedMember Append(Member childMember)
             => new ConfiguredQualifiedMember(this, childMember);

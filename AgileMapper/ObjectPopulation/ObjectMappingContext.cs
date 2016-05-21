@@ -391,21 +391,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return typeof(TRuntimeSource);
             }
 
-            var relativeMember = sourceMember.RelativeTo(_sourceObjectDepth);
-            var memberAccess = relativeMember.GetQualifiedAccess(_sourceObjectProperty);
+            var accessKey = _parameter.Type.FullName + sourceMember.Signature;
 
-            var getRuntimeTypeCall = Expression.Call(
-                typeof(ObjectExtensions)
-                    .GetMethod("GetRuntimeSourceType", Constants.PublicStatic)
-                    .MakeGenericMethod(sourceMember.Type),
-                memberAccess);
+            var getRuntimeTypeFunc = GlobalContext.Cache.GetOrAdd(accessKey, k =>
+            {
+                var relativeMember = sourceMember.RelativeTo(_sourceObjectDepth);
+                var memberAccess = relativeMember.GetQualifiedAccess(_sourceObjectProperty);
 
-            var getRuntimeTypeLambda = Expression
-                .Lambda<Func<ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TInstance>, Type>>(
-                    getRuntimeTypeCall,
-                    _parameter);
+                var getRuntimeTypeCall = Expression.Call(
+                    typeof(ObjectExtensions)
+                        .GetMethod("GetRuntimeSourceType", Constants.PublicStatic)
+                        .MakeGenericMethod(sourceMember.Type),
+                    memberAccess);
 
-            var getRuntimeTypeFunc = getRuntimeTypeLambda.Compile();
+                var getRuntimeTypeLambda = Expression
+                    .Lambda<Func<ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TInstance>, Type>>(
+                        getRuntimeTypeCall,
+                        _parameter);
+
+                return getRuntimeTypeLambda.Compile();
+            });
 
             return getRuntimeTypeFunc.Invoke(this);
         }
