@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -61,6 +62,32 @@
 
                 result.First().ShouldBeOfType<Person>();
                 result.Second().ShouldBeOfType<Customer>();
+            }
+        }
+
+        [Fact]
+        public void ShouldCreateADerivedTypeInAMemberEnumerableUsingRuntimeTypes()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .Map<CustomerViewModel>()
+                    .To<Customer>();
+
+                var source = new PublicProperty<object>
+                {
+                    Value = new Collection<object>
+                    {
+                        new CustomerViewModel { Name = "Fred" },
+                        new PersonViewModel { Name = "Bob" }
+                    }
+                };
+                var result = mapper.Map(source).ToNew<PublicSetMethod<IEnumerable<Person>>>();
+
+                result.Value.First().ShouldBeOfType<Customer>();
+                result.Value.Second().ShouldBeOfType<Person>();
             }
         }
     }

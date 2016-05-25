@@ -7,5 +7,8 @@ namespace AgileObjects.AgileMapper.Members
     {
         public static IEnumerable<IDataSource> GetDataSources(this IMemberMappingContext context)
             => context.MappingContext.MapperContext.DataSources.FindFor(context);
+
+        public static IEnumerable<IDataSource> EnumerateDataSources(this IMemberMappingContext context)
+            => context.MappingContext.MapperContext.DataSources.EnumerateDataSources(context);
     }
 }

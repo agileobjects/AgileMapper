@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Members
     {
         private readonly string _name;
         private readonly List<string> _allNames;
+        private readonly bool _isRoot;
 
         public MemberName(
             string name,
@@ -17,7 +18,7 @@ namespace AgileObjects.AgileMapper.Members
             bool isRoot)
         {
             _name = name;
-            IsRoot = isRoot;
+            _isRoot = isRoot;
 
             if (isRoot)
             {
@@ -61,8 +62,6 @@ namespace AgileObjects.AgileMapper.Members
 
         #endregion
 
-        public bool IsRoot { get; }
-
         public bool IsIdentifier { get; }
 
         public string JoiningName { get; }
@@ -71,7 +70,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Matches(MemberName otherName)
         {
-            return (IsRoot && otherName.IsRoot) ||
+            return (_isRoot && otherName._isRoot) ||
                 _name.Equals(otherName._name, StringComparison.OrdinalIgnoreCase) ||
                 _allNames.Intersect(otherName._allNames, CaseInsensitiveStringComparer.Instance).Any();
         }

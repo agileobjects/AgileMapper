@@ -62,8 +62,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Type DeclaringType => _value.Type.DeclaringType;
 
-        public bool IsRoot => _matchedTargetMember.IsRoot;
-
         public Type Type { get; }
 
         public string Name { get; }

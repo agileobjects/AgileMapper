@@ -14,7 +14,7 @@
                 .ToArray();
         }
 
-        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
+        public IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
         {
             if (context.Parent == null)
             {
@@ -145,7 +145,13 @@
 
             var parentMemberType = currentOmc.GetSourceMemberRuntimeType(parentMember);
 
-            foreach (var sourceMember in currentOmc.GlobalContext.MemberFinder.GetSourceMembers(parentMemberType))
+            if (parentMemberType != parentMember.Type)
+            {
+                parentMember = parentMember.WithType(parentMemberType);
+                yield return parentMember;
+            }
+
+            foreach (var sourceMember in currentOmc.GlobalContext.MemberFinder.GetSourceMembers(parentMember.Type))
             {
                 var childMember = parentMember.Append(sourceMember);
 

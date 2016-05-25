@@ -243,7 +243,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetMember = allTargetMembers.First(tm => tm.Name == targetMemberName);
             var qualifiedTargetMember = _targetMember.Append(targetMember);
             var context = new MemberMappingContext(qualifiedTargetMember, this);
-            var sourceMember = context.GetDataSources().ElementAt(dataSourceIndex).SourceMember;
+            var sourceMember = context.EnumerateDataSources().ElementAt(dataSourceIndex).SourceMember;
 
             var targetObjectMappingCommand = ObjectMappingCommand.CreateForChild(
                 source,
@@ -386,7 +386,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Type IObjectMappingContext.GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {
-            if (sourceMember.IsRoot)
+            if (sourceMember.IsSameAs(_sourceMember))
             {
                 return typeof(TRuntimeSource);
             }
@@ -421,7 +421,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         MethodCallExpression IObjectMappingContext.ObjectRegistrationCall => _registrationCall;
 
-        MethodCallExpression IObjectMappingContext.GetMapCall(Expression sourceObject, IQualifiedMember objectMember, int dataSourceIndex)
+        MethodCallExpression IObjectMappingContext.GetMapCall(
+            Expression sourceObject,
+            IQualifiedMember objectMember,
+            int dataSourceIndex)
         {
             var mapCall = Expression.Call(
                 _parameter,

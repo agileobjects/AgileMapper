@@ -7,8 +7,6 @@ namespace AgileObjects.AgileMapper.Members
     {
         Type DeclaringType { get; }
 
-        bool IsRoot { get; }
-
         Type Type { get; }
 
         string Name { get; }
