@@ -241,11 +241,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var allTargetMembers = GlobalContext.MemberFinder.GetTargetMembers(_targetMember.Type);
             var targetMember = allTargetMembers.First(tm => tm.Name == targetMemberName);
-            var qualifiedMember = _targetMember.Append(targetMember);
-            var context = new MemberMappingContext(qualifiedMember, this);
+            var qualifiedTargetMember = _targetMember.Append(targetMember);
+            var context = new MemberMappingContext(qualifiedTargetMember, this);
             var sourceMember = context.GetDataSources().ElementAt(dataSourceIndex).SourceMember;
 
-            var complexTargetMappingRequest = new ObjectMappingRequest<TDeclaredSource, TRuntimeTarget, TDeclaredMember>(
+            var targetObjectMappingCommand = ObjectMappingCommand.CreateForChild(
                 source,
                 sourceMember,
                 Target,
@@ -255,7 +255,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 null,
                 MappingContext);
 
-            return MappingContext.MapChild(complexTargetMappingRequest);
+            return targetObjectMappingCommand.Execute();
         }
 
         public TTargetElement Map<TSourceElement, TTargetElement>(
@@ -266,7 +266,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceElementMember = _sourceMember.Append(_sourceMember.Type.CreateElementMember());
             var targetElementMember = _targetMember.Append(_targetMember.Type.CreateElementMember());
 
-            var complexTargetMappingRequest = new ObjectMappingRequest<TSourceElement, TTargetElement, TTargetElement>(
+            var targetElementMappingCommand = ObjectMappingCommand.CreateForChild(
                 sourceElement,
                 sourceElementMember,
                 existingElement,
@@ -276,7 +276,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableIndex,
                 MappingContext);
 
-            return MappingContext.MapChild(complexTargetMappingRequest);
+            return targetElementMappingCommand.Execute();
         }
 
         #region IMappingData Members

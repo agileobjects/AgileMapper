@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -74,6 +76,24 @@
             result.Second().Id.ShouldBe(sourceObjectId);
             result.Second().Name.ShouldBeNull();
             result.Second().AddressLine1.ShouldBe("Somewhere!");
+        }
+
+        [Fact]
+        public void ShouldMapAComplexTypeEnumerableMemberFromItsSourceType()
+        {
+            var source = new PublicField<object>
+            {
+                Value = new Collection<object>
+                {
+                    new Customer { Name = "Fred" },
+                    new Person { Name = "Bob" }
+                }
+            };
+            var result = Mapper.Map(source).ToNew<PublicSetMethod<object>>();
+
+            var resultValues = ((IEnumerable)result.Value).Cast<Person>().ToArray();
+            resultValues.First().ShouldBeOfType<Customer>();
+            resultValues.Second().ShouldBeOfType<Person>();
         }
     }
 }

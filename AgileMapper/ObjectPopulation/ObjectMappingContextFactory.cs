@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceMember = QualifiedMember.From(Member.RootSource(typeof(TDeclaredSource)));
             var targetMember = QualifiedMember.From(Member.RootTarget(typeof(TDeclaredTarget)));
 
-            return Create(new ObjectMappingRequest<TDeclaredSource, TDeclaredTarget, TDeclaredTarget>(
+            return Create(ObjectMappingCommand.Create(
                 source,
                 sourceMember,
                 target,
@@ -37,36 +37,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public static IObjectMappingContext Create<TDeclaredSource, TDeclaredTarget, TDeclaredInstance>(
-            ObjectMappingRequest<TDeclaredSource, TDeclaredTarget, TDeclaredInstance> request)
+            ObjectMappingCommand<TDeclaredSource, TDeclaredTarget, TDeclaredInstance> command)
         {
             var funcKey = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}({1}),{2}({3}),{4}({5}): ObjectMappingContextConstructor",
                 typeof(TDeclaredSource).FullName,
-                request.SourceMember.Type.FullName,
+                command.SourceMember.Type.FullName,
                 typeof(TDeclaredTarget).FullName,
-                request.TargetMember.Type.FullName,
+                command.TargetMember.Type.FullName,
                 typeof(TDeclaredInstance).FullName,
-                request.ExistingTargetInstanceMember.Type.FullName);
+                command.ExistingTargetInstanceMember.Type.FullName);
 
-            var constructionFunc = request.MappingContext.GlobalContext.Cache.GetOrAdd(funcKey, k =>
+            var constructionFunc = command.MappingContext.GlobalContext.Cache.GetOrAdd(funcKey, k =>
             {
                 var sourceParameter = Parameters.Create<TDeclaredSource>("source");
                 var targetParameter = Parameters.Create<TDeclaredTarget>("target");
                 var existingInstanceParameter = Parameters.Create<TDeclaredInstance>("existingInstance");
 
                 var contextType = typeof(ObjectMappingContext<,,>).MakeGenericType(
-                    request.SourceMember.Type,
-                    request.TargetMember.Type,
-                    request.ExistingTargetInstanceMember.Type);
+                    command.SourceMember.Type,
+                    command.TargetMember.Type,
+                    command.ExistingTargetInstanceMember.Type);
 
                 var constructorCall = Expression.New(
                     contextType.GetConstructors().First(),
-                    sourceParameter.GetConversionTo(request.SourceMember.Type),
+                    sourceParameter.GetConversionTo(command.SourceMember.Type),
                     Parameters.SourceMember,
-                    targetParameter.GetConversionTo(request.TargetMember.Type),
+                    targetParameter.GetConversionTo(command.TargetMember.Type),
                     Parameters.TargetMember,
-                    existingInstanceParameter.GetConversionTo(request.ExistingTargetInstanceMember.Type),
+                    existingInstanceParameter.GetConversionTo(command.ExistingTargetInstanceMember.Type),
                     Parameters.EnumerableIndexNullable,
                     Parameters.MappingContext);
 
@@ -85,13 +85,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             });
 
             return constructionFunc.Invoke(
-                request.Source,
-                request.SourceMember,
-                request.Target,
-                request.ExistingTargetInstanceMember,
-                request.ExistingTargetInstance,
-                request.EnumerableIndex,
-                request.MappingContext);
+                command.Source,
+                command.SourceMember,
+                command.Target,
+                command.ExistingTargetInstanceMember,
+                command.ExistingTargetInstance,
+                command.EnumerableIndex,
+                command.MappingContext);
         }
     }
 }

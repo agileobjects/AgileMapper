@@ -64,9 +64,9 @@ namespace AgileObjects.AgileMapper
         }
 
         internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
-            ObjectMappingRequest<TRuntimeSource, TRuntimeTarget, TDeclaredMember> request)
+            ObjectMappingCommand<TRuntimeSource, TRuntimeTarget, TDeclaredMember> command)
         {
-            CurrentObjectMappingContext = ObjectMappingContextFactory.Create(request);
+            CurrentObjectMappingContext = ObjectMappingContextFactory.Create(command);
 
             return Map<TRuntimeSource, TRuntimeTarget, TDeclaredMember>();
         }

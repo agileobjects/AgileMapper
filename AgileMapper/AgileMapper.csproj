@@ -59,7 +59,7 @@
     <Compile Include="ObjectPopulation\EnumerableTypes.cs" />
     <Compile Include="DataSources\IDataSourceFactory.cs" />
     <Compile Include="ObjectPopulation\NullDataSourceFactory.cs" />
-    <Compile Include="ObjectPopulation\ObjectMappingRequest.cs" />
+    <Compile Include="ObjectPopulation\ObjectMappingCommand.cs" />
     <Compile Include="ObjectPopulation\OverwriteFallbackDataSourceFactory.cs" />
     <Compile Include="Api\Configuration\PreInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\PreInstanceCreationConditionSpecifier.cs" />

@@ -49,7 +49,21 @@
         }
 
         public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression instance)
-            => memberChain.Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
+        {
+            var accessSoFar = instance;
+
+            foreach (var member in memberChain)
+            {
+                if (!member.ExistingValueCanBeChecked)
+                {
+                    return Expression.Default(member.Type);
+                }
+
+                accessSoFar = member.GetAccess(accessSoFar);
+            }
+
+            return accessSoFar;
+        }
 
         #region PopulationFactoriesByMemberType
 
