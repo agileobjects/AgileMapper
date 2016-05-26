@@ -72,7 +72,6 @@
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringTypeIdentifiers.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
-    <Compile Include="Configuration\WhenSettingInvalidConfiguration.cs" />
     <Compile Include="Extensions\WhenGettingAParentExpressionNode.cs" />
     <Compile Include="Members\MemberFinderTestsBase.cs" />
     <Compile Include="Members\WhenCreatingTargetMembersFromExpressions.cs" />

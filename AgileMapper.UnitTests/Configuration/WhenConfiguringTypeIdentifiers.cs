@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AgileMapper.Extensions;
+    using Api.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -36,6 +37,24 @@
                 result.HasOne().ShouldBeTrue();
                 result.First().AddressLine1.ShouldBe("My House");
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfMultipleIdentifiersSpecifiedForSameType()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.WhenMapping
+                        .InstancesOf<Person>()
+                        .IdentifyUsing(p => p.Name);
+
+                    mapper.WhenMapping
+                        .InstancesOf<Person>()
+                        .IdentifyUsing(p => p.Title);
+                }
+            });
         }
     }
 }

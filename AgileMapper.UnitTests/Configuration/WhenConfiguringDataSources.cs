@@ -6,6 +6,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using AgileMapper.Members;
+    using Api.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -589,6 +590,22 @@
                 matchingModeResult.Value.ShouldBe(9999);
                 nonMatchingModeTarget.Value.ShouldBe(source.Value);
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfUnconvertibleConstantSpecified()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<int>>()
+                        .To<PublicField<DateTime>>()
+                        .Map(new byte[] { 2, 4, 6, 8 })
+                        .To(x => x.Value);
+                }
+            });
         }
     }
 }

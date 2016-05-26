@@ -3,6 +3,8 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Api.Configuration;
+    using ReadableExpressions.Extensions;
 
     internal class MemberIdentifierSet
     {
@@ -24,6 +26,12 @@ namespace AgileObjects.AgileMapper.Members
 
         public void Add(Type type, LambdaExpression idMember)
         {
+            if (_identifierNamesByType.ContainsKey(type))
+            {
+                throw new MappingConfigurationException(
+                    $"An identifier has already been configured for type '{type.GetFriendlyName()}'");
+            }
+
             var identifier = idMember.ToSourceMember(_memberFinder).LeafMember;
 
             _identifierNamesByType.Add(type, identifier);
