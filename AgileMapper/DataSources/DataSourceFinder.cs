@@ -151,7 +151,7 @@
                 yield return parentMember;
             }
 
-            foreach (var sourceMember in currentOmc.GlobalContext.MemberFinder.GetSourceMembers(parentMember.Type))
+            foreach (var sourceMember in currentOmc.GlobalContext.MemberFinder.GetReadableMembers(parentMember.Type))
             {
                 var childMember = parentMember.Append(sourceMember);
 

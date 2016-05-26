@@ -44,11 +44,11 @@
 
             _sourceElementType = omc.SourceObject.Type.GetEnumerableElementType();
             _sourceElementParameter = Parameters.Create(_sourceElementType);
-            _sourceElementId = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(_sourceElementType);
+            _sourceElementId = GetIdentifierOrNull(_sourceElementType, omc);
 
             _targetElementType = TargetCollectionType.GetEnumerableElementType();
             _targetElementParameter = Parameters.Create(_targetElementType);
-            _targetElementId = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(_targetElementType);
+            _targetElementId = GetIdentifierOrNull(_targetElementType, omc);
 
             _elementsAreAssignable = _targetElementType.IsAssignableFrom(_sourceElementType);
 
@@ -56,6 +56,16 @@
         }
 
         #region Setup
+
+        private static Member GetIdentifierOrNull(Type type, IObjectMappingContext omc)
+        {
+            return omc.MapperContext.Cache.GetOrAdd(TypeIdentifierKey.For(type), k =>
+            {
+                var configuredIdentifier = omc.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(type);
+
+                return configuredIdentifier ?? omc.GlobalContext.MemberFinder.GetIdentifierOrNull(type);
+            });
+        }
 
         private void SetPopulationToDefault()
         {

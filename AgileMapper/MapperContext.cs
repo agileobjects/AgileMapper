@@ -16,7 +16,7 @@
             Cache = GlobalContext.CreateCache();
             ComplexTypeFactory = new ComplexTypeFactory();
             ObjectMapperFactory = new ObjectMapperFactory();
-            UserConfigurations = new UserConfigurationSet();
+            UserConfigurations = new UserConfigurationSet(GlobalContext.MemberFinder);
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
         }

@@ -16,14 +16,17 @@
         private readonly ICollection<ExceptionCallbackFactory> _exceptionCallbackFactories;
         private readonly ICollection<DerivedTypePair> _typePairs;
 
-        public UserConfigurationSet()
+        public UserConfigurationSet(MemberFinder memberFinder)
         {
+            Identifiers = new MemberIdentifierSet(memberFinder);
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
             _exceptionCallbackFactories = new List<ExceptionCallbackFactory>();
             _typePairs = new List<DerivedTypePair>();
         }
+
+        public MemberIdentifierSet Identifiers { get; }
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {

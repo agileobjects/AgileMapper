@@ -42,6 +42,7 @@
     <Compile Include="Api\Configuration\DerivedTypePair.cs" />
     <Compile Include="Api\Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\ExceptionCallbackFactory.cs" />
+    <Compile Include="Api\Configuration\InstanceConfigurator.cs" />
     <Compile Include="Api\Configuration\PostInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifierBase.cs" />
     <Compile Include="DataSources\ConfiguredQualifiedMember.cs" />
@@ -54,8 +55,10 @@
     <Compile Include="Members\IQualifiedMemberName.cs" />
     <Compile Include="Members\ITypedMemberMappingExceptionContext.cs" />
     <Compile Include="Members\IUntypedMemberMappingExceptionContext.cs" />
+    <Compile Include="Members\MemberIdentifierSet.cs" />
     <Compile Include="Members\MemberMappingContextExtensions.cs" />
     <Compile Include="Members\MemberMappingExceptionContext.cs" />
+    <Compile Include="Members\TypeIdentifierKey.cs" />
     <Compile Include="ObjectPopulation\EnumerableTypes.cs" />
     <Compile Include="DataSources\IDataSourceFactory.cs" />
     <Compile Include="ObjectPopulation\NullDataSourceFactory.cs" />

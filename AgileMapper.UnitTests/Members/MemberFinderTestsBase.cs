@@ -9,7 +9,7 @@
 
     public abstract class MemberFinderTestsBase
     {
-        private static readonly MemberFinder _memberFinder = new MemberFinder(new DictionaryCache());
+        internal static readonly MemberFinder MemberFinder = new MemberFinder(new DictionaryCache());
 
         internal IQualifiedMember SourceMemberFor<T>(T sourceObject)
         {
@@ -32,14 +32,14 @@
         {
             return (childMemberExpression == null)
                 ? QualifiedMember.From(rootSourceMember)
-                : childMemberExpression.ToSourceMember(_memberFinder);
+                : childMemberExpression.ToSourceMember(MemberFinder);
         }
 
         internal IQualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
         {
             return (childMemberExpression == null)
                 ? QualifiedMember.From(Member.RootTarget(typeof(T)))
-                : childMemberExpression.ToTargetMember(_memberFinder);
+                : childMemberExpression.ToTargetMember(MemberFinder);
         }
     }
 }

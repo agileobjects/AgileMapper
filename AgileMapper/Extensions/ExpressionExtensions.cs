@@ -42,22 +42,27 @@
 
         public static Expression GetMemberAccess(this Expression expression)
         {
-            switch (expression.NodeType)
+            while (true)
             {
-                case ExpressionType.Convert:
-                    return GetMemberAccess(((UnaryExpression)expression).Operand);
+                switch (expression.NodeType)
+                {
+                    case ExpressionType.Convert:
+                        expression = ((UnaryExpression)expression).Operand;
+                        continue;
 
-                case ExpressionType.Call:
-                    return GetMethodCallMemberAccess((MethodCallExpression)expression);
+                    case ExpressionType.Call:
+                        return GetMethodCallMemberAccess((MethodCallExpression)expression);
 
-                case ExpressionType.Lambda:
-                    return GetMemberAccess(((LambdaExpression)expression).Body);
+                    case ExpressionType.Lambda:
+                        expression = ((LambdaExpression)expression).Body;
+                        continue;
 
-                case ExpressionType.MemberAccess:
-                    return expression;
+                    case ExpressionType.MemberAccess:
+                        return expression;
+                }
+
+                throw new NotSupportedException("Unable to get member access from " + expression.NodeType + " Expression");
             }
-
-            throw new NotSupportedException("Unable to get member access from " + expression.NodeType + " Expression");
         }
 
         private static Expression GetMethodCallMemberAccess(MethodCallExpression methodCall)

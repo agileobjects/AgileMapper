@@ -24,7 +24,7 @@
 
         public MappingConfigInfo ForSourceType<TSource>() => ForSourceType(typeof(TSource));
 
-        private MappingConfigInfo ForSourceType(Type sourceType)
+        public MappingConfigInfo ForSourceType(Type sourceType)
         {
             _sourceType = sourceType;
             return this;

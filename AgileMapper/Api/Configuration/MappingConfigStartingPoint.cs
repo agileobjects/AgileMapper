@@ -23,6 +23,9 @@
             _mapperContext.UserConfigurations.Add(callbackFactory);
         }
 
+        public InstanceConfigurator<TInstance> InstancesOf<TInstance>() where TInstance : class
+            => new InstanceConfigurator<TInstance>(_mapperContext);
+
         public TargetTypeSpecifier<TSource> From<TSource>(TSource exampleInstance) => From<TSource>();
 
         public TargetTypeSpecifier<TSource> From<TSource>()

@@ -5,20 +5,17 @@
     using System.Linq;
     using System.Linq.Expressions;
     using AgileMapper.Members;
-    using Caching;
     using TestClasses;
     using Xunit;
 
-    public class WhenCreatingTargetMembersFromExpressions
+    public class WhenCreatingTargetMembersFromExpressions : MemberFinderTestsBase
     {
-        private static readonly MemberFinder _memberFinder = new MemberFinder(new DictionaryCache());
-
         [Fact]
         public void ShouldCreateAFieldMember()
         {
             Expression<Func<PublicField<string>, string>> fieldAccess = x => x.Value;
 
-            var fieldMember = fieldAccess.ToTargetMember(_memberFinder);
+            var fieldMember = fieldAccess.ToTargetMember(MemberFinder);
 
             fieldMember.Members().Count().ShouldBe(2);
 
@@ -33,7 +30,7 @@
         {
             Expression<Func<Person, string>> addressLine1Access = x => x.Address.Line1;
 
-            var addressLine1Member = addressLine1Access.Body.ToTargetMember(_memberFinder);
+            var addressLine1Member = addressLine1Access.Body.ToTargetMember(MemberFinder);
 
             addressLine1Member.Members().Count().ShouldBe(3);
 
@@ -51,7 +48,7 @@
         {
             Expression<Func<PublicSetMethod<int>, Action<int>>> setMethodAccess = x => x.SetValue;
 
-            var fieldMember = setMethodAccess.Body.ToTargetMember(_memberFinder);
+            var fieldMember = setMethodAccess.Body.ToTargetMember(MemberFinder);
 
             fieldMember.Members().Count().ShouldBe(2);
 

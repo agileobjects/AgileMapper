@@ -3,22 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using AgileMapper.Members;
-    using Caching;
     using Shouldly;
     using TestClasses;
     using Xunit;
 
     // ReSharper disable PossibleNullReferenceException
-    public class WhenFindingTargetMembers
+    public class WhenFindingTargetMembers : MemberFinderTestsBase
     {
-        private static readonly MemberFinder _memberFinder = new MemberFinder(new DictionaryCache());
-
         [Fact]
         public void ShouldFindAPublicProperty()
         {
-            var member = _memberFinder
-                .GetTargetMembers(typeof(PublicProperty<byte>))
+            var member = MemberFinder
+                .GetWriteableMembers(typeof(PublicProperty<byte>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldNotBeNull();
@@ -28,8 +24,8 @@
         [Fact]
         public void ShouldFindAPublicField()
         {
-            var member = _memberFinder
-                .GetTargetMembers(typeof(PublicField<int>))
+            var member = MemberFinder
+                .GetWriteableMembers(typeof(PublicField<int>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldNotBeNull();
@@ -39,8 +35,8 @@
         [Fact]
         public void ShouldFindAPublicSetMethod()
         {
-            var member = _memberFinder
-                .GetTargetMembers(typeof(PublicSetMethod<DateTime>))
+            var member = MemberFinder
+                .GetWriteableMembers(typeof(PublicSetMethod<DateTime>))
                 .FirstOrDefault(m => m.Name == "SetValue");
 
             member.ShouldNotBeNull();
@@ -50,8 +46,8 @@
         [Fact]
         public void ShouldIgnoreAReadOnlyPublicProperty()
         {
-            var member = _memberFinder
-                .GetTargetMembers(typeof(PublicReadOnlyProperty<long>))
+            var member = MemberFinder
+                .GetWriteableMembers(typeof(PublicReadOnlyProperty<long>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -60,8 +56,8 @@
         [Fact]
         public void ShouldIgnoreANonPublicField()
         {
-            var member = _memberFinder
-                .GetTargetMembers(typeof(InternalField<List<byte>>))
+            var member = MemberFinder
+                .GetWriteableMembers(typeof(InternalField<List<byte>>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -70,8 +66,8 @@
         [Fact]
         public void ShouldIgnoreAReadOnlyField()
         {
-            var member = _memberFinder
-                .GetTargetMembers(typeof(ReadOnlyField<IEnumerable<byte>>))
+            var member = MemberFinder
+                .GetWriteableMembers(typeof(ReadOnlyField<IEnumerable<byte>>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -80,8 +76,8 @@
         [Fact]
         public void ShouldIgnoreAGetMethod()
         {
-            var member = _memberFinder
-                .GetTargetMembers(typeof(PublicGetMethod<string[]>))
+            var member = MemberFinder
+                .GetWriteableMembers(typeof(PublicGetMethod<string[]>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -90,8 +86,8 @@
         [Fact]
         public void ShouldIgnoreAPropertySetter()
         {
-            var member = _memberFinder
-                .GetTargetMembers(typeof(PublicProperty<long>))
+            var member = MemberFinder
+                .GetWriteableMembers(typeof(PublicProperty<long>))
                 .FirstOrDefault(m => m.Name.StartsWith("set_"));
 
             member.ShouldBeNull();

@@ -94,10 +94,13 @@
             return population;
         }
 
-        public static IQualifiedMember ToTargetMember(this Expression memberAccessExpression, MemberFinder memberFinder)
-            => CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetTargetMembers);
+        public static QualifiedMember ToSourceMember(this Expression memberAccessExpression, MemberFinder memberFinder)
+            => CreateMember(memberAccessExpression, Member.RootSource, memberFinder.GetReadableMembers);
 
-        internal static IQualifiedMember CreateMember(
+        public static QualifiedMember ToTargetMember(this Expression memberAccessExpression, MemberFinder memberFinder)
+            => CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetWriteableMembers);
+
+        internal static QualifiedMember CreateMember(
             Expression memberAccessExpression,
             Func<Type, Member> rootMemberFactory,
             Func<Type, IEnumerable<Member>> membersFactory)

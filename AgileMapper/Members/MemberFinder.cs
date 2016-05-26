@@ -18,15 +18,15 @@
 
         public Member GetIdentifierOrNull(Type type)
         {
-            return _globalCache.GetOrAdd(type.FullName + ": Identifier", k =>
+            return _globalCache.GetOrAdd(TypeIdentifierKey.For(type), k =>
             {
-                var typeMembers = GetSourceMembers(type);
+                var typeMembers = GetReadableMembers(type);
 
                 return typeMembers.FirstOrDefault(member => member.IsIdentifier);
             });
         }
 
-        public IEnumerable<Member> GetSourceMembers(Type sourceType)
+        public IEnumerable<Member> GetReadableMembers(Type sourceType)
         {
             return _globalCache.GetOrAdd(sourceType.FullName + ": SourceMembers", k =>
             {
@@ -43,7 +43,7 @@
             });
         }
 
-        public IEnumerable<Member> GetTargetMembers(Type targetType)
+        public IEnumerable<Member> GetWriteableMembers(Type targetType)
         {
             return _globalCache.GetOrAdd(targetType.FullName + ": TargetMembers", k =>
             {

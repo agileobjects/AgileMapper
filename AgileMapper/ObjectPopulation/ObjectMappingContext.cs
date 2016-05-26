@@ -239,7 +239,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             string targetMemberName,
             int dataSourceIndex)
         {
-            var allTargetMembers = GlobalContext.MemberFinder.GetTargetMembers(_targetMember.Type);
+            var allTargetMembers = GlobalContext.MemberFinder.GetWriteableMembers(_targetMember.Type);
             var targetMember = allTargetMembers.First(tm => tm.Name == targetMemberName);
             var qualifiedTargetMember = _targetMember.Append(targetMember);
             var context = new MemberMappingContext(qualifiedTargetMember, this);

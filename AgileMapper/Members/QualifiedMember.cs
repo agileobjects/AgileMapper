@@ -11,7 +11,6 @@ namespace AgileObjects.AgileMapper.Members
         public static readonly IQualifiedMember All = new QualifiedMember(new Member[0], null);
 
         private readonly Member[] _memberChain;
-        private readonly Member _leafMember;
         private readonly IQualifiedMemberName _qualifiedName;
 
         private QualifiedMember(Member member, QualifiedMember parent)
@@ -27,7 +26,7 @@ namespace AgileObjects.AgileMapper.Members
         private QualifiedMember(Member[] memberChain, IQualifiedMemberName qualifiedName)
         {
             _memberChain = memberChain;
-            _leafMember = memberChain.LastOrDefault();
+            LeafMember = memberChain.LastOrDefault();
             _qualifiedName = qualifiedName;
             Signature = string.Join(">", memberChain.Select(m => m.Signature));
         }
@@ -40,21 +39,23 @@ namespace AgileObjects.AgileMapper.Members
 
         #endregion
 
-        internal IEnumerable<Member> Members => _memberChain;
+        public IEnumerable<Member> Members => _memberChain;
 
-        public Type DeclaringType => _leafMember.DeclaringType;
+        public Member LeafMember { get; }
 
-        public Type Type => _leafMember.Type;
+        public Type DeclaringType => LeafMember.DeclaringType;
 
-        public string Name => _leafMember.Name;
+        public Type Type => LeafMember.Type;
 
-        public bool IsComplex => _leafMember.IsComplex;
+        public string Name => LeafMember.Name;
 
-        public bool IsEnumerable => _leafMember.IsEnumerable;
+        public bool IsComplex => LeafMember.IsComplex;
 
-        public bool IsSimple => _leafMember.IsSimple;
+        public bool IsEnumerable => LeafMember.IsEnumerable;
 
-        public bool ExistingValueCanBeChecked => _leafMember.ExistingValueCanBeChecked;
+        public bool IsSimple => LeafMember.IsSimple;
+
+        public bool ExistingValueCanBeChecked => LeafMember.ExistingValueCanBeChecked;
 
         public string Signature { get; }
 
@@ -92,7 +93,7 @@ namespace AgileObjects.AgileMapper.Members
             var newMemberChain = new Member[_memberChain.Length];
             Array.Copy(_memberChain, 0, newMemberChain, 0, newMemberChain.Length - 1);
 
-            newMemberChain[newMemberChain.Length - 1] = _leafMember.WithType(runtimeType);
+            newMemberChain[newMemberChain.Length - 1] = LeafMember.WithType(runtimeType);
 
             return From(newMemberChain);
         }
@@ -118,12 +119,12 @@ namespace AgileObjects.AgileMapper.Members
                 : otherMember.Matches(this);
         }
 
-        public Expression GetAccess(Expression instance) => _leafMember.GetAccess(instance);
+        public Expression GetAccess(Expression instance) => LeafMember.GetAccess(instance);
 
         public Expression GetQualifiedAccess(Expression instance)
             => _memberChain.Skip(1).GetQualifiedAccess(instance);
 
         public Expression GetPopulation(Expression instance, Expression value)
-            => _leafMember.GetPopulation(instance, value);
+            => LeafMember.GetPopulation(instance, value);
     }
 }

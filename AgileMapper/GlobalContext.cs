@@ -21,9 +21,6 @@ namespace AgileObjects.AgileMapper
 
         public MemberFinder MemberFinder => _memberFinderLoader.Value;
 
-        public ICache CreateCache()
-        {
-            return new DictionaryCache();
-        }
+        public ICache CreateCache() => new DictionaryCache();
     }
 }
