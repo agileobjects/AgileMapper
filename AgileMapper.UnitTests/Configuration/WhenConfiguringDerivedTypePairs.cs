@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -72,7 +73,7 @@
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
-                    .To<Person>()
+                    .OnTo<Person>()
                     .Map<CustomerViewModel>()
                     .To<Customer>();
 
@@ -84,10 +85,50 @@
                         new PersonViewModel { Name = "Bob" }
                     }
                 };
-                var result = mapper.Map(source).ToNew<PublicSetMethod<IEnumerable<Person>>>();
+                var target = new PublicSetMethod<IEnumerable<Person>>();
+                var result = mapper.Map(source).OnTo(target);
 
                 result.Value.First().ShouldBeOfType<Customer>();
                 result.Value.Second().ShouldBeOfType<Person>();
+            }
+        }
+
+        [Fact]
+        public void ShouldCreateADerivedTypeInAnExistingMemberEnumerableUsingRuntimeTypes()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .OnTo<Person>()
+                    .Map<CustomerViewModel>()
+                    .To<Customer>();
+
+                var personId = Guid.NewGuid();
+
+                var source = new PublicGetMethod<object>(new List<PersonViewModel>
+                {
+                    new PersonViewModel { Id = personId, Name = "Bob" },
+                    new CustomerViewModel { Name = "Fred" }
+                });
+                var target = new PublicField<object>
+                {
+                    Value = new Collection<Person>
+                    {
+                        new Person { Id = personId }
+                    }
+                };
+                var result = mapper.Map(source).OnTo(target);
+
+                var resultValues = (Collection<Person>)result.Value;
+                resultValues.Count.ShouldBe(2);
+
+                resultValues.First().ShouldBeOfType<Person>();
+                resultValues.First().Id.ShouldBe(personId);
+                resultValues.First().Name.ShouldBe("Bob");
+
+                resultValues.Second().ShouldBeOfType<Customer>();
+                resultValues.Second().Name.ShouldBe("Fred");
             }
         }
     }
