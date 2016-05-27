@@ -134,7 +134,7 @@
         public EnumerablePopulationBuilder IntersectTargetById()
         {
             var typedIntersectByIdMethod = _intersectByIdMethod
-                .MakeGenericMethod(_sourceElementType, _targetElementType, _targetElementIdLambda.Body.Type);
+                .MakeGenericMethod(_sourceElementType, _targetElementType, _targetElementIdLambda.ReturnType);
 
             var intersectByIdCall = Expression.Call(
                 typedIntersectByIdMethod,
@@ -191,7 +191,7 @@
             var typedExcludeByIdMethod = _excludeByIdMethod.MakeGenericMethod(
                 _targetElementType,
                 _sourceElementType,
-                _sourceElementIdLambda.Body.Type);
+                _sourceElementIdLambda.ReturnType);
 
             var excludeByIdCall = Expression.Call(
                 typedExcludeByIdMethod,
@@ -209,7 +209,7 @@
             var typedExcludeByIdMethod = _excludeByIdMethod.MakeGenericMethod(
                 _sourceElementType,
                 _targetElementType,
-                _targetElementIdLambda.Body.Type);
+                _targetElementIdLambda.ReturnType);
 
             var excludeByIdCall = Expression.Call(
                 typedExcludeByIdMethod,
