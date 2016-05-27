@@ -61,6 +61,34 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredIdentifierExpression()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .InstancesOf<Person>()
+                    .IdentifyUsing(p => p.Title + " " + p.Name);
+
+                mapper.WhenMapping
+                    .InstancesOf<PersonViewModel>()
+                    .IdentifyUsing(p => p.Name);
+
+                var source = new List<Person>
+                {
+                    new Person { Title = Title.Dr, Name = "Boris", Address = new Address { Line1 = "Here" } }
+                };
+                var target = new List<PersonViewModel>
+                {
+                    new PersonViewModel { Name = "Dr Boris" }
+                };
+                var result = mapper.Map(source).OnTo(target);
+
+                result.HasOne().ShouldBeTrue();
+                result.First().AddressLine1.ShouldBe("Here");
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfMultipleIdentifiersSpecifiedForSameType()
         {
             Assert.Throws<MappingConfigurationException>(() =>

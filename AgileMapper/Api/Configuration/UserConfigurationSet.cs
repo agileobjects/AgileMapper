@@ -16,9 +16,9 @@
         private readonly ICollection<ExceptionCallbackFactory> _exceptionCallbackFactories;
         private readonly ICollection<DerivedTypePair> _typePairs;
 
-        public UserConfigurationSet(MemberFinder memberFinder)
+        public UserConfigurationSet()
         {
-            Identifiers = new MemberIdentifierSet(memberFinder);
+            Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();

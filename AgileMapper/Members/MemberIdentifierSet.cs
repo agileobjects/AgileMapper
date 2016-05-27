@@ -9,18 +9,16 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class MemberIdentifierSet
     {
-        private readonly MemberFinder _memberFinder;
-        private readonly Dictionary<Type, Member> _identifierNamesByType;
+        private readonly Dictionary<Type, LambdaExpression> _identifierNamesByType;
 
-        public MemberIdentifierSet(MemberFinder memberFinder)
+        public MemberIdentifierSet()
         {
-            _memberFinder = memberFinder;
-            _identifierNamesByType = new Dictionary<Type, Member>();
+            _identifierNamesByType = new Dictionary<Type, LambdaExpression>();
         }
 
-        public Member GetIdentifierOrNullFor(Type type)
+        public LambdaExpression GetIdentifierOrNullFor(Type type)
         {
-            Member identifier;
+            LambdaExpression identifier;
 
             if (_identifierNamesByType.TryGetValue(type, out identifier))
             {
@@ -41,9 +39,7 @@ namespace AgileObjects.AgileMapper.Members
                     $"An identifier has already been configured for type '{type.GetFriendlyName()}'");
             }
 
-            var identifier = idMember.ToSourceMember(_memberFinder).LeafMember;
-
-            _identifierNamesByType.Add(type, identifier);
+            _identifierNamesByType.Add(type, idMember);
         }
     }
 }

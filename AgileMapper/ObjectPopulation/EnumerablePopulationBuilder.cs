@@ -31,10 +31,9 @@
 
         private readonly ParameterExpression _sourceElementParameter;
         private readonly Type _sourceElementType;
-        private readonly Member _sourceElementId;
-        private readonly ParameterExpression _targetElementParameter;
+        private readonly LambdaExpression _sourceElementIdLambda;
         private readonly Type _targetElementType;
-        private readonly Member _targetElementId;
+        private readonly LambdaExpression _targetElementIdLambda;
         private readonly bool _elementsAreAssignable;
         private Expression _population;
 
@@ -44,11 +43,14 @@
 
             _sourceElementType = omc.SourceObject.Type.GetEnumerableElementType();
             _sourceElementParameter = Parameters.Create(_sourceElementType);
-            _sourceElementId = GetIdentifierOrNull(_sourceElementType, omc);
 
             _targetElementType = TargetCollectionType.GetEnumerableElementType();
-            _targetElementParameter = Parameters.Create(_targetElementType);
-            _targetElementId = GetIdentifierOrNull(_targetElementType, omc);
+            var targetElementParameter = Parameters.Create(_targetElementType);
+
+            var sourceElementId = GetIdentifierOrNull(_sourceElementType, _sourceElementParameter, omc);
+            var targetElementId = GetIdentifierOrNull(_targetElementType, targetElementParameter, omc);
+            _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
+            _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
 
             _elementsAreAssignable = _targetElementType.IsAssignableFrom(_sourceElementType);
 
@@ -57,14 +59,50 @@
 
         #region Setup
 
-        private static Member GetIdentifierOrNull(Type type, IObjectMappingContext omc)
+        private static Expression GetIdentifierOrNull(Type type, Expression instance, IObjectMappingContext omc)
         {
             return omc.MapperContext.Cache.GetOrAdd(TypeIdentifierKey.For(type), k =>
             {
                 var configuredIdentifier = omc.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(type);
 
-                return configuredIdentifier ?? omc.GlobalContext.MemberFinder.GetIdentifierOrNull(type);
+                if (configuredIdentifier != null)
+                {
+                    return configuredIdentifier.ReplaceParameterWith(instance);
+                }
+
+                var identifier = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(type);
+
+                return identifier?.GetAccess(instance);
             });
+        }
+
+        private LambdaExpression GetSourceElementIdLambda(
+            ParameterExpression sourceElement,
+            Expression sourceElementId,
+            Expression targetElementId)
+        {
+            if ((sourceElementId == null) || (targetElementId == null))
+            {
+                return null;
+            }
+
+            return Expression.Lambda(
+                Expression.GetFuncType(sourceElement.Type, targetElementId.Type),
+                GetSimpleElementConversion(sourceElementId, targetElementId.Type),
+                sourceElement);
+        }
+
+        private static LambdaExpression GetTargetElementIdLambda(ParameterExpression targetElement, Expression targetElementId)
+        {
+            if (targetElementId == null)
+            {
+                return null;
+            }
+
+            return Expression.Lambda(
+                Expression.GetFuncType(targetElement.Type, targetElementId.Type),
+                targetElementId,
+                targetElement);
         }
 
         private void SetPopulationToDefault()
@@ -89,40 +127,24 @@
 
         public IObjectMappingContext ObjectMappingContext { get; }
 
-        public bool TypesAreIdentifiable => (_sourceElementId != null) && (_targetElementId != null);
+        public bool TypesAreIdentifiable => (_sourceElementIdLambda != null) && (_targetElementIdLambda != null);
 
         private Type TargetCollectionType => ObjectMappingContext.InstanceVariable.Type;
 
         public EnumerablePopulationBuilder IntersectTargetById()
         {
             var typedIntersectByIdMethod = _intersectByIdMethod
-                .MakeGenericMethod(_sourceElementType, _targetElementType, _targetElementId.Type);
+                .MakeGenericMethod(_sourceElementType, _targetElementType, _targetElementIdLambda.Body.Type);
 
             var intersectByIdCall = Expression.Call(
                 typedIntersectByIdMethod,
                 ObjectMappingContext.SourceObject,
                 ObjectMappingContext.InstanceVariable,
-                GetSourceElementIdLambda(),
-                GetTargetElementIdLambda());
+                _sourceElementIdLambda,
+                _targetElementIdLambda);
 
             _population = intersectByIdCall;
             return this;
-        }
-
-        private LambdaExpression GetSourceElementIdLambda()
-        {
-            return Expression.Lambda(
-                Expression.GetFuncType(_sourceElementType, _targetElementId.Type),
-                GetSimpleElementConversion(_sourceElementId.GetAccess(_sourceElementParameter), _targetElementId.Type),
-                _sourceElementParameter);
-        }
-
-        private LambdaExpression GetTargetElementIdLambda()
-        {
-            return Expression.Lambda(
-                Expression.GetFuncType(_targetElementType, _targetElementId.Type),
-                _targetElementId.GetAccess(_targetElementParameter),
-                _targetElementParameter);
         }
 
         public EnumerablePopulationBuilder ProjectToTargetType()
@@ -169,14 +191,14 @@
             var typedExcludeByIdMethod = _excludeByIdMethod.MakeGenericMethod(
                 _targetElementType,
                 _sourceElementType,
-                _sourceElementId.Type);
+                _sourceElementIdLambda.Body.Type);
 
             var excludeByIdCall = Expression.Call(
                 typedExcludeByIdMethod,
                 ObjectMappingContext.InstanceVariable,
                 _population,
-                GetTargetElementIdLambda(),
-                GetSourceElementIdLambda());
+                _targetElementIdLambda,
+                _sourceElementIdLambda);
 
             _population = excludeByIdCall;
             return this;
@@ -187,14 +209,14 @@
             var typedExcludeByIdMethod = _excludeByIdMethod.MakeGenericMethod(
                 _sourceElementType,
                 _targetElementType,
-                _targetElementId.Type);
+                _targetElementIdLambda.Body.Type);
 
             var excludeByIdCall = Expression.Call(
                 typedExcludeByIdMethod,
                 _population,
                 ObjectMappingContext.InstanceVariable,
-                GetSourceElementIdLambda(),
-                GetTargetElementIdLambda());
+                _sourceElementIdLambda,
+                _targetElementIdLambda);
 
             _population = excludeByIdCall;
             return this;
