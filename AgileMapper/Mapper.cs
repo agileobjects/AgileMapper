@@ -29,12 +29,14 @@
 
         #region Static Access Methods
 
-        public static ResultTypeSelector<TSource> Map<TSource>(TSource source)
-        {
-            return _default.Map(source);
-        }
+        public static TSource Clone<TSource>(TSource source) where TSource : class
+            => _default.Clone(source);
+
+        public static ResultTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
 
         #endregion
+
+        TSource IMapper.Clone<TSource>(TSource source) => Map(source).ToNew<TSource>();
 
         ResultTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
         {

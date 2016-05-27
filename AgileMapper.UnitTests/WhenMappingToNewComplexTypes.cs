@@ -30,5 +30,25 @@
 
             result.ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldMapUsingStaticCloneMethod()
+        {
+            var source = new Person { Name = "Barney" };
+            var result = Mapper.Clone(source);
+
+            result.ShouldNotBeSameAs(source);
+            result.Name.ShouldBe("Barney");
+        }
+
+        [Fact]
+        public void ShouldMapUsingInstanceCloneMethod()
+        {
+            var source = new Person { Name = "Maggie" };
+            var result = Mapper.Create().Clone(source);
+
+            result.ShouldNotBeSameAs(source);
+            result.Name.ShouldBe("Maggie");
+        }
     }
 }

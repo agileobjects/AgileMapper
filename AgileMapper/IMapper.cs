@@ -10,6 +10,8 @@
 
         MappingConfigStartingPoint WhenMapping { get; }
 
+        TSource Clone<TSource>(TSource source) where TSource : class;
+
         ResultTypeSelector<TSource> Map<TSource>(TSource source);
     }
 }
