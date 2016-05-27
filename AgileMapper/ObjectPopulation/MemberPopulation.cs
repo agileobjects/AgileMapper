@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             foreach (var dataSource in dataSources)
             {
-                IsSuccessful = true;
+                IsSuccessful = IsSuccessful || dataSource.IsSuccessful;
                 _variables.AddRange(dataSource.Variables);
             }
 

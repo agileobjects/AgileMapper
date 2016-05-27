@@ -7,6 +7,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly IDataSourceFactory Instance = new NullDataSourceFactory();
 
-        public IDataSource Create(IMemberMappingContext context) => NullDataSource.Instance;
+        public IDataSource Create(IMemberMappingContext context) => NullDataSource.Default;
     }
 }

@@ -10,7 +10,9 @@
 
         public void Process(IMemberPopulation population)
         {
-            if (population.TargetMember.IsSimple && population.TargetMember.ExistingValueCanBeChecked)
+            if (population.IsSuccessful &&
+                population.TargetMember.IsSimple &&
+                population.TargetMember.ExistingValueCanBeChecked)
             {
                 var targetMemberAccess = GetTargetMemberAccess(population);
                 var targetMemberHasDefaultValue = targetMemberAccess.GetIsDefaultComparison();

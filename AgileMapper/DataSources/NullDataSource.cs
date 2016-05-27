@@ -7,7 +7,7 @@
 
     internal class NullDataSource : IDataSource
     {
-        public static readonly IDataSource Instance = new NullDataSource(Constants.EmptyExpression);
+        public static readonly IDataSource Default = new NullDataSource(Constants.EmptyExpression);
 
         public NullDataSource(Expression value)
         {
@@ -26,10 +26,9 @@
 
         public Expression Value { get; }
 
-        public Expression GetIfGuardedPopulation(IMemberMappingContext context)
-            => Constants.EmptyExpression;
+        public Expression GetIfGuardedPopulation(IMemberMappingContext context) => Value;
 
         public Expression GetElseGuardedPopulation(Expression populationSoFar, IMemberMappingContext context)
-            => Constants.EmptyExpression;
+            => Value;
     }
 }

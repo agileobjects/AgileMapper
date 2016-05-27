@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 new[] { omc.InstanceVariable },
                 shortCircuitReturns
                     .Concat(instanceVariableAssignment)
-                    .Concat(objectPopulation) 
+                    .Concat(objectPopulation)
                     .Concat(returnLabel));
 
             var mapperLambda = Expression
