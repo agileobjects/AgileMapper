@@ -42,9 +42,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool TargetMemberIsAlwaysIgnored(IMemberMappingContext context, out Expression ignoreCondition)
         {
-            var isIgnorable = context.Parent.MapperContext.UserConfigurations.IsIgnored(context, out ignoreCondition);
+            var configuredIgnore = context
+                .MapperContext
+                .UserConfigurations
+                .GetMemberIgnoreOrNull(context);
 
-            return isIgnorable && (ignoreCondition == null);
+            if (configuredIgnore == null)
+            {
+                ignoreCondition = null;
+                return false;
+            }
+
+            ignoreCondition = configuredIgnore.GetCondition(context);
+            return (ignoreCondition == null);
         }
     }
 }

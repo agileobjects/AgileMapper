@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using DataSources;
     using Members;
     using ObjectPopulation;
@@ -33,14 +32,8 @@
             _ignoredMembers.Add(ignoredMember);
         }
 
-        public bool IsIgnored(IMemberMappingContext context, out Expression ignoreCondition)
-        {
-            var matchingIgnoredMember = FindMatchingItem(_ignoredMembers, context);
-
-            ignoreCondition = matchingIgnoredMember?.GetCondition(context);
-
-            return matchingIgnoredMember != null;
-        }
+        public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IMemberMappingContext context)
+            => FindMatch(_ignoredMembers, context);
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
@@ -62,14 +55,8 @@
             _creationCallbackFactories.Add(callbackFactory);
         }
 
-        public bool HasCreationCallback(IMemberMappingContext context, out ObjectCreationCallback callback)
-        {
-            var matchingCallbackFactory = FindMatchingItem(_creationCallbackFactories, context);
-
-            callback = matchingCallbackFactory?.Create(context);
-
-            return matchingCallbackFactory != null;
-        }
+        public ObjectCreationCallback GetCreationCallbackOrNull(IMemberMappingContext context)
+            => FindMatch(_creationCallbackFactories, context)?.Create(context);
 
         public void Add(ExceptionCallbackFactory callbackFactory)
         {
@@ -77,11 +64,7 @@
         }
 
         public ExceptionCallback GetExceptionCallbackOrNull(IMemberMappingContext context)
-        {
-            var matchingCallbackFactory = FindMatchingItem(_exceptionCallbackFactories, context);
-
-            return matchingCallbackFactory?.Create(context);
-        }
+            => FindMatch(_exceptionCallbackFactories, context)?.Create(context);
 
         public void Add(DerivedTypePair typePair)
         {
@@ -89,13 +72,9 @@
         }
 
         public Type GetDerivedTypeOrNull(IMappingData data)
-        {
-            var matchingTypePair = FindMatchingItem(_typePairs, data);
+            => FindMatch(_typePairs, data)?.DerivedTargetType;
 
-            return matchingTypePair?.DerivedTargetType;
-        }
-
-        private static TItem FindMatchingItem<TItem>(IEnumerable<TItem> items, IMappingData data)
+        private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IMappingData data)
             where TItem : UserConfiguredItemBase
             => items.FirstOrDefault(im => im.AppliesTo(data));
     }

@@ -69,7 +69,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
-            => Expression.Coalesce(omc.ExistingObject, omc.CreateCall);
+            => Expression.Coalesce(omc.ExistingObject, GetNewObjectCreation(omc));
+
+        private static Expression GetNewObjectCreation(IObjectMappingContext omc)
+        {
+            return omc.CreateCall;
+        }
 
         protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)
         {
@@ -95,14 +100,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetObjectCreatedCallback(IObjectMappingContext omc)
         {
-            ObjectCreationCallback callback;
+            var callback = omc
+                .MapperContext
+                .UserConfigurations
+                .GetCreationCallbackOrNull(omc);
 
-            if (omc.MapperContext.UserConfigurations.HasCreationCallback(omc, out callback))
-            {
-                return callback.IntegrateCallback(omc);
-            }
-
-            return Constants.EmptyExpression;
+            return (callback != null) ? callback.IntegrateCallback(omc) : Constants.EmptyExpression;
         }
 
         protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
