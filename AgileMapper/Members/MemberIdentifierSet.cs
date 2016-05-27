@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Api.Configuration;
     using ReadableExpressions.Extensions;
@@ -21,7 +22,15 @@ namespace AgileObjects.AgileMapper.Members
         {
             Member identifier;
 
-            return _identifierNamesByType.TryGetValue(type, out identifier) ? identifier : null;
+            if (_identifierNamesByType.TryGetValue(type, out identifier))
+            {
+                return identifier;
+            }
+
+            var matchingKey = _identifierNamesByType.Keys
+                .FirstOrDefault(idType => idType.IsAssignableFrom(type));
+
+            return (matchingKey != null) ? _identifierNamesByType[matchingKey] : null;
         }
 
         public void Add(Type type, LambdaExpression idMember)

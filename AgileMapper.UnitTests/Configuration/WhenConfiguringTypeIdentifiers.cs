@@ -40,6 +40,27 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredIdentifierForADerivedType()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .InstancesOf<Person>()
+                    .IdentifyUsing(p => p.Name);
+
+                var source = new[]
+                {
+                    new Customer { Title = Title.Dr, Name = "Hetty" }
+                };
+                var target = new List<Person> { new Person { Title = Title.Ms, Name = "Hetty" } };
+                var result = mapper.Map(source).Over(target);
+
+                result.HasOne().ShouldBeTrue();
+                result.First().Title.ShouldBe(Title.Dr);
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfMultipleIdentifiersSpecifiedForSameType()
         {
             Assert.Throws<MappingConfigurationException>(() =>
