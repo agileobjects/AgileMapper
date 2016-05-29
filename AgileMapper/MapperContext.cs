@@ -14,7 +14,6 @@
         {
             DataSources = new DataSourceFinder();
             Cache = GlobalContext.CreateCache();
-            ComplexTypeFactory = new ComplexTypeFactory();
             ObjectMapperFactory = new ObjectMapperFactory();
             UserConfigurations = new UserConfigurationSet();
             ValueConverters = new ConverterSet();
@@ -27,7 +26,6 @@
 
         public DataSourceFinder DataSources { get; }
 
-        public ComplexTypeFactory ComplexTypeFactory { get; }
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
 

@@ -17,6 +17,7 @@
 
         public UserConfigurationSet()
         {
+            ObjectFactories = new ConfiguredObjectFactorySet();
             Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
@@ -24,6 +25,8 @@
             _exceptionCallbackFactories = new List<ExceptionCallbackFactory>();
             _typePairs = new List<DerivedTypePair>();
         }
+
+        public ConfiguredObjectFactorySet ObjectFactories { get; }
 
         public MemberIdentifierSet Identifiers { get; }
 

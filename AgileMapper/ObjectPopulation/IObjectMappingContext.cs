@@ -16,13 +16,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         TInstance GetInstance<TInstance>();
 
+        Expression Object { get; }
+
         int? GetEnumerableIndex();
 
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);
 
         MethodCallExpression TryGetCall { get; }
-
-        MethodCallExpression CreateCall { get; }
 
         MethodCallExpression ObjectRegistrationCall { get; }
 

@@ -17,7 +17,7 @@
         }
 
         public PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
-            Action<IInstanceCreationContext<TSource, TTarget, TInstance>> callback) => CreateCallback(callback);
+            Action<ITypedObjectMappingContext<TSource, TTarget, TInstance>> callback) => CreateCallback(callback);
 
         public PostInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
             Action<TSource, TTarget> callback) => CreateCallback(callback);

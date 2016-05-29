@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Members;
 
     internal class ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>
         : ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
@@ -69,11 +70,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
-            => Expression.Coalesce(omc.ExistingObject, GetNewObjectCreation(omc));
-
-        private static Expression GetNewObjectCreation(IObjectMappingContext omc)
         {
-            return omc.CreateCall;
+            var createdInstance = Expression.Coalesce(omc.ExistingObject, GetNewObjectCreation(omc));
+
+            return Expression.Assign(omc.Object, createdInstance);
+        }
+
+        private static Expression GetNewObjectCreation(IMemberMappingContext omc)
+        {
+            return Expression.New(omc.InstanceVariable.Type);
         }
 
         protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)

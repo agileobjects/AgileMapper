@@ -26,7 +26,7 @@
             => Is(typeof(ITypedMemberMappingContext<,>), contextTypes, funcArguments, IsSourceAndTarget);
 
         private static bool IsInstanceCreationContext(Type[] contextTypes, Type[] funcArguments)
-            => Is(typeof(IInstanceCreationContext<,,>), contextTypes, funcArguments, IsSourceTargetAndInstance);
+            => Is(typeof(ITypedObjectMappingContext<,,>), contextTypes, funcArguments, IsSourceTargetAndInstance);
 
         private static bool Is(
             Type contextType,

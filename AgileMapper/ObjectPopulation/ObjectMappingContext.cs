@@ -10,24 +10,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TInstance> :
-        InstanceCreationContext<TRuntimeSource, TRuntimeTarget, TInstance>,
+    internal class ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject> :
+        TypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>,
+        ITypedObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject>,
         IObjectMappingContext
     {
         #region Cached Items
 
         private static readonly ParameterExpression _parameter =
-            Parameters.Create<ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TInstance>>("omc");
+            Parameters.Create<ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject>>("omc");
 
         // ReSharper disable StaticMemberInGenericType
         private static readonly Expression _sourceObjectProperty = Expression.Property(_parameter, "Source");
 
-        private static readonly Expression _existingObjectProperty = Expression.Property(_parameter, "ExistingInstance");
+        private static readonly Expression _existingObjectProperty = Expression.Property(_parameter, "ExistingObject");
+
+        private static readonly Expression _objectProperty = Expression.Property(_parameter, "Object");
 
         private static readonly Expression _enumerableIndexProperty = Expression.Property(_parameter, "EnumerableIndex");
 
         private static readonly ParameterExpression _instanceVariable = Expression.Variable(
-            typeof(TInstance).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType<TInstance>() : typeof(TInstance),
+            typeof(TObject).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType<TObject>() : typeof(TObject),
             "instance");
 
         private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_parameter);
@@ -41,10 +44,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     .MakeGenericMethod(_sourceObjectProperty.Type, _instanceVariable.Type),
                 _sourceObjectProperty,
                 _instanceVariable);
-
-        private static readonly MethodCallExpression _createCall = Expression.Call(
-            _parameter,
-            _parameter.Type.GetMethod("Create", Constants.PublicInstance));
 
         private static readonly MethodInfo _tryActionMethod = GetTryMethod("action");
         private static readonly MethodInfo _tryUntypedHandlerActionMethod = GetTryMethod("action", typeof(IUntypedMemberMappingExceptionContext));
@@ -106,13 +105,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IQualifiedMember sourceMember,
             TRuntimeTarget target,
             IQualifiedMember targetMember,
-            TInstance existingInstance,
+            TObject existingObject,
             int? enumerableIndex,
             MappingContext mappingContext)
-            : base(source, target, existingInstance, enumerableIndex)
+            : base(source, target, enumerableIndex)
         {
             _sourceMember = sourceMember;
             _targetMember = targetMember;
+            ExistingObject = existingObject;
             MappingContext = mappingContext;
             Parent = mappingContext.CurrentObjectMappingContext;
             _sourceObjectDepth = CalculateSourceObjectDepth();
@@ -147,8 +147,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingContext IMemberMappingContext.Parent => Parent;
 
         public IObjectMappingContext Parent { get; }
-
-        public TInstance Create() => (CreatedInstance = MapperContext.ComplexTypeFactory.Create<TInstance>());
 
         #region Try
 
@@ -380,7 +378,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ReferenceEquals(Source, source);
         }
 
-        T IObjectMappingContext.GetInstance<T>() => (T)((object)CreatedInstance ?? Target);
+        T IObjectMappingContext.GetInstance<T>() => (T)((object)Object ?? ExistingObject);
+
+        Expression IObjectMappingContext.Object => _objectProperty;
 
         public int? GetEnumerableIndex() => EnumerableIndex.HasValue ? EnumerableIndex : Parent?.GetEnumerableIndex();
 
@@ -405,7 +405,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     memberAccess);
 
                 var getRuntimeTypeLambda = Expression
-                    .Lambda<Func<ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TInstance>, Type>>(
+                    .Lambda<Func<ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject>, Type>>(
                         getRuntimeTypeCall,
                         _parameter);
 
@@ -416,8 +416,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         MethodCallExpression IObjectMappingContext.TryGetCall => _tryGetCall;
-
-        MethodCallExpression IObjectMappingContext.CreateCall => _createCall;
 
         MethodCallExpression IObjectMappingContext.ObjectRegistrationCall => _registrationCall;
 
@@ -451,6 +449,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return mapCall;
         }
+
+        #endregion
+
+        #region ITypedObjectMappingContext
+
+        public TObject ExistingObject { get; }
+
+        public TObject Object { get; set; }
 
         #endregion
     }

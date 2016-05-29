@@ -43,6 +43,7 @@
     <Compile Include="Api\Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\ExceptionCallbackFactory.cs" />
     <Compile Include="Api\Configuration\InstanceConfigurator.cs" />
+    <Compile Include="ObjectPopulation\ConfiguredObjectFactorySet.cs" />
     <Compile Include="Api\Configuration\PostInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifierBase.cs" />
     <Compile Include="DataSources\ConfiguredQualifiedMember.cs" />
@@ -68,9 +69,8 @@
     <Compile Include="Api\Configuration\PreInstanceCreationConditionSpecifier.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />
-    <Compile Include="ObjectPopulation\IInstanceCreationContext.cs" />
+    <Compile Include="ObjectPopulation\ITypedObjectMappingContext.cs" />
     <Compile Include="Api\Configuration\PostInstanceCreationConditionSpecifier.cs" />
-    <Compile Include="ObjectPopulation\InstanceCreationContext.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\ConditionSpecifier.cs" />
     <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
@@ -128,7 +128,6 @@
     <Compile Include="ObjectPopulation\ObjectCreationCallbackFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContext.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContextFactory.cs" />
-    <Compile Include="ObjectPopulation\ComplexTypeFactory.cs" />
     <Compile Include="ObjectPopulation\MapperFunc.cs" />
     <Compile Include="Members\Member.cs" />
     <Compile Include="ObjectPopulation\MemberPopulation.cs" />
