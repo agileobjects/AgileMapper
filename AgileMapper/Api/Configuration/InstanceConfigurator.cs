@@ -17,9 +17,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             _mapperContext.UserConfigurations.Identifiers.Add(typeof(TInstance), idMember);
         }
 
-        public void CreateUsing(Expression<Func<TInstance>> instanceFactory)
+        public void CreateUsing(Expression<Func<TInstance>> objectFactory)
         {
-            throw new NotImplementedException();
+            _mapperContext.UserConfigurations.ObjectFactories.Add(typeof(TInstance), objectFactory);
         }
     }
 }

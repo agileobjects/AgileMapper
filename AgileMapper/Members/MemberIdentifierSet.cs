@@ -16,6 +16,17 @@ namespace AgileObjects.AgileMapper.Members
             _identifierNamesByType = new Dictionary<Type, LambdaExpression>();
         }
 
+        public void Add(Type type, LambdaExpression idMember)
+        {
+            if (_identifierNamesByType.ContainsKey(type))
+            {
+                throw new MappingConfigurationException(
+                    $"An identifier has already been configured for type '{type.GetFriendlyName()}'");
+            }
+
+            _identifierNamesByType.Add(type, idMember);
+        }
+
         public LambdaExpression GetIdentifierOrNullFor(Type type)
         {
             LambdaExpression identifier;
@@ -29,17 +40,6 @@ namespace AgileObjects.AgileMapper.Members
                 .FirstOrDefault(idType => idType.IsAssignableFrom(type));
 
             return (matchingKey != null) ? _identifierNamesByType[matchingKey] : null;
-        }
-
-        public void Add(Type type, LambdaExpression idMember)
-        {
-            if (_identifierNamesByType.ContainsKey(type))
-            {
-                throw new MappingConfigurationException(
-                    $"An identifier has already been configured for type '{type.GetFriendlyName()}'");
-            }
-
-            _identifierNamesByType.Add(type, idMember);
         }
     }
 }

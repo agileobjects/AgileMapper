@@ -78,7 +78,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetNewObjectCreation(IMemberMappingContext omc)
         {
-            return Expression.New(omc.InstanceVariable.Type);
+            var configuredFactory = omc
+                .MapperContext
+                .UserConfigurations
+                .ObjectFactories
+                .GetFactoryOrNull(omc);
+
+            return configuredFactory ?? Expression.New(omc.InstanceVariable.Type);
         }
 
         protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)
