@@ -43,7 +43,7 @@
     <Compile Include="Api\Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\ExceptionCallbackFactory.cs" />
     <Compile Include="Api\Configuration\InstanceConfigurator.cs" />
-    <Compile Include="ObjectPopulation\ConfiguredObjectFactorySet.cs" />
+    <Compile Include="ObjectPopulation\ConfiguredObjectFactory.cs" />
     <Compile Include="Api\Configuration\PostInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifierBase.cs" />
     <Compile Include="DataSources\ConfiguredQualifiedMember.cs" />

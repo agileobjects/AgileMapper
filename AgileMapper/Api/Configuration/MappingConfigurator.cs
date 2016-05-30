@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
     using Members;
+    using ObjectPopulation;
 
     public class MappingConfigurator<TSource, TTarget>
     {
@@ -12,6 +13,39 @@
         {
             _configInfo = configInfo;
         }
+
+        public void CreateInstancesUsing(Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TTarget>> factory)
+        {
+            var objectFactory = ConfiguredObjectFactory.For(_configInfo, typeof(TTarget), factory);
+
+            _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
+        }
+
+        public void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback)
+        {
+            var callbackFactory = new ExceptionCallbackFactory(
+                _configInfo,
+                typeof(TTarget),
+                Expression.Constant(callback));
+
+            _configInfo.MapperContext.UserConfigurations.Add(callbackFactory);
+        }
+
+        public ConditionSpecifier<TSource, TTarget> Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
+        {
+            var configuredIgnoredMember = ConfiguredIgnoredMember.For(
+                _configInfo,
+                typeof(TTarget),
+                targetMember.Body);
+
+            _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+
+            return new ConditionSpecifier<TSource, TTarget>(configuredIgnoredMember, negateCondition: true);
+        }
+
+        public PreEventMappingConfigStartingPoint<TSource, TTarget> Before => new PreEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
+
+        public PostEventMappingConfigStartingPoint<TSource, TTarget> After => new PostEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
@@ -67,31 +101,5 @@
 
         public DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
             => new DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget>(_configInfo);
-
-        public void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback)
-        {
-            var callbackFactory = new ExceptionCallbackFactory(
-                _configInfo,
-                typeof(TTarget),
-                Expression.Constant(callback));
-
-            _configInfo.MapperContext.UserConfigurations.Add(callbackFactory);
-        }
-
-        public ConditionSpecifier<TSource, TTarget> Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
-        {
-            var configuredIgnoredMember = ConfiguredIgnoredMember.For(
-                _configInfo,
-                typeof(TTarget),
-                targetMember.Body);
-
-            _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
-
-            return new ConditionSpecifier<TSource, TTarget>(configuredIgnoredMember, negateCondition: true);
-        }
-
-        public PreEventMappingConfigStartingPoint<TSource, TTarget> Before => new PreEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
-
-        public PostEventMappingConfigStartingPoint<TSource, TTarget> After => new PostEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
     }
 }

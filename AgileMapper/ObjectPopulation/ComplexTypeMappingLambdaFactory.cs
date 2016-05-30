@@ -81,8 +81,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var configuredFactory = omc
                 .MapperContext
                 .UserConfigurations
-                .ObjectFactories
-                .GetFactoryOrNull(omc);
+                .GetObjectFactoryOrNull(omc);
 
             return configuredFactory ?? Expression.New(omc.InstanceVariable.Type);
         }

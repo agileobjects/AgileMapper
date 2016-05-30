@@ -204,6 +204,9 @@
                     case ExpressionType.MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
 
+                    case ExpressionType.New:
+                        return ReplaceIn((NewExpression)expression);
+
                     case ExpressionType.NewArrayInit:
                         return ReplaceIn((NewArrayExpression)expression);
 
@@ -236,6 +239,9 @@
 
             private Expression ReplaceIn(MemberExpression memberAccess)
                 => ReplaceIn(memberAccess, () => memberAccess.Update(Replace(memberAccess.Expression)));
+
+            private Expression ReplaceIn(NewExpression newing)
+                => ReplaceIn(newing, () => newing.Update(newing.Arguments.Select(Replace)));
 
             private Expression ReplaceIn(NewArrayExpression newArray)
                 => ReplaceIn(newArray, () => newArray.Update(newArray.Expressions.Select(Replace)));

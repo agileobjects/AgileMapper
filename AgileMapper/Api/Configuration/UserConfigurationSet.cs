@@ -3,12 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using DataSources;
     using Members;
     using ObjectPopulation;
 
     internal class UserConfigurationSet
     {
+        private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
         private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
         private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
@@ -17,7 +19,7 @@
 
         public UserConfigurationSet()
         {
-            ObjectFactories = new ConfiguredObjectFactorySet();
+            _objectFactories = new List<ConfiguredObjectFactory>();
             Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
@@ -26,9 +28,21 @@
             _typePairs = new List<DerivedTypePair>();
         }
 
-        public ConfiguredObjectFactorySet ObjectFactories { get; }
-
         public MemberIdentifierSet Identifiers { get; }
+
+        #region ObjectFactories
+
+        public void Add(ConfiguredObjectFactory objectFactory)
+        {
+            _objectFactories.Add(objectFactory);
+        }
+
+        public Expression GetObjectFactoryOrNull(IMemberMappingContext context)
+            => FindMatch(_objectFactories, context)?.Create(context);
+
+        #endregion
+
+        #region Ignored Members
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
@@ -37,6 +51,10 @@
 
         public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IMemberMappingContext context)
             => FindMatch(_ignoredMembers, context);
+
+        #endregion
+
+        #region DataSources
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
@@ -53,6 +71,10 @@
             return matchingDataSources;
         }
 
+        #endregion
+
+        #region ObjectCreationCallbacks
+
         public void Add(ObjectCreationCallbackFactory callbackFactory)
         {
             _creationCallbackFactories.Add(callbackFactory);
@@ -60,6 +82,10 @@
 
         public ObjectCreationCallback GetCreationCallbackOrNull(IMemberMappingContext context)
             => FindMatch(_creationCallbackFactories, context)?.Create(context);
+
+        #endregion
+
+        #region ExceptionCallbacks
 
         public void Add(ExceptionCallbackFactory callbackFactory)
         {
@@ -69,6 +95,10 @@
         public ExceptionCallback GetExceptionCallbackOrNull(IMemberMappingContext context)
             => FindMatch(_exceptionCallbackFactories, context)?.Create(context);
 
+        #endregion
+
+        #region DerivedTypePairs
+
         public void Add(DerivedTypePair typePair)
         {
             _typePairs.Add(typePair);
@@ -76,6 +106,8 @@
 
         public Type GetDerivedTypeOrNull(IMappingData data)
             => FindMatch(_typePairs, data)?.DerivedTargetType;
+
+        #endregion
 
         private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IMappingData data)
             where TItem : UserConfiguredItemBase

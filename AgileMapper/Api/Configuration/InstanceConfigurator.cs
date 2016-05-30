@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Linq.Expressions;
+    using ObjectPopulation;
 
     public class InstanceConfigurator<TInstance>
     {
@@ -17,9 +18,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             _mapperContext.UserConfigurations.Identifiers.Add(typeof(TInstance), idMember);
         }
 
-        public void CreateUsing(Expression<Func<TInstance>> objectFactory)
+        public void CreateUsing(Expression<Func<TInstance>> factory)
         {
-            _mapperContext.UserConfigurations.ObjectFactories.Add(typeof(TInstance), objectFactory);
+            var objectFactory = ConfiguredObjectFactory.For(_mapperContext, typeof(TInstance), factory);
+
+            _mapperContext.UserConfigurations.Add(objectFactory);
         }
     }
 }
