@@ -47,8 +47,40 @@
             }
         }
 
+        // ReSharper disable PossibleNullReferenceException
+        [Fact]
+        public void ShouldUseAConfiguredFactoryForASpecifiedSourceAndTargetTypeInARootEnumerable()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .Map<CustomerViewModel>()
+                    .To<CustomerCtor>();
+
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<CustomerCtor>()
+                    .CreateInstancesUsing(ctx => new CustomerCtor((decimal)ctx.Source.Discount * 3)
+                    {
+                        Number = ctx.EnumerableIndex + 1
+                    });
+
+                var source = new[] { new PersonViewModel(), new CustomerViewModel { Discount = 5 } };
+                var result = mapper.Map(source).ToNew<Person[]>();
+
+                var customer = result.Second() as CustomerCtor;
+                customer.ShouldNotBeNull();
+                customer.Discount.ShouldBe(15);
+                customer.Number.ShouldBe(2);
+            }
+        }
+        // ReSharper restore PossibleNullReferenceException
+
         private class CustomerCtor : Person
         {
+            // ReSharper disable once UnusedMember.Local
             public CustomerCtor()
             {
             }
@@ -59,6 +91,8 @@
             }
 
             public decimal Discount { get; }
+
+            public int? Number { get; set; }
         }
     }
 }

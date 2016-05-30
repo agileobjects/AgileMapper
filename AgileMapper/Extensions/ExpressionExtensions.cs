@@ -204,6 +204,9 @@
                     case ExpressionType.MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
 
+                    case ExpressionType.MemberInit:
+                        return ReplaceIn((MemberInitExpression)expression);
+
                     case ExpressionType.New:
                         return ReplaceIn((NewExpression)expression);
 
@@ -240,14 +243,39 @@
             private Expression ReplaceIn(MemberExpression memberAccess)
                 => ReplaceIn(memberAccess, () => memberAccess.Update(Replace(memberAccess.Expression)));
 
-            private Expression ReplaceIn(NewExpression newing)
-                => ReplaceIn(newing, () => newing.Update(newing.Arguments.Select(Replace)));
+            private Expression ReplaceIn(MemberInitExpression memberInit)
+            {
+                return ReplaceIn(
+                    memberInit,
+                    () => memberInit.Update(
+                        ReplaceIn(memberInit.NewExpression),
+                        memberInit.Bindings.Select(ReplaceIn)));
+            }
 
-            private Expression ReplaceIn(NewArrayExpression newArray)
-                => ReplaceIn(newArray, () => newArray.Update(newArray.Expressions.Select(Replace)));
+            private MemberBinding ReplaceIn(MemberBinding binding)
+            {
+                switch (binding.BindingType)
+                {
+                    case MemberBindingType.Assignment:
+                        var assignment = (MemberAssignment)binding;
+                        return assignment.Update(ReplaceIn(assignment.Expression));
 
-            private Expression ReplaceIn(TypeBinaryExpression typeBinary)
-                => ReplaceIn(typeBinary, () => typeBinary.Update(Replace(typeBinary.Expression)));
+                    //case MemberBindingType.ListBinding:
+                    //    var memberBinding = (MemberMemberBinding)binding;
+                    //    break;
+                    //case MemberBindingType.MemberBinding:
+                    //    var listBinding = (MemberListBinding)binding;
+                    //    break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            private NewExpression ReplaceIn(NewExpression newing) => (NewExpression)ReplaceIn(newing, () => newing.Update(newing.Arguments.Select(Replace)));
+
+            private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, () => newArray.Update(newArray.Expressions.Select(Replace)));
+
+            private Expression ReplaceIn(TypeBinaryExpression typeBinary) => ReplaceIn(typeBinary, () => typeBinary.Update(Replace(typeBinary.Expression)));
 
             private Expression Replace(Expression expression) => ReplaceIn(expression, () => ReplaceIn(expression));
 
@@ -260,9 +288,7 @@
 
                 Expression replacement;
 
-                return _replacementsByTarget.TryGetValue(expression, out replacement)
-                    ? replacement
-                    : replacer.Invoke();
+                return _replacementsByTarget.TryGetValue(expression, out replacement) ? replacement : replacer.Invoke();
             }
         }
 
