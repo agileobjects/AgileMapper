@@ -6,6 +6,7 @@
 
     internal abstract class UserConfiguredItemBase
     {
+        private readonly MappingConfigInfo _configInfo;
         private readonly Type _mappingTargetType;
         private readonly IQualifiedMember _targetMember;
         private Func<IMemberMappingContext, Expression> _conditionFactory;
@@ -20,12 +21,11 @@
             Type mappingTargetType,
             IQualifiedMember targetMember)
         {
-            ConfigInfo = configInfo;
+            _configInfo = configInfo;
             _mappingTargetType = mappingTargetType;
             _targetMember = targetMember;
         }
 
-        protected MappingConfigInfo ConfigInfo { get; }
 
         public void AddConditionFactory(Func<IMemberMappingContext, Expression> conditionFactory)
         {
@@ -37,7 +37,7 @@
 
         public virtual bool AppliesTo(IMappingData data)
         {
-            return ConfigInfo.IsForRuleSet(data.RuleSetName) &&
+            return _configInfo.IsForRuleSet(data.RuleSetName) &&
                 data.TargetMember.IsSameAs(_targetMember) &&
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
         }
@@ -47,7 +47,7 @@
             while (data != null)
             {
                 if (_mappingTargetType.IsAssignableFrom(data.TargetType) &&
-                    ConfigInfo.IsForSourceType(data.SourceType))
+                    _configInfo.IsForSourceType(data.SourceType))
                 {
                     return true;
                 }

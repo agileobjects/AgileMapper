@@ -23,10 +23,8 @@
             _callbackLambda = callbackLambda;
         }
 
-        public override bool AppliesTo(IMappingData data) => AppliesTo((IMemberMappingContext)data);
-
-        public bool AppliesTo(IMemberMappingContext context)
-            => _creationTargetType.IsAssignableFrom(context.InstanceVariable.Type) && base.AppliesTo(context);
+        public override bool AppliesTo(IMappingData data)
+            => _creationTargetType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(data);
 
         public ObjectCreationCallback Create(IMemberMappingContext context)
         {
