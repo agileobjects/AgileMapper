@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.SimpleTypeConversion
 {
     using System.Collections.Generic;
-    using System.Globalization;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -14,7 +13,7 @@
             var source = new PublicProperty<sbyte> { Value = 16 };
             var result = Mapper.Map(source).Over(new PublicField<long> { Value = 62687527 });
 
-            result.Value.ShouldBe(source.Value);
+            result.Value.ShouldBe(16);
         }
 
         [Fact]
@@ -23,7 +22,7 @@
             var source = new PublicProperty<byte> { Value = 32 };
             var result = Mapper.Map(source).OnTo(new PublicField<long>());
 
-            result.Value.ShouldBe(source.Value);
+            result.Value.ShouldBe(32);
         }
 
         [Fact]
@@ -32,7 +31,7 @@
             var source = new PublicProperty<short> { Value = 987 };
             var result = Mapper.Map(source).ToNew<PublicField<long>>();
 
-            result.Value.ShouldBe(source.Value);
+            result.Value.ShouldBe(987);
         }
 
         [Fact]
@@ -41,16 +40,16 @@
             var source = new PublicField<int> { Value = 32156 };
             var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
 
-            result.Value.ShouldBe(source.Value);
+            result.Value.ShouldBe(32156);
         }
 
         [Fact]
         public void ShouldMapAnUnsignedIntToALong()
         {
-            var source = new PublicField<uint> { Value = 32156 };
+            var source = new PublicField<uint> { Value = 32658 };
             var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
 
-            result.Value.ShouldBe(source.Value);
+            result.Value.ShouldBe(32658);
         }
 
         [Fact]
@@ -59,7 +58,7 @@
             var source = new PublicField<ulong> { Value = 9292726 };
             var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
 
-            result.Value.ShouldBe((long)source.Value);
+            result.Value.ShouldBe(9292726);
         }
 
         [Fact]
@@ -68,7 +67,7 @@
             var source = new PublicField<ulong> { Value = 9383625 };
             var result = Mapper.Map(source).ToNew<PublicProperty<long?>>();
 
-            result.Value.ShouldBe((long)source.Value);
+            result.Value.ShouldBe(9383625);
         }
 
         [Fact]
@@ -95,7 +94,7 @@
             var source = new PublicField<float> { Value = 8532.00f };
             var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
 
-            result.Value.ShouldBe((long)source.Value);
+            result.Value.ShouldBe(8532);
         }
 
         [Fact]
@@ -131,7 +130,7 @@
             var source = new PublicGetMethod<decimal>(53632.00m);
             var result = Mapper.Map(source).ToNew<PublicProperty<long?>>();
 
-            result.Value.ShouldBe((long)source.GetValue());
+            result.Value.ShouldBe(53632);
         }
 
         [Fact]
@@ -158,7 +157,7 @@
             var source = new PublicField<double> { Value = 63728 };
             var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
 
-            result.Value.ShouldBe((long)source.Value);
+            result.Value.ShouldBe(63728);
         }
 
         [Fact]
@@ -185,7 +184,7 @@
             var source = new PublicField<Title> { Value = Title.Miss };
             var target = Mapper.Map(source).Over(new PublicProperty<long>());
 
-            target.Value.ShouldBe((long)source.Value);
+            target.Value.ShouldBe((long)Title.Miss);
         }
 
         [Fact]
@@ -209,21 +208,19 @@
         [Fact]
         public void ShouldMapAParsableStringOnToALong()
         {
-            const int VALUE = 63476387;
-            var source = new PublicField<string> { Value = VALUE.ToString(CultureInfo.InvariantCulture) };
+            var source = new PublicField<string> { Value = "63476387" };
             var result = Mapper.Map(source).OnTo(new PublicSetMethod<long>());
 
-            result.Value.ShouldBe(VALUE);
+            result.Value.ShouldBe(63476387);
         }
 
         [Fact]
         public void ShouldMapAParsableStringOverANullableLong()
         {
-            const int VALUE = 9282625;
-            var source = new PublicField<string> { Value = VALUE.ToString(CultureInfo.InvariantCulture) };
+            var source = new PublicField<string> { Value = "9282625" };
             var result = Mapper.Map(source).Over(new PublicSetMethod<long?>());
 
-            result.Value.ShouldBe(VALUE);
+            result.Value.ShouldBe(9282625);
         }
 
         [Fact]

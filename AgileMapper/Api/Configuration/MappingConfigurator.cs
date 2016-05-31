@@ -47,6 +47,8 @@
 
         public PostEventMappingConfigStartingPoint<TSource, TTarget> After => new PostEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
 
+        #region Map Overloads
+
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
@@ -101,5 +103,7 @@
 
         public DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
             => new DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget>(_configInfo);
+
+        #endregion
     }
 }
