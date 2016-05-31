@@ -88,6 +88,15 @@
         }
 
         [Fact]
+        public void ShouldMapAMatchingNullableCharacterOnToANullableEnum()
+        {
+            var source = new PublicField<char?> { Value = '2' };
+            var result = Mapper.Map(source).OnTo(new PublicProperty<Title?>());
+
+            result.Value.ShouldBe((Title)2);
+        }
+
+        [Fact]
         public void ShouldMapAMatchingStringOnToAnEnum()
         {
             var source = new PublicField<string> { Value = Title.Mrs.ToString() };
