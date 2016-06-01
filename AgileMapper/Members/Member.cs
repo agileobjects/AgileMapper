@@ -1,6 +1,8 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Linq;
+    using System.Reflection;
     using Extensions;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
@@ -51,6 +53,18 @@ namespace AgileObjects.AgileMapper.Members
                 type,
                 isRoot: true);
         }
+
+        public static Member Field(FieldInfo field)
+            => new Member(MemberType.Field, field.Name, field.DeclaringType, field.FieldType);
+
+        public static Member Property(PropertyInfo property)
+            => new Member(MemberType.Property, property.Name, property.DeclaringType, property.PropertyType);
+
+        public static Member GetMethod(MethodInfo method)
+            => new Member(MemberType.GetMethod, method.Name, method.DeclaringType, method.ReturnType);
+
+        public static Member SetMethod(MethodInfo method)
+            => new Member(MemberType.SetMethod, method.Name, method.DeclaringType, method.GetParameters().First().ParameterType);
 
         #endregion
 

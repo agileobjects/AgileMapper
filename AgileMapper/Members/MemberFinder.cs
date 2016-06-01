@@ -37,7 +37,7 @@
 
                 var fields = GetFields(sourceType, All);
                 var properties = GetProperties(sourceType, OnlyGettable);
-                var methods = GetMethods(sourceType, MemberType.GetMethod, OnlyRelevantCallable, UseReturnType);
+                var methods = GetMethods(sourceType, OnlyRelevantCallable, Member.GetMethod);
 
                 return GetMembers(fields, properties, methods);
             });
@@ -49,7 +49,7 @@
             {
                 var fields = GetFields(targetType, OnlyWriteable);
                 var properties = GetProperties(targetType, OnlySettable);
-                var methods = GetMethods(targetType, MemberType.SetMethod, OnlySettable, UseFirstArgumentType);
+                var methods = GetMethods(targetType, OnlySettable, Member.SetMethod);
 
                 return GetMembers(fields, properties, methods);
             });
@@ -62,7 +62,7 @@
             return targetType
                 .GetFields(Constants.PublicInstance)
                 .Where(filter)
-                .Select(f => new Member(MemberType.Field, f.Name, f.DeclaringType, f.FieldType));
+                .Select(Member.Field);
         }
 
         private static bool All(FieldInfo field)
@@ -85,7 +85,7 @@
                 .GetProperties(Constants.PublicInstance)
                 .Where(filter)
                 .Where(p => p.GetGetMethod(nonPublic: false) != null)
-                .Select(p => new Member(MemberType.Property, p.Name, p.DeclaringType, p.PropertyType));
+                .Select(Member.Property);
         }
 
         private static bool OnlyGettable(PropertyInfo property)
@@ -104,14 +104,13 @@
 
         private static IEnumerable<Member> GetMethods(
             Type targetType,
-            MemberType memberType,
             Func<MethodInfo, bool> filter,
-            Func<MethodInfo, Type> typeSelector)
+            Func<MethodInfo, Member> memberFactory)
         {
             return targetType
                 .GetMethods(Constants.PublicInstance)
                 .Where(filter)
-                .Select(m => new Member(memberType, m.Name, m.DeclaringType, typeSelector.Invoke(m)));
+                .Select(memberFactory);
         }
 
         private static readonly string[] _methodsToIgnore = { "GetHashCode", "GetType" };
@@ -124,22 +123,12 @@
                 method.GetParameters().None();
         }
 
-        private static Type UseReturnType(MethodInfo method)
-        {
-            return method.ReturnType;
-        }
-
         private static bool OnlySettable(MethodInfo method)
         {
             return
                 method.Name.StartsWith("Set", StringComparison.OrdinalIgnoreCase) &&
                 !method.Name.StartsWith("set_", StringComparison.Ordinal) &&
                 method.GetParameters().HasOne();
-        }
-
-        private static Type UseFirstArgumentType(MethodBase method)
-        {
-            return method.GetParameters().First().ParameterType;
         }
 
         #endregion
