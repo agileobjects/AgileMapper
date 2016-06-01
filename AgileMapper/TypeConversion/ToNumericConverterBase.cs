@@ -26,8 +26,15 @@
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
-            if (IsCoercible(sourceValue))
+            var sourceType = GetNonEnumSourceType(sourceValue);
+
+            if (IsCoercible(sourceType))
             {
+                if (!targetType.IsWholeNumberNumeric())
+                {
+                    sourceValue = sourceValue.GetConversionTo(sourceType);
+                }
+
                 return sourceValue.GetConversionTo(targetType);
             }
 
@@ -36,12 +43,47 @@
                 : GetCheckedNumericConversion(sourceValue, targetType);
         }
 
+        private static Type GetNonEnumSourceType(Expression sourceValue)
+        {
+            if (sourceValue.Type.IsEnum)
+            {
+                switch (Type.GetTypeCode(sourceValue.Type))
+                {
+                    case TypeCode.Byte:
+                        return typeof(byte);
+
+                    case TypeCode.SByte:
+                        return typeof(sbyte);
+
+                    case TypeCode.Int16:
+                        return typeof(short);
+
+                    case TypeCode.UInt16:
+                        return typeof(ushort);
+
+                    case TypeCode.Int32:
+                        return typeof(int);
+
+                    case TypeCode.UInt32:
+                        return typeof(uint);
+
+                    case TypeCode.Int64:
+                        return typeof(long);
+
+                    case TypeCode.UInt64:
+                        return typeof(ulong);
+                }
+            }
+
+            return sourceValue.Type;
+        }
+
         private static bool IsStringType(Type type)
         {
             return (type == typeof(string)) || (type == typeof(char)) || (type == typeof(char?));
         }
 
-        protected abstract bool IsCoercible(Expression sourceValue);
+        protected abstract bool IsCoercible(Type sourceType);
 
         private static Expression GetCheckedNumericConversion(Expression sourceValue, Type targetType)
         {
@@ -55,9 +97,10 @@
 
         private static Expression GetNumericValueValidityCheck(Expression sourceValue, Type targetType)
         {
-            var numericValueIsInRange = NumericValueIsInRangeComparison.For(sourceValue, targetType);
+            var nonNullableTargetType = targetType.GetNonNullableUnderlyingTypeIfAppropriate();
+            var numericValueIsInRange = NumericValueIsInRangeComparison.For(sourceValue, nonNullableTargetType);
 
-            if (sourceValue.Type.IsEnum || sourceValue.Type.IsWholeNumberNumeric())
+            if (NonWholeNumberCheckIsNotRequired(sourceValue, nonNullableTargetType))
             {
                 return numericValueIsInRange;
             }
@@ -68,6 +111,13 @@
             var moduloOneEqualsZero = Expression.Equal(sourceValueModuloOne, zero);
 
             return Expression.AndAlso(numericValueIsInRange, moduloOneEqualsZero);
+        }
+
+        private static bool NonWholeNumberCheckIsNotRequired(Expression sourceValue, Type nonNullableTargetType)
+        {
+            return sourceValue.Type.IsEnum ||
+                   sourceValue.Type.IsWholeNumberNumeric() ||
+                   !nonNullableTargetType.IsWholeNumberNumeric();
         }
 
         private static Expression GetConstantValue(int value, Expression sourceValue)

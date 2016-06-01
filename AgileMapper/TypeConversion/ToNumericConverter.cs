@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using System.Linq.Expressions;
     using Extensions;
 
     internal class ToNumericConverter<TNumeric> : ToNumericConverterBase
@@ -17,9 +16,6 @@
         {
         }
 
-        protected override bool IsCoercible(Expression sourceValue)
-        {
-            return _coercibleNumericTypes.Contains(sourceValue.Type);
-        }
+        protected override bool IsCoercible(Type sourceType) => _coercibleNumericTypes.Contains(sourceType);
     }
 }

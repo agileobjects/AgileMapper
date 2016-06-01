@@ -158,25 +158,16 @@
             return typeOneMinValue < typeTwoMinValue;
         }
 
-        public static bool IsNumeric(this Type type)
-        {
-            return Constants.NumericTypes.Contains(type);
-        }
+        public static bool IsNumeric(this Type type) => Constants.NumericTypes.Contains(type);
 
         public static bool IsWholeNumberNumeric(this Type type)
-        {
-            return Constants.WholeNumberNumericTypes.Contains(type);
-        }
+            => Constants.WholeNumberNumericTypes.Contains(type);
 
         private static double GetMaxValueFor(Type type)
-        {
-            return GetValueFor(type, Constants.NumericTypeMaxValuesByType, values => values.Max());
-        }
+            => GetValueFor(type, Constants.NumericTypeMaxValuesByType, values => values.Max());
 
         private static double GetMinValueFor(Type type)
-        {
-            return GetValueFor(type, Constants.NumericTypeMinValuesByType, values => values.Min());
-        }
+            => GetValueFor(type, Constants.NumericTypeMinValuesByType, values => values.Min());
 
         private static double GetValueFor(
             Type type,

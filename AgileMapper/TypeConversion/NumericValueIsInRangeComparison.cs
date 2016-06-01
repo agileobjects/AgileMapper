@@ -6,15 +6,13 @@
 
     internal static class NumericValueIsInRangeComparison
     {
-        public static Expression For(Expression sourceValue, Type targetType)
+        public static Expression For(Expression sourceValue, Type nonNullableTargetType)
         {
-            var targetNonNullableType = targetType.GetNonNullableUnderlyingTypeIfAppropriate();
-
             Expression maxValueComparisonLeftSide, maxValueComparisonRightSide;
             GetMaximumValueComparisonOperands(
                 sourceValue,
                 sourceValue.Type,
-                targetNonNullableType,
+                nonNullableTargetType,
                 out maxValueComparisonLeftSide,
                 out maxValueComparisonRightSide);
 
@@ -22,7 +20,7 @@
             GetMinimumValueComparisonOperands(
                 sourceValue,
                 sourceValue.Type,
-                targetNonNullableType,
+                nonNullableTargetType,
                 out minValueComparisonLeftSide,
                 out minValueComparisonRightSide);
 
@@ -40,42 +38,42 @@
 
         private static void GetMaximumValueComparisonOperands(
             Expression sourceValue,
-            Type sourceNonNullableType,
-            Type targetNonNullableType,
+            Type nonNullableSourceType,
+            Type nonNullableTargetType,
             out Expression maxValueComparisonLeftSide,
             out Expression maxValueComparisonRightSide)
         {
-            var numericMaxValue = Expression.Field(null, targetNonNullableType, "MaxValue");
+            var numericMaxValue = Expression.Field(null, nonNullableTargetType, "MaxValue");
 
-            if (sourceValue.Type.HasGreaterMaxValueThan(targetNonNullableType))
+            if (sourceValue.Type.HasGreaterMaxValueThan(nonNullableTargetType))
             {
                 maxValueComparisonLeftSide = sourceValue;
-                maxValueComparisonRightSide = numericMaxValue.GetConversionTo(sourceNonNullableType);
+                maxValueComparisonRightSide = numericMaxValue.GetConversionTo(nonNullableSourceType);
             }
             else
             {
-                maxValueComparisonLeftSide = sourceValue.GetConversionTo(targetNonNullableType);
+                maxValueComparisonLeftSide = sourceValue.GetConversionTo(nonNullableTargetType);
                 maxValueComparisonRightSide = numericMaxValue;
             }
         }
 
         private static void GetMinimumValueComparisonOperands(
             Expression sourceValue,
-            Type sourceNonNullableType,
-            Type targetNonNullableType,
+            Type nonNullableSourceType,
+            Type nonNullableTargetType,
             out Expression minValueComparisonLeftSide,
             out Expression minValueComparisonRightSide)
         {
-            var numericMinValue = Expression.Field(null, targetNonNullableType, "MinValue");
+            var numericMinValue = Expression.Field(null, nonNullableTargetType, "MinValue");
 
-            if (sourceValue.Type.HasSmallerMinValueThan(targetNonNullableType))
+            if (sourceValue.Type.HasSmallerMinValueThan(nonNullableTargetType))
             {
                 minValueComparisonLeftSide = sourceValue;
-                minValueComparisonRightSide = numericMinValue.GetConversionTo(sourceNonNullableType);
+                minValueComparisonRightSide = numericMinValue.GetConversionTo(nonNullableSourceType);
             }
             else
             {
-                minValueComparisonLeftSide = sourceValue.GetConversionTo(targetNonNullableType);
+                minValueComparisonLeftSide = sourceValue.GetConversionTo(nonNullableTargetType);
                 minValueComparisonRightSide = numericMinValue;
             }
         }

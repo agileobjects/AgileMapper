@@ -84,6 +84,7 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToEnums.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBytes.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDecimals.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToShorts.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToLongs.cs" />
