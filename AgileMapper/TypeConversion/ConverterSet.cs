@@ -76,7 +76,7 @@
 
             if (targetType.IsAssignableFrom(sourceValue.Type))
             {
-                return sourceValue.GetConversionTo(targetType);
+                return targetType.IsNullableType() ? sourceValue.GetConversionTo(targetType) : sourceValue;
             }
 
             if (!targetType.IsSimple())
