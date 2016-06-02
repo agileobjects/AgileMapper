@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
     using Members;
 
     internal static class MemberPopulationFactory
@@ -23,24 +22,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var qualifiedMember = omc.TargetMember.Append(targetMember);
             var context = new MemberMappingContext(qualifiedMember, omc);
 
-            Expression ignoreCondition;
+            Expression populateCondition;
 
-            if (TargetMemberIsAlwaysIgnored(context, out ignoreCondition))
+            if (TargetMemberPopulationIsConditional(context, out populateCondition))
             {
                 return MemberPopulation.IgnoredMember(context);
             }
 
             var dataSources = context.GetDataSources();
 
-            if (dataSources.None())
+            if (dataSources.None)
             {
                 return MemberPopulation.NoDataSource(context);
             }
 
-            return new MemberPopulation(context, dataSources).WithCondition(ignoreCondition);
+            return new MemberPopulation(context, dataSources, populateCondition);
         }
 
-        private static bool TargetMemberIsAlwaysIgnored(IMemberMappingContext context, out Expression ignoreCondition)
+        private static bool TargetMemberPopulationIsConditional(
+            IMemberMappingContext context,
+            out Expression populateCondition)
         {
             var configuredIgnore = context
                 .MapperContext
@@ -49,12 +50,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (configuredIgnore == null)
             {
-                ignoreCondition = null;
+                populateCondition = null;
                 return false;
             }
 
-            ignoreCondition = configuredIgnore.GetCondition(context);
-            return (ignoreCondition == null);
+            populateCondition = configuredIgnore.GetCondition(context);
+            return (populateCondition == null);
         }
     }
 }

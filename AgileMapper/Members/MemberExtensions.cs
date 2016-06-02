@@ -32,7 +32,7 @@
 
         public static Expression GetAccess(this Member member, Expression instance)
         {
-            if (!member.ExistingValueCanBeChecked)
+            if (!member.IsReadable)
             {
                 return Expression.Default(member.Type);
             }
@@ -54,7 +54,7 @@
 
             foreach (var member in memberChain)
             {
-                if (!member.ExistingValueCanBeChecked)
+                if (!member.IsReadable)
                 {
                     return Expression.Default(member.Type);
                 }

@@ -7,8 +7,6 @@
 
     internal class NullDataSource : IDataSource
     {
-        public static readonly IDataSource Default = new NullDataSource(Constants.EmptyExpression);
-
         public NullDataSource(Expression value)
         {
             Value = value;
@@ -16,7 +14,9 @@
 
         public IQualifiedMember SourceMember => null;
 
-        public bool IsSuccessful => false;
+        public bool IsValid => false;
+
+        public bool IsConditional => false;
 
         public IEnumerable<ParameterExpression> Variables => Enumerable.Empty<ParameterExpression>();
 
@@ -26,9 +26,6 @@
 
         public Expression Value { get; }
 
-        public Expression GetIfGuardedPopulation(IMemberMappingContext context) => Value;
-
-        public Expression GetElseGuardedPopulation(Expression populationSoFar, IMemberMappingContext context)
-            => Value;
+        public Expression GetValueOption(Expression valueSoFar) => Value;
     }
 }

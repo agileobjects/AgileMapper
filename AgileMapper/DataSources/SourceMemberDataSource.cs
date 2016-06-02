@@ -6,11 +6,11 @@
     internal class SourceMemberDataSource : DataSourceBase
     {
         public SourceMemberDataSource(IQualifiedMember sourceMember, IMemberMappingContext context)
-            : base(sourceMember, GetValueFrom(sourceMember, context), context)
+            : base(sourceMember, GetValue(sourceMember, context), context)
         {
         }
 
-        private static Expression GetValueFrom(IQualifiedMember sourceMember, IMemberMappingContext context)
+        private static Expression GetValue(IQualifiedMember sourceMember, IMemberMappingContext context)
         {
             var value = sourceMember.GetQualifiedAccess(context.SourceObject);
             var convertedValue = context.MapperContext.ValueConverters.GetConversion(value, context.TargetMember.Type);

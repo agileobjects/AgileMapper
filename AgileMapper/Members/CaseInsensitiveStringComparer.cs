@@ -9,6 +9,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Equals(string x, string y) => x.Equals(y, StringComparison.OrdinalIgnoreCase);
 
-        public int GetHashCode(string str) => str.GetHashCode();
+        public int GetHashCode(string str) => 0; // <- to force use of Equals ^
     }
 }

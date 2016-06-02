@@ -11,21 +11,21 @@ namespace AgileObjects.AgileMapper
                 Constants.CreateNew,
                 ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
                 CopySourceEnumerablePopulationStrategy.Instance,
-                NullDataSourceFactory.Instance,
+                ExistingOrDefaultValueDataSourceFactory.Instance,
                 NullPopulationProcessor.Instance);
 
             Merge = new MappingRuleSet(
                 Constants.Merge,
                 ComplexTypeMappingShortCircuitStrategy.SourceAndExistingAreNull,
                 MergeEnumerablePopulationStrategy.Instance,
-                NullDataSourceFactory.Instance,
+                ExistingOrDefaultValueDataSourceFactory.Instance,
                 PopulatedMemberPopulationGuarder.Instance);
 
             Overwrite = new MappingRuleSet(
                 Constants.Overwrite,
                 ComplexTypeMappingShortCircuitStrategy.SourceIsNull,
                 OverwriteEnumerablePopulationStrategy.Instance,
-                OverwriteFallbackDataSourceFactory.Instance,
+                DefaultValueDataSourceFactory.Instance,
                 NullPopulationProcessor.Instance);
         }
 

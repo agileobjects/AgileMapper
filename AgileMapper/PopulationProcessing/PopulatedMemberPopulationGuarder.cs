@@ -12,12 +12,12 @@
         {
             if (population.IsSuccessful &&
                 population.TargetMember.IsSimple &&
-                population.TargetMember.ExistingValueCanBeChecked)
+                population.TargetMember.IsReadable)
             {
                 var targetMemberAccess = GetTargetMemberAccess(population);
                 var targetMemberHasDefaultValue = targetMemberAccess.GetIsDefaultComparison();
 
-                population.WithCondition(targetMemberHasDefaultValue);
+                population.AddCondition(targetMemberHasDefaultValue);
             }
         }
 

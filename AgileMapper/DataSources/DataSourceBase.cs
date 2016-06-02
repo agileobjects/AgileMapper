@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -95,36 +94,20 @@
 
         public IQualifiedMember SourceMember { get; }
 
-        public bool IsSuccessful => Value != Constants.EmptyExpression;
+        public bool IsValid => Value != Constants.EmptyExpression;
+
+        public virtual bool IsConditional => NestedAccesses.Any();
 
         public IEnumerable<ParameterExpression> Variables { get; }
 
         public IEnumerable<Expression> NestedAccesses { get; }
 
-        public bool HasValue(Expression value) => false;
-
         public Expression Value { get; }
 
-        public Expression GetIfGuardedPopulation(IMemberMappingContext context)
-            => GetGuardedPopulation(context, Expression.IfThen);
+        public virtual Expression GetValueOption(Expression valueSoFar)
+            => Expression.Condition(GetValueCondition(), Value, valueSoFar);
 
-        public Expression GetElseGuardedPopulation(Expression populationSoFar, IMemberMappingContext context)
-            => GetGuardedPopulation(context, (condition, value) => Expression.IfThenElse(condition, value, populationSoFar));
-
-        protected virtual Expression GetGuardedPopulation(
-            IMemberMappingContext context,
-            Func<Expression, Expression, Expression> guardedPopulationFactory)
-        {
-            var population = context.TargetMember.GetPopulation(context.InstanceVariable, Value);
-
-            if (NestedAccesses.None())
-            {
-                return population;
-            }
-
-            var nestedAccessChecks = NestedAccesses.GetIsNotDefaultComparisonsOrNull();
-
-            return guardedPopulationFactory.Invoke(nestedAccessChecks, population);
-        }
+        protected virtual Expression GetValueCondition()
+            => NestedAccesses.GetIsNotDefaultComparisonsOrNull();
     }
 }

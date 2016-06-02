@@ -14,6 +14,17 @@
 
             result.ShouldNotBeNull();
         }
+
+        [Fact]
+        public void ShouldCreateAResultObjectViaAParameterisedConstructor()
+        {
+            var source = new PublicGetMethod<string>("Barney");
+            var result = Mapper.Map(source).ToNew<PublicCtor<string>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBe("Barney");
+        }
+
         [Fact]
         public void ShouldMapFromAnAnonymousType()
         {
@@ -49,6 +60,26 @@
 
             result.ShouldNotBeSameAs(source);
             result.Name.ShouldBe("Maggie");
+        }
+
+        [Fact]
+        public void ShouldCopyAnIntValue()
+        {
+            var source = new PublicField<int> { Value = 123 };
+            var result = Mapper.Map(source).ToNew<PublicProperty<int>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBe(123);
+        }
+
+        [Fact]
+        public void ShouldCopyAStringValue()
+        {
+            var source = new PublicProperty<string> { Value = "Oi 'Arry!" };
+            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBe("Oi 'Arry!");
         }
     }
 }

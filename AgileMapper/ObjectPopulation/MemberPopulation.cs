@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
@@ -11,22 +10,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class MemberPopulation : IMemberPopulation
     {
         private readonly IMemberMappingContext _context;
-        private readonly IEnumerable<IDataSource> _dataSources;
-        private readonly List<ParameterExpression> _variables;
-        private Expression _condition;
+        private readonly DataSourceSet _dataSources;
+        private Expression _populateCondition;
 
-        public MemberPopulation(IMemberMappingContext context, IEnumerable<IDataSource> dataSources)
+        public MemberPopulation(
+            IMemberMappingContext context,
+            DataSourceSet dataSources,
+            Expression populateCondition = null)
         {
             _context = context;
             _dataSources = dataSources;
-
-            _variables = new List<ParameterExpression>();
-
-            foreach (var dataSource in dataSources)
-            {
-                IsSuccessful = IsSuccessful || dataSource.IsSuccessful;
-                _variables.AddRange(dataSource.Variables);
-            }
+            _populateCondition = populateCondition;
 
             context.MappingContext.RuleSet.MemberPopulationProcessor.Process(this);
         }
@@ -42,8 +36,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IMemberPopulation CreateNullMemberPopulation(IMemberMappingContext context, Func<IQualifiedMember, string> commentFactory)
             => new MemberPopulation(
                    context,
-                   new[] { new NullDataSource(
-                       ReadableExpression.Comment(commentFactory.Invoke(context.TargetMember))) });
+                   new DataSourceSet(
+                       new NullDataSource(
+                           ReadableExpression.Comment(commentFactory.Invoke(context.TargetMember)))));
 
         #endregion
 
@@ -51,34 +46,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IQualifiedMember TargetMember => _context.TargetMember;
 
-        public bool IsSuccessful { get; }
+        public bool IsSuccessful => _dataSources.HasValue;
 
-        public IMemberPopulation WithCondition(Expression condition)
+        public void AddCondition(Expression condition)
         {
             if (condition != null)
             {
-                _condition = condition;
+                _populateCondition = condition;
             }
-            return this;
         }
 
         public Expression GetPopulation()
         {
-            var population = _dataSources
-                .Reverse()
-                .Skip(1)
-                .Aggregate(
-                    _dataSources.Last().GetIfGuardedPopulation(_context),
-                    (populationSoFar, valueProvider) => valueProvider.GetElseGuardedPopulation(populationSoFar, _context));
-
-            if (_condition != null)
+            if (!IsSuccessful)
             {
-                population = Expression.IfThen(_condition, population);
+                return _dataSources.Value;
             }
 
-            if (_variables.Any())
+            var population = _context.TargetMember.GetPopulation(_context.InstanceVariable, _dataSources.Value);
+
+            if (_dataSources.Variables.Any())
             {
-                population = Expression.Block(_variables, population);
+                population = Expression.Block(_dataSources.Variables, population);
+            }
+
+            if (_populateCondition != null)
+            {
+                population = Expression.IfThen(_populateCondition, population);
             }
 
             return population;

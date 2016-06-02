@@ -19,9 +19,9 @@ namespace AgileObjects.AgileMapper.Members
                 .Select(np => np.AllNames)
                 .CartesianProduct()
                 .Select(p => string.Join(string.Empty, p))
+                .Where(name => name != string.Empty)
                 .ToArray();
         }
-
 
         public bool Matches(IQualifiedMemberName otherQualifiedName)
         {

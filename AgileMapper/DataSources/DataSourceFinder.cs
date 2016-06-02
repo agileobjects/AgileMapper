@@ -7,14 +7,16 @@
 
     internal class DataSourceFinder
     {
-        public IEnumerable<IDataSource> FindFor(IMemberMappingContext context)
-        {
-            return EnumerateDataSources(context)
-                .Where(dataSource => dataSource.IsSuccessful)
-                .ToArray();
-        }
+        public DataSourceSet FindFor(IMemberMappingContext context)
+            => new DataSourceSet(EnumerateSuccessfulDataSources(context).ToArray());
 
-        public IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
+        public IDataSource DataSourceAt(int index, IMemberMappingContext context)
+            => EnumerateSuccessfulDataSources(context).ElementAt(index);
+
+        private IEnumerable<IDataSource> EnumerateSuccessfulDataSources(IMemberMappingContext context)
+            => EnumerateDataSources(context).Where(dataSource => dataSource.IsValid);
+
+        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
         {
             if (context.Parent == null)
             {
@@ -43,20 +45,32 @@
 
             if (context.TargetMember.IsComplex)
             {
-                yield return new ComplexTypeMappingDataSource(context.SourceMember, dataSourceIndex, context);
-                yield return FallbackDataSourceFor(context);
+                var complexTypeDataSource = new ComplexTypeMappingDataSource(context.SourceMember, dataSourceIndex, context);
+                yield return complexTypeDataSource;
+
+                if (complexTypeDataSource.IsConditional)
+                {
+                    yield return FallbackDataSourceFor(context);
+                }
+
                 yield break;
             }
 
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(context);
 
-            if ((matchingSourceMemberDataSource != null) &&
-                SourceMemberDataSourceIsUnconfigured(configuredDataSources, matchingSourceMemberDataSource))
+            if ((matchingSourceMemberDataSource == null) ||
+                configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
-                yield return matchingSourceMemberDataSource;
+                yield return FallbackDataSourceFor(context);
+                yield break;
             }
 
-            yield return FallbackDataSourceFor(context);
+            yield return matchingSourceMemberDataSource;
+
+            if (matchingSourceMemberDataSource.IsConditional)
+            {
+                yield return FallbackDataSourceFor(context);
+            }
         }
 
         private static IDataSource RootSourceMemberDataSourceFor(IMemberMappingContext context)
@@ -166,17 +180,6 @@
                     yield return qualifiedMember;
                 }
             }
-        }
-
-        private static bool SourceMemberDataSourceIsUnconfigured(
-            IEnumerable<IConfiguredDataSource> configuredDataSources,
-            IDataSource sourceMemberDataSource)
-        {
-            var sourceMemberDataSourceValue = sourceMemberDataSource.Value.ToString();
-
-            return configuredDataSources
-                .Select(cds => cds.OriginalValue.ToString())
-                .All(cds => cds != sourceMemberDataSourceValue);
         }
     }
 }

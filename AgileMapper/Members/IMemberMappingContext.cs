@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
-    using System.Collections.Generic;
     using System.Linq.Expressions;
     using DataSources;
     using ObjectPopulation;
@@ -29,7 +28,7 @@
 
         NestedAccessFinder NestedAccessFinder { get; }
 
-        IEnumerable<IDataSource> GetDataSources();
+        DataSourceSet GetDataSources();
 
         Expression WrapInTry(Expression expression);
     }

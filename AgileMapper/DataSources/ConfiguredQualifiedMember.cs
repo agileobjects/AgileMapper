@@ -72,7 +72,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public bool IsSimple { get; }
 
-        public bool ExistingValueCanBeChecked => true;
+        public bool IsReadable => true;
 
         public string Signature { get; }
 

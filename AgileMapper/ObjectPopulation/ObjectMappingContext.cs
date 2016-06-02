@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -241,7 +240,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetMember = allTargetMembers.First(tm => tm.Name == targetMemberName);
             var qualifiedTargetMember = _targetMember.Append(targetMember);
             var context = new MemberMappingContext(qualifiedTargetMember, this);
-            var sourceMember = context.EnumerateDataSources().ElementAt(dataSourceIndex).SourceMember;
+            var sourceMember = context.DataSourceAt(dataSourceIndex).SourceMember;
 
             var targetObjectMappingCommand = ObjectMappingCommand.CreateForChild(
                 source,
@@ -307,7 +306,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         NestedAccessFinder IMemberMappingContext.NestedAccessFinder => _nestedAccessFinder;
 
-        IEnumerable<IDataSource> IMemberMappingContext.GetDataSources() => this.GetDataSources();
+        DataSourceSet IMemberMappingContext.GetDataSources() => this.GetDataSources();
 
         Expression IMemberMappingContext.WrapInTry(Expression expression)
         {

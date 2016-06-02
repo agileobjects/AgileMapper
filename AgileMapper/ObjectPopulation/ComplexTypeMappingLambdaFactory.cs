@@ -76,14 +76,41 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.Assign(omc.Object, createdInstance);
         }
 
-        private static Expression GetNewObjectCreation(IMemberMappingContext omc)
+        private static Expression GetNewObjectCreation(IObjectMappingContext omc)
         {
             var configuredFactory = omc
                 .MapperContext
                 .UserConfigurations
                 .GetObjectFactoryOrNull(omc);
 
-            return configuredFactory ?? Expression.New(omc.InstanceVariable.Type);
+            if (configuredFactory != null)
+            {
+                return configuredFactory;
+            }
+
+            var greediestAvailableConstructor = omc.InstanceVariable.Type
+                .GetConstructors(Constants.PublicInstance)
+                .Select(ctor => new
+                {
+                    Constructor = ctor,
+                    Parameters = ctor
+                        .GetParameters()
+                        .Select(p => new MemberMappingContext(
+                            omc.TargetMember.Append(Member.ConstructorParameter(p)),
+                            omc))
+                        .Select(context => omc
+                            .MapperContext
+                            .DataSources
+                            .FindFor(context))
+                        .ToArray()
+                })
+                .Where(ctor => ctor.Parameters.All(ds => ds.HasValue))
+                .OrderByDescending(ctor => ctor.Parameters.Length)
+                .First();
+
+            return Expression.New(
+                greediestAvailableConstructor.Constructor,
+                greediestAvailableConstructor.Parameters.Select(ds => ds.Value));
         }
 
         protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)

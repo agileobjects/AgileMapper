@@ -6,8 +6,8 @@
 
     internal class DefaultValueDataSource : DataSourceBase
     {
-        public DefaultValueDataSource(IQualifiedMember sourceMember, Type valueType)
-            : base(sourceMember, Expression.Default(valueType))
+        public DefaultValueDataSource(IQualifiedMember member, Type valueType)
+            : base(member, Expression.Default(valueType))
         {
         }
     }

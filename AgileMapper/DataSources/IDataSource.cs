@@ -8,7 +8,9 @@
     {
         IQualifiedMember SourceMember { get; }
 
-        bool IsSuccessful { get; }
+        bool IsValid { get; }
+
+        bool IsConditional { get; }
 
         IEnumerable<ParameterExpression> Variables { get; }
 
@@ -16,8 +18,6 @@
 
         Expression Value { get; }
 
-        Expression GetIfGuardedPopulation(IMemberMappingContext context);
-
-        Expression GetElseGuardedPopulation(Expression populationSoFar, IMemberMappingContext context);
+        Expression GetValueOption(Expression valueSoFar);
     }
 }

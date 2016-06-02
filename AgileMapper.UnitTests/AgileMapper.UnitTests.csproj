@@ -98,6 +98,7 @@
     <Compile Include="TestClasses\Person.cs" />
     <Compile Include="TestClasses\PersonViewModel.cs" />
     <Compile Include="TestClasses\Product.cs" />
+    <Compile Include="TestClasses\PublicCtor.cs" />
     <Compile Include="TestClasses\PublicField.cs" />
     <Compile Include="TestClasses\PublicGetMethod.cs" />
     <Compile Include="TestClasses\PublicProperty.cs" />
@@ -123,7 +124,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WhenMappingToNewEnumerableMembers.cs" />
     <Compile Include="WhenMappingToNewEnumerables.cs" />
-    <Compile Include="WhenMappingToNewSimpleTypeMembers.cs" />
     <Compile Include="Members\WhenMatchingSourceToTargetMembers.cs" />
   </ItemGroup>
   <ItemGroup>

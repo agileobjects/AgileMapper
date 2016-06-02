@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.Members
 
         bool IsSimple { get; }
 
-        bool ExistingValueCanBeChecked { get; }
+        bool IsReadable { get; }
 
         string Signature { get; }
 

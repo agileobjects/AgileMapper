@@ -201,6 +201,9 @@
                     case ExpressionType.Invoke:
                         return ReplaceIn((InvocationExpression)expression);
 
+                    case ExpressionType.Lambda:
+                        return ReplaceIn((LambdaExpression)expression);
+
                     case ExpressionType.MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
 
@@ -222,6 +225,16 @@
 
             private Expression ReplaceIn(BinaryExpression binary)
                 => ReplaceIn(binary, () => binary.Update(Replace(binary.Left), binary.Conversion, Replace(binary.Right)));
+
+            private Expression ReplaceIn(LambdaExpression lambda)
+            {
+                return ReplaceIn(
+                    lambda,
+                    () => Expression.Lambda(
+                        lambda.Type,
+                        Replace(lambda.Body),
+                        lambda.Parameters.Select(Replace).Cast<ParameterExpression>()));
+            }
 
             private Expression ReplaceIn(MethodCallExpression call)
                 => ReplaceIn(call, () => ReplaceInCall(call.Object, call.Arguments, call.Update));

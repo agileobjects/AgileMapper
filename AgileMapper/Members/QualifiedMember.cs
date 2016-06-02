@@ -55,7 +55,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsSimple => LeafMember.IsSimple;
 
-        public bool ExistingValueCanBeChecked => LeafMember.ExistingValueCanBeChecked;
+        public bool IsReadable => LeafMember.IsReadable;
 
         public string Signature { get; }
 

@@ -1,7 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using Members;
@@ -9,6 +7,8 @@
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {
         private readonly Expression _condition;
+        private readonly string _originalValueString;
+        private readonly bool _hasCondition;
 
         public ConfiguredDataSource(
             int dataSourceIndex,
@@ -33,8 +33,13 @@
                   context.WrapInTry(convertedValue),
                   context)
         {
-            OriginalValue = convertedValue;
-            _condition = GetCondition(condition, context);
+            _originalValueString = convertedValue.ToString();
+            _hasCondition = condition != null;
+
+            if (_hasCondition)
+            {
+                _condition = GetCondition(condition, context);
+            }
         }
 
         #region Setup
@@ -53,11 +58,6 @@
 
         private static Expression GetCondition(Expression condition, IMemberMappingContext context)
         {
-            if (condition == null)
-            {
-                return null;
-            }
-
             var conditionNestedAccessesChecks = context
                 .NestedAccessFinder
                 .FindIn(condition)
@@ -75,31 +75,16 @@
 
         #endregion
 
-        public bool IsConditional => _condition != null;
+        public override bool IsConditional => base.IsConditional || _hasCondition;
 
-        public Expression OriginalValue { get; }
+        public bool IsSameAs(IDataSource otherDataSource)
+            => otherDataSource.Value.ToString() == _originalValueString;
 
-        protected override Expression GetGuardedPopulation(
-            IMemberMappingContext context,
-            Func<Expression, Expression, Expression> guardedPopulationFactory)
+        protected override Expression GetValueCondition()
         {
-            if (!IsConditional)
-            {
-                return base.GetGuardedPopulation(context, guardedPopulationFactory);
-            }
-
-            var population = context.TargetMember.GetPopulation(context.InstanceVariable, Value);
-
-            if (!NestedAccesses.Any())
-            {
-                return guardedPopulationFactory.Invoke(_condition, population);
-            }
-
-            var nestedAccessChecks = NestedAccesses.GetIsNotDefaultComparisonsOrNull();
-
-            population = Expression.IfThen(nestedAccessChecks, population);
-
-            return guardedPopulationFactory.Invoke(_condition, population);
+            return _hasCondition
+                ? base.IsConditional ? Expression.AndAlso(base.GetValueCondition(), _condition) : _condition
+                : base.GetValueCondition();
         }
     }
 }

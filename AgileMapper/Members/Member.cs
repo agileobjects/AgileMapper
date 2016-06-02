@@ -54,6 +54,9 @@ namespace AgileObjects.AgileMapper.Members
                 isRoot: true);
         }
 
+        public static Member ConstructorParameter(ParameterInfo parameter)
+            => new Member(MemberType.ConstructorParameter, parameter.Name, parameter.Member.DeclaringType, parameter.ParameterType);
+
         public static Member Field(FieldInfo field)
             => new Member(MemberType.Field, field.Name, field.DeclaringType, field.FieldType);
 
@@ -90,7 +93,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public MemberType MemberType { get; }
 
-        public bool ExistingValueCanBeChecked => MemberType != MemberType.SetMethod;
+        public bool IsReadable => MemberType.IsReadable();
 
         public Member WithType(Type runtimeType)
         {
