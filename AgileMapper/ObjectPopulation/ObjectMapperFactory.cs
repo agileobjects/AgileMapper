@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 typeof(TSource).FullName,
                 typeof(TTarget).FullName,
                 typeof(TInstance).FullName,
-                omc.MappingContext.RuleSet.Name);
+                omc.RuleSetName);
 
             var mapper = omc.MapperContext.Cache.GetOrAdd(mapperKey, k =>
             {

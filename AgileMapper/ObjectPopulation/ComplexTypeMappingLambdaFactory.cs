@@ -2,8 +2,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
+    using DataSources;
     using Members;
 
     internal class ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>
@@ -11,6 +14,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance> Instance =
             new ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>();
+
+        protected override bool IsNotConstructable(IObjectMappingContext omc)
+            => GetNewObjectCreation(omc) == null;
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
         {
@@ -78,39 +84,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetNewObjectCreation(IObjectMappingContext omc)
         {
-            var configuredFactory = omc
-                .MapperContext
-                .UserConfigurations
-                .GetObjectFactoryOrNull(omc);
+            var objectCreationKey = string.Format(
+                CultureInfo.InvariantCulture,
+                "{0} -> {1}, {2}: {3} Ctor",
+                omc.SourceType.FullName,
+                omc.TargetType.FullName,
+                omc.InstanceVariable.Type.FullName,
+                omc.RuleSetName);
 
-            if (configuredFactory != null)
+            return omc.MapperContext.Cache.GetOrAdd(objectCreationKey, k =>
             {
-                return configuredFactory;
-            }
+                var configuredFactory = omc
+                    .MapperContext
+                    .UserConfigurations
+                    .GetObjectFactoryOrNull(omc);
 
-            var greediestAvailableConstructor = omc.InstanceVariable.Type
-                .GetConstructors(Constants.PublicInstance)
-                .Select(ctor => new
+                if (configuredFactory != null)
                 {
-                    Constructor = ctor,
-                    Parameters = ctor
-                        .GetParameters()
-                        .Select(p => new MemberMappingContext(
-                            omc.TargetMember.Append(Member.ConstructorParameter(p)),
-                            omc))
-                        .Select(context => omc
-                            .MapperContext
-                            .DataSources
-                            .FindFor(context))
-                        .ToArray()
-                })
-                .Where(ctor => ctor.Parameters.All(ds => ds.HasValue))
-                .OrderByDescending(ctor => ctor.Parameters.Length)
-                .First();
+                    return configuredFactory;
+                }
 
-            return Expression.New(
-                greediestAvailableConstructor.Constructor,
-                greediestAvailableConstructor.Parameters.Select(ds => ds.Value));
+                var greediestAvailableConstructor = omc.InstanceVariable.Type
+                    .GetConstructors(Constants.PublicInstance)
+                    .Select(ctor => new ConstructorData(
+                        ctor,
+                        ctor.GetParameters()
+                            .Select(p => new MemberMappingContext(
+                                omc.TargetMember.Append(Member.ConstructorParameter(p)),
+                                omc))
+                            .Select(context => omc
+                                .MapperContext
+                                .DataSources
+                                .FindFor(context))
+                            .ToArray()))
+                    .Where(ctor => ctor.CanBeConstructed)
+                    .OrderByDescending(ctor => ctor.NumberOfParameters)
+                    .FirstOrDefault();
+
+                return greediestAvailableConstructor?.Construction;
+            });
         }
 
         protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)
@@ -147,5 +159,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
             => omc.InstanceVariable;
+
+        private class ConstructorData
+        {
+            public ConstructorData(ConstructorInfo constructor, ICollection<DataSourceSet> argumentDataSources)
+            {
+                CanBeConstructed = argumentDataSources.All(ds => ds.HasValue);
+                NumberOfParameters = argumentDataSources.Count;
+
+                if (CanBeConstructed)
+                {
+                    Construction = Expression.New(constructor, argumentDataSources.Select(ds => ds.Value));
+                }
+            }
+
+            public bool CanBeConstructed { get; }
+
+            public int NumberOfParameters { get; }
+
+            public Expression Construction { get; }
+        }
     }
 }

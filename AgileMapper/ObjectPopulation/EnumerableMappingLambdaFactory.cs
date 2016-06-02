@@ -11,6 +11,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance> Instance =
             new EnumerableMappingLambdaFactory<TSource, TTarget, TInstance>();
 
+        protected override bool IsNotConstructable(IObjectMappingContext omc) => false;
+
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
             => Enumerable.Empty<Expression>();
 

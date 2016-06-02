@@ -4,13 +4,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 
     internal abstract class ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
     {
-        public Expression<MapperFunc<TSource, TTarget, TInstance>> Create(IObjectMappingContext omc)
+        public virtual Expression<MapperFunc<TSource, TTarget, TInstance>> Create(IObjectMappingContext omc)
         {
             var returnLabelTarget = Expression.Label(omc.ExistingObject.Type, "Return");
             var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omc.ExistingObject.Type));
+
+            if (IsNotConstructable(omc))
+            {
+                return Expression.Lambda<MapperFunc<TSource, TTarget, TInstance>>(GetNullMappingBlock(returnNull), omc.Parameter);
+            }
 
             var shortCircuitReturns = GetShortCircuitReturns(returnNull, omc);
             var instanceVariableValue = GetObjectResolution(omc);
@@ -31,6 +38,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return mapperLambda;
         }
+
+        private static Expression GetNullMappingBlock(GotoExpression returnNull)
+        {
+            return Expression.Block(
+                ReadableExpression.Comment("Unable to construct object of Type " + returnNull.Value.Type.GetFriendlyName()),
+                returnNull.Value);
+        }
+
+        protected abstract bool IsNotConstructable(IObjectMappingContext omc);
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc);
 

@@ -61,7 +61,11 @@
             if ((matchingSourceMemberDataSource == null) ||
                 configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
-                yield return FallbackDataSourceFor(context);
+                if (dataSourceIndex > 0)
+                {
+                    yield return FallbackDataSourceFor(context);
+                }
+
                 yield break;
             }
 

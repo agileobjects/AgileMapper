@@ -46,6 +46,16 @@
         }
 
         [Fact]
+        public void ShouldHandleAnUnconstructableType()
+        {
+            var source = new { Value = new { Hello = "There" } };
+            var result = Mapper.Map(source).ToNew<PublicSetMethod<PublicCtor<string>>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredExpression()
         {
             using (var mapper = Mapper.Create())
