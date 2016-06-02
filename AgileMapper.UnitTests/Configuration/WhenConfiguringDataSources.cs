@@ -448,6 +448,49 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredComplexTypeConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var source = new
+                {
+                    Value = new PublicField<int> { Value = 0 },
+                    Value1 = new PublicField<int> { Value = 1 },
+                    Value2 = new PublicField<int> { Value = 2 }
+                };
+
+                mapper.WhenMapping
+                    .From(source)
+                    .Over<PublicField<PublicField<int>>>()
+                    .Map(ctx => ctx.Source.Value1)
+                    .To(t => t.Value)
+                    .If((s, t) => t.Value.Value > 2);
+
+                mapper.WhenMapping
+                    .From(source)
+                    .Over<PublicField<PublicField<int>>>()
+                    .Map(ctx => ctx.Source.Value2)
+                    .To(t => t.Value)
+                    .If((s, t) => t.Value.Value < 0);
+
+                var value1MatchingTarget = new PublicField<PublicField<int>> { Value = new PublicField<int> { Value = 3 } };
+                var value1MatchingResult = mapper.Map(source).Over(value1MatchingTarget);
+
+                value1MatchingResult.Value.Value.ShouldBe(1);
+
+                var value2MatchingTarget = new PublicField<PublicField<int>> { Value = new PublicField<int> { Value = -1 } };
+                var value2MatchingResult = mapper.Map(source).Over(value2MatchingTarget);
+
+                value2MatchingResult.Value.Value.ShouldBe(2);
+
+                var defaultTarget = new PublicField<PublicField<int>> { Value = new PublicField<int> { Value = 1 } };
+                var defaultResult = mapper.Map(source).Over(defaultTarget);
+
+                defaultResult.Value.Value.ShouldBe(0);
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredSourceAndTargetFunction()
         {
             using (var mapper = Mapper.Create())

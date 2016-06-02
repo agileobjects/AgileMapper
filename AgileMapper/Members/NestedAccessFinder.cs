@@ -61,12 +61,15 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if (methodCall.Object != null)
+            if ((methodCall.Object != null) && IsNotRootSourceObject(methodCall.Object))
             {
                 _memberAccessSubjects.Add(methodCall.Object);
             }
 
-            AddMemberAccessIfAppropriate(methodCall);
+            if (methodCall.Object != _contextParameter)
+            {
+                AddMemberAccessIfAppropriate(methodCall);
+            }
 
             return base.VisitMethodCall(methodCall);
         }
