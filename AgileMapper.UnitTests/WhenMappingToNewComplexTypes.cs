@@ -26,6 +26,15 @@
         }
 
         [Fact]
+        public void ShouldConvertASimpleTypeConstructorArgument()
+        {
+            var source = new PublicGetMethod<string>("80.6537");
+            var result = Mapper.Map(source).ToNew<PublicCtor<decimal>>();
+
+            result.Value.ShouldBe(80.6537);
+        }
+
+        [Fact]
         public void ShouldMapFromAnAnonymousType()
         {
             var source = new { Value = "Hello there!" };
