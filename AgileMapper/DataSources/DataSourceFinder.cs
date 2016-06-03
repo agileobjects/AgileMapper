@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using Members;
-    using ObjectPopulation;
 
     internal class DataSourceFinder
     {
@@ -112,7 +111,7 @@
                 return null;
             }
 
-            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(context.SourceObjectDepth);
+            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(context.SourceMember);
 
             return GetSourceMemberDataSourceFor(bestMatchingSourceMember, dataSourceIndex, context);
         }
@@ -145,7 +144,7 @@
         {
             var rootSourceMember = context.SourceMember;
 
-            return GetAllSourceMembers(rootSourceMember, context.Parent)
+            return GetAllSourceMembers(rootSourceMember, context)
                 .FirstOrDefault(sm => IsMatchingMember(sm, context));
         }
 
@@ -157,11 +156,11 @@
 
         private static IEnumerable<IQualifiedMember> GetAllSourceMembers(
             IQualifiedMember parentMember,
-            IObjectMappingContext currentOmc)
+            IMemberMappingContext context)
         {
             yield return parentMember;
 
-            var parentMemberType = currentOmc.GetSourceMemberRuntimeType(parentMember);
+            var parentMemberType = context.Parent.GetSourceMemberRuntimeType(parentMember);
 
             if (parentMemberType != parentMember.Type)
             {
@@ -169,7 +168,12 @@
                 yield return parentMember;
             }
 
-            foreach (var sourceMember in currentOmc.GlobalContext.MemberFinder.GetReadableMembers(parentMember.Type))
+            if (!parentMember.CouldMatch(context.TargetMember))
+            {
+                yield break;
+            }
+
+            foreach (var sourceMember in context.Parent.GlobalContext.MemberFinder.GetReadableMembers(parentMember.Type))
             {
                 var childMember = parentMember.Append(sourceMember);
 
@@ -179,7 +183,7 @@
                     continue;
                 }
 
-                foreach (var qualifiedMember in GetAllSourceMembers(childMember, currentOmc))
+                foreach (var qualifiedMember in GetAllSourceMembers(childMember, context))
                 {
                     yield return qualifiedMember;
                 }

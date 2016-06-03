@@ -9,7 +9,7 @@
     {
         private readonly IObjectMappingContext _parent;
 
-        public MemberMappingContext(IQualifiedMember targetMember, IObjectMappingContext parent)
+        public MemberMappingContext(QualifiedMember targetMember, IObjectMappingContext parent)
         {
             _parent = parent;
             TargetMember = targetMember;
@@ -33,9 +33,7 @@
 
         Type IMappingData.SourceType => SourceObject.Type;
 
-        public int SourceObjectDepth => _parent.SourceObjectDepth;
-
-        public IQualifiedMember TargetMember { get; }
+        public QualifiedMember TargetMember { get; }
 
         public Expression ExistingObject => _parent.ExistingObject;
 

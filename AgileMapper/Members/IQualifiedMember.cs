@@ -23,11 +23,13 @@ namespace AgileObjects.AgileMapper.Members
 
         IQualifiedMember Append(Member childMember);
 
-        IQualifiedMember RelativeTo(int depth);
+        IQualifiedMember RelativeTo(IQualifiedMember otherMember);
 
         IQualifiedMember WithType(Type runtimeType);
 
         bool IsSameAs(IQualifiedMember otherMember);
+
+        bool CouldMatch(IQualifiedMember otherMember);
 
         bool Matches(IQualifiedMember otherMember);
 

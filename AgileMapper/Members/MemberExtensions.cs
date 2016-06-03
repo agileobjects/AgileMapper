@@ -52,7 +52,8 @@
         {
             var accessSoFar = instance;
 
-            foreach (var member in memberChain)
+            // Skip(1) because the 0th member is the instance:
+            foreach (var member in memberChain.Skip(1))
             {
                 if (!member.IsReadable)
                 {
@@ -63,6 +64,17 @@
             }
 
             return accessSoFar;
+        }
+
+        public static Member[] RelativeTo(this IEnumerable<Member> memberChain, IEnumerable<Member> otherMemberChain)
+        {
+            var otherMembersLeafMember = otherMemberChain.Last();
+
+            var relativeMemberChain = memberChain
+                .SkipWhile(member => member != otherMembersLeafMember)
+                .ToArray();
+
+            return relativeMemberChain;
         }
 
         #region PopulationFactoriesByMemberType

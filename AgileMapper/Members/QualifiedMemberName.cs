@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using Extensions;
 
-    internal class QualifiedMemberName : IQualifiedMemberName
+    internal class QualifiedMemberName
     {
         private readonly MemberName[] _nameParts;
         private readonly IEnumerable<string> _allJoinedNames;
@@ -23,27 +23,32 @@ namespace AgileObjects.AgileMapper.Members
                 .ToArray();
         }
 
-        public bool Matches(IQualifiedMemberName otherQualifiedName)
+        public bool IsRootOf(QualifiedMemberName otherQualifiedName)
         {
-            var otherName = otherQualifiedName as QualifiedMemberName;
-
-            if (otherName == null)
-            {
-                return otherQualifiedName.Matches(this);
-            }
-
-            if (_allJoinedNames.Intersect(otherName._allJoinedNames, CaseInsensitiveStringComparer.Instance).Any())
+            if (_nameParts.Length == 0)
             {
                 return true;
             }
 
-            if (_nameParts.Length != otherName._nameParts.Length)
+            return otherQualifiedName._allJoinedNames
+                .Any(otherName => _allJoinedNames
+                    .Any(name => otherName.StartsWith(name, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public bool Matches(QualifiedMemberName otherQualifiedName)
+        {
+            if (_allJoinedNames.Intersect(otherQualifiedName._allJoinedNames, CaseInsensitiveStringComparer.Instance).Any())
+            {
+                return true;
+            }
+
+            if (_nameParts.Length != otherQualifiedName._nameParts.Length)
             {
                 return false;
             }
 
             return _nameParts
-                .Where((t, i) => !t.Matches(otherName._nameParts[i]))
+                .Where((t, i) => !t.Matches(otherQualifiedName._nameParts[i]))
                 .None();
         }
     }

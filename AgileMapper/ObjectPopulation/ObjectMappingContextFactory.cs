@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             IQualifiedMember sourceMember,
             TTarget target,
-            IQualifiedMember targetMember,
+            QualifiedMember targetMember,
             TInstance existing,
             int? enumerableIndex,
             MappingContext mappingContext);

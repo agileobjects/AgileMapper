@@ -55,7 +55,6 @@
     <Compile Include="Members\CaseInsensitiveStringComparer.cs" />
     <Compile Include="Members\IMappingData.cs" />
     <Compile Include="Members\IQualifiedMember.cs" />
-    <Compile Include="Members\IQualifiedMemberName.cs" />
     <Compile Include="Members\ITypedMemberMappingExceptionContext.cs" />
     <Compile Include="Members\IUntypedMemberMappingExceptionContext.cs" />
     <Compile Include="Members\MemberIdentifierSet.cs" />

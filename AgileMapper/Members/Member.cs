@@ -34,15 +34,11 @@ namespace AgileObjects.AgileMapper.Members
 
         #region Factory Methods
 
-        public static Member RootSource(Type sourceType)
-        {
-            return Root("Source", sourceType);
-        }
+        public static Member RootSource(Type sourceType) => Root("Source", sourceType);
 
-        public static Member RootTarget(Type type)
-        {
-            return Root("Target", type);
-        }
+        public static Member ConfiguredSource(string signature, Type type) => Root(signature, type);
+
+        public static Member RootTarget(Type type) => Root("Target", type);
 
         private static Member Root(string name, Type type)
         {

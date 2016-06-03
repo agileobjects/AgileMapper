@@ -17,9 +17,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             IQualifiedMember sourceMember,
             TTarget target,
-            IQualifiedMember targetMember,
+            QualifiedMember targetMember,
             TInstance existingTargetInstance,
-            IQualifiedMember existingTargetInstanceMember,
+            QualifiedMember existingTargetInstanceMember,
             int? enumerableIndex,
             MappingContext mappingContext)
         {
@@ -39,12 +39,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var sourceParameter = Parameters.Create<TSource>("source");
-            var sourceMemberAccess = command.SourceMember.GetQualifiedAccess(sourceParameter);
-            var sourceMemberParameter = Parameters.Create<IQualifiedMember>("sourceMember");
+            var sourceMemberAccess = command.SourceMember.GetAccess(sourceParameter);
             var targetParameter = Parameters.Create<TTarget>("target");
-            var targetMemberParameter = Parameters.Create<IQualifiedMember>("targetMember");
             var existingTargetInstanceParameter = Parameters.Create<TInstance>("existingTargetInstance");
-            var existingTargetInstanceMemberParameter = Parameters.Create<IQualifiedMember>("existingTargetInstanceMember");
+            var existingTargetInstanceMemberParameter = Parameters.Create<QualifiedMember>("existingTargetInstanceMember");
 
             var commandType = typeof(ObjectMappingCommand<,,>).MakeGenericType(
                 command.SourceMember.Type,
@@ -54,9 +52,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var newObjectCall = Expression.New(
                 commandType.GetConstructors().First(),
                 sourceMemberAccess.GetConversionTo(command.SourceMember.Type),
-                sourceMemberParameter,
+                Parameters.SourceMember,
                 targetParameter.GetConversionTo(command.TargetMember.Type),
-                targetMemberParameter,
+                Parameters.TargetMember,
                 existingTargetInstanceParameter.GetConversionTo(command.ExistingTargetInstanceMember.Type),
                 existingTargetInstanceMemberParameter,
                 Parameters.EnumerableIndexNullable,
@@ -66,17 +64,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 TSource,
                 IQualifiedMember,
                 TTarget,
-                IQualifiedMember,
+                QualifiedMember,
                 TInstance,
-                IQualifiedMember,
+                QualifiedMember,
                 int?,
                 MappingContext,
                 IObjectMappingCommand<TInstance>>>(
                 newObjectCall,
                 sourceParameter,
-                sourceMemberParameter,
+                Parameters.SourceMember,
                 targetParameter,
-                targetMemberParameter,
+                Parameters.TargetMember,
                 existingTargetInstanceParameter,
                 existingTargetInstanceMemberParameter,
                 Parameters.EnumerableIndexNullable,
@@ -99,9 +97,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             IQualifiedMember sourceMember,
             TTarget target,
-            IQualifiedMember targetMember,
+            QualifiedMember targetMember,
             TInstance existingTargetInstance,
-            IQualifiedMember existingTargetInstanceMember,
+            QualifiedMember existingTargetInstanceMember,
             int? enumerableIndex,
             MappingContext mappingContext)
         {
@@ -139,7 +137,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static MemberPair GetTargetData<TTarget>(
             IQualifiedMember sourceMember,
-            IQualifiedMember targetMember,
+            QualifiedMember targetMember,
             TTarget target,
             MappingContext mappingContext)
         {
@@ -158,13 +156,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             targetMember = targetMember.WithType(targetMemberType);
 
             return new MemberPair(
-                targetMember,
-                targetMember.IsEnumerable ? bestMatchingSourceMember : sourceMember);
+                targetMember.IsEnumerable ? bestMatchingSourceMember : sourceMember,
+                targetMember);
         }
 
         private static IQualifiedMember GetBestMatchingSourceMember(
             IQualifiedMember sourceMember,
-            IQualifiedMember targetMember,
+            QualifiedMember targetMember,
             MappingContext mappingContext)
         {
             if ((mappingContext.CurrentObjectMappingContext == null) || sourceMember.Matches(targetMember))
@@ -191,15 +189,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private class MemberPair
         {
-            public MemberPair(IQualifiedMember targetMember, IQualifiedMember sourceMember)
+            public MemberPair(IQualifiedMember sourceMember, QualifiedMember targetMember)
             {
-                TargetMember = targetMember;
                 SourceMember = sourceMember;
+                TargetMember = targetMember;
             }
 
-            public IQualifiedMember TargetMember { get; }
-
             public IQualifiedMember SourceMember { get; }
+
+            public QualifiedMember TargetMember { get; }
         }
 
         private class BasicMappingData : IMappingData
@@ -224,7 +222,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public Type TargetType { get; }
 
-            public IQualifiedMember TargetMember => QualifiedMember.All;
+            public QualifiedMember TargetMember => QualifiedMember.All;
         }
 
         #endregion
@@ -236,9 +234,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             IQualifiedMember sourceMember,
             TTarget target,
-            IQualifiedMember targetMember,
+            QualifiedMember targetMember,
             TInstance existingTargetInstance,
-            IQualifiedMember existingTargetInstanceMember,
+            QualifiedMember existingTargetInstanceMember,
             int? enumerableIndex,
             MappingContext mappingContext)
         {
@@ -261,11 +259,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TTarget Target { get; }
 
-        public IQualifiedMember TargetMember { get; }
+        public QualifiedMember TargetMember { get; }
 
         public TInstance ExistingTargetInstance { get; }
 
-        public IQualifiedMember ExistingTargetInstanceMember { get; }
+        public QualifiedMember ExistingTargetInstanceMember { get; }
 
         public int? EnumerableIndex { get; }
 

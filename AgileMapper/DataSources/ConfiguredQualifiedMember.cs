@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.DataSources
     internal class ConfiguredQualifiedMember : IQualifiedMember
     {
         private readonly Expression _value;
-        private readonly IQualifiedMember _matchedTargetMember;
+        private readonly QualifiedMember _matchedTargetMember;
         private readonly IEnumerable<Member> _childMembers;
 
         public ConfiguredQualifiedMember(Expression value, IMappingData data)
@@ -19,13 +19,12 @@ namespace AgileObjects.AgileMapper.DataSources
         {
         }
 
-        private ConfiguredQualifiedMember(Expression value, IQualifiedMember matchedTargetMember)
+        private ConfiguredQualifiedMember(Expression value, QualifiedMember matchedTargetMember)
             : this(
                   value.Type,
                   value.ToReadableString(),
                   value,
-                  matchedTargetMember,
-                  Enumerable.Empty<Member>())
+                  matchedTargetMember)
         {
             IsSimple = value.Type.IsSimple();
             IsEnumerable = !IsSimple && value.Type.IsEnumerable();
@@ -49,15 +48,15 @@ namespace AgileObjects.AgileMapper.DataSources
             Type type,
             string name,
             Expression value,
-            IQualifiedMember matchedTargetMember,
-            IEnumerable<Member> childMembers)
+            QualifiedMember matchedTargetMember,
+            IEnumerable<Member> childMembers = null)
         {
             Type = type;
             Name = name;
             _value = value;
             _matchedTargetMember = matchedTargetMember;
-            _childMembers = childMembers;
-            Signature = string.Join(">", new[] { value.ToString() }.Concat(childMembers.Select(cm => cm.Signature)));
+            _childMembers = childMembers ?? new[] { Member.ConfiguredSource(name, type) };
+            Signature = string.Join(">", _childMembers.Select(cm => cm.Signature));
         }
 
         public Type DeclaringType => _value.Type.DeclaringType;
@@ -76,12 +75,29 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public string Signature { get; }
 
-        public IQualifiedMember Append(Member childMember)
-            => new ConfiguredQualifiedMember(this, childMember);
+        public IQualifiedMember Append(Member childMember) => new ConfiguredQualifiedMember(this, childMember);
 
-        public IQualifiedMember RelativeTo(int depth) => this;
+        public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
+        {
+            if (_childMembers.None())
+            {
+                return this;
+            }
+
+            var otherConfiguredMember = (ConfiguredQualifiedMember)otherMember;
+            var relativeMemberChain = _childMembers.RelativeTo(otherConfiguredMember._childMembers);
+
+            return new ConfiguredQualifiedMember(
+                Type,
+                Name,
+                _value,
+                _matchedTargetMember,
+                relativeMemberChain);
+        }
 
         public bool IsSameAs(IQualifiedMember otherMember) => false;
+
+        public bool CouldMatch(IQualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 
         public bool Matches(IQualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
 
@@ -93,9 +109,14 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public IQualifiedMember WithType(Type runtimeType)
         {
-            return runtimeType != Type
-                ? new ConfiguredQualifiedMember(_value.GetConversionTo(runtimeType), _matchedTargetMember)
-                : this;
+            if (runtimeType == Type)
+            {
+                return this;
+            }
+
+            return new ConfiguredQualifiedMember(
+                _value.GetConversionTo(runtimeType),
+                _matchedTargetMember);
         }
     }
 }

@@ -35,7 +35,7 @@
                 : childMemberExpression.ToSourceMember(MemberFinder);
         }
 
-        internal IQualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
+        internal QualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
         {
             return (childMemberExpression == null)
                 ? QualifiedMember.From(Member.RootTarget(typeof(T)))

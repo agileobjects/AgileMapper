@@ -12,6 +12,6 @@
 
         Type TargetType { get; }
 
-        IQualifiedMember TargetMember { get; }
+        QualifiedMember TargetMember { get; }
     }
 }

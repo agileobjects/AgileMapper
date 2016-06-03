@@ -18,8 +18,6 @@
 
         Expression SourceObject { get; }
 
-        int SourceObjectDepth { get; }
-
         Expression ExistingObject { get; }
 
         Expression EnumerableIndex { get; }

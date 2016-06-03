@@ -8,10 +8,10 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly IQualifiedMember All = new QualifiedMember(new Member[0], null);
+        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], null);
 
         private readonly Member[] _memberChain;
-        private readonly IQualifiedMemberName _qualifiedName;
+        private readonly QualifiedMemberName _qualifiedName;
 
         private QualifiedMember(Member member, QualifiedMember parent)
             : this(parent?._memberChain.Concat(member).ToArray() ?? new[] { member })
@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.Members
         {
         }
 
-        private QualifiedMember(Member[] memberChain, IQualifiedMemberName qualifiedName)
+        private QualifiedMember(Member[] memberChain, QualifiedMemberName qualifiedName)
         {
             _memberChain = memberChain;
             LeafMember = memberChain.LastOrDefault();
@@ -59,31 +59,27 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Signature { get; }
 
-        public IQualifiedMember Append(Member childMember)
-        {
-            return new QualifiedMember(childMember, this);
-        }
+        IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
-        public IQualifiedMember RelativeTo(int depth)
+        public QualifiedMember Append(Member childMember) => new QualifiedMember(childMember, this);
+
+        public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
-            if (depth == 0)
+            var otherQualifiedMember = (QualifiedMember)otherMember;
+
+            if (otherQualifiedMember.LeafMember == _memberChain[0])
             {
                 return this;
             }
 
-            var relativeMemberChain = new Member[_memberChain.Length - depth];
-
-            Array.Copy(
-                _memberChain,
-                depth,
-                relativeMemberChain,
-                0,
-                relativeMemberChain.Length);
+            var relativeMemberChain = _memberChain.RelativeTo(otherQualifiedMember._memberChain);
 
             return new QualifiedMember(relativeMemberChain);
         }
 
-        public IQualifiedMember WithType(Type runtimeType)
+        IQualifiedMember IQualifiedMember.WithType(Type runtimeType) => WithType(runtimeType);
+
+        public QualifiedMember WithType(Type runtimeType)
         {
             if (runtimeType == Type)
             {
@@ -110,6 +106,15 @@ namespace AgileObjects.AgileMapper.Members
                    otherMember.DeclaringType.IsAssignableFrom(DeclaringType);
         }
 
+        public bool CouldMatch(IQualifiedMember otherMember)
+        {
+            var otherQualifiedMember = otherMember as QualifiedMember;
+
+            return (otherQualifiedMember != null)
+                ? _qualifiedName.IsRootOf(otherQualifiedMember._qualifiedName)
+                : otherMember.CouldMatch(this);
+        }
+
         public bool Matches(IQualifiedMember otherMember)
         {
             var otherQualifiedMember = otherMember as QualifiedMember;
@@ -122,7 +127,7 @@ namespace AgileObjects.AgileMapper.Members
         public Expression GetAccess(Expression instance) => LeafMember.GetAccess(instance);
 
         public Expression GetQualifiedAccess(Expression instance)
-            => _memberChain.Skip(1).GetQualifiedAccess(instance);
+            => _memberChain.GetQualifiedAccess(instance);
 
         public Expression GetPopulation(Expression instance, Expression value)
             => LeafMember.GetPopulation(instance, value);

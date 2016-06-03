@@ -96,14 +96,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #endregion
 
         private readonly IQualifiedMember _sourceMember;
-        private readonly IQualifiedMember _targetMember;
-        private readonly int _sourceObjectDepth;
+        private readonly QualifiedMember _targetMember;
 
         public ObjectMappingContext(
             TRuntimeSource source,
             IQualifiedMember sourceMember,
             TRuntimeTarget target,
-            IQualifiedMember targetMember,
+            QualifiedMember targetMember,
             TObject existingObject,
             int? enumerableIndex,
             MappingContext mappingContext)
@@ -114,25 +113,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ExistingObject = existingObject;
             MappingContext = mappingContext;
             Parent = mappingContext.CurrentObjectMappingContext;
-            _sourceObjectDepth = CalculateSourceObjectDepth();
-        }
-
-        private int CalculateSourceObjectDepth()
-        {
-            var parent = Parent;
-
-            while (parent != null)
-            {
-                if (parent.HasSource(Source))
-                {
-                    parent = parent.Parent;
-                    continue;
-                }
-
-                return parent.SourceObjectDepth + 1;
-            }
-
-            return 0;
         }
 
         public GlobalContext GlobalContext => MapperContext.GlobalContext;
@@ -284,7 +264,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Type IMappingData.TargetType => typeof(TRuntimeTarget);
 
-        IQualifiedMember IMappingData.TargetMember => _targetMember;
+        QualifiedMember IMappingData.TargetMember => _targetMember;
 
         #endregion
 
@@ -295,8 +275,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IQualifiedMember IMemberMappingContext.SourceMember => _sourceMember;
 
         Expression IMemberMappingContext.SourceObject => _sourceObjectProperty;
-
-        int IMemberMappingContext.SourceObjectDepth => _sourceObjectDepth;
 
         Expression IMemberMappingContext.ExistingObject => _existingObjectProperty;
 
@@ -394,7 +372,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var getRuntimeTypeFunc = GlobalContext.Cache.GetOrAdd(accessKey, k =>
             {
-                var relativeMember = sourceMember.RelativeTo(_sourceObjectDepth);
+                var relativeMember = sourceMember.RelativeTo(_sourceMember);
                 var memberAccess = relativeMember.GetQualifiedAccess(_sourceObjectProperty);
 
                 var getRuntimeTypeCall = Expression.Call(
