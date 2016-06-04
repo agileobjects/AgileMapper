@@ -185,7 +185,7 @@
             var source = new PublicField<Title> { Value = Title.Miss };
             var result = Mapper.Map(source).Over(new PublicProperty<int>());
 
-            result.Value.ShouldBe(source.Value);
+            result.Value.ShouldBe((int)Title.Miss);
         }
 
         [Fact]

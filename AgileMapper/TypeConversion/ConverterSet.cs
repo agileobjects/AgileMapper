@@ -22,6 +22,7 @@
                 new ToNumericConverter<int>(toStringConverter),
                 new DefaultTryParseConverter<Guid>(toStringConverter),
                 new ToNumericConverter<decimal>(toStringConverter),
+                new ToNumericConverter<double>(toStringConverter),
                 new ToNumericConverter<long>(toStringConverter),
                 new ToNumericConverter<short>(toStringConverter),
                 new ToNumericConverter<byte>(toStringConverter)
