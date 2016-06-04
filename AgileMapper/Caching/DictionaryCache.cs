@@ -32,5 +32,10 @@
 
             return (TValue)value;
         }
+
+        public void Empty()
+        {
+            _items.Clear();
+        }
     }
 }

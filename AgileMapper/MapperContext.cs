@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using System;
     using Api.Configuration;
     using Caching;
     using DataSources;
@@ -26,7 +27,6 @@
 
         public DataSourceFinder DataSources { get; }
 
-
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
         public UserConfigurationSet UserConfigurations { get; }
@@ -34,5 +34,11 @@
         public ConverterSet ValueConverters { get; }
 
         public MappingRuleSetCollection RuleSets { get; }
+
+        public void Reset()
+        {
+            Cache.Empty();
+            UserConfigurations.Reset();
+        }
     }
 }

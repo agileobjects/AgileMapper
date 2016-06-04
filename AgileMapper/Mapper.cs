@@ -25,16 +25,20 @@
 
         public PostEventConfigStartingPoint After => new PostEventConfigStartingPoint(_mapperContext);
 
-        public MappingConfigStartingPoint WhenMapping => new MappingConfigStartingPoint(_mapperContext);
-
         #region Static Access Methods
+
+        public static MappingConfigStartingPoint WhenMapping => _default.WhenMapping;
 
         public static TSource Clone<TSource>(TSource source) where TSource : class
             => _default.Clone(source);
 
         public static ResultTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
 
+        internal static void ResetDefaultInstance() => _default.Dispose();
+
         #endregion
+
+        MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(_mapperContext);
 
         TSource IMapper.Clone<TSource>(TSource source) => Map(source).ToNew<TSource>();
 
@@ -45,9 +49,7 @@
 
         #region IDisposable Members
 
-        public void Dispose()
-        {
-        }
+        public void Dispose() => _mapperContext.Reset();
 
         #endregion
     }

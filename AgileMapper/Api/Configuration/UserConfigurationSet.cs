@@ -112,5 +112,15 @@
         private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IMappingData data)
             where TItem : UserConfiguredItemBase
             => items.FirstOrDefault(im => im.AppliesTo(data));
+
+        public void Reset()
+        {
+            _objectFactories.Clear();
+            _ignoredMembers.Clear();
+            _dataSourceFactories.Clear();
+            _creationCallbackFactories.Clear();
+            _exceptionCallbackFactories.Clear();
+            _typePairs.Clear();
+        }
     }
 }

@@ -5,5 +5,7 @@
     internal interface ICache
     {
         TValue GetOrAdd<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory);
+
+        void Empty();
     }
 }
