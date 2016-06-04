@@ -66,6 +66,7 @@
             var matchingDataSources = _dataSourceFactories
                 .Where(dsf => dsf.AppliesTo(context))
                 .Select((dsf, i) => dsf.Create(i, context))
+                .OrderByDescending(cds => cds.HasConfiguredCondition)
                 .ToArray();
 
             return matchingDataSources;

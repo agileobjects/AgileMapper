@@ -8,7 +8,6 @@
     {
         private readonly Expression _condition;
         private readonly string _originalValueString;
-        private readonly bool _hasCondition;
 
         public ConfiguredDataSource(
             int dataSourceIndex,
@@ -34,9 +33,9 @@
                   context)
         {
             _originalValueString = convertedValue.ToString();
-            _hasCondition = condition != null;
+            HasConfiguredCondition = condition != null;
 
-            if (_hasCondition)
+            if (HasConfiguredCondition)
             {
                 _condition = GetCondition(condition, context);
             }
@@ -75,14 +74,16 @@
 
         #endregion
 
-        public override bool IsConditional => base.IsConditional || _hasCondition;
+        public bool HasConfiguredCondition { get; }
+
+        public override bool IsConditional => base.IsConditional || HasConfiguredCondition;
 
         public bool IsSameAs(IDataSource otherDataSource)
             => otherDataSource.Value.ToString() == _originalValueString;
 
         protected override Expression GetValueCondition()
         {
-            return _hasCondition
+            return HasConfiguredCondition
                 ? base.IsConditional ? Expression.AndAlso(base.GetValueCondition(), _condition) : _condition
                 : base.GetValueCondition();
         }

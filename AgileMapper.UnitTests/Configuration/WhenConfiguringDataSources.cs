@@ -177,6 +177,36 @@
         }
 
         [Fact]
+        public void ShouldApplyConditionalAndUnconditionalDataSourcesInOrder()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicProperty<string>>()
+                    .Map((p, t) => p.Title + " " + p.Name)
+                    .To(x => x.Value);
+
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicProperty<string>>()
+                    .Map((p, t) => p.Name)
+                    .To(x => x.Value)
+                    .If((p, t) => p.Title == default(Title) || !Enum.IsDefined(p.Title.GetType(), p.Title));
+
+                var undefinedTitleSource = new Person { Title = (Title)1234, Name = "Bill" };
+                var undefinedTitleResult = mapper.Map(undefinedTitleSource).ToNew<PublicProperty<string>>();
+
+                undefinedTitleResult.Value.ShouldBe("Bill");
+
+                var definedTitleSource = new Customer { Title = Title.Duke, Name = "Bart" };
+                var definedTitleResult = mapper.Map(definedTitleSource).ToNew<PublicProperty<string>>();
+
+                definedTitleResult.Value.ShouldBe("Duke Bart");
+            }
+        }
+
+        [Fact]
         public void ShouldHandleANullMemberInACondition()
         {
             using (var mapper = Mapper.Create())
