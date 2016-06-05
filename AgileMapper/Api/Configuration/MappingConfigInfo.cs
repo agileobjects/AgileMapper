@@ -62,6 +62,10 @@
             MapperContext.ValueConverters.ThrowIfUnconvertible(_sourceValueType, typeof(TTargetValue));
         }
 
+        #region Conditions
+
+        public bool HasCondition => _conditionLambda != null;
+
         public void AddCondition(LambdaExpression conditionLambda)
         {
             _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda);
@@ -69,7 +73,7 @@
 
         public void NegateCondition()
         {
-            if (_conditionLambda != null)
+            if (HasCondition)
             {
                 _negateCondition = true;
             }
@@ -77,7 +81,7 @@
 
         public Expression GetConditionOrNull(IMemberMappingContext context)
         {
-            if (_conditionLambda == null)
+            if (!HasCondition)
             {
                 return null;
             }
@@ -91,5 +95,7 @@
 
             return context.WrapInTry(contextualisedCondition);
         }
+
+        #endregion
     }
 }

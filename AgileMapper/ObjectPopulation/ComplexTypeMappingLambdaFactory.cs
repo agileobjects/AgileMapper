@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
+    using Extensions;
     using Members;
 
     internal class ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>
@@ -94,34 +95,65 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return omc.MapperContext.Cache.GetOrAdd(objectCreationKey, k =>
             {
-                var configuredFactory = omc
+                var constructions = new List<Construction>();
+                var newingConstructorRequired = true;
+
+                var configuredFactories = omc
                     .MapperContext
                     .UserConfigurations
-                    .GetObjectFactoryOrNull(omc);
+                    .GetObjectFactories(omc);
 
-                if (configuredFactory != null)
+                foreach (var configuredFactory in configuredFactories)
                 {
-                    return configuredFactory;
+                    var configuredConstruction = new Construction(
+                        configuredFactory.Create(omc),
+                        configuredFactory.GetCondition(omc));
+
+                    constructions.Insert(0, configuredConstruction);
+
+                    if (!configuredFactory.HasConfiguredCondition)
+                    {
+                        newingConstructorRequired = false;
+                        break;
+                    }
                 }
 
-                var greediestAvailableConstructor = omc.InstanceVariable.Type
-                    .GetConstructors(Constants.PublicInstance)
-                    .Select(ctor => new ConstructorData(
-                        ctor,
-                        ctor.GetParameters()
-                            .Select(p => new MemberMappingContext(
-                                omc.TargetMember.Append(Member.ConstructorParameter(p)),
-                                omc))
-                            .Select(context => omc
-                                .MapperContext
-                                .DataSources
-                                .FindFor(context))
-                            .ToArray()))
-                    .Where(ctor => ctor.CanBeConstructed)
-                    .OrderByDescending(ctor => ctor.NumberOfParameters)
-                    .FirstOrDefault();
+                if (newingConstructorRequired)
+                {
+                    var greediestAvailableConstructor = omc.InstanceVariable.Type
+                        .GetConstructors(Constants.PublicInstance)
+                        .Select(ctor => new ConstructorData(
+                            ctor,
+                            ctor.GetParameters()
+                                .Select(p => new MemberMappingContext(
+                                    omc.TargetMember.Append(Member.ConstructorParameter(p)),
+                                    omc))
+                                .Select(context => omc
+                                    .MapperContext
+                                    .DataSources
+                                    .FindFor(context))
+                                .ToArray()))
+                        .Where(ctor => ctor.CanBeConstructed)
+                        .OrderByDescending(ctor => ctor.NumberOfParameters)
+                        .FirstOrDefault();
 
-                return greediestAvailableConstructor?.Construction;
+                    if (greediestAvailableConstructor != null)
+                    {
+                        constructions.Insert(0, greediestAvailableConstructor.Construction);
+                    }
+                }
+
+                if (constructions.None())
+                {
+                    return null;
+                }
+
+                return constructions
+                    .Skip(1)
+                    .Aggregate(
+                        constructions.First().Expression,
+                        (constructionSoFar, construction) =>
+                            Expression.Condition(construction.Condition, construction.Expression, constructionSoFar));
             });
         }
 
@@ -141,9 +173,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Select(p => p.GetPopulation())
                 .ToArray();
 
-            return new[] { objectRegistration, objectCreationCallback }
-                .Concat(successfulPopulations)
-                .Concat(unsuccessfulPopulations)
+            return Enumerable.Concat(new[] { objectRegistration, objectCreationCallback }
+                    .Concat(successfulPopulations), unsuccessfulPopulations)
                 .ToArray();
         }
 
@@ -169,7 +200,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (CanBeConstructed)
                 {
-                    Construction = Expression.New(constructor, argumentDataSources.Select(ds => ds.Value));
+                    Construction = new Construction(
+                        Expression.New(constructor, argumentDataSources.Select(ds => ds.Value)));
                 }
             }
 
@@ -177,7 +209,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public int NumberOfParameters { get; }
 
-            public Expression Construction { get; }
+            public Construction Construction { get; }
+        }
+
+        private class Construction
+        {
+            public Construction(Expression construction, Expression condition = null)
+            {
+                Expression = construction;
+                Condition = condition;
+            }
+
+            public Expression Expression { get; }
+
+            public Expression Condition { get; }
         }
     }
 }

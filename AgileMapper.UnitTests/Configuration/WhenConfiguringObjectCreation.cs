@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -44,6 +46,33 @@
                 var matchingResult = mapper.Map(matchingSource).ToNew<CustomerCtor>();
 
                 matchingResult.Discount.ShouldBe(5);
+            }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredFactoryForASpecifiedSourceAndTargetTypeConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<PublicField<List<int>>>()
+                    .If((cvm, c) => cvm.Discount > 0)
+                    .CreateInstancesUsing(ctx => new PublicField<List<int>>
+                    {
+                        Value = new List<int> { (int)ctx.Source.Discount }
+                    });
+
+                var nonMatchingSource = new CustomerViewModel { Discount = 0 };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicField<List<int>>>();
+
+                nonMatchingResult.Value.ShouldBeNull();
+
+                var matchingSource = new CustomerViewModel { Discount = 10 };
+                var matchingResult = mapper.Map(matchingSource).ToNew<PublicField<List<int>>>();
+
+                matchingResult.Value.Count.ShouldBe(1);
+                matchingResult.Value.First().ShouldBe(10);
             }
         }
 

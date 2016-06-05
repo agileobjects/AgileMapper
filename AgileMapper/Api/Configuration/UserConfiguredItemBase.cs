@@ -25,6 +25,8 @@
             _targetMember = targetMember;
         }
 
+        public bool HasConfiguredCondition => _configInfo.HasCondition;
+
         public Expression GetCondition(IMemberMappingContext context)
             => _configInfo.GetConditionOrNull(context);
 

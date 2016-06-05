@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using DataSources;
     using Members;
     using ObjectPopulation;
@@ -32,22 +31,16 @@
 
         #region ObjectFactories
 
-        public void Add(ConfiguredObjectFactory objectFactory)
-        {
-            _objectFactories.Add(objectFactory);
-        }
+        public void Add(ConfiguredObjectFactory objectFactory) => _objectFactories.Add(objectFactory);
 
-        public Expression GetObjectFactoryOrNull(IMemberMappingContext context)
-            => FindMatch(_objectFactories, context)?.Create(context);
+        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IMemberMappingContext context)
+            => FindMatches(_objectFactories, context).ToArray();
 
         #endregion
 
         #region Ignored Members
 
-        public void Add(ConfiguredIgnoredMember ignoredMember)
-        {
-            _ignoredMembers.Add(ignoredMember);
-        }
+        public void Add(ConfiguredIgnoredMember ignoredMember) => _ignoredMembers.Add(ignoredMember);
 
         public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IMemberMappingContext context)
             => FindMatch(_ignoredMembers, context);
@@ -56,30 +49,16 @@
 
         #region DataSources
 
-        public void Add(ConfiguredDataSourceFactory dataSourceFactory)
-        {
-            _dataSourceFactories.Add(dataSourceFactory);
-        }
+        public void Add(ConfiguredDataSourceFactory dataSourceFactory) => _dataSourceFactories.Add(dataSourceFactory);
 
         public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMappingContext context)
-        {
-            var matchingDataSources = _dataSourceFactories
-                .Where(dsf => dsf.AppliesTo(context))
-                .Select((dsf, i) => dsf.Create(i, context))
-                .OrderByDescending(cds => cds.HasConfiguredCondition)
-                .ToArray();
-
-            return matchingDataSources;
-        }
+            => FindMatches(_dataSourceFactories, context).Select((dsf, i) => dsf.Create(i, context)).ToArray();
 
         #endregion
 
         #region ObjectCreationCallbacks
 
-        public void Add(ObjectCreationCallbackFactory callbackFactory)
-        {
-            _creationCallbackFactories.Add(callbackFactory);
-        }
+        public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);
 
         public ObjectCreationCallback GetCreationCallbackOrNull(IMemberMappingContext context)
             => FindMatch(_creationCallbackFactories, context)?.Create(context);
@@ -88,10 +67,7 @@
 
         #region ExceptionCallbacks
 
-        public void Add(ExceptionCallbackFactory callbackFactory)
-        {
-            _exceptionCallbackFactories.Add(callbackFactory);
-        }
+        public void Add(ExceptionCallbackFactory callbackFactory) => _exceptionCallbackFactories.Add(callbackFactory);
 
         public ExceptionCallback GetExceptionCallbackOrNull(IMemberMappingContext context)
             => FindMatch(_exceptionCallbackFactories, context)?.Create(context);
@@ -100,10 +76,7 @@
 
         #region DerivedTypePairs
 
-        public void Add(DerivedTypePair typePair)
-        {
-            _typePairs.Add(typePair);
-        }
+        public void Add(DerivedTypePair typePair) => _typePairs.Add(typePair);
 
         public Type GetDerivedTypeOrNull(IMappingData data)
             => FindMatch(_typePairs, data)?.DerivedTargetType;
@@ -113,6 +86,10 @@
         private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IMappingData data)
             where TItem : UserConfiguredItemBase
             => items.FirstOrDefault(im => im.AppliesTo(data));
+
+        private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IMappingData data)
+            where TItem : UserConfiguredItemBase
+            => items.Where(im => im.AppliesTo(data)).OrderByDescending(im => im.HasConfiguredCondition);
 
         public void Reset()
         {

@@ -205,6 +205,9 @@
                     case ExpressionType.Lambda:
                         return ReplaceIn((LambdaExpression)expression);
 
+                    case ExpressionType.ListInit:
+                        return ReplaceIn((ListInitExpression)expression);
+
                     case ExpressionType.MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
 
@@ -266,24 +269,36 @@
                         memberInit.Bindings.Select(ReplaceIn)));
             }
 
+            private Expression ReplaceIn(ListInitExpression listInit)
+            {
+                return ReplaceIn(
+                    listInit,
+                    () => listInit.Update(
+                        ReplaceIn(listInit.NewExpression),
+                        ReplaceIn(listInit.Initializers)));
+            }
+
             private MemberBinding ReplaceIn(MemberBinding binding)
             {
                 switch (binding.BindingType)
                 {
                     case MemberBindingType.Assignment:
                         var assignment = (MemberAssignment)binding;
-                        return assignment.Update(ReplaceIn(assignment.Expression));
+                        return assignment.Update(Replace(assignment.Expression));
 
                     //case MemberBindingType.ListBinding:
-                    //    var memberBinding = (MemberMemberBinding)binding;
-                    //    break;
-                    //case MemberBindingType.MemberBinding:
                     //    var listBinding = (MemberListBinding)binding;
+                    //    return listBinding.Update(ReplaceIn(listBinding.Initializers));
+                    //case MemberBindingType.MemberBinding:
+                    //var memberBinding = (MemberMemberBinding)binding;
                     //    break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
+
+            private IEnumerable<ElementInit> ReplaceIn(IEnumerable<ElementInit> initializers)
+                => initializers.Select(init => init.Update(init.Arguments.Select(Replace)));
 
             private NewExpression ReplaceIn(NewExpression newing) => (NewExpression)ReplaceIn(newing, () => newing.Update(newing.Arguments.Select(Replace)));
 
