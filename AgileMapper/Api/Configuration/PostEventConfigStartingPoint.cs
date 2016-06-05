@@ -9,10 +9,11 @@
             _mapperContext = mapperContext;
         }
 
-        public PostInstanceCreationCallbackSpecifier<object, object, object> CreatingInstances
+        public IConditionalPostInstanceCreationCallbackSpecifier<object, object, object> CreatingInstances
             => CreateCallbackSpecifier<object>();
 
-        public PostInstanceCreationCallbackSpecifier<object, object, TInstance> CreatingInstancesOf<TInstance>() where TInstance : class
+        public IConditionalPostInstanceCreationCallbackSpecifier<object, object, TInstance> CreatingInstancesOf<TInstance>()
+            where TInstance : class
             => CreateCallbackSpecifier<TInstance>();
 
         private PostInstanceCreationCallbackSpecifier<object, object, TInstance> CreateCallbackSpecifier<TInstance>()

@@ -9,7 +9,6 @@
         private readonly MappingConfigInfo _configInfo;
         private readonly Type _mappingTargetType;
         private readonly IQualifiedMember _targetMember;
-        private Func<IMemberMappingContext, Expression> _conditionFactory;
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, Type mappingTargetType)
             : this(configInfo, mappingTargetType, QualifiedMember.All)
@@ -26,14 +25,8 @@
             _targetMember = targetMember;
         }
 
-
-        public void AddConditionFactory(Func<IMemberMappingContext, Expression> conditionFactory)
-        {
-            _conditionFactory = conditionFactory;
-        }
-
         public Expression GetCondition(IMemberMappingContext context)
-            => _conditionFactory?.Invoke(context);
+            => _configInfo.GetConditionOrNull(context);
 
         public virtual bool AppliesTo(IMappingData data)
         {

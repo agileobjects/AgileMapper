@@ -1,28 +1,46 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Linq.Expressions;
     using Members;
     using ObjectPopulation;
 
-    public class PreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance>
-        : InstanceCreationCallbackSpecifierBase<TSource, TTarget, TInstance>
+    internal class PreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> :
+        InstanceCreationCallbackSpecifierBase<TSource, TTarget, TInstance>,
+        IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget>
     {
-        internal PreInstanceCreationCallbackSpecifier(MappingConfigInfo configInfo)
+        public PreInstanceCreationCallbackSpecifier(MappingConfigInfo configInfo)
             : base(CallbackPosition.Before, configInfo)
         {
         }
 
-        public PreInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
-            Action<ITypedMemberMappingContext<TSource, TTarget>> callback) => CreateCallback(callback);
+        #region If Overloads
 
-        public PreInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> Call(
-            Action<TSource, TTarget, int?> callback) => CreateCallback(callback);
+        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
+            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, bool>> condition)
+            => SetCondition(condition);
 
-        private PreInstanceCreationConditionSpecifier<TSource, TTarget, TInstance> CreateCallback<TAction>(TAction callback)
+        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
+            Expression<Func<TSource, TTarget, bool>> condition)
+            => SetCondition(condition);
+
+        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
+            Expression<Func<TSource, TTarget, int?, bool>> condition)
+            => SetCondition(condition);
+
+        private PreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> SetCondition(
+            LambdaExpression conditionLambda)
         {
-            var creationCallbackFactory = CreateCallbackFactory(callback);
-
-            return new PreInstanceCreationConditionSpecifier<TSource, TTarget, TInstance>(creationCallbackFactory);
+            ConfigInfo.AddCondition(conditionLambda);
+            return this;
         }
+
+        #endregion
+
+        public void Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback) => CreateCallbackFactory(callback);
+
+        public void Call(Action<TSource, TTarget> callback) => CreateCallbackFactory(callback);
+
+        public void Call(Action<TSource, TTarget, int?> callback) => CreateCallbackFactory(callback);
     }
 }

@@ -167,8 +167,8 @@
                     .ToANew<Person>()
                     .After
                     .CreatingInstances
-                    .Call(ctx => createdInstanceTypes.Add(ctx.Object.GetType()))
-                    .If(ctx => ctx.Object is Address);
+                    .If(ctx => ctx.Object is Address)
+                    .Call(ctx => createdInstanceTypes.Add(ctx.Object.GetType()));
 
                 var source = new { Name = "Homer", AddressLine1 = "Springfield" };
                 var nonMatchingResult = mapper.Map(source).ToNew<PersonViewModel>();
@@ -217,8 +217,8 @@
                     .OnTo<Person>()
                     .After
                     .CreatingInstances
-                    .Call((pvm, p, o) => p.Name += " + " + pvm.Name)
-                    .If((pvm, p, i) => (i - 1) == 0);
+                    .If((pvm, p, i) => (i - 1) == 0)
+                    .Call((pvm, p, o) => p.Name += " + " + pvm.Name);
 
                 var source = new[]
                 {
@@ -251,8 +251,8 @@
                     .ToANew<Person>()
                     .Before
                     .CreatingInstancesOf<Address>()
-                    .Call(ctx => createdAddressesByIndex[ctx.EnumerableIndex.GetValueOrDefault()] = ctx.Source.AddressLine1)
-                    .If((s, t, i) => (i == 1) || (i == 2));
+                    .If((s, t, i) => (i == 1) || (i == 2))
+                    .Call(ctx => createdAddressesByIndex[ctx.EnumerableIndex.GetValueOrDefault()] = ctx.Source.AddressLine1);
 
                 var source = new[]
                 {
@@ -306,8 +306,8 @@
                     .Over<Customer>()
                     .After
                     .CreatingInstances
-                    .Call((p, c, o, i) => sourceAddressesByIndex[i.GetValueOrDefault()] = (Address)o)
-                    .If((p, c, o, i) => (o is Address) && (i >= 1));
+                    .If((p, c, o, i) => (o is Address) && (i >= 1))
+                    .Call((p, c, o, i) => sourceAddressesByIndex[i.GetValueOrDefault()] = (Address)o);
 
                 var source = new PublicField<Collection<Person>>
                 {

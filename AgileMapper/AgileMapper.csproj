@@ -36,13 +36,19 @@
   <ItemGroup>
     <Compile Include="Api\Configuration\Callbacks.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
-    <Compile Include="Api\Configuration\ConditionSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConfiguredLambdaInfo.cs" />
     <Compile Include="Api\Configuration\DerivedPairTargetTypeSpecifier.cs" />
     <Compile Include="Api\Configuration\DerivedTypePair.cs" />
     <Compile Include="Api\Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\ExceptionCallbackFactory.cs" />
+    <Compile Include="Api\Configuration\IConditionalMappingConfigurator.cs" />
+    <Compile Include="Api\Configuration\IConditionalPostInstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\IConditionalPreInstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\IFullMappingConfigurator.cs" />
     <Compile Include="Api\Configuration\InstanceConfigurator.cs" />
+    <Compile Include="Api\Configuration\IPostInstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\IPreInstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\IRootMappingConfigurator.cs" />
     <Compile Include="DataSources\DataSourceSet.cs" />
     <Compile Include="DataSources\ExistingMemberValueDataSource.cs" />
     <Compile Include="DataSources\NullDataSource.cs" />
@@ -67,13 +73,10 @@
     <Compile Include="ObjectPopulation\ObjectMappingCommand.cs" />
     <Compile Include="ObjectPopulation\DefaultValueDataSourceFactory.cs" />
     <Compile Include="Api\Configuration\PreInstanceCreationCallbackSpecifier.cs" />
-    <Compile Include="Api\Configuration\PreInstanceCreationConditionSpecifier.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />
     <Compile Include="ObjectPopulation\ITypedObjectMappingContext.cs" />
-    <Compile Include="Api\Configuration\PostInstanceCreationConditionSpecifier.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifier.cs" />
-    <Compile Include="Api\Configuration\ConditionSpecifier.cs" />
     <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\PostEventConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PostEventMappingConfigStartingPoint.cs" />

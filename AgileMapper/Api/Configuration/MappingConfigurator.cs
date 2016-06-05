@@ -5,14 +5,34 @@
     using Members;
     using ObjectPopulation;
 
-    public class MappingConfigurator<TSource, TTarget>
+    internal class MappingConfigurator<TSource, TTarget> : IFullMappingConfigurator<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
 
-        internal MappingConfigurator(MappingConfigInfo configInfo)
+        public MappingConfigurator(MappingConfigInfo configInfo)
         {
             _configInfo = configInfo;
         }
+
+        #region If Overloads
+
+        public IRootMappingConfigurator<TSource, TTarget> If(
+            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, bool>> condition)
+            => SetCondition(condition);
+
+        public IRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, bool>> condition)
+            => SetCondition(condition);
+
+        public IRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, int?, bool>> condition)
+            => SetCondition(condition);
+
+        private IRootMappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
+        {
+            _configInfo.AddCondition(conditionLambda);
+            return this;
+        }
+
+        #endregion
 
         public void CreateInstancesUsing(Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TTarget>> factory)
         {
@@ -31,7 +51,7 @@
             _configInfo.MapperContext.UserConfigurations.Add(callbackFactory);
         }
 
-        public ConditionSpecifier<TSource, TTarget> Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
+        public void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             var configuredIgnoredMember = ConfiguredIgnoredMember.For(
                 _configInfo,
@@ -39,8 +59,7 @@
                 targetMember.Body);
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
-
-            return new ConditionSpecifier<TSource, TTarget>(configuredIgnoredMember, negateCondition: true);
+            _configInfo.NegateCondition();
         }
 
         public PreEventMappingConfigStartingPoint<TSource, TTarget> Before => new PreEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
@@ -49,39 +68,39 @@
 
         #region Map Overloads
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
             Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
                 valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
                 valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
                 valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
+        public CustomDataSourceTargetMemberSpecifier<TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
             => GetConstantTargetMemberSpecifier(valueFunc);
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
+        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(TSourceValue value)
         {
             var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
 
             return (valueLambdaInfo != null)
-                ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+                ? new CustomDataSourceTargetMemberSpecifier<TTarget>(
                     _configInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
                     valueLambdaInfo)
                 : GetConstantTargetMemberSpecifier(value);
@@ -89,12 +108,12 @@
 
         #region Map Helpers
 
-        private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(TSourceValue value)
+        private CustomDataSourceTargetMemberSpecifier<TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(TSourceValue value)
         {
             var valueConstant = Expression.Constant(value, typeof(TSourceValue));
             var valueLambda = Expression.Lambda<Func<TSourceValue>>(valueConstant);
 
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
                 _configInfo.ForSourceValueType(valueConstant.Type),
                 valueLambda);
         }

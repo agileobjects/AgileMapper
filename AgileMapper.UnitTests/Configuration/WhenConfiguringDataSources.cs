@@ -80,9 +80,9 @@
             {
                 mapper.WhenMapping
                     .Over<PublicProperty<string>>()
+                    .If(ctx => ctx.Target.Value.Length < 5)
                     .Map("Too small!")
-                    .To(x => x.Value)
-                    .If(ctx => ctx.Target.Value.Length < 5);
+                    .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = "Replaced" };
 
@@ -124,9 +124,9 @@
                 mapper.WhenMapping
                     .From<PublicGetMethod<int>>()
                     .ToANew<PublicSetMethod<string>>()
+                    .If(ctx => ctx.Source.GetValue() % 2 == 0)
                     .Map(ctx => ctx.Source.GetValue())
-                    .To<string>(x => x.SetValue)
-                    .If(ctx => ctx.Source.GetValue() % 2 == 0);
+                    .To<string>(x => x.SetValue);
 
                 var matchingSource = new PublicGetMethod<int>(6);
                 var matchingResult = mapper.Map(matchingSource).ToNew<PublicSetMethod<string>>();
@@ -148,16 +148,16 @@
                 mapper.WhenMapping
                     .From<Customer>()
                     .To<PublicProperty<string>>()
+                    .If((c, t) => c.Name.Length < 5)
                     .Map((c, t) => c.Id)
-                    .To(x => x.Value)
-                    .If((c, t) => c.Name.Length < 5);
+                    .To(x => x.Value);
 
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicProperty<string>>()
+                    .If((p, t) => p.Name.Length > 8)
                     .Map((p, t) => p.Title)
-                    .To(x => x.Value)
-                    .If((p, t) => p.Name.Length > 8);
+                    .To(x => x.Value);
 
                 var shortNameSource = new Customer { Id = Guid.NewGuid(), Name = "Fred", Title = Title.Count };
                 var shortNameResult = mapper.Map(shortNameSource).ToNew<PublicProperty<string>>();
@@ -190,9 +190,9 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicProperty<string>>()
+                    .If((p, t) => p.Title == default(Title) || !Enum.IsDefined(p.Title.GetType(), p.Title))
                     .Map((p, t) => p.Name)
-                    .To(x => x.Value)
-                    .If((p, t) => p.Title == default(Title) || !Enum.IsDefined(p.Title.GetType(), p.Title));
+                    .To(x => x.Value);
 
                 var undefinedTitleSource = new Person { Title = (Title)1234, Name = "Bill" };
                 var undefinedTitleResult = mapper.Map(undefinedTitleSource).ToNew<PublicProperty<string>>();
@@ -214,9 +214,9 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<long>>()
+                    .If(ctx => ctx.Source.Value.Length % 2 == 0)
                     .Map(ctx => int.Parse(ctx.Source.Value) / 2)
-                    .To(x => x.Value)
-                    .If(ctx => ctx.Source.Value.Length % 2 == 0);
+                    .To(x => x.Value);
 
                 var matchingSource = new PublicProperty<string> { Value = "20" };
                 var matchingResult = mapper.Map(matchingSource).ToNew<PublicField<long>>();
@@ -238,9 +238,9 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicField<int>>()
+                    .If((p, t) => int.Parse(p.Name) > 0)
                     .Map(ctx => ctx.Source.Name)
-                    .To(x => x.Value)
-                    .If((p, t) => int.Parse(p.Name) > 0);
+                    .To(x => x.Value);
 
                 var source = new Person { Name = "CantParseThis" };
                 var result = mapper.Map(source).ToNew<PublicField<int>>();
@@ -366,9 +366,9 @@
                 mapper.WhenMapping
                     .From<Customer>()
                     .ToANew<PersonViewModel>()
+                    .If((c, pvm, i) => i > 0)
                     .Map((c, pvm, i) => c.Name + " (" + i + ")")
-                    .To(pvm => pvm.Name)
-                    .If((c, pvm, i) => i > 0);
+                    .To(pvm => pvm.Name);
 
                 var source = new PublicProperty<IEnumerable>
                 {
@@ -432,9 +432,9 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .Over<PersonViewModel>()
+                    .If((s, t) => (s as Customer) != null)
                     .Map((s, t) => t.Name + $" ({((Customer)s).Discount})")
-                    .To(pvm => pvm.Name)
-                    .If((s, t) => (s as Customer) != null);
+                    .To(pvm => pvm.Name);
 
                 var customerId = Guid.NewGuid();
 
@@ -514,16 +514,16 @@
                 mapper.WhenMapping
                     .From(source)
                     .Over<PublicField<PublicField<int>>>()
+                    .If((s, t) => t.Value.Value > 2)
                     .Map(ctx => ctx.Source.Value1)
-                    .To(t => t.Value)
-                    .If((s, t) => t.Value.Value > 2);
+                    .To(t => t.Value);
 
                 mapper.WhenMapping
                     .From(source)
                     .Over<PublicField<PublicField<int>>>()
+                    .If((s, t) => t.Value.Value < 0)
                     .Map(ctx => ctx.Source.Value2)
-                    .To(t => t.Value)
-                    .If((s, t) => t.Value.Value < 0);
+                    .To(t => t.Value);
 
                 var value1MatchingTarget = new PublicField<PublicField<int>> { Value = new PublicField<int> { Value = 3 } };
                 var value1MatchingResult = mapper.Map(source).Over(value1MatchingTarget);
@@ -576,16 +576,16 @@
                 mapper.WhenMapping
                     .From(source)
                     .Over<PublicField<PublicField<int>>>()
+                    .If((s, t) => t.Value.Value > 2)
                     .Map(ctx => ctx.Source.Value1)
-                    .To(t => t.Value)
-                    .If((s, t) => t.Value.Value > 2);
+                    .To(t => t.Value);
 
                 mapper.WhenMapping
                     .From(source)
                     .Over<PublicField<PublicField<int>>>()
+                    .If((s, t) => t.Value.Value < 0)
                     .Map(ctx => ctx.Source.Value2)
-                    .To(t => t.Value)
-                    .If((s, t) => t.Value.Value < 0);
+                    .To(t => t.Value);
 
                 var value1MatchingTarget = new PublicField<PublicField<int>> { Value = new PublicField<int> { Value = 3 } };
                 var value1MatchingResult = mapper.Map(source).Over(value1MatchingTarget);

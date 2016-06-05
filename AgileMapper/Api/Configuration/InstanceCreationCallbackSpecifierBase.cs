@@ -2,14 +2,14 @@
 {
     using ObjectPopulation;
 
-    public abstract class InstanceCreationCallbackSpecifierBase<TSource, TTarget, TInstance> : CallbackSpecifierBase
+    internal abstract class InstanceCreationCallbackSpecifierBase<TSource, TTarget, TInstance> : CallbackSpecifierBase
     {
-        internal InstanceCreationCallbackSpecifierBase(CallbackPosition callbackPosition, MappingConfigInfo configInfo)
+        protected InstanceCreationCallbackSpecifierBase(CallbackPosition callbackPosition, MappingConfigInfo configInfo)
             : base(callbackPosition, configInfo)
         {
         }
 
-        internal ObjectCreationCallbackFactory CreateCallbackFactory<TAction>(TAction callback)
+        protected ObjectCreationCallbackFactory CreateCallbackFactory<TAction>(TAction callback)
         {
             var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TInstance));
 

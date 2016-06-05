@@ -9,13 +9,14 @@
             _configInfo = configInfo;
         }
 
-        public PostInstanceCreationCallbackSpecifier<TSource, TTarget, object> CreatingInstances
+        public IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, object> CreatingInstances
             => CreateCallbackSpecifier<object>();
 
-        public PostInstanceCreationCallbackSpecifier<TSource, TTarget, TTarget> CreatingTargetInstances
+        public IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TTarget> CreatingTargetInstances
             => CreateCallbackSpecifier<TTarget>();
 
-        public PostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreatingInstancesOf<TInstance>() where TInstance : class
+        public IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreatingInstancesOf<TInstance>()
+            where TInstance : class
             => CreateCallbackSpecifier<TInstance>();
 
         private PostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreateCallbackSpecifier<TInstance>()

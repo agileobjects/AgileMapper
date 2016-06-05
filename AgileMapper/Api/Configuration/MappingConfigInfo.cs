@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Linq.Expressions;
+    using Members;
 
     internal class MappingConfigInfo
     {
@@ -10,6 +12,8 @@
         private Type _sourceType;
         private Type _sourceValueType;
         private string _mappingRuleSetName;
+        private ConfiguredLambdaInfo _conditionLambda;
+        private bool _negateCondition;
 
         public MappingConfigInfo(MapperContext mapperContext)
         {
@@ -56,6 +60,36 @@
         public void ThrowIfSourceTypeDoesNotMatch<TTargetValue>()
         {
             MapperContext.ValueConverters.ThrowIfUnconvertible(_sourceValueType, typeof(TTargetValue));
+        }
+
+        public void AddCondition(LambdaExpression conditionLambda)
+        {
+            _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda);
+        }
+
+        public void NegateCondition()
+        {
+            if (_conditionLambda != null)
+            {
+                _negateCondition = true;
+            }
+        }
+
+        public Expression GetConditionOrNull(IMemberMappingContext context)
+        {
+            if (_conditionLambda == null)
+            {
+                return null;
+            }
+
+            var contextualisedCondition = _conditionLambda.GetBody(context);
+
+            if (_negateCondition)
+            {
+                contextualisedCondition = Expression.Not(contextualisedCondition);
+            }
+
+            return context.WrapInTry(contextualisedCondition);
         }
     }
 }

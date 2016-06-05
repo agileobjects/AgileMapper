@@ -52,8 +52,8 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
-                    .Ignore(x => x.Name)
-                    .If(ctx => ctx.Source.Name == "Bilbo");
+                    .If(ctx => ctx.Source.Name == "Bilbo")
+                    .Ignore(x => x.Name);
 
                 var matchingSource = new PersonViewModel { Name = "Bilbo" };
                 var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
@@ -75,8 +75,8 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
-                    .Ignore(p => p.Name)
-                    .If(ctx => ctx.Source.Name.StartsWith("F"));
+                    .If(ctx => ctx.Source.Name.StartsWith("F"))
+                    .Ignore(p => p.Name);
 
                 var source = new[]
                 {
@@ -101,8 +101,8 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<PublicProperty<int>>()
                     .ToANew<PublicProperty<string>>()
-                    .Ignore(p => p.Value)
-                    .If(ctx => ctx.EnumerableIndex > 0);
+                    .If(ctx => ctx.EnumerableIndex > 0)
+                    .Ignore(p => p.Value);
 
                 var source = new[]
                 {

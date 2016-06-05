@@ -39,16 +39,16 @@
             return new TargetTypeSpecifier<TSource>(configInfo);
         }
 
-        public MappingConfigurator<object, TTarget> To<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<object, TTarget> To<TTarget>() where TTarget : class
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForAllRuleSets()).To<TTarget>();
 
-        public MappingConfigurator<object, TTarget> ToANew<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<object, TTarget> ToANew<TTarget>() where TTarget : class
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.CreateNew)).ToANew<TTarget>();
 
-        public MappingConfigurator<object, TTarget> OnTo<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<object, TTarget> OnTo<TTarget>() where TTarget : class
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Merge)).OnTo<TTarget>();
 
-        public MappingConfigurator<object, TTarget> Over<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<object, TTarget> Over<TTarget>() where TTarget : class
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Overwrite)).Over<TTarget>();
 
         private TargetTypeSpecifier<object> GetAllSourcesTargetTypeSpecifier(
