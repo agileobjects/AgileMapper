@@ -286,12 +286,14 @@
                         var assignment = (MemberAssignment)binding;
                         return assignment.Update(Replace(assignment.Expression));
 
-                    //case MemberBindingType.ListBinding:
-                    //    var listBinding = (MemberListBinding)binding;
-                    //    return listBinding.Update(ReplaceIn(listBinding.Initializers));
-                    //case MemberBindingType.MemberBinding:
-                    //var memberBinding = (MemberMemberBinding)binding;
-                    //    break;
+                    case MemberBindingType.ListBinding:
+                        var listBinding = (MemberListBinding)binding;
+                        return listBinding.Update(ReplaceIn(listBinding.Initializers));
+
+                    case MemberBindingType.MemberBinding:
+                        var memberBinding = (MemberMemberBinding)binding;
+                        return memberBinding.Update(memberBinding.Bindings.Select(ReplaceIn));
+
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

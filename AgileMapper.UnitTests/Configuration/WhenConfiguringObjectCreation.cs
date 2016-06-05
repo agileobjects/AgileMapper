@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -113,6 +114,47 @@
                 conditionalFactoryResult.Value.ShouldNotBeNull();
                 conditionalFactoryResult.Value.ShouldHaveSingleItem();
                 conditionalFactoryResult.Value.First().ShouldBe("Alex (1)");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredFactoryWithAnObjectInitialiser()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicReadOnlyProperty<Address>>()
+                    .CreateInstancesUsing(ctx => new PublicReadOnlyProperty<Address>(new Address())
+                    {
+                        Value = { Line1 = ctx.Source.Address.Line1, Line2 = ctx.Source.Address.Line2 }
+                    });
+
+                var source = new Person { Address = new Address { Line1 = "Here", Line2 = "There" } };
+                var result = mapper.Map(source).ToNew<PublicReadOnlyProperty<Address>>();
+
+                result.Value.Line1.ShouldBe("Here");
+                result.Value.Line2.ShouldBe("There");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredFactoryWithAnListInitialiser()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicReadOnlyProperty<List<string>>>()
+                    .CreateInstancesUsing(ctx => new PublicReadOnlyProperty<List<string>>(new List<string>())
+                    {
+                        Value = { ctx.Source.Id.ToString(), ctx.Source.Name }
+                    });
+
+                var source = new Person { Id = Guid.NewGuid(), Name = "Giles" };
+                var result = mapper.Map(source).ToNew<PublicReadOnlyProperty<List<string>>>();
+
+                result.Value.ShouldBe(source.Id.ToString(), "Giles");
             }
         }
 
