@@ -3,7 +3,6 @@
     using System;
     using System.Linq.Expressions;
     using Api.Configuration;
-    using DataSources;
     using Members;
 
     internal class ConfiguredObjectFactory : UserConfiguredItemBase
