@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Members;
     using ReadableExpressions;
@@ -83,6 +84,41 @@
             }
 
             return false;
+        }
+
+        public static readonly IComparer<UserConfiguredItemBase> SpecificityComparer = new ConfiguredItemSpecificityComparer();
+
+        private class ConfiguredItemSpecificityComparer : IComparer<UserConfiguredItemBase>
+        {
+            public int Compare(UserConfiguredItemBase x, UserConfiguredItemBase y)
+            {
+                if (x.HasConfiguredCondition && !y.HasConfiguredCondition)
+                {
+                    return -1;
+                }
+
+                if (!x.HasConfiguredCondition && y.HasConfiguredCondition)
+                {
+                    return 1;
+                }
+
+                if (x._configInfo.HasSameSourceTypeAs(y._configInfo))
+                {
+                    return 0;
+                }
+
+                if (x._configInfo.IsForSourceType(y._configInfo))
+                {
+                    return 1;
+                }
+
+                if (y._configInfo.IsForSourceType(x._configInfo))
+                {
+                    return -1;
+                }
+
+                return 0;
+            }
         }
     }
 }

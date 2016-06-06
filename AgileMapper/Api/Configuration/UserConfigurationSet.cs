@@ -111,7 +111,7 @@
 
         private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IMappingData data)
             where TItem : UserConfiguredItemBase
-            => items.Where(im => im.AppliesTo(data)).OrderByDescending(im => im.HasConfiguredCondition);
+            => items.Where(im => im.AppliesTo(data)).OrderBy(im => im, UserConfiguredItemBase.SpecificityComparer);
 
         #region Conflict Handling
 

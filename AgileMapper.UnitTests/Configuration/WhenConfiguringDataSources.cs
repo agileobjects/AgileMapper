@@ -117,6 +117,35 @@
         }
 
         [Fact]
+        public void ShouldApplyMultipleConfiguredMembersBySourceType()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicProperty<string>>()
+                    .Map((c, t) => c.Name)
+                    .To(x => x.Value);
+
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .To<PublicProperty<string>>()
+                    .Map((p, t) => p.Discount)
+                    .To(x => x.Value);
+
+                var personSource = new Person { Name = "Wilma" };
+                var personResult = mapper.Map(personSource).ToNew<PublicProperty<string>>();
+
+                personResult.Value.ShouldBe("Wilma");
+
+                var customerSource = new Customer { Name = "Betty", Discount = 10.0m };
+                var customerResult = mapper.Map(customerSource).ToNew<PublicProperty<string>>();
+
+                customerResult.Value.ShouldBe("10.0");
+            }
+        }
+
+        [Fact]
         public void ShouldConditionallyApplyAConfiguredMember()
         {
             using (var mapper = Mapper.Create())
