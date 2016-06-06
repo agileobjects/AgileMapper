@@ -52,6 +52,28 @@
 
         // ReSharper disable AccessToDisposedClosure
         [Fact]
+        public void ShouldRestrictExceptionSwallowingByTargetType()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .To<PersonViewModel>()
+                    .SwallowAllExceptions();
+
+                mapper
+                    .After
+                    .CreatingInstances
+                    .Call(ctx => { throw new InvalidOperationException("CRUNCH"); });
+
+                Assert.Throws<MappingException>(() =>
+                    mapper.Map(new PersonViewModel()).ToNew<Person>());
+
+                mapper.Map(new Person()).ToNew<PersonViewModel>();
+            }
+        }
+
+        [Fact]
         public void ShouldRestrictACallbackByTargetType()
         {
             using (var mapper = Mapper.Create())
@@ -74,6 +96,32 @@
 
                 thrownException.ShouldNotBeNull();
                 thrownException.Message.ShouldBe("ASPLODE");
+            }
+        }
+
+        [Fact]
+        public void ShouldRestrictExceptionSwallowingBySourceAndTargetType()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .SwallowAllExceptions();
+
+                mapper
+                    .After
+                    .CreatingInstances
+                    .Call(ctx => { throw new InvalidOperationException("BSOD"); });
+
+                Assert.Throws<MappingException>(() =>
+                    mapper.Map(new Customer()).ToNew<Person>());
+
+                Assert.Throws<MappingException>(() =>
+                    mapper.Map(new Person()).ToNew<PersonViewModel>());
+
+                mapper.Map(new PersonViewModel()).ToNew<Person>();
             }
         }
 

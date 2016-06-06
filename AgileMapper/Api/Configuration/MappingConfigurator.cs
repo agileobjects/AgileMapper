@@ -41,6 +41,8 @@
             _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
         }
 
+        public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
+
         public void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback)
         {
             var callbackFactory = new ExceptionCallbackFactory(

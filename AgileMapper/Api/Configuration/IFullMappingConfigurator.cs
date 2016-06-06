@@ -9,6 +9,8 @@
 
         PostEventMappingConfigStartingPoint<TSource, TTarget> After { get; }
 
+        void SwallowAllExceptions();
+
         void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback);
 
         DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget> Map<TDerivedSource>()
