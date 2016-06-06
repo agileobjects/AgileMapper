@@ -5,8 +5,28 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenConfiguringExceptionCallbacks
+    public class WhenConfiguringExceptionHandling
     {
+        [Fact]
+        public void ShouldConfigureGlobalExceptionSwallowing()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .SwallowAllExceptions();
+
+                mapper
+                    .After
+                    .CreatingInstances
+                    .Call(ctx => { throw new InvalidOperationException("BANG"); });
+
+                var result = mapper.Map(new Person()).ToNew<PersonViewModel>();
+
+                result.ShouldBeNull();
+            }
+        }
+
         [Fact]
         public void ShouldConfigureAGlobalCallback()
         {

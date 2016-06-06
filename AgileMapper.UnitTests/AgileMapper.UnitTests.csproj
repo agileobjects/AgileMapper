@@ -67,7 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\WhenConfiguringDerivedTypePairs.cs" />
-    <Compile Include="Configuration\WhenConfiguringExceptionCallbacks.cs" />
+    <Compile Include="Configuration\WhenConfiguringExceptionHandling.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectCreation.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectCreationCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />

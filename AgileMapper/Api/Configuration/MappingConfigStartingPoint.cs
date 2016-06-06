@@ -13,6 +13,8 @@
             _mapperContext = mapperContext;
         }
 
+        public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
+
         public void PassExceptionsTo(Action<IUntypedMemberMappingExceptionContext> callback)
         {
             var callbackFactory = new ExceptionCallbackFactory(
