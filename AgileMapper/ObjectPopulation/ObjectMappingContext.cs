@@ -127,10 +127,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingContext Parent { get; }
 
-        #region Try
+        #region Try Overloads
 
         public void Try(Action action)
-            => Try(action, (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx) => { });
+            => Try(action, default(Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>>));
 
         public void Try(Action action, Action<IUntypedMemberMappingExceptionContext> callback)
         {
@@ -158,12 +158,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             catch (Exception ex)
             {
-                ReportException(callback, ex);
+                HandleException(callback, ex);
             }
         }
 
         public TResult Try<TResult>(Func<TResult> funcToTry)
-            => Try(funcToTry, (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx) => { });
+            => Try(funcToTry, default(Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>>));
 
         public TResult Try<TResult>(Func<TResult> funcToTry, Action<IUntypedMemberMappingExceptionContext> callback)
         {
@@ -189,18 +189,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             catch (Exception ex)
             {
-                ReportException(callback, ex);
+                HandleException(callback, ex);
                 return default(TResult);
             }
         }
 
-        private void ReportException(
+        private void HandleException(
             Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>> callback,
             Exception ex)
         {
             if (callback == null)
             {
-                return;
+                throw new MappingException("An error occurred during mapping", ex);
             }
 
             var exceptionContext = MemberMappingExceptionContext.Create(this, ex);

@@ -231,22 +231,25 @@
         }
 
         [Fact]
-        public void ShouldHandleAnExceptionThrownInACondition()
+        public void ShouldWrapAnExceptionThrownInACondition()
         {
-            using (var mapper = Mapper.Create())
+            Assert.Throws<MappingException>(() =>
             {
-                mapper.WhenMapping
-                    .From<Person>()
-                    .To<PublicField<int>>()
-                    .If((p, t) => int.Parse(p.Name) > 0)
-                    .Map(ctx => ctx.Source.Name)
-                    .To(x => x.Value);
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<int>>()
+                        .If((p, t) => int.Parse(p.Name) > 0)
+                        .Map(ctx => ctx.Source.Name)
+                        .To(x => x.Value);
 
-                var source = new Person { Name = "CantParseThis" };
-                var result = mapper.Map(source).ToNew<PublicField<int>>();
+                    var source = new Person { Name = "CantParseThis" };
+                    var result = mapper.Map(source).ToNew<PublicField<int>>();
 
-                result.Value.ShouldBeDefault();
-            }
+                    result.Value.ShouldBeDefault();
+                }
+            });
         }
 
         [Fact]
@@ -322,21 +325,24 @@
         }
 
         [Fact]
-        public void ShouldHandleAnExceptionThrownInAConfiguredExpression()
+        public void ShouldWrapAnExceptionThrownInAConfiguredExpression()
         {
-            using (var mapper = Mapper.Create())
+            Assert.Throws<MappingException>(() =>
             {
-                mapper.WhenMapping
-                    .From<PublicGetMethod<string>>()
-                    .To<PublicField<short>>()
-                    .Map((s, t) => int.Parse(s.GetValue()) / 0)
-                    .To(x => x.Value);
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.WhenMapping
+                        .From<PublicGetMethod<string>>()
+                        .To<PublicField<short>>()
+                        .Map((s, t) => int.Parse(s.GetValue()) / 0)
+                        .To(x => x.Value);
 
-                var source = new PublicGetMethod<string>("1234");
-                var result = mapper.Map(source).ToNew<PublicField<short>>();
+                    var source = new PublicGetMethod<string>("1234");
+                    var result = mapper.Map(source).ToNew<PublicField<short>>();
 
-                result.Value.ShouldBeDefault();
-            }
+                    result.Value.ShouldBeDefault();
+                }
+            });
         }
 
         [Fact]

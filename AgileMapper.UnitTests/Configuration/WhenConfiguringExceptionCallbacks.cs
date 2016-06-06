@@ -30,6 +30,7 @@
             }
         }
 
+        // ReSharper disable AccessToDisposedClosure
         [Fact]
         public void ShouldRestrictACallbackByTargetType()
         {
@@ -47,9 +48,7 @@
                     .CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("ASPLODE"); });
 
-                mapper.Map(new PersonViewModel()).ToNew<Person>();
-
-                thrownException.ShouldBeNull();
+                ShouldNotCallCallback(() => mapper.Map(new PersonViewModel()).ToNew<Person>(), ref thrownException);
 
                 mapper.Map(new Person()).ToNew<PersonViewModel>();
 
@@ -76,18 +75,35 @@
                     .CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("WALLOP"); });
 
-                mapper.Map(new Customer()).ToNew<Person>();
+                ShouldNotCallCallback(
+                    () => mapper.Map(new Customer()).ToNew<Person>(),
+                    ref thrownException);
 
-                thrownException.ShouldBeNull();
-
-                mapper.Map(new Person()).ToNew<PersonViewModel>();
-
-                thrownException.ShouldBeNull();
+                ShouldNotCallCallback(
+                    () => mapper.Map(new Person()).ToNew<PersonViewModel>(),
+                    ref thrownException);
 
                 mapper.Map(new PersonViewModel()).ToNew<Person>();
 
                 thrownException.ShouldNotBeNull();
                 thrownException.Message.ShouldBe("WALLOP");
+            }
+        }
+        // ReSharper restore AccessToDisposedClosure
+
+        private static void ShouldNotCallCallback(Action action, ref Exception thrownException)
+        {
+            try
+            {
+                action.Invoke();
+            }
+            catch
+            {
+                // Ignored
+            }
+            finally
+            {
+                thrownException.ShouldBeNull();
             }
         }
     }

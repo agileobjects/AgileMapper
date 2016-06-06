@@ -31,19 +31,36 @@
         }
 
         [Fact]
-        public void ShouldHandleAnObjectCreatedCallbackException()
+        public void ShouldWrapAnObjectCreatedCallbackException()
         {
-            using (var mapper = Mapper.Create())
+            Assert.Throws<MappingException>(() =>
             {
-                mapper.After
-                    .CreatingInstances
-                    .Call(ctx => { throw new InvalidOperationException(); });
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.After
+                        .CreatingInstances
+                        .Call(ctx => { throw new InvalidOperationException(); });
 
-                var source = new PublicProperty<int> { Value = 5117 };
-                var result = mapper.Map(source).ToNew<PublicField<int>>();
+                    mapper.Map(new PublicProperty<int>()).ToNew<PublicField<int>>();
+                }
+            });
+        }
 
-                result.Value.ShouldBe(5117);
-            }
+        [Fact]
+        public void ShouldWrapANestedObjectCreatingCallbackException()
+        {
+            Assert.Throws<MappingException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper
+                        .After
+                        .CreatingInstancesOf<Address>()
+                        .Call(ctx => { throw new InvalidOperationException("OH NO"); });
+
+                    mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToNew<Person>();
+                }
+            });
         }
 
         [Fact]
