@@ -27,7 +27,5 @@
         NestedAccessFinder NestedAccessFinder { get; }
 
         DataSourceSet GetDataSources();
-
-        Expression WrapInTry(Expression expression);
     }
 }

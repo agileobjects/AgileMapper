@@ -14,25 +14,12 @@
             Expression value,
             Expression condition,
             IMemberMappingContext context)
-            : this(
+            : base(
                   new ConfiguredQualifiedMember(value, context),
                   GetConvertedValue(dataSourceIndex, value, context),
-                  condition,
                   context)
         {
-        }
-
-        private ConfiguredDataSource(
-            IQualifiedMember qualifiedMember,
-            Expression convertedValue,
-            Expression condition,
-            IMemberMappingContext context)
-            : base(
-                  qualifiedMember,
-                  context.WrapInTry(convertedValue),
-                  context)
-        {
-            _originalValueString = convertedValue.ToString();
+            _originalValueString = GetConvertedValue(dataSourceIndex, value, context).ToString();
             HasConfiguredCondition = condition != null;
 
             if (HasConfiguredCondition)

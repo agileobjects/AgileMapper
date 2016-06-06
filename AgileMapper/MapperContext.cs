@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-    using System;
     using Api.Configuration;
     using Caching;
     using DataSources;

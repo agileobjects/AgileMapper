@@ -93,7 +93,7 @@
                 contextualisedCondition = Expression.Not(contextualisedCondition);
             }
 
-            return context.WrapInTry(contextualisedCondition);
+            return contextualisedCondition;
         }
 
         #endregion

@@ -189,6 +189,26 @@
         }
         // ReSharper restore PossibleNullReferenceException
 
+        [Fact]
+        public void ShouldWrapAnExceptionThrownInObjectCreation()
+        {
+            Assert.Throws<MappingException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicProperty<List<string>>>()
+                        .CreateInstancesUsing(ctx => new PublicProperty<List<string>>()
+                        {
+                            Value = { ctx.Source.Id.ToString(), ctx.Source.Name }
+                        });
+
+                    mapper.Map(new Person()).ToNew<PublicProperty<List<string>>>();
+                }
+            });
+        }
+
         private class CustomerCtor : Person
         {
             // ReSharper disable once UnusedMember.Local

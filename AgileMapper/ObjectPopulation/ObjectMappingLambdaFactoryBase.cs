@@ -1,9 +1,11 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using Members;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
@@ -33,8 +35,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     .Concat(objectPopulation)
                     .Concat(returnLabel));
 
+            var wrappedMappingBlock = WrapInTryCatch(mappingBlock, omc);
+
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget, TInstance>>(mappingBlock, omc.Parameter);
+                .Lambda<MapperFunc<TSource, TTarget, TInstance>>(wrappedMappingBlock, omc.Parameter);
 
             return mapperLambda;
         }
@@ -55,5 +59,42 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected abstract IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc);
 
         protected abstract Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc);
+
+        #region Try / Catch Support
+
+        private static Expression WrapInTryCatch(Expression mappingBlock, IObjectMappingContext omc)
+        {
+            var configuredCallback = omc.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(omc);
+            var exceptionVariable = Parameters.Create<Exception>("ex");
+
+            Expression catchBody;
+
+            if (configuredCallback != null)
+            {
+                var exceptionContextCreateMethod = MemberMappingExceptionContext
+                    .CreateMethod
+                    .MakeGenericMethod(omc.SourceType, omc.TargetType);
+
+                var exceptionContextCreateCall = Expression.Call(
+                    exceptionContextCreateMethod,
+                    omc.Parameter,
+                    exceptionVariable);
+
+                var callbackInvocation = Expression.Invoke(configuredCallback.Callback, exceptionContextCreateCall);
+                var returnDefault = Expression.Default(mappingBlock.Type);
+                catchBody = Expression.Block(callbackInvocation, returnDefault);
+            }
+            else
+            {
+                var mappingExceptionCreation = Expression.New(MappingException.ConstructorInfo, exceptionVariable);
+                catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);
+            }
+
+            var catchBlock = Expression.Catch(exceptionVariable, catchBody);
+
+            return Expression.TryCatch(mappingBlock, catchBlock);
+        }
+
+        #endregion
     }
 }

@@ -1,9 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Reflection;
 
     internal static class MemberMappingExceptionContext
     {
+        internal static readonly MethodInfo CreateMethod = typeof(MemberMappingExceptionContext).GetMethod("Create");
+
         public static MemberMappingExceptionContext<TSource, TTarget> Create<TSource, TTarget>(
             TypedMemberMappingContext<TSource, TTarget> context,
             Exception exception)

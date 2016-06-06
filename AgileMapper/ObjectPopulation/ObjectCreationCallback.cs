@@ -29,8 +29,6 @@
 
         public Expression IntegrateCallback(IMemberMappingContext context)
         {
-            var callback = context.WrapInTry(_callback);
-
             if (_callbackPosition == CallbackPosition.After)
             {
                 _conditions.Insert(0, Expression.NotEqual(context.InstanceVariable, context.ExistingObject));
@@ -38,10 +36,10 @@
 
             if (_conditions.Any())
             {
-                return Expression.IfThen(_conditions.GetIsNotDefaultComparisonsOrNull(), callback);
+                return Expression.IfThen(_conditions.GetIsNotDefaultComparisonsOrNull(), _callback);
             }
 
-            return callback;
+            return _callback;
         }
     }
 }

@@ -46,7 +46,5 @@
         public NestedAccessFinder NestedAccessFinder => _parent.NestedAccessFinder;
 
         DataSourceSet IMemberMappingContext.GetDataSources() => this.GetDataSources();
-
-        Expression IMemberMappingContext.WrapInTry(Expression expression) => _parent.WrapInTry(expression);
     }
 }

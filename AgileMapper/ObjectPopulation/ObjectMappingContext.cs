@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Api.Configuration;
     using DataSources;
     using Extensions;
     using Members;
@@ -43,38 +42,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     .MakeGenericMethod(_sourceObjectProperty.Type, _instanceVariable.Type),
                 _sourceObjectProperty,
                 _instanceVariable);
-
-        private static readonly MethodInfo _tryActionMethod = GetTryMethod("action");
-        private static readonly MethodInfo _tryUntypedHandlerActionMethod = GetTryMethod("action", typeof(IUntypedMemberMappingExceptionContext));
-        private static readonly MethodInfo _tryHalfTypedHandlerActionMethod = GetTryMethod("action", typeof(ITypedMemberMappingExceptionContext<object, TRuntimeTarget>));
-        private static readonly MethodInfo _tryTypedHandlerActionMethod = GetTryMethod("action", typeof(ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>));
-
-        private static readonly MethodInfo _tryFuncMethod = GetTryMethod("funcToTry");
-        private static readonly MethodInfo _tryUntypedHandlerFuncMethod = GetTryMethod("funcToTry", typeof(IUntypedMemberMappingExceptionContext));
-        private static readonly MethodInfo _tryHalfTypedHandlerFuncMethod = GetTryMethod("funcToTry", typeof(ITypedMemberMappingExceptionContext<object, TRuntimeTarget>));
-        private static readonly MethodInfo _tryTypedHandlerFuncMethod = GetTryMethod("funcToTry", typeof(ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>));
-
-        private static MethodInfo GetTryMethod(string firstParameterName, Type callbackType = null)
-        {
-            if (callbackType != null)
-            {
-                callbackType = typeof(Action<>).MakeGenericType(callbackType);
-            }
-
-            return _parameter.Type
-                .GetMethods(Constants.PublicInstance)
-                .Select(m => new
-                {
-                    Method = m,
-                    Parameters = m.GetParameters()
-                })
-                .First(d =>
-                    (d.Method.Name == "Try") &&
-                    (d.Parameters[0].Name == firstParameterName) &&
-                    ((callbackType == null) ||
-                    (d.Parameters.Length > 1 && (d.Parameters[1].ParameterType == callbackType))))
-                .Method;
-        }
 
         private static readonly MethodCallExpression _registrationCall = Expression.Call(
             _mappingContextProperty,
@@ -126,89 +93,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingContext IMemberMappingContext.Parent => Parent;
 
         public IObjectMappingContext Parent { get; }
-
-        #region Try Overloads
-
-        public void Try(Action action)
-            => Try(action, default(Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>>));
-
-        public void Try(Action action, Action<IUntypedMemberMappingExceptionContext> callback)
-        {
-            Try(action,
-                (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx)
-                    => callback((IUntypedMemberMappingExceptionContext)ctx));
-        }
-
-        public void Try(
-            Action action,
-            Action<ITypedMemberMappingExceptionContext<object, TRuntimeTarget>> callback)
-        {
-            Try(action,
-                (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx)
-                    => callback((ITypedMemberMappingExceptionContext<object, TRuntimeTarget>)ctx));
-        }
-
-        public void Try(
-            Action action,
-            Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>> callback)
-        {
-            try
-            {
-                action.Invoke();
-            }
-            catch (Exception ex)
-            {
-                HandleException(callback, ex);
-            }
-        }
-
-        public TResult Try<TResult>(Func<TResult> funcToTry)
-            => Try(funcToTry, default(Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>>));
-
-        public TResult Try<TResult>(Func<TResult> funcToTry, Action<IUntypedMemberMappingExceptionContext> callback)
-        {
-            return Try(funcToTry,
-                (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx)
-                    => callback((IUntypedMemberMappingExceptionContext)ctx));
-        }
-
-        public TResult Try<TResult>(Func<TResult> funcToTry, Action<ITypedMemberMappingExceptionContext<object, TRuntimeTarget>> callback)
-        {
-            return Try(funcToTry,
-                (ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget> ctx)
-                    => callback((ITypedMemberMappingExceptionContext<object, TRuntimeTarget>)ctx));
-        }
-
-        public TResult Try<TResult>(
-            Func<TResult> funcToTry,
-            Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>> callback)
-        {
-            try
-            {
-                return funcToTry.Invoke();
-            }
-            catch (Exception ex)
-            {
-                HandleException(callback, ex);
-                return default(TResult);
-            }
-        }
-
-        private void HandleException(
-            Action<ITypedMemberMappingExceptionContext<TRuntimeSource, TRuntimeTarget>> callback,
-            Exception ex)
-        {
-            if (callback == null)
-            {
-                throw new MappingException("An error occurred during mapping", ex);
-            }
-
-            var exceptionContext = MemberMappingExceptionContext.Create(this, ex);
-
-            callback.Invoke(exceptionContext);
-        }
-
-        #endregion
 
         public TDeclaredMember Map<TDeclaredSource, TDeclaredMember>(
             TDeclaredSource source,
@@ -285,66 +169,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         NestedAccessFinder IMemberMappingContext.NestedAccessFinder => _nestedAccessFinder;
 
         DataSourceSet IMemberMappingContext.GetDataSources() => this.GetDataSources();
-
-        Expression IMemberMappingContext.WrapInTry(Expression expression)
-        {
-            if (expression.NodeType == ExpressionType.Constant)
-            {
-                return expression;
-            }
-
-            var callback = MapperContext.UserConfigurations.GetExceptionCallbackOrNull(this);
-            var hasCallback = (callback != null);
-
-            MethodInfo tryMethod;
-            Expression tryArgument;
-
-            if (expression.Type == typeof(void))
-            {
-                tryMethod = GetTryMethod(
-                    callback,
-                    _tryActionMethod,
-                    _tryUntypedHandlerActionMethod,
-                    _tryHalfTypedHandlerActionMethod,
-                    _tryTypedHandlerActionMethod);
-
-                tryArgument = Expression.Lambda<Action>(expression);
-            }
-            else
-            {
-                tryMethod = GetTryMethod(
-                    callback,
-                    _tryFuncMethod,
-                    _tryUntypedHandlerFuncMethod,
-                    _tryHalfTypedHandlerFuncMethod,
-                    _tryTypedHandlerFuncMethod);
-
-                tryMethod = tryMethod.MakeGenericMethod(expression.Type);
-                tryArgument = Expression.Lambda(Expression.GetFuncType(expression.Type), expression);
-            }
-
-            var tryCall = hasCallback
-                ? Expression.Call(_parameter, tryMethod, tryArgument, callback.Callback)
-                : Expression.Call(_parameter, tryMethod, tryArgument);
-
-            return tryCall;
-        }
-
-        private static MethodInfo GetTryMethod(
-            ExceptionCallback callback,
-            MethodInfo noCallbackMethod,
-            MethodInfo untypedMethod,
-            MethodInfo halfTypedMethod,
-            MethodInfo typedMethod)
-        {
-            return (callback == null)
-                ? noCallbackMethod
-                : callback.IsUntyped
-                    ? untypedMethod
-                    : callback.IsSourceTyped
-                        ? typedMethod
-                        : halfTypedMethod;
-        }
 
         #endregion
 
