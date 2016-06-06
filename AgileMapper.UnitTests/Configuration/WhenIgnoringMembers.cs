@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Api.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -116,6 +117,68 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 
                 result.First().Value.ShouldBe("123");
                 result.Second().Value.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantIgnoreIsSpecified()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper
+                        .WhenMapping
+                        .From<Person>()
+                        .To<PersonViewModel>()
+                        .Ignore(pvm => pvm.Name);
+
+                    mapper
+                        .WhenMapping
+                        .From<Customer>()
+                        .To<CustomerViewModel>()
+                        .Ignore(cvm => cvm.Name);
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfRedundantConditionalIgnoreConflictsWithIgnore()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .From<Person>()
+                    .To<PersonViewModel>()
+                    .Ignore(pvm => pvm.Name);
+
+                mapper
+                    .WhenMapping
+                    .From<Customer>()
+                    .To<CustomerViewModel>()
+                    .If((c, cvm) => c.Name == "Frank")
+                    .Ignore(cvm => cvm.Name);
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfRedundantIgnoreConflictsWithConditionalIgnore()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .From<Person>()
+                    .To<PersonViewModel>()
+                    .If((p, pvm) => p.Name == "Frank")
+                    .Ignore(pvm => pvm.Name);
+
+                mapper
+                    .WhenMapping
+                    .From<Customer>()
+                    .To<CustomerViewModel>()
+                    .Ignore(cvm => cvm.Name);
             }
         }
     }

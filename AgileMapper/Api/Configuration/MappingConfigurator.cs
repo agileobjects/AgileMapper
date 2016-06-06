@@ -55,10 +55,10 @@
 
         public void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
         {
-            var configuredIgnoredMember = ConfiguredIgnoredMember.For(
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(
                 _configInfo,
                 typeof(TTarget),
-                targetMember.Body);
+                targetMember);
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
             _configInfo.NegateCondition();

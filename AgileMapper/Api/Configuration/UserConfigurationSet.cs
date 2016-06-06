@@ -40,7 +40,19 @@
 
         #region Ignored Members
 
-        public void Add(ConfiguredIgnoredMember ignoredMember) => _ignoredMembers.Add(ignoredMember);
+        public void Add(ConfiguredIgnoredMember ignoredMember)
+        {
+            var conflictingIgnoredMember = _ignoredMembers
+                .FirstOrDefault(im => im.ConflictsWith(ignoredMember));
+
+            if (conflictingIgnoredMember != null)
+            {
+                throw new MappingConfigurationException(
+                    "Member " + ignoredMember.TargetMemberPath + " is already ignored");
+            }
+
+            _ignoredMembers.Add(ignoredMember);
+        }
 
         public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IMemberMappingContext context)
             => FindMatch(_ignoredMembers, context);

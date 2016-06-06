@@ -9,32 +9,15 @@
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
 
-        private ConfiguredDataSourceFactory(
+        public ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo dataSourceLambda,
             Type mappingTargetType,
-            IQualifiedMember targetMember)
-            : base(configInfo, mappingTargetType, targetMember)
+            LambdaExpression targetMemberLambda)
+            : base(configInfo, mappingTargetType, targetMemberLambda)
         {
             _dataSourceLambda = dataSourceLambda;
         }
-
-        #region Factory Method
-
-        public static ConfiguredDataSourceFactory For(
-            MappingConfigInfo configInfo,
-            ConfiguredLambdaInfo dataSourceLambda,
-            Type targetType,
-            Expression targetMember)
-        {
-            return new ConfiguredDataSourceFactory(
-                configInfo,
-                dataSourceLambda,
-                targetType,
-                targetMember.ToTargetMember(configInfo.GlobalContext.MemberFinder));
-        }
-
-        #endregion
 
         public IConfiguredDataSource Create(int dataSourceIndex, IMemberMappingContext context)
         {

@@ -3,12 +3,12 @@
     using System;
     using System.Linq.Expressions;
     using Members;
+    using ReadableExpressions;
 
     internal abstract class UserConfiguredItemBase
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly Type _mappingTargetType;
-        private readonly IQualifiedMember _targetMember;
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, Type mappingTargetType)
             : this(configInfo, mappingTargetType, QualifiedMember.All)
@@ -18,12 +18,28 @@
         protected UserConfiguredItemBase(
             MappingConfigInfo configInfo,
             Type mappingTargetType,
-            IQualifiedMember targetMember)
+            LambdaExpression targetMemberLambda)
+            : this(
+                  configInfo,
+                  mappingTargetType,
+                  targetMemberLambda.Body.ToTargetMember(configInfo.GlobalContext.MemberFinder))
+        {
+            TargetMemberPath = targetMemberLambda.Body.ToReadableString();
+        }
+
+        protected UserConfiguredItemBase(
+            MappingConfigInfo configInfo,
+            Type mappingTargetType,
+            QualifiedMember targetMember)
         {
             _configInfo = configInfo;
             _mappingTargetType = mappingTargetType;
-            _targetMember = targetMember;
+            TargetMember = targetMember;
         }
+
+        protected QualifiedMember TargetMember { get; }
+
+        public string TargetMemberPath { get; }
 
         public bool HasConfiguredCondition => _configInfo.HasCondition;
 
@@ -33,7 +49,7 @@
         public virtual bool AppliesTo(IMappingData data)
         {
             return _configInfo.IsForRuleSet(data.RuleSetName) &&
-                data.TargetMember.IsSameAs(_targetMember) &&
+                data.TargetMember.IsSameAs(TargetMember) &&
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
         }
 

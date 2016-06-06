@@ -2,31 +2,25 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Linq.Expressions;
-    using Members;
 
     internal class ConfiguredIgnoredMember : UserConfiguredItemBase
     {
         public ConfiguredIgnoredMember(
             MappingConfigInfo configInfo,
             Type mappingTargetType,
-            IQualifiedMember targetMember)
-            : base(configInfo, mappingTargetType, targetMember)
+            LambdaExpression targetMemberLambda)
+            : base(configInfo, mappingTargetType, targetMemberLambda)
         {
         }
 
-        #region Factory Method
-
-        public static ConfiguredIgnoredMember For(
-            MappingConfigInfo configInfo,
-            Type targetType,
-            Expression targetMember)
+        public bool ConflictsWith(ConfiguredIgnoredMember otherIgnoredMember)
         {
-            return new ConfiguredIgnoredMember(
-                configInfo,
-                targetType,
-                targetMember.ToTargetMember(configInfo.GlobalContext.MemberFinder));
-        }
+            if (HasConfiguredCondition || otherIgnoredMember.HasConfiguredCondition)
+            {
+                return false;
+            }
 
-        #endregion
+            return TargetMember.Matches(otherIgnoredMember.TargetMember);
+        }
     }
 }
