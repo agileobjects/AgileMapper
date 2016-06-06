@@ -42,6 +42,14 @@
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
+            ThrowIfConflictingIgnoredMemberExists(ignoredMember);
+            ThrowIfConflictingDataSourceExists(ignoredMember);
+
+            _ignoredMembers.Add(ignoredMember);
+        }
+
+        private void ThrowIfConflictingIgnoredMemberExists(UserConfiguredItemBase ignoredMember)
+        {
             var conflictingIgnoredMember = _ignoredMembers
                 .FirstOrDefault(im => im.ConflictsWith(ignoredMember));
 
@@ -50,8 +58,18 @@
                 throw new MappingConfigurationException(
                     "Member " + ignoredMember.TargetMemberPath + " is already ignored");
             }
+        }
 
-            _ignoredMembers.Add(ignoredMember);
+        private void ThrowIfConflictingDataSourceExists(UserConfiguredItemBase ignoredMember)
+        {
+            var conflictingDataSource = _dataSourceFactories
+                .FirstOrDefault(dsf => dsf.ConflictsWith(ignoredMember));
+
+            if (conflictingDataSource != null)
+            {
+                throw new MappingConfigurationException(
+                    "Ignored member " + ignoredMember.TargetMemberPath + " has a configured data source");
+            }
         }
 
         public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IMemberMappingContext context)

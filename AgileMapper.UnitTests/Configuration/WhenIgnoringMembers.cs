@@ -181,5 +181,28 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .Ignore(cvm => cvm.Name);
             }
         }
+
+        [Fact]
+        public void ShouldErrorIfConfiguredDataSourceMemberIsIgnored()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper
+                        .WhenMapping
+                        .From<Person>()
+                        .To<PersonViewModel>()
+                        .Map((p, pvm) => p.Title + " " + p.Name)
+                        .To(pvm => pvm.Name);
+
+                    mapper
+                        .WhenMapping
+                        .From<Person>()
+                        .To<PersonViewModel>()
+                        .Ignore(cvm => cvm.Name);
+                }
+            });
+        }
     }
 }

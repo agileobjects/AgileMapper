@@ -12,15 +12,5 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             : base(configInfo, mappingTargetType, targetMemberLambda)
         {
         }
-
-        public bool ConflictsWith(ConfiguredIgnoredMember otherIgnoredMember)
-        {
-            if (HasConfiguredCondition || otherIgnoredMember.HasConfiguredCondition)
-            {
-                return false;
-            }
-
-            return TargetMember.Matches(otherIgnoredMember.TargetMember);
-        }
     }
 }

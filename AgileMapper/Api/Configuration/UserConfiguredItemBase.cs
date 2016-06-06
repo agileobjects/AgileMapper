@@ -9,6 +9,7 @@
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly Type _mappingTargetType;
+        private readonly QualifiedMember _targetMember;
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, Type mappingTargetType)
             : this(configInfo, mappingTargetType, QualifiedMember.All)
@@ -34,14 +35,22 @@
         {
             _configInfo = configInfo;
             _mappingTargetType = mappingTargetType;
-            TargetMember = targetMember;
+            _targetMember = targetMember;
         }
-
-        protected QualifiedMember TargetMember { get; }
 
         public string TargetMemberPath { get; }
 
         public bool HasConfiguredCondition => _configInfo.HasCondition;
+
+        public bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
+        {
+            if (HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition)
+            {
+                return false;
+            }
+
+            return _targetMember.Matches(otherConfiguredItem._targetMember);
+        }
 
         public Expression GetCondition(IMemberMappingContext context)
             => _configInfo.GetConditionOrNull(context);
@@ -49,7 +58,7 @@
         public virtual bool AppliesTo(IMappingData data)
         {
             return _configInfo.IsForRuleSet(data.RuleSetName) &&
-                data.TargetMember.IsSameAs(TargetMember) &&
+                data.TargetMember.IsSameAs(_targetMember) &&
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
         }
 
