@@ -42,34 +42,15 @@
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
-            ThrowIfConflictingIgnoredMemberExists(ignoredMember);
-            ThrowIfConflictingDataSourceExists(ignoredMember);
+            ThrowIfConflictingIgnoredMemberExists(
+                ignoredMember,
+                () => "Member " + ignoredMember.TargetMemberPath + " is already ignored");
+
+            ThrowIfConflictingDataSourceExists(
+                ignoredMember,
+                () => "Ignored member " + ignoredMember.TargetMemberPath + " has a configured data source");
 
             _ignoredMembers.Add(ignoredMember);
-        }
-
-        private void ThrowIfConflictingIgnoredMemberExists(UserConfiguredItemBase ignoredMember)
-        {
-            var conflictingIgnoredMember = _ignoredMembers
-                .FirstOrDefault(im => im.ConflictsWith(ignoredMember));
-
-            if (conflictingIgnoredMember != null)
-            {
-                throw new MappingConfigurationException(
-                    "Member " + ignoredMember.TargetMemberPath + " is already ignored");
-            }
-        }
-
-        private void ThrowIfConflictingDataSourceExists(UserConfiguredItemBase ignoredMember)
-        {
-            var conflictingDataSource = _dataSourceFactories
-                .FirstOrDefault(dsf => dsf.ConflictsWith(ignoredMember));
-
-            if (conflictingDataSource != null)
-            {
-                throw new MappingConfigurationException(
-                    "Ignored member " + ignoredMember.TargetMemberPath + " has a configured data source");
-            }
         }
 
         public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IMemberMappingContext context)
@@ -79,7 +60,18 @@
 
         #region DataSources
 
-        public void Add(ConfiguredDataSourceFactory dataSourceFactory) => _dataSourceFactories.Add(dataSourceFactory);
+        public void Add(ConfiguredDataSourceFactory dataSourceFactory)
+        {
+            ThrowIfConflictingIgnoredMemberExists(
+                dataSourceFactory,
+                () => "Member " + dataSourceFactory.TargetMemberPath + " has been ignored");
+
+            ThrowIfConflictingDataSourceExists(
+                dataSourceFactory,
+                () => dataSourceFactory.TargetMemberPath + " already has a configured data source");
+
+            _dataSourceFactories.Add(dataSourceFactory);
+        }
 
         public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMappingContext context)
             => FindMatches(_dataSourceFactories, context).Select((dsf, i) => dsf.Create(i, context)).ToArray();
@@ -120,6 +112,36 @@
         private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IMappingData data)
             where TItem : UserConfiguredItemBase
             => items.Where(im => im.AppliesTo(data)).OrderByDescending(im => im.HasConfiguredCondition);
+
+        #region Conflict Handling
+
+        private void ThrowIfConflictingIgnoredMemberExists(
+            UserConfiguredItemBase configuredItem,
+            Func<string> messageFactory)
+        {
+            var conflictingIgnoredMember = _ignoredMembers
+                .FirstOrDefault(im => im.ConflictsWith(configuredItem));
+
+            if (conflictingIgnoredMember != null)
+            {
+                throw new MappingConfigurationException(messageFactory.Invoke());
+            }
+        }
+
+        private void ThrowIfConflictingDataSourceExists(
+            UserConfiguredItemBase configuredItem,
+            Func<string> messageFactory)
+        {
+            var conflictingDataSource = _dataSourceFactories
+                .FirstOrDefault(dsf => dsf.ConflictsWith(configuredItem));
+
+            if (conflictingDataSource != null)
+            {
+                throw new MappingConfigurationException(messageFactory.Invoke());
+            }
+        }
+
+        #endregion
 
         public void Reset()
         {

@@ -204,5 +204,43 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 }
             });
         }
+
+        [Fact]
+        public void ShouldNotErrorIfSamePathIgnoredMembersHaveDifferentSourceTypes()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicProperty<int>>()
+                    .Ignore(x => x.Value);
+
+                mapper
+                    .WhenMapping
+                    .From<PublicGetMethod<int>>()
+                    .To<PublicProperty<int>>()
+                    .Ignore(x => x.Value);
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfSamePathIgnoredMembersHaveDifferentTargetTypes()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .From<Person>()
+                    .To<PersonViewModel>()
+                    .Ignore(x => x.Name);
+
+                mapper
+                    .WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .Ignore(x => x.Name);
+            }
+        }
     }
 }

@@ -13,8 +13,7 @@
             where TDerivedTarget : TTarget
         {
             var derivedTypePair = new DerivedTypePair(
-                _configInfo,
-                typeof(TTarget),
+                _configInfo.ForTargetType<TTarget>(),
                 typeof(TDerivedSource),
                 typeof(TDerivedTarget));
 

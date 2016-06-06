@@ -10,6 +10,7 @@
         private static readonly string _allRuleSets = Guid.NewGuid().ToString();
 
         private Type _sourceType;
+        private Type _targetType;
         private Type _sourceValueType;
         private string _mappingRuleSetName;
         private ConfiguredLambdaInfo _conditionLambda;
@@ -34,8 +35,28 @@
             return this;
         }
 
+        public MappingConfigInfo ForAllTargetTypes() => ForTargetType<object>();
+
+        public MappingConfigInfo ForTargetType<TTarget>() => ForTargetType(typeof(TTarget));
+
+        public MappingConfigInfo ForTargetType(Type targetType)
+        {
+            _targetType = targetType;
+            return this;
+        }
+
+        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => _sourceType == otherConfigInfo._sourceType;
+
+        public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo._sourceType);
+
         public bool IsForSourceType(Type sourceType)
             => (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
+
+        public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => _targetType == otherConfigInfo._targetType;
+
+        public bool IsForTargetType(MappingConfigInfo otherConfigInfo) => IsForTargetType(otherConfigInfo._targetType);
+
+        public bool IsForTargetType(Type targetType) => _targetType.IsAssignableFrom(targetType);
 
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 

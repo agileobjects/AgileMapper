@@ -9,10 +9,9 @@
 
         public DerivedTypePair(
             MappingConfigInfo configInfo,
-            Type mappingTargetType,
             Type derivedSourceType,
             Type derivedTargetType)
-            : base(configInfo, mappingTargetType)
+            : base(configInfo)
         {
             _derivedSourceType = derivedSourceType;
             DerivedTargetType = derivedTargetType;

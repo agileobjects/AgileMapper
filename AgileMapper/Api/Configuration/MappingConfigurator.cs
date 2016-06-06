@@ -46,8 +46,7 @@
         public void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback)
         {
             var callbackFactory = new ExceptionCallbackFactory(
-                _configInfo,
-                typeof(TTarget),
+                _configInfo.ForTargetType<TTarget>(),
                 Expression.Constant(callback));
 
             _configInfo.MapperContext.UserConfigurations.Add(callbackFactory);
@@ -56,8 +55,7 @@
         public void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             var configuredIgnoredMember = new ConfiguredIgnoredMember(
-                _configInfo,
-                typeof(TTarget),
+                _configInfo.ForTargetType<TTarget>(),
                 targetMember);
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);

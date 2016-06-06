@@ -770,5 +770,89 @@
                 }
             });
         }
+
+        [Fact]
+        public void ShouldErrorIfIgnoredMemberIsConfigured()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<int>>()
+                        .To<PublicField<DateTime>>()
+                        .Ignore(pf => pf.Value);
+
+                    mapper.WhenMapping
+                        .From<PublicField<int>>()
+                        .To<PublicField<DateTime>>()
+                        .Map(ctx => DateTime.UtcNow)
+                        .To(x => x.Value);
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantDataSourceIsConfigured()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<string>>()
+                        .Map((p, x) => p.Id)
+                        .To(x => x.Value);
+
+                    mapper.WhenMapping
+                        .From<Customer>()
+                        .To<PublicField<string>>()
+                        .Map((p, x) => p.Id)
+                        .To(x => x.Value);
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldErrorIfConflictingDataSourceIsConfigured()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.Create())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<string>>()
+                        .Map((p, x) => p.Id)
+                        .To(x => x.Value);
+
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<string>>()
+                        .Map((p, x) => p.Name)
+                        .To(x => x.Value);
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfDerivedSourceTypeConflictingDataSourceIsConfigured()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicField<string>>()
+                    .Map((p, x) => p.Id)
+                    .To(x => x.Value);
+
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .To<PublicField<string>>()
+                    .Map((p, x) => p.Name)
+                    .To(x => x.Value);
+            }
+        }
     }
 }

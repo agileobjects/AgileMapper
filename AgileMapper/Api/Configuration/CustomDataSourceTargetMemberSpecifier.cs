@@ -31,9 +31,8 @@
             _configInfo.ThrowIfSourceTypeDoesNotMatch<TTargetValue>();
 
             var configuredDataSourceFactory = new ConfiguredDataSourceFactory(
-                _configInfo,
+                _configInfo.ForTargetType<TTarget>(),
                 _customValueLambda,
-                typeof(TTarget),
                 targetMemberLambda);
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);

@@ -18,8 +18,7 @@
         public void PassExceptionsTo(Action<IUntypedMemberMappingExceptionContext> callback)
         {
             var callbackFactory = new ExceptionCallbackFactory(
-                new MappingConfigInfo(_mapperContext).ForAllSourceTypes().ForAllRuleSets(),
-                typeof(object),
+                new MappingConfigInfo(_mapperContext).ForAllRuleSets().ForAllSourceTypes().ForAllTargetTypes(),
                 Expression.Constant(callback));
 
             _mapperContext.UserConfigurations.Add(callbackFactory);

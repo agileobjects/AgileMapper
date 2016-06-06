@@ -12,11 +12,10 @@
 
         public ObjectCreationCallbackFactory(
             MappingConfigInfo configInfo,
-            Type mappingTargetType,
             Type creationTargetType,
             CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo, mappingTargetType)
+            : base(configInfo)
         {
             _creationTargetType = creationTargetType;
             _callbackPosition = callbackPosition;

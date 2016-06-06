@@ -12,10 +12,9 @@
 
         private ConfiguredObjectFactory(
             MappingConfigInfo configInfo,
-            Type mappingTargetType,
             Type objectType,
             LambdaExpression objectFactory)
-            : base(configInfo, mappingTargetType)
+            : base(configInfo)
         {
             _objectType = objectType;
             _objectFactory = ConfiguredLambdaInfo.For(objectFactory);
@@ -28,8 +27,7 @@
             Type objectType,
             LambdaExpression factory)
             => new ConfiguredObjectFactory(
-                   new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes(),
-                   typeof(object),
+                   new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes().ForAllTargetTypes(),
                    objectType,
                    factory);
 
@@ -37,7 +35,7 @@
             MappingConfigInfo configInfo,
             Type objectType,
             LambdaExpression factory)
-            => new ConfiguredObjectFactory(configInfo, objectType, objectType, factory);
+            => new ConfiguredObjectFactory(configInfo.ForTargetType(objectType), objectType, factory);
 
         #endregion
 

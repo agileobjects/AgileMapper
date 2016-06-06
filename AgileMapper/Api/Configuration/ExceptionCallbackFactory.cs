@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using System;
     using System.Linq.Expressions;
     using Members;
 
@@ -8,11 +7,8 @@
     {
         private readonly Expression _callback;
 
-        public ExceptionCallbackFactory(
-            MappingConfigInfo configInfo,
-            Type mappingTargetType,
-            Expression callback)
-            : base(configInfo, mappingTargetType)
+        public ExceptionCallbackFactory(MappingConfigInfo configInfo, Expression callback)
+            : base(configInfo)
         {
             _callback = callback;
         }

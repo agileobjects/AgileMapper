@@ -14,8 +14,7 @@
             var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TInstance));
 
             var creationCallbackFactory = new ObjectCreationCallbackFactory(
-                ConfigInfo,
-                typeof(TTarget),
+                ConfigInfo.ForTargetType<TTarget>(),
                 typeof(TInstance),
                 CallbackPosition,
                 callbackLambda);
