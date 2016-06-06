@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -42,6 +43,47 @@
 
             result.Value.ShouldNotBeNull();
             result.Value.ShouldBe(source.Value.Select(p => p.Name), pvm => pvm.Name);
+        }
+
+        [Fact]
+        public void ShouldCreateANewNestedComplexTypeEnumerable()
+        {
+            var source = new PublicField<IEnumerable<PublicField<IEnumerable<PersonViewModel>>>>
+            {
+                Value = new[]
+                {
+                    new PublicField<IEnumerable<PersonViewModel>>
+                    {
+                        Value = new []
+                        {
+                            new PersonViewModel { Name = "Jack" },
+                            new PersonViewModel { Name = "Sparrow" }
+                        }
+                    },
+                    new PublicField<IEnumerable<PersonViewModel>>
+                    {
+                        Value = new []
+                        {
+                            new PersonViewModel { Name = "The" },
+                            new PersonViewModel { Name = "Lonely" },
+                            new PersonViewModel { Name = "Island" }
+                        }
+                    }
+                }
+            };
+
+            var result = Mapper.Map(source).ToNew<PublicField<List<PublicField<Collection<Person>>>>>();
+
+            result.Value.Count.ShouldBe(2);
+
+            result.Value.First().Value.Count.ShouldBe(2);
+            result.Value.First().Value.First().Name.ShouldBe("Jack");
+            result.Value.First().Value.Second().Name.ShouldBe("Sparrow");
+
+            result.Value.Second().Value.Count.ShouldBe(3);
+            result.Value.Second().Value.First().Name.ShouldBe("The");
+            result.Value.Second().Value.Second().Name.ShouldBe("Lonely");
+            result.Value.Second().Value.Third().Name.ShouldBe("Island");
         }
 
         [Fact]

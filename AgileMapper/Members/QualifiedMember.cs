@@ -8,13 +8,15 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], null);
+        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], qualifiedName: null);
 
         private readonly Member[] _memberChain;
         private readonly QualifiedMemberName _qualifiedName;
 
         private QualifiedMember(Member member, QualifiedMember parent)
-            : this(parent?._memberChain.Concat(member).ToArray() ?? new[] { member })
+            : this(
+                  parent?._memberChain.Concat(member).ToArray() ?? new[] { member },
+                  parent?._qualifiedName.Append(member.MemberName) ?? new QualifiedMemberName(new[] { member.MemberName }))
         {
         }
 
@@ -35,7 +37,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public static QualifiedMember From(Member member) => new QualifiedMember(member, null);
 
-        public static QualifiedMember From(Member[] memberChain) => new QualifiedMember(memberChain);
+        public static QualifiedMember From(IEnumerable<Member> memberChain) => new QualifiedMember(memberChain.ToArray());
 
         #endregion
 
@@ -74,7 +76,7 @@ namespace AgileObjects.AgileMapper.Members
 
             var relativeMemberChain = _memberChain.RelativeTo(otherQualifiedMember._memberChain);
 
-            return new QualifiedMember(relativeMemberChain);
+            return new QualifiedMember(relativeMemberChain, _qualifiedName);
         }
 
         IQualifiedMember IQualifiedMember.WithType(Type runtimeType) => WithType(runtimeType);
@@ -91,7 +93,7 @@ namespace AgileObjects.AgileMapper.Members
 
             newMemberChain[newMemberChain.Length - 1] = LeafMember.WithType(runtimeType);
 
-            return From(newMemberChain);
+            return new QualifiedMember(newMemberChain, _qualifiedName);
         }
 
         public bool IsSameAs(IQualifiedMember otherMember)

@@ -51,5 +51,21 @@ namespace AgileObjects.AgileMapper.Members
                 .Where((t, i) => !t.Matches(otherQualifiedName._nameParts[i]))
                 .None();
         }
+
+        public QualifiedMemberName Append(MemberName memberName)
+            => new QualifiedMemberName(GetNameParts(memberName).ToArray());
+
+        private IEnumerable<MemberName> GetNameParts(MemberName memberName)
+        {
+            // A placeholder which the constructor will ignore:
+            yield return null;
+
+            foreach (var namePart in _nameParts)
+            {
+                yield return namePart;
+            }
+
+            yield return memberName;
+        }
     }
 }

@@ -113,7 +113,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _targetMember,
                 targetMemberValue,
                 context.TargetMember,
-                null,
+                GetEnumerableIndex(),
                 MappingContext);
 
             return targetObjectMappingCommand.Execute();

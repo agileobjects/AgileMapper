@@ -145,7 +145,7 @@
 
             memberChain.Insert(0, rootMember);
 
-            return QualifiedMember.From(memberChain.ToArray());
+            return QualifiedMember.From(memberChain);
         }
     }
 }

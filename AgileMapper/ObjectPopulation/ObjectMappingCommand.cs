@@ -39,9 +39,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var sourceParameter = Parameters.Create<TSource>("source");
-            var sourceMemberAccess = command.SourceMember.GetAccess(sourceParameter);
             var targetParameter = Parameters.Create<TTarget>("target");
             var existingTargetInstanceParameter = Parameters.Create<TInstance>("existingTargetInstance");
+
+            var sourceMemberAccess = command.SourceMember.GetAccess(sourceParameter);
+
             var existingTargetInstanceMemberParameter = Parameters.Create<QualifiedMember>("existingTargetInstanceMember");
 
             var commandType = typeof(ObjectMappingCommand<,,>).MakeGenericType(
@@ -103,8 +105,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int? enumerableIndex,
             MappingContext mappingContext)
         {
-            enumerableIndex = enumerableIndex ?? mappingContext.CurrentObjectMappingContext?.GetEnumerableIndex();
-
             sourceMember = sourceMember.WithType(source.GetRuntimeSourceType());
 
             var targetMemberData = GetTargetData(sourceMember, targetMember, target, mappingContext);
