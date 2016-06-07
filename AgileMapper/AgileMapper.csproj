@@ -49,13 +49,13 @@
     <Compile Include="Api\Configuration\IPostInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IPreInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IRootMappingConfigurator.cs" />
+    <Compile Include="Api\Configuration\PreEventConfigStartingPoint.cs" />
     <Compile Include="MappingException.cs" />
     <Compile Include="DataSources\DataSourceSet.cs" />
     <Compile Include="DataSources\ExistingMemberValueDataSource.cs" />
     <Compile Include="DataSources\NullDataSource.cs" />
     <Compile Include="ObjectPopulation\ConfiguredObjectFactory.cs" />
-    <Compile Include="Api\Configuration\PostInstanceCreationCallbackSpecifier.cs" />
-    <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifierBase.cs" />
+    <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
     <Compile Include="DataSources\ConfiguredQualifiedMember.cs" />
     <Compile Include="DataSources\DefaultValueDataSource.cs" />
     <Compile Include="DataSources\IConfiguredDataSource.cs" />
@@ -71,9 +71,9 @@
     <Compile Include="ObjectPopulation\EnumerableTypes.cs" />
     <Compile Include="DataSources\IDataSourceFactory.cs" />
     <Compile Include="ObjectPopulation\ExistingOrDefaultValueDataSourceFactory.cs" />
+    <Compile Include="ObjectPopulation\ITypedObjectCreationMappingContext.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingCommand.cs" />
     <Compile Include="ObjectPopulation\DefaultValueDataSourceFactory.cs" />
-    <Compile Include="Api\Configuration\PreInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />
     <Compile Include="ObjectPopulation\ITypedObjectMappingContext.cs" />

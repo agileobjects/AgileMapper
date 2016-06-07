@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using ObjectPopulation;
+
     public class PreEventMappingConfigStartingPoint<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
@@ -19,7 +21,7 @@
             where TInstance : class
             => CreateCallbackSpecifier<TInstance>();
 
-        private PreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreateCallbackSpecifier<TInstance>()
-            => new PreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance>(_configInfo);
+        private InstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreateCallbackSpecifier<TInstance>()
+            => new InstanceCreationCallbackSpecifier<TSource, TTarget, TInstance>(CallbackPosition.Before, _configInfo);
     }
 }
