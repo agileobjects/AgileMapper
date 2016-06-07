@@ -20,7 +20,7 @@
 
                 mapper.After
                     .CreatingInstances
-                    .Call(ctx => createdInstance = (PublicProperty<int>)ctx.Object);
+                    .Call(ctx => createdInstance = (PublicProperty<int>)ctx.CreatedObject);
 
                 var source = new PublicField<int>();
                 var result = mapper.Map(source).ToNew<PublicProperty<int>>();
@@ -100,7 +100,7 @@
                     .To<Person>()
                     .After
                     .CreatingTargetInstances
-                    .Call(ctx => createdPerson = ctx.Object);
+                    .Call(ctx => createdPerson = ctx.CreatedObject);
 
                 var nonMatchingSource = new { Name = "Harry" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
@@ -128,7 +128,7 @@
                     .To<Person>()
                     .After
                     .CreatingInstancesOf<Address>()
-                    .Call(ctx => createdAddress = ctx.Object);
+                    .Call(ctx => createdAddress = ctx.CreatedObject);
 
                 var nonMatchingSource = new { Address = new Address { Line1 = "Blah" } };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
@@ -155,7 +155,7 @@
                     .OnTo<Person>()
                     .After
                     .CreatingInstancesOf<Address>()
-                    .Call(ctx => ctx.Object.Line2 = ctx.Source.Name);
+                    .Call(ctx => ctx.CreatedObject.Line2 = ctx.Source.Name);
 
                 var nonMatchingSource = new { Name = "Wilma" };
                 var nonMatchingTarget = new Person { Name = "Fred" };
@@ -184,8 +184,8 @@
                     .ToANew<Person>()
                     .After
                     .CreatingInstances
-                    .If(ctx => ctx.Object is Address)
-                    .Call(ctx => createdInstanceTypes.Add(ctx.Object.GetType()));
+                    .If(ctx => ctx.CreatedObject is Address)
+                    .Call(ctx => createdInstanceTypes.Add(ctx.CreatedObject.GetType()));
 
                 var source = new { Name = "Homer", AddressLine1 = "Springfield" };
                 var nonMatchingResult = mapper.Map(source).ToNew<PersonViewModel>();

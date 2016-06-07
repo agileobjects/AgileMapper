@@ -4,19 +4,19 @@
     using System.Linq.Expressions;
     using ObjectPopulation;
 
-    public interface IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance>
-        : IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance>
+    public interface IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
+        : IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
-        IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> If(
-            Expression<Func<TSource, TTarget, TInstance, int?, bool>> condition);
+        IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
+            Expression<Func<ITypedObjectCreationMappingContext<TSource, TTarget, TObject>, bool>> condition);
 
-        IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> If(
-            Expression<Func<ITypedObjectMappingContext<TSource, TTarget, TInstance>, bool>> condition);
-
-        IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> If(
+        IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
             Expression<Func<TSource, TTarget, bool>> condition);
 
-        IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> If(
+        IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
             Expression<Func<TSource, TTarget, int?, bool>> condition);
+
+        IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
+            Expression<Func<TSource, TTarget, TObject, int?, bool>> condition);
     }
 }

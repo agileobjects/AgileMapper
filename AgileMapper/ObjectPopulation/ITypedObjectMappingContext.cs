@@ -6,7 +6,5 @@
         : ITypedMemberMappingContext<TSource, TTarget>
     {
         TObject ExistingObject { get; }
-
-        TObject Object { get; }
     }
 }

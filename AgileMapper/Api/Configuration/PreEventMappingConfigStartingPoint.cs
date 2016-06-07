@@ -9,13 +9,13 @@
             _configInfo = configInfo;
         }
 
-        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget> CreatingInstances
+        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, object> CreatingInstances
             => CreateCallbackSpecifier<object>();
 
-        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget> CreatingTargetInstances
+        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TTarget> CreatingTargetInstances
             => CreateCallbackSpecifier<TTarget>();
 
-        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget> CreatingInstancesOf<TInstance>()
+        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreatingInstancesOf<TInstance>()
             where TInstance : class
             => CreateCallbackSpecifier<TInstance>();
 

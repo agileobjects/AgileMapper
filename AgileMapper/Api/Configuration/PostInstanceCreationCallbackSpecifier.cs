@@ -4,9 +4,9 @@
     using System.Linq.Expressions;
     using ObjectPopulation;
 
-    internal class PostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> :
-        InstanceCreationCallbackSpecifierBase<TSource, TTarget, TInstance>,
-        IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance>
+    internal class PostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> :
+        InstanceCreationCallbackSpecifierBase<TSource, TTarget, TObject>,
+        IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
         public PostInstanceCreationCallbackSpecifier(MapperContext mapperContext)
             : this(new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes())
@@ -20,23 +20,23 @@
 
         #region If Overloads
 
-        public IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> If(
-            Expression<Func<TSource, TTarget, TInstance, int?, bool>> condition)
+        public IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
+            Expression<Func<ITypedObjectCreationMappingContext<TSource, TTarget, TObject>, bool>> condition)
             => SetCondition(condition);
 
-        public IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> If(
-            Expression<Func<ITypedObjectMappingContext<TSource, TTarget, TInstance>, bool>> condition)
-            => SetCondition(condition);
-
-        public IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> If(
+        public IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
             Expression<Func<TSource, TTarget, bool>> condition)
             => SetCondition(condition);
 
-        public IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> If(
+        public IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
             Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
-        private PostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> SetCondition(
+        public IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
+            Expression<Func<TSource, TTarget, TObject, int?, bool>> condition)
+            => SetCondition(condition);
+
+        private PostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> SetCondition(
             LambdaExpression conditionLambda)
         {
             ConfigInfo.AddCondition(conditionLambda);
@@ -45,12 +45,12 @@
 
         #endregion
 
-        public void Call(Action<ITypedObjectMappingContext<TSource, TTarget, TInstance>> callback) => CreateCallbackFactory(callback);
+        public void Call(Action<ITypedObjectCreationMappingContext<TSource, TTarget, TObject>> callback) => CreateCallbackFactory(callback);
 
         public void Call(Action<TSource, TTarget> callback) => CreateCallbackFactory(callback);
 
-        public void Call(Action<TSource, TTarget, TInstance> callback) => CreateCallbackFactory(callback);
+        public void Call(Action<TSource, TTarget, TObject> callback) => CreateCallbackFactory(callback);
 
-        public void Call(Action<TSource, TTarget, TInstance, int?> callback) => CreateCallbackFactory(callback);
+        public void Call(Action<TSource, TTarget, TObject, int?> callback) => CreateCallbackFactory(callback);
     }
 }

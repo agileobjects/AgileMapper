@@ -15,7 +15,8 @@
         {
             new ParametersSwapper(0, (ct, ft) => true, Parameters.SwapNothing),
             new ParametersSwapper(1, IsMemberMappingContext, Parameters.SwapForContextParameter),
-            new ParametersSwapper(1, IsInstanceCreationContext, Parameters.SwapForContextParameter),
+            new ParametersSwapper(1, IsObjectMappingContext, Parameters.SwapForContextParameter),
+            new ParametersSwapper(1, IsObjectCreationContext, Parameters.SwapForContextParameter),
             new ParametersSwapper(2, IsSourceAndTarget, Parameters.SwapForSourceAndTarget),
             new ParametersSwapper(3, IsSourceTargetAndIndex, Parameters.SwapForSourceTargetAndIndex),
             new ParametersSwapper(3, IsSourceTargetAndInstance, Parameters.SwapForSourceTargetAndInstance),
@@ -25,8 +26,11 @@
         private static bool IsMemberMappingContext(Type[] contextTypes, Type[] funcArguments)
             => Is(typeof(ITypedMemberMappingContext<,>), contextTypes, funcArguments, IsSourceAndTarget);
 
-        private static bool IsInstanceCreationContext(Type[] contextTypes, Type[] funcArguments)
+        private static bool IsObjectMappingContext(Type[] contextTypes, Type[] funcArguments)
             => Is(typeof(ITypedObjectMappingContext<,,>), contextTypes, funcArguments, IsSourceTargetAndInstance);
+
+        private static bool IsObjectCreationContext(Type[] contextTypes, Type[] funcArguments)
+            => Is(typeof(ITypedObjectCreationMappingContext<,,>), contextTypes, funcArguments, IsSourceTargetAndInstance);
 
         private static bool Is(
             Type contextType,

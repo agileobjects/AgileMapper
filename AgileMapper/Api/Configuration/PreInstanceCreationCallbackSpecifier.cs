@@ -2,12 +2,11 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Members;
     using ObjectPopulation;
 
-    internal class PreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> :
-        InstanceCreationCallbackSpecifierBase<TSource, TTarget, TInstance>,
-        IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget>
+    internal class PreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> :
+        InstanceCreationCallbackSpecifierBase<TSource, TTarget, TObject>,
+        IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
         public PreInstanceCreationCallbackSpecifier(MappingConfigInfo configInfo)
             : base(CallbackPosition.Before, configInfo)
@@ -16,19 +15,19 @@
 
         #region If Overloads
 
-        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
-            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, bool>> condition)
+        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
+            Expression<Func<ITypedObjectMappingContext<TSource, TTarget, TObject>, bool>> condition)
             => SetCondition(condition);
 
-        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
+        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
             Expression<Func<TSource, TTarget, bool>> condition)
             => SetCondition(condition);
 
-        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
+        public IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
             Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
-        private PreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> SetCondition(
+        private PreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> SetCondition(
             LambdaExpression conditionLambda)
         {
             ConfigInfo.AddCondition(conditionLambda);
@@ -37,7 +36,7 @@
 
         #endregion
 
-        public void Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback) => CreateCallbackFactory(callback);
+        public void Call(Action<ITypedObjectMappingContext<TSource, TTarget, TObject>> callback) => CreateCallbackFactory(callback);
 
         public void Call(Action<TSource, TTarget> callback) => CreateCallbackFactory(callback);
 

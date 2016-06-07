@@ -27,11 +27,11 @@
             }
         }
 
-        public Expression IntegrateCallback(IMemberMappingContext context)
+        public Expression IntegrateCallback(IObjectMappingContext omc)
         {
             if (_callbackPosition == CallbackPosition.After)
             {
-                _conditions.Insert(0, Expression.NotEqual(context.InstanceVariable, context.ExistingObject));
+                _conditions.Insert(0, omc.CreatedObject.GetIsNotDefaultComparison());
             }
 
             if (_conditions.Any())

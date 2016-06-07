@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject> :
         TypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>,
-        ITypedObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject>,
+        ITypedObjectCreationMappingContext<TRuntimeSource, TRuntimeTarget, TObject>,
         IObjectMappingContext
     {
         #region Cached Items
@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly Expression _existingObjectProperty = Expression.Property(_parameter, "ExistingObject");
 
-        private static readonly Expression _objectProperty = Expression.Property(_parameter, "Object");
+        private static readonly Expression _createdObjectProperty = Expression.Property(_parameter, "CreatedObject");
 
         private static readonly Expression _enumerableIndexProperty = Expression.Property(_parameter, "EnumerableIndex");
 
@@ -179,9 +179,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ReferenceEquals(Source, source);
         }
 
-        T IObjectMappingContext.GetInstance<T>() => (T)((object)Object ?? ExistingObject);
+        T IObjectMappingContext.GetInstance<T>() => (T)((object)CreatedObject ?? ExistingObject);
 
-        Expression IObjectMappingContext.Object => _objectProperty;
+        Expression IObjectMappingContext.CreatedObject => _createdObjectProperty;
 
         public int? GetEnumerableIndex() => EnumerableIndex.HasValue ? EnumerableIndex : Parent?.GetEnumerableIndex();
 
@@ -257,7 +257,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TObject ExistingObject { get; }
 
-        public TObject Object { get; set; }
+        public TObject CreatedObject { get; set; }
 
         #endregion
     }

@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         TInstance GetInstance<TInstance>();
 
-        Expression Object { get; }
+        Expression CreatedObject { get; }
 
         int? GetEnumerableIndex();
 
