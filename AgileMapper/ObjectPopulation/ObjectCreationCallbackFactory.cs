@@ -1,36 +1,47 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Linq.Expressions;
     using Api.Configuration;
+    using Extensions;
     using Members;
 
-    internal class ObjectCreationCallbackFactory : UserConfiguredItemBase
+    internal class ObjectCreationCallbackFactory : MappingCallbackFactory
     {
         private readonly Type _creationTargetType;
         private readonly CallbackPosition _callbackPosition;
-        private readonly ConfiguredLambdaInfo _callbackLambda;
 
         public ObjectCreationCallbackFactory(
             MappingConfigInfo configInfo,
             Type creationTargetType,
             CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo)
+            : base(configInfo, callbackPosition, callbackLambda)
         {
             _creationTargetType = creationTargetType;
             _callbackPosition = callbackPosition;
-            _callbackLambda = callbackLambda;
         }
 
         public override bool AppliesTo(IMappingData data)
             => _creationTargetType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(data);
 
-        public ObjectCreationCallback Create(IMemberMappingContext context)
+        protected override Expression GetConditionOrNull(IObjectMappingContext omc)
         {
-            var callback = _callbackLambda.GetBody(context);
-            var condition = GetCondition(context);
+            var condition = base.GetConditionOrNull(omc);
 
-            return new ObjectCreationCallback(_callbackPosition, callback, condition);
+            if (_callbackPosition != CallbackPosition.After)
+            {
+                return condition;
+            }
+
+            var newObjectHasBeenCreated = omc.CreatedObject.GetIsNotDefaultComparison();
+
+            if (condition == null)
+            {
+                return newObjectHasBeenCreated;
+            }
+
+            return Expression.AndAlso(newObjectHasBeenCreated, condition);
         }
     }
 }

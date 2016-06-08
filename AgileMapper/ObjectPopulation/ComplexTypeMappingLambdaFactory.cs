@@ -107,7 +107,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     var configuredConstruction = new Construction(
                         configuredFactory.Create(omc),
-                        configuredFactory.GetCondition(omc));
+                        configuredFactory.GetConditionOrNull(omc));
 
                     constructions.Insert(0, configuredConstruction);
 
@@ -179,14 +179,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static Expression GetObjectCreatedCallback(IObjectMappingContext omc)
-        {
-            var callback = omc
-                .MapperContext
-                .UserConfigurations
-                .GetCreationCallbackOrNull(omc);
-
-            return (callback != null) ? callback.IntegrateCallback(omc) : Constants.EmptyExpression;
-        }
+            => GetCallbackOrNull(c => c.GetCreationCallbackOrNull(CallbackPosition.After, omc), omc);
 
         protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
             => omc.InstanceVariable;

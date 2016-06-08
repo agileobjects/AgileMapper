@@ -42,7 +42,7 @@
         public IConfiguredDataSource Create(int dataSourceIndex, IMemberMappingContext context)
         {
             var value = _dataSourceLambda.GetBody(context);
-            var condition = GetCondition(context);
+            var condition = GetConditionOrNull(context);
 
             return new ConfiguredDataSource(dataSourceIndex, value, condition, context);
         }

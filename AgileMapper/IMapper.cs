@@ -6,6 +6,8 @@
 
     public interface IMapper : IDisposable
     {
+        PreEventConfigStartingPoint Before { get; }
+
         PostEventConfigStartingPoint After { get; }
 
         MappingConfigStartingPoint WhenMapping { get; }

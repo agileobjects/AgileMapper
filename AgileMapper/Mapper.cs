@@ -23,6 +23,8 @@
 
         #endregion
 
+        public PreEventConfigStartingPoint Before => new PreEventConfigStartingPoint(_mapperContext);
+
         public PostEventConfigStartingPoint After => new PostEventConfigStartingPoint(_mapperContext);
 
         #region Static Access Methods

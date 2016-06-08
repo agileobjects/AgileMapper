@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using DataSources;
     using Members;
     using ObjectPopulation;
@@ -12,6 +13,7 @@
         private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
         private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
+        private readonly ICollection<MappingCallbackFactory> _mappingCallbackFactories;
         private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
         private readonly ICollection<ExceptionCallbackFactory> _exceptionCallbackFactories;
         private readonly ICollection<DerivedTypePair> _typePairs;
@@ -22,6 +24,7 @@
             Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
+            _mappingCallbackFactories = new List<MappingCallbackFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
             _exceptionCallbackFactories = new List<ExceptionCallbackFactory>();
             _typePairs = new List<DerivedTypePair>();
@@ -78,12 +81,17 @@
 
         #endregion
 
-        #region ObjectCreationCallbacks
+        #region Callbacks
+
+        public void Add(MappingCallbackFactory callbackFactory) => _mappingCallbackFactories.Add(callbackFactory);
+
+        public Expression GetCallbackOrNull(CallbackPosition position, IObjectMappingContext omc)
+            => FindMatch(_mappingCallbackFactories, omc)?.Create(omc);
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);
 
-        public ObjectCreationCallback GetCreationCallbackOrNull(IMemberMappingContext context)
-            => FindMatch(_creationCallbackFactories, context)?.Create(context);
+        public Expression GetCreationCallbackOrNull(CallbackPosition position, IObjectMappingContext omc)
+            => FindMatch(_creationCallbackFactories, omc)?.Create(omc);
 
         #endregion
 

@@ -54,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return false;
             }
 
-            populateCondition = configuredIgnore.GetCondition(context);
+            populateCondition = configuredIgnore.GetConditionOrNull(context);
             return (populateCondition == null);
         }
     }

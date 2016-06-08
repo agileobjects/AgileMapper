@@ -41,6 +41,8 @@
     <Compile Include="Api\Configuration\DerivedTypePair.cs" />
     <Compile Include="Api\Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\ExceptionCallbackFactory.cs" />
+    <Compile Include="Api\Configuration\ICallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\IConditionalCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IConditionalMappingConfigurator.cs" />
     <Compile Include="Api\Configuration\IConditionalPostInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IConditionalPreInstanceCreationCallbackSpecifier.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="DataSources\IDataSourceFactory.cs" />
     <Compile Include="ObjectPopulation\ExistingOrDefaultValueDataSourceFactory.cs" />
     <Compile Include="ObjectPopulation\ITypedObjectCreationMappingContext.cs" />
+    <Compile Include="ObjectPopulation\MappingCallbackFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingCommand.cs" />
     <Compile Include="ObjectPopulation\DefaultValueDataSourceFactory.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
@@ -129,7 +132,6 @@
     <Compile Include="Members\MemberFinder.cs" />
     <Compile Include="Members\MemberType.cs" />
     <Compile Include="ObjectPopulation\MergeEnumerablePopulationStrategy.cs" />
-    <Compile Include="ObjectPopulation\ObjectCreationCallback.cs" />
     <Compile Include="ObjectPopulation\ObjectCreationCallbackFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContext.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingContextFactory.cs" />

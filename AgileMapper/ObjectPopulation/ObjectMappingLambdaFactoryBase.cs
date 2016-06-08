@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Api.Configuration;
     using Extensions;
     using Members;
     using ReadableExpressions;
@@ -21,6 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Expression.Lambda<MapperFunc<TSource, TTarget, TInstance>>(GetNullMappingBlock(returnNull), omc.Parameter);
             }
 
+            var preMappingCallbacks = GetPreMappingCallback(omc);
             var shortCircuitReturns = GetShortCircuitReturns(returnNull, omc);
             var instanceVariableValue = GetObjectResolution(omc);
             var instanceVariableAssignment = Expression.Assign(omc.InstanceVariable, instanceVariableValue);
@@ -30,7 +32,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingBlock = Expression.Block(
                 new[] { omc.InstanceVariable },
-                shortCircuitReturns
+                preMappingCallbacks
+                    .Concat(shortCircuitReturns)
                     .Concat(instanceVariableAssignment)
                     .Concat(objectPopulation)
                     .Concat(returnLabel));
@@ -51,6 +54,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected abstract bool IsNotConstructable(IObjectMappingContext omc);
+
+        private static IEnumerable<Expression> GetPreMappingCallback(IObjectMappingContext omc)
+        {
+            yield return GetCallbackOrNull(c => c.GetCallbackOrNull(CallbackPosition.Before, omc), omc);
+        }
+
+        protected static Expression GetCallbackOrNull(
+            Func<UserConfigurationSet, Expression> callbackFactory,
+            IObjectMappingContext omc)
+            => callbackFactory.Invoke(omc.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc);
 

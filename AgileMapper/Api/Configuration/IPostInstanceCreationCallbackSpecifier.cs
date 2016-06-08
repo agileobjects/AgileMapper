@@ -3,7 +3,7 @@
     using System;
     using ObjectPopulation;
 
-    public interface IPostInstanceCreationCallbackSpecifier<out TSource, out TTarget, out TObject>
+    public interface IPostInstanceCreationCallbackSpecifier<out TSource, out TTarget, out TObject> 
     {
         void Call(Action<ITypedObjectCreationMappingContext<TSource, TTarget, TObject>> callback);
 

@@ -60,7 +60,7 @@
                    _configInfo.HasSameTargetTypeAs(otherConfiguredItem._configInfo);
         }
 
-        public Expression GetCondition(IMemberMappingContext context)
+        public Expression GetConditionOrNull(IMemberMappingContext context)
             => _configInfo.GetConditionOrNull(context);
 
         public virtual bool AppliesTo(IMappingData data)

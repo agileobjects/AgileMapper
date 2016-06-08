@@ -4,8 +4,8 @@
     using System.Linq.Expressions;
     using ObjectPopulation;
 
-    public interface IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
-        : IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
+    public interface IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> : 
+        IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
         IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
             Expression<Func<ITypedObjectMappingContext<TSource, TTarget, TObject>, bool>> condition);

@@ -96,11 +96,11 @@
             return new ConfiguredLambdaInfo(lambda, lambda.ReturnType, parameterSwapper);
         }
 
-        public static ConfiguredLambdaInfo ForFunc<TFunc>(TFunc func, Type sourceType, Type targetType)
+        public static ConfiguredLambdaInfo ForFunc<TFunc>(TFunc func, params Type[] argumentTypes)
         {
             return For(
                 func,
-                new[] { sourceType, targetType },
+                argumentTypes,
                 i => i - 1,
                 funcTypes => funcTypes.Last(),
                 typeof(Func<,>),
@@ -108,15 +108,11 @@
                 typeof(Func<,,,>));
         }
 
-        public static ConfiguredLambdaInfo ForAction<TAction>(
-            TAction action,
-            Type sourceType,
-            Type targetType,
-            Type instanceType)
+        public static ConfiguredLambdaInfo ForAction<TAction>(TAction action, params Type[] argumentTypes)
         {
             return For(
                 action,
-                new[] { sourceType, targetType, instanceType },
+                argumentTypes,
                 i => i,
                 funcTypes => typeof(void),
                 typeof(Action<>),
