@@ -22,6 +22,11 @@
             value.ShouldBe(default(T));
         }
 
+        public static void ShouldNotBeDefault<T>(this T value)
+        {
+            value.ShouldNotBe(default(T));
+        }
+
         public static void ShouldBe<TActual, TExpected>(this TActual? value, TExpected expectedValue)
             where TActual : struct
         {

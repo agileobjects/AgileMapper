@@ -11,6 +11,9 @@
             _configInfo = configInfo;
         }
 
+        public IConditionalCallbackSpecifier<TSource, TTarget> MappingEnds
+            => new CallbackSpecifier<TSource, TTarget>(CallbackPosition.After, _configInfo);
+
         public IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, object> CreatingInstances
             => CreateCallbackSpecifier<object>();
 

@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using Shouldly;
     using TestClasses;
@@ -98,6 +99,60 @@
 
                 var matchingTarget = new PublicField<string> { Value = null };
                 mapper.Map(source).OnTo(matchingTarget);
+
+                matchingTarget.Value.ShouldBe("SetByCallback");
+            }
+        }
+
+        [Fact]
+        public void ShouldExecuteAPostMappingCallbackForASpecifiedTargetTypeConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .To<PersonViewModel>()
+                    .After
+                    .MappingEnds
+                    .If(ctx => ctx.Target.Name == "Joe")
+                    .Call(ctx => ctx.Target.Id = Guid.NewGuid());
+
+                var nonMatchingSource = new Person { Name = "Brendan" };
+                var nonMatchingTarget = new PersonViewModel { Name = "Bryan" };
+                mapper.Map(nonMatchingSource).Over(nonMatchingTarget);
+
+                nonMatchingTarget.Name.ShouldBe("Brendan");
+                nonMatchingTarget.Id.ShouldBeDefault();
+
+                var matchingSource = new Person { Name = "Joe" };
+                var matchingTarget = new PersonViewModel { Name = "Brendan" };
+                mapper.Map(matchingSource).Over(matchingTarget);
+
+                matchingTarget.Name.ShouldBe("Joe");
+                matchingTarget.Id.ShouldNotBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldRestrictAPostMappingCallbackByTargetType()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .To<PublicProperty<string>>()
+                    .After
+                    .MappingEnds
+                    .Call(ctx => ctx.Target.Value = "SetByCallback");
+
+                var source = new PublicField<string> { Value = "SetBySource" };
+                var nonMatchingTarget = new PublicField<string> { Value = "OriginalValue" };
+                mapper.Map(source).Over(nonMatchingTarget);
+
+                nonMatchingTarget.Value.ShouldBe("SetBySource");
+
+                var matchingTarget = new PublicProperty<string> { Value = "OriginalValue" };
+                mapper.Map(source).Over(matchingTarget);
 
                 matchingTarget.Value.ShouldBe("SetByCallback");
             }
