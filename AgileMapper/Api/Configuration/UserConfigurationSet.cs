@@ -165,6 +165,7 @@
             _objectFactories.Clear();
             _ignoredMembers.Clear();
             _dataSourceFactories.Clear();
+            _mappingCallbackFactories.Clear();
             _creationCallbackFactories.Clear();
             _exceptionCallbackFactories.Clear();
             _typePairs.Clear();

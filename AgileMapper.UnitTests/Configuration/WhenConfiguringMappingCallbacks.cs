@@ -9,7 +9,7 @@
     public class WhenConfiguringMappingCallbacks
     {
         [Fact]
-        public void ShouldExecuteAPreMappingCallback()
+        public void ShouldExecuteAGlobalPreMappingCallback()
         {
             using (var mapper = Mapper.Create())
             {
@@ -30,7 +30,7 @@
         }
 
         [Fact]
-        public void ShouldExecuteAPostMappingCallbackConditionally()
+        public void ShouldExecuteAGlobalPostMappingCallbackConditionally()
         {
             using (var mapper = Mapper.Create())
             {
@@ -114,7 +114,7 @@
         }
 
         [Fact]
-        public void ShouldExecutePreAndPostMappingCallbacksForASpecifiedMemberConditionallyUsingTheStaticApi()
+        public void ShouldExecutePreAndPostMappingCallbacksForASpecifiedMemberConditionallyViaTheStaticApi()
         {
             try
             {

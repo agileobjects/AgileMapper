@@ -23,11 +23,15 @@
 
         #endregion
 
-        public PreEventConfigStartingPoint Before => new PreEventConfigStartingPoint(_mapperContext);
+        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(_mapperContext);
 
-        public PostEventConfigStartingPoint After => new PostEventConfigStartingPoint(_mapperContext);
+        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(_mapperContext);
 
         #region Static Access Methods
+
+        public static PreEventConfigStartingPoint Before => _default.Before;
+
+        public static PostEventConfigStartingPoint After => _default.After;
 
         public static MappingConfigStartingPoint WhenMapping => _default.WhenMapping;
 
