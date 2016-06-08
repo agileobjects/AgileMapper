@@ -114,6 +114,61 @@
         }
 
         [Fact]
+        public void ShouldExecutePreAndPostMappingCallbacksForASpecifiedMemberConditionallyUsingTheStaticApi()
+        {
+            try
+            {
+                var customersWithDiscounts = new List<Customer>();
+                var customersAdded = 0;
+                var customersRemoved = 0;
+
+                Mapper
+                    .WhenMapping
+                    .To<Customer>()
+                    .Before
+                    .Mapping(c => c.Discount)
+                    .If((s, c) => c.Discount > 0)
+                    .Call((s, c) =>
+                    {
+                        customersWithDiscounts.Add(c);
+                        ++customersAdded;
+                    });
+
+                Mapper
+                    .WhenMapping
+                    .To<Customer>()
+                    .After
+                    .Mapping(c => c.Discount)
+                    .If((s, c) => c.Discount == 0)
+                    .Call((s, c) =>
+                    {
+                        customersWithDiscounts.Remove(c);
+                        ++customersRemoved;
+                    });
+
+                var customer1 = new Customer { Discount = 0.1m };
+
+                Mapper.Map(new Customer { Discount = 0.2m }).Over(customer1);
+
+                customersWithDiscounts.ShouldBe(new[] { customer1 });
+                customersAdded.ShouldBe(1);
+                customersRemoved.ShouldBe(0);
+
+                var customer2 = new Customer { Discount = 0.1m };
+
+                Mapper.Map(new Customer { Discount = 0.0m }).Over(customer2);
+
+                customersWithDiscounts.ShouldBe(new[] { customer1 });
+                customersAdded.ShouldBe(2);
+                customersRemoved.ShouldBe(1);
+            }
+            finally
+            {
+                Mapper.ResetDefaultInstance();
+            }
+        }
+
+        [Fact]
         public void ShouldRestrictAPreMappingCallbackByTargetType()
         {
             using (var mapper = Mapper.Create())
