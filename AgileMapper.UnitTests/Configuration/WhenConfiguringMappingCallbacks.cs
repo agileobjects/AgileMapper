@@ -105,6 +105,32 @@
         }
 
         [Fact]
+        public void ShouldRestrictAPreMappingCallbackBySourceTypeConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicField<string>>()
+                    .Before
+                    .MappingBegins
+                    .If((pp, pf, i) => !i.HasValue && pp.Value.StartsWith("H"))
+                    .Call(ctx => ctx.Source.Value = "SetByCallback");
+
+                var nonMatchingSource = new PublicGetMethod<string>("Harold");
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicField<string>>();
+
+                nonMatchingResult.Value.ShouldBe("Harold");
+
+                var matchingSource = new PublicProperty<string> { Value = "Harold" };
+                var matchingResult = mapper.Map(matchingSource).ToNew<PublicField<string>>();
+
+                matchingResult.Value.ShouldBe("SetByCallback");
+            }
+        }
+
+        [Fact]
         public void ShouldExecuteAPostMappingCallbackForASpecifiedTargetTypeConditionally()
         {
             using (var mapper = Mapper.Create())
