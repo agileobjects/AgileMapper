@@ -350,5 +350,34 @@
                 sourceAddressesByIndex.ShouldContainKeyAndValue(1, resultItems.Second().Address);
             }
         }
+
+        [Fact]
+        public void ShouldCallObjectCreatingAndObjectCreatedCallbacks()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var preCallbackObjects = new List<object>();
+                var postCallbackObjects = new List<object>();
+
+                mapper
+                    .Before
+                    .CreatingInstances
+                    .Call((s, t) => preCallbackObjects.AddRange(new[] { s, t }));
+
+                mapper
+                    .After
+                    .CreatingInstances
+                    .Call((s, t) => postCallbackObjects.AddRange(new[] { s, t }));
+
+                var source = new Person();
+                var result = mapper.Map(source).ToNew<PersonViewModel>();
+
+                preCallbackObjects.ShouldNotBeEmpty();
+                preCallbackObjects.ShouldBe(source, default(PersonViewModel));
+
+                postCallbackObjects.ShouldNotBeEmpty();
+                postCallbackObjects.ShouldBe(source, result);
+            }
+        }
     }
 }

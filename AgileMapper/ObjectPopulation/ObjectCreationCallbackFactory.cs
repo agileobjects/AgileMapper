@@ -9,7 +9,6 @@
     internal class ObjectCreationCallbackFactory : MappingCallbackFactory
     {
         private readonly Type _creationTargetType;
-        private readonly CallbackPosition _callbackPosition;
 
         public ObjectCreationCallbackFactory(
             MappingConfigInfo configInfo,
@@ -19,17 +18,16 @@
             : base(configInfo, callbackPosition, callbackLambda)
         {
             _creationTargetType = creationTargetType;
-            _callbackPosition = callbackPosition;
         }
 
-        public override bool AppliesTo(IMappingData data)
-            => _creationTargetType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(data);
+        public override bool AppliesTo(CallbackPosition callbackPosition, IMappingData data)
+            => _creationTargetType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(callbackPosition, data);
 
         protected override Expression GetConditionOrNull(IObjectMappingContext omc)
         {
             var condition = base.GetConditionOrNull(omc);
 
-            if (_callbackPosition != CallbackPosition.After)
+            if (CallbackPosition != CallbackPosition.After)
             {
                 return condition;
             }

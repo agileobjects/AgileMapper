@@ -91,7 +91,7 @@
         public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);
 
         public Expression GetCreationCallbackOrNull(CallbackPosition position, IObjectMappingContext omc)
-            => FindMatch(_creationCallbackFactories, omc)?.Create(omc);
+            => _creationCallbackFactories.FirstOrDefault(f => f.AppliesTo(position, omc))?.Create(omc);
 
         #endregion
 

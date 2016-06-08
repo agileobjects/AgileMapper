@@ -24,8 +24,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var preMappingCallback = GetMappingCallback(CallbackPosition.Before, omc);
             var shortCircuitReturns = GetShortCircuitReturns(returnNull, omc);
+            var preCreationCallback = GetCreationCallback(CallbackPosition.Before, omc);
             var instanceVariableValue = GetObjectResolution(omc);
             var instanceVariableAssignment = Expression.Assign(omc.InstanceVariable, instanceVariableValue);
+            var postCreationCallback = GetCreationCallback(CallbackPosition.After, omc);
             var objectPopulation = GetObjectPopulation(instanceVariableValue, omc);
             var postMappingCallback = GetMappingCallback(CallbackPosition.After, omc);
             var returnValue = GetReturnValue(instanceVariableValue, omc);
@@ -35,7 +37,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 new[] { omc.InstanceVariable },
                 preMappingCallback
                     .Concat(shortCircuitReturns)
+                    .Concat(preCreationCallback)
                     .Concat(instanceVariableAssignment)
+                    .Concat(postCreationCallback)
                     .Concat(objectPopulation)
                     .Concat(postMappingCallback)
                     .Concat(returnLabel));
@@ -56,6 +60,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected abstract bool IsNotConstructable(IObjectMappingContext omc);
+
+        private static IEnumerable<Expression> GetCreationCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
+        {
+            yield return GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, omc), omc);
+        }
 
         private static IEnumerable<Expression> GetMappingCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
         {

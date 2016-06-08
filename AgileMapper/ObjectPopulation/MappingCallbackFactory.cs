@@ -7,7 +7,6 @@
 
     internal class MappingCallbackFactory : UserConfiguredItemBase
     {
-        private readonly CallbackPosition _callbackPosition;
         private readonly ConfiguredLambdaInfo _callbackLambda;
 
         public MappingCallbackFactory(
@@ -16,12 +15,14 @@
             ConfiguredLambdaInfo callbackLambda)
             : base(configInfo)
         {
-            _callbackPosition = callbackPosition;
+            CallbackPosition = callbackPosition;
             _callbackLambda = callbackLambda;
         }
 
-        public bool AppliesTo(CallbackPosition callbackPosition, IObjectMappingContext omc)
-            => (_callbackPosition == callbackPosition) && base.AppliesTo(omc);
+        protected CallbackPosition CallbackPosition { get; }
+
+        public virtual bool AppliesTo(CallbackPosition callbackPosition, IMappingData data)
+            => (CallbackPosition == callbackPosition) && base.AppliesTo(data);
 
         public Expression Create(IObjectMappingContext omc)
         {
@@ -40,7 +41,7 @@
         {
             var callback = _callbackLambda.GetBody(context);
 
-            if (_callbackPosition != CallbackPosition.Before)
+            if (CallbackPosition != CallbackPosition.Before)
             {
                 return callback;
             }
