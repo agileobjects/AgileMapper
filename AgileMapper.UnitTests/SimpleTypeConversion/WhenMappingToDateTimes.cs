@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.SimpleTypeConversion
 {
     using System;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -22,6 +23,15 @@
             var result = Mapper.Map(source).ToNew<PublicProperty<DateTime>>();
 
             result.Value.ShouldBe(new DateTime(2016, 06, 08));
+        }
+
+        [Fact]
+        public void ShouldMapAnUnparseableStringToANullableDateTime()
+        {
+            var source = new PublicProperty<string> { Value = "OOH OOH OOH" };
+            var result = Mapper.Map(source).ToNew<PublicProperty<DateTime?>>();
+
+            result.Value.ShouldBeNull();
         }
     }
 }
