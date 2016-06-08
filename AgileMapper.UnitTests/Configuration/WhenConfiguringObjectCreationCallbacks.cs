@@ -379,5 +379,38 @@
                 postCallbackObjects.ShouldBe(source, result);
             }
         }
+
+        [Fact]
+        public void ShouldCallObjectCreatingAndObjectCreatedCallbacksConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var preCallbackObjects = new List<object>();
+                var postCallbackObjects = new List<object>();
+
+                mapper
+                    .Before
+                    .CreatingInstances
+                    .If(ctx => ctx.Target is Person)
+                    .Call((s, p) => preCallbackObjects.AddRange(new[] { s, p }));
+
+                mapper
+                    .After
+                    .CreatingInstances
+                    .If((s, t) => t is Address)
+                    .Call((s, a) => postCallbackObjects.AddRange(new[] { s, a }));
+
+                var source = new PersonViewModel { AddressLine1 = "Housetown" };
+                var target = new Person();
+
+                mapper.Map(source).OnTo(target);
+
+                preCallbackObjects.ShouldNotBeEmpty();
+                preCallbackObjects.ShouldBe(source, target, source, default(Address));
+
+                postCallbackObjects.ShouldNotBeEmpty();
+                postCallbackObjects.ShouldBe(source, target.Address);
+            }
+        }
     }
 }
