@@ -17,6 +17,9 @@
         public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TTarget> CreatingTargetInstances
             => CreateCallbackSpecifier<TTarget>();
 
+        public IConditionalCallbackSpecifier<TSource, TTarget> MappingBegins
+            => new CallbackSpecifier<TSource, TTarget>(CallbackPosition.Before, _configInfo);
+
         public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreatingInstancesOf<TInstance>()
             where TInstance : class
             => CreateCallbackSpecifier<TInstance>();
