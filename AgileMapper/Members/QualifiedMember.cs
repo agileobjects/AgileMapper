@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Members
     internal class QualifiedMember : IQualifiedMember
     {
         public static readonly QualifiedMember All = new QualifiedMember(new Member[0], qualifiedName: null);
+        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], qualifiedName: null);
 
         private readonly Member[] _memberChain;
         private readonly QualifiedMemberName _qualifiedName;
@@ -98,9 +99,19 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsSameAs(IQualifiedMember otherMember)
         {
+            if (this == otherMember)
+            {
+                return true;
+            }
+
             if ((this == All) || (otherMember == All))
             {
                 return true;
+            }
+
+            if ((this == None) || (otherMember == None))
+            {
+                return false;
             }
 
             return (otherMember.Type == Type) &&

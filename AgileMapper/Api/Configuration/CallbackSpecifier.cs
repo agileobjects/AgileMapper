@@ -9,14 +9,26 @@
         CallbackSpecifierBase,
         IConditionalCallbackSpecifier<TSource, TTarget>
     {
-        public CallbackSpecifier(CallbackPosition callbackPosition, MapperContext mapperContext)
-            : this(callbackPosition, new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes())
+        private readonly QualifiedMember _targetMember;
+
+        public CallbackSpecifier(
+            MapperContext mapperContext,
+            CallbackPosition callbackPosition,
+            QualifiedMember targetMember)
+            : this(
+                  new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes(),
+                  callbackPosition,
+                  targetMember)
         {
         }
 
-        public CallbackSpecifier(CallbackPosition callbackPosition, MappingConfigInfo configInfo)
+        public CallbackSpecifier(
+            MappingConfigInfo configInfo,
+            CallbackPosition callbackPosition,
+            QualifiedMember targetMember)
             : base(callbackPosition, configInfo)
         {
+            _targetMember = targetMember;
         }
 
         public ICallbackSpecifier<TSource, TTarget> If(
@@ -48,7 +60,8 @@
             var creationCallbackFactory = new MappingCallbackFactory(
                 ConfigInfo.ForTargetType<TTarget>(),
                 CallbackPosition,
-                callbackLambda);
+                callbackLambda,
+                _targetMember);
 
             ConfigInfo.MapperContext.UserConfigurations.Add(creationCallbackFactory);
         }

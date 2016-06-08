@@ -164,7 +164,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var successfulPopulations = memberPopulations
                 .Where(p => p.IsSuccessful)
-                .Select(p => p.GetPopulation())
+                .Select(GetPopulationWithCallbacks)
                 .ToArray();
 
             var unsuccessfulPopulations = memberPopulations
@@ -176,6 +176,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Concat(successfulPopulations)
                 .Concat(unsuccessfulPopulations)
                 .ToArray();
+        }
+
+        private static Expression GetPopulationWithCallbacks(IMemberPopulation memberPopulation)
+        {
+            var prePopulationCallback = GetCallbackOrEmpty(
+                c => c.GetCallbackOrNull(CallbackPosition.Before, memberPopulation.TargetMember, memberPopulation.ObjectMappingContext),
+                memberPopulation.ObjectMappingContext);
+
+            var population = memberPopulation.GetPopulation();
+
+            var postPopulationCallback = GetCallbackOrEmpty(
+                c => c.GetCallbackOrNull(CallbackPosition.After, memberPopulation.TargetMember, memberPopulation.ObjectMappingContext),
+                memberPopulation.ObjectMappingContext);
+
+            if ((prePopulationCallback == Constants.EmptyExpression) &&
+                (postPopulationCallback == Constants.EmptyExpression))
+            {
+                return population;
+            }
+
+            return Expression.Block(prePopulationCallback, population, postPopulationCallback);
         }
 
         protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)

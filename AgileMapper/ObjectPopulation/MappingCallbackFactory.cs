@@ -12,8 +12,9 @@
         public MappingCallbackFactory(
             MappingConfigInfo configInfo,
             CallbackPosition callbackPosition,
-            ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo)
+            ConfiguredLambdaInfo callbackLambda,
+            QualifiedMember targetMember)
+            : base(configInfo, targetMember)
         {
             CallbackPosition = callbackPosition;
             _callbackLambda = callbackLambda;

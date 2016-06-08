@@ -15,7 +15,7 @@
             Type creationTargetType,
             CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo, callbackPosition, callbackLambda)
+            : base(configInfo, callbackPosition, callbackLambda, QualifiedMember.All)
         {
             _creationTargetType = creationTargetType;
         }

@@ -80,6 +80,40 @@
         }
 
         [Fact]
+        public void ShouldExecutePreAndPostMappingCallbacksForASpecifiedMember()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var preMappingName = default(string);
+                var postMappingName = default(string);
+
+                mapper
+                    .WhenMapping
+                    .From<Person>()
+                    .Over<PersonViewModel>()
+                    .Before
+                    .Mapping(pvm => pvm.Name)
+                    .Call((p, pvm) => preMappingName = pvm.Name);
+
+                mapper
+                    .WhenMapping
+                    .From<Person>()
+                    .Over<PersonViewModel>()
+                    .After
+                    .Mapping(pvm => pvm.Name)
+                    .Call((p, pvm) => postMappingName = pvm.Name);
+
+                var source = new Person { Name = "After" };
+                var target = new PersonViewModel { Name = "Before" };
+
+                mapper.Map(source).Over(target);
+
+                preMappingName.ShouldBe("Before");
+                postMappingName.ShouldBe("After");
+            }
+        }
+
+        [Fact]
         public void ShouldRestrictAPreMappingCallbackByTargetType()
         {
             using (var mapper = Mapper.Create())

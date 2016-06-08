@@ -44,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingContext ObjectMappingContext => _context.Parent;
 
-        public IQualifiedMember TargetMember => _context.TargetMember;
+        public QualifiedMember TargetMember => _context.TargetMember;
 
         public bool IsSuccessful => _dataSources.HasValue;
 

@@ -61,20 +61,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract bool IsNotConstructable(IObjectMappingContext omc);
 
-        private static IEnumerable<Expression> GetCreationCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
-        {
-            yield return GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, omc), omc);
-        }
-
         private static IEnumerable<Expression> GetMappingCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
         {
             yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, omc), omc);
         }
 
+        private static IEnumerable<Expression> GetCreationCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
+        {
+            yield return GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, omc), omc);
+        }
+
         protected static Expression GetCallbackOrEmpty(
             Func<UserConfigurationSet, Expression> callbackFactory,
-            IObjectMappingContext omc)
-            => callbackFactory.Invoke(omc.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
+            IMemberMappingContext context)
+            => callbackFactory.Invoke(context.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc);
 

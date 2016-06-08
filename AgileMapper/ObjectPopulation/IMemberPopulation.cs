@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         IObjectMappingContext ObjectMappingContext { get; }
 
-        IQualifiedMember TargetMember { get; }
+        QualifiedMember TargetMember { get; }
 
         bool IsSuccessful { get; }
 

@@ -16,14 +16,17 @@
         }
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
-            : this(
-                  configInfo,
-                  targetMemberLambda.Body.ToTargetMember(configInfo.GlobalContext.MemberFinder))
+            : this(configInfo, GetTargetMember(configInfo, targetMemberLambda))
         {
             TargetMemberPath = targetMemberLambda.Body.ToReadableString();
         }
 
-        private UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)
+        protected static QualifiedMember GetTargetMember(
+            MappingConfigInfo configInfo,
+            LambdaExpression targetMemberLambda)
+            => targetMemberLambda?.Body.ToTargetMember(configInfo.GlobalContext.MemberFinder);
+
+        protected UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)
         {
             _configInfo = configInfo;
             _targetMember = targetMember;

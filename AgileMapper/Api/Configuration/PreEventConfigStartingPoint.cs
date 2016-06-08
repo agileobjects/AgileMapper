@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using Members;
     using ObjectPopulation;
 
     public class PreEventConfigStartingPoint
@@ -12,7 +13,7 @@
         }
 
         public IConditionalCallbackSpecifier<object, object> MappingBegins
-            => new CallbackSpecifier<object, object>(CallbackPosition.Before, _mapperContext);
+            => new CallbackSpecifier<object, object>(_mapperContext, CallbackPosition.Before, QualifiedMember.None);
 
         public IConditionalPreInstanceCreationCallbackSpecifier<object, object, object> CreatingInstances
             => CreateCallbackSpecifier<object>();
