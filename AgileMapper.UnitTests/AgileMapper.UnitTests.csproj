@@ -91,6 +91,7 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToLongs.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
+    <Compile Include="SimpleTypeConversion\WhenMappingToDateTimes.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\Child.cs" />
     <Compile Include="TestClasses\Customer.cs" />

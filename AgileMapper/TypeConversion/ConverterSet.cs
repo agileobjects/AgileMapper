@@ -20,6 +20,7 @@
                 //new ToDateTimeConverter(),
                 new ToEnumConverter(toStringConverter),
                 new ToNumericConverter<int>(toStringConverter),
+                new DefaultTryParseConverter<DateTime>(toStringConverter),
                 new DefaultTryParseConverter<Guid>(toStringConverter),
                 new ToNumericConverter<decimal>(toStringConverter),
                 new ToNumericConverter<double>(toStringConverter),
