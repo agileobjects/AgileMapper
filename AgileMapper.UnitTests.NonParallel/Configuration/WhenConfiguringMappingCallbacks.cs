@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using TestClasses;
+    // ReSharper disable once RedundantUsingDirective
+    using Shouldly; // <- this using is required even though ReSharper thinks it isn't
     using Xunit;
 
     public class WhenConfiguringMappingCallbacks
