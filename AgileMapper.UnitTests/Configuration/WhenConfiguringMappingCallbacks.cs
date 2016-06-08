@@ -183,5 +183,30 @@
                 matchingTarget.Value.ShouldBe("SetByCallback");
             }
         }
+
+        [Fact]
+        public void ShouldRestrictAPostMappingCallbackBySourceType()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                mapper
+                    .WhenMapping
+                    .From<PublicField<string>>()
+                    .To<PublicProperty<string>>()
+                    .After
+                    .MappingEnds
+                    .Call((pf, pp, i) => pp.Value = "SetByCallback");
+
+                var nonMatchingSource = new PublicGetMethod<string>("SetBySource");
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicProperty<string>>();
+
+                nonMatchingResult.Value.ShouldBe("SetBySource");
+
+                var matchingSource = new PublicField<string> { Value = "SetBySource" };
+                var matchingResult = mapper.Map(matchingSource).ToNew<PublicProperty<string>>();
+
+                matchingResult.Value.ShouldBe("SetByCallback");
+            }
+        }
     }
 }
