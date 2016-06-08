@@ -132,11 +132,8 @@
                     {
                         customersWithDiscounts.Add(c);
                         ++customersAdded;
-                    });
-
-                Mapper
-                    .WhenMapping
-                    .To<Customer>()
+                    })
+                    .And
                     .After
                     .Mapping(c => c.Discount)
                     .If((s, c) => c.Discount == 0)

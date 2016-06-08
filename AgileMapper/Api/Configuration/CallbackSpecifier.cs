@@ -47,13 +47,16 @@
             return this;
         }
 
-        public void Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback) => CreateCallbackFactory(callback);
+        public MappingConfigContinuation<TSource, TTarget> Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback)
+            => CreateCallbackFactory(callback);
 
-        public void Call(Action<TSource, TTarget> callback) => CreateCallbackFactory(callback);
+        public MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback)
+            => CreateCallbackFactory(callback);
 
-        public void Call(Action<TSource, TTarget, int?> callback) => CreateCallbackFactory(callback);
+        public MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback)
+            => CreateCallbackFactory(callback);
 
-        private void CreateCallbackFactory<TAction>(TAction callback)
+        private MappingConfigContinuation<TSource, TTarget> CreateCallbackFactory<TAction>(TAction callback)
         {
             var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget));
 
@@ -64,6 +67,8 @@
                 _targetMember);
 
             ConfigInfo.MapperContext.UserConfigurations.Add(creationCallbackFactory);
+
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
     }
 }

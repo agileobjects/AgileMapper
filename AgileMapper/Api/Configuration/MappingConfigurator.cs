@@ -62,9 +62,11 @@
             _configInfo.NegateCondition();
         }
 
-        public PreEventMappingConfigStartingPoint<TSource, TTarget> Before => new PreEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
+        public PreEventMappingConfigStartingPoint<TSource, TTarget> Before 
+            => new PreEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
 
-        public PostEventMappingConfigStartingPoint<TSource, TTarget> After => new PostEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
+        public PostEventMappingConfigStartingPoint<TSource, TTarget> After 
+            => new PostEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
 
         #region Map Overloads
 

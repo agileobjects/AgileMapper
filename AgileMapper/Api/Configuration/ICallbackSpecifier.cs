@@ -3,12 +3,12 @@
     using System;
     using Members;
 
-    public interface ICallbackSpecifier<out TSource, out TTarget>
+    public interface ICallbackSpecifier<TSource, TTarget>
     {
-        void Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback);
+        MappingConfigContinuation<TSource, TTarget> Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback);
 
-        void Call(Action<TSource, TTarget> callback);
+        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
 
-        void Call(Action<TSource, TTarget, int?> callback);
+        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback);
     }
 }

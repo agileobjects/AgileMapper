@@ -51,6 +51,7 @@
     <Compile Include="Api\Configuration\IPostInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IPreInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IRootMappingConfigurator.cs" />
+    <Compile Include="Api\Configuration\MappingConfigContinuation.cs" />
     <Compile Include="Api\Configuration\PreEventConfigStartingPoint.cs" />
     <Compile Include="MappingException.cs" />
     <Compile Include="DataSources\DataSourceSet.cs" />

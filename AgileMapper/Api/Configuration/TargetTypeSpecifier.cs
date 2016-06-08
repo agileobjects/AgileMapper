@@ -21,10 +21,7 @@
         public IFullMappingConfigurator<TSource, TTarget> Over<TTarget>() where TTarget : class
             => UsingRuleSet<TTarget>(Constants.Overwrite);
 
-        private MappingConfigurator<TSource, TTarget> UsingRuleSet<TTarget>(string name)
-            where TTarget : class
-        {
-            return new MappingConfigurator<TSource, TTarget>(_configInfo.ForRuleSet(name));
-        }
+        private MappingConfigurator<TSource, TTarget> UsingRuleSet<TTarget>(string name) where TTarget : class
+            => new MappingConfigurator<TSource, TTarget>(_configInfo.ForRuleSet(name));
     }
 }

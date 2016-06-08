@@ -7,7 +7,7 @@
     internal class MappingConfigInfo
     {
         private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
-        private static readonly string _allRuleSets = Guid.NewGuid().ToString();
+        private const string AllRuleSets = "*";
 
         private Type _sourceType;
         private Type _targetType;
@@ -58,7 +58,7 @@
 
         public bool IsForTargetType(Type targetType) => _targetType.IsAssignableFrom(targetType);
 
-        public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
+        public MappingConfigInfo ForAllRuleSets() => ForRuleSet(AllRuleSets);
 
         public MappingConfigInfo ForRuleSet(string name)
         {
@@ -68,7 +68,7 @@
 
         public bool IsForRuleSet(string mappingRuleSetName)
         {
-            return (_mappingRuleSetName == _allRuleSets) ||
+            return (_mappingRuleSetName == AllRuleSets) ||
                 (mappingRuleSetName == _mappingRuleSetName);
         }
 
@@ -118,5 +118,16 @@
         }
 
         #endregion
+
+        public MappingConfigInfo CloneForContinuation()
+        {
+            return new MappingConfigInfo(MapperContext)
+            {
+                _sourceType = _sourceType,
+                _targetType = _targetType,
+                _sourceValueType = _sourceValueType,
+                _mappingRuleSetName = _mappingRuleSetName
+            };
+        }
     }
 }
