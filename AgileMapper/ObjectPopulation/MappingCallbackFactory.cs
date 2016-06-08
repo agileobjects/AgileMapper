@@ -20,6 +20,9 @@
             _callbackLambda = callbackLambda;
         }
 
+        public bool AppliesTo(CallbackPosition callbackPosition, IObjectMappingContext omc)
+            => (_callbackPosition == callbackPosition) && base.AppliesTo(omc);
+
         public Expression Create(IObjectMappingContext omc)
         {
             var callback = GetCallback(omc);

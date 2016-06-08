@@ -11,6 +11,9 @@
             _mapperContext = mapperContext;
         }
 
+        public IConditionalCallbackSpecifier<object, object> MappingEnds
+            => new CallbackSpecifier<object, object>(CallbackPosition.After, _mapperContext);
+
         public IConditionalPostInstanceCreationCallbackSpecifier<object, object, object> CreatingInstances
             => CreateCallbackSpecifier<object>();
 

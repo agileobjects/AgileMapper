@@ -86,7 +86,7 @@
         public void Add(MappingCallbackFactory callbackFactory) => _mappingCallbackFactories.Add(callbackFactory);
 
         public Expression GetCallbackOrNull(CallbackPosition position, IObjectMappingContext omc)
-            => FindMatch(_mappingCallbackFactories, omc)?.Create(omc);
+            => _mappingCallbackFactories.FirstOrDefault(f => f.AppliesTo(position, omc))?.Create(omc);
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);
 

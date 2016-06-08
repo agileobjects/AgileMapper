@@ -179,7 +179,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static Expression GetObjectCreatedCallback(IObjectMappingContext omc)
-            => GetCallbackOrNull(c => c.GetCreationCallbackOrNull(CallbackPosition.After, omc), omc);
+            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(CallbackPosition.After, omc), omc);
 
         protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
             => omc.InstanceVariable;

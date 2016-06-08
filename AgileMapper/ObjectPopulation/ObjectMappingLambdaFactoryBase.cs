@@ -22,20 +22,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Expression.Lambda<MapperFunc<TSource, TTarget, TInstance>>(GetNullMappingBlock(returnNull), omc.Parameter);
             }
 
-            var preMappingCallbacks = GetPreMappingCallback(omc);
+            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, omc);
             var shortCircuitReturns = GetShortCircuitReturns(returnNull, omc);
             var instanceVariableValue = GetObjectResolution(omc);
             var instanceVariableAssignment = Expression.Assign(omc.InstanceVariable, instanceVariableValue);
             var objectPopulation = GetObjectPopulation(instanceVariableValue, omc);
+            var postMappingCallback = GetMappingCallback(CallbackPosition.After, omc);
             var returnValue = GetReturnValue(instanceVariableValue, omc);
             var returnLabel = Expression.Label(returnLabelTarget, returnValue);
 
             var mappingBlock = Expression.Block(
                 new[] { omc.InstanceVariable },
-                preMappingCallbacks
+                preMappingCallback
                     .Concat(shortCircuitReturns)
                     .Concat(instanceVariableAssignment)
                     .Concat(objectPopulation)
+                    .Concat(postMappingCallback)
                     .Concat(returnLabel));
 
             var wrappedMappingBlock = WrapInTryCatch(mappingBlock, omc);
@@ -55,12 +57,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract bool IsNotConstructable(IObjectMappingContext omc);
 
-        private static IEnumerable<Expression> GetPreMappingCallback(IObjectMappingContext omc)
+        private static IEnumerable<Expression> GetMappingCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
         {
-            yield return GetCallbackOrNull(c => c.GetCallbackOrNull(CallbackPosition.Before, omc), omc);
+            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, omc), omc);
         }
 
-        protected static Expression GetCallbackOrNull(
+        protected static Expression GetCallbackOrEmpty(
             Func<UserConfigurationSet, Expression> callbackFactory,
             IObjectMappingContext omc)
             => callbackFactory.Invoke(omc.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
