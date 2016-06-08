@@ -19,3 +19,4 @@ using System.Runtime.CompilerServices;
 [assembly: CLSCompliant(true)]
 
 [assembly: InternalsVisibleTo("AgileObjects.AgileMapper.UnitTests")]
+[assembly: InternalsVisibleTo("AgileObjects.AgileMapper.UnitTests.NonParallel")]
