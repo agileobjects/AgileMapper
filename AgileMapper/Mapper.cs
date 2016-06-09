@@ -23,11 +23,16 @@
 
         #endregion
 
+        PlanTargetTypeSelector<TSource> IMapper.GetPlanFor<TSource>()
+            => new PlanTargetTypeSelector<TSource>(_mapperContext);
+
         PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(_mapperContext);
 
         PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(_mapperContext);
 
         #region Static Access Methods
+
+        public static PlanTargetTypeSelector<TSource> GetPlanFor<TSource>() => _default.GetPlanFor<TSource>();
 
         public static PreEventConfigStartingPoint Before => _default.Before;
 
@@ -38,7 +43,7 @@
         public static TSource Clone<TSource>(TSource source) where TSource : class
             => _default.Clone(source);
 
-        public static ResultTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
+        public static TargetTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
 
         internal static void ResetDefaultInstance() => _default.Dispose();
 
@@ -48,9 +53,9 @@
 
         TSource IMapper.Clone<TSource>(TSource source) => Map(source).ToNew<TSource>();
 
-        ResultTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
+        TargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
         {
-            return new ResultTypeSelector<TSource>(source, _mapperContext);
+            return new TargetTypeSelector<TSource>(source, _mapperContext);
         }
 
         #region IDisposable Members

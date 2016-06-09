@@ -6,6 +6,8 @@
 
     public interface IMapper : IDisposable
     {
+        PlanTargetTypeSelector<TSource> GetPlanFor<TSource>();
+
         PreEventConfigStartingPoint Before { get; }
 
         PostEventConfigStartingPoint After { get; }
@@ -14,6 +16,6 @@
 
         TSource Clone<TSource>(TSource source) where TSource : class;
 
-        ResultTypeSelector<TSource> Map<TSource>(TSource source);
+        TargetTypeSelector<TSource> Map<TSource>(TSource source);
     }
 }

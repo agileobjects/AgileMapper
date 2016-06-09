@@ -94,7 +94,7 @@
 
         [Fact]
         public void ShouldHandleANullConfiguredSourceMember()
-        {
+            {
             using (var mapper = Mapper.Create())
             {
                 mapper.WhenMapping

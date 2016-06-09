@@ -1,11 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Api
 {
-    public class ResultTypeSelector<TSource>
+    public class TargetTypeSelector<TSource>
     {
         private readonly TSource _source;
         private readonly MapperContext _mapperContext;
 
-        internal ResultTypeSelector(TSource source, MapperContext mapperContext)
+        internal TargetTypeSelector(TSource source, MapperContext mapperContext)
         {
             _source = source;
             _mapperContext = mapperContext;
