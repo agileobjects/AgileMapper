@@ -93,12 +93,8 @@
                     .Over<PersonViewModel>()
                     .Before
                     .Mapping(pvm => pvm.Name)
-                    .Call((p, pvm) => preMappingName = pvm.Name);
-
-                mapper
-                    .WhenMapping
-                    .From<Person>()
-                    .Over<PersonViewModel>()
+                    .Call((p, pvm) => preMappingName = pvm.Name)
+                    .And
                     .After
                     .Mapping(pvm => pvm.Name)
                     .Call((p, pvm) => postMappingName = pvm.Name);
@@ -110,6 +106,58 @@
 
                 preMappingName.ShouldBe("Before");
                 postMappingName.ShouldBe("After");
+            }
+        }
+
+        [Fact]
+        public void ShouldExecuteAPostMemberMappingCallbackConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var mappedAddress = default(Address);
+                var callbackCalled = false;
+
+                mapper
+                    .WhenMapping
+                    .ToANew<Person>()
+                    .After
+                    .Mapping(p => p.Address)
+                    .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
+                    .Call((s, t) =>
+                    {
+                        mappedAddress = t.Address;
+                        callbackCalled = true;
+                    });
+
+                var nullAddressNullNameSource = new Person();
+                var nullAddressNullNameResult = mapper.Map(nullAddressNullNameSource).ToNew<Person>();
+
+                nullAddressNullNameResult.Address.ShouldBeNull();
+                mappedAddress.ShouldBeNull();
+                callbackCalled.ShouldBeFalse();
+
+                var nullAddressWithNameSource = new Person { Name = "David" };
+                var nullAddressWithNameResult = mapper.Map(nullAddressWithNameSource).ToNew<Person>();
+
+                nullAddressWithNameResult.Address.ShouldBeNull();
+                mappedAddress.ShouldBeNull();
+                callbackCalled.ShouldBeTrue();
+
+                callbackCalled = false;
+
+                var nullLine1WithNameSource = new Person { Name = "Brent", Address = new Address { Line2 = "City" } };
+                var nullLine1WithNameResult = mapper.Map(nullLine1WithNameSource).ToNew<Person>();
+
+                nullLine1WithNameResult.Address.ShouldNotBeNull();
+                mappedAddress.ShouldBeNull();
+                callbackCalled.ShouldBeFalse();
+
+                var withLine1WithNameSource = new Person { Name = "Chris", Address = new Address { Line1 = "Town" } };
+                var withLine1WithNameResult = mapper.Map(withLine1WithNameSource).ToNew<Person>();
+
+                withLine1WithNameResult.Address.ShouldNotBeNull();
+                mappedAddress.ShouldNotBeNull();
+                callbackCalled.ShouldBeTrue();
             }
         }
 

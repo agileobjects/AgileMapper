@@ -194,6 +194,9 @@
                     case ExpressionType.Call:
                         return ReplaceIn((MethodCallExpression)expression);
 
+                    case ExpressionType.Conditional:
+                        return ReplaceIn((ConditionalExpression)expression);
+
                     case ExpressionType.Convert:
                     case ExpressionType.Not:
                     case ExpressionType.TypeAs:
@@ -229,6 +232,16 @@
 
             private Expression ReplaceIn(BinaryExpression binary)
                 => ReplaceIn(binary, () => binary.Update(Replace(binary.Left), binary.Conversion, Replace(binary.Right)));
+
+            private Expression ReplaceIn(ConditionalExpression conditional)
+            {
+                return ReplaceIn(
+                    conditional,
+                    () => conditional.Update(
+                        Replace(conditional.Test),
+                        Replace(conditional.IfTrue),
+                        Replace(conditional.IfFalse)));
+            }
 
             private Expression ReplaceIn(LambdaExpression lambda)
             {
