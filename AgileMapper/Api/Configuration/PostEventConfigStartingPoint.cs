@@ -16,13 +16,10 @@
             => new CallbackSpecifier<object, object>(_mapperContext, CallbackPosition.After, QualifiedMember.None);
 
         public IConditionalPostInstanceCreationCallbackSpecifier<object, object, object> CreatingInstances
-            => CreateCallbackSpecifier<object>();
+            => CreatingInstancesOf<object>();
 
         public IConditionalPostInstanceCreationCallbackSpecifier<object, object, TInstance> CreatingInstancesOf<TInstance>()
             where TInstance : class
-            => CreateCallbackSpecifier<TInstance>();
-
-        private InstanceCreationCallbackSpecifier<object, object, TInstance> CreateCallbackSpecifier<TInstance>()
             => new InstanceCreationCallbackSpecifier<object, object, TInstance>(CallbackPosition.After, _mapperContext);
     }
 }

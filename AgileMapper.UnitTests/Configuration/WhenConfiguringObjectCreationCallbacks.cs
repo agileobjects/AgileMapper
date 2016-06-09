@@ -12,7 +12,7 @@
     public class WhenConfiguringObjectCreationCallbacks
     {
         [Fact]
-        public void ShouldCallAnObjectCreatedCallback()
+        public void ShouldCallAGlobalObjectCreatedCallback()
         {
             using (var mapper = Mapper.Create())
             {
@@ -352,7 +352,7 @@
         }
 
         [Fact]
-        public void ShouldCallObjectCreatingAndObjectCreatedCallbacks()
+        public void ShouldCallGlobalObjectCreatingAndObjectCreatedCallbacks()
         {
             using (var mapper = Mapper.Create())
             {
@@ -381,7 +381,7 @@
         }
 
         [Fact]
-        public void ShouldCallObjectCreatingAndObjectCreatedCallbacksConditionally()
+        public void ShouldCallObjectCreatingAndObjectCreatedCallbacksForSpecifedTypesConditionally()
         {
             using (var mapper = Mapper.Create())
             {
@@ -390,14 +390,14 @@
 
                 mapper
                     .Before
-                    .CreatingInstances
-                    .If(ctx => ctx.Target is Person)
+                    .CreatingInstancesOf<Address>()
+                    .If(ctx => ctx.Source is PersonViewModel)
                     .Call((s, p) => preCallbackObjects.AddRange(new[] { s, p }));
 
                 mapper
                     .After
-                    .CreatingInstances
-                    .If((s, t) => t is Address)
+                    .CreatingInstancesOf<Address>()
+                    .If((s, t) => s is PersonViewModel)
                     .Call((s, a) => postCallbackObjects.AddRange(new[] { s, a }));
 
                 var source = new PersonViewModel { AddressLine1 = "Housetown" };
@@ -406,7 +406,7 @@
                 mapper.Map(source).OnTo(target);
 
                 preCallbackObjects.ShouldNotBeEmpty();
-                preCallbackObjects.ShouldBe(source, target, source, default(Address));
+                preCallbackObjects.ShouldBe(source, default(Address));
 
                 postCallbackObjects.ShouldNotBeEmpty();
                 postCallbackObjects.ShouldBe(source, target.Address);
