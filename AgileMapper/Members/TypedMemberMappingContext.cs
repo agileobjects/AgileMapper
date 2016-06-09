@@ -11,7 +11,7 @@
 
         public TSource Source { get; }
 
-        public TTarget Target { get; }
+        public TTarget Target { get; set; }
 
         public int? EnumerableIndex { get; }
     }

@@ -2,10 +2,12 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
 
+    [DebuggerDisplay("{Signature}")]
     internal class QualifiedMember : IQualifiedMember
     {
         public static readonly QualifiedMember All = new QualifiedMember(new Member[0], qualifiedName: null);
@@ -51,6 +53,8 @@ namespace AgileObjects.AgileMapper.Members
         public Type Type => LeafMember.Type;
 
         public string Name => LeafMember.Name;
+
+        public string Path => _qualifiedName?.FullName;
 
         public bool IsComplex => LeafMember.IsComplex;
 

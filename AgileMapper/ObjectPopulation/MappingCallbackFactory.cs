@@ -42,7 +42,7 @@
         {
             var callback = _callbackLambda.GetBody(context);
 
-            if (CallbackPosition != CallbackPosition.Before)
+            if ((CallbackPosition != CallbackPosition.Before) || (TargetMemberPath != null))
             {
                 return callback;
             }

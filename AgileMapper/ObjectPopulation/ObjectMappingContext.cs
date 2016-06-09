@@ -21,6 +21,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         // ReSharper disable StaticMemberInGenericType
         private static readonly Expression _sourceObjectProperty = Expression.Property(_parameter, "Source");
 
+        private static readonly Expression _targetObjectProperty = Expression.Property(_parameter, "Target");
+
         private static readonly Expression _existingObjectProperty = Expression.Property(_parameter, "ExistingObject");
 
         private static readonly Expression _createdObjectProperty = Expression.Property(_parameter, "CreatedObject");
@@ -180,6 +182,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         T IObjectMappingContext.GetInstance<T>() => (T)((object)CreatedObject ?? ExistingObject);
+
+        Expression IObjectMappingContext.Target => _targetObjectProperty;
 
         Expression IObjectMappingContext.CreatedObject => _createdObjectProperty;
 

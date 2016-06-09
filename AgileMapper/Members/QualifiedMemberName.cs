@@ -2,9 +2,11 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using Extensions;
 
+    [DebuggerDisplay("{FullName}")]
     internal class QualifiedMemberName
     {
         private readonly MemberName[] _nameParts;
@@ -12,6 +14,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public QualifiedMemberName(MemberName[] nameParts)
         {
+            FullName = string.Join(string.Empty, nameParts.Select(np => np?.JoiningName));
+
             _nameParts = new MemberName[nameParts.Length - 1]; // <- Don't bother with the root property
             Array.Copy(nameParts, 1, _nameParts, 0, _nameParts.Length);
 
@@ -22,6 +26,8 @@ namespace AgileObjects.AgileMapper.Members
                 .Where(name => name != string.Empty)
                 .ToArray();
         }
+
+        public string FullName { get; }
 
         public bool IsRootOf(QualifiedMemberName otherQualifiedName)
         {

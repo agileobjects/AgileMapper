@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Members;
-    using ReadableExpressions;
 
     internal abstract class UserConfiguredItemBase
     {
@@ -18,7 +17,6 @@
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
             : this(configInfo, GetTargetMember(configInfo, targetMemberLambda))
         {
-            TargetMemberPath = targetMemberLambda.Body.ToReadableString();
         }
 
         protected static QualifiedMember GetTargetMember(
@@ -32,7 +30,7 @@
             _targetMember = targetMember;
         }
 
-        public string TargetMemberPath { get; }
+        public string TargetMemberPath => _targetMember?.Path;
 
         public bool HasConfiguredCondition => _configInfo.HasCondition;
 

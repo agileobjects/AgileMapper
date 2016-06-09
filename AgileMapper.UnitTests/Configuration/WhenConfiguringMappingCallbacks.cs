@@ -110,6 +110,34 @@
         }
 
         [Fact]
+        public void ShouldExecuteAPreMemberMappingCallbackConditionally()
+        {
+            using (var mapper = Mapper.Create())
+            {
+                var mappedTargetId = default(Guid);
+
+                mapper
+                    .WhenMapping
+                    .From<Person>()
+                    .ToANew<Person>()
+                    .Before
+                    .Mapping(p => p.Address)
+                    .If(ctx => ctx.Target.Id != default(Guid))
+                    .Call((s, t) => mappedTargetId = t.Id);
+
+                var noIdSource = new Person { Name = "Dawn" };
+                mapper.Map(noIdSource).ToNew<Person>();
+
+                mappedTargetId.ShouldBeDefault();
+
+                var idSource = new Person { Id = Guid.NewGuid() };
+                mapper.Map(idSource).ToNew<Person>();
+
+                mappedTargetId.ShouldBe(idSource.Id);
+            }
+        }
+
+        [Fact]
         public void ShouldExecuteAPostMemberMappingCallbackConditionally()
         {
             using (var mapper = Mapper.Create())

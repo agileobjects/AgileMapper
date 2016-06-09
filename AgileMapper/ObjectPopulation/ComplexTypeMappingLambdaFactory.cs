@@ -79,8 +79,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
         {
             var createdObjectAssignment = Expression.Assign(omc.CreatedObject, GetNewObjectCreation(omc));
+            var existingOrCreatedObject = Expression.Coalesce(omc.ExistingObject, createdObjectAssignment);
 
-            return Expression.Coalesce(omc.ExistingObject, createdObjectAssignment);
+            if (omc.Parent != null)
+            {
+                return existingOrCreatedObject;
+            }
+
+            var contextTargetAssignment = Expression.Assign(omc.Target, existingOrCreatedObject);
+
+            return contextTargetAssignment;
         }
 
         private static Expression GetNewObjectCreation(IObjectMappingContext omc)
