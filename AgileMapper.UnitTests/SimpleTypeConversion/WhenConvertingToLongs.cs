@@ -29,7 +29,7 @@
         public void ShouldMapAShortToALong()
         {
             var source = new PublicProperty<short> { Value = 987 };
-            var result = Mapper.Map(source).ToNew<PublicField<long>>();
+            var result = Mapper.Map(source).ToANew<PublicField<long>>();
 
             result.Value.ShouldBe(987);
         }
@@ -38,7 +38,7 @@
         public void ShouldMapAnIntToALong()
         {
             var source = new PublicField<int> { Value = 32156 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long>>();
 
             result.Value.ShouldBe(32156);
         }
@@ -47,7 +47,7 @@
         public void ShouldMapAnUnsignedIntToALong()
         {
             var source = new PublicField<uint> { Value = 32658 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long>>();
 
             result.Value.ShouldBe(32658);
         }
@@ -56,7 +56,7 @@
         public void ShouldMapAnInRangeUnsignedLongToALong()
         {
             var source = new PublicField<ulong> { Value = 9292726 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long>>();
 
             result.Value.ShouldBe(9292726);
         }
@@ -65,7 +65,7 @@
         public void ShouldMapAnInRangeUnsignedLongToANullableLong()
         {
             var source = new PublicField<ulong> { Value = 9383625 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<long?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long?>>();
 
             result.Value.ShouldBe(9383625);
         }
@@ -74,7 +74,7 @@
         public void ShouldMapATooBigUnsignedLongToALong()
         {
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
-            var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -83,7 +83,7 @@
         public void ShouldMapATooBigUnsignedLongToANullableLong()
         {
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
-            var result = Mapper.Map(source).ToNew<PublicProperty<long?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -92,7 +92,7 @@
         public void ShouldMapAnInRangeWholeNumberFloatOverALong()
         {
             var source = new PublicField<float> { Value = 8532.00f };
-            var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long>>();
 
             result.Value.ShouldBe(8532);
         }
@@ -101,7 +101,7 @@
         public void ShouldMapAnInRangeNonWholeNumberNullableFloatToANullableLong()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
-            var result = Mapper.Map(source).ToNew<PublicField<long?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<long?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -128,7 +128,7 @@
         public void ShouldMapAnInRangeWholeNumberDecimalToANullableLong()
         {
             var source = new PublicGetMethod<decimal>(53632.00m);
-            var result = Mapper.Map(source).ToNew<PublicProperty<long?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long?>>();
 
             result.Value.ShouldBe(53632);
         }
@@ -155,7 +155,7 @@
         public void ShouldMapAnInRangeWholeNumberDoubleToALong()
         {
             var source = new PublicField<double> { Value = 63728 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<long>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<long>>();
 
             result.Value.ShouldBe(63728);
         }
@@ -191,7 +191,7 @@
         public void ShouldMapACharacterToANullableLong()
         {
             var source = new PublicProperty<char> { Value = '9' };
-            var result = Mapper.Map(source).ToNew<PublicField<long?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<long?>>();
 
             result.Value.ShouldBe(9);
         }
@@ -200,7 +200,7 @@
         public void ShouldMapAnUnparsableCharacterToALong()
         {
             var source = new PublicProperty<char> { Value = 't' };
-            var result = Mapper.Map(source).ToNew<PublicField<long>>();
+            var result = Mapper.Map(source).ToANew<PublicField<long>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -236,7 +236,7 @@
         public void ShouldMapAnUnparsableStringToALong()
         {
             var source = new PublicProperty<string> { Value = "CATFISH" };
-            var result = Mapper.Map(source).ToNew<PublicField<long>>();
+            var result = Mapper.Map(source).ToANew<PublicField<long>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -254,7 +254,7 @@
         public void ShouldMapAnUnparsableStringToANullableLong()
         {
             var source = new PublicProperty<string> { Value = "DOGFISH" };
-            var result = Mapper.Map(source).ToNew<PublicField<long?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<long?>>();
 
             result.Value.ShouldBeNull();
         }

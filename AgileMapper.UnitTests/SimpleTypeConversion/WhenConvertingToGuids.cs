@@ -11,7 +11,7 @@
         {
             var guid = Guid.NewGuid();
             var source = new PublicGetMethod<string>(guid.ToString());
-            var result = Mapper.Map(source).ToNew<PublicSetMethod<Guid>>();
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<Guid>>();
 
             result.Value.ShouldBe(guid);
         }
@@ -20,7 +20,7 @@
         public void ShouldMapAGuidToANullableGuid()
         {
             var source = new PublicGetMethod<Guid>(Guid.NewGuid());
-            var result = Mapper.Map(source).ToNew<PublicField<Guid?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<Guid?>>();
 
             result.Value.ShouldBe(source.GetValue());
         }
@@ -29,7 +29,7 @@
         public void ShouldMapANullableGuidToAGuid()
         {
             var source = new PublicGetMethod<Guid?>(Guid.NewGuid());
-            var result = Mapper.Map(source).ToNew<PublicField<Guid>>();
+            var result = Mapper.Map(source).ToANew<PublicField<Guid>>();
 
             result.Value.ShouldBe(source.GetValue().GetValueOrDefault());
         }

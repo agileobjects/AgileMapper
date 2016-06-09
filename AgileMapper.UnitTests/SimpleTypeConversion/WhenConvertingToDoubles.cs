@@ -30,7 +30,7 @@
         public void ShouldMapAShortToADouble()
         {
             var source = new PublicProperty<short> { Value = 9287 };
-            var result = Mapper.Map(source).ToNew<PublicField<double>>();
+            var result = Mapper.Map(source).ToANew<PublicField<double>>();
 
             result.Value.ShouldBe(9287);
         }
@@ -39,7 +39,7 @@
         public void ShouldMapAnIntToADouble()
         {
             var source = new PublicField<int> { Value = 32156 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<double>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<double>>();
 
             result.Value.ShouldBe(32156);
         }
@@ -48,7 +48,7 @@
         public void ShouldMapAnUnsignedIntToADouble()
         {
             var source = new PublicField<uint> { Value = 32658 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<double>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<double>>();
 
             result.Value.ShouldBe(32658);
         }
@@ -56,7 +56,7 @@
         public void ShouldMapALongToADouble()
         {
             var source = new PublicField<long> { Value = 3156 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<double>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<double>>();
 
             result.Value.ShouldBe(3156);
         }
@@ -65,7 +65,7 @@
         public void ShouldMapAnUnsignedLongToADouble()
         {
             var source = new PublicField<ulong> { Value = 9292726 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<double>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<double>>();
 
             result.Value.ShouldBe(9292726);
         }
@@ -74,7 +74,7 @@
         public void ShouldMapAnUnsignedLongToANullableDouble()
         {
             var source = new PublicField<ulong> { Value = 9383625 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<double?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<double?>>();
 
             result.Value.ShouldBe(9383625);
         }
@@ -83,7 +83,7 @@
         public void ShouldMapAWholeNumberFloatOverADouble()
         {
             var source = new PublicField<float> { Value = 8532.00f };
-            var result = Mapper.Map(source).ToNew<PublicProperty<double>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<double>>();
 
             result.Value.ShouldBe(8532);
         }
@@ -92,7 +92,7 @@
         public void ShouldMapANonWholeNumberNullableFloatToANullableDouble()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
-            var result = Mapper.Map(source).ToNew<PublicField<double?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<double?>>();
 
             Math.Round(result.Value.GetValueOrDefault(), 2).ShouldBe(73.62);
         }
@@ -101,7 +101,7 @@
         public void ShouldMapAWholeNumberDecimalToADouble()
         {
             var source = new PublicField<decimal> { Value = 637128 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<double>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<double>>();
 
             result.Value.ShouldBe(637128);
         }
@@ -110,7 +110,7 @@
         public void ShouldMapAWholeNumberDecimalToANullableDouble()
         {
             var source = new PublicGetMethod<decimal>(5332.00m);
-            var result = Mapper.Map(source).ToNew<PublicProperty<double?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<double?>>();
 
             result.Value.ShouldBe(5332);
         }
@@ -137,7 +137,7 @@
         public void ShouldMapACharacterToANullableDouble()
         {
             var source = new PublicProperty<char> { Value = '9' };
-            var result = Mapper.Map(source).ToNew<PublicField<double?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<double?>>();
 
             result.Value.ShouldBe(9);
         }
@@ -146,7 +146,7 @@
         public void ShouldMapAnUnparsableCharacterToADouble()
         {
             var source = new PublicProperty<char> { Value = 'l' };
-            var result = Mapper.Map(source).ToNew<PublicField<double>>();
+            var result = Mapper.Map(source).ToANew<PublicField<double>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -173,7 +173,7 @@
         public void ShouldMapAnUnparsableStringToADouble()
         {
             var source = new PublicProperty<string> { Value = "TURKEY" };
-            var result = Mapper.Map(source).ToNew<PublicField<double>>();
+            var result = Mapper.Map(source).ToANew<PublicField<double>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -182,7 +182,7 @@
         public void ShouldMapAnUnparsableStringToANullableDouble()
         {
             var source = new PublicProperty<string> { Value = "CHEETOS" };
-            var result = Mapper.Map(source).ToNew<PublicField<double?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<double?>>();
 
             result.Value.ShouldBeNull();
         }

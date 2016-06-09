@@ -18,7 +18,7 @@
                 }
             };
 
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Address>()
@@ -26,11 +26,11 @@
                     .Map((a, avm) => a.Postcode.Value)
                     .To(avm => avm.Postcode);
 
-                mapper.Map(source).ToNew<CustomerViewModel>();
+                mapper.Map(source).ToANew<CustomerViewModel>();
 
                 for (var i = 0; i < 10000; i++)
                 {
-                    mapper.Map(source).ToNew<CustomerViewModel>();
+                    mapper.Map(source).ToANew<CustomerViewModel>();
                 }
 
                 Console.WriteLine("Finished!");

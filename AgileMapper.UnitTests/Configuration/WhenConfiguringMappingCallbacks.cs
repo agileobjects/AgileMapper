@@ -11,7 +11,7 @@
         [Fact]
         public void ShouldExecuteAGlobalPreMappingCallback()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var mappedNames = new List<string>();
 
@@ -32,7 +32,7 @@
         [Fact]
         public void ShouldExecuteAGlobalPostMappingCallbackConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var mappedNames = new List<string>();
 
@@ -54,7 +54,7 @@
         [Fact]
         public void ShouldExecuteAPreMappingCallbackForASpecifiedTargetTypeConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -82,7 +82,7 @@
         [Fact]
         public void ShouldExecutePreAndPostMappingCallbacksForASpecifiedMember()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var preMappingName = default(string);
                 var postMappingName = default(string);
@@ -112,7 +112,7 @@
         [Fact]
         public void ShouldExecuteAPreMemberMappingCallbackConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var mappedTargetId = default(Guid);
 
@@ -126,12 +126,12 @@
                     .Call((s, t) => mappedTargetId = t.Id);
 
                 var noIdSource = new Person { Name = "Dawn" };
-                mapper.Map(noIdSource).ToNew<Person>();
+                mapper.Clone(noIdSource);
 
                 mappedTargetId.ShouldBeDefault();
 
                 var idSource = new Person { Id = Guid.NewGuid() };
-                mapper.Map(idSource).ToNew<Person>();
+                mapper.Clone(idSource);
 
                 mappedTargetId.ShouldBe(idSource.Id);
             }
@@ -140,7 +140,7 @@
         [Fact]
         public void ShouldExecuteAPostMemberMappingCallbackConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var mappedAddress = default(Address);
                 var callbackCalled = false;
@@ -158,14 +158,14 @@
                     });
 
                 var nullAddressNullNameSource = new Person();
-                var nullAddressNullNameResult = mapper.Map(nullAddressNullNameSource).ToNew<Person>();
+                var nullAddressNullNameResult = mapper.Clone(nullAddressNullNameSource);
 
                 nullAddressNullNameResult.Address.ShouldBeNull();
                 mappedAddress.ShouldBeNull();
                 callbackCalled.ShouldBeFalse();
 
                 var nullAddressWithNameSource = new Person { Name = "David" };
-                var nullAddressWithNameResult = mapper.Map(nullAddressWithNameSource).ToNew<Person>();
+                var nullAddressWithNameResult = mapper.Clone(nullAddressWithNameSource);
 
                 nullAddressWithNameResult.Address.ShouldBeNull();
                 mappedAddress.ShouldBeNull();
@@ -174,14 +174,14 @@
                 callbackCalled = false;
 
                 var nullLine1WithNameSource = new Person { Name = "Brent", Address = new Address { Line2 = "City" } };
-                var nullLine1WithNameResult = mapper.Map(nullLine1WithNameSource).ToNew<Person>();
+                var nullLine1WithNameResult = mapper.Clone(nullLine1WithNameSource);
 
                 nullLine1WithNameResult.Address.ShouldNotBeNull();
                 mappedAddress.ShouldBeNull();
                 callbackCalled.ShouldBeFalse();
 
                 var withLine1WithNameSource = new Person { Name = "Chris", Address = new Address { Line1 = "Town" } };
-                var withLine1WithNameResult = mapper.Map(withLine1WithNameSource).ToNew<Person>();
+                var withLine1WithNameResult = mapper.Clone(withLine1WithNameSource);
 
                 withLine1WithNameResult.Address.ShouldNotBeNull();
                 mappedAddress.ShouldNotBeNull();
@@ -192,7 +192,7 @@
         [Fact]
         public void ShouldRestrictAPreMappingCallbackByTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -217,7 +217,7 @@
         [Fact]
         public void ShouldRestrictAPreMappingCallbackBySourceTypeConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -229,12 +229,12 @@
                     .Call(ctx => ctx.Source.Value = "SetByCallback");
 
                 var nonMatchingSource = new PublicGetMethod<string>("Harold");
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicField<string>>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<string>>();
 
                 nonMatchingResult.Value.ShouldBe("Harold");
 
                 var matchingSource = new PublicProperty<string> { Value = "Harold" };
-                var matchingResult = mapper.Map(matchingSource).ToNew<PublicField<string>>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<string>>();
 
                 matchingResult.Value.ShouldBe("SetByCallback");
             }
@@ -243,7 +243,7 @@
         [Fact]
         public void ShouldExecuteAPostMappingCallbackForASpecifiedTargetTypeConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -272,7 +272,7 @@
         [Fact]
         public void ShouldRestrictAPostMappingCallbackByTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -297,7 +297,7 @@
         [Fact]
         public void ShouldRestrictAPostMappingCallbackBySourceType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -308,12 +308,12 @@
                     .Call((pf, pp, i) => pp.Value = "SetByCallback");
 
                 var nonMatchingSource = new PublicGetMethod<string>("SetBySource");
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicProperty<string>>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<string>>();
 
                 nonMatchingResult.Value.ShouldBe("SetBySource");
 
                 var matchingSource = new PublicField<string> { Value = "SetBySource" };
-                var matchingResult = mapper.Map(matchingSource).ToNew<PublicProperty<string>>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicProperty<string>>();
 
                 matchingResult.Value.ShouldBe("SetByCallback");
             }

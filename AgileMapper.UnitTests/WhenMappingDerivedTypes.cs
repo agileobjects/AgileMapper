@@ -15,7 +15,7 @@
         public void ShouldMapARootComplexTypeFromItsAssignedType()
         {
             object source = new Product { Price = 100.00 };
-            var result = Mapper.Map(source).ToNew<Product>();
+            var result = Mapper.Map(source).ToANew<Product>();
 
             result.Price.ShouldBe(100.00);
         }
@@ -24,7 +24,7 @@
         public void ShouldMapARootComplexTypeEnumerableFromItsAssignedType()
         {
             object source = new[] { new Product { Price = 10.01 } };
-            var result = Mapper.Map(source).ToNew<IEnumerable<Product>>();
+            var result = Mapper.Map(source).ToANew<IEnumerable<Product>>();
 
             result.First().Price.ShouldBe(10.01);
         }
@@ -33,7 +33,7 @@
         public void ShouldMapARootComplexTypeEnumerableElementFromItsAssignedType()
         {
             var source = new object[] { new Product { Price = 9.99 } };
-            var result = Mapper.Map(source).ToNew<IEnumerable<Product>>();
+            var result = Mapper.Map(source).ToANew<IEnumerable<Product>>();
 
             result.First().Price.ShouldBe(9.99);
         }
@@ -46,7 +46,7 @@
                 Value = new { Name = "Frank", Address = (object)new Address { Line1 = "Here!" } }
             };
 
-            var result = Mapper.Map(source).ToNew<PublicProperty<PersonViewModel>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<PersonViewModel>>();
 
             result.Value.ShouldNotBeNull();
             result.Value.Name.ShouldBe("Frank");
@@ -64,7 +64,7 @@
                 new { Id = sourceObjectId.ToString(), Address = (object)new Address { Line1 = "Somewhere!" } }
             };
 
-            var result = Mapper.Map(source).ToNew<ICollection<PersonViewModel>>();
+            var result = Mapper.Map(source).ToANew<ICollection<PersonViewModel>>();
 
             result.ShouldNotBeNull();
             result.Count.ShouldBe(2);
@@ -89,7 +89,7 @@
                     new Person { Name = "Bob" }
                 }
             };
-            var result = Mapper.Map(source).ToNew<PublicSetMethod<object>>();
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<object>>();
 
             var resultValues = ((IEnumerable)result.Value).Cast<Person>().ToArray();
             resultValues.First().ShouldBeOfType<Customer>();

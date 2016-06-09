@@ -12,7 +12,7 @@
         public void ShouldCreateARootSimpleTypeArray()
         {
             var source = new[] { 1, 2, 3 };
-            var result = Mapper.Map(source).ToNew<int[]>();
+            var result = Mapper.Map(source).ToANew<int[]>();
 
             result.ShouldNotBeNull();
             result.ShouldNotBeSameAs(source);
@@ -23,7 +23,7 @@
         public void ShouldCreateARootSimpleTypeList()
         {
             var source = new[] { 'O', 'M', 'G' };
-            var result = Mapper.Map(source).ToNew<List<char>>();
+            var result = Mapper.Map(source).ToANew<List<char>>();
 
             result.ShouldNotBeNull();
             result.SequenceEqual(source).ShouldBeTrue();
@@ -33,7 +33,7 @@
         public void ShouldCreateARootSimpleTypeEnumerable()
         {
             var source = new List<string> { "One", "Two", "Three" };
-            var result = Mapper.Map(source).ToNew<IEnumerable<string>>();
+            var result = Mapper.Map(source).ToANew<IEnumerable<string>>();
 
             result.ShouldNotBeNull();
             result.ShouldNotBeSameAs(source);
@@ -49,7 +49,7 @@
                 new Person { Name = "Johnny", Address = new Address() }
             };
 
-            var result = Mapper.Map(source).ToNew<List<Person>>();
+            var result = Mapper.Map(source).ToANew<List<Person>>();
 
             result.ShouldNotBeNull();
             result.ShouldNotBe(source);
@@ -69,7 +69,7 @@
                 new Product { ProductId = "Boomstick" }
             };
 
-            var result = Mapper.Map(source).ToNew<List<Product>>();
+            var result = Mapper.Map(source).ToANew<List<Product>>();
 
             result.ShouldNotBeNull();
             result.ShouldNotBe(source);

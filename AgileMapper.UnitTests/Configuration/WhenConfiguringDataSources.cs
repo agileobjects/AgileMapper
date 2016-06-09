@@ -16,7 +16,7 @@
         [Fact]
         public void ShouldApplyAConfiguredConstant()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
@@ -25,7 +25,7 @@
                     .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = "Goodbye!" };
-                var result = mapper.Map(source).ToNew<PublicProperty<string>>();
+                var result = mapper.Map(source).ToANew<PublicProperty<string>>();
 
                 result.Value.ShouldBe("Hello there!");
             }
@@ -43,7 +43,7 @@
                     .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = "Instance fun!" };
-                var result = Mapper.Map(source).ToNew<PublicProperty<string>>();
+                var result = Mapper.Map(source).ToANew<PublicProperty<string>>();
 
                 result.Value.ShouldBe("Static fun!");
             }
@@ -56,16 +56,16 @@
         [Fact]
         public void ShouldApplyAConfiguredConstantFromAllSourceTypes()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .To<PublicProperty<decimal>>()
                     .Map(decimal.MaxValue)
                     .To(x => x.Value);
 
-                var mapNewResult1 = mapper.Map(new PublicField<decimal>()).ToNew<PublicProperty<decimal>>();
-                var mapNewResult2 = mapper.Map(new Person()).ToNew<PublicProperty<decimal>>();
-                var mapNewResult3 = mapper.Map(new PublicGetMethod<float>(1.0f)).ToNew<PublicProperty<decimal>>();
+                var mapNewResult1 = mapper.Map(new PublicField<decimal>()).ToANew<PublicProperty<decimal>>();
+                var mapNewResult2 = mapper.Map(new Person()).ToANew<PublicProperty<decimal>>();
+                var mapNewResult3 = mapper.Map(new PublicGetMethod<float>(1.0f)).ToANew<PublicProperty<decimal>>();
 
                 mapNewResult1.Value.ShouldBe(decimal.MaxValue);
                 mapNewResult2.Value.ShouldBe(decimal.MaxValue);
@@ -76,7 +76,7 @@
         [Fact]
         public void ShouldConditionallyApplyAConfiguredConstant()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .Over<PublicProperty<string>>()
@@ -101,7 +101,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMember()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -110,7 +110,7 @@
                     .To(x => x.Value);
 
                 var source = new Person { Id = Guid.NewGuid() };
-                var result = mapper.Map(source).ToNew<PublicProperty<Guid>>();
+                var result = mapper.Map(source).ToANew<PublicProperty<Guid>>();
 
                 result.Value.ShouldBe(source.Id);
             }
@@ -119,7 +119,7 @@
         [Fact]
         public void ShouldApplyMultipleConfiguredMembersBySourceType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -134,12 +134,12 @@
                     .To(x => x.Value);
 
                 var personSource = new Person { Name = "Wilma" };
-                var personResult = mapper.Map(personSource).ToNew<PublicProperty<string>>();
+                var personResult = mapper.Map(personSource).ToANew<PublicProperty<string>>();
 
                 personResult.Value.ShouldBe("Wilma");
 
                 var customerSource = new Customer { Name = "Betty", Discount = 10.0m };
-                var customerResult = mapper.Map(customerSource).ToNew<PublicProperty<string>>();
+                var customerResult = mapper.Map(customerSource).ToANew<PublicProperty<string>>();
 
                 customerResult.Value.ShouldBe("10.0");
             }
@@ -148,7 +148,7 @@
         [Fact]
         public void ShouldConditionallyApplyAConfiguredMember()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicGetMethod<int>>()
@@ -158,12 +158,12 @@
                     .To<string>(x => x.SetValue);
 
                 var matchingSource = new PublicGetMethod<int>(6);
-                var matchingResult = mapper.Map(matchingSource).ToNew<PublicSetMethod<string>>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicSetMethod<string>>();
 
                 matchingResult.Value.ShouldBe("6");
 
                 var nonMatchingSource = new PublicGetMethod<int>(7);
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicSetMethod<string>>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicSetMethod<string>>();
 
                 nonMatchingResult.Value.ShouldBeNull();
             }
@@ -172,7 +172,7 @@
         [Fact]
         public void ShouldConditionallyApplyMultipleConfiguredMembers()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Customer>()
@@ -189,17 +189,17 @@
                     .To(x => x.Value);
 
                 var shortNameSource = new Customer { Id = Guid.NewGuid(), Name = "Fred", Title = Title.Count };
-                var shortNameResult = mapper.Map(shortNameSource).ToNew<PublicProperty<string>>();
+                var shortNameResult = mapper.Map(shortNameSource).ToANew<PublicProperty<string>>();
 
                 shortNameResult.Value.ShouldBe(shortNameSource.Id.ToString());
 
                 var midNameSource = new Customer { Id = Guid.NewGuid(), Name = "Frankie", Title = Title.Count };
-                var midNameResult = mapper.Map(midNameSource).ToNew<PublicProperty<string>>();
+                var midNameResult = mapper.Map(midNameSource).ToANew<PublicProperty<string>>();
 
                 midNameResult.Value.ShouldBeDefault();
 
                 var longNameSource = new Customer { Id = Guid.NewGuid(), Name = "Bartholomew", Title = Title.Duke };
-                var longNameResult = mapper.Map(longNameSource).ToNew<PublicProperty<string>>();
+                var longNameResult = mapper.Map(longNameSource).ToANew<PublicProperty<string>>();
 
                 longNameResult.Value.ShouldBe("Duke");
             }
@@ -208,7 +208,7 @@
         [Fact]
         public void ShouldApplyConditionalAndUnconditionalDataSourcesInOrder()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -224,12 +224,12 @@
                     .To(x => x.Value);
 
                 var undefinedTitleSource = new Person { Title = (Title)1234, Name = "Bill" };
-                var undefinedTitleResult = mapper.Map(undefinedTitleSource).ToNew<PublicProperty<string>>();
+                var undefinedTitleResult = mapper.Map(undefinedTitleSource).ToANew<PublicProperty<string>>();
 
                 undefinedTitleResult.Value.ShouldBe("Bill");
 
                 var definedTitleSource = new Customer { Title = Title.Duke, Name = "Bart" };
-                var definedTitleResult = mapper.Map(definedTitleSource).ToNew<PublicProperty<string>>();
+                var definedTitleResult = mapper.Map(definedTitleSource).ToANew<PublicProperty<string>>();
 
                 definedTitleResult.Value.ShouldBe("Duke Bart");
             }
@@ -238,7 +238,7 @@
         [Fact]
         public void ShouldHandleANullMemberInACondition()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
@@ -248,12 +248,12 @@
                     .To(x => x.Value);
 
                 var matchingSource = new PublicProperty<string> { Value = "20" };
-                var matchingResult = mapper.Map(matchingSource).ToNew<PublicField<long>>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<long>>();
 
                 matchingResult.Value.ShouldBe(10L);
 
                 var nullSource = new PublicProperty<string> { Value = null };
-                var nullSourceResult = mapper.Map(nullSource).ToNew<PublicField<long>>();
+                var nullSourceResult = mapper.Map(nullSource).ToANew<PublicField<long>>();
 
                 nullSourceResult.Value.ShouldBeDefault();
             }
@@ -264,7 +264,7 @@
         {
             Assert.Throws<MappingException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .From<Person>()
@@ -274,7 +274,7 @@
                         .To(x => x.Value);
 
                     var source = new Person { Name = "CantParseThis" };
-                    var result = mapper.Map(source).ToNew<PublicField<int>>();
+                    var result = mapper.Map(source).ToANew<PublicField<int>>();
 
                     result.Value.ShouldBeDefault();
                 }
@@ -284,7 +284,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMemberFromAllSourceTypes()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .OnTo<Person>()
@@ -302,7 +302,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMemberInARootEnumerable()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -311,7 +311,7 @@
                     .To(x => x.Value);
 
                 var source = new[] { new Person { Name = "Mr Thomas" } };
-                var result = mapper.Map(source).ToNew<List<PublicField<string>>>();
+                var result = mapper.Map(source).ToANew<List<PublicField<string>>>();
 
                 source.ShouldBe(result.Select(r => r.Value), p => p.Name);
             }
@@ -320,7 +320,7 @@
         [Fact]
         public void ShouldApplyAConfiguredMemberFromADerivedSourceType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -329,7 +329,7 @@
                     .To(x => x.Name);
 
                 var source = new Customer { Id = Guid.NewGuid(), Address = new Address() };
-                var result = mapper.Map(source).ToNew<PersonViewModel>();
+                var result = mapper.Map(source).ToANew<PersonViewModel>();
 
                 result.Name.ShouldBe(source.Id.ToString());
             }
@@ -338,7 +338,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpression()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicProperty<int>>()
@@ -347,7 +347,7 @@
                     .To(x => x.Value);
 
                 var source = new PublicProperty<int> { Value = 123 };
-                var result = mapper.Map(source).ToNew<PublicField<long>>();
+                var result = mapper.Map(source).ToANew<PublicField<long>>();
 
                 result.Value.ShouldBe(source.Value * 10);
             }
@@ -358,7 +358,7 @@
         {
             Assert.Throws<MappingException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .From<PublicGetMethod<string>>()
@@ -367,7 +367,7 @@
                         .To(x => x.Value);
 
                     var source = new PublicGetMethod<string>("1234");
-                    var result = mapper.Map(source).ToNew<PublicField<short>>();
+                    var result = mapper.Map(source).ToANew<PublicField<short>>();
 
                     result.Value.ShouldBeDefault();
                 }
@@ -377,7 +377,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionInAMemberEnumerable()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Customer>()
@@ -386,7 +386,7 @@
                     .To<string>(x => x.SetValue);
 
                 var source = new PublicProperty<Customer[]> { Value = new[] { new Customer { Name = "Mr Thomas" } } };
-                var result = mapper.Map(source).ToNew<PublicField<IEnumerable<PublicSetMethod<string>>>>();
+                var result = mapper.Map(source).ToANew<PublicField<IEnumerable<PublicSetMethod<string>>>>();
 
                 result.Value.ShouldHaveSingleItem();
                 result.Value.First().Value.ShouldBe("1: Mr Thomas");
@@ -396,7 +396,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionInAMemberNonGenericEnumerableConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Customer>()
@@ -414,7 +414,7 @@
                         new Customer { Name = "Lady G" }
                     }
                 };
-                var result = mapper.Map(source).ToNew<PublicField<IEnumerable<PersonViewModel>>>();
+                var result = mapper.Map(source).ToANew<PublicField<IEnumerable<PersonViewModel>>>();
 
                 result.Value.Count().ShouldBe(3);
                 result.Value.First().Name.ShouldBe("Miss G");
@@ -426,7 +426,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionWithMultipleNestedSourceMembers()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -435,7 +435,7 @@
                     .To(x => x.AddressLine1);
 
                 var source = new Person { Address = new Address { Line1 = "One", Line2 = "Two" } };
-                var result = mapper.Map(source).ToNew<PersonViewModel>();
+                var result = mapper.Map(source).ToANew<PersonViewModel>();
 
                 result.AddressLine1.ShouldBe("One, Two");
             }
@@ -444,7 +444,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionToADerivedTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -453,7 +453,7 @@
                     .To(x => x.Name);
 
                 var source = new PersonViewModel { Name = "Harry" };
-                var result = mapper.Map(source).ToNew<Customer>();
+                var result = mapper.Map(source).ToANew<Customer>();
 
                 result.Name.ShouldBe(source.Name + "!");
             }
@@ -462,7 +462,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionInARootCollectionConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -495,7 +495,7 @@
         [Fact]
         public void ShouldApplyAConfiguredFunction()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 Func<ITypedMemberMappingContext<Person, PersonViewModel>, string> combineAddressLine1 =
                     ctx => ctx.Source.Name + ", " + ctx.Source.Address.Line1;
@@ -507,7 +507,7 @@
                     .To(pvm => pvm.AddressLine1);
 
                 var source = new Person { Name = "Frank", Address = new Address { Line1 = "Over there" } };
-                var result = mapper.Map(source).ToNew<PersonViewModel>();
+                var result = mapper.Map(source).ToANew<PersonViewModel>();
 
                 result.AddressLine1.ShouldBe("Frank, Over there");
             }
@@ -516,7 +516,7 @@
         [Fact]
         public void ShouldApplyAConfiguredComplexType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var source = new { Person = new Person { Name = "Anon" } };
 
@@ -537,7 +537,7 @@
         [Fact]
         public void ShouldApplyAConfiguredComplexTypeConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var source = new
                 {
@@ -580,7 +580,7 @@
         [Fact]
         public void ShouldApplyAConfiguredComplexTypeEnumerable()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var source = new { People = new[] { new Person { Name = "Jimmy" } } };
 
@@ -590,7 +590,7 @@
                     .Map((s, t) => s.People)
                     .To(pp => pp.Value);
 
-                var result = mapper.Map(source).ToNew<PublicProperty<IEnumerable<Person>>>();
+                var result = mapper.Map(source).ToANew<PublicProperty<IEnumerable<Person>>>();
 
                 result.Value.First().Name.ShouldBe("Jimmy");
             }
@@ -599,7 +599,7 @@
         [Fact]
         public void ShouldApplyAConfiguredComplexTypeEnumerableConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var source = new
                 {
@@ -642,7 +642,7 @@
         [Fact]
         public void ShouldApplyAConfiguredSourceAndTargetFunction()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 Func<PersonViewModel, Address, string> combineAddressLine1 =
                     (pvm, a) => pvm.Name + ", " + pvm.AddressLine1;
@@ -654,7 +654,7 @@
                     .To(p => p.Line1);
 
                 var source = new PersonViewModel { Name = "Francis", AddressLine1 = "Over here" };
-                var result = mapper.Map(source).ToNew<Person>();
+                var result = mapper.Map(source).ToANew<Person>();
 
                 result.Address.Line1.ShouldBe("Francis, Over here");
             }
@@ -663,7 +663,7 @@
         [Fact]
         public void ShouldApplyAConfiguredSourceTargetAndIndexFunction()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 Func<PersonViewModel, Person, int?, string> combineAddressLine1 =
                     (pvm, p, i) => $"{i}: {pvm.Name}, {pvm.AddressLine1}";
@@ -675,7 +675,7 @@
                     .To(p => p.Address.Line1);
 
                 var source = new[] { new PersonViewModel { Name = "Jane", AddressLine1 = "Over here!" } };
-                var result = mapper.Map(source).ToNew<Person[]>();
+                var result = mapper.Map(source).ToANew<Person[]>();
 
                 result.ShouldHaveSingleItem();
                 result.First().Address.Line1.ShouldBe("0: Jane, Over here!");
@@ -685,7 +685,7 @@
         [Fact]
         public void ShouldMapAConfiguredFunction()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 Func<Person, string> combineAddressLine1 =
                     p => p.Name + ", " + p.Address.Line1;
@@ -706,7 +706,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionUsingExtensionMethods()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -715,7 +715,7 @@
                     .To(x => x.Discount);
 
                 var source = new Person { Name = "Bob" };
-                var result = mapper.Map(source).ToNew<Customer>();
+                var result = mapper.Map(source).ToANew<Customer>();
 
                 result.Discount.ShouldBe(source.Name.First());
             }
@@ -724,7 +724,7 @@
         [Fact]
         public void ShouldRestrictConfiguredConstantApplicationBySourceType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicField<int>>()
@@ -733,10 +733,10 @@
                     .To<int>(x => x.SetValue);
 
                 var matchingSource = new PublicField<int> { Value = 938726 };
-                var matchingSourceResult = mapper.Map(matchingSource).ToNew<PublicSetMethod<int>>();
+                var matchingSourceResult = mapper.Map(matchingSource).ToANew<PublicSetMethod<int>>();
 
                 var nonMatchingSource = new PublicProperty<int> { Value = matchingSource.Value };
-                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToNew<PublicSetMethod<int>>();
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<PublicSetMethod<int>>();
 
                 matchingSourceResult.Value.ShouldBe(12345);
                 nonMatchingSourceResult.Value.ShouldBe(nonMatchingSource.Value);
@@ -746,7 +746,7 @@
         [Fact]
         public void ShouldRestrictConfiguredConstantApplicationByTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicField<int>>()
@@ -755,8 +755,8 @@
                     .To(x => x.Value);
 
                 var source = new PublicField<int> { Value = 938726 };
-                var matchingTargetResult = mapper.Map(source).ToNew<PublicProperty<int>>();
-                var nonMatchingTargetResult = mapper.Map(source).ToNew<PublicSetMethod<int>>();
+                var matchingTargetResult = mapper.Map(source).ToANew<PublicProperty<int>>();
+                var nonMatchingTargetResult = mapper.Map(source).ToANew<PublicSetMethod<int>>();
 
                 matchingTargetResult.Value.ShouldBe(98765);
                 nonMatchingTargetResult.Value.ShouldBe(source.Value);
@@ -766,7 +766,7 @@
         [Fact]
         public void ShouldRestrictConfigurationApplicationByMappingMode()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicProperty<int>>()
@@ -775,7 +775,7 @@
                     .To(x => x.Value);
 
                 var source = new PublicProperty<int> { Value = 64738 };
-                var matchingModeResult = mapper.Map(source).ToNew<PublicProperty<long>>();
+                var matchingModeResult = mapper.Map(source).ToANew<PublicProperty<long>>();
 
                 var nonMatchingModeTarget = mapper.Map(source).Over(new PublicProperty<long>());
 
@@ -789,7 +789,7 @@
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .From<PublicField<int>>()
@@ -805,7 +805,7 @@
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .From<PublicField<int>>()
@@ -826,7 +826,7 @@
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .From<Person>()
@@ -848,7 +848,7 @@
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .From<Person>()
@@ -868,7 +868,7 @@
         [Fact]
         public void ShouldNotErrorIfDerivedSourceTypeConflictingDataSourceIsConfigured()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()

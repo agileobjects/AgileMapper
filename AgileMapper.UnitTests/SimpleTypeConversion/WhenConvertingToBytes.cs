@@ -20,7 +20,7 @@
         public void ShouldMapANullableShortToAByte()
         {
             var source = new PublicProperty<short?> { Value = 32 };
-            var target = Mapper.Map(source).ToNew<PublicField<byte>>();
+            var target = Mapper.Map(source).ToANew<PublicField<byte>>();
 
             target.Value.ShouldBe(32);
         }
@@ -29,7 +29,7 @@
         public void ShouldMapAnUnsignedShortToANullableByte()
         {
             var source = new PublicProperty<ushort> { Value = 60 };
-            var target = Mapper.Map(source).ToNew<PublicField<byte>>();
+            var target = Mapper.Map(source).ToANew<PublicField<byte>>();
 
             target.Value.ShouldBe(60);
         }
@@ -38,7 +38,7 @@
         public void ShouldMapAnInRangeIntToAByte()
         {
             var source = new PublicProperty<int> { Value = 23 };
-            var result = Mapper.Map(source).ToNew<PublicField<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicField<byte>>();
 
             result.Value.ShouldBe(23);
         }
@@ -47,7 +47,7 @@
         public void ShouldMapAnInRangeUnsignedIntToAByte()
         {
             var source = new PublicField<uint> { Value = 250 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<byte>>();
 
             result.Value.ShouldBe(250);
         }
@@ -56,7 +56,7 @@
         public void ShouldMapATooBigIntToAByte()
         {
             var source = new PublicField<int> { Value = 276 };
-            var result = Mapper.Map(source).ToNew<PublicField<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicField<byte>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -65,7 +65,7 @@
         public void ShouldMapAnInRangeLongToAByte()
         {
             var source = new PublicField<long> { Value = 166 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<byte>>();
 
             result.Value.ShouldBe(166);
         }
@@ -74,7 +74,7 @@
         public void ShouldMapATooBigLongToAByte()
         {
             var source = new PublicField<long> { Value = 637 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<byte>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -83,7 +83,7 @@
         public void ShouldMapAnInRangeUnsignedLongToANullableByte()
         {
             var source = new PublicField<ulong> { Value = 100 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<byte?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<byte?>>();
 
             result.Value.ShouldBe(100);
         }
@@ -102,7 +102,7 @@
         public void ShouldMapATooBigUnsignedLongToANullableByte()
         {
             var source = new PublicField<ulong> { Value = 6328 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<byte?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<byte?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -111,7 +111,7 @@
         public void ShouldMapAnInRangeWholeNumberFloatOverANullableByte()
         {
             var source = new PublicField<float> { Value = 52.00f };
-            var result = Mapper.Map(source).ToNew<PublicProperty<byte?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<byte?>>();
 
             result.Value.ShouldBe(52);
         }
@@ -120,7 +120,7 @@
         public void ShouldMapAnInRangeNonWholeNumberNullableFloatToAByte()
         {
             var source = new PublicProperty<float?> { Value = 37.21f };
-            var result = Mapper.Map(source).ToNew<PublicField<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicField<byte>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -147,7 +147,7 @@
         public void ShouldMapAnInRangeWholeNumberDecimalToANullableByte()
         {
             var source = new PublicGetMethod<decimal>(62.00m);
-            var result = Mapper.Map(source).ToNew<PublicProperty<short?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<short?>>();
 
             result.Value.ShouldBe(62);
         }
@@ -174,7 +174,7 @@
         public void ShouldMapAnInRangeWholeNumberDoubleToAByte()
         {
             var source = new PublicField<double> { Value = 28d };
-            var result = Mapper.Map(source).ToNew<PublicProperty<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<byte>>();
 
             result.Value.ShouldBe(28);
         }
@@ -210,7 +210,7 @@
         public void ShouldMapACharacterToAByte()
         {
             var source = new PublicProperty<char> { Value = '2' };
-            var result = Mapper.Map(source).ToNew<PublicField<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicField<byte>>();
 
             result.Value.ShouldBe(2);
         }
@@ -219,7 +219,7 @@
         public void ShouldMapAnUnparsableNullableCharacterToANullableByte()
         {
             var source = new PublicProperty<char?> { Value = 'z' };
-            var result = Mapper.Map(source).ToNew<PublicField<byte?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<byte?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -228,7 +228,7 @@
         public void ShouldMapACharacterEnumerableMemberToANullableByteCollection()
         {
             var source = new PublicProperty<IEnumerable<char>> { Value = new[] { '3', '2', '1' } };
-            var result = Mapper.Map(source).ToNew<PublicField<ICollection<byte?>>>();
+            var result = Mapper.Map(source).ToANew<PublicField<ICollection<byte?>>>();
 
             // ReSharper disable once PossibleInvalidOperationException
             result.Value.ShouldBe(s => (int)s, 3, 2, 1);
@@ -265,7 +265,7 @@
         public void ShouldMapAnUnparsableStringToAByte()
         {
             var source = new PublicProperty<string> { Value = "LALALA" };
-            var result = Mapper.Map(source).ToNew<PublicField<byte>>();
+            var result = Mapper.Map(source).ToANew<PublicField<byte>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -283,7 +283,7 @@
         public void ShouldMapAnUnparsableStringToANullableByte()
         {
             var source = new PublicProperty<string> { Value = "Lennon" };
-            var result = Mapper.Map(source).ToNew<PublicField<byte?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<byte?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -292,7 +292,7 @@
         public void ShouldMapAStringArrayToAByteEnumerable()
         {
             var source = new[] { "9", "8", "7" };
-            var result = Mapper.Map(source).ToNew<IEnumerable<byte>>();
+            var result = Mapper.Map(source).ToANew<IEnumerable<byte>>();
 
             result.ShouldBe(s => (int)s, 9, 8, 7);
         }

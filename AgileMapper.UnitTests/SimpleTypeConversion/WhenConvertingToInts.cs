@@ -21,7 +21,7 @@
         public void ShouldMapAByteToAnInt()
         {
             var source = new PublicProperty<byte> { Value = 32 };
-            var target = Mapper.Map(source).ToNew<PublicField<int>>();
+            var target = Mapper.Map(source).ToANew<PublicField<int>>();
 
             target.Value.ShouldBe(source.Value);
         }
@@ -30,7 +30,7 @@
         public void ShouldMapAShortToAnInt()
         {
             var source = new PublicProperty<short> { Value = 987 };
-            var result = Mapper.Map(source).ToNew<PublicField<int>>();
+            var result = Mapper.Map(source).ToANew<PublicField<int>>();
 
             result.Value.ShouldBe(source.Value);
         }
@@ -39,7 +39,7 @@
         public void ShouldMapALongToAnInt()
         {
             var source = new PublicField<long> { Value = 3215663 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
 
             result.Value.ShouldBe(source.Value);
         }
@@ -48,7 +48,7 @@
         public void ShouldMapAnUnsignedIntToAnInt()
         {
             var source = new PublicField<uint> { Value = 32156 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
 
             result.Value.ShouldBe(source.Value);
         }
@@ -57,7 +57,7 @@
         public void ShouldMapAnInRangeUnsignedLongToAnInt()
         {
             var source = new PublicField<ulong> { Value = 9292726 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
 
             result.Value.ShouldBe(source.Value);
         }
@@ -66,7 +66,7 @@
         public void ShouldMapAnInRangeUnsignedLongToANullableInt()
         {
             var source = new PublicField<ulong> { Value = 9383625 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int?>>();
 
             result.Value.ShouldBe((int)source.Value);
         }
@@ -75,7 +75,7 @@
         public void ShouldMapATooBigUnsignedLongToAnInt()
         {
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -84,7 +84,7 @@
         public void ShouldMapATooBigUnsignedLongToANullableInt()
         {
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -93,7 +93,7 @@
         public void ShouldMapAnInRangeWholeNumberFloatOverAnInt()
         {
             var source = new PublicField<float> { Value = 8532.00f };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
 
             result.Value.ShouldBe(source.Value);
         }
@@ -102,7 +102,7 @@
         public void ShouldMapAnInRangeNonWholeNumberNullableFloatToANullableInt()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
-            var result = Mapper.Map(source).ToNew<PublicField<int?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<int?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -129,7 +129,7 @@
         public void ShouldMapAnInRangeWholeNumberDecimalToANullableInt()
         {
             var source = new PublicGetMethod<decimal>(53632.00m);
-            var result = Mapper.Map(source).ToNew<PublicProperty<int?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int?>>();
 
             result.Value.ShouldBe((int)source.GetValue());
         }
@@ -156,7 +156,7 @@
         public void ShouldMapAnInRangeWholeNumberDoubleToAnInt()
         {
             var source = new PublicField<double> { Value = 63728 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
 
             result.Value.ShouldBe(source.Value);
         }
@@ -192,7 +192,7 @@
         public void ShouldMapACharacterToAnInt()
         {
             var source = new PublicProperty<char> { Value = '4' };
-            var result = Mapper.Map(source).ToNew<PublicField<int>>();
+            var result = Mapper.Map(source).ToANew<PublicField<int>>();
 
             result.Value.ShouldBe(4);
         }
@@ -201,7 +201,7 @@
         public void ShouldMapAnUnparsableNullableCharacterToAnInt()
         {
             var source = new PublicProperty<char?> { Value = 'h' };
-            var result = Mapper.Map(source).ToNew<PublicField<int>>();
+            var result = Mapper.Map(source).ToANew<PublicField<int>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -239,7 +239,7 @@
         public void ShouldMapAnUnparsableStringToAnInt()
         {
             var source = new PublicProperty<string> { Value = "BAGPUSS" };
-            var result = Mapper.Map(source).ToNew<PublicField<int>>();
+            var result = Mapper.Map(source).ToANew<PublicField<int>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -257,7 +257,7 @@
         public void ShouldMapAnUnparsableStringToANullableInt()
         {
             var source = new PublicProperty<string> { Value = "BAGTASTIC" };
-            var result = Mapper.Map(source).ToNew<PublicField<int?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<int?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -266,7 +266,7 @@
         public void ShouldMapAStringEnumerableToAnIntEnumerable()
         {
             IEnumerable<string> source = new[] { "1", "2", "3" };
-            var result = Mapper.Map(source).ToNew<IEnumerable<int>>();
+            var result = Mapper.Map(source).ToANew<IEnumerable<int>>();
 
             result.ShouldBe(1, 2, 3);
         }

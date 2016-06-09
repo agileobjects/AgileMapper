@@ -29,7 +29,7 @@
         public void ShouldMapAShortToADecimal()
         {
             var source = new PublicProperty<short> { Value = 9287 };
-            var result = Mapper.Map(source).ToNew<PublicField<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicField<decimal>>();
 
             result.Value.ShouldBe(9287);
         }
@@ -38,7 +38,7 @@
         public void ShouldMapAnIntToADecimal()
         {
             var source = new PublicField<int> { Value = 32156 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<decimal>>();
 
             result.Value.ShouldBe(32156);
         }
@@ -47,7 +47,7 @@
         public void ShouldMapAnUnsignedIntToADecimal()
         {
             var source = new PublicField<uint> { Value = 32658 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<decimal>>();
 
             result.Value.ShouldBe(32658);
         }
@@ -55,7 +55,7 @@
         public void ShouldMapALongToADecimal()
         {
             var source = new PublicField<long> { Value = 3156 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<decimal>>();
 
             result.Value.ShouldBe(3156);
         }
@@ -64,7 +64,7 @@
         public void ShouldMapAnUnsignedLongToADecimal()
         {
             var source = new PublicField<ulong> { Value = 9292726 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<decimal>>();
 
             result.Value.ShouldBe(9292726);
         }
@@ -73,7 +73,7 @@
         public void ShouldMapAnUnsignedLongToANullableDecimal()
         {
             var source = new PublicField<ulong> { Value = 9383625 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<decimal?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<decimal?>>();
 
             result.Value.ShouldBe(9383625);
         }
@@ -82,7 +82,7 @@
         public void ShouldMapAWholeNumberFloatOverADecimal()
         {
             var source = new PublicField<float> { Value = 8532.00f };
-            var result = Mapper.Map(source).ToNew<PublicProperty<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<decimal>>();
 
             result.Value.ShouldBe(8532);
         }
@@ -91,7 +91,7 @@
         public void ShouldMapANonWholeNumberNullableFloatToANullableDecimal()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
-            var result = Mapper.Map(source).ToNew<PublicField<decimal?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<decimal?>>();
 
             result.Value.ShouldBe(73.62);
         }
@@ -100,7 +100,7 @@
         public void ShouldMapATooBigWholeNumberFloatToANullableDecimal()
         {
             var source = new PublicProperty<float> { Value = float.MaxValue };
-            var result = Mapper.Map(source).ToNew<PublicField<decimal?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<decimal?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -109,7 +109,7 @@
         public void ShouldMapATooSmallWholeNumberFloatToANullableDecimal()
         {
             var source = new PublicProperty<float> { Value = float.MinValue };
-            var result = Mapper.Map(source).ToNew<PublicField<decimal?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<decimal?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -118,7 +118,7 @@
         public void ShouldMapAWholeNumberDecimalToANullableDecimal()
         {
             var source = new PublicGetMethod<decimal>(5332.00m);
-            var result = Mapper.Map(source).ToNew<PublicProperty<decimal?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<decimal?>>();
 
             result.Value.ShouldBe(5332);
         }
@@ -136,7 +136,7 @@
         public void ShouldMapAnInRangeWholeNumberDoubleToADecimal()
         {
             var source = new PublicField<double> { Value = 637128 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<decimal>>();
 
             result.Value.ShouldBe(637128);
         }
@@ -172,7 +172,7 @@
         public void ShouldMapACharacterToANullableDecimal()
         {
             var source = new PublicProperty<char> { Value = '3' };
-            var result = Mapper.Map(source).ToNew<PublicField<decimal?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<decimal?>>();
 
             result.Value.ShouldBe(3);
         }
@@ -181,7 +181,7 @@
         public void ShouldMapAnUnparsableCharacterToADecimal()
         {
             var source = new PublicProperty<char> { Value = 'g' };
-            var result = Mapper.Map(source).ToNew<PublicField<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicField<decimal>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -208,7 +208,7 @@
         public void ShouldMapAnUnparsableStringToADecimal()
         {
             var source = new PublicProperty<string> { Value = "GIBLETS" };
-            var result = Mapper.Map(source).ToNew<PublicField<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicField<decimal>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -226,7 +226,7 @@
         public void ShouldMapAnUnparsableStringToANullableDecimal()
         {
             var source = new PublicProperty<string> { Value = "PFFFFFT" };
-            var result = Mapper.Map(source).ToNew<PublicField<decimal?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<decimal?>>();
 
             result.Value.ShouldBeNull();
         }

@@ -13,7 +13,7 @@
         [Fact]
         public void ShouldUseAConfiguredFactoryForAGivenType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .InstancesOf<Address>()
@@ -32,7 +32,7 @@
         [Fact]
         public void ShouldUseAConfiguredFactoryForASpecifiedSourceAndTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<CustomerViewModel>()
@@ -40,12 +40,12 @@
                     .CreateInstancesUsing(ctx => new CustomerCtor((decimal)ctx.Source.Discount / 2));
 
                 var nonMatchingSource = new PersonViewModel();
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<CustomerCtor>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<CustomerCtor>();
 
                 nonMatchingResult.Discount.ShouldBeDefault();
 
                 var matchingSource = new CustomerViewModel { Discount = 10 };
-                var matchingResult = mapper.Map(matchingSource).ToNew<CustomerCtor>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<CustomerCtor>();
 
                 matchingResult.Discount.ShouldBe(5);
             }
@@ -54,7 +54,7 @@
         [Fact]
         public void ShouldUseAConfiguredFactoryForASpecifiedSourceAndTargetTypeConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<CustomerViewModel>()
@@ -66,12 +66,12 @@
                     });
 
                 var nonMatchingSource = new CustomerViewModel { Discount = 0 };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicField<List<int>>>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<List<int>>>();
 
                 nonMatchingResult.Value.ShouldBeNull();
 
                 var matchingSource = new CustomerViewModel { Discount = 10 };
-                var matchingResult = mapper.Map(matchingSource).ToNew<PublicField<List<int>>>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<List<int>>>();
 
                 matchingResult.Value.ShouldNotBeNull();
                 matchingResult.Value.ShouldHaveSingleItem();
@@ -82,7 +82,7 @@
         [Fact]
         public void ShouldUseConfiguredFactoriesForASpecifiedSourceAndTargetTypeConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -102,14 +102,14 @@
                     });
 
                 var unconditionalFactorySource = new CustomerViewModel { Name = "Steve", Discount = 0 };
-                var unconditionalFactoryResult = mapper.Map(unconditionalFactorySource).ToNew<PublicField<ICollection<string>>>();
+                var unconditionalFactoryResult = mapper.Map(unconditionalFactorySource).ToANew<PublicField<ICollection<string>>>();
 
                 unconditionalFactoryResult.Value.ShouldNotBeNull();
                 unconditionalFactoryResult.Value.ShouldHaveSingleItem();
                 unconditionalFactoryResult.Value.First().ShouldBe("Steve");
 
                 var conditionalFactorySource = new CustomerViewModel { Name = "Alex", Discount = 1 };
-                var conditionalFactoryResult = mapper.Map(conditionalFactorySource).ToNew<PublicField<ICollection<string>>>();
+                var conditionalFactoryResult = mapper.Map(conditionalFactorySource).ToANew<PublicField<ICollection<string>>>();
 
                 conditionalFactoryResult.Value.ShouldNotBeNull();
                 conditionalFactoryResult.Value.ShouldHaveSingleItem();
@@ -120,7 +120,7 @@
         [Fact]
         public void ShouldUseAConfiguredFactoryWithAnObjectInitialiser()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -131,7 +131,7 @@
                     });
 
                 var source = new Person { Address = new Address { Line1 = "Here", Line2 = "There" } };
-                var result = mapper.Map(source).ToNew<PublicReadOnlyProperty<Address>>();
+                var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<Address>>();
 
                 result.Value.Line1.ShouldBe("Here");
                 result.Value.Line2.ShouldBe("There");
@@ -141,7 +141,7 @@
         [Fact]
         public void ShouldUseAConfiguredFactoryWithAnListInitialiser()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -152,7 +152,7 @@
                     });
 
                 var source = new Person { Id = Guid.NewGuid(), Name = "Giles" };
-                var result = mapper.Map(source).ToNew<PublicReadOnlyProperty<List<string>>>();
+                var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<List<string>>>();
 
                 result.Value.ShouldBe(source.Id.ToString(), "Giles");
             }
@@ -162,7 +162,7 @@
         [Fact]
         public void ShouldUseAConfiguredFactoryForASpecifiedSourceAndTargetTypeInARootEnumerable()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -179,7 +179,7 @@
                     });
 
                 var source = new[] { new PersonViewModel(), new CustomerViewModel { Discount = 5 } };
-                var result = mapper.Map(source).ToNew<Person[]>();
+                var result = mapper.Map(source).ToANew<Person[]>();
 
                 var customer = result.Second() as CustomerCtor;
                 customer.ShouldNotBeNull();
@@ -194,7 +194,7 @@
         {
             Assert.Throws<MappingException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .From<Person>()
@@ -204,7 +204,7 @@
                             Value = { ctx.Source.Id.ToString(), ctx.Source.Name }
                         });
 
-                    mapper.Map(new Person()).ToNew<PublicProperty<List<string>>>();
+                    mapper.Map(new Person()).ToANew<PublicProperty<List<string>>>();
                 }
             });
         }

@@ -10,7 +10,7 @@
         [Fact]
         public void ShouldConfigureGlobalExceptionSwallowing()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -21,7 +21,7 @@
                     .CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("BANG"); });
 
-                var result = mapper.Map(new Person()).ToNew<PersonViewModel>();
+                var result = mapper.Map(new Person()).ToANew<PersonViewModel>();
 
                 result.ShouldBeNull();
             }
@@ -30,7 +30,7 @@
         [Fact]
         public void ShouldConfigureAGlobalCallback()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var thrownException = default(Exception);
 
@@ -43,7 +43,7 @@
                     .CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("BOOM"); });
 
-                mapper.Map(new Person()).ToNew<PersonViewModel>();
+                mapper.Map(new Person()).ToANew<PersonViewModel>();
 
                 thrownException.ShouldNotBeNull();
                 thrownException.Message.ShouldBe("BOOM");
@@ -54,7 +54,7 @@
         [Fact]
         public void ShouldRestrictExceptionSwallowingByTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -67,16 +67,16 @@
                     .Call(ctx => { throw new InvalidOperationException("CRUNCH"); });
 
                 Assert.Throws<MappingException>(() =>
-                    mapper.Map(new PersonViewModel()).ToNew<Person>());
+                    mapper.Map(new PersonViewModel()).ToANew<Person>());
 
-                mapper.Map(new Person()).ToNew<PersonViewModel>();
+                mapper.Map(new Person()).ToANew<PersonViewModel>();
             }
         }
 
         [Fact]
         public void ShouldRestrictACallbackByTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var thrownException = default(Exception);
 
@@ -90,9 +90,9 @@
                     .CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("ASPLODE"); });
 
-                ShouldNotCallCallback(() => mapper.Map(new PersonViewModel()).ToNew<Person>(), ref thrownException);
+                ShouldNotCallCallback(() => mapper.Map(new PersonViewModel()).ToANew<Person>(), ref thrownException);
 
-                mapper.Map(new Person()).ToNew<PersonViewModel>();
+                mapper.Map(new Person()).ToANew<PersonViewModel>();
 
                 thrownException.ShouldNotBeNull();
                 thrownException.Message.ShouldBe("ASPLODE");
@@ -102,7 +102,7 @@
         [Fact]
         public void ShouldRestrictExceptionSwallowingBySourceAndTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -116,19 +116,19 @@
                     .Call(ctx => { throw new InvalidOperationException("BSOD"); });
 
                 Assert.Throws<MappingException>(() =>
-                    mapper.Map(new Customer()).ToNew<Person>());
+                    mapper.Map(new Customer()).ToANew<Person>());
 
                 Assert.Throws<MappingException>(() =>
-                    mapper.Map(new Person()).ToNew<PersonViewModel>());
+                    mapper.Map(new Person()).ToANew<PersonViewModel>());
 
-                mapper.Map(new PersonViewModel()).ToNew<Person>();
+                mapper.Map(new PersonViewModel()).ToANew<Person>();
             }
         }
 
         [Fact]
         public void ShouldRestrictACallbackBySourceAndTargetType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var thrownException = default(Exception);
 
@@ -144,14 +144,14 @@
                     .Call(ctx => { throw new InvalidOperationException("WALLOP"); });
 
                 ShouldNotCallCallback(
-                    () => mapper.Map(new Customer()).ToNew<Person>(),
+                    () => mapper.Map(new Customer()).ToANew<Person>(),
                     ref thrownException);
 
                 ShouldNotCallCallback(
-                    () => mapper.Map(new Person()).ToNew<PersonViewModel>(),
+                    () => mapper.Map(new Person()).ToANew<PersonViewModel>(),
                     ref thrownException);
 
-                mapper.Map(new PersonViewModel()).ToNew<Person>();
+                mapper.Map(new PersonViewModel()).ToANew<Person>();
 
                 thrownException.ShouldNotBeNull();
                 thrownException.Message.ShouldBe("WALLOP");

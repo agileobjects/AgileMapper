@@ -5,7 +5,7 @@
 
     public sealed class Mapper : IMapper
     {
-        private static readonly IMapper _default = Create();
+        private static readonly IMapper _default = CreateNew();
 
         private readonly MapperContext _mapperContext;
 
@@ -16,7 +16,7 @@
 
         #region Factory Methods
 
-        public static IMapper Create()
+        public static IMapper CreateNew()
         {
             return new Mapper(new MapperContext());
         }
@@ -51,7 +51,7 @@
 
         MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(_mapperContext);
 
-        TSource IMapper.Clone<TSource>(TSource source) => Map(source).ToNew<TSource>();
+        TSource IMapper.Clone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
 
         TargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
         {

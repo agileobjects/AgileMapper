@@ -12,7 +12,7 @@
             var sourceParent = new Parent { EldestChild = new Child() };
             sourceParent.EldestChild.EldestParent = sourceParent;
 
-            var result = Mapper.Map(sourceParent).ToNew<Parent>();
+            var result = Mapper.Map(sourceParent).ToANew<Parent>();
 
             result.EldestChild.ShouldNotBeNull();
             result.EldestChild.EldestParent.ShouldBeSameAs(result);

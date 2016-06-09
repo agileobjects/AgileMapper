@@ -10,7 +10,7 @@
         public void ShouldMapAByteToAnEnum()
         {
             var source = new PublicField<byte> { Value = (byte)Title.Dr };
-            var result = Mapper.Map(source).ToNew<PublicField<Title>>();
+            var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
             result.Value.ShouldBe(Title.Dr);
         }
@@ -19,7 +19,7 @@
         public void ShouldMapAShortToAnEnum()
         {
             var source = new PublicField<short> { Value = (short)Title.Miss };
-            var result = Mapper.Map(source).ToNew<PublicField<Title>>();
+            var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
             result.Value.ShouldBe(Title.Miss);
         }
@@ -28,7 +28,7 @@
         public void ShouldMapANullableIntToAnEnum()
         {
             var source = new PublicProperty<int?> { Value = (int)Title.Lady };
-            var result = Mapper.Map(source).ToNew<PublicField<Title>>();
+            var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
             result.Value.ShouldBe(Title.Lady);
         }
@@ -37,7 +37,7 @@
         public void ShouldMapAnIntToAnEnum()
         {
             var source = new PublicProperty<int> { Value = (int)Title.Dr };
-            var result = Mapper.Map(source).ToNew<PublicField<Title>>();
+            var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
             result.Value.ShouldBe((Title)source.Value);
         }
@@ -46,7 +46,7 @@
         public void ShouldMapANullNullableIntToAnEnum()
         {
             var source = new PublicProperty<int?> { Value = null };
-            var result = Mapper.Map(source).ToNew<PublicField<TitleShortlist>>();
+            var result = Mapper.Map(source).ToANew<PublicField<TitleShortlist>>();
 
             result.Value.ShouldBeDefault();
         }
@@ -55,7 +55,7 @@
         public void ShouldMapALongToAnEnum()
         {
             var source = new PublicProperty<long> { Value = (long)Title.Miss };
-            var result = Mapper.Map(source).ToNew<PublicField<Title>>();
+            var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
             result.Value.ShouldBe((Title)source.Value);
         }
@@ -64,7 +64,7 @@
         public void ShouldMapANonMatchingNullableLongToANullableEnum()
         {
             var source = new PublicProperty<long?> { Value = (long)Title.Earl };
-            var result = Mapper.Map(source).ToNew<PublicField<TitleShortlist?>>();
+            var result = Mapper.Map(source).ToANew<PublicField<TitleShortlist?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -136,7 +136,7 @@
         public void ShouldMapANonMatchingStringToANullableEnum()
         {
             var source = new PublicProperty<string> { Value = "ytej" };
-            var result = Mapper.Map(source).ToNew<PublicProperty<Title?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<Title?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -145,7 +145,7 @@
         public void ShouldMapAnEnumToAnEnum()
         {
             var source = new PublicProperty<TitleShortlist> { Value = TitleShortlist.Mrs };
-            var result = Mapper.Map(source).ToNew<PublicProperty<Title>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<Title>>();
 
             result.Value.ShouldBe(Title.Mrs);
         }
@@ -154,7 +154,7 @@
         public void ShouldMapANonMatchingEnumToANullableEnum()
         {
             var source = new PublicProperty<Title> { Value = Title.Lord };
-            var result = Mapper.Map(source).ToNew<PublicProperty<TitleShortlist?>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<TitleShortlist?>>();
 
             result.Value.ShouldBeNull();
         }
@@ -163,7 +163,7 @@
         public void ShouldMapANullNullableEnumToAnEnum()
         {
             var source = new PublicProperty<Title?> { Value = null };
-            var result = Mapper.Map(source).ToNew<PublicProperty<Title>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<Title>>();
 
             result.Value.ShouldBeDefault();
         }

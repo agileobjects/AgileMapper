@@ -17,7 +17,7 @@
                 }
             };
 
-            var result = Mapper.Map(source).ToNew<Person>();
+            var result = Mapper.Map(source).ToANew<Person>();
 
             result.Address.ShouldNotBeNull();
             result.Address.ShouldNotBe(source.Address);
@@ -29,7 +29,7 @@
         {
             var source = new Person { Name = "Freddie" };
 
-            var result = Mapper.Map(source).ToNew<Person>();
+            var result = Mapper.Map(source).ToANew<Person>();
 
             result.Name.ShouldBe(source.Name);
             result.Address.ShouldBeNull();
@@ -40,7 +40,7 @@
         {
             var source = new { Hello = "There" };
 
-            var result = Mapper.Map(source).ToNew<Customer>();
+            var result = Mapper.Map(source).ToANew<Customer>();
 
             result.Address.ShouldNotBeNull();
         }
@@ -49,7 +49,7 @@
         public void ShouldHandleAnUnconstructableType()
         {
             var source = new { Value = new { Hello = "There" } };
-            var result = Mapper.Map(source).ToNew<PublicSetMethod<PublicCtor<string>>>();
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<PublicCtor<string>>>();
 
             result.ShouldNotBeNull();
             result.Value.ShouldBeNull();
@@ -58,7 +58,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpression()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -67,7 +67,7 @@
                     .To(x => x.Address.Line1);
 
                 var source = new PersonViewModel { Name = "Fred", AddressLine1 = "Lala Land" };
-                var result = mapper.Map(source).ToNew<Person>();
+                var result = mapper.Map(source).ToANew<Person>();
 
                 result.Address.Line1.ShouldBe("Fred, Lala Land");
             }

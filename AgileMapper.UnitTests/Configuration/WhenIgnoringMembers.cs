@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldIgnoreAConfiguredMember()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .Ignore(x => x.Name);
 
                 var source = new PersonViewModel { Name = "Jon" };
-                var result = mapper.Map(source).ToNew<Person>();
+                var result = mapper.Map(source).ToANew<Person>();
 
                 result.Name.ShouldBeNull();
             }
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldIgnoreAConfiguredMemberInARootCollection()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldConditionallyIgnoreAConfiguredMember()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -57,12 +57,12 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .Ignore(x => x.Name);
 
                 var matchingSource = new PersonViewModel { Name = "Bilbo" };
-                var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
 
                 matchingResult.Name.ShouldBeNull();
 
                 var nonMatchingSource = new PersonViewModel { Name = "Frodo" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Person>();
 
                 nonMatchingResult.Name.ShouldBe("Frodo");
             }
@@ -71,7 +71,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldConditionallyIgnoreAConfiguredMemberInACollection()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -85,7 +85,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     new PersonViewModel { Name = "Frodo" }
                 };
 
-                var result = mapper.Map(source).ToNew<IEnumerable<Person>>();
+                var result = mapper.Map(source).ToANew<IEnumerable<Person>>();
 
                 result.Count().ShouldBe(2);
 
@@ -97,7 +97,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldConditionallyIgnoreAConfiguredMemberByEnumerableElement()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicProperty<int>>()
@@ -111,7 +111,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     new PublicProperty<int> { Value = 456 }
                 };
 
-                var result = mapper.Map(source).ToNew<IEnumerable<PublicProperty<string>>>();
+                var result = mapper.Map(source).ToANew<IEnumerable<PublicProperty<string>>>();
 
                 result.Count().ShouldBe(2);
 
@@ -125,7 +125,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper
                         .WhenMapping
@@ -145,7 +145,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldNotErrorIfRedundantConditionalIgnoreConflictsWithIgnore()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -165,7 +165,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldNotErrorIfRedundantIgnoreConflictsWithConditionalIgnore()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -187,7 +187,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper
                         .WhenMapping
@@ -208,7 +208,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldNotErrorIfSamePathIgnoredMembersHaveDifferentSourceTypes()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping
@@ -227,7 +227,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldNotErrorIfSamePathIgnoredMembersHaveDifferentTargetTypes()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper
                     .WhenMapping

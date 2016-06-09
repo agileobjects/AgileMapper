@@ -13,7 +13,7 @@
         public void ShouldMapAGuidToAString()
         {
             var source = new PublicProperty<Guid> { Value = Guid.NewGuid() };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe(source.Value.ToString());
         }
@@ -22,7 +22,7 @@
         public void ShouldMapADateTimeToAString()
         {
             var source = new PublicProperty<DateTime> { Value = DateTime.Now };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe(source.Value.ToString(CultureInfo.CurrentCulture));
         }
@@ -31,7 +31,7 @@
         public void ShouldMapAByteToAString()
         {
             var source = new PublicProperty<byte> { Value = 200 };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe("200");
         }
@@ -40,7 +40,7 @@
         public void ShouldMapASignedByteToAString()
         {
             var source = new PublicProperty<sbyte> { Value = -16 };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe("-16");
         }
@@ -53,7 +53,7 @@
             var base64Bytes = Convert.FromBase64String(base64String);
 
             var source = new PublicProperty<byte[]> { Value = base64Bytes };
-            var result = Mapper.Map(source).ToNew<PublicSetMethod<string>>();
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBe(base64String);
         }
@@ -62,7 +62,7 @@
         public void ShouldMapANullByteArrayToNull()
         {
             var source = new PublicProperty<byte[]> { Value = null };
-            var result = Mapper.Map(source).ToNew<PublicSetMethod<string>>();
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBeNull();
         }
@@ -81,7 +81,7 @@
         public void ShouldMapAShortToAString()
         {
             var source = new PublicProperty<short> { Value = 638 };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe("638");
         }
@@ -90,7 +90,7 @@
         public void ShouldMapAnIntToAString()
         {
             var source = new PublicProperty<int> { Value = 63738 };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe("63738");
         }
@@ -99,7 +99,7 @@
         public void ShouldMapAFloatToAString()
         {
             var source = new PublicProperty<float> { Value = 389.2832f };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe("389.2832");
         }
@@ -117,7 +117,7 @@
         public void ShouldMapALongToAString()
         {
             var source = new PublicProperty<long> { Value = 63738 };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe("63738");
         }
@@ -135,7 +135,7 @@
         public void ShouldMapADecimalToAString()
         {
             var source = new PublicProperty<decimal> { Value = 7638.27282m };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe("7638.27282");
         }
@@ -153,7 +153,7 @@
         public void ShouldMapADoubleToAString()
         {
             var source = new PublicProperty<double> { Value = 56473.92 };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.Value.ShouldBe("56473.92");
         }
@@ -162,7 +162,7 @@
         public void ShouldMapANullableDoubleToAString()
         {
             var source = new PublicProperty<double?> { Value = 91887.8167473 };
-            var result = Mapper.Map(source).ToNew<PublicSetMethod<string>>();
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBe("91887.8167473");
         }
@@ -171,7 +171,7 @@
         public void ShouldMapANullNullableDoubleToAString()
         {
             var source = new PublicProperty<double?> { Value = null };
-            var result = Mapper.Map(source).ToNew<PublicSetMethod<string>>();
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBeNull();
         }

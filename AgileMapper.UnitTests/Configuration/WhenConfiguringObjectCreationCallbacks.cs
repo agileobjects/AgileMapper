@@ -14,7 +14,7 @@
         [Fact]
         public void ShouldCallAGlobalObjectCreatedCallback()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var createdInstance = default(PublicProperty<int>);
 
@@ -23,7 +23,7 @@
                     .Call(ctx => createdInstance = (PublicProperty<int>)ctx.CreatedObject);
 
                 var source = new PublicField<int>();
-                var result = mapper.Map(source).ToNew<PublicProperty<int>>();
+                var result = mapper.Map(source).ToANew<PublicProperty<int>>();
 
                 createdInstance.ShouldNotBeNull();
                 createdInstance.ShouldBe(result);
@@ -35,13 +35,13 @@
         {
             Assert.Throws<MappingException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.After
                         .CreatingInstances
                         .Call(ctx => { throw new InvalidOperationException(); });
 
-                    mapper.Map(new PublicProperty<int>()).ToNew<PublicField<int>>();
+                    mapper.Map(new PublicProperty<int>()).ToANew<PublicField<int>>();
                 }
             });
         }
@@ -51,14 +51,14 @@
         {
             Assert.Throws<MappingException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper
                         .After
                         .CreatingInstancesOf<Address>()
                         .Call(ctx => { throw new InvalidOperationException("OH NO"); });
 
-                    mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToNew<Person>();
+                    mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToANew<Person>();
                 }
             });
         }
@@ -66,7 +66,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackForASpecifiedType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var createdPerson = default(Person);
 
@@ -75,13 +75,13 @@
                     .Call((s, t, o) => createdPerson = o);
 
                 var nonMatchingSource = new { Value = "12345" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PublicProperty<int>>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<int>>();
 
                 createdPerson.ShouldBeDefault();
                 nonMatchingResult.Value.ShouldBe(12345);
 
                 var matchingSource = new Person { Name = "Alex" };
-                var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
 
                 createdPerson.ShouldNotBeNull();
                 createdPerson.ShouldBe(matchingResult);
@@ -91,7 +91,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceAndTargetTypes()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var createdPerson = default(Person);
 
@@ -103,13 +103,13 @@
                     .Call(ctx => createdPerson = ctx.CreatedObject);
 
                 var nonMatchingSource = new { Name = "Harry" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Person>();
 
                 createdPerson.ShouldBeNull();
                 nonMatchingResult.Name.ShouldBe("Harry");
 
                 var matchingSource = new PersonViewModel { Name = "Tom" };
-                var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
 
                 createdPerson.ShouldNotBeNull();
                 createdPerson.ShouldBe(matchingResult);
@@ -119,7 +119,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceTargetAndCreatedTypes()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var createdAddress = default(Address);
 
@@ -131,13 +131,13 @@
                     .Call(ctx => createdAddress = ctx.CreatedObject);
 
                 var nonMatchingSource = new { Address = new Address { Line1 = "Blah" } };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<Person>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Person>();
 
                 createdAddress.ShouldBeNull();
                 nonMatchingResult.Address.Line1.ShouldBe("Blah");
 
                 var matchingSource = new PersonViewModel { AddressLine1 = "Bleh" };
-                var matchingResult = mapper.Map(matchingSource).ToNew<Person>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
 
                 createdAddress.ShouldNotBeNull();
                 createdAddress.ShouldBe(matchingResult.Address);
@@ -148,7 +148,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackWithASourceObject()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -176,7 +176,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var createdInstanceTypes = new List<Type>();
 
@@ -188,12 +188,12 @@
                     .Call(ctx => createdInstanceTypes.Add(ctx.CreatedObject.GetType()));
 
                 var source = new { Name = "Homer", AddressLine1 = "Springfield" };
-                var nonMatchingResult = mapper.Map(source).ToNew<PersonViewModel>();
+                var nonMatchingResult = mapper.Map(source).ToANew<PersonViewModel>();
 
                 createdInstanceTypes.ShouldBeEmpty();
                 nonMatchingResult.Name.ShouldBe("Homer");
 
-                var matchingResult = mapper.Map(source).ToNew<Person>();
+                var matchingResult = mapper.Map(source).ToANew<Person>();
 
                 createdInstanceTypes.ShouldBe(new[] { typeof(Address) });
                 matchingResult.Name.ShouldBe("Homer");
@@ -203,7 +203,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackWithASourceObject()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -213,12 +213,12 @@
                     .Call(ctx => ctx.Source.Name += $"! {ctx.Source.Name}!");
 
                 var nonMatchingSource = new { Name = "Lester" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToNew<PersonViewModel>();
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PersonViewModel>();
 
                 nonMatchingResult.Name.ShouldBe("Lester");
 
                 var matchingSource = new Person { Name = "Carolin" };
-                var matchingResult = mapper.Map(matchingSource).ToNew<PersonViewModel>();
+                var matchingResult = mapper.Map(matchingSource).ToANew<PersonViewModel>();
 
                 matchingResult.Name.ShouldBe("Carolin! Carolin!");
             }
@@ -227,7 +227,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackWithASourceAndTargetConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -259,7 +259,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackInARootEnumerableConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var createdAddressesByIndex = new Dictionary<int, string>();
 
@@ -278,7 +278,7 @@
                     new PersonViewModel { AddressLine1 = "Two!" }
                 };
 
-                var result = mapper.Map(source).ToNew<Person[]>();
+                var result = mapper.Map(source).ToANew<Person[]>();
 
                 result.Select(p => p.Address.Line1).ShouldBe("Zero!", "One!", "Two!");
 
@@ -291,7 +291,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackInAMemberEnumerable()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var sourceObjectTypesByIndex = new Dictionary<int, Type>();
 
@@ -303,7 +303,7 @@
                     .Call((p, pvm, i) => sourceObjectTypesByIndex[i.GetValueOrDefault()] = p.GetType());
 
                 var source = new[] { new Person(), new Customer() };
-                var result = mapper.Map(source).ToNew<ICollection<PersonViewModel>>();
+                var result = mapper.Map(source).ToANew<ICollection<PersonViewModel>>();
 
                 result.Count.ShouldBe(2);
                 sourceObjectTypesByIndex.ShouldContainKeyAndValue(0, typeof(Person));
@@ -314,7 +314,7 @@
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackInAMemberCollectionConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var sourceAddressesByIndex = new Dictionary<int, Address>();
 
@@ -354,7 +354,7 @@
         [Fact]
         public void ShouldCallGlobalObjectCreatingAndObjectCreatedCallbacks()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var preCallbackObjects = new List<object>();
                 var postCallbackObjects = new List<object>();
@@ -370,7 +370,7 @@
                     .Call((s, t) => postCallbackObjects.AddRange(new[] { s, t }));
 
                 var source = new Person();
-                var result = mapper.Map(source).ToNew<PersonViewModel>();
+                var result = mapper.Map(source).ToANew<PersonViewModel>();
 
                 preCallbackObjects.ShouldNotBeEmpty();
                 preCallbackObjects.ShouldBe(source, default(PersonViewModel));
@@ -383,7 +383,7 @@
         [Fact]
         public void ShouldCallObjectCreatingAndObjectCreatedCallbacksForSpecifedTypesConditionally()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 var preCallbackObjects = new List<object>();
                 var postCallbackObjects = new List<object>();

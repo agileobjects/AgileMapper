@@ -10,7 +10,7 @@
         public void ShouldCreateAResultObjectViaADefaultConstructor()
         {
             var source = new PublicField<string>();
-            var result = Mapper.Map(source).ToNew<PublicProperty<string>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<string>>();
 
             result.ShouldNotBeNull();
         }
@@ -19,7 +19,7 @@
         public void ShouldCreateAResultObjectViaAParameterisedConstructor()
         {
             var source = new PublicGetMethod<string>("Barney");
-            var result = Mapper.Map(source).ToNew<PublicCtor<string>>();
+            var result = Mapper.Map(source).ToANew<PublicCtor<string>>();
 
             result.ShouldNotBeNull();
             result.Value.ShouldBe("Barney");
@@ -29,7 +29,7 @@
         public void ShouldConvertASimpleTypeConstructorArgument()
         {
             var source = new PublicGetMethod<string>("80.6537");
-            var result = Mapper.Map(source).ToNew<PublicCtor<decimal>>();
+            var result = Mapper.Map(source).ToANew<PublicCtor<decimal>>();
 
             result.Value.ShouldBe(80.6537);
         }
@@ -38,7 +38,7 @@
         public void ShouldMapFromAnAnonymousType()
         {
             var source = new { Value = "Hello there!" };
-            var result = Mapper.Map(source).ToNew<PublicProperty<string>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<string>>();
 
             result.Value.ShouldBe(source.Value);
         }
@@ -46,7 +46,7 @@
         [Fact]
         public void ShouldHandleANullSourceObject()
         {
-            var result = Mapper.Map(default(PublicProperty<int>)).ToNew<PublicField<int>>();
+            var result = Mapper.Map(default(PublicProperty<int>)).ToANew<PublicField<int>>();
 
             result.ShouldBeNull();
         }
@@ -65,7 +65,7 @@
         public void ShouldMapUsingInstanceCloneMethod()
         {
             var source = new Person { Name = "Maggie" };
-            var result = Mapper.Create().Clone(source);
+            var result = Mapper.CreateNew().Clone(source);
 
             result.ShouldNotBeSameAs(source);
             result.Name.ShouldBe("Maggie");
@@ -75,7 +75,7 @@
         public void ShouldCopyAnIntValue()
         {
             var source = new PublicField<int> { Value = 123 };
-            var result = Mapper.Map(source).ToNew<PublicProperty<int>>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
 
             result.ShouldNotBeNull();
             result.Value.ShouldBe(123);
@@ -85,7 +85,7 @@
         public void ShouldCopyAStringValue()
         {
             var source = new PublicProperty<string> { Value = "Oi 'Arry!" };
-            var result = Mapper.Map(source).ToNew<PublicField<string>>();
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
             result.ShouldNotBeNull();
             result.Value.ShouldBe("Oi 'Arry!");

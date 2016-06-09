@@ -13,7 +13,7 @@
         public void ShouldCreateANewStringList()
         {
             var source = new PublicProperty<List<string>> { Value = new List<string> { "Hello", "There", "You" } };
-            var result = Mapper.Map(source).ToNew<PublicField<List<string>>>();
+            var result = Mapper.Map(source).ToANew<PublicField<List<string>>>();
 
             result.Value.ShouldNotBeNull();
             result.Value.ShouldNotBeSameAs(source.Value);
@@ -24,7 +24,7 @@
         public void ShouldCreateANewIntArray()
         {
             var source = new PublicField<int[]> { Value = new[] { 9, 8, 7, 6, 5 } };
-            var result = Mapper.Map(source).ToNew<PublicField<int[]>>();
+            var result = Mapper.Map(source).ToANew<PublicField<int[]>>();
 
             result.Value.ShouldNotBeNull();
             result.Value.ShouldNotBeSameAs(source.Value);
@@ -39,7 +39,7 @@
                 Value = new[] { new Person { Name = "Jack" }, new Person { Name = "Sparrow" } }
             };
 
-            var result = Mapper.Map(source).ToNew<PublicField<IEnumerable<PersonViewModel>>>();
+            var result = Mapper.Map(source).ToANew<PublicField<IEnumerable<PersonViewModel>>>();
 
             result.Value.ShouldNotBeNull();
             result.Value.ShouldBe(source.Value.Select(p => p.Name), pvm => pvm.Name);
@@ -72,7 +72,7 @@
                 }
             };
 
-            var result = Mapper.Map(source).ToNew<PublicField<List<PublicField<Collection<Person>>>>>();
+            var result = Mapper.Map(source).ToANew<PublicField<List<PublicField<Collection<Person>>>>>();
 
             result.Value.Count.ShouldBe(2);
 
@@ -89,7 +89,7 @@
         [Fact]
         public void ShouldApplyAConfiguredExpressionToAnEnumerable()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
@@ -98,7 +98,7 @@
                     .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = "8:7:6:5" };
-                var result = mapper.Map(source).ToNew<PublicField<int[]>>();
+                var result = mapper.Map(source).ToANew<PublicField<int[]>>();
 
                 result.Value.ShouldBe(8, 7, 6, 5);
             }
@@ -107,7 +107,7 @@
         [Fact]
         public void ShouldHandleANullSourceMemberInAConfiguredEnumerableSource()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
@@ -116,7 +116,7 @@
                     .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = null };
-                var result = mapper.Map(source).ToNew<PublicField<int[]>>();
+                var result = mapper.Map(source).ToANew<PublicField<int[]>>();
 
                 result.Value.ShouldBeDefault();
             }

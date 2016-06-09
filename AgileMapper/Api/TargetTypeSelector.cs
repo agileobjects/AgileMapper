@@ -11,7 +11,7 @@
             _mapperContext = mapperContext;
         }
 
-        public TResult ToNew<TResult>() where TResult : class
+        public TResult ToANew<TResult>() where TResult : class
             => PerformMapping(_mapperContext.RuleSets.CreateNew, default(TResult));
 
         public TTarget OnTo<TTarget>(TTarget existing) where TTarget : class

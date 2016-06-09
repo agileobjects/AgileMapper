@@ -13,7 +13,7 @@
         [Fact]
         public void ShouldCreateARootDerivedTargetFromADerivedSource()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -22,7 +22,7 @@
                     .To<CustomerViewModel>();
 
                 Person customer = new Customer();
-                var viewModelResult = mapper.Map(customer).ToNew<PersonViewModel>();
+                var viewModelResult = mapper.Map(customer).ToANew<PersonViewModel>();
 
                 viewModelResult.ShouldBeOfType<CustomerViewModel>();
             }
@@ -31,7 +31,7 @@
         [Fact]
         public void ShouldCreateAMemberDerivedTargetFromADerivedSourceMember()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<Person>()
@@ -50,7 +50,7 @@
         [Fact]
         public void ShouldCreateARootEnumerableDerivedTargetElementFromADerivedSourceElement()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -59,7 +59,7 @@
                     .To<Customer>();
 
                 var source = new[] { new PersonViewModel(), new CustomerViewModel() };
-                var result = mapper.Map(source).ToNew<ICollection<Person>>();
+                var result = mapper.Map(source).ToANew<ICollection<Person>>();
 
                 result.First().ShouldBeOfType<Person>();
                 result.Second().ShouldBeOfType<Customer>();
@@ -69,7 +69,7 @@
         [Fact]
         public void ShouldCreateADerivedTypeInAMemberEnumerableUsingRuntimeTypes()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -96,7 +96,7 @@
         [Fact]
         public void ShouldCreateADerivedTypeInAnExistingMemberEnumerableUsingRuntimeTypes()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PersonViewModel>()

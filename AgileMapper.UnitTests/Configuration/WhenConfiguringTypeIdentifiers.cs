@@ -14,7 +14,7 @@
         [Fact]
         public void ShouldUseAConfiguredIdentifier()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .InstancesOf<Person>()
@@ -42,7 +42,7 @@
         [Fact]
         public void ShouldUseAConfiguredIdentifierForADerivedType()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .InstancesOf<Person>()
@@ -63,7 +63,7 @@
         [Fact]
         public void ShouldUseAConfiguredIdentifierExpression()
         {
-            using (var mapper = Mapper.Create())
+            using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .InstancesOf<Person>()
@@ -93,7 +93,7 @@
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
-                using (var mapper = Mapper.Create())
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .InstancesOf<Person>()
