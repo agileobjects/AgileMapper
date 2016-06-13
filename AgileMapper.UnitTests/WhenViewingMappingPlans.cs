@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using Shouldly;
     using TestClasses;
@@ -37,6 +38,16 @@
 
             plan.ShouldContain("omc.Source.ForEach");
             plan.ShouldContain("instance.Add");
+        }
+
+        [Fact]
+        public void ShouldIncludeASimpleTypeMemberConversion()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicProperty<Guid>>()
+                .ToANew<PublicField<string>>();
+
+            plan.ShouldContain("omc.Source.Value.ToString(");
         }
     }
 }
