@@ -25,7 +25,12 @@
             .GetMethod("Exclude", Constants.PublicStatic);
 
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
-            .GetMethod("ForEach", Constants.PublicStatic);
+            .GetMethods(Constants.PublicStatic)
+            .First(m => m.Name == "ForEach");
+
+        private static readonly MethodInfo _forEachTupleMethod = typeof(EnumerableExtensions)
+            .GetMethods(Constants.PublicStatic)
+            .Last(m => m.Name == "ForEach");
 
         #endregion
 
@@ -255,16 +260,23 @@
 
         public Expression MapResultsToTarget()
         {
-            _population = GetForEachCall(_population, GetTupleElementMapping);
+            var typedForEachMethod = _forEachTupleMethod.MakeGenericMethod(_sourceElementType, _targetElementType);
+            var forEachActionType = Expression.GetActionType(_sourceElementType, _targetElementType, typeof(int));
+            var sourceElementParameter = Parameters.Create(_sourceElementType);
+            var targetElementParameter = Parameters.Create(_targetElementType);
+            var forEachAction = GetMapElementCall(sourceElementParameter, targetElementParameter);
+
+            var forEachLambda = Expression.Lambda(
+                forEachActionType,
+                forEachAction,
+                sourceElementParameter,
+                targetElementParameter,
+                Parameters.EnumerableIndex);
+
+            var forEachCall = Expression.Call(typedForEachMethod, _population, forEachLambda);
+
+            _population = forEachCall;
             return this;
-        }
-
-        private Expression GetTupleElementMapping(Expression tupleParameter)
-        {
-            var sourceObject = Expression.Property(tupleParameter, "Item1");
-            var existingObject = Expression.Property(tupleParameter, "Item2");
-
-            return GetMapElementCall(sourceObject, existingObject);
         }
 
         public Expression RemoveResultsFromTarget()
@@ -285,10 +297,10 @@
         {
             var elementType = subject.Type.GetEnumerableElementType();
             var typedForEachMethod = _forEachMethod.MakeGenericMethod(elementType);
-            var forEachActionType = Expression.GetActionType(elementType, typeof(int));
+            var forEachActionType = Expression.GetActionType(elementType);
             var parameter = Parameters.Create(elementType);
             var forEachAction = forEachActionFactory.Invoke(parameter);
-            var forEachLambda = Expression.Lambda(forEachActionType, forEachAction, parameter, Parameters.EnumerableIndex);
+            var forEachLambda = Expression.Lambda(forEachActionType, forEachAction, parameter);
             var forEachCall = Expression.Call(typedForEachMethod, subject, forEachLambda);
 
             return forEachCall;

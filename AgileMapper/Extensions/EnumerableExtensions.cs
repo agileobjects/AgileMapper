@@ -127,15 +127,27 @@
                 .ToDictionary(d => d.Id, d => d.Item);
         }
 
-        public static void ForEach<T>(this IEnumerable<T> items, Action<T, int> itemAction)
+        #region ForEach Overloads
+
+        public static void ForEach<T>(this IEnumerable<T> items, Action<T> itemAction)
+        {
+            foreach (var item in items)
+            {
+                itemAction.Invoke(item);
+            }
+        }
+
+        public static void ForEach<T1, T2>(this IEnumerable<Tuple<T1, T2>> items, Action<T1, T2, int> itemAction)
         {
             var i = 0;
 
-            foreach (var item in items)
+            foreach (var tuple in items)
             {
-                itemAction.Invoke(item, i++);
+                itemAction.Invoke(tuple.Item1, tuple.Item2, i++);
             }
         }
+
+        #endregion
 
         // With thanks to http://stackoverflow.com/questions/3093622/generating-all-possible-combinations:
         public static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sequences)
