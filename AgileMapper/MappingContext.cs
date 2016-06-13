@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Caching;
     using ObjectPopulation;
 
     internal class MappingContext : IDisposable
@@ -21,7 +20,6 @@ namespace AgileObjects.AgileMapper
             RuleSet = ruleSet;
             MapperContext = mapperContext;
             _cleanupActions = new List<Action>();
-            Cache = GlobalContext.CreateCache();
         }
 
         internal GlobalContext GlobalContext => MapperContext.GlobalContext;
@@ -31,8 +29,6 @@ namespace AgileObjects.AgileMapper
         public MappingRuleSet RuleSet { get; }
 
         internal IObjectMappingContext CurrentObjectMappingContext { get; private set; }
-
-        public ICache Cache { get; }
 
         internal TDeclaredTarget MapStart<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource source,
