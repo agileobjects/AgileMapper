@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System.Collections.Generic;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -25,6 +26,17 @@
 
             plan.ShouldContain("instance.Name = omc.Source.Name;");
             plan.ShouldContain("instance.Line1 = omc.Source.AddressLine1;");
+        }
+
+        [Fact]
+        public void ShouldIncludeASimpleTypeEnumerableMemberMapping()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicProperty<int[]>>()
+                .ToANew<PublicField<IEnumerable<int>>>();
+
+            plan.ShouldContain("omc.Source.ForEach");
+            plan.ShouldContain("instance.Add");
         }
     }
 }

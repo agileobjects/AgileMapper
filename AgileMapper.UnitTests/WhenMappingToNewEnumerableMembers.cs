@@ -32,6 +32,17 @@
         }
 
         [Fact]
+        public void ShouldCreateANewIntEnumerable()
+        {
+            var source = new PublicField<int[]> { Value = new[] { 9, 8, 7, 6, 5 } };
+            var result = Mapper.Map(source).ToANew<PublicField<IEnumerable<int>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldNotBeSameAs(source.Value);
+            result.Value.SequenceEqual(source.Value).ShouldBeTrue();
+        }
+
+        [Fact]
         public void ShouldCreateANewComplexTypeEnumerable()
         {
             var source = new PublicField<Person[]>

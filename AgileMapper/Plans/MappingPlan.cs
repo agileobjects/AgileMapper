@@ -94,12 +94,35 @@
 
             var childOmc = mappingCommand.ToOmc();
 
-            var childMapper = omc
+            var omcTypes = childOmc.GetType().GetGenericArguments();
+            var omcObjectType = omcTypes.Last();
+
+            LambdaExpression mappingLambda;
+
+            if (omcObjectType == typeof(TChildObject))
+            {
+                mappingLambda = GetMappingLambda<TChildSource, TChildTarget, TChildObject>(childOmc);
+            }
+            else
+            {
+                mappingLambda = (LambdaExpression)typeof(MappingPlan<TSource, TTarget>)
+                    .GetMethod("GetMappingLambda", Constants.NonPublicStatic)
+                    .MakeGenericMethod(omcTypes)
+                    .Invoke(null, new object[] { childOmc });
+            }
+
+            return new MapperData(mappingLambda, childOmc);
+        }
+
+        private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget, TChildObject>(
+            IObjectMappingContext omc)
+        {
+            var mapper = omc
                 .MapperContext
                 .ObjectMapperFactory
-                .CreateFor<TChildSource, TChildTarget, TChildObject>(childOmc);
+                .CreateFor<TChildSource, TChildTarget, TChildObject>(omc);
 
-            return new MapperData(childMapper.MappingLambda, childOmc);
+            return mapper.MappingLambda;
         }
 
         private static string GetDescription(MapperData mapperData)
