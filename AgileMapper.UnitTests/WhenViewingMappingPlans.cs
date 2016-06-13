@@ -53,6 +53,26 @@
         }
 
         [Fact]
+        public void ShouldIncludeAConfiguredExpression()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .From<Person>()
+                    .Over<PersonViewModel>()
+                    .Map((p, pvm) => p.Title + " " + p.Name)
+                    .To(pvm => pvm.Name);
+
+                var plan = mapper
+                    .GetPlanFor<Person>()
+                    .Over<PersonViewModel>();
+
+                plan.ShouldContain("instance.Name = (omc.Source.Title + \" \") + omc.Source.Name");
+            }
+        }
+
+        [Fact]
         public void ShouldIncludeARootComplexTypeEnumerableMapping()
         {
             var plan = Mapper
