@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
@@ -45,7 +44,7 @@
                 }
                 else
                 {
-                    mappingLambdaFactory = null;
+                    mappingLambdaFactory = ExpandElementMapper;
                 }
 
                 var nestedMappingFuncs = Expand(mappingLambdaFactory.Invoke(mapCall, mapperData));
@@ -59,19 +58,18 @@
 
         private static bool IsObjectMemberMapping(MethodCallExpression mapCall) => mapCall.Arguments.Count == 4;
 
-        private static readonly MethodInfo _expandObjectMapperMethod = typeof(MappingPlan<TSource, TTarget>)
-            .GetMethods(Constants.NonPublicStatic)
-            .First(m => m.ContainsGenericParameters && (m.Name == "ExpandObjectMapper"));
-
         private static MapperData ExpandObjectMapper(MethodCallExpression mapCall, MapperData mapperData)
         {
             var targetMemberName = (string)((ConstantExpression)mapCall.Arguments.ElementAt(2)).Value;
             var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments.ElementAt(3)).Value;
 
-            var typedExpandMethod = _expandObjectMapperMethod.MakeGenericMethod(
-                mapCall.Arguments.ElementAt(0).Type,
-                mapperData.Lambda.Type.GetGenericArguments().ElementAt(1),
-                mapCall.Arguments.ElementAt(1).Type);
+            var typedExpandMethod = typeof(MappingPlan<TSource, TTarget>)
+                .GetMethods(Constants.NonPublicStatic)
+                .First(m => m.ContainsGenericParameters && (m.Name == "ExpandObjectMapper"))
+                .MakeGenericMethod(
+                    mapCall.Arguments.ElementAt(0).Type,
+                    mapperData.Lambda.Type.GetGenericArguments().ElementAt(1),
+                    mapCall.Arguments.ElementAt(1).Type);
 
             var childMapperData = typedExpandMethod.Invoke(
                 null,
@@ -123,6 +121,37 @@
                 .CreateFor<TChildSource, TChildTarget, TChildObject>(omc);
 
             return mapper.MappingLambda;
+        }
+
+        private static MapperData ExpandElementMapper(MethodCallExpression mapCall, MapperData mapperData)
+        {
+            var typedExpandMethod = typeof(MappingPlan<TSource, TTarget>)
+                .GetMethods(Constants.NonPublicStatic)
+                .First(m => m.ContainsGenericParameters && (m.Name == "ExpandElementMapper"))
+                .MakeGenericMethod(
+                    mapCall.Arguments.ElementAt(0).Type,
+                    mapCall.Arguments.ElementAt(1).Type);
+
+            var childMapperData = typedExpandMethod.Invoke(
+                null,
+                new object[] { mapperData.ObjectMappingContext });
+
+            return (MapperData)childMapperData;
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static MapperData ExpandElementMapper<TSourceElement, TTargetElement>(IObjectMappingContext omc)
+        {
+            var mappingCommand = omc.CreateElementMappingCommand(
+                default(TSourceElement),
+                default(TTargetElement),
+                enumerableIndex: 0);
+
+            var elementOmc = mappingCommand.ToOmc();
+
+            var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement, TTargetElement>(elementOmc);
+
+            return new MapperData(mappingLambda, elementOmc);
         }
 
         private static string GetDescription(MapperData mapperData)

@@ -37,5 +37,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredMember targetMemberValue,
             string targetMemberName,
             int dataSourceIndex);
+
+        IObjectMappingCommand<TTargetElement> CreateElementMappingCommand<TSourceElement, TTargetElement>(
+            TSourceElement sourceElement,
+            TTargetElement existingElement,
+            int enumerableIndex);
     }
 }

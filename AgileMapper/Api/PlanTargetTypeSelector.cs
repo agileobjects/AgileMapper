@@ -12,10 +12,16 @@
         }
 
         public string ToANew<TResult>() where TResult : class
+            => GetMappingPlan<TResult>(_mapperContext.RuleSets.CreateNew);
+
+        public string OnTo<TTarget>() where TTarget : class
+            => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Merge);
+
+        private string GetMappingPlan<TTarget>(MappingRuleSet ruleSet)
         {
-            using (var planContext = new MappingContext(_mapperContext.RuleSets.CreateNew, _mapperContext))
+            using (var planContext = new MappingContext(ruleSet, _mapperContext))
             {
-                return new MappingPlan<TSource, TResult>(planContext);
+                return new MappingPlan<TSource, TTarget>(planContext);
             }
         }
     }

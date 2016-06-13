@@ -49,5 +49,17 @@
 
             plan.ShouldContain("omc.Source.Value.ToString(");
         }
+
+        [Fact]
+        public void ShouldIncludeARootComplexTypeEnumerableMapping()
+        {
+            var plan = Mapper
+                .GetPlanFor<IEnumerable<Person>>()
+                .OnTo<IEnumerable<PersonViewModel>>();
+
+            plan.ShouldContain("omc.Source.IntersectById");
+            plan.ShouldContain("omc.Source.ExcludeById");
+            plan.ShouldContain("instance.Add");
+        }
     }
 }

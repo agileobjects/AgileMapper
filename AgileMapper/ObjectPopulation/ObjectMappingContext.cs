@@ -138,11 +138,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSourceElement sourceElement,
             TTargetElement existingElement,
             int enumerableIndex)
+            => CreateElementMappingCommand(sourceElement, existingElement, enumerableIndex).Execute();
+
+        public IObjectMappingCommand<TTargetElement> CreateElementMappingCommand<TSourceElement, TTargetElement>(
+            TSourceElement sourceElement,
+            TTargetElement existingElement,
+            int enumerableIndex)
         {
             var sourceElementMember = _sourceMember.Append(_sourceMember.Type.CreateElementMember());
             var targetElementMember = _targetMember.Append(_targetMember.Type.CreateElementMember());
 
-            var targetElementMappingCommand = ObjectMappingCommand.CreateForChild(
+            return ObjectMappingCommand.CreateForChild(
                 sourceElement,
                 sourceElementMember,
                 existingElement,
@@ -151,8 +157,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 targetElementMember,
                 enumerableIndex,
                 MappingContext);
-
-            return targetElementMappingCommand.Execute();
         }
 
         #region IMappingData Members
@@ -204,7 +208,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Type IObjectMappingContext.GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {
-            if (sourceMember.IsSameAs(_sourceMember))
+            if ((Source == null) || sourceMember.IsSameAs(_sourceMember))
             {
                 return typeof(TRuntimeSource);
             }
