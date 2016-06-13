@@ -156,8 +156,19 @@
         public static Expression Replace(this Expression expression, Expression target, Expression replacement)
             => expression.Replace(new Dictionary<Expression, Expression> { [target] = replacement });
 
-        public static Expression Replace(this Expression expression, Dictionary<Expression, Expression> replacementsByTarget)
-            => new ExpressionReplacer(replacementsByTarget).ReplaceIn(expression);
+        public static Expression Replace(this Expression expression,
+            Dictionary<Expression, Expression> replacementsByTarget)
+        {
+            if (replacementsByTarget.None())
+            {
+                return expression;
+            }
+
+            var replacer = new ExpressionReplacer(replacementsByTarget);
+            var replaced = replacer.ReplaceIn(expression);
+
+            return replaced;
+        }
 
         #region Replace Helper
 

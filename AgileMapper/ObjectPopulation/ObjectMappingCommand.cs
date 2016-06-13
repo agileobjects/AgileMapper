@@ -109,20 +109,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var targetMemberData = GetTargetData(sourceMember, targetMember, target, mappingContext);
 
-            if (existingTargetInstanceMember == targetMember)
-            {
-                return new ObjectMappingCommand<TSource, TTarget, TInstance>(
-                    source,
-                    sourceMember,
-                    target,
-                    targetMemberData.TargetMember,
-                    existingTargetInstance,
-                    targetMemberData.TargetMember,
-                    enumerableIndex,
-                    mappingContext);
-            }
-
-            var instanceMemberData = GetTargetData(sourceMember, existingTargetInstanceMember, existingTargetInstance, mappingContext);
+            var instanceMemberData = (existingTargetInstanceMember != targetMember)
+                ? GetTargetData(sourceMember, existingTargetInstanceMember, existingTargetInstance, mappingContext)
+                : targetMemberData;
 
             return new ObjectMappingCommand<TSource, TTarget, TInstance>(
                 source,
