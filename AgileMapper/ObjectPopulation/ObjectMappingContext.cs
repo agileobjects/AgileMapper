@@ -208,7 +208,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Type IObjectMappingContext.GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {
-            if ((Source == null) || sourceMember.IsSameAs(_sourceMember))
+            if (Source == null)
+            {
+                return sourceMember.Type;
+            }
+
+            if (sourceMember.IsSameAs(_sourceMember))
             {
                 return typeof(TRuntimeSource);
             }

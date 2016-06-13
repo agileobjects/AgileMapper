@@ -17,6 +17,9 @@
         public string OnTo<TTarget>() where TTarget : class
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Merge);
 
+        public string Over<TTarget>() where TTarget : class
+            => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Overwrite);
+
         private string GetMappingPlan<TTarget>(MappingRuleSet ruleSet)
         {
             using (var planContext = new MappingContext(ruleSet, _mapperContext))

@@ -25,7 +25,7 @@
 
             _plan = string.Join(
                 Environment.NewLine + Environment.NewLine,
-                planFuncs.Select(GetDescription));
+                planFuncs.Select(GetDescription).Distinct());
         }
 
         private static IEnumerable<MapperData> Expand(MapperData mapperData)
@@ -34,10 +34,10 @@
 
             var mapCalls = MapCallFinder.FindIn(mapperData.Lambda);
 
-            Func<MethodCallExpression, MapperData, MapperData> mappingLambdaFactory;
-
             foreach (var mapCall in mapCalls)
             {
+                Func<MethodCallExpression, MapperData, MapperData> mappingLambdaFactory;
+
                 if (IsObjectMemberMapping(mapCall))
                 {
                     mappingLambdaFactory = ExpandObjectMapper;

@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -60,6 +62,31 @@
             plan.ShouldContain("omc.Source.IntersectById");
             plan.ShouldContain("omc.Source.ExcludeById");
             plan.ShouldContain("instance.Add");
+        }
+
+        [Fact]
+        public void ShouldIncludeAComplexTypeEnumerableMemberMapping()
+        {
+            var plan = Mapper
+                .GetPlanFor<IList<PersonViewModel>>()
+                .Over<IEnumerable<Person>>();
+
+            plan.ShouldContain("omc.Source.IntersectById");
+            plan.ShouldContain("omc.Source.ExcludeById");
+
+            plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
+            plan.ShouldContain("PersonViewModel -> Person");
+            plan.ShouldContain("PersonViewModel -> Address");
+        }
+
+        [Fact]
+        public void ShouldNotDuplicateMappingPlans()
+        {
+            var plan = Mapper
+                .GetPlanFor<IEnumerable<PersonViewModel>>()
+                .OnTo<IEnumerable<Person>>();
+
+            Regex.Matches(plan, "PersonViewModel -> Person").Cast<Match>().ShouldHaveSingleItem();
         }
     }
 }
