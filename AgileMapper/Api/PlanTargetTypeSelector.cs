@@ -13,9 +13,9 @@
 
         public string ToANew<TResult>() where TResult : class
         {
-            using (var mappingContext = new MappingContext(_mapperContext.RuleSets.CreateNew, _mapperContext))
+            using (var planContext = new MappingContext(_mapperContext.RuleSets.CreateNew, _mapperContext))
             {
-                return MappingPlan.For<TSource, TResult>(mappingContext);
+                return new MappingPlan<TSource, TResult>(planContext);
             }
         }
     }

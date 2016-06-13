@@ -31,5 +31,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         MethodCallExpression GetMapCall(Expression sourceObject, IQualifiedMember objectMember, int dataSourceIndex);
 
         MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement);
+
+        IObjectMappingCommand<TDeclaredMember> CreateChildMappingCommand<TDeclaredSource, TDeclaredMember>(
+            TDeclaredSource source,
+            TDeclaredMember targetMemberValue,
+            string targetMemberName,
+            int dataSourceIndex);
     }
 }

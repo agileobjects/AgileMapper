@@ -102,13 +102,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             string targetMemberName,
             int dataSourceIndex)
         {
+            var targetObjectMappingCommand = CreateChildMappingCommand(
+                source,
+                targetMemberValue,
+                targetMemberName,
+                dataSourceIndex);
+
+            return targetObjectMappingCommand.Execute();
+        }
+
+        public IObjectMappingCommand<TDeclaredMember> CreateChildMappingCommand<TDeclaredSource, TDeclaredMember>(
+            TDeclaredSource source,
+            TDeclaredMember targetMemberValue,
+            string targetMemberName,
+            int dataSourceIndex)
+        {
             var allTargetMembers = GlobalContext.MemberFinder.GetWriteableMembers(_targetMember.Type);
             var targetMember = allTargetMembers.First(tm => tm.Name == targetMemberName);
             var qualifiedTargetMember = _targetMember.Append(targetMember);
             var context = new MemberMappingContext(qualifiedTargetMember, this);
             var sourceMember = context.DataSourceAt(dataSourceIndex).SourceMember;
 
-            var targetObjectMappingCommand = ObjectMappingCommand.CreateForChild(
+            return ObjectMappingCommand.CreateForChild(
                 source,
                 sourceMember,
                 Target,
@@ -117,8 +132,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 context.TargetMember,
                 GetEnumerableIndex(),
                 MappingContext);
-
-            return targetObjectMappingCommand.Execute();
         }
 
         public TTargetElement Map<TSourceElement, TTargetElement>(

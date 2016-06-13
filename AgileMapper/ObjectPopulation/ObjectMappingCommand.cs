@@ -9,6 +9,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal interface IObjectMappingCommand<out T>
     {
         T Execute();
+
+        IObjectMappingContext ToOmc();
     }
 
     internal class ObjectMappingCommand
@@ -259,5 +261,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MappingContext MappingContext { get; }
 
         public TInstance Execute() => MappingContext.MapChild(this);
+
+        public IObjectMappingContext ToOmc() => ObjectMappingContextFactory.Create(this);
     }
 }

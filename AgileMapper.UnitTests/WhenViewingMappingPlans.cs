@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Plans
+﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using Shouldly;
     using TestClasses;
@@ -14,6 +14,17 @@
                 .ToANew<PublicProperty<string>>();
 
             plan.ShouldContain("instance.Value = omc.Source.Value;");
+        }
+
+        [Fact]
+        public void ShouldIncludeAComplexTypeMemberMapping()
+        {
+            var plan = Mapper
+                .GetPlanFor<PersonViewModel>()
+                .ToANew<Person>();
+
+            plan.ShouldContain("instance.Name = omc.Source.Name;");
+            plan.ShouldContain("instance.Line1 = omc.Source.AddressLine1;");
         }
     }
 }

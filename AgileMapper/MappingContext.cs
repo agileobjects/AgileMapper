@@ -39,10 +39,15 @@ namespace AgileObjects.AgileMapper
                 return existing;
             }
 
-            CurrentObjectMappingContext = ObjectMappingContextFactory.CreateRoot(source, existing, this);
+            CreateRootObjectContext(source, existing);
 
             return Map<TDeclaredSource, TDeclaredTarget, TDeclaredTarget>();
         }
+
+        internal IObjectMappingContext CreateRootObjectContext<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource source,
+            TDeclaredTarget existing)
+            => (CurrentObjectMappingContext = ObjectMappingContextFactory.CreateRoot(source, existing, this));
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
         {
@@ -62,7 +67,7 @@ namespace AgileObjects.AgileMapper
         internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
             ObjectMappingCommand<TRuntimeSource, TRuntimeTarget, TDeclaredMember> command)
         {
-            CurrentObjectMappingContext = ObjectMappingContextFactory.Create(command);
+            CurrentObjectMappingContext = command.ToOmc();
 
             return Map<TRuntimeSource, TRuntimeTarget, TDeclaredMember>();
         }

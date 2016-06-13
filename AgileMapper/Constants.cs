@@ -23,11 +23,11 @@
 
         public static readonly BindingFlags NonPublicStatic = BindingFlags.NonPublic | BindingFlags.Static;
 
-        public const string CreateNew = "ToANew";
+        public const string CreateNew = "CreateNew";
 
-        public const string Merge = "OnTo";
+        public const string Merge = "Merge";
 
-        public const string Overwrite = "Over";
+        public const string Overwrite = "Overwrite";
 
         #region Numeric Types
 
