@@ -86,7 +86,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return existingOrCreatedObject;
             }
 
-            var contextTargetAssignment = Expression.Assign(omc.Target, existingOrCreatedObject);
+            var contextTargetAssignment = Expression.Assign(omc.TargetObject, existingOrCreatedObject);
 
             return contextTargetAssignment;
         }

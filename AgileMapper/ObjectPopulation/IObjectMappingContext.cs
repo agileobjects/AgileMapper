@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         TInstance GetInstance<TInstance>();
 
-        Expression Target { get; }
+        Expression TargetObject { get; }
 
         Expression CreatedObject { get; }
 
