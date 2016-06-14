@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
     using System.Linq.Expressions;
-    using DataSources;
     using ObjectPopulation;
 
     internal interface IMemberMappingContext : IMappingData
@@ -25,7 +24,5 @@
         ParameterExpression InstanceVariable { get; }
 
         NestedAccessFinder NestedAccessFinder { get; }
-
-        DataSourceSet GetDataSources();
     }
 }

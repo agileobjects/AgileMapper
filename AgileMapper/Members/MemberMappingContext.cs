@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq.Expressions;
-    using DataSources;
     using ObjectPopulation;
 
     internal class MemberMappingContext : IMemberMappingContext
@@ -44,7 +43,5 @@
         public ParameterExpression InstanceVariable => _parent.InstanceVariable;
 
         public NestedAccessFinder NestedAccessFinder => _parent.NestedAccessFinder;
-
-        DataSourceSet IMemberMappingContext.GetDataSources() => this.GetDataSources();
     }
 }

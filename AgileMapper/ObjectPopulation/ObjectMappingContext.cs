@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using DataSources;
     using Extensions;
     using Members;
 
@@ -186,8 +185,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         ParameterExpression IMemberMappingContext.InstanceVariable => _instanceVariable;
 
         NestedAccessFinder IMemberMappingContext.NestedAccessFinder => _nestedAccessFinder;
-
-        DataSourceSet IMemberMappingContext.GetDataSources() => this.GetDataSources();
 
         #endregion
 
