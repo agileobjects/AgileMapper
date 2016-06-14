@@ -77,7 +77,7 @@
         }
 
         private static IDataSource RootSourceMemberDataSourceFor(IMemberMappingContext context)
-            => GetSourceMemberDataSourceFor(QualifiedMember.From(Member.RootSource(context.SourceObject.Type)), 0, context);
+            => GetSourceMemberDataSourceFor(QualifiedMember.From(Member.RootSource(context.SourceType)), 0, context);
 
         private static bool DataSourcesAreConfigured(IMemberMappingContext context, out IEnumerable<IConfiguredDataSource> configuredDataSources)
         {

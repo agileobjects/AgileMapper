@@ -46,7 +46,7 @@
         {
             ObjectMappingContext = omc;
 
-            _sourceElementType = omc.SourceObject.Type.GetEnumerableElementType();
+            _sourceElementType = omc.SourceType.GetEnumerableElementType();
             _sourceElementParameter = Parameters.Create(_sourceElementType);
 
             _targetElementType = TargetCollectionType.GetEnumerableElementType();

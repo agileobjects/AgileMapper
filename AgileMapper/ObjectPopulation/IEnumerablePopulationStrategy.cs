@@ -4,6 +4,6 @@
 
     internal interface IEnumerablePopulationStrategy
     {
-        Expression GetPopulation(Expression targetVariableValue, IObjectMappingContext omc);
+        Expression GetPopulation(IObjectMappingContext omc);
     }
 }

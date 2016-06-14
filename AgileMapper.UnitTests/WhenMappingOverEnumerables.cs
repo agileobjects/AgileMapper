@@ -106,5 +106,18 @@
             result.First().Price.ShouldBe(99.99);
             result.Second().ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldHandleANonEnumerableSource()
+        {
+            var target = new List<Product>
+            {
+                new Product { ProductId = "Swing", Price = 9.99 }
+            };
+
+            var result = Mapper.Map(new PublicProperty<double> { Value = 99.99 }).Over(target);
+
+            result.ShouldBeSameAs(target);
+        }
     }
 }

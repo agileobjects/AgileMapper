@@ -108,5 +108,26 @@
 
             result.Value.ShouldBeSameAs(target.Value);
         }
+
+        [Fact]
+        public void ShouldHandleANonEnumerableSourceMember()
+        {
+            var source = new PublicField<Person>
+            {
+                Value = new Person { Name = "Error" }
+            };
+
+            var target = new PublicField<IEnumerable<Product>>
+            {
+                Value = new List<Product>
+                {
+                    new Product { ProductId = "Swing", Price = 9.99 }
+                }
+            };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.ShouldBeSameAs(target);
+        }
     }
 }

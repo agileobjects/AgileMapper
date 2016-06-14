@@ -165,7 +165,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             });
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
         {
             var objectRegistration = omc.ObjectRegistrationCall;
             var memberPopulations = MemberPopulationFactory.Create(omc);
@@ -207,7 +207,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.Block(prePopulationCallback, population, postPopulationCallback);
         }
 
-        protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
+        protected override Expression GetReturnValue(IObjectMappingContext omc)
             => omc.InstanceVariable;
 
         private class ConstructorData

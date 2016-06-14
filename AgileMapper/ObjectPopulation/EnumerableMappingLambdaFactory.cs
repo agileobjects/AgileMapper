@@ -19,12 +19,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
             => EnumerableTypes.GetEnumerableVariableValue(omc);
 
-        protected override IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
         {
-            yield return omc.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(instanceVariableValue, omc);
+            yield return omc.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(omc);
         }
 
-        protected override Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc)
+        protected override Expression GetReturnValue(IObjectMappingContext omc)
         {
             if (omc.TargetMember.Type.IsAssignableFrom(omc.InstanceVariable.Type))
             {

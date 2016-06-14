@@ -28,9 +28,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var instanceVariableValue = GetObjectResolution(omc);
             var instanceVariableAssignment = Expression.Assign(omc.InstanceVariable, instanceVariableValue);
             var postCreationCallback = GetCreationCallback(CallbackPosition.After, omc);
-            var objectPopulation = GetObjectPopulation(instanceVariableValue, omc);
+            var objectPopulation = GetObjectPopulation(omc);
             var postMappingCallback = GetMappingCallback(CallbackPosition.After, omc);
-            var returnValue = GetReturnValue(instanceVariableValue, omc);
+            var returnValue = GetReturnValue(omc);
             var returnLabel = Expression.Label(returnLabelTarget, returnValue);
 
             var mappingBlock = Expression.Block(
@@ -80,9 +80,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract Expression GetObjectResolution(IObjectMappingContext omc);
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(Expression instanceVariableValue, IObjectMappingContext omc);
+        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc);
 
-        protected abstract Expression GetReturnValue(Expression instanceVariableValue, IObjectMappingContext omc);
+        protected abstract Expression GetReturnValue(IObjectMappingContext omc);
 
         #region Try / Catch Support
 
