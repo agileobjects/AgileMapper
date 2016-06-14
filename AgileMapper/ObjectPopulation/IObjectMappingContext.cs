@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);
 
-        MethodCallExpression TryGetCall { get; }
+        MethodCallExpression GetTryGetCall(Expression matchingSourceMemberValue);
 
         MethodCallExpression ObjectRegistrationCall { get; }
 

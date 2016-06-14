@@ -36,13 +36,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly Expression _mappingContextProperty = Expression.Property(_parameter, "MappingContext");
 
-        private static readonly MethodCallExpression _tryGetCall = Expression.Call(
-            _mappingContextProperty,
-                _mappingContextProperty.Type
-                    .GetMethod("TryGet", Constants.PublicInstance)
-                    .MakeGenericMethod(_sourceObjectProperty.Type, _instanceVariable.Type),
-                _sourceObjectProperty,
-                _instanceVariable);
+        private static readonly MethodInfo _tryGetMethod = _mappingContextProperty.Type
+            .GetMethod("TryGet", Constants.PublicInstance);
+
+        private static readonly MethodCallExpression _tryGetCall = GetTryGetCall(_sourceObjectProperty);
 
         private static readonly MethodCallExpression _registrationCall = Expression.Call(
             _mappingContextProperty,
@@ -239,7 +236,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return getRuntimeTypeFunc.Invoke(this);
         }
 
-        MethodCallExpression IObjectMappingContext.TryGetCall => _tryGetCall;
+        MethodCallExpression IObjectMappingContext.GetTryGetCall(Expression matchingSourceMemberValue)
+            => GetTryGetCall(matchingSourceMemberValue);
+
+        private static MethodCallExpression GetTryGetCall(Expression key)
+        {
+            if (key == null)
+            {
+                return _tryGetCall;
+            }
+
+            return Expression.Call(
+                _mappingContextProperty,
+                _tryGetMethod.MakeGenericMethod(key.Type, _instanceVariable.Type),
+                key,
+                _instanceVariable);
+        }
 
         MethodCallExpression IObjectMappingContext.ObjectRegistrationCall => _registrationCall;
 

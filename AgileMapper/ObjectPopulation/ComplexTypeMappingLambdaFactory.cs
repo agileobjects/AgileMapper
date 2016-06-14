@@ -21,18 +21,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
         {
-            yield return GetStrategyShortCircuitReturns(returnNull, omc);
-            yield return GetExistingObjectShortCircuit(returnNull.Target, omc);
+            Expression matchingSourceMemberValue;
+
+            yield return GetStrategyShortCircuitReturns(returnNull, omc, out matchingSourceMemberValue);
+            yield return GetExistingObjectShortCircuit(returnNull.Target, omc, matchingSourceMemberValue);
         }
 
-        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, IObjectMappingContext omc)
+        private static Expression GetStrategyShortCircuitReturns(
+            Expression returnNull,
+            IObjectMappingContext omc,
+            out Expression matchingSourceMemberValue)
         {
             var matchingSourceMemberDataSource = omc
                 .MapperContext
                 .DataSources
                 .GetSourceMemberDataSourceOrNull(omc);
 
-            if (matchingSourceMemberDataSource == null)
+            matchingSourceMemberValue = matchingSourceMemberDataSource?.Value;
+
+            if (matchingSourceMemberValue == null)
             {
                 return Constants.EmptyExpression;
             }
@@ -40,15 +47,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Expression sourceObject;
             Func<IEnumerable<Expression>, Expression> blockBuilder;
 
-            if (matchingSourceMemberDataSource.Value == omc.SourceObject)
+            if (matchingSourceMemberValue == omc.SourceObject)
             {
                 sourceObject = omc.SourceObject;
                 blockBuilder = Expression.Block;
             }
             else
             {
-                sourceObject = Expression.Variable(matchingSourceMemberDataSource.Value.Type, "matchingSource");
-                Expression assignSourceObject = Expression.Assign(sourceObject, matchingSourceMemberDataSource.Value);
+                sourceObject = Expression.Variable(matchingSourceMemberValue.Type, "matchingSource");
+                Expression assignSourceObject = Expression.Assign(sourceObject, matchingSourceMemberValue);
 
                 blockBuilder = conditions => Expression.Block(
                     new[] { (ParameterExpression)sourceObject },
@@ -67,10 +74,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return shortCircuitBlock;
         }
 
-        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, IObjectMappingContext omc)
+        private static Expression GetExistingObjectShortCircuit(
+            LabelTarget returnTarget,
+            IObjectMappingContext omc,
+            Expression matchingSourceMemberValue)
         {
             var ifTryGetReturn = Expression.IfThen(
-                omc.TryGetCall,
+                omc.GetTryGetCall(matchingSourceMemberValue),
                 Expression.Return(returnTarget, omc.InstanceVariable));
 
             return ifTryGetReturn;

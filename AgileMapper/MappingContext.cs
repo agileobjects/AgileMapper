@@ -61,7 +61,13 @@ namespace AgileObjects.AgileMapper
 
         public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
         {
-            return ObjectCache<TKey, TComplex>.Cache.TryGetValue(key, out complexType);
+            if (key != null)
+            {
+                return ObjectCache<TKey, TComplex>.Cache.TryGetValue(key, out complexType);
+            }
+
+            complexType = default(TComplex);
+            return false;
         }
 
         internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
