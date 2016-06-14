@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly ParameterExpression _instanceVariable = Expression.Variable(
             typeof(TObject).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType<TObject>() : typeof(TObject),
-            "instance");
+            typeof(TObject).GetVariableName(f => f.InCamelCase));
 
         private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_parameter);
 

@@ -17,7 +17,7 @@
                 .GetPlanFor<PublicField<string>>()
                 .ToANew<PublicProperty<string>>();
 
-            plan.ShouldContain("instance.Value = omc.Source.Value;");
+            plan.ShouldContain("publicProperty_String.Value = omc.Source.Value;");
         }
 
         [Fact]
@@ -27,8 +27,8 @@
                 .GetPlanFor<PersonViewModel>()
                 .ToANew<Person>();
 
-            plan.ShouldContain("instance.Name = omc.Source.Name;");
-            plan.ShouldContain("instance.Line1 = omc.Source.AddressLine1;");
+            plan.ShouldContain("person.Name = omc.Source.Name;");
+            plan.ShouldContain("address.Line1 = omc.Source.AddressLine1;");
         }
 
         [Fact]
@@ -39,7 +39,7 @@
                 .ToANew<PublicField<IEnumerable<int>>>();
 
             plan.ShouldContain("omc.Source.ForEach");
-            plan.ShouldContain("instance.Add");
+            plan.ShouldContain("int32s.Add");
         }
 
         [Fact]
@@ -68,7 +68,7 @@
                     .GetPlanFor<Person>()
                     .Over<PersonViewModel>();
 
-                plan.ShouldContain("instance.Name = (omc.Source.Title + \" \") + omc.Source.Name");
+                plan.ShouldContain("personViewModel.Name = (omc.Source.Title + \" \") + omc.Source.Name");
             }
         }
 
@@ -81,7 +81,7 @@
 
             plan.ShouldContain("omc.Source.IntersectById");
             plan.ShouldContain("omc.Source.ExcludeById");
-            plan.ShouldContain("instance.Add");
+            plan.ShouldContain("personViewModels.Add");
         }
 
         [Fact]

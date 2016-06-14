@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Members;
-
+    using ReadableExpressions;
     internal static class TypeExtensions
     {
         public static string GetShortVariableName(this Type type)
@@ -18,7 +18,7 @@
                     string.Empty,
                     variableName.ToCharArray().Skip(1).Where(char.IsUpper));
 
-            return shortVariableName.ToLowerInvariant();
+            return Pluralise(shortVariableName.ToLowerInvariant());
         }
 
         public static string GetVariableName(
@@ -48,12 +48,50 @@
                 variableName = formatter.Invoke(VariableFormatterSelector.Instance).Invoke(variableName);
             }
 
-            if (typeIsEnumerable)
+            return typeIsEnumerable ? Pluralise(variableName) : variableName;
+        }
+
+        private static string Pluralise(string value)
+        {
+            if (value.Length == 1)
             {
-                variableName += "_c";
+                return value + "s";
             }
 
-            return variableName;
+            switch (value.Substring(value.Length - 2))
+            {
+                case "ch":
+                case "sh":
+                case "ss":
+                    return value + "es";
+            }
+
+            if (value.EndsWith('y') && IsConsonant(value[value.Length - 2]))
+            {
+                return value.Substring(0, value.Length - 1) + "ies";
+            }
+
+            if (value.EndsWith('x') || value.EndsWith('z'))
+            {
+                return value + "es";
+            }
+
+            return value + "s";
+        }
+
+        private static bool IsConsonant(char character)
+        {
+            switch (char.ToUpperInvariant(character))
+            {
+                case 'A':
+                case 'E':
+                case 'I':
+                case 'O':
+                case 'U':
+                    return false;
+            }
+
+            return true;
         }
 
         #region VariableFormatterSelector

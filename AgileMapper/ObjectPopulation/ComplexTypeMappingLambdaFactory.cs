@@ -54,7 +54,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                sourceObject = Expression.Variable(matchingSourceMemberValue.Type, "matchingSource");
+                var variableName = "matching" + matchingSourceMemberValue.Type.GetVariableName(f => f.InPascalCase);
+                sourceObject = Expression.Variable(matchingSourceMemberValue.Type, variableName);
                 Expression assignSourceObject = Expression.Assign(sourceObject, matchingSourceMemberValue);
 
                 blockBuilder = conditions => Expression.Block(
