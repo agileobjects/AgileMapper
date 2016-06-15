@@ -41,6 +41,14 @@
             _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
         }
 
+        public void CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
+        {
+            var factoryInfo = ConfiguredLambdaInfo.ForFunc(factory, typeof(TSource), typeof(TTarget));
+            var objectFactory = ConfiguredObjectFactory.For(_configInfo, typeof(TTarget), factoryInfo);
+
+            _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
+        }
+
         public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
         public void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback)
@@ -62,10 +70,10 @@
             _configInfo.NegateCondition();
         }
 
-        public PreEventMappingConfigStartingPoint<TSource, TTarget> Before 
+        public PreEventMappingConfigStartingPoint<TSource, TTarget> Before
             => new PreEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
 
-        public PostEventMappingConfigStartingPoint<TSource, TTarget> After 
+        public PostEventMappingConfigStartingPoint<TSource, TTarget> After
             => new PostEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
 
         #region Map Overloads

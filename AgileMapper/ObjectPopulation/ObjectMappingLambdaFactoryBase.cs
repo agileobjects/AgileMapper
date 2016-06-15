@@ -110,7 +110,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                var mappingExceptionCreation = Expression.New(MappingException.ConstructorInfo, exceptionVariable);
+                var mappingExceptionCreation = Expression.New(
+                    MappingException.ConstructorInfo,
+                    omc.Parameter,
+                    exceptionVariable);
+
                 catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);
             }
 

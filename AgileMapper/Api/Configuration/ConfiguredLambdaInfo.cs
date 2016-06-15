@@ -103,6 +103,7 @@
                 argumentTypes,
                 i => i - 1,
                 funcTypes => funcTypes.Last(),
+                typeof(Func<>),
                 typeof(Func<,>),
                 typeof(Func<,,>),
                 typeof(Func<,,,>));
@@ -164,7 +165,7 @@
         }
 
         private static ParametersSwapper GetParametersSwapperFor(Type[] contextTypes, Type[] funcArguments)
-            => _parameterSwappers.First(pso => pso.AppliesTo(contextTypes, funcArguments));
+            => _parameterSwappers.FirstOrDefault(pso => pso.AppliesTo(contextTypes, funcArguments));
 
         #endregion
 

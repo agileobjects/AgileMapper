@@ -8,6 +8,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     {
         void CreateInstancesUsing(Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TTarget>> factory);
 
+        void CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class;
+
         void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember);
 
         CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(

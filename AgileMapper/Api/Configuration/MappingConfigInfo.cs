@@ -21,6 +21,16 @@
             MapperContext = mapperContext;
         }
 
+        #region Factory Methods
+
+        public static MappingConfigInfo AllRuleSetsAndSourceTypes(MapperContext mapperContext)
+            => new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes();
+
+        public static MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes(MapperContext mapperContext)
+            => AllRuleSetsAndSourceTypes(mapperContext).ForAllTargetTypes();
+
+        #endregion
+
         public GlobalContext GlobalContext => MapperContext.GlobalContext;
 
         public MapperContext MapperContext { get; }

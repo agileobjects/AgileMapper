@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Members
     [DebuggerDisplay("{FullName}")]
     internal class QualifiedMemberName
     {
+        private readonly MemberName _rootNamePart;
         private readonly MemberName[] _nameParts;
         private readonly IEnumerable<string> _allJoinedNames;
 
@@ -16,6 +17,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             FullName = string.Join(string.Empty, nameParts.Select(np => np?.JoiningName));
 
+            _rootNamePart = nameParts[0];
             _nameParts = new MemberName[nameParts.Length - 1]; // <- Don't bother with the root property
             Array.Copy(nameParts, 1, _nameParts, 0, _nameParts.Length);
 
@@ -63,8 +65,7 @@ namespace AgileObjects.AgileMapper.Members
 
         private IEnumerable<MemberName> GetNameParts(MemberName memberName)
         {
-            // A placeholder which the constructor will ignore:
-            yield return null;
+            yield return _rootNamePart;
 
             foreach (var namePart in _nameParts)
             {

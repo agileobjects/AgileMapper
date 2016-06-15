@@ -52,6 +52,30 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredFactoryFuncForASpecifiedSourceAndTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Func<Address> addressFactory = () => new Address { Line2 = "Customer House" };
+
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<Address>()
+                    .CreateInstancesUsing(addressFactory);
+
+                var nonMatchingSource = new PersonViewModel { AddressLine1 = "Blah" };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Customer>();
+
+                nonMatchingResult.Address.Line2.ShouldBeNull();
+
+                var matchingSource = new CustomerViewModel { AddressLine1 = "Meh" };
+                var matchingResult = mapper.Map(matchingSource).ToANew<Customer>();
+
+                matchingResult.Address.Line2.ShouldBe("Customer House");
+            }
+        }
+
+        [Fact]
         public void ShouldUseAConfiguredFactoryForASpecifiedSourceAndTargetTypeConditionally()
         {
             using (var mapper = Mapper.CreateNew())
@@ -190,7 +214,7 @@
         // ReSharper restore PossibleNullReferenceException
 
         [Fact]
-        public void ShouldWrapAnExceptionThrownInObjectCreation()
+        public void ShouldWrapAnObjectCreationException()
         {
             Assert.Throws<MappingException>(() =>
             {
@@ -207,6 +231,42 @@
                     mapper.Map(new Person()).ToANew<PublicProperty<List<string>>>();
                 }
             });
+        }
+
+        [Fact]
+        public void ShouldIncludeMappingDetailsInANestedObjectCreationException()
+        {
+            try
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    Func<Address> addressFactory = () =>
+                    {
+                        throw new NotSupportedException("Can't make an address, sorry");
+                    };
+
+                    mapper
+                        .WhenMapping
+                        .InstancesOf<Address>()
+                        .CreateUsing(addressFactory);
+
+                    mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToANew<Person>();
+                }
+
+                throw new InvalidOperationException("Expected a MappingException");
+            }
+            catch (MappingException ex)
+            {
+                ex.Message.ShouldContain("PersonViewModel -> Person");
+                ex.Message.ShouldContain(Constants.CreateNew);
+
+                ex.InnerException.ShouldNotBeNull();
+                ex.InnerException.Message.ShouldContain("PersonViewModel -> Person.Address");
+                ex.InnerException.Message.ShouldContain(Constants.CreateNew);
+
+                ex.InnerException.InnerException.ShouldNotBeNull();
+                ex.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
+            }
         }
 
         private class CustomerCtor : Person
