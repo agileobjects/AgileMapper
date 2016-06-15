@@ -56,16 +56,15 @@
         }
 
         private static bool IsSourceAndTarget(Type[] contextTypes, Type[] funcArguments)
-            => contextTypes[0].IsAssignableFrom(funcArguments[0]) && contextTypes[1].IsAssignableFrom(funcArguments[1]);
+            => funcArguments[0].IsAssignableFrom(contextTypes[0]) && funcArguments[1].IsAssignableFrom(contextTypes[1]);
 
         private static bool IsSourceTargetAndIndex(Type[] contextTypes, Type[] funcArguments)
             => IsSourceAndTarget(contextTypes, funcArguments) && IsIndex(funcArguments);
 
-        private static bool IsIndex(IEnumerable<Type> funcArguments)
-            => typeof(int?).IsAssignableFrom(funcArguments.Last());
+        private static bool IsIndex(IEnumerable<Type> funcArguments) => funcArguments.Last() == typeof(int?);
 
         private static bool IsSourceTargetAndInstance(Type[] contextTypes, Type[] funcArguments)
-            => IsSourceAndTarget(contextTypes, funcArguments) && contextTypes[2].IsAssignableFrom(funcArguments[2]);
+            => IsSourceAndTarget(contextTypes, funcArguments) && (contextTypes.Length >= 3) && funcArguments[2].IsAssignableFrom(contextTypes[2]);
 
         private static bool IsSourceTargetInstanceAndIndex(Type[] contextTypes, Type[] funcArguments)
             => IsSourceTargetAndInstance(contextTypes, funcArguments) && IsIndex(funcArguments);
@@ -101,7 +100,7 @@
             return For(
                 func,
                 argumentTypes,
-                i => i - 1,
+                funcTypes => funcTypes.Take(funcTypes.Length - 1).ToArray(),
                 funcTypes => funcTypes.Last(),
                 typeof(Func<>),
                 typeof(Func<,>),
@@ -114,7 +113,7 @@
             return For(
                 action,
                 argumentTypes,
-                i => i,
+                funcTypes => funcTypes,
                 funcTypes => typeof(void),
                 typeof(Action<>),
                 typeof(Action<,>),
@@ -125,7 +124,7 @@
         private static ConfiguredLambdaInfo For<T>(
             T func,
             Type[] contextTypes,
-            Func<int, int> numberOfArgumentsFactory,
+            Func<Type[], Type[]> funcArgumentsFactory,
             Func<Type[], Type> returnTypeFactory,
             params Type[] allowedTypes)
         {
@@ -144,8 +143,7 @@
             }
 
             var funcTypes = funcType.GetGenericArguments();
-            var numberOfArguments = numberOfArgumentsFactory.Invoke(funcTypes.Length);
-            var funcArguments = funcTypes.Take(numberOfArguments).ToArray();
+            var funcArguments = funcArgumentsFactory.Invoke(funcTypes);
             var parameterSwapper = GetParametersSwapperFor(contextTypes, funcArguments);
 
             if (parameterSwapper == null)

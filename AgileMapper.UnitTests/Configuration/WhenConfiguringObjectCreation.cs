@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using Api.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -294,6 +295,23 @@
                 ex.InnerException.InnerException.ShouldNotBeNull();
                 ex.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfObjectFactorySpecifiedWithInvalidArguments()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    Func<int, string, Address> addressFactory = (i, str) => new Address();
+
+                    mapper
+                        .WhenMapping
+                        .InstancesOf<Address>()
+                        .CreateUsing(addressFactory);
+                }
+            });
         }
 
         private class CustomerCtor : Person
