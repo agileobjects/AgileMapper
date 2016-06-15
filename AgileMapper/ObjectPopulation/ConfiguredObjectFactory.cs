@@ -22,21 +22,6 @@
 
         #region Factory Methods
 
-        public static ConfiguredObjectFactory For(
-            MapperContext mapperContext,
-            Type objectType,
-            LambdaExpression factory)
-            => For(mapperContext, objectType, ConfiguredLambdaInfo.For(factory));
-
-        public static ConfiguredObjectFactory For(
-            MapperContext mapperContext,
-            Type objectType,
-            ConfiguredLambdaInfo factoryInfo)
-            => new ConfiguredObjectFactory(
-                   MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext),
-                   objectType,
-                   factoryInfo);
-
         public static ConfiguredObjectFactory For(MappingConfigInfo configInfo, Type objectType, LambdaExpression factory)
             => For(configInfo, objectType, ConfiguredLambdaInfo.For(factory));
 
@@ -44,7 +29,7 @@
             MappingConfigInfo configInfo,
             Type objectType,
             ConfiguredLambdaInfo factoryInfo)
-            => new ConfiguredObjectFactory(configInfo.ForTargetType(objectType), objectType, factoryInfo);
+            => new ConfiguredObjectFactory(configInfo, objectType, factoryInfo);
 
         #endregion
 

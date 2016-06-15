@@ -2,35 +2,27 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Linq.Expressions;
+    using Members;
     using ObjectPopulation;
 
-    public class InstanceConfigurator<TInstance>
+    public class InstanceConfigurator<TObject> where TObject : class
     {
-        private readonly MapperContext _mapperContext;
+        private readonly MappingConfigInfo _configInfo;
 
         internal InstanceConfigurator(MapperContext mapperContext)
         {
-            _mapperContext = mapperContext;
+            _configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext);
         }
 
-        public void IdentifyUsing<TId>(Expression<Func<TInstance, TId>> idMember)
+        public void IdentifyUsing<TId>(Expression<Func<TObject, TId>> idMember)
         {
-            _mapperContext.UserConfigurations.Identifiers.Add(typeof(TInstance), idMember);
+            _configInfo.MapperContext.UserConfigurations.Identifiers.Add(typeof(TObject), idMember);
         }
 
-        public void CreateUsing(Expression<Func<TInstance>> factory)
-        {
-            var objectFactory = ConfiguredObjectFactory.For(_mapperContext, typeof(TInstance), factory);
-
-            _mapperContext.UserConfigurations.Add(objectFactory);
-        }
+        public void CreateUsing(Expression<Func<ITypedMemberMappingContext<object, object>, TObject>> factory)
+            => new FactorySpecifier<object, object, TObject>(_configInfo).Using(factory);
 
         public void CreateUsing<TFactory>(TFactory factory) where TFactory : class
-        {
-            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(factory);
-            var objectFactory = ConfiguredObjectFactory.For(_mapperContext, typeof(TInstance), valueLambdaInfo);
-
-            _mapperContext.UserConfigurations.Add(objectFactory);
-        }
+            => new FactorySpecifier<object, object, TObject>(_configInfo).Using(factory);
     }
 }

@@ -17,7 +17,7 @@
             {
                 mapper.WhenMapping
                     .InstancesOf<Address>()
-                    .CreateUsing(() => new Address { Line2 = "Some Street" });
+                    .CreateUsing(ctx => new Address { Line2 = "Some Street" });
 
                 var source = new PersonViewModel { AddressLine1 = "Some House" };
                 var target = new Person();
@@ -71,6 +71,33 @@
                 var matchingSource = new CustomerViewModel { AddressLine1 = "Meh" };
                 var matchingResult = mapper.Map(matchingSource).ToANew<Customer>();
 
+                matchingResult.Address.Line2.ShouldBe("Customer House");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredFactoryFuncForASpecifiedSourceTargetAndObjectType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Func<Address> addressFactory = () => new Address { Line2 = "Customer House" };
+
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<Customer>()
+                    .CreateInstancesOf<Address>()
+                    .Using(addressFactory);
+
+                var matchingSource = new CustomerViewModel { AddressLine1 = "Meh" };
+                var nonMatchingSource = new PersonViewModel { AddressLine1 = "Blah" };
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<Customer>();
+                nonMatchingSourceResult.Address.Line2.ShouldBeNull();
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<Person>();
+                nonMatchingTargetResult.Address.Line2.ShouldBeNull();
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<Customer>();
                 matchingResult.Address.Line2.ShouldBe("Customer House");
             }
         }

@@ -50,7 +50,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type DeclaringType => LeafMember.DeclaringType;
 
-        public Type Type => LeafMember.Type;
+        public Type Type => LeafMember?.Type;
 
         public string Name => LeafMember.Name;
 

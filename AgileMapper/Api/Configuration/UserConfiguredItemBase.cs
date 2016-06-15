@@ -76,7 +76,7 @@
             while (data != null)
             {
                 if (_configInfo.IsForSourceType(data.SourceType) &&
-                    _configInfo.IsForTargetType(data.TargetType))
+                    _configInfo.IsForTargetType(data.TargetMember.Type ?? data.TargetType))
                 {
                     return true;
                 }

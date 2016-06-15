@@ -10,7 +10,7 @@
         IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
         public InstanceCreationCallbackSpecifier(CallbackPosition callbackPosition, MapperContext mapperContext)
-            : this(callbackPosition, new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes())
+            : this(callbackPosition, MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext))
         {
         }
 

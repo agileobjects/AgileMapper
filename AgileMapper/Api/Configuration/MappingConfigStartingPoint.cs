@@ -18,14 +18,14 @@
         public void PassExceptionsTo(Action<IUntypedMemberMappingExceptionContext> callback)
         {
             var callbackFactory = new ExceptionCallbackFactory(
-                new MappingConfigInfo(_mapperContext).ForAllRuleSets().ForAllSourceTypes().ForAllTargetTypes(),
+                MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext),
                 Expression.Constant(callback));
 
             _mapperContext.UserConfigurations.Add(callbackFactory);
         }
 
-        public InstanceConfigurator<TInstance> InstancesOf<TInstance>() where TInstance : class
-            => new InstanceConfigurator<TInstance>(_mapperContext);
+        public InstanceConfigurator<TObject> InstancesOf<TObject>() where TObject : class
+            => new InstanceConfigurator<TObject>(_mapperContext);
 
         public TargetTypeSpecifier<TSource> From<TSource>(TSource exampleInstance) => From<TSource>();
 

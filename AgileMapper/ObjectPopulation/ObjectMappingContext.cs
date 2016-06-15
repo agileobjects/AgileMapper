@@ -161,7 +161,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Type IMappingData.SourceType => typeof(TRuntimeSource);
 
-        Type IMappingData.TargetType => typeof(TObject);
+        Type IMappingData.TargetType => typeof(TRuntimeTarget);
 
         QualifiedMember IMappingData.TargetMember => _targetMember;
 

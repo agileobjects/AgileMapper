@@ -41,11 +41,13 @@
     <Compile Include="Api\Configuration\DerivedTypePair.cs" />
     <Compile Include="Api\Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\ExceptionCallbackFactory.cs" />
+    <Compile Include="Api\Configuration\FactorySpecifier.cs" />
     <Compile Include="Api\Configuration\ICallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IConditionalCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IConditionalMappingConfigurator.cs" />
     <Compile Include="Api\Configuration\IConditionalPostInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IConditionalPreInstanceCreationCallbackSpecifier.cs" />
+    <Compile Include="Api\Configuration\IFactorySpecifier.cs" />
     <Compile Include="Api\Configuration\IFullMappingConfigurator.cs" />
     <Compile Include="Api\Configuration\InstanceConfigurator.cs" />
     <Compile Include="Api\Configuration\IPostInstanceCreationCallbackSpecifier.cs" />

@@ -3,7 +3,6 @@
     using System;
     using System.Linq.Expressions;
     using Members;
-    using ObjectPopulation;
 
     internal class MappingConfigurator<TSource, TTarget> : IFullMappingConfigurator<TSource, TTarget>
     {
@@ -35,19 +34,13 @@
         #endregion
 
         public void CreateInstancesUsing(Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TTarget>> factory)
-        {
-            var objectFactory = ConfiguredObjectFactory.For(_configInfo, typeof(TTarget), factory);
-
-            _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
-        }
+            => new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
 
         public void CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
-        {
-            var factoryInfo = ConfiguredLambdaInfo.ForFunc(factory, typeof(TSource), typeof(TTarget));
-            var objectFactory = ConfiguredObjectFactory.For(_configInfo, typeof(TTarget), factoryInfo);
+            => new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
 
-            _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
-        }
+        public IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class
+            => new FactorySpecifier<TSource, TTarget, TObject>(_configInfo);
 
         public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 

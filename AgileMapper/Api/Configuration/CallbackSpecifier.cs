@@ -16,7 +16,7 @@
             CallbackPosition callbackPosition,
             QualifiedMember targetMember)
             : this(
-                  new MappingConfigInfo(mapperContext).ForAllRuleSets().ForAllSourceTypes(),
+                  MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext),
                   callbackPosition,
                   targetMember)
         {

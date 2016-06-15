@@ -10,6 +10,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         void CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class;
 
+        IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class;
+
         void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember);
 
         CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
