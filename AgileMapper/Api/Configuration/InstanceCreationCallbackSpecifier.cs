@@ -79,25 +79,25 @@
                 Expression<Func<TSource, TTarget, TObject, int?, bool>> condition)
             => SetCondition(condition);
 
-        void IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<ITypedObjectCreationMappingContext<TSource, TTarget, TObject>> callback)
             => CreateCallbackFactory(callback);
 
-        void IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget> callback)
             => CreateCallbackFactory(callback);
 
-        void IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget, TObject> callback)
             => CreateCallbackFactory(callback);
 
-        void IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget, TObject, int?> callback)
             => CreateCallbackFactory(callback);
 
         #endregion
 
-        private void CreateCallbackFactory<TAction>(TAction callback)
+        private MappingConfigContinuation<TSource, TTarget> CreateCallbackFactory<TAction>(TAction callback)
         {
             var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TObject));
 
@@ -108,6 +108,8 @@
                 callbackLambda);
 
             ConfigInfo.MapperContext.UserConfigurations.Add(creationCallbackFactory);
+
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
     }
 }

@@ -53,7 +53,7 @@
             _configInfo.MapperContext.UserConfigurations.Add(callbackFactory);
         }
 
-        public void Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
+        public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
             foreach (var targetMember in targetMembers)
             {
@@ -64,6 +64,8 @@
                 _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
                 _configInfo.NegateCondition();
             }
+
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
 
         public PreEventMappingConfigStartingPoint<TSource, TTarget> Before
@@ -74,39 +76,40 @@
 
         #region Map Overloads
 
-        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
                 valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
                 valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(typeof(TSourceValue)),
                 valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TTarget> MapFunc<TSourceValue>(Func<TSource, TSourceValue> valueFunc)
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
+            Func<TSource, TSourceValue> valueFunc)
             => GetConstantTargetMemberSpecifier(valueFunc);
 
-        public CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(TSourceValue value)
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
         {
             var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
 
             return (valueLambdaInfo != null)
-                ? new CustomDataSourceTargetMemberSpecifier<TTarget>(
+                ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                     _configInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
                     valueLambdaInfo)
                 : GetConstantTargetMemberSpecifier(value);
@@ -114,12 +117,13 @@
 
         #region Map Helpers
 
-        private CustomDataSourceTargetMemberSpecifier<TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(TSourceValue value)
+        private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(
+            TSourceValue value)
         {
             var valueConstant = Expression.Constant(value, typeof(TSourceValue));
             var valueLambda = Expression.Lambda<Func<TSourceValue>>(valueConstant);
 
-            return new CustomDataSourceTargetMemberSpecifier<TTarget>(
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType(valueConstant.Type),
                 valueLambda);
         }

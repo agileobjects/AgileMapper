@@ -4,7 +4,7 @@
     using System.Linq.Expressions;
     using DataSources;
 
-    public class CustomDataSourceTargetMemberSpecifier<TTarget>
+    public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly ConfiguredLambdaInfo _customValueLambda;
@@ -20,13 +20,16 @@
             _customValueLambda = customValueLambda;
         }
 
-        public void To<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
+        public MappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
+            Expression<Func<TTarget, TTargetValue>> targetMember)
             => RegisterDataSource<TTargetValue>(targetMember);
 
-        public void To<TTargetValue>(Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
+        public MappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
+            Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
             => RegisterDataSource<TTargetValue>(targetSetMethod);
 
-        private void RegisterDataSource<TTargetValue>(LambdaExpression targetMemberLambda)
+        private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(
+            LambdaExpression targetMemberLambda)
         {
             _configInfo.ThrowIfSourceTypeDoesNotMatch<TTargetValue>();
 
@@ -36,6 +39,8 @@
                 targetMemberLambda);
 
             _configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);
+
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
     }
 }
