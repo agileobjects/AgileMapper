@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Api.Configuration;
@@ -65,6 +66,31 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Person>();
 
                 nonMatchingResult.Name.ShouldBe("Frodo");
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreMultipleConfiguredMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .ToANew<Person>()
+                    .Ignore(p => p.Name, p => p.Address.Line1);
+
+                var source = new PersonViewModel
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Bilbo",
+                    AddressLine1 = "House Street"
+                };
+                var matchingResult = mapper.Map(source).ToANew<Person>();
+
+                matchingResult.Id.ShouldBe(source.Id);
+                matchingResult.Name.ShouldBeNull();
+                matchingResult.Address.ShouldNotBeNull();
+                matchingResult.Address.Line1.ShouldBeNull();
             }
         }
 

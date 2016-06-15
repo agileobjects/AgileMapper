@@ -53,14 +53,17 @@
             _configInfo.MapperContext.UserConfigurations.Add(callbackFactory);
         }
 
-        public void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember)
+        public void Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
-            var configuredIgnoredMember = new ConfiguredIgnoredMember(
+            foreach (var targetMember in targetMembers)
+            {
+                var configuredIgnoredMember = new ConfiguredIgnoredMember(
                 _configInfo.ForTargetType<TTarget>(),
                 targetMember);
 
-            _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
-            _configInfo.NegateCondition();
+                _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+                _configInfo.NegateCondition();
+            }
         }
 
         public PreEventMappingConfigStartingPoint<TSource, TTarget> Before

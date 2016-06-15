@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class;
 
-        void Ignore<TTargetValue>(Expression<Func<TTarget, TTargetValue>> targetMember);
+        void Ignore(params Expression<Func<TTarget, object>>[] targetMembers);
 
         CustomDataSourceTargetMemberSpecifier<TTarget> Map<TSourceValue>(
             Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression);
