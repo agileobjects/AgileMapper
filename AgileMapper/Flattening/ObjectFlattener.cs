@@ -48,7 +48,7 @@
                 var name = GetName(parentMemberName, sourceMember);
                 var value = GetValue(parentObject, sourceMember);
 
-                if (sourceMember.IsSimple)
+                if (sourceMember.IsSimple || (sourceMember.IsEnumerable && sourceMember.ElementType.IsSimple()))
                 {
                     yield return Tuple.Create(name, value);
                     continue;

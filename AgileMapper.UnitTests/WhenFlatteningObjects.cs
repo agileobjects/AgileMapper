@@ -18,6 +18,16 @@
         }
 
         [Fact]
+        public void ShouldIncludeASimpleTypeEnumerableMember()
+        {
+            var source = new PublicProperty<long[]> { Value = new[] { 1L, 2L, 3L } };
+            var result = Mapper.Flatten(source);
+
+            ((object)result).ShouldNotBeNull();
+            ((long[])result.Value).ShouldBe(1, 2, 3);
+        }
+
+        [Fact]
         public void ShouldNotIncludeComplexTypeMembers()
         {
             var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 9876 } };
