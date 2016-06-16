@@ -18,7 +18,9 @@
                     string.Empty,
                     variableName.ToCharArray().Skip(1).Where(char.IsUpper));
 
-            return Pluralise(shortVariableName.ToLowerInvariant());
+            shortVariableName = shortVariableName.ToLowerInvariant();
+
+            return type.IsEnumerable() ? Pluralise(shortVariableName) : shortVariableName;
         }
 
         public static string GetVariableName(
