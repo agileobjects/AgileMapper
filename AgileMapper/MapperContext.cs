@@ -16,7 +16,7 @@
             DataSources = new DataSourceFinder();
             Cache = GlobalContext.CreateCache();
             ObjectMapperFactory = new ObjectMapperFactory();
-            ObjectFlattener = new ObjectFlattener(GlobalContext);
+            ObjectFlattener = new ObjectFlattener(this);
             UserConfigurations = new UserConfigurationSet();
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();

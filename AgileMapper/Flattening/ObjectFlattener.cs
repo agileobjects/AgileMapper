@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Caching;
     using Extensions;
     using Members;
 
@@ -13,21 +12,19 @@
     {
         #region Cached Items
 
-        private static readonly ParameterExpression _parameter = Parameters.Create<ObjectFlattener>();
+        private static readonly ParameterExpression _objectFlattenerParameter = Parameters.Create<ObjectFlattener>();
 
-        private static readonly MethodInfo _getPropertyValuesByNameMethod = typeof(ObjectFlattener)
+        private static readonly MethodInfo _getPropertiesMethod = typeof(ObjectFlattener)
             .GetMethods(Constants.NonPublicInstance)
             .Last(m => m.Name == "GetPropertyValuesByName");
 
         #endregion
 
-        private readonly MemberFinder _memberFinder;
-        private readonly ICache _cache;
+        private readonly MapperContext _mapperContext;
 
-        public ObjectFlattener(GlobalContext globalContext)
+        public ObjectFlattener(MapperContext mapperContext)
         {
-            _memberFinder = globalContext.MemberFinder;
-            _cache = globalContext.Cache;
+            _mapperContext = mapperContext;
         }
 
         public FlattenedObject Flatten<TSource>(TSource source)
@@ -42,25 +39,24 @@
             return propertyValuesByName;
         }
 
-        internal IEnumerable<Tuple<string, object>> GetPropertyValuesByName(
-            object parentObject,
+        internal IEnumerable<Tuple<string, object>> GetPropertyValuesByName<TSource>(
+            TSource parentObject,
             string parentMemberName)
         {
-            if (parentObject == null)
-            {
-                yield break;
-            }
-
-            foreach (var sourceMember in _memberFinder.GetReadableMembers(parentObject.GetType()))
+            foreach (var sourceMember in _mapperContext.GlobalContext.MemberFinder.GetReadableMembers(typeof(TSource)))
             {
                 var name = GetName(parentMemberName, sourceMember);
                 var value = GetValue(parentObject, sourceMember);
 
-                yield return Tuple.Create(name, value);
+                if (sourceMember.IsSimple)
+                {
+                    yield return Tuple.Create(name, value);
+                    continue;
+                }
 
                 if (sourceMember.IsComplex)
                 {
-                    foreach (var nestedPropertyValueByName in GetPropertyValuesByName(value, name))
+                    foreach (var nestedPropertyValueByName in GetNestedPropertyValuesByName(value, sourceMember, name))
                     {
                         yield return nestedPropertyValueByName;
                     }
@@ -80,18 +76,60 @@
 
         private object GetValue<TSource>(TSource source, Member member)
         {
-            var sourceParameter = Parameters.Create<TSource>("source");
-            var valueAccess = member.GetAccess(sourceParameter);
-
-            if (member.Type.IsValueType)
+            if (source == null)
             {
-                valueAccess = valueAccess.GetConversionTo(typeof(object));
+                return default(TSource);
             }
 
-            var valueLambda = Expression.Lambda<Func<TSource, object>>(valueAccess, sourceParameter);
-            var valueFunc = valueLambda.Compile();
+            var cacheKey = typeof(TSource).FullName + $".{member.Name}: GetValue";
+
+            var valueFunc = _mapperContext.GlobalContext.Cache.GetOrAdd(cacheKey, k =>
+            {
+                var sourceParameter = Parameters.Create<TSource>("source");
+                var valueAccess = member.GetAccess(sourceParameter);
+
+                if (member.Type.IsValueType)
+                {
+                    valueAccess = valueAccess.GetConversionTo(typeof(object));
+                }
+
+                var valueLambda = Expression.Lambda<Func<TSource, object>>(valueAccess, sourceParameter);
+
+                return valueLambda.Compile();
+            });
 
             return valueFunc.Invoke(source);
+        }
+
+        private IEnumerable<Tuple<string, object>> GetNestedPropertyValuesByName(
+            object parentObject,
+            Member parentMember,
+            string parentMemberName)
+        {
+            var cacheKey = parentMember.Type.FullName + ": GetPropertiesCaller";
+
+            var getPropertiesFunc = _mapperContext.GlobalContext.Cache.GetOrAdd(cacheKey, k =>
+            {
+                var sourceParameter = Parameters.Create<object>("source");
+                var parentMemberNameParameter = Parameters.Create<string>("parentMemberName");
+
+                var getPropertiesCall = Expression.Call(
+                    _objectFlattenerParameter,
+                    _getPropertiesMethod.MakeGenericMethod(parentMember.Type),
+                    sourceParameter.GetConversionTo(parentMember.Type),
+                    parentMemberNameParameter);
+
+                var getPropertiesLambda = Expression
+                    .Lambda<Func<ObjectFlattener, object, string, IEnumerable<Tuple<string, object>>>>(
+                        getPropertiesCall,
+                        _objectFlattenerParameter,
+                        sourceParameter,
+                        parentMemberNameParameter);
+
+                return getPropertiesLambda.Compile();
+            });
+
+            return getPropertiesFunc.Invoke(this, parentObject, parentMemberName);
         }
     }
 }

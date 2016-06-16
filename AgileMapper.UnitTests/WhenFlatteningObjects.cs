@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using Microsoft.CSharp.RuntimeBinder;
     using TestClasses;
     using Xunit;
     using Shouldly;
@@ -17,13 +18,20 @@
         }
 
         [Fact]
+        public void ShouldNotIncludeComplexTypeMembers()
+        {
+            var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 9876 } };
+            var result = Mapper.Flatten(source);
+
+            Assert.Throws<RuntimeBinderException>(() => result.Value);
+        }
+
+        [Fact]
         public void ShouldIncludeANestedSimpleTypeMember()
         {
             var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 1234 } };
             var result = Mapper.Flatten(source);
 
-            ((object)result).ShouldNotBeNull();
-            ((PublicField<int>)result.Value).ShouldNotBeNull();
             ((int)result.Value_Value).ShouldBe(1234);
         }
 
@@ -33,8 +41,7 @@
             var source = new PublicProperty<PublicField<int>> { Value = null };
             var result = Mapper.Flatten(source);
 
-            ((object)result).ShouldNotBeNull();
-            ((PublicField<int>)result.Value).ShouldBeNull();
+            ((object)result.Value_Value).ShouldBeNull();
         }
     }
 }
