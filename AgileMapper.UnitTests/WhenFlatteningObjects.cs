@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System.Collections.Generic;
     using Microsoft.CSharp.RuntimeBinder;
     using TestClasses;
     using Xunit;
@@ -37,7 +38,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeANestedSimpleTypeMember()
+        public void ShouldIncludeAComplexTypeMemberSimpleTypeMember()
         {
             var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 1234 } };
             var result = Mapper.Flatten(source);
@@ -52,6 +53,48 @@
             var result = Mapper.Flatten(source);
 
             ((object)result.Value_Value).ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldNotIncludeComplexTypeEnumerableMembers()
+        {
+            var source = new PublicProperty<IEnumerable<Product>>
+            {
+                Value = new[]
+                {
+                    new Product { ProductId = "Summin" }
+                }
+            };
+            var result = Mapper.Flatten(source);
+
+            Assert.Throws<RuntimeBinderException>(() => result.Value);
+        }
+
+        [Fact]
+        public void ShouldIncludeAComplexTypeEnumerableMemberSimpleTypeMember()
+        {
+            var source = new PublicProperty<IEnumerable<Product>>
+            {
+                Value = new[]
+                {
+                    new Product { ProductId = "SumminElse" }
+                }
+            };
+            var result = Mapper.Flatten(source);
+
+            ((string)result.Value0_ProductId).ShouldBe("SumminElse");
+        }
+
+        [Fact]
+        public void ShouldHandleANullComplexTypeEnumerableMemberElement()
+        {
+            var source = new PublicProperty<IEnumerable<Product>>
+            {
+                Value = new Product[] { null }
+            };
+            var result = Mapper.Flatten(source);
+
+            ((string)result.Value0_ProductId).ShouldBeNull();
         }
     }
 }

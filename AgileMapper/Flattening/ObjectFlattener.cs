@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Flattening
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -56,10 +57,17 @@
 
                 if (sourceMember.IsComplex)
                 {
-                    foreach (var nestedPropertyValueByName in GetNestedPropertyValuesByName(value, sourceMember, name))
+                    foreach (var nestedPropertyValueByName in GetComplexTypePropertyValuesByName(value, sourceMember.Type, name))
                     {
                         yield return nestedPropertyValueByName;
                     }
+
+                    continue;
+                }
+
+                foreach (var nestedPropertyValueByName in GetEnumerablePropertyValuesByName(value, sourceMember.ElementType, name))
+                {
+                    yield return nestedPropertyValueByName;
                 }
             }
         }
@@ -101,12 +109,12 @@
             return valueFunc.Invoke(source);
         }
 
-        private IEnumerable<Tuple<string, object>> GetNestedPropertyValuesByName(
-            object parentObject,
-            Member parentMember,
+        private IEnumerable<Tuple<string, object>> GetComplexTypePropertyValuesByName(
+            object parentComplexType,
+            Type parentMemberType,
             string parentMemberName)
         {
-            var cacheKey = parentMember.Type.FullName + ": GetPropertiesCaller";
+            var cacheKey = parentMemberType.FullName + ": GetPropertiesCaller";
 
             var getPropertiesFunc = _mapperContext.GlobalContext.Cache.GetOrAdd(cacheKey, k =>
             {
@@ -115,8 +123,8 @@
 
                 var getPropertiesCall = Expression.Call(
                     _objectFlattenerParameter,
-                    _getPropertiesMethod.MakeGenericMethod(parentMember.Type),
-                    sourceParameter.GetConversionTo(parentMember.Type),
+                    _getPropertiesMethod.MakeGenericMethod(parentMemberType),
+                    sourceParameter.GetConversionTo(parentMemberType),
                     parentMemberNameParameter);
 
                 var getPropertiesLambda = Expression
@@ -129,7 +137,29 @@
                 return getPropertiesLambda.Compile();
             });
 
-            return getPropertiesFunc.Invoke(this, parentObject, parentMemberName);
+            return getPropertiesFunc.Invoke(this, parentComplexType, parentMemberName);
+        }
+
+        private IEnumerable<Tuple<string, object>> GetEnumerablePropertyValuesByName(
+            object parentEnumerable,
+            Type declaredEnumerableElementType,
+            string parentMemberName)
+        {
+            var items = (IEnumerable)parentEnumerable;
+
+            var i = 0;
+
+            foreach (var item in items)
+            {
+                var itemType = item?.GetType() ?? declaredEnumerableElementType;
+
+                foreach (var nestedPropertyValueByName in GetComplexTypePropertyValuesByName(item, itemType, parentMemberName + i))
+                {
+                    yield return nestedPropertyValueByName;
+                }
+
+                ++i;
+            }
         }
     }
 }
