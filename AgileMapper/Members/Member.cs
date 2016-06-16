@@ -1,12 +1,14 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using Extensions;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
+    [DebuggerDisplay("{Signature}")]
     internal class Member
     {
         public Member(

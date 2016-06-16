@@ -3,6 +3,7 @@
     using Api.Configuration;
     using Caching;
     using DataSources;
+    using Flattening;
     using ObjectPopulation;
     using TypeConversion;
 
@@ -15,6 +16,7 @@
             DataSources = new DataSourceFinder();
             Cache = GlobalContext.CreateCache();
             ObjectMapperFactory = new ObjectMapperFactory();
+            ObjectFlattener = new ObjectFlattener(GlobalContext.MemberFinder);
             UserConfigurations = new UserConfigurationSet();
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
@@ -27,6 +29,8 @@
         public DataSourceFinder DataSources { get; }
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
+
+        public ObjectFlattener ObjectFlattener { get; }
 
         public UserConfigurationSet UserConfigurations { get; }
 

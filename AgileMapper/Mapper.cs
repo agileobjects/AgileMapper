@@ -2,6 +2,7 @@
 {
     using Api;
     using Api.Configuration;
+    using Flattening;
 
     public sealed class Mapper : IMapper
     {
@@ -43,6 +44,9 @@
         public static TSource Clone<TSource>(TSource source) where TSource : class
             => _default.Clone(source);
 
+        public static dynamic Flatten<TSource>(TSource source) where TSource : class
+            => _default.Flatten(source);
+
         public static TargetTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
 
         internal static void ResetDefaultInstance() => _default.Dispose();
@@ -52,6 +56,8 @@
         MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(_mapperContext);
 
         TSource IMapper.Clone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
+
+        dynamic IMapper.Flatten<TSource>(TSource source) => _mapperContext.ObjectFlattener.Flatten(source);
 
         TargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
         {

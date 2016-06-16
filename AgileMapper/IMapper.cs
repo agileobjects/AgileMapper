@@ -16,6 +16,8 @@
 
         TSource Clone<TSource>(TSource source) where TSource : class;
 
+        dynamic Flatten<TSource>(TSource source) where TSource : class;
+
         TargetTypeSelector<TSource> Map<TSource>(TSource source);
     }
 }
