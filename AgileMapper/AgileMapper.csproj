@@ -34,6 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\VersionInfo.cs">
+      <Link>VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Api\Configuration\Callbacks.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConfiguredLambdaInfo.cs" />
