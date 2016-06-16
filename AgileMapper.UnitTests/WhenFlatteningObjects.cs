@@ -52,7 +52,7 @@
             var source = new PublicProperty<PublicField<int>> { Value = null };
             var result = Mapper.Flatten(source);
 
-            ((object)result.Value_Value).ShouldBeNull();
+            ((int)result.Value_Value).ShouldBeDefault();
         }
 
         [Fact]

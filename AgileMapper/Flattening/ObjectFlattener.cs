@@ -86,7 +86,7 @@
         {
             if (source == null)
             {
-                return default(TSource);
+                return member.Type.IsValueType ? Activator.CreateInstance(member.Type) : null;
             }
 
             var cacheKey = typeof(TSource).FullName + $".{member.Name}: GetValue";
