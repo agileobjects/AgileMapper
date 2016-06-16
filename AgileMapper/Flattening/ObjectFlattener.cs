@@ -46,6 +46,11 @@
             object parentObject,
             string parentMemberName)
         {
+            if (parentObject == null)
+            {
+                yield break;
+            }
+
             foreach (var sourceMember in _memberFinder.GetReadableMembers(parentObject.GetType()))
             {
                 var name = GetName(parentMemberName, sourceMember);

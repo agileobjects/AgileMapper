@@ -7,7 +7,7 @@
     public class WhenFlatteningObjects
     {
         [Fact]
-        public void ShouldIncludeASimpleTypeProperty()
+        public void ShouldIncludeASimpleTypeMember()
         {
             var source = new PublicProperty<string> { Value = "Flatten THIS" };
             var result = Mapper.Flatten(source);
@@ -17,13 +17,24 @@
         }
 
         [Fact]
-        public void ShouldIncludeANestedSimpleTypeField()
+        public void ShouldIncludeANestedSimpleTypeMember()
         {
             var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 1234 } };
             var result = Mapper.Flatten(source);
 
             ((object)result).ShouldNotBeNull();
+            ((PublicField<int>)result.Value).ShouldNotBeNull();
             ((int)result.Value_Value).ShouldBe(1234);
+        }
+
+        [Fact]
+        public void ShouldHandleANullComplexTypeMember()
+        {
+            var source = new PublicProperty<PublicField<int>> { Value = null };
+            var result = Mapper.Flatten(source);
+
+            ((object)result).ShouldNotBeNull();
+            ((PublicField<int>)result.Value).ShouldBeNull();
         }
     }
 }
