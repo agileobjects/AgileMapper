@@ -535,6 +535,54 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredNestedComplexType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<PublicField<Person>>>()
+                    .Over<PublicProperty<Person>>()
+                    .Map((s, t) => s.Value.Value)
+                    .To(pp => pp.Value);
+
+                var source = new PublicProperty<PublicField<Person>>
+                {
+                    Value = new PublicField<Person>
+                    {
+                        Value = new Customer { Name = "Someone else" }
+                    }
+                };
+                var target = new PublicProperty<Person> { Value = new Person { Name = "Someone" } };
+                var result = mapper.Map(source).Over(target);
+
+                result.Value.ShouldNotBeSameAs(source.Value.Value);
+                result.Value.Name.ShouldBe("Someone else");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleANullAConfiguredNestedComplexType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<PublicField<Person>>>()
+                    .Over<PublicProperty<Person>>()
+                    .Map((s, t) => s.Value.Value)
+                    .To(pp => pp.Value);
+
+                var source = new PublicProperty<PublicField<Person>>
+                {
+                    Value = new PublicField<Person> { Value = null }
+                };
+                var target = new PublicProperty<Person> { Value = new Person { Name = "Someone" } };
+                var result = mapper.Map(source).Over(target);
+
+                result.Value.Name.ShouldBe("Someone");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredComplexTypeConditionally()
         {
             using (var mapper = Mapper.CreateNew())

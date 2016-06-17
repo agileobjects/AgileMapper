@@ -38,14 +38,7 @@
 
             if (context.TargetMember.IsComplex)
             {
-                var complexTypeDataSource = new ComplexTypeMappingDataSource(context.SourceMember, dataSourceIndex, context);
-                yield return complexTypeDataSource;
-
-                if (complexTypeDataSource.IsConditional)
-                {
-                    yield return FallbackDataSourceFor(context);
-                }
-
+                yield return new ComplexTypeMappingDataSource(context.SourceMember, dataSourceIndex, context);
                 yield break;
             }
 
