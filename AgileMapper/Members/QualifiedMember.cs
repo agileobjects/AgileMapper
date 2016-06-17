@@ -16,11 +16,25 @@ namespace AgileObjects.AgileMapper.Members
         private readonly Member[] _memberChain;
         private readonly QualifiedMemberName _qualifiedName;
 
-        private QualifiedMember(Member member, QualifiedMember parent)
-            : this(
-                  parent?._memberChain.Concat(member).ToArray() ?? new[] { member },
-                  parent?._qualifiedName.Append(member.MemberName) ?? new QualifiedMemberName(new[] { member.MemberName }))
+        private QualifiedMember(Member member)
+            : this(new[] { member }, new QualifiedMemberName(new[] { member.MemberName }))
         {
+        }
+
+        private QualifiedMember(Member member, QualifiedMember parent)
+            : this(AppendToMemberChain(parent._memberChain, member), parent._qualifiedName.Append(member.MemberName))
+        {
+        }
+
+        private static Member[] AppendToMemberChain(Member[] memberChain, Member newLeafMember)
+        {
+            var newMemberChain = new Member[memberChain.Length + 1];
+
+            memberChain.CopyTo(newMemberChain, 0);
+
+            newMemberChain[memberChain.Length] = newLeafMember;
+
+            return newMemberChain;
         }
 
         private QualifiedMember(Member[] memberChain)
@@ -38,7 +52,7 @@ namespace AgileObjects.AgileMapper.Members
 
         #region Factory Method
 
-        public static QualifiedMember From(Member member) => new QualifiedMember(member, null);
+        public static QualifiedMember From(Member member) => new QualifiedMember(member);
 
         public static QualifiedMember From(IEnumerable<Member> memberChain) => new QualifiedMember(memberChain.ToArray());
 

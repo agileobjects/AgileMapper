@@ -61,18 +61,17 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public QualifiedMemberName Append(MemberName memberName)
-            => new QualifiedMemberName(GetNameParts(memberName).ToArray());
+            => new QualifiedMemberName(GetNameParts(memberName));
 
-        private IEnumerable<MemberName> GetNameParts(MemberName memberName)
+        private MemberName[] GetNameParts(MemberName memberName)
         {
-            yield return _rootNamePart;
+            var nameParts = new MemberName[_nameParts.Length + 2];
 
-            foreach (var namePart in _nameParts)
-            {
-                yield return namePart;
-            }
+            nameParts[0] = _rootNamePart;
+            _nameParts.CopyTo(nameParts, 1);
+            nameParts[_nameParts.Length + 1] = memberName;
 
-            yield return memberName;
+            return nameParts;
         }
     }
 }
