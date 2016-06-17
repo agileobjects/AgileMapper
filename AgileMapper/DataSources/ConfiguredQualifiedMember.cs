@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
@@ -12,7 +11,7 @@ namespace AgileObjects.AgileMapper.DataSources
     {
         private readonly Expression _value;
         private readonly QualifiedMember _matchedTargetMember;
-        private readonly IEnumerable<Member> _childMembers;
+        private readonly Member[] _childMembers;
 
         public ConfiguredQualifiedMember(Expression value, IMappingData data)
             : this(value, data.TargetMember)
@@ -37,7 +36,7 @@ namespace AgileObjects.AgileMapper.DataSources
                   parent.Name + childMember.MemberName.JoiningName,
                   parent._value,
                   parent._matchedTargetMember.Append(childMember),
-                  parent._childMembers.Concat(childMember).ToArray())
+                  parent._childMembers.Append(childMember))
         {
             IsSimple = childMember.IsSimple;
             IsEnumerable = childMember.IsEnumerable;
@@ -49,7 +48,7 @@ namespace AgileObjects.AgileMapper.DataSources
             string name,
             Expression value,
             QualifiedMember matchedTargetMember,
-            IEnumerable<Member> childMembers = null)
+            Member[] childMembers = null)
         {
             Type = type;
             Name = name;

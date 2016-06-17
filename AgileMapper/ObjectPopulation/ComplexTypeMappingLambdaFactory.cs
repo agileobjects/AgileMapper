@@ -60,7 +60,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 blockBuilder = conditions => Expression.Block(
                     new[] { (ParameterExpression)sourceObject },
-                    new[] { assignSourceObject }.Concat(conditions));
+                    conditions.Prepend(assignSourceObject));
             }
 
             var shortCircuitConditions = omc.MappingContext
@@ -181,19 +181,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var objectRegistration = omc.ObjectRegistrationCall;
             var memberPopulations = MemberPopulationFactory.Create(omc);
 
-            var successfulPopulations = memberPopulations
+            var populationExpressions = memberPopulations
                 .Where(p => p.IsSuccessful)
-                .Select(GetPopulationWithCallbacks)
-                .ToArray();
+                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p) : p.GetPopulation());
 
-            var unsuccessfulPopulations = memberPopulations
-                .Where(p => !p.IsSuccessful)
-                .Select(p => p.GetPopulation())
-                .ToArray();
-
-            return new[] { objectRegistration }
-                .Concat(successfulPopulations)
-                .Concat(unsuccessfulPopulations)
+            return populationExpressions
+                .Prepend(objectRegistration)
                 .ToArray();
         }
 

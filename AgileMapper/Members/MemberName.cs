@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.Members
     internal class MemberName
     {
         private readonly string _name;
-        private readonly List<string> _allNames;
+        private readonly ICollection<string> _allNames;
         private readonly bool _isRoot;
 
         public MemberName(
@@ -26,17 +26,17 @@ namespace AgileObjects.AgileMapper.Members
                 return;
             }
 
-            _allNames = new List<string> { name };
-
-            var idNameParts = GetIdNameParts(declaringType).ToArray();
+            var idNameParts = GetIdNameParts(declaringType);
             IsIdentifier = idNameParts.Contains(name);
 
-            if (IsIdentifier) { _allNames.AddRange(idNameParts); }
+            _allNames = IsIdentifier ? idNameParts : new List<string> { name };
 
-            if ((memberType == MemberType.GetMethod) ||
-                (memberType == MemberType.SetMethod))
+            switch (memberType)
             {
-                _allNames.Add(name.Substring(3));
+                case MemberType.GetMethod:
+                case MemberType.SetMethod:
+                    _allNames.Add(name.Substring(3));
+                    break;
             }
 
             JoiningName = (name == Constants.EnumerableElementMemberName) ? name : "." + name;
@@ -44,15 +44,11 @@ namespace AgileObjects.AgileMapper.Members
 
         #region Setup
 
-        private static IEnumerable<string> GetIdNameParts(Type declaringType)
+        private static ICollection<string> GetIdNameParts(Type declaringType)
         {
-            yield return "Id";
-            yield return "Identifier";
-
             var declaringTypeName = declaringType.GetFriendlyName();
 
-            yield return declaringTypeName + "Id";
-            yield return declaringTypeName + "Identifier";
+            return new List<string> { "Id", "Identifier", declaringTypeName + "Id", declaringTypeName + "Identifier" };
         }
 
         #endregion

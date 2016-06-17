@@ -13,8 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GlobalContext
                 .MemberFinder
                 .GetWriteableMembers(omc.ExistingObject.Type)
-                .Select(targetMember => Create(targetMember, omc))
-                .ToArray();
+                .Select(targetMember => Create(targetMember, omc));
         }
 
         private static IMemberPopulation Create(Member targetMember, IObjectMappingContext omc)

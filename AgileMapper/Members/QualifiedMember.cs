@@ -22,19 +22,8 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private QualifiedMember(Member member, QualifiedMember parent)
-            : this(AppendToMemberChain(parent._memberChain, member), parent._qualifiedName.Append(member.MemberName))
+            : this(parent._memberChain.Append(member), parent._qualifiedName.Append(member.MemberName))
         {
-        }
-
-        private static Member[] AppendToMemberChain(Member[] memberChain, Member newLeafMember)
-        {
-            var newMemberChain = new Member[memberChain.Length + 1];
-
-            memberChain.CopyTo(newMemberChain, 0);
-
-            newMemberChain[memberChain.Length] = newLeafMember;
-
-            return newMemberChain;
         }
 
         private QualifiedMember(Member[] memberChain)

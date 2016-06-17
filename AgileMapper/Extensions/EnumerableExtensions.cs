@@ -15,6 +15,27 @@
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, params T[] extraItems)
             => items.Concat(extraItems.AsEnumerable());
 
+        public static T[] Append<T>(this T[] array, T extraItem)
+        {
+            var newArray = new T[array.Length + 1];
+
+            array.CopyTo(newArray, 0);
+
+            newArray[array.Length] = extraItem;
+
+            return newArray;
+        }
+
+        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> items, T newItem)
+        {
+            yield return newItem;
+
+            foreach (var item in items)
+            {
+                yield return item;
+            }
+        }
+
         public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
         {
             var excludedItemCountsByItem = GetCountsByItem(excludedItems);
