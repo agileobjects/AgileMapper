@@ -96,12 +96,9 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            var newMemberChain = new Member[_memberChain.Length];
-            Array.Copy(_memberChain, 0, newMemberChain, 0, newMemberChain.Length - 1);
+            _memberChain[_memberChain.Length - 1] = LeafMember.WithType(runtimeType);
 
-            newMemberChain[newMemberChain.Length - 1] = LeafMember.WithType(runtimeType);
-
-            return new QualifiedMember(newMemberChain, _qualifiedName);
+            return new QualifiedMember(_memberChain, _qualifiedName);
         }
 
         public bool IsSameAs(IQualifiedMember otherMember)
