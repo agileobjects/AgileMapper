@@ -41,7 +41,7 @@
         public void ShouldIncludeAComplexTypeMemberSimpleTypeMember()
         {
             var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 1234 } };
-            var result = Mapper.Flatten(source);
+            var result = Mapper.CreateNew().Flatten(source);
 
             ((int)result.Value_Value).ShouldBe(1234);
         }
