@@ -298,13 +298,47 @@
         }
 
         [Fact]
-        public void ShouldErrorIfObjectFactorySpecifiedWithInvalidArguments()
+        public void ShouldErrorIfSingleParameterObjectFactorySpecifiedWithInvalidParameter()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    Func<DateTime, Address> addressFactory = dt => new Address();
+
+                    mapper
+                        .WhenMapping
+                        .InstancesOf<Address>()
+                        .CreateUsing(addressFactory);
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldErrorIfTwoParameterObjectFactorySpecifiedWithInvalidParameters()
         {
             Assert.Throws<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
                     Func<int, string, Address> addressFactory = (i, str) => new Address();
+
+                    mapper
+                        .WhenMapping
+                        .InstancesOf<Address>()
+                        .CreateUsing(addressFactory);
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldErrorIfFourParameterObjectFactorySpecifiedWithInvalidParameters()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    Func<int, string, DateTime, TimeSpan, Address> addressFactory = (i, str, dt, ts) => new Address();
 
                     mapper
                         .WhenMapping

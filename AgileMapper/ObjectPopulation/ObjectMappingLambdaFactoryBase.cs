@@ -104,7 +104,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     omc.Parameter,
                     exceptionVariable);
 
-                var callbackInvocation = Expression.Invoke(configuredCallback.Callback, exceptionContextCreateCall);
+                var callbackInvocation = Expression.Invoke(configuredCallback, exceptionContextCreateCall);
                 var returnDefault = Expression.Default(mappingBlock.Type);
                 catchBody = Expression.Block(callbackInvocation, returnDefault);
             }

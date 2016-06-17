@@ -15,7 +15,7 @@
         private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
         private readonly ICollection<MappingCallbackFactory> _mappingCallbackFactories;
         private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
-        private readonly ICollection<ExceptionCallbackFactory> _exceptionCallbackFactories;
+        private readonly ICollection<ExceptionCallback> _exceptionCallbackFactories;
         private readonly ICollection<DerivedTypePair> _typePairs;
 
         public UserConfigurationSet()
@@ -26,7 +26,7 @@
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
             _mappingCallbackFactories = new List<MappingCallbackFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
-            _exceptionCallbackFactories = new List<ExceptionCallbackFactory>();
+            _exceptionCallbackFactories = new List<ExceptionCallback>();
             _typePairs = new List<DerivedTypePair>();
         }
 
@@ -106,10 +106,10 @@
 
         #region ExceptionCallbacks
 
-        public void Add(ExceptionCallbackFactory callbackFactory) => _exceptionCallbackFactories.Add(callbackFactory);
+        public void Add(ExceptionCallback callback) => _exceptionCallbackFactories.Add(callback);
 
-        public ExceptionCallback GetExceptionCallbackOrNull(IMemberMappingContext context)
-            => FindMatch(_exceptionCallbackFactories, context)?.Create(context);
+        public Expression GetExceptionCallbackOrNull(IMemberMappingContext context)
+            => FindMatch(_exceptionCallbackFactories, context)?.Callback;
 
         #endregion
 

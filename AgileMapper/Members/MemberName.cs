@@ -49,11 +49,6 @@ namespace AgileObjects.AgileMapper.Members
             yield return "Id";
             yield return "Identifier";
 
-            if (declaringType == null)
-            {
-                yield break;
-            }
-
             var declaringTypeName = declaringType.GetFriendlyName();
 
             yield return declaringTypeName + "Id";

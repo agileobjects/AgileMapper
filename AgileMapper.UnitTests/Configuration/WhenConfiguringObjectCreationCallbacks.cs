@@ -232,9 +232,9 @@
                 mapper.WhenMapping
                     .From<PersonViewModel>()
                     .OnTo<Person>()
-                    .After
+                    .Before
                     .CreatingInstances
-                    .If((pvm, p, i) => (i - 1) == 0)
+                    .If((pvm, p) => p.Name == "Charlie")
                     .Call((pvm, p, o) => p.Name += " + " + pvm.Name);
 
                 var source = new[]

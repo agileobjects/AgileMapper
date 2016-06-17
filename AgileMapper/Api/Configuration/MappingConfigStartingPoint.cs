@@ -17,11 +17,11 @@
 
         public void PassExceptionsTo(Action<IUntypedMemberMappingExceptionContext> callback)
         {
-            var callbackFactory = new ExceptionCallbackFactory(
+            var exceptionCallback = new ExceptionCallback(
                 MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext),
                 Expression.Constant(callback));
 
-            _mapperContext.UserConfigurations.Add(callbackFactory);
+            _mapperContext.UserConfigurations.Add(exceptionCallback);
         }
 
         public InstanceConfigurator<TObject> InstancesOf<TObject>() where TObject : class

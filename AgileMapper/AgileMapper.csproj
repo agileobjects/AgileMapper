@@ -40,13 +40,11 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Api\Configuration\Callbacks.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
     <Compile Include="Api\Configuration\ConfiguredLambdaInfo.cs" />
     <Compile Include="Api\Configuration\DerivedPairTargetTypeSpecifier.cs" />
     <Compile Include="Api\Configuration\DerivedTypePair.cs" />
     <Compile Include="Api\Configuration\ExceptionCallback.cs" />
-    <Compile Include="Api\Configuration\ExceptionCallbackFactory.cs" />
     <Compile Include="Api\Configuration\FactorySpecifier.cs" />
     <Compile Include="Api\Configuration\ICallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IConditionalCallbackSpecifier.cs" />

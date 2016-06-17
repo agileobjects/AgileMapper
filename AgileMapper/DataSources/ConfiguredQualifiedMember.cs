@@ -75,6 +75,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public string Signature { get; }
 
+        public string Path => Signature;
+
         public IQualifiedMember Append(Member childMember) => new ConfiguredQualifiedMember(this, childMember);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)

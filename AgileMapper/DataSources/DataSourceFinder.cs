@@ -17,12 +17,6 @@
 
         private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
         {
-            if (context.Parent == null)
-            {
-                yield return RootSourceMemberDataSourceFor(context);
-                yield break;
-            }
-
             var dataSourceIndex = 0;
 
             IEnumerable<IConfiguredDataSource> configuredDataSources;

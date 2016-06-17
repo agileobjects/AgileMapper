@@ -50,20 +50,8 @@
 
         public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression instance)
         {
-            var accessSoFar = instance;
-
             // Skip(1) because the 0th member is the instance:
-            foreach (var member in memberChain.Skip(1))
-            {
-                if (!member.IsReadable)
-                {
-                    return Expression.Default(member.Type);
-                }
-
-                accessSoFar = member.GetAccess(accessSoFar);
-            }
-
-            return accessSoFar;
+            return memberChain.Skip(1).Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
         public static Member[] RelativeTo(this IEnumerable<Member> memberChain, IEnumerable<Member> otherMemberChain)

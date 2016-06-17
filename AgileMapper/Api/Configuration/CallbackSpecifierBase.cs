@@ -4,11 +4,6 @@
 
     internal abstract class CallbackSpecifierBase
     {
-        protected CallbackSpecifierBase(CallbackPosition callbackPosition, MapperContext mapperContext)
-            : this(callbackPosition, MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext))
-        {
-        }
-
         protected CallbackSpecifierBase(CallbackPosition callbackPosition, MappingConfigInfo configInfo)
         {
             CallbackPosition = callbackPosition;

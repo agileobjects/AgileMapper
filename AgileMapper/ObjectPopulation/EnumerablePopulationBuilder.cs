@@ -47,10 +47,10 @@
             ObjectMappingContext = omc;
 
             _sourceElementType = omc.SourceType.GetEnumerableElementType();
-            _sourceElementParameter = Parameters.Create(_sourceElementType);
+            _sourceElementParameter = GetParameter(_sourceElementType, omc);
 
             _targetElementType = TargetCollectionType.GetEnumerableElementType();
-            var targetElementParameter = Parameters.Create(_targetElementType);
+            var targetElementParameter = GetParameter(_targetElementType, omc);
 
             var sourceElementId = GetIdentifierOrNull(_sourceElementType, _sourceElementParameter, omc);
             var targetElementId = GetIdentifierOrNull(_targetElementType, targetElementParameter, omc);
@@ -64,20 +64,23 @@
 
         #region Setup
 
-        private static Expression GetIdentifierOrNull(Type type, Expression instance, IObjectMappingContext omc)
+        private static ParameterExpression GetParameter(Type type, IObjectMappingContext omc)
+            => omc.GlobalContext.Cache.GetOrAdd(type.FullName + ": EnumerableParameter", k => Parameters.Create(type));
+
+        private static Expression GetIdentifierOrNull(Type type, Expression parameter, IObjectMappingContext omc)
         {
-            return omc.MapperContext.Cache.GetOrAdd(TypeIdentifierKey.For(type), k =>
+            return omc.MapperContext.Cache.GetOrAdd(TypeIdentifierKey.For(type).Value, k =>
             {
                 var configuredIdentifier = omc.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(type);
 
                 if (configuredIdentifier != null)
                 {
-                    return configuredIdentifier.ReplaceParameterWith(instance);
+                    return configuredIdentifier.ReplaceParameterWith(parameter);
                 }
 
                 var identifier = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(type);
 
-                return identifier?.GetAccess(instance);
+                return identifier?.GetAccess(parameter);
             });
         }
 

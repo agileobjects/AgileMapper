@@ -21,6 +21,8 @@ namespace AgileObjects.AgileMapper.Members
 
         string Signature { get; }
 
+        string Path { get; }
+
         IQualifiedMember Append(Member childMember);
 
         IQualifiedMember RelativeTo(IQualifiedMember otherMember);

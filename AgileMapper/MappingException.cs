@@ -15,31 +15,40 @@
         {
         }
 
-        internal MappingException(IMappingData data, Exception innerException)
-            : base(GetMessage(data), innerException)
+        internal MappingException(IMemberMappingContext context, Exception innerException)
+            : base(GetMessage(context), innerException)
         {
         }
 
-        private static string GetMessage(IMappingData data)
+        private static string GetMessage(IMemberMappingContext context)
         {
-            var sourceTypeName = data.SourceType.GetFriendlyName();
-            var rootTargetType = GetRootTargetType(data).GetFriendlyName();
+            var rootData = GetRootMappingData(context);
 
-            var targetPath = (data.TargetMember.Path != "Target")
-                ? rootTargetType + data.TargetMember.Path.Substring("Target".Length)
-                : rootTargetType;
+            var sourcePath = GetMemberPath(rootData.SourceType, context.SourceMember, "Source");
+            var targetPath = GetMemberPath(rootData.TargetType, context.TargetMember, "Target");
 
-            return $"An exception occurred mapping {sourceTypeName} -> {targetPath} with rule set {data.RuleSetName}.";
+            return $"An exception occurred mapping {sourcePath} -> {targetPath} with rule set {context.RuleSetName}.";
         }
 
-        private static Type GetRootTargetType(IMappingData data)
+        private static IMappingData GetRootMappingData(IMappingData data)
         {
             while (data.Parent != null)
             {
                 data = data.Parent;
             }
 
-            return data.TargetType;
+            return data;
+        }
+
+        private static string GetMemberPath(Type rootType, IQualifiedMember member, string rootMemberName)
+        {
+            var rootTargetType = rootType.GetFriendlyName();
+
+            var path = (member.Path != rootMemberName)
+                ? rootTargetType + member.Path.Substring(rootMemberName.Length)
+                : rootTargetType;
+
+            return path;
         }
     }
 }

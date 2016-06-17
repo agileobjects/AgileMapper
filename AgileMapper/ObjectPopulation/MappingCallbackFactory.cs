@@ -42,17 +42,24 @@
         {
             var callback = _callbackLambda.GetBody(context);
 
-            if ((CallbackPosition != CallbackPosition.Before) || (TargetMemberPath != null))
-            {
-                return callback;
-            }
-
-            var callbackWithExistingObject = callback.Replace(context.InstanceVariable, context.ExistingObject);
-
-            return callbackWithExistingObject;
+            return Process(callback, context);
         }
 
         protected virtual Expression GetConditionOrNull(IObjectMappingContext omc)
-            => base.GetConditionOrNull(omc);
+            => Process(base.GetConditionOrNull(omc), omc);
+
+        private Expression Process(Expression expression, IMemberMappingContext context)
+        {
+            if ((expression == null) ||
+                (CallbackPosition != CallbackPosition.Before) ||
+                (TargetMemberPath != null))
+            {
+                return expression;
+            }
+
+            var expressionWithExistingObject = expression.Replace(context.InstanceVariable, context.ExistingObject);
+
+            return expressionWithExistingObject;
+        }
     }
 }

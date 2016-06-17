@@ -12,12 +12,6 @@
             _propertyValuesByName = propertyValuesByName;
         }
 
-        public override bool TrySetMember(SetMemberBinder binder, object value)
-        {
-            _propertyValuesByName[binder.Name] = value;
-            return true;
-        }
-
         public override bool TryGetMember(GetMemberBinder binder, out object result)
             => _propertyValuesByName.TryGetValue(binder.Name, out result);
     }
