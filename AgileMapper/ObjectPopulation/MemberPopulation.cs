@@ -21,8 +21,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _context = context;
             _dataSources = dataSources;
             _populateCondition = populateCondition;
-
-            context.MappingContext.RuleSet.MemberPopulationProcessor.Process(this);
         }
 
         #region Factory Methods

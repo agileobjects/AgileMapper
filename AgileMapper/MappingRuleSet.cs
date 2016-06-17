@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper
 {
     using DataSources;
     using ObjectPopulation;
-    using PopulationProcessing;
 
     internal class MappingRuleSet
     {
@@ -10,14 +9,14 @@ namespace AgileObjects.AgileMapper
             string name,
             IComplexTypeMappingShortCircuitStrategy complexTypeMappingShortCircuitStrategy,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
-            IDataSourceFactory fallbackDataSourceFactory,
-            IPopulationProcessor memberPopulationProcessor)
+            IDataSourceFactory initialDataSourceFactory,
+            IDataSourceFactory fallbackDataSourceFactory)
         {
             Name = name;
             ComplexTypeMappingShortCircuitStrategy = complexTypeMappingShortCircuitStrategy;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
+            InitialDataSourceFactory = initialDataSourceFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
-            MemberPopulationProcessor = memberPopulationProcessor;
         }
 
         public string Name { get; }
@@ -26,8 +25,8 @@ namespace AgileObjects.AgileMapper
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 
-        public IDataSourceFactory FallbackDataSourceFactory { get; }
+        public IDataSourceFactory InitialDataSourceFactory { get; }
 
-        public IPopulationProcessor MemberPopulationProcessor { get; }
+        public IDataSourceFactory FallbackDataSourceFactory { get; }
     }
 }

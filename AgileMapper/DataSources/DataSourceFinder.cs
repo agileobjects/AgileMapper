@@ -17,6 +17,11 @@
 
         private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
         {
+            if (context.TargetMember.IsSimple)
+            {
+                yield return context.MappingContext.RuleSet.InitialDataSourceFactory.Create(context);
+            }
+
             var dataSourceIndex = 0;
 
             IEnumerable<IConfiguredDataSource> configuredDataSources;

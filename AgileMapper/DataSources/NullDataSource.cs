@@ -7,6 +7,8 @@
 
     internal class NullDataSource : IDataSource
     {
+        public static readonly IDataSource Default = new NullDataSource(Constants.EmptyExpression);
+
         public NullDataSource(Expression value)
         {
             Value = value;

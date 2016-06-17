@@ -23,8 +23,8 @@
             var target = new Customer { Name = "Captain Customer" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.Id.ShouldBe(target.Id);
-            result.Discount.ShouldBe(source.Discount);
+            result.Id.ShouldBeDefault();
+            result.Discount.ShouldBe(10.00);
         }
 
         [Fact]

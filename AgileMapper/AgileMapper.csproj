@@ -60,6 +60,8 @@
     <Compile Include="Api\Configuration\MappingConfigContinuation.cs" />
     <Compile Include="Api\Configuration\PreEventConfigStartingPoint.cs" />
     <Compile Include="Api\PlanTargetTypeSelector.cs" />
+    <Compile Include="DataSources\NullDataSourceFactory.cs" />
+    <Compile Include="Members\PreserveExistingValueDataSourceFactory.cs" />
     <Compile Include="Flattening\FlattenedObject.cs" />
     <Compile Include="Flattening\ObjectFlattener.cs" />
     <Compile Include="MappingException.cs" />
@@ -162,9 +164,6 @@
     <Compile Include="IMapper.cs" />
     <Compile Include="Mapper.cs" />
     <Compile Include="Plans\MappingPlan.cs" />
-    <Compile Include="PopulationProcessing\IPopulationProcessor.cs" />
-    <Compile Include="PopulationProcessing\NullPopulationProcessor.cs" />
-    <Compile Include="PopulationProcessing\PopulatedMemberPopulationGuarder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Api\TargetTypeSelector.cs" />
     <Compile Include="TypeConversion\ConverterSet.cs" />
