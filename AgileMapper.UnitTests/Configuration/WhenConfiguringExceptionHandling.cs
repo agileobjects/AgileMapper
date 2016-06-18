@@ -32,11 +32,18 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
+                var thrownSource = default(object);
+                var thrownTarget = default(object);
                 var thrownException = default(Exception);
 
                 mapper
                     .WhenMapping
-                    .PassExceptionsTo(ctx => thrownException = ctx.Exception);
+                    .PassExceptionsTo(ctx =>
+                    {
+                        thrownSource = ctx.Source;
+                        thrownTarget = ctx.Target;
+                        thrownException = ctx.Exception;
+                    });
 
                 mapper
                     .After
@@ -45,6 +52,8 @@
 
                 mapper.Map(new Person()).ToANew<PersonViewModel>();
 
+                thrownSource.ShouldBeOfType<Person>();
+                thrownTarget.ShouldBeOfType<PersonViewModel>();
                 thrownException.ShouldNotBeNull();
                 thrownException.Message.ShouldBe("BOOM");
             }

@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly IMemberMappingContext _context;
         private readonly DataSourceSet _dataSources;
-        private Expression _populateCondition;
+        private readonly Expression _populateCondition;
 
         public MemberPopulation(
             IMemberMappingContext context,
@@ -46,21 +46,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsSuccessful => _dataSources.HasValue;
 
-        public void AddCondition(Expression condition)
-        {
-            if (condition != null)
-            {
-                _populateCondition = condition;
-            }
-        }
-
         public Expression GetPopulation()
         {
-            if (!IsSuccessful)
-            {
-                return _dataSources.Value;
-            }
-
             var population = _context.TargetMember.GetPopulation(_context.InstanceVariable, _dataSources.Value);
 
             if (_dataSources.Variables.Any())

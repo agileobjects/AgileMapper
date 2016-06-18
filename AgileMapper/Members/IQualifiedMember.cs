@@ -11,14 +11,6 @@ namespace AgileObjects.AgileMapper.Members
 
         string Name { get; }
 
-        bool IsComplex { get; }
-
-        bool IsEnumerable { get; }
-
-        bool IsSimple { get; }
-
-        bool IsReadable { get; }
-
         string Signature { get; }
 
         string Path { get; }
@@ -38,7 +30,5 @@ namespace AgileObjects.AgileMapper.Members
         Expression GetAccess(Expression instance);
 
         Expression GetQualifiedAccess(Expression instance);
-
-        Expression GetPopulation(Expression instance, Expression value);
     }
 }

@@ -93,11 +93,6 @@
         {
             public int Compare(UserConfiguredItemBase x, UserConfiguredItemBase y)
             {
-                if (x.HasConfiguredCondition && !y.HasConfiguredCondition)
-                {
-                    return -1;
-                }
-
                 if (!x.HasConfiguredCondition && y.HasConfiguredCondition)
                 {
                     return 1;
@@ -113,12 +108,7 @@
                     return 1;
                 }
 
-                if (y._configInfo.IsForSourceType(x._configInfo))
-                {
-                    return -1;
-                }
-
-                return 0;
+                return -1;
             }
         }
     }

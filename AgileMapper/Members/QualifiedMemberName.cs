@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public QualifiedMemberName(MemberName[] nameParts)
         {
-            FullName = string.Join(string.Empty, nameParts.Select(np => np?.JoiningName));
+            FullName = GetFullName(nameParts);
 
             _rootNamePart = nameParts[0];
             _nameParts = new MemberName[nameParts.Length - 1]; // <- Don't bother with the root property
@@ -28,6 +28,9 @@ namespace AgileObjects.AgileMapper.Members
                 .Where(name => name != string.Empty)
                 .ToArray();
         }
+
+        public static string GetFullName(IEnumerable<MemberName> nameParts)
+            => string.Join(string.Empty, nameParts.Select(np => np?.JoiningName));
 
         public string FullName { get; }
 

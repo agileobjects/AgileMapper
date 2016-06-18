@@ -1,10 +1,9 @@
-namespace AgileObjects.AgileMapper.DataSources
+namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
-    using Members;
     using ReadableExpressions;
 
     internal class ConfiguredQualifiedMember : IQualifiedMember
@@ -25,9 +24,6 @@ namespace AgileObjects.AgileMapper.DataSources
                   value,
                   matchedTargetMember)
         {
-            IsSimple = value.Type.IsSimple();
-            IsEnumerable = !IsSimple && value.Type.IsEnumerable();
-            IsComplex = !(IsSimple || IsEnumerable);
         }
 
         private ConfiguredQualifiedMember(ConfiguredQualifiedMember parent, Member childMember)
@@ -38,9 +34,6 @@ namespace AgileObjects.AgileMapper.DataSources
                   parent._matchedTargetMember.Append(childMember),
                   parent._childMembers.Append(childMember))
         {
-            IsSimple = childMember.IsSimple;
-            IsEnumerable = childMember.IsEnumerable;
-            IsComplex = childMember.IsComplex;
         }
 
         private ConfiguredQualifiedMember(
@@ -56,6 +49,7 @@ namespace AgileObjects.AgileMapper.DataSources
             _matchedTargetMember = matchedTargetMember;
             _childMembers = childMembers ?? new[] { Member.ConfiguredSource(name, type) };
             Signature = string.Join(">", _childMembers.Select(cm => cm.Signature));
+            Path = QualifiedMemberName.GetFullName(_childMembers.Select(cm => cm.MemberName));
         }
 
         public Type DeclaringType => _value.Type.DeclaringType;
@@ -64,27 +58,14 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public string Name { get; }
 
-        public bool IsComplex { get; }
-
-        public bool IsEnumerable { get; }
-
-        public bool IsSimple { get; }
-
-        public bool IsReadable => true;
-
         public string Signature { get; }
 
-        public string Path => Signature;
+        public string Path { get; }
 
         public IQualifiedMember Append(Member childMember) => new ConfiguredQualifiedMember(this, childMember);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
-            if (_childMembers.None())
-            {
-                return this;
-            }
-
             var otherConfiguredMember = (ConfiguredQualifiedMember)otherMember;
             var relativeMemberChain = _childMembers.RelativeTo(otherConfiguredMember._childMembers);
 
@@ -105,8 +86,6 @@ namespace AgileObjects.AgileMapper.DataSources
         public Expression GetAccess(Expression instance) => _value;
 
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
-
-        public Expression GetPopulation(Expression instance, Expression value) => Constants.EmptyExpression;
 
         public IQualifiedMember WithType(Type runtimeType)
         {

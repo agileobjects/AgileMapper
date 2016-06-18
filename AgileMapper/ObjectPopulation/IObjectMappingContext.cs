@@ -12,8 +12,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         new IObjectMappingContext Parent { get; }
 
-        bool HasSource<TSource>(TSource source);
-
         TInstance GetInstance<TInstance>();
 
         Expression TargetObject { get; }
@@ -28,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         MethodCallExpression ObjectRegistrationCall { get; }
 
-        MethodCallExpression GetMapCall(Expression sourceObject, IQualifiedMember objectMember, int dataSourceIndex);
+        MethodCallExpression GetMapCall(Expression sourceObject, QualifiedMember objectMember, int dataSourceIndex);
 
         MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement);
 

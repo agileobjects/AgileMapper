@@ -367,6 +367,7 @@
                 mapper
                     .After
                     .CreatingInstances
+                    .If((s, t, i) => !i.HasValue)
                     .Call((s, t) => postCallbackObjects.AddRange(new[] { s, t }));
 
                 var source = new Person();

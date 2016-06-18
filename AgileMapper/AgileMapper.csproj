@@ -70,7 +70,7 @@
     <Compile Include="DataSources\NullDataSource.cs" />
     <Compile Include="ObjectPopulation\ConfiguredObjectFactory.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
-    <Compile Include="DataSources\ConfiguredQualifiedMember.cs" />
+    <Compile Include="Members\ConfiguredQualifiedMember.cs" />
     <Compile Include="DataSources\DefaultValueDataSource.cs" />
     <Compile Include="DataSources\IConfiguredDataSource.cs" />
     <Compile Include="Members\CaseInsensitiveStringComparer.cs" />

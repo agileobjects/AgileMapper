@@ -46,7 +46,7 @@
         {
         }
 
-        private DataSourceBase(
+        protected DataSourceBase(
             IQualifiedMember sourceMember,
             IEnumerable<Expression> nestedAccesses,
             IEnumerable<ParameterExpression> variables,
@@ -94,7 +94,7 @@
 
         public IQualifiedMember SourceMember { get; }
 
-        public bool IsValid => Value != Constants.EmptyExpression;
+        public virtual bool IsValid => Value != Constants.EmptyExpression;
 
         public virtual bool IsConditional => NestedAccesses.Any();
 

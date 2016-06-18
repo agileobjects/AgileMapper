@@ -11,8 +11,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         bool IsSuccessful { get; }
 
-        void AddCondition(Expression condition);
-
         Expression GetPopulation();
     }
 }

@@ -187,11 +187,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region IObjectMappingContext Members
 
-        bool IObjectMappingContext.HasSource<TSource>(TSource source)
-        {
-            return ReferenceEquals(Source, source);
-        }
-
         T IObjectMappingContext.GetInstance<T>() => (T)((object)CreatedObject ?? ExistingObject);
 
         Expression IObjectMappingContext.TargetObject => _targetObjectObjectProperty;
@@ -255,10 +250,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         MethodCallExpression IObjectMappingContext.ObjectRegistrationCall => _registrationCall;
 
-        MethodCallExpression IObjectMappingContext.GetMapCall(
-            Expression sourceObject,
-            IQualifiedMember objectMember,
-            int dataSourceIndex)
+        MethodCallExpression IObjectMappingContext.GetMapCall(Expression sourceObject, QualifiedMember objectMember, int dataSourceIndex)
         {
             var mapCall = Expression.Call(
                 _parameter,
