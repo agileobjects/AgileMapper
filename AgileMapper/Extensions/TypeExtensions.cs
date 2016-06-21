@@ -146,6 +146,9 @@
                 typeof(IEnumerable).IsAssignableFrom(type));
         }
 
+        public static bool IsDictionary(this Type type)
+            => type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Dictionary<,>));
+
         public static bool IsComplex(this Type type)
         {
             return !type.IsSimple() && !type.IsEnumerable();

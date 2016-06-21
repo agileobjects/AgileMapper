@@ -60,6 +60,7 @@
     <Compile Include="Api\Configuration\MappingConfigContinuation.cs" />
     <Compile Include="Api\Configuration\PreEventConfigStartingPoint.cs" />
     <Compile Include="Api\PlanTargetTypeSelector.cs" />
+    <Compile Include="DataSources\DictionaryDataSource.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
     <Compile Include="Members\PreserveExistingValueDataSourceFactory.cs" />
     <Compile Include="Flattening\FlattenedObject.cs" />

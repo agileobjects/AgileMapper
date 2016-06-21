@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions;
     using Members;
 
     internal class DataSourceFinder
@@ -20,6 +21,14 @@
             if (context.TargetMember.IsSimple)
             {
                 yield return context.MappingContext.RuleSet.InitialDataSourceFactory.Create(context);
+            }
+
+            var maptimeDataSource = GetMaptimeDataSourceOrNull(context);
+
+            if (maptimeDataSource != null)
+            {
+                yield return maptimeDataSource;
+                yield break;
             }
 
             var dataSourceIndex = 0;
@@ -47,6 +56,42 @@
                 yield break;
             }
 
+            foreach (var dataSource in GetSourceMemberDataSources(context, configuredDataSources, dataSourceIndex))
+            {
+                yield return dataSource;
+            }
+        }
+
+        private static IDataSource GetMaptimeDataSourceOrNull(IMemberMappingContext context)
+        {
+            if (context.SourceType.IsDictionary())
+            {
+                return new DictionaryDataSource(context);
+            }
+
+            return null;
+        }
+
+        private static bool DataSourcesAreConfigured(
+            IMemberMappingContext context,
+            out IEnumerable<IConfiguredDataSource> configuredDataSources)
+        {
+            configuredDataSources = context
+                .MapperContext
+                .UserConfigurations
+                .GetDataSources(context);
+
+            return configuredDataSources.Any();
+        }
+
+        private static IDataSource FallbackDataSourceFor(IMemberMappingContext context)
+            => context.MappingContext.RuleSet.FallbackDataSourceFactory.Create(context);
+
+        private IEnumerable<IDataSource> GetSourceMemberDataSources(
+            IMemberMappingContext context,
+            IEnumerable<IConfiguredDataSource> configuredDataSources,
+            int dataSourceIndex)
+        {
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(context);
 
             if ((matchingSourceMemberDataSource == null) ||
@@ -68,27 +113,11 @@
             }
         }
 
-        private static IDataSource RootSourceMemberDataSourceFor(IMemberMappingContext context)
-            => GetSourceMemberDataSourceFor(QualifiedMember.From(Member.RootSource(context.SourceType)), 0, context);
-
-        private static bool DataSourcesAreConfigured(IMemberMappingContext context, out IEnumerable<IConfiguredDataSource> configuredDataSources)
-        {
-            configuredDataSources = context
-                .MapperContext
-                .UserConfigurations
-                .GetDataSources(context);
-
-            return configuredDataSources.Any();
-        }
-
-        private static IDataSource FallbackDataSourceFor(IMemberMappingContext context)
-            => context.MappingContext.RuleSet.FallbackDataSourceFactory.Create(context);
-
         public IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
         {
             if (context.Parent == null)
             {
-                return RootSourceMemberDataSourceFor(context);
+                return GetSourceMemberDataSourceFor(QualifiedMember.From(Member.RootSource(context.SourceType)), 0, context);
             }
 
             return GetSourceMemberDataSourceOrNull(0, context);
