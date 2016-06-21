@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System.Linq.Expressions;
     using DataSources;
     using Members;
 
@@ -9,17 +10,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IDataSource Create(IMemberMappingContext context)
             => context.TargetMember.IsReadable
-                ? new ExistingMemberValueDataSource(context)
+                ? new ExistingMemberValueOrEmptyDataSource(context)
                 : DefaultValueDataSourceFactory.Instance.Create(context);
 
-        private class ExistingMemberValueDataSource : DataSourceBase
+        private class ExistingMemberValueOrEmptyDataSource : DataSourceBase
         {
-            public ExistingMemberValueDataSource(IMemberMappingContext context)
-                : base(
-                      context.SourceMember,
-                      context.TargetMember.GetAccess(context.InstanceVariable),
-                      context)
+            public ExistingMemberValueOrEmptyDataSource(IMemberMappingContext context)
+                : base(context.SourceMember, GetValue(context), context)
             {
+            }
+
+            private static Expression GetValue(IMemberMappingContext context)
+            {
+                var existingValue = context.TargetMember.GetAccess(context.InstanceVariable);
+
+                if (!context.TargetMember.IsEnumerable)
+                {
+                    return existingValue;
+                }
+
+                var emptyEnumerable = EnumerableTypes.GetEnumerableEmptyInstance(context);
+
+                return Expression.Coalesce(existingValue, emptyEnumerable);
             }
         }
     }

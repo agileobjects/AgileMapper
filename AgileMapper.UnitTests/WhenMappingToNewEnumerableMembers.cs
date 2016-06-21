@@ -129,8 +129,18 @@
                 var source = new PublicProperty<string> { Value = null };
                 var result = mapper.Map(source).ToANew<PublicField<int[]>>();
 
-                result.Value.ShouldBeDefault();
+                result.Value.ShouldBeEmpty();
             }
+        }
+
+        [Fact]
+        public void ShouldCreateAnEmptyCollectionByDefault()
+        {
+            var source = new PublicProperty<Collection<int>> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicProperty<Collection<int>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeEmpty();
         }
     }
 }
