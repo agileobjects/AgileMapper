@@ -11,5 +11,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             => context.TargetMember.IsReadable
                 ? new ExistingMemberValueDataSource(context)
                 : DefaultValueDataSourceFactory.Instance.Create(context);
+
+        private class ExistingMemberValueDataSource : DataSourceBase
+        {
+            public ExistingMemberValueDataSource(IMemberMappingContext context)
+                : base(
+                      context.SourceMember,
+                      context.TargetMember.GetAccess(context.InstanceVariable),
+                      context)
+            {
+            }
+        }
     }
 }

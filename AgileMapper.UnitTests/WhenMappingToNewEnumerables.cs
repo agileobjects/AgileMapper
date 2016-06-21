@@ -75,5 +75,15 @@
             result.ShouldNotBe(source);
             result.Second().ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldCreateAnEmptyListByDefault()
+        {
+            var source = new PublicProperty<string>();
+            var result = Mapper.Map(source).ToANew<List<Person>>();
+
+            result.ShouldNotBeNull();
+            result.ShouldBeEmpty();
+        }
     }
 }

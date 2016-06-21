@@ -37,15 +37,6 @@
         {
         }
 
-        protected DataSourceBase(IDataSource wrappedDataSource, Expression value)
-            : this(
-                  wrappedDataSource.SourceMember,
-                  wrappedDataSource.NestedAccesses,
-                  wrappedDataSource.Variables,
-                  value)
-        {
-        }
-
         protected DataSourceBase(
             IQualifiedMember sourceMember,
             IEnumerable<Expression> nestedAccesses,
