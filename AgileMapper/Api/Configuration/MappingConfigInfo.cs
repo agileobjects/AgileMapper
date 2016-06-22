@@ -129,6 +129,9 @@
 
         #endregion
 
+        public QualifiedMember GetTargetMemberFrom(LambdaExpression lambda)
+            => lambda?.Body.ToTargetMember(GlobalContext.MemberFinder, MapperContext.NamingSettings);
+
         public MappingConfigInfo CloneForContinuation()
         {
             return new MappingConfigInfo(MapperContext)

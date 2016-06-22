@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -40,14 +41,9 @@
         {
             var keysProperty = Expression.Property(context.SourceObject, "Keys");
 
-            var potentialNames = context
-                .TargetMember
-                .LeafMember
-                .MemberName
-                .AllNames
-                .Select(Expression.Constant);
-
-            var potentialNamesArray = Expression.NewArrayInit(typeof(string), potentialNames);
+            var potentialNamesArray = Expression.NewArrayInit(
+                typeof(string),
+                GetPotentialNames(context));
 
             var linqIntersect = Expression.Call(
                 _linqIntersectMethod,
@@ -75,6 +71,18 @@
             var dictionaryValueOrDefault = Expression.Condition(tryGetValueCall, variable, defaultValue);
 
             return dictionaryValueOrDefault;
+        }
+
+        private static IEnumerable<Expression> GetPotentialNames(IMemberMappingContext context)
+        {
+            return context
+                .TargetMember
+                .MemberChain
+                .Skip(1)
+                .Select(context.MapperContext.NamingSettings.GetAlternateNamesFor)
+                .CartesianProduct()
+                .SelectMany(context.MapperContext.NamingSettings.GetJoinedNamesFor)
+                .Select(Expression.Constant);
         }
     }
 }

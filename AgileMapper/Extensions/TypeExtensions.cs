@@ -68,6 +68,11 @@
                     return value + "es";
             }
 
+            if (value.EndsWith('s'))
+            {
+                return value;
+            }
+
             if (value.EndsWith('y') && IsConsonant(value[value.Length - 2]))
             {
                 return value.Substring(0, value.Length - 1) + "ies";

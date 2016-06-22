@@ -15,6 +15,8 @@
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, params T[] extraItems)
             => items.Concat(extraItems.AsEnumerable());
 
+        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Where(item => item != null);
+
         public static T[] Append<T>(this T[] array, T extraItem)
         {
             var newArray = new T[array.Length + 1];
@@ -34,6 +36,14 @@
             {
                 yield return item;
             }
+        }
+
+        public static T[] SubArray<T>(this T[] sourceArray, int sourceIndex)
+        {
+            var subArray = new T[sourceArray.Length - sourceIndex];
+            Array.Copy(sourceArray, sourceIndex, subArray, 0, subArray.Length);
+
+            return subArray;
         }
 
         public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
@@ -138,7 +148,7 @@
         private static Dictionary<TId, TItem> GetItemsById<TItem, TId>(IEnumerable<TItem> items, Func<TItem, TId> idFactory)
         {
             return items
-                .Where(item => item != null)
+                .WhereNotNull()
                 .Select(item => new
                 {
                     Id = idFactory.Invoke(item),

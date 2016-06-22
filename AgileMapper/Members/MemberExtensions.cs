@@ -94,16 +94,17 @@
             return population;
         }
 
-        public static QualifiedMember ToSourceMember(this Expression memberAccessExpression, MemberFinder memberFinder)
-            => CreateMember(memberAccessExpression, Member.RootSource, memberFinder.GetReadableMembers);
-
-        public static QualifiedMember ToTargetMember(this Expression memberAccessExpression, MemberFinder memberFinder)
-            => CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetWriteableMembers);
+        public static QualifiedMember ToTargetMember(
+            this Expression memberAccessExpression,
+            MemberFinder memberFinder,
+            NamingSettings namingSettings)
+            => CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetWriteableMembers, namingSettings);
 
         internal static QualifiedMember CreateMember(
             Expression memberAccessExpression,
             Func<Type, Member> rootMemberFactory,
-            Func<Type, IEnumerable<Member>> membersFactory)
+            Func<Type, IEnumerable<Member>> membersFactory,
+            NamingSettings namingSettings)
         {
             var expression = memberAccessExpression;
             var memberAccesses = new List<Expression>();
@@ -133,7 +134,7 @@
 
             memberChain.Insert(0, rootMember);
 
-            return QualifiedMember.From(memberChain);
+            return QualifiedMember.From(memberChain, namingSettings);
         }
     }
 }

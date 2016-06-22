@@ -58,10 +58,12 @@
     <Compile Include="Api\Configuration\IPreInstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IRootMappingConfigurator.cs" />
     <Compile Include="Api\Configuration\MappingConfigContinuation.cs" />
+    <Compile Include="Api\Configuration\MappingConfigStartingPointBase.cs" />
     <Compile Include="Api\Configuration\PreEventConfigStartingPoint.cs" />
     <Compile Include="Api\PlanTargetTypeSelector.cs" />
     <Compile Include="DataSources\DictionaryDataSource.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
+    <Compile Include="Members\NamingSettings.cs" />
     <Compile Include="Members\PreserveExistingValueDataSourceFactory.cs" />
     <Compile Include="Flattening\FlattenedObject.cs" />
     <Compile Include="Flattening\ObjectFlattener.cs" />
@@ -124,8 +126,6 @@
     <Compile Include="ObjectPopulation\CallbackPosition.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeMappingShortCircuitStrategy.cs" />
     <Compile Include="ObjectPopulation\IComplexTypeMappingShortCircuitStrategy.cs" />
-    <Compile Include="Members\QualifiedMemberName.cs" />
-    <Compile Include="Members\MemberName.cs" />
     <Compile Include="ObjectPopulation\ComplexTypeMappingLambdaFactory.cs" />
     <Compile Include="ObjectPopulation\CopySourceEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\EnumerableMappingLambdaFactory.cs" />

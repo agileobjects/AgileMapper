@@ -15,14 +15,9 @@
         }
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
-            : this(configInfo, GetTargetMember(configInfo, targetMemberLambda))
+            : this(configInfo, configInfo.GetTargetMemberFrom(targetMemberLambda))
         {
         }
-
-        protected static QualifiedMember GetTargetMember(
-            MappingConfigInfo configInfo,
-            LambdaExpression targetMemberLambda)
-            => targetMemberLambda?.Body.ToTargetMember(configInfo.GlobalContext.MemberFinder);
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)
         {

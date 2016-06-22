@@ -13,9 +13,7 @@
         [Fact]
         public void ShouldCreateAFieldMember()
         {
-            Expression<Func<PublicField<string>, string>> fieldAccess = x => x.Value;
-
-            var fieldMember = fieldAccess.ToTargetMember(MemberFinder);
+            var fieldMember = TargetMemberFor<PublicField<string>>(x => x.Value);
 
             fieldMember.Members().Count().ShouldBe(2);
 
@@ -28,9 +26,7 @@
         [Fact]
         public void ShouldCreateANestedPropertyMember()
         {
-            Expression<Func<Person, string>> addressLine1Access = x => x.Address.Line1;
-
-            var addressLine1Member = addressLine1Access.Body.ToTargetMember(MemberFinder);
+            var addressLine1Member = TargetMemberFor<Person>(x => x.Address.Line1);
 
             addressLine1Member.Members().Count().ShouldBe(3);
 
@@ -48,7 +44,7 @@
         {
             Expression<Func<PublicSetMethod<int>, Action<int>>> setMethodAccess = x => x.SetValue;
 
-            var fieldMember = setMethodAccess.Body.ToTargetMember(MemberFinder);
+            var fieldMember = setMethodAccess.Body.ToTargetMember(MemberFinder, NamingSettings.Default);
 
             fieldMember.Members().Count().ShouldBe(2);
 
@@ -63,7 +59,7 @@
     {
         public static IEnumerable<Member> Members(this IQualifiedMember qualifiedMember)
         {
-            return ((QualifiedMember)qualifiedMember).Members;
+            return ((QualifiedMember)qualifiedMember).MemberChain;
         }
     }
 }

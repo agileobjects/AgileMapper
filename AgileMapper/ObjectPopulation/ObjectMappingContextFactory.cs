@@ -22,8 +22,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredTarget target,
             MappingContext mappingContext)
         {
-            var sourceMember = QualifiedMember.From(Member.RootSource(typeof(TDeclaredSource)));
-            var targetMember = QualifiedMember.From(Member.RootTarget(typeof(TDeclaredTarget)));
+            var sourceMember = QualifiedMember.From(Member.RootSource(typeof(TDeclaredSource)), mappingContext.MapperContext.NamingSettings);
+            var targetMember = QualifiedMember.From(Member.RootTarget(typeof(TDeclaredTarget)), mappingContext.MapperContext.NamingSettings);
 
             return Create(ObjectMappingCommand.Create(
                 source,

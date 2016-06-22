@@ -34,5 +34,23 @@
 
             result.Value.ShouldBe("Goodbye");
         }
+
+        [Fact]
+        public void ShouldPopulateAComplexTypeSimpleTypeMemberByFlattenedName()
+        {
+            var source = new Dictionary<string, string> { ["ValueValue"] = "Over here!" };
+            var result = Mapper.Map(source).ToANew<PublicField<PublicField<string>>>();
+
+            result.Value.Value.ShouldBe("Over here!");
+        }
+
+        [Fact]
+        public void ShouldPopulateAComplexTypeSimpleTypeMemberByDottedName()
+        {
+            var source = new Dictionary<string, string> { ["Value.Value"] = "Over there!" };
+            var result = Mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
+
+            result.Value.Value.ShouldBe("Over there!");
+        }
     }
 }

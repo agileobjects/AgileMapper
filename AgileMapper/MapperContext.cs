@@ -4,6 +4,7 @@
     using Caching;
     using DataSources;
     using Flattening;
+    using Members;
     using ObjectPopulation;
     using TypeConversion;
 
@@ -14,6 +15,7 @@
         public MapperContext()
         {
             DataSources = new DataSourceFinder();
+            NamingSettings = new NamingSettings();
             Cache = GlobalContext.CreateCache();
             ObjectMapperFactory = new ObjectMapperFactory();
             ObjectFlattener = new ObjectFlattener(this);
@@ -27,6 +29,8 @@
         public ICache Cache { get; }
 
         public DataSourceFinder DataSources { get; }
+
+        public NamingSettings NamingSettings { get; }
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
 

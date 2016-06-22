@@ -20,7 +20,9 @@ namespace AgileObjects.AgileMapper.Members
         {
             MemberType = memberType;
             Name = name;
-            MemberName = new MemberName(name, declaringType, memberType, isRoot);
+            JoiningName = (isRoot || (memberType == MemberType.EnumerableElement)) ? name : "." + name;
+            IsRoot = isRoot;
+            IsIdentifier = IsIdMember(name, declaringType);
             DeclaringType = declaringType;
             Type = type;
             Signature = $"[{declaringType.GetFriendlyName()}].{name}";
@@ -33,6 +35,18 @@ namespace AgileObjects.AgileMapper.Members
                 ElementType = Type.GetEnumerableElementType();
             }
         }
+
+        #region Setup
+
+        private static bool IsIdMember(string name, Type declaringType)
+        {
+            return (name == "Id") ||
+                   (name == "Identifier") ||
+                   (name == declaringType.Name + "Id") ||
+                   (name == declaringType.Name + "Identifier");
+        }
+
+        #endregion
 
         #region Factory Methods
 
@@ -71,7 +85,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Name { get; }
 
-        public MemberName MemberName { get; }
+        public string JoiningName { get; }
 
         public Type DeclaringType { get; }
 
@@ -79,13 +93,15 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Signature { get; }
 
+        public bool IsRoot { get; }
+
+        public bool IsIdentifier { get; }
+
         public bool IsComplex { get; }
 
         public bool IsEnumerable { get; }
 
         public bool IsSimple => !(IsComplex || IsEnumerable);
-
-        public bool IsIdentifier => MemberName.IsIdentifier;
 
         public Type ElementType { get; }
 

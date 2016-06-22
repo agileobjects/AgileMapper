@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.Members
         private ConfiguredQualifiedMember(ConfiguredQualifiedMember parent, Member childMember)
             : this(
                   childMember.Type,
-                  parent.Name + childMember.MemberName.JoiningName,
+                  parent.Name + childMember.JoiningName,
                   parent._value,
                   parent._matchedTargetMember.Append(childMember),
                   parent._childMembers.Append(childMember))
@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.Members
             _matchedTargetMember = matchedTargetMember;
             _childMembers = childMembers ?? new[] { Member.ConfiguredSource(name, type) };
             Signature = string.Join(">", _childMembers.Select(cm => cm.Signature));
-            Path = QualifiedMemberName.GetFullName(_childMembers.Select(cm => cm.MemberName));
+            Path = QualifiedMember.GetFullName(_childMembers);
         }
 
         public Type DeclaringType => _value.Type.DeclaringType;

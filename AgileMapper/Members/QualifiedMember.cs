@@ -10,44 +10,72 @@ namespace AgileObjects.AgileMapper.Members
     [DebuggerDisplay("{Signature}")]
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], qualifiedName: null);
-        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], qualifiedName: null);
+        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], new string[0], NamingSettings.Default);
+        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], new string[0], NamingSettings.Default);
 
-        private readonly Member[] _memberChain;
-        private readonly QualifiedMemberName _qualifiedName;
+        private readonly Member[] _memberChainChain;
+        private readonly string[] _memberMatchingNames;
+        private readonly IEnumerable<string> _joinedNames;
+        private readonly NamingSettings _namingSettings;
 
-        private QualifiedMember(Member member)
-            : this(new[] { member }, new QualifiedMemberName(new[] { member.MemberName }))
+        private QualifiedMember(Member[] memberChainChain, string[] memberMatchingNames, NamingSettings namingSettings)
+            : this(memberChainChain.LastOrDefault(), namingSettings)
         {
+            _memberChainChain = memberChainChain;
+            _memberMatchingNames = memberMatchingNames;
+            _joinedNames = namingSettings.GetJoinedNamesFor(memberMatchingNames);
+            Signature = string.Join(">", memberChainChain.Select(m => m.Signature));
+            Path = GetFullName(memberChainChain);
         }
 
-        private QualifiedMember(Member member, QualifiedMember parent)
-            : this(parent._memberChain.Append(member), parent._qualifiedName.Append(member.MemberName))
+        private QualifiedMember(Member member, QualifiedMember parent, NamingSettings namingSettings)
+            : this(member, namingSettings)
         {
+            var matchingName = namingSettings.GetMatchingNameFor(member);
+
+            if (parent == null)
+            {
+                _memberChainChain = new[] { member };
+                _memberMatchingNames = new[] { matchingName };
+                _joinedNames = _memberMatchingNames;
+                Signature = member.Signature;
+                Path = member.JoiningName;
+                return;
+            }
+
+            _memberChainChain = parent._memberChainChain.Append(member);
+            _memberMatchingNames = parent._memberMatchingNames.Append(matchingName);
+            _joinedNames = namingSettings.GetJoinedNamesFor(_memberMatchingNames);
+
+            Signature = parent.Signature + ">" + member.Signature;
+            Path = parent.Path + member.JoiningName;
         }
 
-        private QualifiedMember(Member[] memberChain)
-            : this(memberChain, new QualifiedMemberName(memberChain.Select(m => m.MemberName).ToArray()))
+        private QualifiedMember(Member leafMember, NamingSettings namingSettings)
         {
-        }
-
-        private QualifiedMember(Member[] memberChain, QualifiedMemberName qualifiedName)
-        {
-            _memberChain = memberChain;
-            LeafMember = memberChain.LastOrDefault();
-            _qualifiedName = qualifiedName;
-            Signature = string.Join(">", memberChain.Select(m => m.Signature));
+            LeafMember = leafMember;
+            _namingSettings = namingSettings;
         }
 
         #region Factory Method
 
-        public static QualifiedMember From(Member member) => new QualifiedMember(member);
+        public static QualifiedMember From(Member member, NamingSettings namingSettings)
+            => new QualifiedMember(member, null, namingSettings);
 
-        public static QualifiedMember From(IEnumerable<Member> memberChain) => new QualifiedMember(memberChain.ToArray());
+        public static QualifiedMember From(IEnumerable<Member> memberChain, NamingSettings namingSettings)
+        {
+            var memberChainArray = memberChain.ToArray();
+            var matchingNames = memberChainArray.Select(namingSettings.GetMatchingNameFor).ToArray();
+
+            return new QualifiedMember(memberChainArray, matchingNames, namingSettings);
+        }
 
         #endregion
 
-        public IEnumerable<Member> Members => _memberChain;
+        public static string GetFullName(IEnumerable<Member> members)
+            => string.Join(string.Empty, members.Select(m => m.JoiningName));
+
+        public IEnumerable<Member> MemberChain => _memberChainChain;
 
         public Member LeafMember { get; }
 
@@ -57,7 +85,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Name => LeafMember.Name;
 
-        public string Path => _qualifiedName?.FullName;
+        public string Path { get; }
 
         public bool IsComplex => LeafMember.IsComplex;
 
@@ -71,20 +99,20 @@ namespace AgileObjects.AgileMapper.Members
 
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
-        public QualifiedMember Append(Member childMember) => new QualifiedMember(childMember, this);
+        public QualifiedMember Append(Member childMember) => new QualifiedMember(childMember, this, _namingSettings);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
             var otherQualifiedMember = (QualifiedMember)otherMember;
 
-            if (otherQualifiedMember.LeafMember == _memberChain[0])
+            if (otherQualifiedMember.LeafMember == _memberChainChain[0])
             {
                 return this;
             }
 
-            var relativeMemberChain = _memberChain.RelativeTo(otherQualifiedMember._memberChain);
+            var relativeMemberChain = _memberChainChain.RelativeTo(otherQualifiedMember._memberChainChain);
 
-            return new QualifiedMember(relativeMemberChain, _qualifiedName);
+            return new QualifiedMember(relativeMemberChain, _memberMatchingNames, _namingSettings);
         }
 
         IQualifiedMember IQualifiedMember.WithType(Type runtimeType) => WithType(runtimeType);
@@ -96,9 +124,9 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            _memberChain[_memberChain.Length - 1] = LeafMember.WithType(runtimeType);
+            _memberChainChain[_memberChainChain.Length - 1] = LeafMember.WithType(runtimeType);
 
-            return new QualifiedMember(_memberChain, _qualifiedName);
+            return new QualifiedMember(_memberChainChain, _memberMatchingNames, _namingSettings);
         }
 
         public bool IsSameAs(IQualifiedMember otherMember)
@@ -125,26 +153,41 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(IQualifiedMember otherMember)
         {
+            if (_memberChainChain.Length == 0)
+            {
+                return true;
+            }
+
             var otherQualifiedMember = otherMember as QualifiedMember;
 
-            return (otherQualifiedMember != null)
-                ? _qualifiedName.IsRootOf(otherQualifiedMember._qualifiedName)
-                : otherMember.CouldMatch(this);
+            if (otherQualifiedMember == null)
+            {
+                return otherMember.CouldMatch(this);
+            }
+
+            return otherQualifiedMember._joinedNames
+                .Any(otherJoinedName => _joinedNames
+                    .Any(joinedName => otherJoinedName.StartsWith(joinedName, StringComparison.OrdinalIgnoreCase)));
         }
 
         public bool Matches(IQualifiedMember otherMember)
         {
             var otherQualifiedMember = otherMember as QualifiedMember;
 
-            return (otherQualifiedMember != null)
-                ? _qualifiedName.Matches(otherQualifiedMember._qualifiedName)
-                : otherMember.Matches(this);
+            if (otherQualifiedMember == null)
+            {
+                return otherMember.Matches(this);
+            }
+
+            return _joinedNames
+                .Intersect(otherQualifiedMember._joinedNames, CaseInsensitiveStringComparer.Instance)
+                .Any();
         }
 
         public Expression GetAccess(Expression instance) => LeafMember.GetAccess(instance);
 
         public Expression GetQualifiedAccess(Expression instance)
-            => _memberChain.GetQualifiedAccess(instance);
+            => _memberChainChain.GetQualifiedAccess(instance);
 
         public Expression GetPopulation(Expression instance, Expression value)
             => LeafMember.GetPopulation(instance, value);

@@ -21,14 +21,14 @@
             if (context.TargetMember.IsSimple)
             {
                 yield return context.MappingContext.RuleSet.InitialDataSourceFactory.Create(context);
-            }
 
-            var maptimeDataSource = GetMaptimeDataSourceOrNull(context);
+                var maptimeDataSource = GetMaptimeDataSourceOrNull(context);
 
-            if (maptimeDataSource != null)
-            {
-                yield return maptimeDataSource;
-                yield break;
+                if (maptimeDataSource != null)
+                {
+                    yield return maptimeDataSource;
+                    yield break;
+                }
             }
 
             var dataSourceIndex = 0;
@@ -117,7 +117,10 @@
         {
             if (context.Parent == null)
             {
-                return GetSourceMemberDataSourceFor(QualifiedMember.From(Member.RootSource(context.SourceType)), 0, context);
+                return GetSourceMemberDataSourceFor(
+                    QualifiedMember.From(Member.RootSource(context.SourceType), context.MapperContext.NamingSettings),
+                    0,
+                    context);
             }
 
             return GetSourceMemberDataSourceOrNull(0, context);

@@ -31,15 +31,15 @@
         private static IQualifiedMember SourceMemberFor(Member rootSourceMember, LambdaExpression childMemberExpression)
         {
             return (childMemberExpression == null)
-                ? QualifiedMember.From(rootSourceMember)
-                : childMemberExpression.ToSourceMember(MemberFinder);
+                ? QualifiedMember.From(rootSourceMember, NamingSettings.Default)
+                : MemberExtensions.CreateMember(childMemberExpression, Member.RootSource, MemberFinder.GetReadableMembers, NamingSettings.Default);
         }
 
         internal QualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
         {
             return (childMemberExpression == null)
-                ? QualifiedMember.From(Member.RootTarget(typeof(T)))
-                : childMemberExpression.ToTargetMember(MemberFinder);
+                ? QualifiedMember.From(Member.RootTarget(typeof(T)), NamingSettings.Default)
+                : childMemberExpression.ToTargetMember(MemberFinder, NamingSettings.Default);
         }
     }
 }
