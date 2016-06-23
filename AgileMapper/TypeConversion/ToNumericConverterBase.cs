@@ -9,7 +9,7 @@
     {
         private static readonly Type[] _handledSourceTypes =
             Constants.NumericTypes
-                .Concat(typeof(string), typeof(char))
+                .Concat(typeof(string), typeof(char), typeof(object))
                 .ToArray();
 
         protected ToNumericConverterBase(ToStringConverter toStringConverter, Type numericType)
@@ -38,7 +38,7 @@
                 return sourceValue.GetConversionTo(targetType);
             }
 
-            return IsStringType(sourceValue.Type)
+            return IsNonNumericType(sourceValue.Type)
                 ? base.GetConversion(sourceValue, targetType)
                 : GetCheckedNumericConversion(sourceValue, targetType);
         }
@@ -78,9 +78,12 @@
             return sourceValue.Type;
         }
 
-        private static bool IsStringType(Type type)
+        private static bool IsNonNumericType(Type type)
         {
-            return (type == typeof(string)) || (type == typeof(char)) || (type == typeof(char?));
+            return (type == typeof(string)) ||
+                   (type == typeof(object)) ||
+                   (type == typeof(char)) ||
+                   (type == typeof(char?));
         }
 
         protected abstract bool IsCoercible(Type sourceType);

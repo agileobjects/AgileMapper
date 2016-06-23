@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
-    using System;
     using System.Collections.Generic;
     using Shouldly;
     using TestClasses;
@@ -61,6 +60,15 @@
             var result = Mapper.Map(source).ToANew<PublicSetMethod<int>>();
 
             result.Value.ShouldBe(123);
+        }
+
+        [Fact]
+        public void ShouldConvertASimpleTypeMemberFromObject()
+        {
+            var source = new Dictionary<string, object> { ["Value"] = "999" };
+            var result = Mapper.Map(source).ToANew<PublicField<int>>();
+
+            result.Value.ShouldBe(999);
         }
 
         [Fact]

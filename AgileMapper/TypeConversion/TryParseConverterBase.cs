@@ -36,7 +36,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
                 return sourceValue.GetToValueOrDefaultCall();
             }
 
-            if ((sourceValue.Type == typeof(char)) || (sourceValue.Type == typeof(char?)))
+            if (sourceValue.Type != typeof(string))
             {
                 sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
