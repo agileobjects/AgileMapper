@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
 
@@ -33,10 +34,35 @@
                 sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
 
-            var tryParseMethod = StringExtensions.GetTryParseEnumMethodFor(targetType);
-            var tryParseCall = Expression.Call(tryParseMethod, sourceValue);
+            var nonNullableEnumType = targetType.GetNonNullableUnderlyingTypeIfAppropriate();
 
-            return tryParseCall;
+            var tryParseMethod = typeof(Enum)
+                .GetMethods(Constants.PublicStatic)
+                .First(m => (m.Name == "TryParse") && (m.GetParameters().Length == 3))
+                .MakeGenericMethod(nonNullableEnumType);
+
+            var valueVariable = Expression.Variable(nonNullableEnumType, nonNullableEnumType.GetShortVariableName());
+
+            var tryParseCall = Expression.Call(
+                tryParseMethod,
+                sourceValue,
+                Expression.Constant(true, typeof(bool)), // <- IgnoreCase
+                valueVariable);
+
+            var isDefinedCall = Expression.Call(
+                null,
+                typeof(Enum).GetMethod("IsDefined", Constants.PublicStatic),
+                Expression.Constant(nonNullableEnumType),
+                valueVariable.GetConversionTo(typeof(object)));
+
+            var successfulParseReturnValue = valueVariable.GetConversionTo(targetType);
+            var defaultValue = Expression.Default(targetType);
+
+            var definedValueOrDefault = Expression.Condition(isDefinedCall, successfulParseReturnValue, defaultValue);
+            var parsedValueOrDefault = Expression.Condition(tryParseCall, definedValueOrDefault, defaultValue);
+            var tryParseBlock = Expression.Block(new[] { valueVariable }, parsedValueOrDefault);
+
+            return tryParseBlock;
         }
     }
 }

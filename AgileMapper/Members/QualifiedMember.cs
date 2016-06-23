@@ -153,17 +153,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(IQualifiedMember otherMember)
         {
-            if (_memberChainChain.Length == 0)
-            {
-                return true;
-            }
-
-            var otherQualifiedMember = otherMember as QualifiedMember;
-
-            if (otherQualifiedMember == null)
-            {
-                return otherMember.CouldMatch(this);
-            }
+            var otherQualifiedMember = (QualifiedMember)otherMember;
 
             return otherQualifiedMember._joinedNames
                 .Any(otherJoinedName => _joinedNames
