@@ -52,5 +52,14 @@
 
             result.Value.Value.ShouldBe("Over there!");
         }
+
+        [Fact]
+        public void ShouldConvertASimpleTypeMember()
+        {
+            var source = new Dictionary<string, string> { ["value"] = "123" };
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<int>>();
+
+            result.Value.ShouldBe(123);
+        }
     }
 }

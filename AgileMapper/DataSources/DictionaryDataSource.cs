@@ -68,21 +68,28 @@
                 .Create(context)
                 .Value;
 
-            var dictionaryValueOrDefault = Expression.Condition(tryGetValueCall, variable, defaultValue);
+            var dictionaryValueOrDefault = Expression.Condition(
+                tryGetValueCall,
+                context.MapperContext.ValueConverters.GetConversion(variable, defaultValue.Type),
+                defaultValue);
 
             return dictionaryValueOrDefault;
         }
 
         private static IEnumerable<Expression> GetPotentialNames(IMemberMappingContext context)
         {
-            return context
+            var alternateNames = context
                 .TargetMember
                 .MemberChain
                 .Skip(1)
                 .Select(context.MapperContext.NamingSettings.GetAlternateNamesFor)
-                .CartesianProduct()
-                .SelectMany(context.MapperContext.NamingSettings.GetJoinedNamesFor)
-                .Select(Expression.Constant);
+                .CartesianProduct();
+
+            var flattenedNameSet = (context.TargetMember.MemberChain.Count() == 2)
+                ? alternateNames.SelectMany(names => names)
+                : alternateNames.SelectMany(context.MapperContext.NamingSettings.GetJoinedNamesFor);
+
+            return flattenedNameSet.Select(Expression.Constant);
         }
     }
 }
