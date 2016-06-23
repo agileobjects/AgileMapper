@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using Shouldly;
     using TestClasses;
@@ -66,6 +67,15 @@
         public void ShouldIgnoreANonStringKeyedDictionary()
         {
             var source = new Dictionary<int, int> { [123] = 456 };
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldHandleAnUnparseableValue()
+        {
+            var source = new Dictionary<string, string> { ["Value"] = "jkdekml" };
             var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
 
             result.Value.ShouldBeDefault();
