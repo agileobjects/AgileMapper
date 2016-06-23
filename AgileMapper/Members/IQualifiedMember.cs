@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.Members
 
         bool IsSameAs(IQualifiedMember otherMember);
 
-        bool CouldMatch(IQualifiedMember otherMember);
+        bool CouldMatch(QualifiedMember otherMember);
 
         bool Matches(IQualifiedMember otherMember);
 

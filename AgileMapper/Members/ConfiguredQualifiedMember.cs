@@ -79,7 +79,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsSameAs(IQualifiedMember otherMember) => false;
 
-        public bool CouldMatch(IQualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
+        public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 
         public bool Matches(IQualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
 

@@ -151,11 +151,9 @@ namespace AgileObjects.AgileMapper.Members
                    otherMember.DeclaringType.IsAssignableFrom(DeclaringType);
         }
 
-        public bool CouldMatch(IQualifiedMember otherMember)
+        public bool CouldMatch(QualifiedMember otherMember)
         {
-            var otherQualifiedMember = (QualifiedMember)otherMember;
-
-            return otherQualifiedMember._joinedNames
+            return otherMember._joinedNames
                 .Any(otherJoinedName => _joinedNames
                     .Any(joinedName => otherJoinedName.StartsWith(joinedName, StringComparison.OrdinalIgnoreCase)));
         }
