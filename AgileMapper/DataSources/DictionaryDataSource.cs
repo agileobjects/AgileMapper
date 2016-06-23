@@ -11,9 +11,18 @@
     {
         public bool IsFor(IMemberMappingContext context)
         {
-            return context.SourceType.IsGenericType &&
-                  (context.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) &&
-                  (context.SourceType.GetGenericArguments().First() == typeof(string));
+            if (context.SourceType.IsGenericType &&
+               (context.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
+            {
+                var typeArguments = context.SourceType.GetGenericArguments();
+
+                return (typeArguments[0] == typeof(string)) &&
+                       context.MapperContext.ValueConverters.CanConvert(
+                           typeArguments[1],
+                           context.TargetMember.Type);
+            }
+
+            return false;
         }
 
         public IDataSource Create(IMemberMappingContext context)

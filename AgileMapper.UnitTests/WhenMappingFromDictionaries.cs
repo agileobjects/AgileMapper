@@ -80,5 +80,14 @@
 
             result.Value.ShouldBeDefault();
         }
+
+        [Fact]
+        public void ShouldIgnoreADeclaredUnconvertibleValue()
+        {
+            var source = new Dictionary<string, byte[]> { ["Value"] = new byte[0] };
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
+
+            result.Value.ShouldBeDefault();
+        }
     }
 }
