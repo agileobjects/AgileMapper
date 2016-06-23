@@ -263,6 +263,36 @@
         }
 
         [Fact]
+        public void ShouldMapAnObjectIntOverAnInt()
+        {
+            var source = new PublicProperty<object> { Value = 123 };
+            var target = new PublicField<int> { Value = 456 };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBe(123);
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectParseableStringOnToAnInt()
+        {
+            var source = new PublicProperty<object> { Value = "999" };
+            var target = new PublicField<int> { Value = default(int) };
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBe(999);
+        }
+
+        [Fact]
+        public void ShouldMapANullObjectOverANullableInt()
+        {
+            var source = new PublicProperty<object> { Value = null };
+            var target = new PublicField<int?> { Value = 555 };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldMapAStringEnumerableToAnIntEnumerable()
         {
             IEnumerable<string> source = new[] { "1", "2", "3" };
