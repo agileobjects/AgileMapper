@@ -2,11 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     public class Program
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine("Starting...");
+
             var source = new Customer
             {
                 Id = Guid.NewGuid(),
@@ -18,23 +21,57 @@
                 }
             };
 
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Address>()
-                    .ToANew<AddressViewModel>()
-                    .Map((a, avm) => a.Postcode.Value)
-                    .To(avm => avm.Postcode);
+            var stopwatch = new Stopwatch();
 
-                mapper.Map(source).ToANew<CustomerViewModel>();
+            stopwatch.Start();
+
+            for (var i = 0; i < 1000; i++)
+            {
+                using (SetupMapper(source))
+                {
+                }
+            }
+
+            stopwatch.Stop();
+
+            Console.WriteLine("Average setup time: " + stopwatch.Elapsed.TotalSeconds + "ms");
+
+            using (var mapper = SetupMapper(source))
+            {
+                stopwatch.Reset();
+                stopwatch.Start();
 
                 for (var i = 0; i < 10000; i++)
                 {
                     mapper.Map(source).ToANew<CustomerViewModel>();
                 }
 
-                Console.WriteLine("Finished!");
+                stopwatch.Stop();
             }
+
+            Console.WriteLine("Average map time: " + stopwatch.Elapsed.TotalSeconds / 10 + "ms");
+
+            Console.WriteLine("Finished!");
+
+            if (args.Length > 0)
+            {
+                Console.ReadLine();
+            }
+        }
+
+        private static IMapper SetupMapper(Customer source)
+        {
+            var mapper = Mapper.CreateNew();
+
+            mapper.WhenMapping
+                .From<Address>()
+                .ToANew<AddressViewModel>()
+                .Map((a, avm) => a.Postcode.Value)
+                .To(avm => avm.Postcode);
+
+            mapper.Map(source).ToANew<CustomerViewModel>();
+
+            return mapper;
         }
     }
 

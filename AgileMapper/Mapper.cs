@@ -2,7 +2,6 @@
 {
     using Api;
     using Api.Configuration;
-    using Flattening;
 
     public sealed class Mapper : IMapper
     {
