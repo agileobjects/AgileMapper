@@ -106,5 +106,14 @@
 
             result.Value.ShouldBeDefault();
         }
+
+        [Fact]
+        public void ShouldHandleAnUnconvertibleObjectValue()
+        {
+            var source = new Dictionary<string, object> { ["Value"] = new object() };
+            var result = Mapper.Map(source).ToANew<PublicProperty<int?>>();
+
+            result.Value.ShouldBeNull();
+        }
     }
 }

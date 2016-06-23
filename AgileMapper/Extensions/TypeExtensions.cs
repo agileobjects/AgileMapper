@@ -6,6 +6,7 @@
     using System.Linq;
     using Members;
     using ReadableExpressions;
+
     internal static class TypeExtensions
     {
         public static string GetShortVariableName(this Type type)

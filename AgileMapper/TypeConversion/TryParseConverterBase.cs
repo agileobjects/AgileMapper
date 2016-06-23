@@ -26,18 +26,16 @@ namespace AgileObjects.AgileMapper.TypeConversion
                 .GetMethods(Constants.PublicStatic)
                 .First(m => (m.Name == "TryParse") && (m.GetParameters().Length == 2));
 
-            _valueVariable = Expression.Variable(nonNullableTargetType, "value");
+            _valueVariable = Expression.Variable(
+                nonNullableTargetType,
+                nonNullableTargetType.GetVariableName(f => f.InCamelCase) + "Value");
         }
 
         public bool IsFor(Type nonNullableTargetType)
-        {
-            return nonNullableTargetType == _nonNullableTargetType;
-        }
+            => nonNullableTargetType == _nonNullableTargetType;
 
         public virtual bool CanConvert(Type nonNullableSourceType)
-        {
-            return nonNullableSourceType == _nonNullableTargetType;
-        }
+            => nonNullableSourceType == _nonNullableTargetType;
 
         public virtual Expression GetConversion(Expression sourceValue, Type targetType)
         {
