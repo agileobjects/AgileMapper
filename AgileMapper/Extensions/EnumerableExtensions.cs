@@ -38,14 +38,6 @@
             }
         }
 
-        public static T[] SubArray<T>(this T[] sourceArray, int sourceIndex)
-        {
-            var subArray = new T[sourceArray.Length - sourceIndex];
-            Array.Copy(sourceArray, sourceIndex, subArray, 0, subArray.Length);
-
-            return subArray;
-        }
-
         public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
         {
             var excludedItemCountsByItem = GetCountsByItem(excludedItems);

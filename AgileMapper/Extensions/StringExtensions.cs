@@ -17,11 +17,6 @@
             return char.ToLowerInvariant(value[0]) + value.Substring(1);
         }
 
-        public static TValue TryParse<TValue>(this string stringValue)
-        {
-            return DefaultTryParser<TValue>.Instance.Parse(stringValue);
-        }
-
         public static TEnum TryParseEnum<TEnum>(this string stringValue)
         {
             var enumValue = EnumTryParser<TEnum>.Instance.Parse(stringValue);
@@ -68,30 +63,6 @@
             }
         }
 
-        private class DefaultTryParser<TValue> : TryParserBase<TValue>
-        {
-            public static readonly DefaultTryParser<TValue> Instance = new DefaultTryParser<TValue>();
-
-            private DefaultTryParser()
-                : base(GetTryParseCall)
-            {
-            }
-
-            private static Expression GetTryParseCall(
-                Type nonNullableType,
-                Expression stringValueParameter,
-                Expression valueVariable)
-            {
-                var tryParseMethod = nonNullableType
-                    .GetMethods(Constants.PublicStatic)
-                    .First(m => (m.Name == "TryParse") && (m.GetParameters().Length == 2));
-
-                var tryParseCall = Expression.Call(tryParseMethod, stringValueParameter, valueVariable);
-
-                return tryParseCall;
-            }
-        }
-
         private class EnumTryParser<TEnum> : TryParserBase<TEnum>
         {
             public static readonly EnumTryParser<TEnum> Instance = new EnumTryParser<TEnum>();
@@ -123,20 +94,10 @@
 
         #endregion
 
-        private static readonly MethodInfo _tryParseMethod =
-            typeof(StringExtensions)
-                .GetMethods(Constants.PublicStatic)
-                .First(m => m.Name == "TryParse");
-
         private static readonly MethodInfo _tryParseEnumMethod =
             typeof(StringExtensions)
                 .GetMethods(Constants.PublicStatic)
                 .First(m => m.Name == "TryParseEnum");
-
-        public static MethodInfo GetTryParseMethodFor(Type targetType)
-        {
-            return _tryParseMethod.MakeGenericMethod(targetType);
-        }
 
         public static MethodInfo GetTryParseEnumMethodFor(Type targetEnumType)
         {
