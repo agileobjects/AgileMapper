@@ -32,50 +32,53 @@
         {
             SourceMember = sourceMember;
 
-            var valueNestedAccesses = context.NestedAccessFinder.FindIn(value);
-
-            Dictionary<Expression, Expression> nestedAccessVariableByNestedAccess;
+            Expression[] nestedAccesses;
             ICollection<ParameterExpression> variables;
 
-            NestedAccesses = ProcessNestedAccesses(
-                valueNestedAccesses,
-                out nestedAccessVariableByNestedAccess,
+            ProcessNestedAccesses(
+                context,
+                ref value,
+                out nestedAccesses,
                 out variables);
 
+            NestedAccesses = nestedAccesses;
             Variables = variables;
-
-            Value = nestedAccessVariableByNestedAccess.Any()
-                ? value.Replace(nestedAccessVariableByNestedAccess)
-                : value;
+            Value = value;
         }
 
         #region Setup
 
-        private static IEnumerable<Expression> ProcessNestedAccesses(
-            IEnumerable<Expression> nestedAccesses,
-            out Dictionary<Expression, Expression> nestedAccessVariableByNestedAccess,
+        private static void ProcessNestedAccesses(
+            IMemberMappingContext context,
+            ref Expression value,
+            out Expression[] nestedAccesses,
             out ICollection<ParameterExpression> variables)
         {
-            nestedAccessVariableByNestedAccess = new Dictionary<Expression, Expression>();
+            nestedAccesses = context.NestedAccessFinder.FindIn(value).ToArray();
             variables = new List<ParameterExpression>();
 
-            var nestedAccessesArray = nestedAccesses.ToArray();
-
-            for (var i = 0; i < nestedAccessesArray.Length; i++)
+            if (nestedAccesses.None())
             {
-                var nestedAccess = nestedAccessesArray[i];
+                return;
+            }
+
+            var nestedAccessVariableByNestedAccess = new Dictionary<Expression, Expression>();
+
+            for (var i = 0; i < nestedAccesses.Length; i++)
+            {
+                var nestedAccess = nestedAccesses[i];
 
                 if (CacheValueInVariable(nestedAccess))
                 {
                     var valueVariable = Expression.Variable(nestedAccess.Type, "accessValue");
-                    nestedAccessesArray[i] = Expression.Assign(valueVariable, nestedAccess);
+                    nestedAccesses[i] = Expression.Assign(valueVariable, nestedAccess);
 
                     nestedAccessVariableByNestedAccess.Add(nestedAccess, valueVariable);
                     variables.Add(valueVariable);
                 }
             }
 
-            return nestedAccessesArray;
+            value = value.Replace(nestedAccessVariableByNestedAccess);
         }
 
         private static bool CacheValueInVariable(Expression value)
