@@ -8,15 +8,9 @@
 
     internal class ToStringConverter : IValueConverter
     {
-        public bool IsFor(Type nonNullableTargetType)
-        {
-            return nonNullableTargetType == typeof(string);
-        }
+        public bool IsFor(Type nonNullableTargetType) => nonNullableTargetType == typeof(string);
 
-        public bool CanConvert(Type nonNullableSourceType)
-        {
-            return true;
-        }
+        public bool CanConvert(Type nonNullableSourceType) => true;
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
         {
@@ -35,7 +29,15 @@
                 .GetMethods(Constants.PublicInstance)
                 .First(m => m.Name == "ToString");
 
-            var toStringCall = Expression.Call(sourceValue, toStringMethod);
+            Expression toStringCall = Expression.Call(sourceValue, toStringMethod);
+
+            if (!sourceValue.Type.IsNullableType() && sourceValue.Type.CanBeNull())
+            {
+                toStringCall = Expression.Condition(
+                    sourceValue.GetIsNotDefaultComparison(),
+                    toStringCall,
+                    Expression.Default(typeof(string)));
+            }
 
             return toStringCall;
         }

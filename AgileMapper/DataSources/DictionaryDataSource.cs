@@ -62,9 +62,8 @@
             {
                 var keysProperty = Expression.Property(context.SourceObject, "Keys");
 
-                var potentialNamesArray = Expression.NewArrayInit(
-                    typeof(string),
-                    GetPotentialNames(context));
+                var potentialNamesArray = Expression
+                    .NewArrayInit(typeof(string), GetPotentialNames(context));
 
                 var linqIntersect = Expression.Call(
                     _linqIntersectMethod,
@@ -89,9 +88,14 @@
                     .Create(context)
                     .Value;
 
+                var convertedValue = context
+                    .MapperContext
+                    .ValueConverters
+                    .GetConversion(variable, defaultValue.Type);
+
                 var dictionaryValueOrDefault = Expression.Condition(
                     tryGetValueCall,
-                    context.MapperContext.ValueConverters.GetConversion(variable, defaultValue.Type),
+                    convertedValue,
                     defaultValue);
 
                 return dictionaryValueOrDefault;

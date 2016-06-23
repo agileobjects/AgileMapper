@@ -8,6 +8,23 @@
 
     internal abstract class DataSourceBase : IDataSource
     {
+        protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
+            : this(sourceMember, Enumerable.Empty<Expression>(), Enumerable.Empty<ParameterExpression>(), value)
+        {
+        }
+
+        protected DataSourceBase(
+            IQualifiedMember sourceMember,
+            IEnumerable<Expression> nestedAccesses,
+            IEnumerable<ParameterExpression> variables,
+            Expression value)
+        {
+            SourceMember = sourceMember;
+            NestedAccesses = nestedAccesses;
+            Variables = variables;
+            Value = value;
+        }
+
         protected DataSourceBase(
             IQualifiedMember sourceMember,
             Expression value,
@@ -30,23 +47,6 @@
             Value = nestedAccessVariableByNestedAccess.Any()
                 ? value.Replace(nestedAccessVariableByNestedAccess)
                 : value;
-        }
-
-        protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
-            : this(sourceMember, Enumerable.Empty<Expression>(), Enumerable.Empty<ParameterExpression>(), value)
-        {
-        }
-
-        protected DataSourceBase(
-            IQualifiedMember sourceMember,
-            IEnumerable<Expression> nestedAccesses,
-            IEnumerable<ParameterExpression> variables,
-            Expression value)
-        {
-            SourceMember = sourceMember;
-            NestedAccesses = nestedAccesses;
-            Variables = variables;
-            Value = value;
         }
 
         #region Setup
