@@ -61,5 +61,14 @@
 
             result.Value.ShouldBe(123);
         }
+
+        [Fact]
+        public void ShouldIgnoreANonStringKeyedDictionary()
+        {
+            var source = new Dictionary<int, int> { [123] = 456 };
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
+
+            result.Value.ShouldBeDefault();
+        }
     }
 }

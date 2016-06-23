@@ -7,89 +7,102 @@
     using Extensions;
     using Members;
 
-    internal class DictionaryDataSource : DataSourceBase
+    internal class DictionaryDataSourceFactory : IConditionalDataSourceFactory
     {
-        #region Cached Items
-
-        private static readonly MethodInfo _linqIntersectMethod = typeof(Enumerable)
-            .GetMethods(Constants.PublicStatic)
-            .First(m => m.Name == "Intersect" && m.GetParameters().Length == 3)
-            .MakeGenericMethod(typeof(string));
-
-        private static readonly MethodInfo _linqFirstOrDefaultMethod = typeof(Enumerable)
-            .GetMethods(Constants.PublicStatic)
-            .First(m => m.Name == "FirstOrDefault" && m.GetParameters().Length == 1)
-            .MakeGenericMethod(typeof(string));
-
-        #endregion
-
-        public DictionaryDataSource(IMemberMappingContext context)
-            : this(
-                  context,
-                  Expression.Variable(
-                      context.SourceType.GetGenericArguments().Last(),
-                      context.TargetMember.Name.ToCamelCase()))
+        public bool IsFor(IMemberMappingContext context)
         {
+            return context.SourceType.IsGenericType &&
+                  (context.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) &&
+                  (context.SourceType.GetGenericArguments().First() == typeof(string));
         }
 
-        private DictionaryDataSource(IMemberMappingContext context, ParameterExpression variable)
-            : base(context.SourceMember, Enumerable.Empty<Expression>(), new[] { variable }, GetValueParsing(variable, context))
+        public IDataSource Create(IMemberMappingContext context)
+            => new DictionaryDataSource(context);
+
+        private class DictionaryDataSource : DataSourceBase
         {
-        }
+            #region Cached Items
 
-        private static Expression GetValueParsing(Expression variable, IMemberMappingContext context)
-        {
-            var keysProperty = Expression.Property(context.SourceObject, "Keys");
+            private static readonly MethodInfo _linqIntersectMethod = typeof(Enumerable)
+                .GetMethods(Constants.PublicStatic)
+                .First(m => m.Name == "Intersect" && m.GetParameters().Length == 3)
+                .MakeGenericMethod(typeof(string));
 
-            var potentialNamesArray = Expression.NewArrayInit(
-                typeof(string),
-                GetPotentialNames(context));
+            private static readonly MethodInfo _linqFirstOrDefaultMethod = typeof(Enumerable)
+                .GetMethods(Constants.PublicStatic)
+                .First(m => m.Name == "FirstOrDefault" && m.GetParameters().Length == 1)
+                .MakeGenericMethod(typeof(string));
 
-            var linqIntersect = Expression.Call(
-                _linqIntersectMethod,
-                keysProperty,
-                potentialNamesArray,
-                CaseInsensitiveStringComparer.InstanceMember);
+            #endregion
 
-            var intersectionFirstOrDefault = Expression.Call(_linqFirstOrDefaultMethod, linqIntersect);
-            var emptyString = Expression.Field(null, typeof(string), "Empty");
-            var matchingNameOrEmptyString = Expression.Coalesce(intersectionFirstOrDefault, emptyString);
+            public DictionaryDataSource(IMemberMappingContext context)
+                : this(
+                      context,
+                      Expression.Variable(
+                          context.SourceType.GetGenericArguments().Last(),
+                          context.TargetMember.Name.ToCamelCase()))
+            {
+            }
 
-            var tryGetValueCall = Expression.Call(
-                context.SourceObject,
-                context.SourceObject.Type.GetMethod("TryGetValue", Constants.PublicInstance),
-                matchingNameOrEmptyString,
-                variable);
+            private DictionaryDataSource(IMemberMappingContext context, ParameterExpression variable)
+                : base(context.SourceMember, Enumerable.Empty<Expression>(), new[] { variable }, GetValueParsing(variable, context))
+            {
+            }
 
-            var defaultValue = context
-                .MappingContext
-                .RuleSet
-                .FallbackDataSourceFactory
-                .Create(context)
-                .Value;
+            private static Expression GetValueParsing(Expression variable, IMemberMappingContext context)
+            {
+                var keysProperty = Expression.Property(context.SourceObject, "Keys");
 
-            var dictionaryValueOrDefault = Expression.Condition(
-                tryGetValueCall,
-                context.MapperContext.ValueConverters.GetConversion(variable, defaultValue.Type),
-                defaultValue);
+                var potentialNamesArray = Expression.NewArrayInit(
+                    typeof(string),
+                    GetPotentialNames(context));
 
-            return dictionaryValueOrDefault;
-        }
+                var linqIntersect = Expression.Call(
+                    _linqIntersectMethod,
+                    keysProperty,
+                    potentialNamesArray,
+                    CaseInsensitiveStringComparer.InstanceMember);
 
-        private static IEnumerable<Expression> GetPotentialNames(IMemberMappingContext context)
-        {
-            var alternateNames = context
-                .TargetMember
-                .MemberChain
-                .Skip(1)
-                .Select(context.MapperContext.NamingSettings.GetAlternateNamesFor)
-                .CartesianProduct();
+                var intersectionFirstOrDefault = Expression.Call(_linqFirstOrDefaultMethod, linqIntersect);
+                var emptyString = Expression.Field(null, typeof(string), "Empty");
+                var matchingNameOrEmptyString = Expression.Coalesce(intersectionFirstOrDefault, emptyString);
 
-            var flattenedNameSet = (context.TargetMember.MemberChain.Count() == 2)
-                ? alternateNames.SelectMany(names => names)
-                : alternateNames.SelectMany(context.MapperContext.NamingSettings.GetJoinedNamesFor);
+                var tryGetValueCall = Expression.Call(
+                    context.SourceObject,
+                    context.SourceObject.Type.GetMethod("TryGetValue", Constants.PublicInstance),
+                    matchingNameOrEmptyString,
+                    variable);
 
-            return flattenedNameSet.Select(Expression.Constant);
+                var defaultValue = context
+                    .MappingContext
+                    .RuleSet
+                    .FallbackDataSourceFactory
+                    .Create(context)
+                    .Value;
+
+                var dictionaryValueOrDefault = Expression.Condition(
+                    tryGetValueCall,
+                    context.MapperContext.ValueConverters.GetConversion(variable, defaultValue.Type),
+                    defaultValue);
+
+                return dictionaryValueOrDefault;
+            }
+
+            private static IEnumerable<Expression> GetPotentialNames(IMemberMappingContext context)
+            {
+                var alternateNames = context
+                    .TargetMember
+                    .MemberChain
+                    .Skip(1)
+                    .Select(context.MapperContext.NamingSettings.GetAlternateNamesFor)
+                    .CartesianProduct();
+
+                var flattenedNameSet = (context.TargetMember.MemberChain.Count() == 2)
+                    ? alternateNames.SelectMany(names => names)
+                    : alternateNames.ToArray().SelectMany(context.MapperContext.NamingSettings.GetJoinedNamesFor);
+
+                return flattenedNameSet.Select(Expression.Constant);
+            }
         }
     }
 }

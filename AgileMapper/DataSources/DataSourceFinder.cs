@@ -2,11 +2,20 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
     using Members;
 
     internal class DataSourceFinder
     {
+        private readonly ICollection<IConditionalDataSourceFactory> _mapTimeDataSourceFactories;
+
+        public DataSourceFinder()
+        {
+            _mapTimeDataSourceFactories = new List<IConditionalDataSourceFactory>
+            {
+                new DictionaryDataSourceFactory()
+            };
+        }
+
         public DataSourceSet FindFor(IMemberMappingContext context)
             => new DataSourceSet(EnumerateSuccessfulDataSources(context).ToArray());
 
@@ -62,14 +71,11 @@
             }
         }
 
-        private static IDataSource GetMaptimeDataSourceOrNull(IMemberMappingContext context)
+        private IDataSource GetMaptimeDataSourceOrNull(IMemberMappingContext context)
         {
-            if (context.SourceType.IsDictionary())
-            {
-                return new DictionaryDataSource(context);
-            }
-
-            return null;
+            return _mapTimeDataSourceFactories
+                .FirstOrDefault(factory => factory.IsFor(context))?
+                .Create(context);
         }
 
         private static bool DataSourcesAreConfigured(
