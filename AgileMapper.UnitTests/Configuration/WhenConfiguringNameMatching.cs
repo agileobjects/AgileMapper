@@ -6,7 +6,7 @@
     public class WhenConfiguringNameMatching
     {
         [Fact]
-        public void ShouldHandleASingleCustomPrefix()
+        public void ShouldHandleACustomPrefix()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -38,7 +38,7 @@
         }
 
         [Fact]
-        public void ShouldHandleASingleCustomSuffix()
+        public void ShouldHandleACustomSuffix()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -66,6 +66,38 @@
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
 
                 result.Value.ShouldBe("12345");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleACustomNamingPattern()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .ExpectNamePattern("^_abc(.+)xyz_$");
+
+                var source = new { _abcValuexyz_ = 999 };
+                var result = mapper.Map(source).ToANew<PublicField<string>>();
+
+                result.Value.ShouldBe("999");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleCustomNamingPatterns()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .ExpectNamePatterns("^_abc(.+)xyz_$", "^__(.+)__$");
+
+                var source = new { __Value__ = 456 };
+                var result = mapper.Map(source).ToANew<PublicField<int>>();
+
+                result.Value.ShouldBe(456);
             }
         }
     }

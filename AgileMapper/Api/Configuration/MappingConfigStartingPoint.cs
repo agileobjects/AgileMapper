@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Members;
@@ -34,12 +35,20 @@
         public void ExpectNamePrefix(string prefix) => ExpectNamePrefixes(prefix);
 
         public void ExpectNamePrefixes(params string[] prefixes)
-            => _mapperContext.NamingSettings.AddNameMatchers(prefixes.Select(p => "^" + p + "(.+)$"));
+            => ExpectNamePatterns(prefixes.Select(p => "^" + p + "(.+)$"));
 
         public void ExpectNameSuffix(string suffix) => ExpectNameSuffixes(suffix);
 
         public void ExpectNameSuffixes(params string[] suffixes)
-            => _mapperContext.NamingSettings.AddNameMatchers(suffixes.Select(s => "^(.+)" + s + "$"));
+            => ExpectNamePatterns(suffixes.Select(s => "^(.+)" + s + "$"));
+
+        public void ExpectNamePattern(string pattern) => ExpectNamePatterns(pattern);
+
+        public void ExpectNamePatterns(params string[] patterns)
+            => ExpectNamePatterns(patterns.AsEnumerable());
+
+        private void ExpectNamePatterns(IEnumerable<string> patterns)
+            => _mapperContext.NamingSettings.AddNameMatchers(patterns);
 
         #endregion
 
