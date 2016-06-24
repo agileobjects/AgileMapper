@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Text.RegularExpressions;
+    using Extensions;
     using Members;
-
+    using ReadableExpressions;
     public class MappingConfigStartingPoint
     {
         private readonly MapperContext _mapperContext;
@@ -32,22 +34,84 @@
 
         #region Naming
 
-        public void ExpectNamePrefix(string prefix) => ExpectNamePrefixes(prefix);
+        public void UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
 
-        public void ExpectNamePrefixes(params string[] prefixes)
-            => ExpectNamePatterns(prefixes.Select(p => "^" + p + "(.+)$"));
+        public void UseNamePrefixes(params string[] prefixes)
+            => UseNamePatterns(prefixes.Select(p => "^" + p + "(.+)$"));
 
-        public void ExpectNameSuffix(string suffix) => ExpectNameSuffixes(suffix);
+        public void UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
 
-        public void ExpectNameSuffixes(params string[] suffixes)
-            => ExpectNamePatterns(suffixes.Select(s => "^(.+)" + s + "$"));
+        public void UseNameSuffixes(params string[] suffixes)
+            => UseNamePatterns(suffixes.Select(s => "^(.+)" + s + "$"));
 
-        public void ExpectNamePattern(string pattern) => ExpectNamePatterns(pattern);
+        public void UseNamePattern(string pattern) => UseNamePatterns(pattern);
 
-        public void ExpectNamePatterns(params string[] patterns)
-            => ExpectNamePatterns(patterns.AsEnumerable());
+        private static readonly Regex _patternChecker =
+            new Regex(@"^\^(?<Prefix>[^(]+){0,1}\(\.\+\)(?<Suffix>[^$]+){0,1}\$$");
 
-        private void ExpectNamePatterns(IEnumerable<string> patterns)
+        public void UseNamePatterns(params string[] patterns)
+        {
+            if (patterns.None())
+            {
+                throw new ArgumentException("No naming patterns supplied", nameof(patterns));
+            }
+
+            for (var i = 0; i < patterns.Length; i++)
+            {
+                var pattern = patterns[i];
+
+                if (pattern == null)
+                {
+                    throw new ArgumentNullException(nameof(patterns), "Naming patterns cannot be null");
+                }
+
+                if (pattern.Contains(Environment.NewLine))
+                {
+                    ThrowConfigurationException(pattern);
+                }
+
+                if (!pattern.StartsWith('^'))
+                {
+                    patterns[i] = pattern = "^" + pattern;
+                }
+
+                if (!pattern.EndsWith('$'))
+                {
+                    patterns[i] = pattern = pattern + "$";
+                }
+
+                ThrowIfPatternIsInvalid(pattern);
+            }
+
+            UseNamePatterns(patterns.AsEnumerable());
+        }
+
+        private static void ThrowIfPatternIsInvalid(string pattern)
+        {
+            var match = _patternChecker.Match(pattern);
+
+            if (!match.Success)
+            {
+                ThrowConfigurationException(pattern);
+            }
+
+            var prefix = match.Groups["Prefix"].Value;
+            var suffix = match.Groups["Suffix"].Value;
+
+            if (string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(suffix))
+            {
+                ThrowConfigurationException(pattern);
+            }
+        }
+
+        private static void ThrowConfigurationException(string pattern)
+        {
+            throw new MappingConfigurationException(
+                "Name pattern '" + pattern + "' is not valid. " +
+                "Please specify a regular expression pattern in the format '^{prefix}(.+){suffix}$'");
+        }
+
+        private void UseNamePatterns(IEnumerable<string> patterns)
             => _mapperContext.NamingSettings.AddNameMatchers(patterns);
 
         #endregion

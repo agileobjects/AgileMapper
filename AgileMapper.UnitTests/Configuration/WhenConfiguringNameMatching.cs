@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
+    using Api.Configuration;
     using TestClasses;
     using Xunit;
 
@@ -12,7 +14,7 @@
             {
                 mapper
                     .WhenMapping
-                    .ExpectNamePrefix("_p");
+                    .UseNamePrefix("_p");
 
                 var source = new { _pValue = "Help!" };
                 var result = mapper.Map(source).ToANew<PublicProperty<string>>();
@@ -28,7 +30,7 @@
             {
                 mapper
                     .WhenMapping
-                    .ExpectNamePrefixes("_p", "_f");
+                    .UseNamePrefixes("_p", "_f");
 
                 var source = new { _fValue = "Oops!" };
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
@@ -44,7 +46,7 @@
             {
                 mapper
                     .WhenMapping
-                    .ExpectNameSuffix("Str");
+                    .UseNameSuffix("Str");
 
                 var source = new { ValueStr = "La la la!" };
                 var result = mapper.Map(source).ToANew<PublicProperty<string>>();
@@ -60,7 +62,7 @@
             {
                 mapper
                     .WhenMapping
-                    .ExpectNameSuffixes("Str", "Int");
+                    .UseNameSuffixes("Str", "Int");
 
                 var source = new { ValueInt = 12345 };
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
@@ -76,12 +78,44 @@
             {
                 mapper
                     .WhenMapping
-                    .ExpectNamePattern("^_abc(.+)xyz_$");
+                    .UseNamePattern("^_abc(.+)xyz_$");
 
                 var source = new { _abcValuexyz_ = 999 };
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
 
                 result.Value.ShouldBe("999");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleACustomNamingPrefixPattern()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .UseNamePattern("^__(.+)$");
+
+                var source = new { __Value = 911 };
+                var result = mapper.Map(source).ToANew<PublicField<string>>();
+
+                result.Value.ShouldBe("911");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleACustomNamingSuffixPattern()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .UseNamePattern("^(.+)__$");
+
+                var source = new { Value__ = 878 };
+                var result = mapper.Map(source).ToANew<PublicField<long>>();
+
+                result.Value.ShouldBe(878);
             }
         }
 
@@ -92,13 +126,86 @@
             {
                 mapper
                     .WhenMapping
-                    .ExpectNamePatterns("^_abc(.+)xyz_$", "^__(.+)__$");
+                    .UseNamePatterns("^_abc(.+)xyz_$", "^__(.+)__$");
 
                 var source = new { __Value__ = 456 };
                 var result = mapper.Map(source).ToANew<PublicField<int>>();
 
                 result.Value.ShouldBe(456);
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfInvalidNamePatternFormatSpecified()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .WhenMapping
+                        .UseNamePatterns("^_[Name]_$");
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldErrorIfNamePatternContainsNewLine()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .WhenMapping
+                        .UseNamePatterns(@"
+^_
+(.+)
+_$");
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldErrorIfNamePatternIsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .WhenMapping
+                        .UseNamePattern(null);
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldErrorIfNoPatternsSupplied()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .WhenMapping
+                        .UseNamePatterns();
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldErrorIfPatternHasNoPrefixOrSuffix()
+        {
+            Assert.Throws<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .WhenMapping
+                        .UseNamePattern("(.+)");
+                }
+            });
         }
     }
 }
