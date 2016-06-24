@@ -36,6 +36,11 @@
         public void ExpectNamePrefixes(params string[] prefixes)
             => _mapperContext.NamingSettings.AddNameMatchers(prefixes.Select(p => "^" + p + "(.+)$"));
 
+        public void ExpectNameSuffix(string suffix) => ExpectNameSuffixes(suffix);
+
+        public void ExpectNameSuffixes(params string[] suffixes)
+            => _mapperContext.NamingSettings.AddNameMatchers(suffixes.Select(s => "^(.+)" + s + "$"));
+
         #endregion
 
         public InstanceConfigurator<TObject> InstancesOf<TObject>() where TObject : class
