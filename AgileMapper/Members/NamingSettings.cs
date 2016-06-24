@@ -66,16 +66,19 @@
             }
         }
 
-        public void AddNameMatcher(string format)
+        public void AddNameMatchers(IEnumerable<string> patterns)
         {
-            var nameMatcher = new Regex(format, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+            foreach (var pattern in patterns)
+            {
+                var nameMatcher = new Regex(pattern, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-            _matchingNameFactories.Add(member => nameMatcher
-                .Match(member.Name)
-                .Groups
-                .Cast<Group>()
-                .ElementAtOrDefault(1)?
-                .Value);
+                _matchingNameFactories.Add(member => nameMatcher
+                    .Match(member.Name)
+                    .Groups
+                    .Cast<Group>()
+                    .ElementAtOrDefault(1)?
+                    .Value);
+            }
         }
 
         public string GetMatchingNameFor(Member member)

@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using Members;
 
@@ -30,8 +31,10 @@
 
         #region Naming
 
-        public void ExpectNamePrefix(string prefix)
-            => _mapperContext.NamingSettings.AddNameMatcher("^" + prefix + "(.+)$");
+        public void ExpectNamePrefix(string prefix) => ExpectNamePrefixes(prefix);
+
+        public void ExpectNamePrefixes(params string[] prefixes)
+            => _mapperContext.NamingSettings.AddNameMatchers(prefixes.Select(p => "^" + p + "(.+)$"));
 
         #endregion
 
