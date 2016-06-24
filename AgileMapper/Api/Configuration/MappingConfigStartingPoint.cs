@@ -13,6 +13,8 @@
             _mapperContext = mapperContext;
         }
 
+        #region Exception Handling
+
         public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
         public void PassExceptionsTo(Action<IUntypedMemberMappingExceptionContext> callback)
@@ -23,6 +25,15 @@
 
             _mapperContext.UserConfigurations.Add(exceptionCallback);
         }
+
+        #endregion
+
+        #region Naming
+
+        public void ExpectNamePrefix(string prefix)
+            => _mapperContext.NamingSettings.AddNameMatcher("^" + prefix + "(.+)$");
+
+        #endregion
 
         public InstanceConfigurator<TObject> InstancesOf<TObject>() where TObject : class
             => new InstanceConfigurator<TObject>(_mapperContext);

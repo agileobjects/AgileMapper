@@ -3,13 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using Extensions;
 
     internal class NamingSettings
     {
         public static readonly NamingSettings Default = new NamingSettings();
 
-        private readonly IEnumerable<Func<Member, string>> _matchingNameFactories;
+        private readonly ICollection<Func<Member, string>> _matchingNameFactories;
         private readonly IEnumerable<Func<Member, IEnumerable<string>>> _alternateNameFactories;
         private readonly IEnumerable<Func<IEnumerable<string>, string>> _joinedNameFactories;
 
@@ -63,6 +64,18 @@
                 yield return "Identifier";
                 yield return member.DeclaringType.Name + "Identifier";
             }
+        }
+
+        public void AddNameMatcher(string format)
+        {
+            var nameMatcher = new Regex(format, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+            _matchingNameFactories.Add(member => nameMatcher
+                .Match(member.Name)
+                .Groups
+                .Cast<Group>()
+                .ElementAtOrDefault(1)?
+                .Value);
         }
 
         public string GetMatchingNameFor(Member member)
