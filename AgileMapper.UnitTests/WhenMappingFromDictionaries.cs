@@ -81,6 +81,15 @@
         }
 
         [Fact]
+        public void ShouldPopulateASimpleTypeEnumerableFromAConvertibleSourceEnumerable()
+        {
+            var source = new Dictionary<string, IEnumerable<int>> { ["Value"] = new[] { 4, 5, 6 } };
+            var result = Mapper.Map(source).ToANew<PublicProperty<string[]>>();
+
+            result.Value.ShouldBe("4", "5", "6");
+        }
+
+        [Fact]
         public void ShouldPopulateASimpleTypeEnumerableFromSourceEntries()
         {
             var source = new Dictionary<string, int>
