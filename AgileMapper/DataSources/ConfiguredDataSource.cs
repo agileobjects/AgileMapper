@@ -34,7 +34,7 @@
         {
             if (context.TargetMember.IsComplex && (context.TargetMember.Type.Assembly != typeof(string).Assembly))
             {
-                return ComplexTypeMappingDataSource.GetMapCall(value, dataSourceIndex, context);
+                return context.GetMapCall(value, dataSourceIndex);
             }
 
             var convertedValue = context.MapperContext.ValueConverters.GetConversion(value, context.TargetMember.Type);

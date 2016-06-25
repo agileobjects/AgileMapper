@@ -11,18 +11,29 @@
     {
         public bool IsFor(IMemberMappingContext context)
         {
-            if (context.SourceType.IsGenericType &&
-               (context.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
-            {
-                var typeArguments = context.SourceType.GetGenericArguments();
+            return context.SourceType.IsGenericType &&
+                  (context.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) &&
+                  DictionaryHasUseableTypes(context);
+        }
 
-                return (typeArguments[0] == typeof(string)) &&
-                       context.MapperContext.ValueConverters.CanConvert(
-                           typeArguments[1],
-                           context.TargetMember.Type);
+        private static bool DictionaryHasUseableTypes(IMemberMappingContext context)
+        {
+            var keyAndValueTypes = context.SourceType.GetGenericArguments();
+
+            if (keyAndValueTypes[0] != typeof(string))
+            {
+                return false;
             }
 
-            return false;
+            if (context.TargetMember.IsEnumerable)
+            {
+                return (keyAndValueTypes[1] == typeof(object)) || keyAndValueTypes[1].IsEnumerable();
+            }
+
+            return context
+                .MapperContext
+                .ValueConverters
+                .CanConvert(keyAndValueTypes[1], context.TargetMember.Type);
         }
 
         public IDataSource Create(IMemberMappingContext context)
@@ -60,14 +71,12 @@
 
             private static Expression GetValueParsing(Expression variable, IMemberMappingContext context)
             {
-                var keysProperty = Expression.Property(context.SourceObject, "Keys");
-
                 var potentialNamesArray = Expression
                     .NewArrayInit(typeof(string), GetPotentialNames(context));
 
                 var linqIntersect = Expression.Call(
                     _linqIntersectMethod,
-                    keysProperty,
+                    Expression.Property(context.SourceObject, "Keys"),
                     potentialNamesArray,
                     CaseInsensitiveStringComparer.InstanceMember);
 
@@ -81,22 +90,10 @@
                     matchingNameOrEmptyString,
                     variable);
 
-                var defaultValue = context
-                    .MappingContext
-                    .RuleSet
-                    .FallbackDataSourceFactory
-                    .Create(context)
-                    .Value;
-
-                var convertedValue = context
-                    .MapperContext
-                    .ValueConverters
-                    .GetConversion(variable, defaultValue.Type);
-
                 var dictionaryValueOrDefault = Expression.Condition(
                     tryGetValueCall,
-                    convertedValue,
-                    defaultValue);
+                    GetValue(variable, context),
+                    GetDefaultValue(context));
 
                 return dictionaryValueOrDefault;
             }
@@ -115,6 +112,29 @@
                     : alternateNames.ToArray().SelectMany(context.MapperContext.NamingSettings.GetJoinedNamesFor);
 
                 return flattenedNameSet.Select(Expression.Constant);
+            }
+
+            private static Expression GetValue(Expression variable, IMemberMappingContext context)
+            {
+                if (context.TargetMember.IsSimple)
+                {
+                    return context
+                        .MapperContext
+                        .ValueConverters
+                        .GetConversion(variable, context.TargetMember.Type);
+                }
+
+                return context.GetMapCall(variable, 0);
+            }
+
+            private static Expression GetDefaultValue(IMemberMappingContext context)
+            {
+                return context
+                    .MappingContext
+                    .RuleSet
+                    .FallbackDataSourceFactory
+                    .Create(context)
+                    .Value;
             }
         }
     }

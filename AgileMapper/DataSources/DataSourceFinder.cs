@@ -30,14 +30,14 @@
             if (context.TargetMember.IsSimple)
             {
                 yield return context.MappingContext.RuleSet.InitialDataSourceFactory.Create(context);
+            }
 
-                var maptimeDataSource = GetMaptimeDataSourceOrNull(context);
+            var maptimeDataSource = GetMaptimeDataSourceOrNull(context);
 
-                if (maptimeDataSource != null)
-                {
-                    yield return maptimeDataSource;
-                    yield break;
-                }
+            if (maptimeDataSource != null)
+            {
+                yield return maptimeDataSource;
+                yield break;
             }
 
             var dataSourceIndex = 0;
@@ -73,6 +73,11 @@
 
         private IDataSource GetMaptimeDataSourceOrNull(IMemberMappingContext context)
         {
+            if (context.TargetMember.IsComplex)
+            {
+                return null;
+            }
+
             return _mapTimeDataSourceFactories
                 .FirstOrDefault(factory => factory.IsFor(context))?
                 .Create(context);

@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
+    using System.Linq.Expressions;
     using DataSources;
 
     internal static class MemberMappingContextExtensions
@@ -9,5 +10,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public static IDataSource DataSourceAt(this IMemberMappingContext context, int index)
             => context.MappingContext.MapperContext.DataSources.DataSourceAt(index, context);
+
+        public static Expression GetMapCall(this IMemberMappingContext context, Expression value, int dataSourceIndex)
+            => context.Parent.GetMapCall(value, context.TargetMember, dataSourceIndex);
     }
 }

@@ -12,10 +12,7 @@
                   sourceEnumerableDataSource.SourceMember,
                   sourceEnumerableDataSource.NestedAccesses,
                   sourceEnumerableDataSource.Variables,
-                  context.Parent.GetMapCall(
-                      sourceEnumerableDataSource.Value,
-                      context.TargetMember,
-                      dataSourceIndex))
+                  context.GetMapCall(sourceEnumerableDataSource.Value, dataSourceIndex))
         {
         }
     }
