@@ -81,6 +81,20 @@
         }
 
         [Fact]
+        public void ShouldPopulateASimpleTypeEnumerableFromSourceEntries()
+        {
+            var source = new Dictionary<string, int>
+            {
+                ["Value[0]"] = 9,
+                ["Value[1]"] = 8,
+                ["Value[2]"] = 7
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<List<int>>>();
+
+            result.Value.ShouldBe(9, 8, 7);
+        }
+
+        [Fact]
         public void ShouldIgnoreANonStringKeyedDictionary()
         {
             var source = new Dictionary<int, int> { [123] = 456 };

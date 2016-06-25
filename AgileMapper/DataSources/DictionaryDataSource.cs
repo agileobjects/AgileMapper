@@ -6,6 +6,7 @@
     using System.Reflection;
     using Extensions;
     using Members;
+    using ObjectPopulation;
 
     internal class DictionaryDataSourceFactory : IConditionalDataSourceFactory
     {
@@ -27,7 +28,9 @@
 
             if (context.TargetMember.IsEnumerable)
             {
-                return (keyAndValueTypes[1] == typeof(object)) || keyAndValueTypes[1].IsEnumerable();
+                return (keyAndValueTypes[1] == typeof(object)) ||
+                       (keyAndValueTypes[1] == context.TargetMember.LeafMember.ElementType) ||
+                        keyAndValueTypes[1].IsEnumerable();
             }
 
             return context
@@ -71,34 +74,22 @@
 
             private static Expression GetValueParsing(Expression variable, IMemberMappingContext context)
             {
-                var potentialNamesArray = Expression
-                    .NewArrayInit(typeof(string), GetPotentialNames(context));
+                var potentialNames = GetPotentialNames(context);
 
-                var linqIntersect = Expression.Call(
-                    _linqIntersectMethod,
-                    Expression.Property(context.SourceObject, "Keys"),
-                    potentialNamesArray,
-                    CaseInsensitiveStringComparer.InstanceMember);
+                var tryGetValueCall = GetTryGetValueCall(
+                    variable,
+                    potentialNames.Select(Expression.Constant),
+                    context);
 
-                var intersectionFirstOrDefault = Expression.Call(_linqFirstOrDefaultMethod, linqIntersect);
-                var emptyString = Expression.Field(null, typeof(string), "Empty");
-                var matchingNameOrEmptyString = Expression.Coalesce(intersectionFirstOrDefault, emptyString);
-
-                var tryGetValueCall = Expression.Call(
-                    context.SourceObject,
-                    context.SourceObject.Type.GetMethod("TryGetValue", Constants.PublicInstance),
-                    matchingNameOrEmptyString,
-                    variable);
-
-                var dictionaryValueOrDefault = Expression.Condition(
+                var dictionaryValueOrFallback = Expression.Condition(
                     tryGetValueCall,
                     GetValue(variable, context),
-                    GetDefaultValue(context));
+                    GetFallbackValue(variable, potentialNames, context));
 
-                return dictionaryValueOrDefault;
+                return dictionaryValueOrFallback;
             }
 
-            private static IEnumerable<Expression> GetPotentialNames(IMemberMappingContext context)
+            private static string[] GetPotentialNames(IMemberMappingContext context)
             {
                 var alternateNames = context
                     .TargetMember
@@ -111,7 +102,31 @@
                     ? alternateNames.SelectMany(names => names)
                     : alternateNames.ToArray().SelectMany(context.MapperContext.NamingSettings.GetJoinedNamesFor);
 
-                return flattenedNameSet.Select(Expression.Constant);
+                return flattenedNameSet.ToArray();
+            }
+
+            private static Expression GetTryGetValueCall(
+                Expression variable,
+                IEnumerable<Expression> potentialNames,
+                IMemberMappingContext context)
+            {
+                var linqIntersect = Expression.Call(
+                    _linqIntersectMethod,
+                    Expression.Property(context.SourceObject, "Keys"),
+                    Expression.NewArrayInit(typeof(string), potentialNames),
+                    CaseInsensitiveStringComparer.InstanceMember);
+
+                var intersectionFirstOrDefault = Expression.Call(_linqFirstOrDefaultMethod, linqIntersect);
+                var emptyString = Expression.Field(null, typeof(string), "Empty");
+                var matchingNameOrEmptyString = Expression.Coalesce(intersectionFirstOrDefault, emptyString);
+
+                var tryGetValueCall = Expression.Call(
+                    context.SourceObject,
+                    context.SourceObject.Type.GetMethod("TryGetValue", Constants.PublicInstance),
+                    matchingNameOrEmptyString,
+                    variable);
+
+                return tryGetValueCall;
             }
 
             private static Expression GetValue(Expression variable, IMemberMappingContext context)
@@ -127,14 +142,84 @@
                 return context.GetMapCall(variable, 0);
             }
 
-            private static Expression GetDefaultValue(IMemberMappingContext context)
+            private static Expression GetFallbackValue(
+                Expression variable,
+                IEnumerable<string> potentialNames,
+                IMemberMappingContext context)
             {
-                return context
+                var fallbackValue = context
                     .MappingContext
                     .RuleSet
                     .FallbackDataSourceFactory
                     .Create(context)
                     .Value;
+
+                if (context.TargetMember.IsSimple)
+                {
+                    return fallbackValue;
+                }
+
+                var enumerablePopulation = GetEnumerablePopulation(variable, potentialNames, context);
+                var enumerablePopulationOrFallback = Expression.Coalesce(enumerablePopulation, fallbackValue);
+
+                return enumerablePopulationOrFallback;
+            }
+
+            private static Expression GetEnumerablePopulation(
+                Expression variable,
+                IEnumerable<string> potentialNames,
+                IMemberMappingContext context)
+            {
+                var sourceElementType = context.SourceType.GetGenericArguments()[1];
+                var sourceList = Expression.Variable(typeof(List<>).MakeGenericType(sourceElementType), "sourceList");
+                var counter = Expression.Variable(typeof(int), "i");
+
+                var potentialNameConstants = potentialNames.Select(name =>
+                {
+                    var nameAndOpenBrace = Expression.Constant(name + "[");
+                    var counterString = context.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
+                    var closeBrace = Expression.Constant("]");
+
+                    var stringConcatMethod = typeof(string)
+                        .GetMethods(Constants.PublicStatic)
+                        .First(m => (m.Name == "Concat") &&
+                            (m.GetParameters().Length == 3) &&
+                            (m.GetParameters().First().ParameterType == typeof(string)));
+
+                    var nameConstant = Expression.Call(
+                        null,
+                        stringConcatMethod,
+                        nameAndOpenBrace,
+                        counterString,
+                        closeBrace);
+
+                    return nameConstant;
+                });
+
+                var tryGetValueCall = GetTryGetValueCall(variable, potentialNameConstants, context);
+                var loopBreak = Expression.Break(Expression.Label());
+                var ifNotTryGetValueBreak = Expression.IfThen(Expression.Not(tryGetValueCall), loopBreak);
+
+                var sourceListAddCall = Expression.Call(sourceList, "Add", Constants.NoTypeArguments, variable);
+                var incrementCounter = Expression.PreIncrementAssign(counter);
+
+                var loopBody = Expression.Block(
+                    ifNotTryGetValueBreak,
+                    sourceListAddCall,
+                    incrementCounter);
+
+                var populationLoop = Expression.Loop(loopBody, loopBreak.Target);
+
+                var mapCall = context.GetMapCall(sourceList, 0);
+
+                var enumerablePopulation = Expression.Block(
+                    new[] { sourceList, counter },
+                    Expression.Assign(sourceList, EnumerableTypes.GetEnumerableEmptyInstance(sourceList.Type)),
+                    Expression.Assign(counter, Expression.Constant(0)),
+                    populationLoop,
+                    mapCall);
+
+                return enumerablePopulation;
             }
         }
     }

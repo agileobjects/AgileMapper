@@ -64,8 +64,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public static Expression GetEnumerableEmptyInstance(IMemberMappingContext context)
+            => GetEnumerableEmptyInstance(context.TargetMember.Type);
+
+        public static Expression GetEnumerableEmptyInstance(Type enumerableType)
         {
-            var typeData = new EnumerableTypeData(context.TargetMember.Type);
+            var typeData = new EnumerableTypeData(enumerableType);
 
             return GetEnumerableTypeFor(typeData).GetEmptyInstanceCreation(typeData);
         }
