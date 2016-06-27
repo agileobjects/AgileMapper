@@ -15,7 +15,7 @@
             Expression condition,
             IMemberMappingContext context)
             : base(
-                  new ConfiguredQualifiedMember(value, context),
+                  new ConfiguredSourceMember(value, context),
                   GetConvertedValue(dataSourceIndex, value, context),
                   context)
         {

@@ -62,6 +62,7 @@
     <Compile Include="Api\Configuration\PreEventConfigStartingPoint.cs" />
     <Compile Include="Api\PlanTargetTypeSelector.cs" />
     <Compile Include="DataSources\DictionaryDataSource.cs" />
+    <Compile Include="DataSources\DictionaryDataSourceFactory.cs" />
     <Compile Include="DataSources\IConditionalDataSourceFactory.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
     <Compile Include="Members\NamingSettings.cs" />
@@ -73,9 +74,9 @@
     <Compile Include="DataSources\NullDataSource.cs" />
     <Compile Include="ObjectPopulation\ConfiguredObjectFactory.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
-    <Compile Include="Members\ConfiguredQualifiedMember.cs" />
+    <Compile Include="Members\ConfiguredSourceMember.cs" />
     <Compile Include="DataSources\IConfiguredDataSource.cs" />
-    <Compile Include="Members\CaseInsensitiveStringComparer.cs" />
+    <Compile Include="CaseInsensitiveStringComparer.cs" />
     <Compile Include="Members\IMappingData.cs" />
     <Compile Include="Members\IQualifiedMember.cs" />
     <Compile Include="Members\ITypedMemberMappingExceptionContext.cs" />

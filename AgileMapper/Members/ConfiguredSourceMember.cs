@@ -6,18 +6,18 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions;
     using ReadableExpressions;
 
-    internal class ConfiguredQualifiedMember : IQualifiedMember
+    internal class ConfiguredSourceMember : IQualifiedMember
     {
         private readonly Expression _value;
         private readonly QualifiedMember _matchedTargetMember;
         private readonly Member[] _childMembers;
 
-        public ConfiguredQualifiedMember(Expression value, IMappingData data)
+        public ConfiguredSourceMember(Expression value, IMappingData data)
             : this(value, data.TargetMember)
         {
         }
 
-        private ConfiguredQualifiedMember(Expression value, QualifiedMember matchedTargetMember)
+        private ConfiguredSourceMember(Expression value, QualifiedMember matchedTargetMember)
             : this(
                   value.Type,
                   value.ToReadableString(),
@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.Members
         {
         }
 
-        private ConfiguredQualifiedMember(ConfiguredQualifiedMember parent, Member childMember)
+        private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(
                   childMember.Type,
                   parent.Name + childMember.JoiningName,
@@ -36,7 +36,7 @@ namespace AgileObjects.AgileMapper.Members
         {
         }
 
-        private ConfiguredQualifiedMember(
+        private ConfiguredSourceMember(
             Type type,
             string name,
             Expression value,
@@ -62,14 +62,14 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Path { get; }
 
-        public IQualifiedMember Append(Member childMember) => new ConfiguredQualifiedMember(this, childMember);
+        public IQualifiedMember Append(Member childMember) => new ConfiguredSourceMember(this, childMember);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
-            var otherConfiguredMember = (ConfiguredQualifiedMember)otherMember;
+            var otherConfiguredMember = (ConfiguredSourceMember)otherMember;
             var relativeMemberChain = _childMembers.RelativeTo(otherConfiguredMember._childMembers);
 
-            return new ConfiguredQualifiedMember(
+            return new ConfiguredSourceMember(
                 Type,
                 Name,
                 _value,
@@ -94,7 +94,7 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            return new ConfiguredQualifiedMember(
+            return new ConfiguredSourceMember(
                 _value.GetConversionTo(runtimeType),
                 _matchedTargetMember);
         }
