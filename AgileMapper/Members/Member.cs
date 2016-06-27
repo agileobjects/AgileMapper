@@ -25,15 +25,18 @@ namespace AgileObjects.AgileMapper.Members
             IsIdentifier = IsIdMember(name, declaringType);
             DeclaringType = declaringType;
             Type = type;
-            Signature = $"[{declaringType.GetFriendlyName()}].{name}";
+            Signature = JoiningName + ":" + type.GetFriendlyName();
 
             IsEnumerable = type.IsEnumerable();
-            IsComplex = !IsEnumerable && type.IsComplex();
 
             if (IsEnumerable)
             {
                 ElementType = Type.GetEnumerableElementType();
+                return;
             }
+
+            IsSimple = type.IsSimple();
+            IsComplex = !IsSimple;
         }
 
         #region Setup
@@ -101,7 +104,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsEnumerable { get; }
 
-        public bool IsSimple => !(IsComplex || IsEnumerable);
+        public bool IsSimple { get; }
 
         public Type ElementType { get; }
 

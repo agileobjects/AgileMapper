@@ -48,6 +48,9 @@
             return access;
         }
 
+        public static string GetFullName(this IEnumerable<Member> members)
+            => string.Join(string.Empty, members.Select(m => m.JoiningName));
+
         public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression instance)
         {
             // Skip(1) because the 0th member is the instance:

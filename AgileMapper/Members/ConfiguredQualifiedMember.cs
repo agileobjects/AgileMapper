@@ -48,8 +48,8 @@ namespace AgileObjects.AgileMapper.Members
             _value = value;
             _matchedTargetMember = matchedTargetMember;
             _childMembers = childMembers ?? new[] { Member.ConfiguredSource(name, type) };
-            Signature = string.Join(">", _childMembers.Select(cm => cm.Signature));
-            Path = QualifiedMember.GetFullName(_childMembers);
+            Signature = string.Join(".", _childMembers.Select(cm => cm.Signature));
+            Path = _childMembers.GetFullName();
         }
 
         public Type DeclaringType => _value.Type.DeclaringType;

@@ -13,19 +13,19 @@ namespace AgileObjects.AgileMapper.Members
         public static readonly QualifiedMember All = new QualifiedMember(new Member[0], new string[0], NamingSettings.Default);
         public static readonly QualifiedMember None = new QualifiedMember(new Member[0], new string[0], NamingSettings.Default);
 
-        private readonly Member[] _memberChainChain;
+        private readonly Member[] _memberChain;
         private readonly string[] _memberMatchingNames;
         private readonly IEnumerable<string> _joinedNames;
         private readonly NamingSettings _namingSettings;
 
-        private QualifiedMember(Member[] memberChainChain, string[] memberMatchingNames, NamingSettings namingSettings)
-            : this(memberChainChain.LastOrDefault(), namingSettings)
+        private QualifiedMember(Member[] memberChain, string[] memberMatchingNames, NamingSettings namingSettings)
+            : this(memberChain.LastOrDefault(), namingSettings)
         {
-            _memberChainChain = memberChainChain;
+            _memberChain = memberChain;
             _memberMatchingNames = memberMatchingNames;
             _joinedNames = namingSettings.GetJoinedNamesFor(memberMatchingNames);
-            Signature = string.Join(">", memberChainChain.Select(m => m.Signature));
-            Path = GetFullName(memberChainChain);
+            Signature = string.Join(">", memberChain.Select(m => m.Signature));
+            Path = memberChain.GetFullName();
         }
 
         private QualifiedMember(Member member, QualifiedMember parent, NamingSettings namingSettings)
@@ -35,7 +35,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if (parent == null)
             {
-                _memberChainChain = new[] { member };
+                _memberChain = new[] { member };
                 _memberMatchingNames = new[] { matchingName };
                 _joinedNames = _memberMatchingNames;
                 Signature = member.Signature;
@@ -43,11 +43,11 @@ namespace AgileObjects.AgileMapper.Members
                 return;
             }
 
-            _memberChainChain = parent._memberChainChain.Append(member);
+            _memberChain = parent._memberChain.Append(member);
             _memberMatchingNames = parent._memberMatchingNames.Append(matchingName);
             _joinedNames = namingSettings.GetJoinedNamesFor(_memberMatchingNames);
 
-            Signature = parent.Signature + ">" + member.Signature;
+            Signature = parent.Signature + "." + member.Signature;
             Path = parent.Path + member.JoiningName;
         }
 
@@ -72,10 +72,7 @@ namespace AgileObjects.AgileMapper.Members
 
         #endregion
 
-        public static string GetFullName(IEnumerable<Member> members)
-            => string.Join(string.Empty, members.Select(m => m.JoiningName));
-
-        public IEnumerable<Member> MemberChain => _memberChainChain;
+        public IEnumerable<Member> MemberChain => _memberChain;
 
         public Member LeafMember { get; }
 
@@ -105,12 +102,12 @@ namespace AgileObjects.AgileMapper.Members
         {
             var otherQualifiedMember = (QualifiedMember)otherMember;
 
-            if (otherQualifiedMember.LeafMember == _memberChainChain[0])
+            if (otherQualifiedMember.LeafMember == _memberChain[0])
             {
                 return this;
             }
 
-            var relativeMemberChain = _memberChainChain.RelativeTo(otherQualifiedMember._memberChainChain);
+            var relativeMemberChain = _memberChain.RelativeTo(otherQualifiedMember._memberChain);
 
             return new QualifiedMember(relativeMemberChain, _memberMatchingNames, _namingSettings);
         }
@@ -124,9 +121,9 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            _memberChainChain[_memberChainChain.Length - 1] = LeafMember.WithType(runtimeType);
+            _memberChain[_memberChain.Length - 1] = LeafMember.WithType(runtimeType);
 
-            return new QualifiedMember(_memberChainChain, _memberMatchingNames, _namingSettings);
+            return new QualifiedMember(_memberChain, _memberMatchingNames, _namingSettings);
         }
 
         public bool IsSameAs(IQualifiedMember otherMember)
@@ -175,7 +172,7 @@ namespace AgileObjects.AgileMapper.Members
         public Expression GetAccess(Expression instance) => LeafMember.GetAccess(instance);
 
         public Expression GetQualifiedAccess(Expression instance)
-            => _memberChainChain.GetQualifiedAccess(instance);
+            => _memberChain.GetQualifiedAccess(instance);
 
         public Expression GetPopulation(Expression instance, Expression value)
             => LeafMember.GetPopulation(instance, value);
