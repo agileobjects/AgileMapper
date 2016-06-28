@@ -65,6 +65,8 @@
     <Compile Include="DataSources\DictionaryDataSourceFactory.cs" />
     <Compile Include="DataSources\IConditionalDataSourceFactory.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
+    <Compile Include="Members\DictionaryEntrySourceMember.cs" />
+    <Compile Include="Members\DictionarySourceMember.cs" />
     <Compile Include="Members\NamingSettings.cs" />
     <Compile Include="Members\PreserveExistingValueDataSourceFactory.cs" />
     <Compile Include="Flattening\FlattenedObject.cs" />

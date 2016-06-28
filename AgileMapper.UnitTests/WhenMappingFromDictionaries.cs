@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System.Collections.Generic;
+    using System.Linq;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -87,6 +88,25 @@
             var result = Mapper.Map(source).ToANew<PublicProperty<string[]>>();
 
             result.Value.ShouldBe("4", "5", "6");
+        }
+
+        [Fact]
+        public void ShouldPopulateAComplexTypeEnumerableFromASourceEnumerable()
+        {
+            var source = new Dictionary<string, IEnumerable<Person>>
+            {
+                ["Value"] = new[]
+                {
+                    new Person { Name = "Mr Pants"},
+                    new Customer { Name = "Mrs Blouse" }
+                }
+
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<PersonViewModel[]>>();
+
+            result.Value.Length.ShouldBe(2);
+            result.Value.First().Name.ShouldBe("Mr Pants");
+            result.Value.Second().Name.ShouldBe("Mrs Blouse");
         }
 
         [Fact]
