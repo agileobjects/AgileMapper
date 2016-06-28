@@ -55,7 +55,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Member RootSource(Type sourceType) => Root("Source", sourceType);
 
-        public static Member ConfiguredSource(string signature, Type type) => Root(signature, type);
+        public static Member RootSource(string signature, Type type) => Root(signature, type);
 
         public static Member RootTarget(Type type) => Root("Target", type);
 

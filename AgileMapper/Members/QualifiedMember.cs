@@ -172,8 +172,5 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetQualifiedAccess(Expression instance)
             => _memberChain.GetQualifiedAccess(instance);
-
-        public Expression GetPopulation(Expression instance, Expression value)
-            => LeafMember.GetPopulation(instance, value);
     }
 }

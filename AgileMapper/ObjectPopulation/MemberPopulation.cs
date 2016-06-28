@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression GetPopulation()
         {
-            var population = _context.TargetMember.GetPopulation(_context.InstanceVariable, _dataSources.Value);
+            var population = _context.TargetMember.LeafMember.GetPopulation(_context.InstanceVariable, _dataSources.Value);
 
             if (_dataSources.Variables.Any())
             {

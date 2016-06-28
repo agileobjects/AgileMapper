@@ -7,21 +7,11 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {
-        private readonly Expression _value;
         private readonly QualifiedMember _matchedTargetMember;
         private readonly Member[] _childMembers;
 
         public ConfiguredSourceMember(Expression value, IMappingData data)
-            : this(value, data.TargetMember)
-        {
-        }
-
-        private ConfiguredSourceMember(Expression value, QualifiedMember matchedTargetMember)
-            : this(
-                  value.Type,
-                  value.ToReadableString(),
-                  value,
-                  matchedTargetMember)
+            : this(value.Type, value.ToReadableString(), data.TargetMember)
         {
         }
 
@@ -29,7 +19,6 @@ namespace AgileObjects.AgileMapper.Members
             : this(
                   childMember.Type,
                   parent.Name + childMember.JoiningName,
-                  parent._value,
                   parent._matchedTargetMember.Append(childMember),
                   parent._childMembers.Append(childMember))
         {
@@ -38,15 +27,13 @@ namespace AgileObjects.AgileMapper.Members
         private ConfiguredSourceMember(
             Type type,
             string name,
-            Expression value,
             QualifiedMember matchedTargetMember,
             Member[] childMembers = null)
         {
             Type = type;
             Name = name;
-            _value = value;
             _matchedTargetMember = matchedTargetMember;
-            _childMembers = childMembers ?? new[] { Member.ConfiguredSource(name, type) };
+            _childMembers = childMembers ?? new[] { Member.RootSource(name, type) };
             Signature = _childMembers.GetSignature();
         }
 
@@ -68,7 +55,6 @@ namespace AgileObjects.AgileMapper.Members
             return new ConfiguredSourceMember(
                 Type,
                 Name,
-                _value,
                 _matchedTargetMember,
                 relativeMemberChain);
         }
@@ -77,20 +63,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Matches(IQualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
 
-        public Expression GetAccess(Expression instance) => _value;
-
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
 
-        public IQualifiedMember WithType(Type runtimeType)
-        {
-            if (runtimeType == Type)
-            {
-                return this;
-            }
-
-            return new ConfiguredSourceMember(
-                _value.GetConversionTo(runtimeType),
-                _matchedTargetMember);
-        }
+        public IQualifiedMember WithType(Type runtimeType) => this;
     }
 }

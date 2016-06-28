@@ -44,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetParameter = Parameters.Create<TTarget>("target");
             var existingTargetInstanceParameter = Parameters.Create<TInstance>("existingTargetInstance");
 
-            var sourceMemberAccess = command.SourceMember.GetAccess(sourceParameter);
+            var sourceMemberAccess = command.SourceMember.GetQualifiedAccess(sourceParameter);
 
             var existingTargetInstanceMemberParameter = Parameters.Create<QualifiedMember>("existingTargetInstanceMember");
 
