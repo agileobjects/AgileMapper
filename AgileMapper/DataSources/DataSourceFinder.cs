@@ -195,17 +195,17 @@
         {
             yield return parentMember;
 
+            if (!parentMember.CouldMatch(context.TargetMember))
+            {
+                yield break;
+            }
+
             var parentMemberType = context.Parent.GetSourceMemberRuntimeType(parentMember);
 
             if (parentMemberType != parentMember.Type)
             {
                 parentMember = parentMember.WithType(parentMemberType);
                 yield return parentMember;
-            }
-
-            if (!parentMember.CouldMatch(context.TargetMember))
-            {
-                yield break;
             }
 
             foreach (var sourceMember in context.Parent.GlobalContext.MemberFinder.GetReadableMembers(parentMember.Type))
