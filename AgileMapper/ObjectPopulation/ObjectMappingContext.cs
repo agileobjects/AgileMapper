@@ -202,7 +202,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return sourceMember.Type;
             }
 
-            if (sourceMember.IsSameAs(_sourceMember))
+            if (sourceMember == _sourceMember)
             {
                 return typeof(TRuntimeSource);
             }

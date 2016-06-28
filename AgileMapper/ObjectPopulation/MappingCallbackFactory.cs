@@ -52,7 +52,7 @@
         {
             if ((expression == null) ||
                 (CallbackPosition != CallbackPosition.Before) ||
-                (TargetMemberPath != string.Empty))
+                ((TargetMember != QualifiedMember.All) && (TargetMember != QualifiedMember.None)))
             {
                 return expression;
             }

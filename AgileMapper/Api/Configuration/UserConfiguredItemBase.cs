@@ -7,7 +7,6 @@
     internal abstract class UserConfiguredItemBase
     {
         private readonly MappingConfigInfo _configInfo;
-        private readonly QualifiedMember _targetMember;
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo)
             : this(configInfo, QualifiedMember.All)
@@ -22,10 +21,10 @@
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)
         {
             _configInfo = configInfo;
-            _targetMember = targetMember;
+            TargetMember = targetMember;
         }
 
-        public string TargetMemberPath => _targetMember?.Path;
+        public QualifiedMember TargetMember { get; }
 
         public bool HasConfiguredCondition => _configInfo.HasCondition;
 
@@ -38,7 +37,7 @@
 
             if (SourceAndTargetTypesAreCompatible(otherConfiguredItem))
             {
-                return _targetMember.Matches(otherConfiguredItem._targetMember);
+                return TargetMember.Matches(otherConfiguredItem.TargetMember);
             }
 
             return false;
@@ -62,7 +61,7 @@
         public virtual bool AppliesTo(IMappingData data)
         {
             return _configInfo.IsForRuleSet(data.RuleSetName) &&
-                data.TargetMember.IsSameAs(_targetMember) &&
+                data.TargetMember.IsSameAs(TargetMember) &&
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
         }
 

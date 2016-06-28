@@ -5,23 +5,19 @@ namespace AgileObjects.AgileMapper.Members
 
     internal interface IQualifiedMember
     {
-        Type DeclaringType { get; }
-
         Type Type { get; }
 
         string Name { get; }
 
         string Signature { get; }
 
-        string Path { get; }
+        string GetPath();
 
         IQualifiedMember Append(Member childMember);
 
         IQualifiedMember RelativeTo(IQualifiedMember otherMember);
 
         IQualifiedMember WithType(Type runtimeType);
-
-        bool IsSameAs(IQualifiedMember otherMember);
 
         bool CouldMatch(QualifiedMember otherMember);
 

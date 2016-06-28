@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.Members
             IsIdentifier = IsIdMember(name, declaringType);
             DeclaringType = declaringType;
             Type = type;
-            Signature = JoiningName + ":" + type.GetFriendlyName();
+            Signature = Name + ":" + type.GetFriendlyName();
 
             IsEnumerable = type.IsEnumerable();
 

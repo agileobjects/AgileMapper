@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using ReadableExpressions;
@@ -48,11 +47,8 @@ namespace AgileObjects.AgileMapper.Members
             _value = value;
             _matchedTargetMember = matchedTargetMember;
             _childMembers = childMembers ?? new[] { Member.ConfiguredSource(name, type) };
-            Signature = string.Join(".", _childMembers.Select(cm => cm.Signature));
-            Path = _childMembers.GetFullName();
+            Signature = _childMembers.GetSignature();
         }
-
-        public Type DeclaringType => _value.Type.DeclaringType;
 
         public Type Type { get; }
 
@@ -60,7 +56,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Signature { get; }
 
-        public string Path { get; }
+        public string GetPath() => _childMembers.GetFullName();
 
         public IQualifiedMember Append(Member childMember) => new ConfiguredSourceMember(this, childMember);
 
@@ -76,8 +72,6 @@ namespace AgileObjects.AgileMapper.Members
                 _matchedTargetMember,
                 relativeMemberChain);
         }
-
-        public bool IsSameAs(IQualifiedMember otherMember) => false;
 
         public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 

@@ -43,9 +43,10 @@
         private static string GetMemberPath(Type rootType, IQualifiedMember member, string rootMemberName)
         {
             var rootTargetType = rootType.GetFriendlyName();
+            var memberPath = member.GetPath();
 
-            var path = (member.Path != rootMemberName)
-                ? rootTargetType + member.Path.Substring(rootMemberName.Length)
+            var path = (memberPath != rootMemberName)
+                ? rootTargetType + memberPath.Substring(rootMemberName.Length)
                 : rootTargetType;
 
             return path;

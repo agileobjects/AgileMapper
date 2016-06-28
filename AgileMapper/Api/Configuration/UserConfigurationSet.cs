@@ -47,11 +47,11 @@
         {
             ThrowIfConflictingIgnoredMemberExists(
                 ignoredMember,
-                () => "Member " + ignoredMember.TargetMemberPath + " is already ignored");
+                () => "Member " + ignoredMember.TargetMember.GetPath() + " is already ignored");
 
             ThrowIfConflictingDataSourceExists(
                 ignoredMember,
-                () => "Ignored member " + ignoredMember.TargetMemberPath + " has a configured data source");
+                () => "Ignored member " + ignoredMember.TargetMember.GetPath() + " has a configured data source");
 
             _ignoredMembers.Add(ignoredMember);
         }
@@ -67,11 +67,11 @@
         {
             ThrowIfConflictingIgnoredMemberExists(
                 dataSourceFactory,
-                () => "Member " + dataSourceFactory.TargetMemberPath + " has been ignored");
+                () => "Member " + dataSourceFactory.TargetMember.GetPath() + " has been ignored");
 
             ThrowIfConflictingDataSourceExists(
                 dataSourceFactory,
-                () => dataSourceFactory.TargetMemberPath + " already has a configured data source");
+                () => dataSourceFactory.TargetMember.GetPath() + " already has a configured data source");
 
             _dataSourceFactories.Add(dataSourceFactory);
         }
