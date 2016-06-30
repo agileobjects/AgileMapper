@@ -5,7 +5,8 @@
 
     internal static class MemberMappingExceptionContext
     {
-        internal static readonly MethodInfo CreateMethod = typeof(MemberMappingExceptionContext).GetMethod("Create");
+        internal static readonly MethodInfo CreateMethod = 
+            typeof(MemberMappingExceptionContext).GetMethod("Create", Constants.PublicStatic);
 
         public static MemberMappingExceptionContext<TSource, TTarget> Create<TSource, TTarget>(
             TypedMemberMappingContext<TSource, TTarget> context,

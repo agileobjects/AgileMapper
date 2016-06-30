@@ -5,11 +5,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Extensions;
 
-    internal class EnumerableMappingLambdaFactory<TSource, TTarget, TInstance>
-        : ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
+    internal class EnumerableMappingLambdaFactory<TSource, TTarget>
+        : ObjectMappingLambdaFactoryBase<TSource, TTarget>
     {
-        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance> Instance =
-            new EnumerableMappingLambdaFactory<TSource, TTarget, TInstance>();
+        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget> Instance =
+            new EnumerableMappingLambdaFactory<TSource, TTarget>();
 
         protected override bool IsNotConstructable(IObjectMappingContext omc) => false;
 

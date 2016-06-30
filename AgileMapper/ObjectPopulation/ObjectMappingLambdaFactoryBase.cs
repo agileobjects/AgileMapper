@@ -10,16 +10,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
-    internal abstract class ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
+    internal abstract class ObjectMappingLambdaFactoryBase<TSource, TTarget>
     {
-        public virtual Expression<MapperFunc<TSource, TTarget, TInstance>> Create(IObjectMappingContext omc)
+        public virtual Expression<MapperFunc<TSource, TTarget>> Create(IObjectMappingContext omc)
         {
-            var returnLabelTarget = Expression.Label(omc.ExistingObject.Type, "Return");
-            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omc.ExistingObject.Type));
+            var returnLabelTarget = Expression.Label(omc.TargetObject.Type, "Return");
+            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omc.TargetObject.Type));
 
             if (IsNotConstructable(omc))
             {
-                return Expression.Lambda<MapperFunc<TSource, TTarget, TInstance>>(GetNullMappingBlock(returnNull), omc.Parameter);
+                return Expression.Lambda<MapperFunc<TSource, TTarget>>(GetNullMappingBlock(returnNull), omc.Parameter);
             }
 
             var preMappingCallback = GetMappingCallback(CallbackPosition.Before, omc);
@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var wrappedMappingBlock = WrapInTryCatch(mappingBlock, omc);
 
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget, TInstance>>(wrappedMappingBlock, omc.Parameter);
+                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, omc.Parameter);
 
             return mapperLambda;
         }

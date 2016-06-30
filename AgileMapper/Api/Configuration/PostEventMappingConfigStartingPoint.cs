@@ -22,8 +22,8 @@
         public IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TTarget> CreatingTargetInstances
             => CreateCallbackSpecifier<TTarget>();
 
-        public IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreatingInstancesOf<TInstance>()
-            where TInstance : class
-            => CreateCallbackSpecifier<TInstance>();
+        public IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> CreatingInstancesOf<TObject>()
+            where TObject : class
+            => CreateCallbackSpecifier<TObject>();
     }
 }

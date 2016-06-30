@@ -49,7 +49,7 @@
         [Fact]
         public void ShouldWrapANestedObjectCreatingCallbackException()
         {
-            Assert.Throws<MappingException>(() =>
+            var exception = Should.Throw<MappingException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -61,6 +61,12 @@
                     mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToANew<Person>();
                 }
             });
+
+            exception.InnerException.ShouldNotBeNull();
+            exception.InnerException.ShouldBeOfType<MappingException>();
+            exception.InnerException.InnerException.ShouldNotBeNull();
+            exception.InnerException.InnerException.ShouldBeOfType<InvalidOperationException>();
+            exception.InnerException.InnerException.Message.ShouldBe("OH NO");
         }
 
         [Fact]
@@ -72,7 +78,7 @@
 
                 mapper.After
                     .CreatingInstancesOf<Person>()
-                    .Call((s, t, o) => createdPerson = o);
+                    .Call((s, t, p) => createdPerson = p);
 
                 var nonMatchingSource = new { Value = "12345" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<int>>();
@@ -235,7 +241,7 @@
                     .Before
                     .CreatingInstances
                     .If((pvm, p) => p.Name == "Charlie")
-                    .Call((pvm, p, o) => p.Name += " + " + pvm.Name);
+                    .Call((pvm, p) => p.Name += " + " + pvm.Name);
 
                 var source = new[]
                 {
@@ -382,7 +388,7 @@
         }
 
         [Fact]
-        public void ShouldCallObjectCreatingAndObjectCreatedCallbacksForSpecifedTypesConditionally()
+        public void ShouldCallObjectCreatingAndObjectCreatedCallbacksForSpecifiedTypesConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -399,7 +405,7 @@
                     .After
                     .CreatingInstancesOf<Address>()
                     .If((s, t) => s is PersonViewModel)
-                    .Call((s, a) => postCallbackObjects.AddRange(new[] { s, a }));
+                    .Call((s, t, a) => postCallbackObjects.AddRange(new[] { s, a }));
 
                 var source = new PersonViewModel { AddressLine1 = "Housetown" };
                 var target = new Person();

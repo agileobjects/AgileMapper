@@ -2,11 +2,12 @@
 {
     using System;
     using System.Linq.Expressions;
+    using Members;
     using ObjectPopulation;
 
     internal class InstanceCreationCallbackSpecifier<TSource, TTarget, TObject> :
         CallbackSpecifierBase,
-        IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>,
+        IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget>,
         IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
         public InstanceCreationCallbackSpecifier(CallbackPosition callbackPosition, MapperContext mapperContext)
@@ -21,18 +22,18 @@
 
         #region IConditionalPreInstanceCreationCallbackSpecifier
 
-        IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
-            IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.If(
-                Expression<Func<ITypedObjectMappingContext<TSource, TTarget, TObject>, bool>> condition)
+        IPreInstanceCreationCallbackSpecifier<TSource, TTarget>
+            IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget>.If(
+                Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, bool>> condition)
             => SetCondition(condition);
 
-        IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
-            IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.If(
+        IPreInstanceCreationCallbackSpecifier<TSource, TTarget>
+            IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget>.If(
                 Expression<Func<TSource, TTarget, bool>> condition)
             => SetCondition(condition);
 
-        IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
-            IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.If(
+        IPreInstanceCreationCallbackSpecifier<TSource, TTarget>
+            IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget>.If(
                 Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
@@ -43,15 +44,15 @@
             return this;
         }
 
-        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
-            Action<ITypedObjectMappingContext<TSource, TTarget, TObject>> callback)
+        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
+            Action<ITypedMemberMappingContext<TSource, TTarget>> callback)
             => CreateCallbackFactory(callback);
 
-        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
             Action<TSource, TTarget> callback)
             => CreateCallbackFactory(callback);
 
-        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
             Action<TSource, TTarget, int?> callback)
             => CreateCallbackFactory(callback);
 
@@ -61,7 +62,7 @@
 
         IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
             IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.If(
-                Expression<Func<ITypedObjectCreationMappingContext<TSource, TTarget, TObject>, bool>> condition)
+                Expression<Func<IObjectCreationContext<TSource, TTarget, TObject>, bool>> condition)
             => SetCondition(condition);
 
         IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
@@ -80,7 +81,7 @@
             => SetCondition(condition);
 
         MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
-            Action<ITypedObjectCreationMappingContext<TSource, TTarget, TObject>> callback)
+            Action<IObjectCreationContext<TSource, TTarget, TObject>> callback)
             => CreateCallbackFactory(callback);
 
         MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(

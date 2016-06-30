@@ -15,23 +15,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMappingCommand
     {
-        public static IObjectMappingCommand<TInstance> CreateForChild<TSource, TTarget, TInstance>(
-            TSource source,
+        public static IObjectMappingCommand<TTarget> CreateForChild<TSource, TTarget>(
             IQualifiedMember sourceMember,
-            TTarget target,
+            TSource source,
             QualifiedMember targetMember,
-            TInstance existingTargetInstance,
-            QualifiedMember existingTargetInstanceMember,
+            TTarget target,
             int? enumerableIndex,
             MappingContext mappingContext)
         {
             var command = Create(
-                source,
                 sourceMember,
-                target,
+                source,
                 targetMember,
-                existingTargetInstance,
-                existingTargetInstanceMember,
+                target,
                 enumerableIndex,
                 mappingContext);
 
@@ -42,68 +38,53 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var sourceParameter = Parameters.Create<TSource>("source");
             var targetParameter = Parameters.Create<TTarget>("target");
-            var existingTargetInstanceParameter = Parameters.Create<TInstance>("existingTargetInstance");
 
             var sourceMemberAccess = command.SourceMember.GetQualifiedAccess(sourceParameter);
 
-            var existingTargetInstanceMemberParameter = Parameters.Create<QualifiedMember>("existingTargetInstanceMember");
-
-            var commandType = typeof(ObjectMappingCommand<,,>).MakeGenericType(
-                command.SourceMember.Type,
-                command.TargetMember.Type,
-                command.ExistingTargetInstanceMember.Type);
+            var commandType = typeof(ObjectMappingCommand<,>)
+                .MakeGenericType(command.SourceMember.Type, command.TargetMember.Type);
 
             var newObjectCall = Expression.New(
                 commandType.GetConstructors().First(),
-                sourceMemberAccess.GetConversionTo(command.SourceMember.Type),
                 Parameters.SourceMember,
-                targetParameter.GetConversionTo(command.TargetMember.Type),
+                sourceMemberAccess.GetConversionTo(command.SourceMember.Type),
                 Parameters.TargetMember,
-                existingTargetInstanceParameter.GetConversionTo(command.ExistingTargetInstanceMember.Type),
-                existingTargetInstanceMemberParameter,
+                targetParameter.GetConversionTo(command.TargetMember.Type),
                 Parameters.EnumerableIndexNullable,
                 Parameters.MappingContext);
 
             var factoryLambda = Expression.Lambda<Func<
-                TSource,
                 IQualifiedMember,
+                TSource,
+                QualifiedMember,
                 TTarget,
-                QualifiedMember,
-                TInstance,
-                QualifiedMember,
                 int?,
                 MappingContext,
-                IObjectMappingCommand<TInstance>>>(
+                IObjectMappingCommand<TTarget>>>(
                 newObjectCall,
-                sourceParameter,
                 Parameters.SourceMember,
-                targetParameter,
+                sourceParameter,
                 Parameters.TargetMember,
-                existingTargetInstanceParameter,
-                existingTargetInstanceMemberParameter,
+                targetParameter,
                 Parameters.EnumerableIndexNullable,
                 Parameters.MappingContext);
 
             var factory = factoryLambda.Compile();
 
             return factory.Invoke(
-                command.Source,
                 command.SourceMember,
-                command.Target,
+                command.Source,
                 command.TargetMember,
-                command.ExistingTargetInstance,
-                command.ExistingTargetInstanceMember,
+                command.Target,
                 command.EnumerableIndex,
                 command.MappingContext);
         }
 
-        public static ObjectMappingCommand<TSource, TTarget, TInstance> Create<TSource, TTarget, TInstance>(
-            TSource source,
+        public static ObjectMappingCommand<TSource, TTarget> Create<TSource, TTarget>(
             IQualifiedMember sourceMember,
-            TTarget target,
+            TSource source,
             QualifiedMember targetMember,
-            TInstance existingTargetInstance,
-            QualifiedMember existingTargetInstanceMember,
+            TTarget target,
             int? enumerableIndex,
             MappingContext mappingContext)
         {
@@ -111,17 +92,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var targetMemberData = GetTargetData(sourceMember, targetMember, target, mappingContext);
 
-            var instanceMemberData = (existingTargetInstanceMember != targetMember)
-                ? GetTargetData(sourceMember, existingTargetInstanceMember, existingTargetInstance, mappingContext)
-                : targetMemberData;
-
-            return new ObjectMappingCommand<TSource, TTarget, TInstance>(
+            return new ObjectMappingCommand<TSource, TTarget>(
+                targetMemberData.SourceMember,
                 source,
-                instanceMemberData.SourceMember,
-                target,
                 targetMemberData.TargetMember,
-                existingTargetInstance,
-                instanceMemberData.TargetMember,
+                target,
                 enumerableIndex,
                 mappingContext);
         }
@@ -219,15 +194,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #endregion
     }
 
-    internal class ObjectMappingCommand<TSource, TTarget, TInstance> : IObjectMappingCommand<TInstance>
+    internal class ObjectMappingCommand<TSource, TTarget> : IObjectMappingCommand<TTarget>
     {
         public ObjectMappingCommand(
-            TSource source,
             IQualifiedMember sourceMember,
-            TTarget target,
+            TSource source,
             QualifiedMember targetMember,
-            TInstance existingTargetInstance,
-            QualifiedMember existingTargetInstanceMember,
+            TTarget target,
             int? enumerableIndex,
             MappingContext mappingContext)
         {
@@ -236,9 +209,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Target = target;
             TargetMember = targetMember;
-
-            ExistingTargetInstance = existingTargetInstance;
-            ExistingTargetInstanceMember = existingTargetInstanceMember;
 
             EnumerableIndex = enumerableIndex;
             MappingContext = mappingContext;
@@ -252,15 +222,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public QualifiedMember TargetMember { get; }
 
-        public TInstance ExistingTargetInstance { get; }
-
-        public QualifiedMember ExistingTargetInstanceMember { get; }
-
         public int? EnumerableIndex { get; }
 
         public MappingContext MappingContext { get; }
 
-        public TInstance Execute() => MappingContext.MapChild(this);
+        public TTarget Execute() => MappingContext.MapChild(this);
 
         public IObjectMappingContext ToOmc() => ObjectMappingContextFactory.Create(this);
     }

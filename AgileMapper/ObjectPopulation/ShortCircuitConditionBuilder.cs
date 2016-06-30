@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 return Expression.AndAlso(
                     sourceObject.GetIsDefaultComparison(),
-                    omc.ExistingObject.GetIsDefaultComparison());
+                    omc.TargetObject.GetIsDefaultComparison());
             }
 
             if (_nullSource)
@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (_nullExisting)
             {
-                return omc.ExistingObject.GetIsDefaultComparison();
+                return omc.TargetObject.GetIsDefaultComparison();
             }
 
             return Expression.Constant(false);

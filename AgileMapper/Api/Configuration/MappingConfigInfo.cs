@@ -82,6 +82,8 @@
                 (mappingRuleSetName == _mappingRuleSetName);
         }
 
+        public MappingConfigInfo ForSourceValueType<TSourceValue>() => ForSourceValueType(typeof(TSourceValue));
+
         public MappingConfigInfo ForSourceValueType(Type sourceValueType)
         {
             _sourceValueType = sourceValueType;

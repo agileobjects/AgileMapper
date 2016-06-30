@@ -22,13 +22,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             => Expression.NewArrayBounds(typeData.ElementType, Expression.Constant(0));
 
         private static Expression ExistingObjectOrNewList(EnumerableTypeData typeData, IMemberMappingContext context)
-            => Expression.Coalesce(context.ExistingObject, NewEmptyList(typeData));
+            => Expression.Coalesce(context.TargetObject, NewEmptyList(typeData));
 
         private static Expression NewEmptyList(EnumerableTypeData typeData)
             => Expression.New(typeData.ListType);
 
         private static Expression NewCollection(EnumerableTypeData typeData, IMemberMappingContext context)
-            => Expression.Coalesce(context.ExistingObject, NewEmptyCollection(typeData));
+            => Expression.Coalesce(context.TargetObject, NewEmptyCollection(typeData));
 
         private static Expression NewEmptyCollection(EnumerableTypeData typeData)
             => Expression.New(typeData.CollectionType);
@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .MakeGenericMethod(typeData.ElementType);
 
             var existingEnumerableOrEmpty = Expression.Coalesce(
-                context.ExistingObject,
+                context.TargetObject,
                 Expression.Call(typedEmptyEnumerableMethod));
 
             // ReSharper disable once AssignNullToNotNullAttribute

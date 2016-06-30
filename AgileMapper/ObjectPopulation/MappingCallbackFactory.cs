@@ -57,9 +57,9 @@
                 return expression;
             }
 
-            var expressionWithExistingObject = expression.Replace(context.InstanceVariable, context.ExistingObject);
+            var expressionWithTargetObject = expression.Replace(context.InstanceVariable, context.TargetObject);
 
-            return expressionWithExistingObject;
+            return expressionWithTargetObject;
         }
     }
 }

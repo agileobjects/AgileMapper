@@ -18,8 +18,8 @@
         public IConditionalPostInstanceCreationCallbackSpecifier<object, object, object> CreatingInstances
             => CreatingInstancesOf<object>();
 
-        public IConditionalPostInstanceCreationCallbackSpecifier<object, object, TInstance> CreatingInstancesOf<TInstance>()
-            where TInstance : class
-            => new InstanceCreationCallbackSpecifier<object, object, TInstance>(CallbackPosition.After, _mapperContext);
+        public IConditionalPostInstanceCreationCallbackSpecifier<object, object, TObject> CreatingInstancesOf<TObject>()
+            where TObject : class
+            => new InstanceCreationCallbackSpecifier<object, object, TObject>(CallbackPosition.After, _mapperContext);
     }
 }

@@ -2,18 +2,18 @@
 {
     using System;
     using System.Linq.Expressions;
-    using ObjectPopulation;
+    using Members;
 
-    public interface IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> : 
-        IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
+    public interface IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget> :
+        IPreInstanceCreationCallbackSpecifier<TSource, TTarget>
     {
-        IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
-            Expression<Func<ITypedObjectMappingContext<TSource, TTarget, TObject>, bool>> condition);
+        IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
+            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, bool>> condition);
 
-        IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
+        IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
             Expression<Func<TSource, TTarget, bool>> condition);
 
-        IPreInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
+        IPreInstanceCreationCallbackSpecifier<TSource, TTarget> If(
             Expression<Func<TSource, TTarget, int?, bool>> condition);
     }
 }

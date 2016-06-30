@@ -90,13 +90,13 @@
     <Compile Include="ObjectPopulation\EnumerableTypes.cs" />
     <Compile Include="DataSources\IDataSourceFactory.cs" />
     <Compile Include="ObjectPopulation\ExistingOrDefaultValueDataSourceFactory.cs" />
-    <Compile Include="ObjectPopulation\ITypedObjectCreationMappingContext.cs" />
+    <Compile Include="ObjectPopulation\IObjectCreationContext.cs" />
     <Compile Include="ObjectPopulation\MappingCallbackFactory.cs" />
+    <Compile Include="ObjectPopulation\ObjectCreationContext.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingCommand.cs" />
     <Compile Include="ObjectPopulation\DefaultValueDataSourceFactory.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />
-    <Compile Include="ObjectPopulation\ITypedObjectMappingContext.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\PostEventConfigStartingPoint.cs" />

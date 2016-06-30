@@ -8,12 +8,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class ObjectMappingContextFactory
     {
-        private delegate IObjectMappingContext ObjectMappingContextCreator<in TSource, in TTarget, in TInstance>(
-            TSource source,
+        private delegate IObjectMappingContext ObjectMappingContextCreator<in TSource, in TTarget>(
             IQualifiedMember sourceMember,
-            TTarget target,
+            TSource source,
             QualifiedMember targetMember,
-            TInstance existing,
+            TTarget target,
             int? enumerableIndex,
             MappingContext mappingContext);
 
@@ -26,58 +25,49 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetMember = QualifiedMember.From(Member.RootTarget(typeof(TDeclaredTarget)), mappingContext.MapperContext.NamingSettings);
 
             return Create(ObjectMappingCommand.Create(
-                source,
                 sourceMember,
-                target,
+                source,
                 targetMember,
                 target,
-                targetMember,
-                null,
+                default(int?),
                 mappingContext));
         }
 
-        public static IObjectMappingContext Create<TDeclaredSource, TDeclaredTarget, TDeclaredInstance>(
-            ObjectMappingCommand<TDeclaredSource, TDeclaredTarget, TDeclaredInstance> command)
+        public static IObjectMappingContext Create<TSource, TTarget>(
+            ObjectMappingCommand<TSource, TTarget> command)
         {
             var funcKey = string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}({1}),{2}({3}),{4}({5}): ObjectMappingContextConstructor",
-                typeof(TDeclaredSource).FullName,
+                "{0}({1}),{2}({3}): ObjectMappingContextConstructor",
+                typeof(TSource).FullName,
                 command.SourceMember.Type.FullName,
-                typeof(TDeclaredTarget).FullName,
-                command.TargetMember.Type.FullName,
-                typeof(TDeclaredInstance).FullName,
-                command.ExistingTargetInstanceMember.Type.FullName);
+                typeof(TTarget).FullName,
+                command.TargetMember.Type.FullName);
 
             var constructionFunc = command.MappingContext.GlobalContext.Cache.GetOrAdd(funcKey, k =>
             {
-                var sourceParameter = Parameters.Create<TDeclaredSource>("source");
-                var targetParameter = Parameters.Create<TDeclaredTarget>("target");
-                var existingInstanceParameter = Parameters.Create<TDeclaredInstance>("existingInstance");
+                var sourceParameter = Parameters.Create<TSource>("source");
+                var targetParameter = Parameters.Create<TTarget>("target");
 
-                var contextType = typeof(ObjectMappingContext<,,>).MakeGenericType(
-                    command.SourceMember.Type,
-                    command.TargetMember.Type,
-                    command.ExistingTargetInstanceMember.Type);
+                var contextType = typeof(ObjectMappingContext<,>)
+                    .MakeGenericType(command.SourceMember.Type, command.TargetMember.Type);
 
                 var constructorCall = Expression.New(
                     contextType.GetConstructors().First(),
-                    sourceParameter.GetConversionTo(command.SourceMember.Type),
                     Parameters.SourceMember,
-                    targetParameter.GetConversionTo(command.TargetMember.Type),
+                    sourceParameter.GetConversionTo(command.SourceMember.Type),
                     Parameters.TargetMember,
-                    existingInstanceParameter.GetConversionTo(command.ExistingTargetInstanceMember.Type),
+                    targetParameter.GetConversionTo(command.TargetMember.Type),
                     Parameters.EnumerableIndexNullable,
                     Parameters.MappingContext);
 
                 var constructionLambda = Expression
-                    .Lambda<ObjectMappingContextCreator<TDeclaredSource, TDeclaredTarget, TDeclaredInstance>>(
+                    .Lambda<ObjectMappingContextCreator<TSource, TTarget>>(
                         constructorCall,
-                        sourceParameter,
                         Parameters.SourceMember,
-                        targetParameter,
+                        sourceParameter,
                         Parameters.TargetMember,
-                        existingInstanceParameter,
+                        targetParameter,
                         Parameters.EnumerableIndexNullable,
                         Parameters.MappingContext);
 
@@ -85,11 +75,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             });
 
             return constructionFunc.Invoke(
-                command.Source,
                 command.SourceMember,
+                command.Source,
+                command.TargetMember,
                 command.Target,
-                command.ExistingTargetInstanceMember,
-                command.ExistingTargetInstance,
                 command.EnumerableIndex,
                 command.MappingContext);
         }

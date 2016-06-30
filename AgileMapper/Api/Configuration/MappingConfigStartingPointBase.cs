@@ -26,7 +26,7 @@
             return new CallbackSpecifier<TSource, TTarget>(_configInfo, _callbackPosition, targetMember);
         }
 
-        internal InstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreateCallbackSpecifier<TInstance>()
-            => new InstanceCreationCallbackSpecifier<TSource, TTarget, TInstance>(_callbackPosition, _configInfo);
+        internal InstanceCreationCallbackSpecifier<TSource, TTarget, TObject> CreateCallbackSpecifier<TObject>()
+            => new InstanceCreationCallbackSpecifier<TSource, TTarget, TObject>(_callbackPosition, _configInfo);
     }
 }

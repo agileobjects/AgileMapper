@@ -34,9 +34,9 @@
 
         public QualifiedMember TargetMember { get; }
 
-        public Expression ExistingObject => _parent.ExistingObject;
+        public Expression TargetObject => _parent.TargetObject;
 
-        Type IMappingData.TargetType => ExistingObject.Type;
+        Type IMappingData.TargetType => TargetObject.Type;
 
         public Expression EnumerableIndex => _parent.EnumerableIndex;
 

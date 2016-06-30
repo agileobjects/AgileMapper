@@ -1,11 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
-    using ObjectPopulation;
+    using Members;
 
-    public interface IPreInstanceCreationCallbackSpecifier<out TSource, out TTarget, out TObject> 
+    public interface IPreInstanceCreationCallbackSpecifier<out TSource, out TTarget>
     {
-        void Call(Action<ITypedObjectMappingContext<TSource, TTarget, TObject>> callback);
+        void Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback);
 
         void Call(Action<TSource, TTarget> callback);
 

@@ -1,5 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    internal delegate TInstance MapperFunc<TSource, TTarget, TInstance>(
-        ObjectMappingContext<TSource, TTarget, TInstance> objectMappingContext);
+    internal delegate TTarget MapperFunc<TSource, TTarget>(
+        ObjectMappingContext<TSource, TTarget> objectMappingContext);
 }

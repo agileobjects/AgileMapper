@@ -10,11 +10,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>
-        : ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance>
+    internal class ComplexTypeMappingLambdaFactory<TSource, TTarget>
+        : ObjectMappingLambdaFactoryBase<TSource, TTarget>
     {
-        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget, TInstance> Instance =
-            new ComplexTypeMappingLambdaFactory<TSource, TTarget, TInstance>();
+        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget> Instance =
+            new ComplexTypeMappingLambdaFactory<TSource, TTarget>();
 
         protected override bool IsNotConstructable(IObjectMappingContext omc)
             => GetNewObjectCreation(omc) == null;
@@ -90,13 +90,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
         {
             var createdObjectAssignment = Expression.Assign(omc.CreatedObject, GetNewObjectCreation(omc));
-            var existingOrCreatedObject = Expression.Coalesce(omc.ExistingObject, createdObjectAssignment);
-
-            if (omc.Parent != null)
-            {
-                return existingOrCreatedObject;
-            }
-
+            var existingOrCreatedObject = Expression.Coalesce(omc.TargetObject, createdObjectAssignment);
             var contextTargetAssignment = Expression.Assign(omc.TargetObject, existingOrCreatedObject);
 
             return contextTargetAssignment;
@@ -106,10 +100,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var objectCreationKey = string.Format(
                 CultureInfo.InvariantCulture,
-                "{0} -> {1}, {2}: {3} Ctor",
-                omc.SourceType.FullName,
-                omc.TargetType.FullName,
-                omc.InstanceVariable.Type.FullName,
+                "{0} -> {1}: {2} Ctor",
+                omc.SourceMember.Signature,
+                omc.TargetMember.Signature,
                 omc.RuleSetName);
 
             return omc.MapperContext.Cache.GetOrAdd(objectCreationKey, k =>

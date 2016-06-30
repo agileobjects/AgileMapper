@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using ObjectPopulation;
 
     internal class NestedAccessFinder : ExpressionVisitor
     {
@@ -37,9 +38,9 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override Expression VisitMember(MemberExpression memberAccess)
         {
-            if (IsNotRootSourceObject(memberAccess))
+            if (IsNotRootObject(memberAccess))
             {
-                if ((memberAccess.Expression != null) && IsNotRootSourceObject(memberAccess.Expression))
+                if ((memberAccess.Expression != null) && IsNotRootObject(memberAccess.Expression))
                 {
                     _memberAccessSubjects.Add(memberAccess.Expression);
                 }
@@ -50,23 +51,33 @@ namespace AgileObjects.AgileMapper.Members
             return base.VisitMember(memberAccess);
         }
 
-        private bool IsNotRootSourceObject(Expression expression)
+        private bool IsNotRootObject(Expression expression)
         {
             return (expression.NodeType != ExpressionType.MemberAccess) ||
-                   IsNotRootSourceObject((MemberExpression)expression);
+                   IsNotRootObject((MemberExpression)expression);
         }
 
-        private bool IsNotRootSourceObject(MemberExpression memberAccess)
-            => !(memberAccess.Member.Name == "Source" && memberAccess.Expression == _contextParameter);
+        private bool IsNotRootObject(MemberExpression memberAccess)
+        {
+            if (memberAccess.Member.Name == "Parent")
+            {
+                return !memberAccess.IsRootedIn(_contextParameter);
+            }
+
+            return (memberAccess.Expression != _contextParameter) ||
+                ((memberAccess.Member.Name != "Source") &&
+                (memberAccess.Member.Name != "EnumerableIndex"));
+        }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if ((methodCall.Object != null) && IsNotRootSourceObject(methodCall.Object))
+            if ((methodCall.Object != null) && IsNotRootObject(methodCall.Object))
             {
                 _memberAccessSubjects.Add(methodCall.Object);
             }
 
-            if (methodCall.Object != _contextParameter)
+            if ((methodCall.Object != _contextParameter) &&
+                (methodCall.Method.DeclaringType != typeof(IObjectMappingContext)))
             {
                 AddMemberAccessIfAppropriate(methodCall);
             }

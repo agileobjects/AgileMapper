@@ -16,14 +16,14 @@
         public IConditionalCallbackSpecifier<TSource, TTarget> Mapping<TMember>(Expression<Func<TTarget, TMember>> targetMember)
             => CreateCallbackSpecifier(targetMember);
 
-        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, object> CreatingInstances
+        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget> CreatingInstances
             => CreateCallbackSpecifier<object>();
 
-        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TTarget> CreatingTargetInstances
+        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget> CreatingTargetInstances
             => CreateCallbackSpecifier<TTarget>();
 
-        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget, TInstance> CreatingInstancesOf<TInstance>()
-            where TInstance : class
-            => CreateCallbackSpecifier<TInstance>();
+        public IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget> CreatingInstancesOf<TObject>()
+            where TObject : class
+            => CreateCallbackSpecifier<TObject>();
     }
 }

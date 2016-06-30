@@ -2,9 +2,9 @@
 {
     using Members;
 
-    public interface ITypedObjectMappingContext<out TSource, out TTarget, out TObject>
+    public interface IObjectCreationContext<out TSource, out TTarget, out TObject>
         : ITypedMemberMappingContext<TSource, TTarget>
     {
-        TObject ExistingObject { get; }
+        TObject CreatedObject { get; }
     }
 }

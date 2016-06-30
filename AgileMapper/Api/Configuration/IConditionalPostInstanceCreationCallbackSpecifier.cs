@@ -8,7 +8,7 @@
         : IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
         IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
-            Expression<Func<ITypedObjectCreationMappingContext<TSource, TTarget, TObject>, bool>> condition);
+            Expression<Func<IObjectCreationContext<TSource, TTarget, TObject>, bool>> condition);
 
         IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject> If(
             Expression<Func<TSource, TTarget, bool>> condition);

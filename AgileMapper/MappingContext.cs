@@ -30,9 +30,7 @@ namespace AgileObjects.AgileMapper
 
         internal IObjectMappingContext CurrentObjectMappingContext { get; private set; }
 
-        internal TDeclaredTarget MapStart<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource source,
-            TDeclaredTarget existing)
+        internal TTarget MapStart<TSource, TTarget>(TSource source, TTarget existing)
         {
             if (source == null)
             {
@@ -41,12 +39,12 @@ namespace AgileObjects.AgileMapper
 
             CreateRootObjectContext(source, existing);
 
-            return Map<TDeclaredSource, TDeclaredTarget, TDeclaredTarget>();
+            return Map<TSource, TTarget>();
         }
 
-        internal IObjectMappingContext CreateRootObjectContext<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource source,
-            TDeclaredTarget existing)
+        internal IObjectMappingContext CreateRootObjectContext<TSource, TTarget>(
+            TSource source,
+            TTarget existing)
             => (CurrentObjectMappingContext = ObjectMappingContextFactory.CreateRoot(source, existing, this));
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
@@ -70,21 +68,21 @@ namespace AgileObjects.AgileMapper
             return false;
         }
 
-        internal TDeclaredMember MapChild<TRuntimeSource, TRuntimeTarget, TDeclaredMember>(
-            ObjectMappingCommand<TRuntimeSource, TRuntimeTarget, TDeclaredMember> command)
+        internal TTarget MapChild<TSource, TTarget>(ObjectMappingCommand<TSource, TTarget> command)
         {
             CurrentObjectMappingContext = command.ToOmc();
 
-            return Map<TRuntimeSource, TRuntimeTarget, TDeclaredMember>();
+            return Map<TSource, TTarget>();
         }
 
-        private TInstance Map<TSource, TTarget, TInstance>()
+        private TTarget Map<TSource, TTarget>()
         {
-            IObjectMapper<TInstance> mapper;
+            IObjectMapper<TTarget> mapper;
 
-            if (typeof(ObjectMappingContext<TSource, TTarget, TInstance>).IsAssignableFrom(CurrentObjectMappingContext.Parameter.Type))
+            if ((typeof(TSource) == CurrentObjectMappingContext.SourceType) &&
+                (typeof(TTarget) == CurrentObjectMappingContext.TargetType))
             {
-                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget, TInstance>(CurrentObjectMappingContext);
+                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(CurrentObjectMappingContext);
             }
             else
             {
@@ -101,7 +99,7 @@ namespace AgileObjects.AgileMapper
                     Parameters.ObjectMappingContext);
 
                 var createMapperLambda = Expression
-                    .Lambda<Func<IObjectMappingContext, IObjectMapper<TInstance>>>(
+                    .Lambda<Func<IObjectMappingContext, IObjectMapper<TTarget>>>(
                         createMapperCall,
                         Parameters.ObjectMappingContext);
 

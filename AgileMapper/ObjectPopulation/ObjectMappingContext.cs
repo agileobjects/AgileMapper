@@ -7,30 +7,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject> :
-        TypedMemberMappingContext<TRuntimeSource, TRuntimeTarget>,
-        ITypedObjectCreationMappingContext<TRuntimeSource, TRuntimeTarget, TObject>,
+    internal class ObjectMappingContext<TSource, TTarget> :
+        TypedMemberMappingContext<TSource, TTarget>,
         IObjectMappingContext
     {
         #region Cached Items
 
         private static readonly ParameterExpression _parameter =
-            Parameters.Create<ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject>>("omc");
+            Parameters.Create<ObjectMappingContext<TSource, TTarget>>("omc");
 
         // ReSharper disable StaticMemberInGenericType
         private static readonly Expression _sourceObjectProperty = Expression.Property(_parameter, "Source");
 
-        private static readonly Expression _targetObjectObjectProperty = Expression.Property(_parameter, "Target");
-
-        private static readonly Expression _existingObjectProperty = Expression.Property(_parameter, "ExistingObject");
+        private static readonly Expression _targetObjectProperty = Expression.Property(_parameter, "Target");
 
         private static readonly Expression _createdObjectProperty = Expression.Property(_parameter, "CreatedObject");
 
         private static readonly Expression _enumerableIndexProperty = Expression.Property(_parameter, "EnumerableIndex");
 
         private static readonly ParameterExpression _instanceVariable = Expression.Variable(
-            typeof(TObject).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType<TObject>() : typeof(TObject),
-            typeof(TObject).GetVariableName(f => f.InCamelCase));
+            typeof(TTarget).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType<TTarget>() : typeof(TTarget),
+            typeof(TTarget).GetVariableName(f => f.InCamelCase));
 
         private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_parameter);
 
@@ -64,18 +61,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly QualifiedMember _targetMember;
 
         public ObjectMappingContext(
-            TRuntimeSource source,
             IQualifiedMember sourceMember,
-            TRuntimeTarget target,
+            TSource source,
             QualifiedMember targetMember,
-            TObject existingObject,
+            TTarget target,
             int? enumerableIndex,
             MappingContext mappingContext)
             : base(source, target, enumerableIndex)
         {
             _sourceMember = sourceMember;
             _targetMember = targetMember;
-            ExistingObject = existingObject;
             MappingContext = mappingContext;
             Parent = mappingContext.CurrentObjectMappingContext;
         }
@@ -120,12 +115,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceMember = context.DataSourceAt(dataSourceIndex).SourceMember;
 
             return ObjectMappingCommand.CreateForChild(
-                source,
                 sourceMember,
-                Target,
-                _targetMember,
+                source,
+                qualifiedTargetMember,
                 targetMemberValue,
-                context.TargetMember,
                 GetEnumerableIndex(),
                 MappingContext);
         }
@@ -145,12 +138,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetElementMember = _targetMember.Append(_targetMember.Type.CreateElementMember());
 
             return ObjectMappingCommand.CreateForChild(
-                sourceElement,
                 sourceElementMember,
-                existingElement,
+                sourceElement,
                 targetElementMember,
                 existingElement,
-                targetElementMember,
                 enumerableIndex,
                 MappingContext);
         }
@@ -159,9 +150,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         string IMappingData.RuleSetName => MappingContext.RuleSet.Name;
 
-        Type IMappingData.SourceType => typeof(TRuntimeSource);
+        Type IMappingData.SourceType => typeof(TSource);
 
-        Type IMappingData.TargetType => typeof(TRuntimeTarget);
+        Type IMappingData.TargetType => typeof(TTarget);
 
         QualifiedMember IMappingData.TargetMember => _targetMember;
 
@@ -175,7 +166,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression IMemberMappingContext.SourceObject => _sourceObjectProperty;
 
-        Expression IMemberMappingContext.ExistingObject => _existingObjectProperty;
+        Expression IMemberMappingContext.TargetObject => _targetObjectProperty;
 
         Expression IMemberMappingContext.EnumerableIndex => _enumerableIndexProperty;
 
@@ -187,9 +178,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region IObjectMappingContext Members
 
-        T IObjectMappingContext.GetInstance<T>() => (T)((object)CreatedObject ?? ExistingObject);
+        T IObjectMappingContext.GetSource<T>() => (T)(object)Source;
 
-        Expression IObjectMappingContext.TargetObject => _targetObjectObjectProperty;
+        T IObjectMappingContext.GetTarget<T>() => (T)(object)Target;
 
         Expression IObjectMappingContext.CreatedObject => _createdObjectProperty;
 
@@ -204,7 +195,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (sourceMember == _sourceMember)
             {
-                return typeof(TRuntimeSource);
+                return typeof(TSource);
             }
 
             var accessKey = _parameter.Type.FullName + sourceMember.Signature;
@@ -221,7 +212,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     memberAccess);
 
                 var getRuntimeTypeLambda = Expression
-                    .Lambda<Func<ObjectMappingContext<TRuntimeSource, TRuntimeTarget, TObject>, Type>>(
+                    .Lambda<Func<ObjectMappingContext<TSource, TTarget>, Type>>(
                         getRuntimeTypeCall,
                         _parameter);
 
@@ -280,11 +271,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        #region ITypedObjectMappingContext
+        #region IObjectCreationContext
 
-        public TObject ExistingObject { get; }
-
-        public TObject CreatedObject { get; set; }
+        public TTarget CreatedObject { get; set; }
 
         #endregion
     }

@@ -17,7 +17,7 @@
 
         Expression SourceObject { get; }
 
-        Expression ExistingObject { get; }
+        Expression TargetObject { get; }
 
         Expression EnumerableIndex { get; }
 

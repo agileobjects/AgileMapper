@@ -82,7 +82,7 @@
             Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                _configInfo.ForSourceValueType(typeof(TSourceValue)),
+                _configInfo.ForSourceValueType<TSourceValue>(),
                 valueFactoryExpression);
         }
 
@@ -90,7 +90,7 @@
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                _configInfo.ForSourceValueType(typeof(TSourceValue)),
+                _configInfo.ForSourceValueType<TSourceValue>(),
                 valueFactoryExpression);
         }
 
@@ -98,7 +98,7 @@
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                _configInfo.ForSourceValueType(typeof(TSourceValue)),
+                _configInfo.ForSourceValueType<TSourceValue>(),
                 valueFactoryExpression);
         }
 

@@ -12,9 +12,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         new IObjectMappingContext Parent { get; }
 
-        TInstance GetInstance<TInstance>();
+        TSource GetSource<TSource>();
 
-        Expression TargetObject { get; }
+        TTarget GetTarget<TTarget>();
 
         Expression CreatedObject { get; }
 

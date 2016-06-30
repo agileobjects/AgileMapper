@@ -19,7 +19,7 @@
             var rootMapper = mappingContext
                 .MapperContext
                 .ObjectMapperFactory
-                .CreateFor<TSource, TTarget, TTarget>(rootOmc);
+                .CreateFor<TSource, TTarget>(rootOmc);
 
             var planFuncs = Expand(new MapperData(rootMapper.MappingLambda, rootOmc));
 
@@ -60,16 +60,15 @@
 
         private static MapperData ExpandObjectMapper(MethodCallExpression mapCall, MapperData mapperData)
         {
-            var targetMemberName = (string)((ConstantExpression)mapCall.Arguments.ElementAt(2)).Value;
-            var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments.ElementAt(3)).Value;
+            var targetMemberName = (string)((ConstantExpression)mapCall.Arguments[2]).Value;
+            var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments[3]).Value;
 
             var typedExpandMethod = typeof(MappingPlan<TSource, TTarget>)
                 .GetMethods(Constants.NonPublicStatic)
                 .First(m => m.ContainsGenericParameters && (m.Name == "ExpandObjectMapper"))
                 .MakeGenericMethod(
-                    mapCall.Arguments.ElementAt(0).Type,
-                    mapperData.Lambda.Type.GetGenericArguments().ElementAt(1),
-                    mapCall.Arguments.ElementAt(1).Type);
+                    mapCall.Arguments[0].Type,
+                    mapCall.Arguments[1].Type);
 
             var childMapperData = typedExpandMethod.Invoke(
                 null,
@@ -79,14 +78,14 @@
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static MapperData ExpandObjectMapper<TChildSource, TChildTarget, TChildObject>(
+        private static MapperData ExpandObjectMapper<TChildSource, TChildTarget>(
             string targetMemberName,
             int dataSourceIndex,
             IObjectMappingContext omc)
         {
             var mappingCommand = omc.CreateChildMappingCommand(
                 default(TChildSource),
-                default(TChildObject),
+                default(TChildTarget),
                 targetMemberName,
                 dataSourceIndex);
 
@@ -97,9 +96,9 @@
 
             LambdaExpression mappingLambda;
 
-            if (omcObjectType == typeof(TChildObject))
+            if (omcObjectType == typeof(TChildTarget))
             {
-                mappingLambda = GetMappingLambda<TChildSource, TChildTarget, TChildObject>(childOmc);
+                mappingLambda = GetMappingLambda<TChildSource, TChildTarget>(childOmc);
             }
             else
             {
@@ -112,13 +111,13 @@
             return new MapperData(mappingLambda, childOmc);
         }
 
-        private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget, TChildObject>(
+        private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget>(
             IObjectMappingContext omc)
         {
             var mapper = omc
                 .MapperContext
                 .ObjectMapperFactory
-                .CreateFor<TChildSource, TChildTarget, TChildObject>(omc);
+                .CreateFor<TChildSource, TChildTarget>(omc);
 
             return mapper.MappingLambda;
         }
@@ -149,7 +148,7 @@
 
             var elementOmc = mappingCommand.ToOmc();
 
-            var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement, TTargetElement>(elementOmc);
+            var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementOmc);
 
             return new MapperData(mappingLambda, elementOmc);
         }
@@ -158,12 +157,12 @@
         {
             var mappingTypes = mapperData.Lambda.Type.GetGenericArguments();
             var sourceType = mappingTypes.ElementAt(0).GetFriendlyName();
-            var objectType = mappingTypes.ElementAt(2).GetFriendlyName();
+            var targetType = mappingTypes.ElementAt(1).GetFriendlyName();
 
             return $@"
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// Map {sourceType} -> {objectType}
+// Map {sourceType} -> {targetType}
 // Rule Set: {mapperData.ObjectMappingContext.RuleSetName}
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
