@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using Members;
 
@@ -17,10 +18,18 @@
         }
 
         public DataSourceSet FindFor(IMemberMappingContext context)
-            => new DataSourceSet(EnumerateSuccessfulDataSources(context).ToArray());
+        {
+            var cacheKey = string.Format(
+                CultureInfo.InvariantCulture,
+                "{0} -> {1}: {2} DataSources",
+                context.SourceType,
+                context.TargetMember.Signature,
+                context.RuleSetName);
 
-        public IDataSource DataSourceAt(int index, IMemberMappingContext context)
-            => EnumerateSuccessfulDataSources(context).ElementAt(index);
+            return context.MapperContext.Cache.GetOrAdd(
+                cacheKey,
+                k => new DataSourceSet(EnumerateSuccessfulDataSources(context).ToArray()));
+        }
 
         private IEnumerable<IDataSource> EnumerateSuccessfulDataSources(IMemberMappingContext context)
             => EnumerateDataSources(context).Where(dataSource => dataSource.IsValid);

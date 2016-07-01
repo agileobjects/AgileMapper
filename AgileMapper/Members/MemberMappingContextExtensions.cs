@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.Members
             => context.MappingContext.MapperContext.DataSources.FindFor(context);
 
         public static IDataSource DataSourceAt(this IMemberMappingContext context, int index)
-            => context.MappingContext.MapperContext.DataSources.DataSourceAt(index, context);
+            => context.MappingContext.MapperContext.DataSources.FindFor(context)[index];
 
         public static Expression GetMapCall(this IMemberMappingContext context, Expression value, int dataSourceIndex)
             => context.Parent.GetMapCall(value, context.TargetMember, dataSourceIndex);

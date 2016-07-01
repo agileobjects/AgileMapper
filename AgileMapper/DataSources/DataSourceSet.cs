@@ -6,10 +6,12 @@ namespace AgileObjects.AgileMapper.DataSources
 
     internal class DataSourceSet
     {
+        private readonly IDataSource[] _dataSources;
         private readonly List<ParameterExpression> _variables;
 
         public DataSourceSet(params IDataSource[] dataSources)
         {
+            _dataSources = dataSources;
             None = dataSources.Length == 0;
 
             if (!None)
@@ -52,5 +54,7 @@ namespace AgileObjects.AgileMapper.DataSources
         public Expression Value { get; }
 
         public IEnumerable<ParameterExpression> Variables => _variables;
+
+        public IDataSource this[int index] => _dataSources[index];
     }
 }
