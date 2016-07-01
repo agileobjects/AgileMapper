@@ -146,6 +146,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 MappingContext);
         }
 
+        public ITypedMemberMappingContext<TContextSource, TContextTarget> AsMemberContext<TContextSource, TContextTarget>()
+            => (ITypedMemberMappingContext<TContextSource, TContextTarget>)this;
+
         #region IMappingData Members
 
         string IMappingData.RuleSetName => MappingContext.RuleSet.Name;

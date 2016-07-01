@@ -40,5 +40,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSourceElement sourceElement,
             TTargetElement existingElement,
             int enumerableIndex);
+
+        ITypedMemberMappingContext<TSource, TTarget> AsMemberContext<TSource, TTarget>();
     }
 }

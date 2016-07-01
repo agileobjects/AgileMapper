@@ -9,12 +9,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             typeof(ObjectCreationContext).GetMethod("Create", Constants.PublicStatic);
 
         public static ObjectCreationContext<TSource, TTarget, TObject> Create<TSource, TTarget, TObject>(
-            TSource source,
-            TTarget target,
-            TObject createdCbject,
-            int? enumerableIndex)
+            ITypedMemberMappingContext<TSource, TTarget> memberMappingContext,
+            TObject createdCbject)
         {
-            return new ObjectCreationContext<TSource, TTarget, TObject>(source, target, createdCbject, enumerableIndex);
+            return new ObjectCreationContext<TSource, TTarget, TObject>(memberMappingContext, createdCbject);
         }
     }
 
@@ -22,12 +20,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         TypedMemberMappingContext<TSource, TTarget>,
         IObjectCreationContext<TSource, TTarget, TObject>
     {
-        internal ObjectCreationContext(
-            TSource source,
-            TTarget target,
-            TObject createdObject,
-            int? enumerableIndex)
-            : base(source, target, enumerableIndex)
+        public ObjectCreationContext(
+            ITypedMemberMappingContext<TSource, TTarget> memberMappingContext,
+            TObject createdObject)
+            : base(memberMappingContext.Source, memberMappingContext.Target, memberMappingContext.EnumerableIndex)
         {
             CreatedObject = createdObject;
         }
