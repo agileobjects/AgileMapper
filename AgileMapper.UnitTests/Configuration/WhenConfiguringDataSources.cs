@@ -32,28 +32,6 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredConstantViaTheStaticApi()
-        {
-            try
-            {
-                Mapper.WhenMapping
-                    .From<PublicProperty<string>>()
-                    .To<PublicProperty<string>>()
-                    .Map("Static fun!")
-                    .To(x => x.Value);
-
-                var source = new PublicProperty<string> { Value = "Instance fun!" };
-                var result = Mapper.Map(source).ToANew<PublicProperty<string>>();
-
-                result.Value.ShouldBe("Static fun!");
-            }
-            finally
-            {
-                Mapper.ResetDefaultInstance();
-            }
-        }
-
-        [Fact]
         public void ShouldApplyAConfiguredConstantFromAllSourceTypes()
         {
             using (var mapper = Mapper.CreateNew())

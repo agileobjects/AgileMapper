@@ -7,12 +7,12 @@
     using Shouldly; // <- this using is required even though ReSharper thinks it isn't
     using Xunit;
 
-    public class WhenConfiguringMappingCallbacks
+    public class WhenConfiguringMappingCallbacks : NonParallelTestsBase
     {
         [Fact]
         public void ShouldExecuteAGlobalPreMappingCallbackViaTheStaticApi()
         {
-            try
+            TestThenReset(() =>
             {
                 var mappedTypes = new List<Type>();
 
@@ -26,17 +26,13 @@
                 Mapper.Map(source).Over(target);
 
                 mappedTypes.ShouldBe(typeof(PersonViewModel), typeof(Person), typeof(PersonViewModel), null);
-            }
-            finally
-            {
-                Mapper.ResetDefaultInstance();
-            }
+            });
         }
 
         [Fact]
         public void ShouldExecuteAGlobalPostMappingCallbackViaTheStaticApiConditionally()
         {
-            try
+            TestThenReset(() =>
             {
                 var mappedTypes = new List<Type>();
 
@@ -51,17 +47,13 @@
                 Mapper.Map(source).Over(target);
 
                 mappedTypes.ShouldBe(typeof(PersonViewModel), typeof(Address), typeof(PersonViewModel), typeof(Person));
-            }
-            finally
-            {
-                Mapper.ResetDefaultInstance();
-            }
+            });
         }
 
         [Fact]
         public void ShouldExecutePreAndPostMappingCallbacksForASpecifiedMemberConditionallyViaTheStaticApi()
         {
-            try
+            TestThenReset(() =>
             {
                 var customersWithDiscounts = new List<Customer>();
                 var customersAdded = 0;
@@ -103,11 +95,7 @@
                 customersWithDiscounts.ShouldBe(new[] { customer1 });
                 customersAdded.ShouldBe(2);
                 customersRemoved.ShouldBe(1);
-            }
-            finally
-            {
-                Mapper.ResetDefaultInstance();
-            }
+            });
         }
     }
 }

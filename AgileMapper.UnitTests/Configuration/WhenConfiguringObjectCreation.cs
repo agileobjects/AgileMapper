@@ -264,7 +264,7 @@
         [Fact]
         public void ShouldIncludeMappingDetailsInANestedObjectCreationException()
         {
-            try
+            var mappingEx = Should.Throw<MappingException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -280,21 +280,17 @@
 
                     mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToANew<Person>();
                 }
+            });
 
-                throw new InvalidOperationException("Expected a MappingException");
-            }
-            catch (MappingException ex)
-            {
-                ex.Message.ShouldContain("PersonViewModel -> Person");
-                ex.Message.ShouldContain(Constants.CreateNew);
+            mappingEx.Message.ShouldContain("PersonViewModel -> Person");
+            mappingEx.Message.ShouldContain(Constants.CreateNew);
 
-                ex.InnerException.ShouldNotBeNull();
-                ex.InnerException.Message.ShouldContain("PersonViewModel -> Person.Address");
-                ex.InnerException.Message.ShouldContain(Constants.CreateNew);
+            mappingEx.InnerException.ShouldNotBeNull();
+            mappingEx.InnerException.Message.ShouldContain("PersonViewModel -> Person.Address");
+            mappingEx.InnerException.Message.ShouldContain(Constants.CreateNew);
 
-                ex.InnerException.InnerException.ShouldNotBeNull();
-                ex.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
-            }
+            mappingEx.InnerException.InnerException.ShouldNotBeNull();
+            mappingEx.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
         }
 
         [Fact]
