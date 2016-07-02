@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Shouldly;
@@ -34,6 +35,16 @@
             var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBe("Goodbye");
+        }
+
+        [Fact]
+        public void ShouldPopulateAnIdentifierMember()
+        {
+            var source = new Dictionary<string, object> { ["Identifier"] = Guid.NewGuid() };
+            var result = Mapper.Map(source).ToANew<PersonViewModel>();
+
+            result.ShouldNotBeNull();
+            result.Id.ShouldBe(source["Identifier"]);
         }
 
         [Fact]

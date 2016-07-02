@@ -35,7 +35,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
             => nonNullableTargetType == _nonNullableTargetType;
 
         public virtual bool CanConvert(Type nonNullableSourceType)
-            => nonNullableSourceType == _nonNullableTargetType;
+            => (nonNullableSourceType == _nonNullableTargetType) || (nonNullableSourceType == typeof(object));
 
         public virtual Expression GetConversion(Expression sourceValue, Type targetType)
         {

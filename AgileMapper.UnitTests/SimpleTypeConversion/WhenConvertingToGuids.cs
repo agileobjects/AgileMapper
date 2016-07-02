@@ -17,6 +17,26 @@
         }
 
         [Fact]
+        public void ShouldMapAnObjectGuidToAGuid()
+        {
+            var guid = Guid.NewGuid();
+            var source = new PublicGetMethod<object>(guid);
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<Guid>>();
+
+            result.Value.ShouldBe(guid);
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectStringGuidToAGuid()
+        {
+            var guid = Guid.NewGuid();
+            var source = new PublicGetMethod<object>(guid.ToString());
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<Guid>>();
+
+            result.Value.ShouldBe(guid);
+        }
+
+        [Fact]
         public void ShouldMapAGuidToANullableGuid()
         {
             var source = new PublicGetMethod<Guid>(Guid.NewGuid());
