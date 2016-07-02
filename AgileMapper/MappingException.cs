@@ -45,9 +45,17 @@
             var rootTargetType = rootType.GetFriendlyName();
             var memberPath = member.GetPath();
 
-            var path = (memberPath != rootMemberName)
-                ? rootTargetType + memberPath.Substring(rootMemberName.Length)
-                : rootTargetType;
+            if (memberPath == rootMemberName)
+            {
+                return rootTargetType;
+            }
+
+            if (memberPath.StartsWith(rootMemberName, StringComparison.Ordinal))
+            {
+                return rootTargetType + memberPath.Substring(rootMemberName.Length);
+            }
+
+            var path = memberPath.Replace("omc." + rootMemberName + ".", rootTargetType + ".");
 
             return path;
         }

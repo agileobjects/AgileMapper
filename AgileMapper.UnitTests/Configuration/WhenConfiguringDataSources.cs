@@ -252,9 +252,28 @@
                         .To(x => x.Value);
 
                     var source = new Person { Name = "CantParseThis" };
-                    var result = mapper.Map(source).ToANew<PublicField<int>>();
 
-                    result.Value.ShouldBeDefault();
+                    mapper.Map(source).ToANew<PublicField<int>>();
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldWrapAConfiguredDataSourceException()
+        {
+            Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicSetMethod<int>>()
+                        .Map((p, psm) => int.Parse(p.Name))
+                        .To<int>(psm => psm.SetValue);
+
+                    var source = new Person { Name = "NotGonnaWork" };
+
+                    mapper.Map(source).ToANew<PublicSetMethod<int>>();
                 }
             });
         }
@@ -510,6 +529,37 @@
                 result.Value.ShouldNotBeSameAs(source.Person);
                 result.Value.Name.ShouldBe("Anon");
             }
+        }
+
+        [Fact]
+        public void ShouldWrapAConfiguredComplexTypeDataSourceException()
+        {
+            var mappingEx = Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    var source = new { PersonVm = new PersonViewModel { Name = "Andy", AddressLine1 = "Blah" } };
+
+                    mapper
+                        .WhenMapping
+                        .From(source)
+                        .Over<PublicField<Person>>()
+                        .Map((s, pf) => s.PersonVm)
+                        .To(pf => pf.Value)
+                        .And
+                        .Before
+                        .CreatingInstancesOf<Address>()
+                        .Call(ctx => { throw new InvalidOperationException("I don't like addresses"); });
+
+                    var target = new PublicField<Person> { Value = new Person { Name = "Someone" } };
+
+                    mapper.Map(source).Over(target);
+                }
+            });
+
+            mappingEx.Message.ShouldContain("-> PublicField<Person>");
+            mappingEx.InnerException.ShouldNotBeNull();
+            mappingEx.InnerException.Message.ShouldContain("<PersonViewModel>.PersonVm -> PublicField<Person>");
         }
 
         [Fact]

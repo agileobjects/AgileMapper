@@ -68,7 +68,7 @@
                     .GetPlanFor<Person>()
                     .Over<PersonViewModel>();
 
-                plan.ShouldContain("personViewModel.Name = (omc.Source.Title + \" \") + omc.Source.Name");
+                plan.ShouldContain("personViewModel.Name = omc.Source.Title + \" \" + omc.Source.Name");
             }
         }
 
