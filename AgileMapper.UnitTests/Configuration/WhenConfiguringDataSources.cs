@@ -959,5 +959,22 @@
                     .To(x => x.Value);
             }
         }
+
+        [Fact]
+        public void ShouldErrorIfReadOnlyMemberSpecified()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .WhenMapping
+                        .From<PublicProperty<string>>()
+                        .To<PublicSetMethod<string>>()
+                        .Map(ctx => ctx.Source.Value)
+                        .To(psm => psm.Value);
+                }
+            });
+        }
     }
 }
