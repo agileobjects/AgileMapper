@@ -2,6 +2,7 @@
 {
     using System;
     using Api.Configuration;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -138,7 +139,7 @@
         [Fact]
         public void ShouldErrorIfInvalidNamePatternFormatSpecified()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -152,7 +153,7 @@
         [Fact]
         public void ShouldErrorIfNamePatternContainsNewLine()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -169,7 +170,7 @@ _$");
         [Fact]
         public void ShouldErrorIfNamePatternIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() =>
+            Should.Throw<ArgumentNullException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -183,7 +184,7 @@ _$");
         [Fact]
         public void ShouldErrorIfNoPatternsSupplied()
         {
-            Assert.Throws<ArgumentException>(() =>
+            Should.Throw<ArgumentException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -197,7 +198,7 @@ _$");
         [Fact]
         public void ShouldErrorIfPatternHasNoPrefixOrSuffix()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {

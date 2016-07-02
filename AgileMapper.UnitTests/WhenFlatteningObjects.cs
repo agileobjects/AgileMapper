@@ -34,7 +34,7 @@
             var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 9876 } };
             var result = Mapper.Flatten(source);
 
-            Assert.Throws<RuntimeBinderException>(() => result.Value);
+            Should.Throw<RuntimeBinderException>(() => result.Value);
         }
 
         [Fact]
@@ -67,7 +67,7 @@
             };
             var result = Mapper.Flatten(source);
 
-            Assert.Throws<RuntimeBinderException>(() => result.Value);
+            Should.Throw<RuntimeBinderException>(() => result.Value);
         }
 
         [Fact]

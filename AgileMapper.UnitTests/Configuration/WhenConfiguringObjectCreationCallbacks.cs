@@ -33,7 +33,7 @@
         [Fact]
         public void ShouldWrapAnObjectCreatedCallbackException()
         {
-            Assert.Throws<MappingException>(() =>
+            Should.Throw<MappingException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {

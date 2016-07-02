@@ -75,7 +75,7 @@
                     .CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("CRUNCH"); });
 
-                Assert.Throws<MappingException>(() =>
+                Should.Throw<MappingException>(() =>
                     mapper.Map(new PersonViewModel()).ToANew<Person>());
 
                 mapper.Map(new Person()).ToANew<PersonViewModel>();
@@ -134,10 +134,10 @@
                     .CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("BSOD"); });
 
-                Assert.Throws<MappingException>(() =>
+                Should.Throw<MappingException>(() =>
                     mapper.Map(new Customer()).ToANew<Person>());
 
-                Assert.Throws<MappingException>(() =>
+                Should.Throw<MappingException>(() =>
                     mapper.Map(new Person()).ToANew<PersonViewModel>());
 
                 mapper.Map(new PersonViewModel()).ToANew<Person>();

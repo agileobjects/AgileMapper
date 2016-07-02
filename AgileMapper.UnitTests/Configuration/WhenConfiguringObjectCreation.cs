@@ -244,7 +244,7 @@
         [Fact]
         public void ShouldWrapAnObjectCreationException()
         {
-            Assert.Throws<MappingException>(() =>
+            Should.Throw<MappingException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -300,7 +300,7 @@
         [Fact]
         public void ShouldErrorIfSingleParameterObjectFactorySpecifiedWithInvalidParameter()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -317,7 +317,7 @@
         [Fact]
         public void ShouldErrorIfTwoParameterObjectFactorySpecifiedWithInvalidParameters()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -334,7 +334,7 @@
         [Fact]
         public void ShouldErrorIfFourParameterObjectFactorySpecifiedWithInvalidParameters()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {

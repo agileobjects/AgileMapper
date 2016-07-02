@@ -149,7 +149,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldErrorIfRedundantIgnoreIsSpecified()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -211,7 +211,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldErrorIfConfiguredDataSourceMemberIsIgnored()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {

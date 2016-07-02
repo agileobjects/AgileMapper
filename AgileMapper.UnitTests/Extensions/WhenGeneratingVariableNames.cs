@@ -61,6 +61,7 @@
             typeof(IList<Body>).GetVariableName(f => f.InPascalCase).ShouldBe("Bodies");
         }
 
+        // ReSharper disable ClassNeverInstantiated.Local
         private class Box { }
 
         private class Fuzz { }
@@ -74,5 +75,6 @@
         private class Journey { }
 
         private class Body { }
+        // ReSharper restore ClassNeverInstantiated.Local
     }
 }

@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using System;
     using System.Linq.Expressions;
     using Members;
-    using ObjectPopulation;
 
     public class InstanceConfigurator<TObject> where TObject : class
     {

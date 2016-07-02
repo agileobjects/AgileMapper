@@ -91,7 +91,7 @@
         [Fact]
         public void ShouldErrorIfMultipleIdentifiersSpecifiedForSameType()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {

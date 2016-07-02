@@ -262,7 +262,7 @@
         [Fact]
         public void ShouldWrapAnExceptionThrownInACondition()
         {
-            Assert.Throws<MappingException>(() =>
+            Should.Throw<MappingException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -356,7 +356,7 @@
         [Fact]
         public void ShouldWrapAnExceptionThrownInAConfiguredExpression()
         {
-            Assert.Throws<MappingException>(() =>
+            Should.Throw<MappingException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -835,7 +835,7 @@
         [Fact]
         public void ShouldErrorIfUnconvertibleConstantSpecified()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -851,7 +851,7 @@
         [Fact]
         public void ShouldErrorIfIgnoredMemberIsConfigured()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -872,7 +872,7 @@
         [Fact]
         public void ShouldErrorIfRedundantDataSourceIsConfigured()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -894,7 +894,7 @@
         [Fact]
         public void ShouldErrorIfConflictingDataSourceIsConfigured()
         {
-            Assert.Throws<MappingConfigurationException>(() =>
+            Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
