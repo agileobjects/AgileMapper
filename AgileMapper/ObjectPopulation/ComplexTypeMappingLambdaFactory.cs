@@ -174,11 +174,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var objectRegistration = omc.ObjectRegistrationCall;
             var memberPopulations = MemberPopulationFactory.Create(omc);
 
-            var populationExpressions = memberPopulations
-                .Where(p => p.IsSuccessful)
-                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p) : p.GetPopulation());
-
-            return populationExpressions
+            return memberPopulations
+                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p) : p.GetPopulation())
                 .Prepend(objectRegistration)
                 .ToArray();
         }

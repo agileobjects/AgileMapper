@@ -108,5 +108,23 @@
 
             Regex.Matches(plan, "PersonViewModel -> Person").Cast<Match>().ShouldHaveSingleItem();
         }
+
+        [Fact]
+        public void ShouldIncludeAnIgnoredMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .To<PersonViewModel>()
+                    .Ignore(pvm => pvm.AddressLine1);
+
+                var plan = mapper
+                    .GetPlanFor<Person>()
+                    .ToANew<PersonViewModel>();
+
+                plan.ShouldContain("AddressLine1 is ignored");
+            }
+        }
     }
 }
