@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
     using Members;
+    using ReadableExpressions;
 
     internal class MappingConfigInfo
     {
@@ -132,7 +133,22 @@
         #endregion
 
         public QualifiedMember GetTargetMemberFrom(LambdaExpression lambda)
-            => lambda?.Body.ToTargetMember(GlobalContext.MemberFinder, MapperContext.NamingSettings);
+        {
+            if (lambda == null)
+            {
+                return null;
+            }
+
+            var targetMember = lambda.Body.ToTargetMember(GlobalContext.MemberFinder, MapperContext.NamingSettings);
+
+            if (targetMember != null)
+            {
+                return targetMember;
+            }
+
+            throw new MappingConfigurationException(
+                $"Target member {lambda.Body.ToReadableString()} is not writeable.");
+        }
 
         public MappingConfigInfo CloneForContinuation()
         {

@@ -63,12 +63,11 @@ namespace AgileObjects.AgileMapper.Members
         public static QualifiedMember From(Member member, NamingSettings namingSettings)
             => new QualifiedMember(member, null, namingSettings);
 
-        public static QualifiedMember From(IEnumerable<Member> memberChain, NamingSettings namingSettings)
+        public static QualifiedMember From(Member[] memberChain, NamingSettings namingSettings)
         {
-            var memberChainArray = memberChain.ToArray();
-            var matchingNames = memberChainArray.Select(namingSettings.GetMatchingNameFor).ToArray();
+            var matchingNames = memberChain.Select(namingSettings.GetMatchingNameFor).ToArray();
 
-            return new QualifiedMember(memberChainArray, matchingNames, namingSettings);
+            return new QualifiedMember(memberChain, matchingNames, namingSettings);
         }
 
         #endregion

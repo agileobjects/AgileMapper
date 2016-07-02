@@ -125,20 +125,24 @@
             var rootMember = rootMemberFactory.Invoke(expression.Type);
             var parentMember = rootMember;
 
-            var memberChain = memberAccesses
-                .Select(memberAccess =>
+            var memberChain = new Member[memberAccesses.Count + 1];
+            memberChain[0] = rootMember;
+
+            for (var i = 0; i < memberAccesses.Count; i++)
+            {
+                var memberAccess = memberAccesses[i];
+                var memberName = memberAccess.GetMemberName();
+                var members = membersFactory.Invoke(parentMember.Type);
+                var member = members.FirstOrDefault(m => m.Name == memberName);
+
+                if (member == null)
                 {
-                    var memberName = memberAccess.GetMemberName();
-                    var members = membersFactory.Invoke(parentMember.Type);
-                    var member = members.FirstOrDefault(m => m.Name == memberName);
+                    return null;
+                }
 
-                    parentMember = member;
-
-                    return member;
-                })
-                .ToList();
-
-            memberChain.Insert(0, rootMember);
+                memberChain[i + 1] = member;
+                parentMember = member;
+            }
 
             return QualifiedMember.From(memberChain, namingSettings);
         }

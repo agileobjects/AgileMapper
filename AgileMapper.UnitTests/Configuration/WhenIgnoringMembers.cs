@@ -268,5 +268,20 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .Ignore(x => x.Name);
             }
         }
+
+        [Fact]
+        public void ShouldErrorIfReadOnlyMemberSpecified()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .WhenMapping
+                        .To<PublicSetMethod<string>>()
+                        .Ignore(psm => psm.Value);
+                }
+            });
+        }
     }
 }

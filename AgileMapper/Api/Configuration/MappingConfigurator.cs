@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using Extensions;
     using Members;
 
     internal class MappingConfigurator<TSource, TTarget> : IFullMappingConfigurator<TSource, TTarget>
@@ -59,9 +60,8 @@
 
             foreach (var targetMember in targetMembers)
             {
-                var configuredIgnoredMember = new ConfiguredIgnoredMember(
-                configInfo,
-                targetMember);
+                var configuredIgnoredMember =
+                    new ConfiguredIgnoredMember(configInfo, targetMember);
 
                 _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
                 _configInfo.NegateCondition();
