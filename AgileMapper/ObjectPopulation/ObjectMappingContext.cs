@@ -201,28 +201,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return typeof(TSource);
             }
 
-            var accessKey = _parameter.Type.FullName + sourceMember.Signature;
+            var accessKey = sourceMember.Signature + ": GetRuntimeSourceType";
 
             var getRuntimeTypeFunc = GlobalContext.Cache.GetOrAdd(accessKey, k =>
             {
+                var sourceParameter = Parameters.Create<TSource>("source");
                 var relativeMember = sourceMember.RelativeTo(_sourceMember);
                 var memberAccess = relativeMember.GetQualifiedAccess(_sourceObjectProperty);
+                memberAccess = memberAccess.Replace(_sourceObjectProperty, sourceParameter);
 
                 var getRuntimeTypeCall = Expression.Call(
-                    typeof(ObjectExtensions)
-                        .GetMethod("GetRuntimeSourceType", Constants.PublicStatic)
-                        .MakeGenericMethod(sourceMember.Type),
+                    ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sourceMember.Type),
                     memberAccess);
 
                 var getRuntimeTypeLambda = Expression
-                    .Lambda<Func<ObjectMappingContext<TSource, TTarget>, Type>>(
-                        getRuntimeTypeCall,
-                        _parameter);
+                    .Lambda<Func<TSource, Type>>(getRuntimeTypeCall, sourceParameter);
 
                 return getRuntimeTypeLambda.Compile();
             });
 
-            return getRuntimeTypeFunc.Invoke(this);
+            return getRuntimeTypeFunc.Invoke(Source);
         }
 
         MethodCallExpression IObjectMappingContext.GetTryGetCall(Expression matchingSourceMemberValue)
