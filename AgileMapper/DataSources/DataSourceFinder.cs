@@ -1,8 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using Extensions;
     using Members;
 
     internal class DataSourceFinder
@@ -28,19 +30,32 @@
 
             return context.MapperContext.Cache.GetOrAdd(
                 cacheKey,
-                k => new DataSourceSet(EnumerateSuccessfulDataSources(context).ToArray()));
-        }
+                k =>
+                {
+                    var validDataSources = EnumerateDataSources(context)
+                        .Where(ds => ds.IsValid)
+                        .ToArray();
 
-        private IEnumerable<IDataSource> EnumerateSuccessfulDataSources(IMemberMappingContext context)
-            => EnumerateDataSources(context).Where(dataSource => dataSource.IsValid);
+                    if (context.TargetMember.IsSimple && validDataSources.Any())
+                    {
+                        var initialDataSource = context
+                            .MappingContext
+                            .RuleSet
+                            .InitialDataSourceFactory
+                            .Create(context);
+
+                        if (initialDataSource.IsValid)
+                        {
+                            validDataSources = validDataSources.Prepend(initialDataSource).ToArray();
+                        }
+                    }
+
+                    return new DataSourceSet(validDataSources);
+                });
+        }
 
         private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
         {
-            if (context.TargetMember.IsSimple)
-            {
-                yield return context.MappingContext.RuleSet.InitialDataSourceFactory.Create(context);
-            }
-
             var maptimeDataSource = GetMaptimeDataSourceOrNull(context);
 
             if (maptimeDataSource != null)

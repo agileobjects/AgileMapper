@@ -110,6 +110,16 @@
         }
 
         [Fact]
+        public void ShouldIncludeAMemberWithNoDataSource()
+        {
+            var plan = Mapper
+                .GetPlanFor<PersonViewModel>()
+                .OnTo<Person>();
+
+            plan.ShouldContain("// No data source for Title");
+        }
+
+        [Fact]
         public void ShouldIncludeAnIgnoredMember()
         {
             using (var mapper = Mapper.CreateNew())
@@ -123,7 +133,7 @@
                     .GetPlanFor<Person>()
                     .ToANew<PersonViewModel>();
 
-                plan.ShouldContain("AddressLine1 is ignored");
+                plan.ShouldContain("// AddressLine1 is ignored");
             }
         }
     }

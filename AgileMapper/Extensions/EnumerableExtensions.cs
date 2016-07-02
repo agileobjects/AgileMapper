@@ -17,6 +17,17 @@
 
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Where(item => item != null);
 
+        public static T[] Prepend<T>(this T[] array, T initialItem)
+        {
+            var newArray = new T[array.Length + 1];
+
+            array.CopyTo(newArray, 1);
+
+            newArray[0] = initialItem;
+
+            return newArray;
+        }
+
         public static T[] Append<T>(this T[] array, T extraItem)
         {
             var newArray = new T[array.Length + 1];

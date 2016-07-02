@@ -12,14 +12,15 @@ namespace AgileObjects.AgileMapper.DataSources
         public DataSourceSet(params IDataSource[] dataSources)
         {
             _dataSources = dataSources;
+            _variables = new List<ParameterExpression>();
             None = dataSources.Length == 0;
 
-            if (!None)
+            if (None)
             {
-                Value = GetValue(dataSources);
+                return;
             }
 
-            _variables = new List<ParameterExpression>();
+            Value = GetValue(dataSources);
 
             foreach (var dataSource in dataSources)
             {
