@@ -21,9 +21,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             conditionConfigurator.Invoke(_conditionBuilder);
         }
 
-        public IEnumerable<Expression> GetConditions(Expression sourceObject, IObjectMappingContext omc)
+        public bool SourceCanBeNull => _conditionBuilder.SourceCanBeNull;
+
+        public IEnumerable<Expression> GetConditions(IObjectMappingContext omc)
         {
-            yield return _conditionBuilder.GetCondition(sourceObject, omc);
+            yield return _conditionBuilder.GetCondition(omc);
         }
     }
 }

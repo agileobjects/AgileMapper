@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using AgileMapper.Extensions;
     using Api.Configuration;
     using Shouldly;
     using TestClasses;
@@ -34,7 +33,7 @@
                 };
                 var result = mapper.Map(source).OnTo(target);
 
-                result.HasOne().ShouldBeTrue();
+                result.ShouldHaveSingleItem();
                 result.First().AddressLine1.ShouldBe("My House");
             }
         }
@@ -55,7 +54,7 @@
                 var target = new List<Person> { new Person { Title = Title.Ms, Name = "Hetty" } };
                 var result = mapper.Map(source).Over(target);
 
-                result.HasOne().ShouldBeTrue();
+                result.ShouldHaveSingleItem();
                 result.First().Title.ShouldBe(Title.Dr);
             }
         }
@@ -83,7 +82,7 @@
                 };
                 var result = mapper.Map(source).OnTo(target);
 
-                result.HasOne().ShouldBeTrue();
+                result.ShouldHaveSingleItem();
                 result.First().AddressLine1.ShouldBe("Here");
             }
         }

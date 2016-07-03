@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using DataSources;
 
@@ -13,5 +14,12 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetMapCall(this IMemberMappingContext context, Expression value, int dataSourceIndex)
             => context.Parent.GetMapCall(value, context.TargetMember, dataSourceIndex);
+
+        public static Expression[] GetNestedAccessesIn(this IMemberMappingContext context, Expression value)
+        {
+            return context.NestedAccessFinder.FindIn(
+                value,
+                context.MappingContext.RuleSet.ComplexTypeMappingShortCircuitStrategy.SourceCanBeNull);
+        }
     }
 }

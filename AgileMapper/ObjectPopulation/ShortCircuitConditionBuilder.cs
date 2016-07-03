@@ -8,6 +8,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool _nullSource;
         private bool _nullExisting;
 
+        public bool SourceCanBeNull => !_nullSource || (_nullSource && _nullExisting);
+
         public ShortCircuitConditionBuilder SourceIsNull()
         {
             _nullSource = true;
@@ -22,18 +24,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return this;
         }
 
-        public Expression GetCondition(Expression sourceObject, IObjectMappingContext omc)
+        public Expression GetCondition(IObjectMappingContext omc)
         {
             if (_nullSource && _nullExisting)
             {
                 return Expression.AndAlso(
-                    sourceObject.GetIsDefaultComparison(),
+                    omc.SourceObject.GetIsDefaultComparison(),
                     omc.TargetObject.GetIsDefaultComparison());
             }
 
             if (_nullSource)
             {
-                return sourceObject.GetIsDefaultComparison();
+                return omc.SourceObject.GetIsDefaultComparison();
             }
 
             if (_nullExisting)

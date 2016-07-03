@@ -5,6 +5,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal interface IComplexTypeMappingShortCircuitStrategy
     {
-        IEnumerable<Expression> GetConditions(Expression sourceObject, IObjectMappingContext omc);
+        bool SourceCanBeNull { get; }
+
+        IEnumerable<Expression> GetConditions(IObjectMappingContext omc);
     }
 }

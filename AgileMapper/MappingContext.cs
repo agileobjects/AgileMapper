@@ -49,6 +49,11 @@ namespace AgileObjects.AgileMapper
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
         {
+            if (key == null)
+            {
+                return;
+            }
+
             lock (_cacheLock)
             {
                 ObjectCache<TKey, TComplex>.Cache.Add(key, complexType);

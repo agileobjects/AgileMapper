@@ -134,11 +134,6 @@
 
         public QualifiedMember GetTargetMemberFrom(LambdaExpression lambda)
         {
-            if (lambda == null)
-            {
-                return null;
-            }
-
             var targetMember = lambda.Body.ToTargetMember(GlobalContext.MemberFinder, MapperContext.NamingSettings);
 
             if (targetMember != null)

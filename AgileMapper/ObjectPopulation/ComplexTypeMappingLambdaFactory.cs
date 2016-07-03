@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -21,67 +20,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
         {
-            Expression matchingSourceMemberValue;
-
-            yield return GetStrategyShortCircuitReturns(returnNull, omc, out matchingSourceMemberValue);
-            yield return GetExistingObjectShortCircuit(returnNull.Target, omc, matchingSourceMemberValue);
+            yield return GetStrategyShortCircuitReturns(returnNull, omc);
+            yield return GetExistingObjectShortCircuit(returnNull.Target, omc);
         }
 
-        private static Expression GetStrategyShortCircuitReturns(
-            Expression returnNull,
-            IObjectMappingContext omc,
-            out Expression matchingSourceMemberValue)
+        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, IObjectMappingContext omc)
         {
-            var matchingSourceMemberDataSource = omc
-                .MapperContext
-                .DataSources
-                .GetSourceMemberDataSourceOrNull(omc);
-
-            matchingSourceMemberValue = matchingSourceMemberDataSource?.Value;
-
-            if (matchingSourceMemberValue == null)
+            if (!omc.SourceMember.Matches(omc.TargetMember))
             {
                 return Constants.EmptyExpression;
-            }
-
-            Expression sourceObject;
-            Func<IEnumerable<Expression>, Expression> blockBuilder;
-
-            if (matchingSourceMemberValue == omc.SourceObject)
-            {
-                sourceObject = omc.SourceObject;
-                blockBuilder = Expression.Block;
-            }
-            else
-            {
-                var variableName = "matching" + matchingSourceMemberValue.Type.GetVariableName(f => f.InPascalCase);
-                sourceObject = Expression.Variable(matchingSourceMemberValue.Type, variableName);
-                Expression assignSourceObject = Expression.Assign(sourceObject, matchingSourceMemberValue);
-
-                blockBuilder = conditions => Expression.Block(
-                    new[] { (ParameterExpression)sourceObject },
-                    conditions.Prepend(assignSourceObject));
             }
 
             var shortCircuitConditions = omc.MappingContext
                 .RuleSet
                 .ComplexTypeMappingShortCircuitStrategy
-                .GetConditions(sourceObject, omc)
-                .Select(condition => Expression.IfThen(condition, returnNull))
-                .ToArray();
+                .GetConditions(omc)
+                .Select(condition => (Expression)Expression.IfThen(condition, returnNull));
 
-            var shortCircuitBlock = blockBuilder.Invoke(shortCircuitConditions);
+            var shortCircuitBlock = Expression.Block(shortCircuitConditions);
 
             return shortCircuitBlock;
         }
 
-        private static Expression GetExistingObjectShortCircuit(
-            LabelTarget returnTarget,
-            IObjectMappingContext omc,
-            Expression matchingSourceMemberValue)
+        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, IObjectMappingContext omc)
         {
             var ifTryGetReturn = Expression.IfThen(
-                omc.GetTryGetCall(matchingSourceMemberValue),
+                omc.TryGetCall,
                 Expression.Return(returnTarget, omc.InstanceVariable));
 
             return ifTryGetReturn;
@@ -90,10 +54,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
         {
             var createdObjectAssignment = Expression.Assign(omc.CreatedObject, GetNewObjectCreation(omc));
-            var existingOrCreatedObject = Expression.Coalesce(omc.TargetObject, createdObjectAssignment);
-            var contextTargetAssignment = Expression.Assign(omc.TargetObject, existingOrCreatedObject);
+            var contextTargetAssignment = Expression.Assign(omc.TargetObject, createdObjectAssignment);
+            var existingOrCreatedObject = Expression.Coalesce(omc.TargetObject, contextTargetAssignment);
 
-            return contextTargetAssignment;
+            return existingOrCreatedObject;
         }
 
         private static Expression GetNewObjectCreation(IObjectMappingContext omc)
@@ -171,12 +135,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
         {
-            var objectRegistration = omc.ObjectRegistrationCall;
             var memberPopulations = MemberPopulationFactory.Create(omc);
 
             return memberPopulations
                 .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p) : p.GetPopulation())
-                .Prepend(objectRegistration)
+                .Prepend(omc.ObjectRegistrationCall)
                 .ToArray();
         }
 

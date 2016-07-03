@@ -45,8 +45,7 @@
         private static Expression GetCondition(Expression condition, IMemberMappingContext context)
         {
             var conditionNestedAccessesChecks = context
-                .NestedAccessFinder
-                .FindIn(condition)
+                .GetNestedAccessesIn(condition)
                 .GetIsNotDefaultComparisonsOrNull();
 
             if (conditionNestedAccessesChecks == null)

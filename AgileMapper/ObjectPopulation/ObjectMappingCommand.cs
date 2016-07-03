@@ -1,8 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq;
-    using System.Linq.Expressions;
     using Extensions;
     using Members;
 
@@ -15,71 +13,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMappingCommand
     {
-        public static IObjectMappingCommand<TTarget> CreateForChild<TSource, TTarget>(
-            IQualifiedMember sourceMember,
-            TSource source,
-            QualifiedMember targetMember,
-            TTarget target,
-            int? enumerableIndex,
-            MappingContext mappingContext)
-        {
-            var command = Create(
-                sourceMember,
-                source,
-                targetMember,
-                target,
-                enumerableIndex,
-                mappingContext);
-
-            if (command.SourceMember.Matches(sourceMember))
-            {
-                return command;
-            }
-
-            var sourceParameter = Parameters.Create<TSource>("source");
-            var targetParameter = Parameters.Create<TTarget>("target");
-
-            var sourceMemberAccess = command.SourceMember.GetQualifiedAccess(sourceParameter);
-
-            var commandType = typeof(ObjectMappingCommand<,>)
-                .MakeGenericType(command.SourceMember.Type, command.TargetMember.Type);
-
-            var newObjectCall = Expression.New(
-                commandType.GetConstructors().First(),
-                Parameters.SourceMember,
-                sourceMemberAccess.GetConversionTo(command.SourceMember.Type),
-                Parameters.TargetMember,
-                targetParameter.GetConversionTo(command.TargetMember.Type),
-                Parameters.EnumerableIndexNullable,
-                Parameters.MappingContext);
-
-            var factoryLambda = Expression.Lambda<Func<
-                IQualifiedMember,
-                TSource,
-                QualifiedMember,
-                TTarget,
-                int?,
-                MappingContext,
-                IObjectMappingCommand<TTarget>>>(
-                newObjectCall,
-                Parameters.SourceMember,
-                sourceParameter,
-                Parameters.TargetMember,
-                targetParameter,
-                Parameters.EnumerableIndexNullable,
-                Parameters.MappingContext);
-
-            var factory = factoryLambda.Compile();
-
-            return factory.Invoke(
-                command.SourceMember,
-                command.Source,
-                command.TargetMember,
-                command.Target,
-                command.EnumerableIndex,
-                command.MappingContext);
-        }
-
         public static ObjectMappingCommand<TSource, TTarget> Create<TSource, TTarget>(
             IQualifiedMember sourceMember,
             TSource source,
@@ -109,46 +42,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mappingData = new BasicMappingData(mappingContext.RuleSet, sourceMember.Type, typeof(TTarget));
 
-            var bestMatchingSourceMember = GetBestMatchingSourceMember(sourceMember, targetMember, mappingContext);
-
-            if (bestMatchingSourceMember != sourceMember)
-            {
-                mappingData = new BasicMappingData(mappingContext.RuleSet, bestMatchingSourceMember.Type, typeof(TTarget), mappingData);
-            }
-
             var targetMemberType = mappingContext.MapperContext.UserConfigurations.GetDerivedTypeOrNull(mappingData)
-                ?? target.GetRuntimeTargetType(bestMatchingSourceMember.Type);
+                ?? target.GetRuntimeTargetType(sourceMember.Type);
 
             targetMember = targetMember.WithType(targetMemberType);
 
-            return new MemberPair(
-                targetMember.IsEnumerable ? bestMatchingSourceMember : sourceMember,
-                targetMember);
-        }
-
-        private static IQualifiedMember GetBestMatchingSourceMember(
-            IQualifiedMember sourceMember,
-            QualifiedMember targetMember,
-            MappingContext mappingContext)
-        {
-            if ((mappingContext.CurrentObjectMappingContext == null) || sourceMember.Matches(targetMember))
-            {
-                return sourceMember;
-            }
-
-            var memberMappingContext = new MemberMappingContext(targetMember, mappingContext.CurrentObjectMappingContext);
-            var matchingSourceMember = mappingContext.MapperContext.DataSources.GetSourceMemberFor(memberMappingContext);
-
-            if (matchingSourceMember == null)
-            {
-                return sourceMember;
-            }
-
-            var matchingSourceMemberType = mappingContext
-                .CurrentObjectMappingContext
-                .GetSourceMemberRuntimeType(matchingSourceMember);
-
-            return matchingSourceMember.WithType(matchingSourceMemberType);
+            return new MemberPair(sourceMember, targetMember);
         }
 
         #region Helper Classes

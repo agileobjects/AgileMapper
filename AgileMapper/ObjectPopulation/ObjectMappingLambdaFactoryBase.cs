@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class ObjectMappingLambdaFactoryBase<TSource, TTarget>
     {
-        public virtual Expression<MapperFunc<TSource, TTarget>> Create(IObjectMappingContext omc)
+        public Expression<MapperFunc<TSource, TTarget>> Create(IObjectMappingContext omc)
         {
             var returnLabelTarget = Expression.Label(omc.TargetObject.Type, "Return");
             var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omc.TargetObject.Type));

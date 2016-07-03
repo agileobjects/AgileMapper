@@ -54,7 +54,7 @@
             out Expression[] nestedAccesses,
             out ICollection<ParameterExpression> variables)
         {
-            nestedAccesses = context.NestedAccessFinder.FindIn(value).ToArray();
+            nestedAccesses = context.GetNestedAccessesIn(value);
             variables = new List<ParameterExpression>();
 
             if (nestedAccesses.None())

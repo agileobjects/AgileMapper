@@ -663,7 +663,7 @@
                 mapper.WhenMapping
                     .From(source)
                     .To<PublicProperty<IEnumerable<Person>>>()
-                    .Map((s, t) => s.People)
+                    .Map((s, pp) => s.People)
                     .To(pp => pp.Value);
 
                 var result = mapper.Map(source).ToANew<PublicProperty<IEnumerable<Person>>>();

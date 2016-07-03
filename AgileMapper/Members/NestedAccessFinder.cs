@@ -12,6 +12,8 @@ namespace AgileObjects.AgileMapper.Members
         private readonly ICollection<Expression> _memberAccessSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
+        private bool _includeSourceObjectAccesses;
+
         public NestedAccessFinder(Expression contextParameter)
         {
             _contextParameter = contextParameter;
@@ -19,12 +21,14 @@ namespace AgileObjects.AgileMapper.Members
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
 
-        public IEnumerable<Expression> FindIn(Expression expression)
+        public Expression[] FindIn(Expression expression, bool includeSourceObjectAccesses)
         {
-            IEnumerable<Expression> memberAccesses;
+            Expression[] memberAccesses;
 
             lock (this)
             {
+                _includeSourceObjectAccesses = includeSourceObjectAccesses;
+
                 Visit(expression);
 
                 memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
@@ -64,9 +68,17 @@ namespace AgileObjects.AgileMapper.Members
                 return !memberAccess.IsRootedIn(_contextParameter);
             }
 
-            return (memberAccess.Expression != _contextParameter) ||
-                ((memberAccess.Member.Name != "Source") &&
-                (memberAccess.Member.Name != "EnumerableIndex"));
+            if (memberAccess.Expression != _contextParameter)
+            {
+                return true;
+            }
+
+            if (memberAccess.Member.Name == "EnumerableIndex")
+            {
+                return false;
+            }
+
+            return _includeSourceObjectAccesses || (memberAccess.Member.Name != "Source");
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)

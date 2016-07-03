@@ -84,7 +84,7 @@
 
             if (context.TargetMember.IsComplex)
             {
-                yield return new ComplexTypeMappingDataSource(context.SourceMember, dataSourceIndex, context);
+                yield return new ComplexTypeMappingDataSource(dataSourceIndex, context);
                 yield break;
             }
 
@@ -231,7 +231,13 @@
                 yield return parentMember;
             }
 
-            foreach (var sourceMember in context.Parent.GlobalContext.MemberFinder.GetReadableMembers(parentMember.Type))
+            var relevantMembers = context.Parent
+                .GlobalContext
+                .MemberFinder
+                .GetReadableMembers(parentMember.Type)
+                .Where(m => (m.IsSimple && context.TargetMember.IsSimple) || !m.IsSimple);
+
+            foreach (var sourceMember in relevantMembers)
             {
                 var childMember = parentMember.Append(sourceMember);
 
