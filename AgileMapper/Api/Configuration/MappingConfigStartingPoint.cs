@@ -67,7 +67,7 @@
 
                 if (pattern.Contains(Environment.NewLine))
                 {
-                    ThrowConfigurationException(pattern);
+                    throw CreateConfigurationException(pattern);
                 }
 
                 if (!pattern.StartsWith('^'))
@@ -92,7 +92,7 @@
 
             if (!match.Success)
             {
-                ThrowConfigurationException(pattern);
+                throw CreateConfigurationException(pattern);
             }
 
             var prefix = match.Groups["Prefix"].Value;
@@ -100,13 +100,13 @@
 
             if (string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(suffix))
             {
-                ThrowConfigurationException(pattern);
+                throw CreateConfigurationException(pattern);
             }
         }
 
-        private static void ThrowConfigurationException(string pattern)
+        private static Exception CreateConfigurationException(string pattern)
         {
-            throw new MappingConfigurationException(
+            return new MappingConfigurationException(
                 "Name pattern '" + pattern + "' is not valid. " +
                 "Please specify a regular expression pattern in the format '^{prefix}(.+){suffix}$'");
         }

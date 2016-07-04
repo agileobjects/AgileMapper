@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Diagnostics;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using ReadableExpressions.Extensions;
@@ -72,11 +73,28 @@ namespace AgileObjects.AgileMapper.Members
                 relativeMemberChain);
         }
 
-        public IQualifiedMember WithType(Type runtimeType) => this;
+        public IQualifiedMember WithType(Type runtimeType)
+        {
+            if (runtimeType == Type)
+            {
+                return this;
+            }
+
+            var childMembers = new Member[_childMembers.Length];
+            Array.Copy(_childMembers, 0, childMembers, 0, childMembers.Length - 1);
+            childMembers[childMembers.Length - 1] = _childMembers.Last().WithType(runtimeType);
+
+            return new DictionaryEntrySourceMember(
+                runtimeType,
+                _pathFactory,
+                childMembers.GetSignature(),
+                _matchedTargetMember,
+                childMembers);
+        }
 
         public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 
-        public bool Matches(IQualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
+        public bool Matches(QualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
 
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
     }

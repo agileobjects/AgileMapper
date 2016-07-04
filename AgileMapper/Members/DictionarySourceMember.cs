@@ -43,7 +43,7 @@ namespace AgileObjects.AgileMapper.Members
             throw new NotImplementedException();
         }
 
-        public bool Matches(IQualifiedMember otherMember) => _targetMember.Matches(otherMember);
+        public bool Matches(QualifiedMember otherMember) => _targetMember.Matches(otherMember);
 
         public Expression GetQualifiedAccess(Expression instance)
         {

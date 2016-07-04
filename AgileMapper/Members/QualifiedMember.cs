@@ -153,17 +153,10 @@ namespace AgileObjects.AgileMapper.Members
                     .Any(joinedName => otherJoinedName.StartsWith(joinedName, StringComparison.OrdinalIgnoreCase)));
         }
 
-        public bool Matches(IQualifiedMember otherMember)
+        public bool Matches(QualifiedMember otherMember)
         {
-            var otherQualifiedMember = otherMember as QualifiedMember;
-
-            if (otherQualifiedMember == null)
-            {
-                return otherMember.Matches(this);
-            }
-
             return _joinedNames
-                .Intersect(otherQualifiedMember._joinedNames, CaseInsensitiveStringComparer.Instance)
+                .Intersect(otherMember._joinedNames, CaseInsensitiveStringComparer.Instance)
                 .Any();
         }
 

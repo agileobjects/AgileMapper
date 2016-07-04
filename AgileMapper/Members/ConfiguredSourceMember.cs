@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 
-        public bool Matches(IQualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
+        public bool Matches(QualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
 
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
 

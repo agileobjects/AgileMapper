@@ -191,7 +191,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression IObjectMappingContext.CreatedObject => _createdObjectProperty;
 
-        public int? GetEnumerableIndex() => EnumerableIndex.HasValue ? EnumerableIndex : Parent?.GetEnumerableIndex();
+        public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
 
         Type IObjectMappingContext.GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {
@@ -231,14 +231,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         MethodCallExpression IObjectMappingContext.ObjectRegistrationCall => _registrationCall;
 
-        MethodCallExpression IObjectMappingContext.GetMapCall(Expression sourceObject, QualifiedMember objectMember, int dataSourceIndex)
+        MethodCallExpression IObjectMappingContext.GetMapCall(
+            Expression sourceObject,
+            QualifiedMember targetMember,
+            int dataSourceIndex)
         {
             var mapCall = Expression.Call(
                 _parameter,
-                _mapObjectMethod.MakeGenericMethod(sourceObject.Type, objectMember.Type),
+                _mapObjectMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
-                objectMember.GetAccess(_instanceVariable),
-                Expression.Constant(objectMember.Name),
+                targetMember.GetAccess(_instanceVariable),
+                Expression.Constant(targetMember.Name),
                 Expression.Constant(dataSourceIndex));
 
             return mapCall;

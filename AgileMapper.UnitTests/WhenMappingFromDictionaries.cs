@@ -135,6 +135,22 @@
         }
 
         [Fact]
+        public void ShouldPopulateAComplexTypeEnumerableFromSourceEntries()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["Value[0]"] = new Customer { Name = "Mr Pants" },
+                ["Value[1]"] = new Person { Name = "Ms Blouse" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<Person[]>>();
+
+            result.Value.Length.ShouldBe(2);
+            result.Value.First().ShouldBeOfType<Customer>();
+            result.Value.First().Name.ShouldBe("Mr Pants");
+            result.Value.Second().Name.ShouldBe("Ms Blouse");
+        }
+
+        [Fact]
         public void ShouldIgnoreANonStringKeyedDictionary()
         {
             var source = new Dictionary<int, int> { [123] = 456 };
