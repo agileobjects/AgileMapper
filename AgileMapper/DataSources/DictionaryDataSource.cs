@@ -117,22 +117,17 @@ namespace AgileObjects.AgileMapper.DataSources
             IEnumerable<string> potentialNames,
             IMemberMappingContext context)
         {
-            var fallbackValue = context
-                .MappingContext
-                .RuleSet
-                .FallbackDataSourceFactory
-                .Create(context)
-                .Value;
-
             if (context.TargetMember.IsSimple)
             {
-                return fallbackValue;
+                return context
+                    .MappingContext
+                    .RuleSet
+                    .FallbackDataSourceFactory
+                    .Create(context)
+                    .Value;
             }
 
-            var enumerablePopulation = GetEnumerablePopulation(variable, potentialNames, context);
-            var enumerablePopulationOrFallback = Expression.Coalesce(enumerablePopulation, fallbackValue);
-
-            return enumerablePopulationOrFallback;
+            return GetEnumerablePopulation(variable, potentialNames, context);
         }
 
         private static Expression GetEnumerablePopulation(
@@ -144,27 +139,7 @@ namespace AgileObjects.AgileMapper.DataSources
             var sourceList = Expression.Variable(typeof(List<>).MakeGenericType(sourceElementType), "sourceList");
             var counter = Expression.Variable(typeof(int), "i");
 
-            var potentialNameConstants = potentialNames.Select(name =>
-            {
-                var nameAndOpenBrace = Expression.Constant(name + "[");
-                var counterString = context.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
-                var closeBrace = Expression.Constant("]");
-
-                var stringConcatMethod = typeof(string)
-                    .GetMethods(Constants.PublicStatic)
-                    .First(m => (m.Name == "Concat") &&
-                                (m.GetParameters().Length == 3) &&
-                                (m.GetParameters().First().ParameterType == typeof(string)));
-
-                var nameConstant = Expression.Call(
-                    null,
-                    stringConcatMethod,
-                    nameAndOpenBrace,
-                    counterString,
-                    closeBrace);
-
-                return nameConstant;
-            });
+            var potentialNameConstants = GetPotentialItemNames(potentialNames, counter, context);
 
             var tryGetValueCall = GetTryGetValueCall(variable, potentialNameConstants, context);
             var loopBreak = Expression.Break(Expression.Label());
@@ -190,6 +165,36 @@ namespace AgileObjects.AgileMapper.DataSources
                 mapCall);
 
             return enumerablePopulation;
+        }
+
+        private static IEnumerable<MethodCallExpression> GetPotentialItemNames(
+            IEnumerable<string> potentialNames,
+            Expression counter,
+            IMemberMappingContext context)
+        {
+            return potentialNames
+                .Select(name =>
+                {
+                    var nameAndOpenBrace = Expression.Constant(name + "[");
+                    var counterString = context.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
+                    var closeBrace = Expression.Constant("]");
+
+                    var stringConcatMethod = typeof(string)
+                        .GetMethods(Constants.PublicStatic)
+                        .First(m => (m.Name == "Concat") &&
+                                    (m.GetParameters().Length == 3) &&
+                                    (m.GetParameters().First().ParameterType == typeof(string)));
+
+                    var nameConstant = Expression.Call(
+                        null,
+                        stringConcatMethod,
+                        nameAndOpenBrace,
+                        counterString,
+                        closeBrace);
+
+                    return nameConstant;
+                })
+                .ToArray();
         }
     }
 }

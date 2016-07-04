@@ -26,6 +26,7 @@
             {
                 return (keyAndValueTypes[1] == typeof(object)) ||
                        (keyAndValueTypes[1] == context.TargetMember.LeafMember.ElementType) ||
+                        context.TargetMember.LeafMember.ElementType.IsComplex() ||
                         keyAndValueTypes[1].IsEnumerable();
             }
 
@@ -35,9 +36,6 @@
                 .CanConvert(keyAndValueTypes[1], context.TargetMember.Type);
         }
 
-        public IDataSource Create(IMemberMappingContext context)
-        {
-            return new DictionaryDataSource(context);
-        }
+        public IDataSource Create(IMemberMappingContext context) => new DictionaryDataSource(context);
     }
 }

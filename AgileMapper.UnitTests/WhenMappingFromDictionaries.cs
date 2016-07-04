@@ -151,6 +151,17 @@
         }
 
         [Fact]
+        public void ShouldReuseAnExistingListIfNoEntriesMatch()
+        {
+            var source = new Dictionary<string, object>();
+            var target = new PublicProperty<ICollection<string>> { Value = new List<string>() };
+            var originalList = target.Value;
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBeSameAs(originalList);
+        }
+
+        [Fact]
         public void ShouldIgnoreANonStringKeyedDictionary()
         {
             var source = new Dictionary<int, int> { [123] = 456 };
