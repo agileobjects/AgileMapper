@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly Expression _enumerableIndexProperty = Expression.Property(_parameter, "EnumerableIndex");
 
         private static readonly ParameterExpression _instanceVariable = Expression.Variable(
-            typeof(TTarget).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType<TTarget>() : typeof(TTarget),
+            typeof(TTarget).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType(typeof(TTarget)) : typeof(TTarget),
             typeof(TTarget).GetVariableName(f => f.InCamelCase));
 
         private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_parameter);
@@ -139,7 +139,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int enumerableIndex)
         {
             var sourceElementMember = _sourceMember.Append(_sourceMember.Type.CreateElementMember());
-            var targetElementMember = _targetMember.Append(_targetMember.Type.CreateElementMember());
+            var targetElementMember = _targetMember.Append(_targetMember.CreateElementMember());
 
             return ObjectMappingCommand.Create(
                 sourceElementMember,
@@ -249,12 +249,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         MethodCallExpression IObjectMappingContext.GetMapCall(Expression sourceElement, Expression existingElement)
         {
-            var typedMapMethod = _mapEnumerableElementMethod
-                .MakeGenericMethod(sourceElement.Type, existingElement.Type);
-
             var mapCall = Expression.Call(
                 _parameter,
-                typedMapMethod,
+                _mapEnumerableElementMethod.MakeGenericMethod(sourceElement.Type, existingElement.Type),
                 sourceElement,
                 existingElement,
                 Parameters.EnumerableIndex);

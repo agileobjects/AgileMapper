@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.Members
         public static IDataSource DataSourceAt(this IMemberMappingContext context, int index)
             => context.MappingContext.MapperContext.DataSources.FindFor(context)[index];
 
-        public static Expression GetMapCall(this IMemberMappingContext context, Expression value, int dataSourceIndex)
+        public static Expression GetMapCall(this IMemberMappingContext context, Expression value, int dataSourceIndex = 0)
             => context.Parent.GetMapCall(value, context.TargetMember, dataSourceIndex);
 
         public static Expression[] GetNestedAccessesIn(this IMemberMappingContext context, Expression value)

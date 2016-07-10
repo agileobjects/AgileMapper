@@ -4,7 +4,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Members;
     using ReadableExpressions;
 
     internal static class TypeExtensions
@@ -227,14 +226,5 @@
 
         private static IEnumerable<long> GetEnumValues(Type enumType)
             => Enum.GetValues(enumType).Cast<object>().Select(Convert.ToInt64);
-
-        public static Member CreateElementMember(this Type enumerableType)
-        {
-            return new Member(
-                MemberType.EnumerableElement,
-                Constants.EnumerableElementMemberName,
-                enumerableType,
-                enumerableType.GetEnumerableElementType());
-        }
     }
 }

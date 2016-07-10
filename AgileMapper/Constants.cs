@@ -13,8 +13,6 @@
 
         public static readonly Expression EmptyExpression = Expression.Empty();
 
-        public const string EnumerableElementMemberName = "[i]";
-
         public static readonly BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
 
         public static readonly BindingFlags NonPublicInstance = BindingFlags.NonPublic | BindingFlags.Instance;

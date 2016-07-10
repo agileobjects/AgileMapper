@@ -60,6 +60,18 @@
             return memberChain.Skip(1).Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
+        public static Member CreateElementMember(this QualifiedMember member)
+            => member.Type.CreateElementMember(member.LeafMember.ElementType);
+
+        public static Member CreateElementMember(this Type enumerableType, Type elementType = null)
+        {
+            return new Member(
+                MemberType.EnumerableElement,
+                "[i]",
+                enumerableType,
+                elementType ?? enumerableType.GetEnumerableElementType());
+        }
+
         public static Member[] RelativeTo(this IEnumerable<Member> memberChain, IEnumerable<Member> otherMemberChain)
         {
             var otherMembersLeafMember = otherMemberChain.Last();

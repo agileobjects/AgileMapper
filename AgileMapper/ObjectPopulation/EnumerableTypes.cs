@@ -49,9 +49,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.New(listConstructor, existingEnumerableOrEmpty);
         }
 
-        public static Type GetEnumerableVariableType<TEnumerable>()
+        public static Type GetEnumerableVariableType(Type enumerableType)
         {
-            var typeData = new EnumerableTypeData(typeof(TEnumerable));
+            var typeData = new EnumerableTypeData(enumerableType);
 
             return GetEnumerableTypeFor(typeData).GetInstanceVariableType(typeData);
         }

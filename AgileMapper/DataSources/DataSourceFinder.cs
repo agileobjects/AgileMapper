@@ -147,21 +147,15 @@
             }
         }
 
-        public IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
+        private IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
         {
             if (context.Parent == null)
             {
                 return GetSourceMemberDataSourceFor(
                     QualifiedMember.From(Member.RootSource(context.SourceType), context.MapperContext.NamingSettings),
-                    0,
                     context);
             }
 
-            return GetSourceMemberDataSourceOrNull(0, context);
-        }
-
-        private IDataSource GetSourceMemberDataSourceOrNull(int dataSourceIndex, IMemberMappingContext context)
-        {
             var bestMatchingSourceMember = GetSourceMemberFor(context);
 
             if (bestMatchingSourceMember == null)
@@ -171,19 +165,11 @@
 
             bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(context.SourceMember);
 
-            return GetSourceMemberDataSourceFor(bestMatchingSourceMember, dataSourceIndex, context);
+            return GetSourceMemberDataSourceFor(bestMatchingSourceMember, context);
         }
 
-        private static IDataSource GetSourceMemberDataSourceFor(
-            IQualifiedMember sourceMember,
-            int dataSourceIndex,
-            IMemberMappingContext context)
-        {
-            return GetFinalDataSource(
-                new SourceMemberDataSource(sourceMember, context),
-                dataSourceIndex,
-                context);
-        }
+        private static IDataSource GetSourceMemberDataSourceFor(IQualifiedMember sourceMember, IMemberMappingContext context)
+            => GetFinalDataSource(new SourceMemberDataSource(sourceMember, context), 0, context);
 
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
