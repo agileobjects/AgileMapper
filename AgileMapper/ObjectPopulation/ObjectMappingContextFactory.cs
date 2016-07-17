@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceMember = QualifiedMember.From(Member.RootSource(typeof(TDeclaredSource)), mappingContext.MapperContext.NamingSettings);
             var targetMember = QualifiedMember.From(Member.RootTarget(typeof(TDeclaredTarget)), mappingContext.MapperContext.NamingSettings);
 
-            return Create(ObjectMappingCommand.Create(
+            return Create(ObjectMappingContextFactoryBridge.Create(
                 sourceMember,
                 source,
                 targetMember,
@@ -34,7 +34,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public static IObjectMappingContext Create<TSource, TTarget>(
-            ObjectMappingCommand<TSource, TTarget> command)
+            ObjectMappingContextFactoryBridge<TSource, TTarget> command)
         {
             var funcKey = string.Format(
                 CultureInfo.InvariantCulture,

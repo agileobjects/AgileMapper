@@ -74,9 +74,9 @@ namespace AgileObjects.AgileMapper
             return false;
         }
 
-        internal TTarget MapChild<TSource, TTarget>(ObjectMappingCommand<TSource, TTarget> command)
+        internal TTarget MapChild<TSource, TTarget>(IObjectMappingContext omc)
         {
-            CurrentObjectMappingContext = command.ToOmc();
+            CurrentObjectMappingContext = omc;
 
             return Map<TSource, TTarget>();
         }

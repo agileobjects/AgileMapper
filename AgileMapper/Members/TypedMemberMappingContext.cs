@@ -9,10 +9,10 @@
             EnumerableIndex = enumerableIndex;
         }
 
-        public TSource Source { get; }
+        public TSource Source { get; protected set; }
 
         public TTarget Target { get; set; }
 
-        public int? EnumerableIndex { get; }
+        public int? EnumerableIndex { get; protected set; }
     }
 }

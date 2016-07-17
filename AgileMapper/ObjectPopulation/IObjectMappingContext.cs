@@ -18,6 +18,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         int? GetEnumerableIndex();
 
+        void Set<TSourceElement, TTargetElement>(TSourceElement sourceElement, TTargetElement existingElement, int enumerableIndex);
+
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);
 
         MethodCallExpression TryGetCall { get; }
@@ -28,13 +30,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement);
 
-        IObjectMappingCommand<TDeclaredMember> CreateChildMappingCommand<TDeclaredSource, TDeclaredMember>(
+        IObjectMappingContextFactoryBridge CreateChildMappingContextBridge<TDeclaredSource, TDeclaredMember>(
             TDeclaredSource source,
             TDeclaredMember targetMemberValue,
             string targetMemberName,
             int dataSourceIndex);
 
-        IObjectMappingCommand<TTargetElement> CreateElementMappingCommand<TSourceElement, TTargetElement>(
+        IObjectMappingContextFactoryBridge CreateElementMappingContextBridge<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement existingElement,
             int enumerableIndex);

@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -65,6 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly IQualifiedMember _sourceElementMember;
         private readonly QualifiedMember _targetMember;
         private readonly QualifiedMember _targetElementMember;
+        private IEnumerable<IObjectMappingContext> _enumerableElementMappingContexts;
 
         public ObjectMappingContext(
             IQualifiedMember sourceMember,
@@ -105,16 +107,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             string targetMemberName,
             int dataSourceIndex)
         {
-            var targetObjectMappingCommand = CreateChildMappingCommand(
+            var childOmcBridge = CreateChildMappingContextBridge(
                 source,
                 targetMemberValue,
                 targetMemberName,
                 dataSourceIndex);
 
-            return targetObjectMappingCommand.Execute();
+            var childMappingContext = childOmcBridge.ToOmc();
+
+            return MappingContext.MapChild<TDeclaredSource, TDeclaredMember>(childMappingContext);
         }
 
-        public IObjectMappingCommand<TDeclaredMember> CreateChildMappingCommand<TDeclaredSource, TDeclaredMember>(
+        public IObjectMappingContextFactoryBridge CreateChildMappingContextBridge<TDeclaredSource, TDeclaredMember>(
             TDeclaredSource source,
             TDeclaredMember targetMemberValue,
             string targetMemberName,
@@ -126,7 +130,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var context = new MemberMappingContext(qualifiedTargetMember, this);
             var sourceMember = context.DataSourceAt(dataSourceIndex).SourceMember;
 
-            return ObjectMappingCommand.Create(
+            return ObjectMappingContextFactoryBridge.Create(
                 sourceMember,
                 source,
                 qualifiedTargetMember,
@@ -140,17 +144,39 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTargetElement existingElement,
             int enumerableIndex)
         {
-            var mappingCommand = CreateElementMappingCommand(sourceElement, existingElement, enumerableIndex);
+            var elementOmcBridge = CreateElementMappingContextBridge(sourceElement, existingElement, enumerableIndex);
 
-            return mappingCommand.Execute();
+            IObjectMappingContext elementMappingContext;
+
+            if (enumerableIndex == 0)
+            {
+                elementMappingContext = elementOmcBridge.ToOmc();
+                _enumerableElementMappingContexts = new List<IObjectMappingContext> { elementMappingContext };
+            }
+            else
+            {
+                elementMappingContext = _enumerableElementMappingContexts
+                    .FirstOrDefault(elementOmcBridge.Matches);
+
+                if (elementMappingContext != null)
+                {
+                    elementMappingContext.Set(sourceElement, existingElement, enumerableIndex);
+                }
+                else
+                {
+                    elementMappingContext = elementOmcBridge.ToOmc();
+                }
+            }
+
+            return MappingContext.MapChild<TSourceElement, TTargetElement>(elementMappingContext);
         }
 
-        public IObjectMappingCommand<TTargetElement> CreateElementMappingCommand<TSourceElement, TTargetElement>(
+        public IObjectMappingContextFactoryBridge CreateElementMappingContextBridge<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement existingElement,
             int enumerableIndex)
         {
-            return ObjectMappingCommand.Create(
+            return ObjectMappingContextFactoryBridge.Create(
                 _sourceElementMember,
                 sourceElement,
                 _targetElementMember,
@@ -201,6 +227,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         T IObjectMappingContext.GetTarget<T>() => (T)(object)Target;
 
         public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
+
+        public void Set<TSourceElement, TTargetElement>(TSourceElement source, TTargetElement target, int enumerableIndex)
+        {
+            Source = (TSource)(object)source;
+            Target = (TTarget)(object)target;
+            EnumerableIndex = enumerableIndex;
+        }
 
         Type IObjectMappingContext.GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {

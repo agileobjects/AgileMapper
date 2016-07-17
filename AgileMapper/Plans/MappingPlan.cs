@@ -83,13 +83,13 @@
             int dataSourceIndex,
             IObjectMappingContext omc)
         {
-            var mappingCommand = omc.CreateChildMappingCommand(
+            var omcBridge = omc.CreateChildMappingContextBridge(
                 default(TChildSource),
                 default(TChildTarget),
                 targetMemberName,
                 dataSourceIndex);
 
-            var childOmc = mappingCommand.ToOmc();
+            var childOmc = omcBridge.ToOmc();
 
             var omcTypes = childOmc.GetType().GetGenericArguments();
             var omcObjectType = omcTypes.Last();
@@ -141,12 +141,12 @@
         // ReSharper disable once UnusedMember.Local
         private static MapperData ExpandElementMapper<TSourceElement, TTargetElement>(IObjectMappingContext omc)
         {
-            var mappingCommand = omc.CreateElementMappingCommand(
+            var elementOmcBridge = omc.CreateElementMappingContextBridge(
                 default(TSourceElement),
                 default(TTargetElement),
                 enumerableIndex: 0);
 
-            var elementOmc = mappingCommand.ToOmc();
+            var elementOmc = elementOmcBridge.ToOmc();
 
             var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementOmc);
 

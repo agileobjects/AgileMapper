@@ -4,16 +4,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal interface IObjectMappingCommand<out T>
+    internal interface IObjectMappingContextFactoryBridge
     {
-        T Execute();
+        bool Matches(IMappingData data);
 
         IObjectMappingContext ToOmc();
     }
 
-    internal class ObjectMappingCommand
+    internal class ObjectMappingContextFactoryBridge
     {
-        public static ObjectMappingCommand<TSource, TTarget> Create<TSource, TTarget>(
+        public static ObjectMappingContextFactoryBridge<TSource, TTarget> Create<TSource, TTarget>(
             IQualifiedMember sourceMember,
             TSource source,
             QualifiedMember targetMember,
@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             sourceMember = sourceMember.WithType(source.GetRuntimeSourceType());
             targetMember = GetTargetMember(sourceMember, targetMember, target, mappingContext);
 
-            return new ObjectMappingCommand<TSource, TTarget>(
+            return new ObjectMappingContextFactoryBridge<TSource, TTarget>(
                 sourceMember,
                 source,
                 targetMember,
@@ -77,9 +77,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #endregion
     }
 
-    internal class ObjectMappingCommand<TSource, TTarget> : IObjectMappingCommand<TTarget>
+    internal class ObjectMappingContextFactoryBridge<TSource, TTarget> : IObjectMappingContextFactoryBridge
     {
-        public ObjectMappingCommand(
+        public ObjectMappingContextFactoryBridge(
             IQualifiedMember sourceMember,
             TSource source,
             QualifiedMember targetMember,
@@ -109,7 +109,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MappingContext MappingContext { get; }
 
-        public TTarget Execute() => MappingContext.MapChild(this);
+        public bool Matches(IMappingData data)
+            => (data.SourceType == SourceMember.Type) && (data.TargetType == TargetMember.Type);
 
         public IObjectMappingContext ToOmc() => ObjectMappingContextFactory.Create(this);
     }

@@ -93,7 +93,7 @@
     <Compile Include="ObjectPopulation\IObjectCreationContext.cs" />
     <Compile Include="ObjectPopulation\MappingCallbackFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectCreationContext.cs" />
-    <Compile Include="ObjectPopulation\ObjectMappingCommand.cs" />
+    <Compile Include="ObjectPopulation\ObjectMappingContextFactoryBridge.cs" />
     <Compile Include="ObjectPopulation\DefaultValueDataSourceFactory.cs" />
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />
