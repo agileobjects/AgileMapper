@@ -16,8 +16,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         TTarget GetTarget<TTarget>();
 
-        Expression CreatedObject { get; }
-
         int? GetEnumerableIndex();
 
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);

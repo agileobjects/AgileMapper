@@ -2,7 +2,6 @@
 {
     using System.Linq.Expressions;
     using Api.Configuration;
-    using Extensions;
     using Members;
 
     internal class MappingCallbackFactory : UserConfiguredItemBase
@@ -27,7 +26,7 @@
 
         public Expression Create(IObjectMappingContext omc)
         {
-            var callback = GetCallback(omc);
+            var callback = _callbackLambda.GetBody(omc);
             var condition = GetConditionOrNull(omc);
 
             if (condition != null)
@@ -36,30 +35,6 @@
             }
 
             return callback;
-        }
-
-        private Expression GetCallback(IMemberMappingContext context)
-        {
-            var callback = _callbackLambda.GetBody(context);
-
-            return Process(callback, context);
-        }
-
-        protected virtual Expression GetConditionOrNull(IObjectMappingContext omc)
-            => Process(base.GetConditionOrNull(omc), omc);
-
-        private Expression Process(Expression expression, IMemberMappingContext context)
-        {
-            if ((expression == null) ||
-                (CallbackPosition != CallbackPosition.Before) ||
-                ((TargetMember != QualifiedMember.All) && (TargetMember != QualifiedMember.None)))
-            {
-                return expression;
-            }
-
-            var expressionWithTargetObject = expression.Replace(context.InstanceVariable, context.TargetObject);
-
-            return expressionWithTargetObject;
         }
     }
 }

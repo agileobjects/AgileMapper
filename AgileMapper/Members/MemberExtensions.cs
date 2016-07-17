@@ -61,7 +61,7 @@
         }
 
         public static Member CreateElementMember(this QualifiedMember member)
-            => member.Type.CreateElementMember(member.LeafMember.ElementType);
+            => member.Type.CreateElementMember(member.ElementType);
 
         public static Member CreateElementMember(this Type enumerableType, Type elementType = null)
         {

@@ -34,6 +34,7 @@
 
         #endregion
 
+        private readonly IObjectMappingContext _omc;
         private readonly ParameterExpression _sourceElementParameter;
         private readonly Type _sourceElementType;
         private readonly LambdaExpression _sourceElementIdLambda;
@@ -44,12 +45,12 @@
 
         public EnumerablePopulationBuilder(IObjectMappingContext omc)
         {
-            ObjectMappingContext = omc;
+            _omc = omc;
 
             _sourceElementType = omc.SourceType.GetEnumerableElementType();
             _sourceElementParameter = GetParameter(_sourceElementType, omc);
 
-            _targetElementType = TargetCollectionType.GetEnumerableElementType();
+            _targetElementType = omc.TargetMember.ElementType;
             var targetElementParameter = GetParameter(_targetElementType, omc);
 
             var sourceElementId = GetIdentifierOrNull(_sourceElementType, _sourceElementParameter, omc);
@@ -115,7 +116,7 @@
 
         private void SetPopulationToDefault()
         {
-            _population = ObjectMappingContext.SourceObject;
+            _population = _omc.SourceObject;
         }
 
         #endregion
@@ -133,11 +134,7 @@
 
         #endregion
 
-        public IObjectMappingContext ObjectMappingContext { get; }
-
         public bool TypesAreIdentifiable => (_sourceElementIdLambda != null) && (_targetElementIdLambda != null);
-
-        private Type TargetCollectionType => ObjectMappingContext.InstanceVariable.Type;
 
         public EnumerablePopulationBuilder IntersectTargetById()
         {
@@ -146,8 +143,8 @@
 
             var intersectByIdCall = Expression.Call(
                 typedIntersectByIdMethod,
-                ObjectMappingContext.SourceObject,
-                ObjectMappingContext.InstanceVariable,
+                _omc.SourceObject,
+                _omc.InstanceVariable,
                 _sourceElementIdLambda,
                 _targetElementIdLambda);
 
@@ -159,7 +156,7 @@
         {
             if (_elementsAreAssignable && _targetElementType.IsSimple())
             {
-                _population = ObjectMappingContext.SourceObject;
+                _population = _omc.SourceObject;
                 return this;
             }
 
@@ -189,10 +186,10 @@
         }
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
-            => ObjectMappingContext.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
+            => _omc.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
 
         private Expression GetMapElementCall(Expression sourceObject, Expression existingObject)
-            => ObjectMappingContext.GetMapCall(sourceObject, existingObject);
+            => _omc.GetMapCall(sourceObject, existingObject);
 
         public EnumerablePopulationBuilder ExcludeSourceById()
         {
@@ -203,7 +200,7 @@
 
             var excludeByIdCall = Expression.Call(
                 typedExcludeByIdMethod,
-                ObjectMappingContext.InstanceVariable,
+                _omc.InstanceVariable,
                 _population,
                 _targetElementIdLambda,
                 _sourceElementIdLambda);
@@ -222,7 +219,7 @@
             var excludeByIdCall = Expression.Call(
                 typedExcludeByIdMethod,
                 _population,
-                ObjectMappingContext.InstanceVariable,
+                _omc.InstanceVariable,
                 _sourceElementIdLambda,
                 _targetElementIdLambda);
 
@@ -235,17 +232,14 @@
             _population = Expression.Call(
                 _excludeMethod.MakeGenericMethod(_targetElementType),
                 _population,
-                ObjectMappingContext.InstanceVariable);
+                _omc.InstanceVariable);
 
             return this;
         }
 
         public Expression ClearTarget()
         {
-            _population = Expression.Call(
-                ObjectMappingContext.InstanceVariable,
-                TargetCollectionType.GetMethod("Clear", Constants.PublicInstance));
-
+            _population = Expression.Call(_omc.InstanceVariable, GetTargetMethod("Clear"));
             return this;
         }
 
@@ -289,12 +283,10 @@
         }
 
         private Expression GetTargetMethodCall(string methodName, Expression argument)
-        {
-            return Expression.Call(
-                ObjectMappingContext.InstanceVariable,
-                TargetCollectionType.GetMethod(methodName, Constants.PublicInstance),
-                argument);
-        }
+            => Expression.Call(_omc.InstanceVariable, GetTargetMethod(methodName), argument);
+
+        private MethodInfo GetTargetMethod(string methodName)
+            => _omc.InstanceVariable.Type.GetMethod(methodName, Constants.PublicInstance);
 
         private static Expression GetForEachCall(Expression subject, Func<Expression, Expression> forEachActionFactory)
         {

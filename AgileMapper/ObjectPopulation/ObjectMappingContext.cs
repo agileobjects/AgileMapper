@@ -175,6 +175,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression IMemberMappingContext.TargetObject => _targetObjectProperty;
 
+        Expression IMemberMappingContext.CreatedObject => _createdObjectProperty;
+
         Expression IMemberMappingContext.EnumerableIndex => _enumerableIndexProperty;
 
         ParameterExpression IMemberMappingContext.InstanceVariable => _instanceVariable;
@@ -188,8 +190,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         T IObjectMappingContext.GetSource<T>() => (T)(object)Source;
 
         T IObjectMappingContext.GetTarget<T>() => (T)(object)Target;
-
-        Expression IObjectMappingContext.CreatedObject => _createdObjectProperty;
 
         public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
 

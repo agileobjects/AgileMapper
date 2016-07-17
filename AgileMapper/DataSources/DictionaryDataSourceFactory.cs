@@ -25,8 +25,8 @@
             if (context.TargetMember.IsEnumerable)
             {
                 return (keyAndValueTypes[1] == typeof(object)) ||
-                       (keyAndValueTypes[1] == context.TargetMember.LeafMember.ElementType) ||
-                        context.TargetMember.LeafMember.ElementType.IsComplex() ||
+                       (keyAndValueTypes[1] == context.TargetMember.ElementType) ||
+                        context.TargetMember.ElementType.IsComplex() ||
                         keyAndValueTypes[1].IsEnumerable();
             }
 

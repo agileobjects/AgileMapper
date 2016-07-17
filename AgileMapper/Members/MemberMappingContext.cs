@@ -36,6 +36,8 @@
 
         public Expression TargetObject => _parent.TargetObject;
 
+        public Expression CreatedObject => _parent.CreatedObject;
+
         Type IMappingData.TargetType => TargetObject.Type;
 
         public Expression EnumerableIndex => _parent.EnumerableIndex;

@@ -23,16 +23,16 @@
         public override bool AppliesTo(CallbackPosition callbackPosition, IMappingData data)
             => _creationTargetType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(callbackPosition, data);
 
-        protected override Expression GetConditionOrNull(IObjectMappingContext omc)
+        public override Expression GetConditionOrNull(IMemberMappingContext context)
         {
-            var condition = base.GetConditionOrNull(omc);
+            var condition = base.GetConditionOrNull(context);
 
             if (CallbackPosition != CallbackPosition.After)
             {
                 return condition;
             }
 
-            var newObjectHasBeenCreated = omc.CreatedObject.GetIsNotDefaultComparison();
+            var newObjectHasBeenCreated = context.CreatedObject.GetIsNotDefaultComparison();
 
             if (condition == null)
             {

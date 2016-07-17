@@ -78,6 +78,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type => LeafMember?.Type;
 
+        public Type ElementType => LeafMember?.ElementType;
+
         public string Name => LeafMember.Name;
 
         public string GetPath() => _pathFactory.Invoke();
