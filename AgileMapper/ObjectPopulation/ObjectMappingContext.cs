@@ -62,7 +62,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #endregion
 
         private readonly IQualifiedMember _sourceMember;
+        private readonly IQualifiedMember _sourceElementMember;
         private readonly QualifiedMember _targetMember;
+        private readonly QualifiedMember _targetElementMember;
 
         public ObjectMappingContext(
             IQualifiedMember sourceMember,
@@ -77,6 +79,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _targetMember = targetMember;
             MappingContext = mappingContext;
             Parent = mappingContext.CurrentObjectMappingContext;
+
+            if (_targetMember.IsEnumerable)
+            {
+                _sourceElementMember = _sourceMember.Append(_sourceMember.Type.CreateElementMember());
+                _targetElementMember = _targetMember.Append(_targetMember.Type.CreateElementMember(_targetMember.ElementType));
+            }
         }
 
         public GlobalContext GlobalContext => MapperContext.GlobalContext;
@@ -131,20 +139,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSourceElement sourceElement,
             TTargetElement existingElement,
             int enumerableIndex)
-            => CreateElementMappingCommand(sourceElement, existingElement, enumerableIndex).Execute();
+        {
+            var mappingCommand = CreateElementMappingCommand(sourceElement, existingElement, enumerableIndex);
+
+            return mappingCommand.Execute();
+        }
 
         public IObjectMappingCommand<TTargetElement> CreateElementMappingCommand<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement existingElement,
             int enumerableIndex)
         {
-            var sourceElementMember = _sourceMember.Append(_sourceMember.Type.CreateElementMember());
-            var targetElementMember = _targetMember.Append(_targetMember.CreateElementMember());
-
             return ObjectMappingCommand.Create(
-                sourceElementMember,
+                _sourceElementMember,
                 sourceElement,
-                targetElementMember,
+                _targetElementMember,
                 existingElement,
                 enumerableIndex,
                 MappingContext);

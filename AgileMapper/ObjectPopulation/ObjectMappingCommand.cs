@@ -97,11 +97,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingContext = mappingContext;
         }
 
-        public TSource Source { get; set; }
+        public TSource Source { get; }
 
         public IQualifiedMember SourceMember { get; }
 
-        public TTarget Target { get; set; }
+        public TTarget Target { get; }
 
         public QualifiedMember TargetMember { get; }
 
