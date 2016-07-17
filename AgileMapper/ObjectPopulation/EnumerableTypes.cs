@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
-    using Members;
 
     internal static class EnumerableTypes
     {
@@ -21,19 +20,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression NewEmptyArray(EnumerableTypeData typeData)
             => Expression.NewArrayBounds(typeData.ElementType, Expression.Constant(0));
 
-        private static Expression ExistingObjectOrNewList(EnumerableTypeData typeData, IMemberMappingContext context)
-            => Expression.Coalesce(context.TargetObject, NewEmptyList(typeData));
+        private static Expression ExistingObjectOrNewList(EnumerableTypeData typeData, Expression targetObject)
+            => Expression.Coalesce(targetObject, NewEmptyList(typeData));
 
         private static Expression NewEmptyList(EnumerableTypeData typeData)
             => Expression.New(typeData.ListType);
 
-        private static Expression NewCollection(EnumerableTypeData typeData, IMemberMappingContext context)
-            => Expression.Coalesce(context.TargetObject, NewEmptyCollection(typeData));
+        private static Expression NewCollection(EnumerableTypeData typeData, Expression targetObject)
+            => Expression.Coalesce(targetObject, NewEmptyCollection(typeData));
 
         private static Expression NewEmptyCollection(EnumerableTypeData typeData)
             => Expression.New(typeData.CollectionType);
 
-        private static Expression NewList(EnumerableTypeData typeData, IMemberMappingContext context)
+        private static Expression NewList(EnumerableTypeData typeData, Expression targetObject)
         {
             var listConstructor = typeData.ListType.GetConstructor(new[] { typeData.EnumerableInterfaceType });
 
@@ -42,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .MakeGenericMethod(typeData.ElementType);
 
             var existingEnumerableOrEmpty = Expression.Coalesce(
-                context.TargetObject,
+                targetObject,
                 Expression.Call(typedEmptyEnumerableMethod));
 
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -56,15 +55,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return GetEnumerableTypeFor(typeData).GetInstanceVariableType(typeData);
         }
 
-        public static Expression GetEnumerableVariableValue(IMemberMappingContext context)
+        public static Expression GetEnumerableVariableValue(Expression targetObject, Type targetType)
         {
-            var typeData = new EnumerableTypeData(context.TargetMember.Type);
+            var typeData = new EnumerableTypeData(targetType);
 
-            return GetEnumerableTypeFor(typeData).GetInstanceCreation(typeData, context);
+            return GetEnumerableTypeFor(typeData).GetInstanceCreation(typeData, targetObject);
         }
-
-        public static Expression GetEnumerableEmptyInstance(IMemberMappingContext context)
-            => GetEnumerableEmptyInstance(context.TargetMember.Type);
 
         public static Expression GetEnumerableEmptyInstance(Type enumerableType)
         {
@@ -114,13 +110,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             private readonly Func<EnumerableTypeData, bool> _typeMatcher;
             private readonly Func<EnumerableTypeData, Type> _instanceVariableTypeFactory;
-            private readonly Func<EnumerableTypeData, IMemberMappingContext, Expression> _instanceCreationFactory;
+            private readonly Func<EnumerableTypeData, Expression, Expression> _instanceCreationFactory;
             private readonly Func<EnumerableTypeData, Expression> _emptyInstanceCreationFactory;
 
             public EnumerableType(
                 Func<EnumerableTypeData, bool> typeMatcher,
                 Func<EnumerableTypeData, Type> instanceVariableTypeFactory,
-                Func<EnumerableTypeData, IMemberMappingContext, Expression> instanceCreationFactory,
+                Func<EnumerableTypeData, Expression, Expression> instanceCreationFactory,
                 Func<EnumerableTypeData, Expression> emptyInstanceCreationFactory)
             {
                 _typeMatcher = typeMatcher;
@@ -134,8 +130,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             public Type GetInstanceVariableType(EnumerableTypeData typeData)
                 => _instanceVariableTypeFactory.Invoke(typeData);
 
-            public Expression GetInstanceCreation(EnumerableTypeData typeData, IMemberMappingContext context)
-                => _instanceCreationFactory.Invoke(typeData, context);
+            public Expression GetInstanceCreation(EnumerableTypeData typeData, Expression targetObject)
+                => _instanceCreationFactory.Invoke(typeData, targetObject);
 
             public Expression GetEmptyInstanceCreation(EnumerableTypeData typeData)
                 => _emptyInstanceCreationFactory.Invoke(typeData);

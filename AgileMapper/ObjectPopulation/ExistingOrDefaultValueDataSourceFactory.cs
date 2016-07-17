@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return existingValue;
                 }
 
-                var emptyEnumerable = EnumerableTypes.GetEnumerableEmptyInstance(context);
+                var emptyEnumerable = EnumerableTypes.GetEnumerableEmptyInstance(context.TargetMember.Type);
 
                 return Expression.Coalesce(existingValue, emptyEnumerable);
             }

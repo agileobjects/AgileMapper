@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             => Enumerable.Empty<Expression>();
 
         protected override Expression GetObjectResolution(IObjectMappingContext omc)
-            => EnumerableTypes.GetEnumerableVariableValue(omc);
+            => EnumerableTypes.GetEnumerableVariableValue(omc.TargetObject, omc.TargetMember.Type);
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
         {

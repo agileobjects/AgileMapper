@@ -70,16 +70,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             public BasicMappingData(
                 MappingRuleSet ruleSet,
                 Type sourceType,
-                Type targetType,
-                IMappingData parent = null)
+                Type targetType)
             {
-                Parent = parent;
                 SourceType = sourceType;
                 TargetType = targetType;
                 RuleSetName = ruleSet.Name;
             }
 
-            public IMappingData Parent { get; }
+            public IMappingData Parent => null;
 
             public string RuleSetName { get; }
 

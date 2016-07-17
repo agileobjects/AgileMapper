@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq.Expressions;
     using ObjectPopulation;
 
@@ -9,7 +10,7 @@ namespace AgileObjects.AgileMapper
     {
         #region Cached Items
 
-        private static readonly object _cacheLock = new object();
+        private static readonly object _objectCacheLock = new object();
 
         #endregion
 
@@ -54,7 +55,7 @@ namespace AgileObjects.AgileMapper
                 return;
             }
 
-            lock (_cacheLock)
+            lock (_objectCacheLock)
             {
                 ObjectCache<TKey, TComplex>.Cache.Add(key, complexType);
             }
@@ -82,18 +83,31 @@ namespace AgileObjects.AgileMapper
 
         private TTarget Map<TSource, TTarget>()
         {
+            var currentContext = CurrentObjectMappingContext;
+
             IObjectMapper<TTarget> mapper;
 
-            if ((typeof(TSource) == CurrentObjectMappingContext.SourceType) &&
-                (typeof(TTarget) == CurrentObjectMappingContext.TargetType))
+            if ((typeof(TSource) == currentContext.SourceType) &&
+                (typeof(TTarget) == currentContext.TargetType))
             {
-                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(CurrentObjectMappingContext);
+                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(currentContext);
+
+                return GetMappingResult(mapper);
             }
-            else
+
+            var cacheKey = string.Format(
+                CultureInfo.InvariantCulture,
+                "Omc<{0}, {1}> -> Omc<{2}, {3}>: CreateMapperFunc",
+                typeof(TSource).FullName,
+                typeof(TTarget).FullName,
+                currentContext.SourceType.FullName,
+                currentContext.TargetType.FullName);
+
+            var createMapperFunc = GlobalContext.Cache.GetOrAdd(cacheKey, k =>
             {
                 var typedCreateMapperMethod = typeof(ObjectMapperFactory)
                     .GetMethod("CreateFor", Constants.PublicInstance)
-                    .MakeGenericMethod(CurrentObjectMappingContext.Parameter.Type.GetGenericArguments());
+                    .MakeGenericMethod(currentContext.SourceType, currentContext.TargetType);
 
                 var mapperContext = Expression.Property(Parameters.ObjectMappingContext, "MapperContext");
                 var mapperFactory = Expression.Property(mapperContext, "ObjectMapperFactory");
@@ -108,11 +122,16 @@ namespace AgileObjects.AgileMapper
                         createMapperCall,
                         Parameters.ObjectMappingContext);
 
-                var createMapperFunc = createMapperLambda.Compile();
+                return createMapperLambda.Compile();
+            });
 
-                mapper = createMapperFunc.Invoke(CurrentObjectMappingContext);
-            }
+            mapper = createMapperFunc.Invoke(currentContext);
 
+            return GetMappingResult(mapper);
+        }
+
+        private TTarget GetMappingResult<TTarget>(IObjectMapper<TTarget> mapper)
+        {
             var result = mapper.Execute(CurrentObjectMappingContext);
 
             CurrentObjectMappingContext = CurrentObjectMappingContext.Parent;
