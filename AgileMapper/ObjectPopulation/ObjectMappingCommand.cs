@@ -22,19 +22,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingContext mappingContext)
         {
             sourceMember = sourceMember.WithType(source.GetRuntimeSourceType());
-
-            var targetMemberData = GetTargetData(sourceMember, targetMember, target, mappingContext);
+            targetMember = GetTargetMember(sourceMember, targetMember, target, mappingContext);
 
             return new ObjectMappingCommand<TSource, TTarget>(
-                targetMemberData.SourceMember,
+                sourceMember,
                 source,
-                targetMemberData.TargetMember,
+                targetMember,
                 target,
                 enumerableIndex,
                 mappingContext);
         }
 
-        private static MemberPair GetTargetData<TTarget>(
+        private static QualifiedMember GetTargetMember<TTarget>(
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             TTarget target,
@@ -42,28 +41,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mappingData = new BasicMappingData(mappingContext.RuleSet, sourceMember.Type, typeof(TTarget));
 
-            var targetMemberType = mappingContext.MapperContext.UserConfigurations.GetDerivedTypeOrNull(mappingData)
-                ?? target.GetRuntimeTargetType(sourceMember.Type);
+            var targetMemberType =
+                mappingContext.MapperContext.UserConfigurations.GetDerivedTypeOrNull(mappingData)
+                    ?? target.GetRuntimeTargetType(sourceMember.Type);
 
             targetMember = targetMember.WithType(targetMemberType);
-
-            return new MemberPair(sourceMember, targetMember);
+            return targetMember;
         }
 
         #region Helper Classes
-
-        private class MemberPair
-        {
-            public MemberPair(IQualifiedMember sourceMember, QualifiedMember targetMember)
-            {
-                SourceMember = sourceMember;
-                TargetMember = targetMember;
-            }
-
-            public IQualifiedMember SourceMember { get; }
-
-            public QualifiedMember TargetMember { get; }
-        }
 
         private class BasicMappingData : IMappingData
         {
@@ -111,15 +97,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingContext = mappingContext;
         }
 
-        public TSource Source { get; }
+        public TSource Source { get; set; }
 
         public IQualifiedMember SourceMember { get; }
 
-        public TTarget Target { get; }
+        public TTarget Target { get; set; }
 
         public QualifiedMember TargetMember { get; }
 
-        public int? EnumerableIndex { get; }
+        public int? EnumerableIndex { get; set; }
 
         public MappingContext MappingContext { get; }
 
