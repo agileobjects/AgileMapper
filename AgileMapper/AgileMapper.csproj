@@ -86,7 +86,7 @@
     <Compile Include="Members\MemberIdentifierSet.cs" />
     <Compile Include="Members\MemberMappingContextExtensions.cs" />
     <Compile Include="Members\MemberMappingExceptionContext.cs" />
-    <Compile Include="Members\TypeIdentifierKey.cs" />
+    <Compile Include="Members\TypeKey.cs" />
     <Compile Include="ObjectPopulation\DeclaredAndRuntimeTypesKey.cs" />
     <Compile Include="ObjectPopulation\EnumerableTypes.cs" />
     <Compile Include="DataSources\IDataSourceFactory.cs" />

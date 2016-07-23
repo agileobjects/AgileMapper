@@ -16,14 +16,11 @@
             _globalCache = globalCache;
         }
 
-        public Member GetIdentifierOrNull(Type type)
-        {
-            return GetIdentifierOrNull(new TypeIdentifierKey(type));
-        }
+        public Member GetIdentifierOrNull(Type type) => GetIdentifierOrNull(TypeKey.ForTypeId(type));
 
-        public Member GetIdentifierOrNull(TypeIdentifierKey typeId)
+        public Member GetIdentifierOrNull(TypeKey typeIdKey)
         {
-            return _globalCache.GetOrAdd(typeId, key =>
+            return _globalCache.GetOrAdd(typeIdKey, key =>
             {
                 var typeMembers = GetReadableMembers(key.Type);
 
@@ -33,7 +30,7 @@
 
         public IEnumerable<Member> GetReadableMembers(Type sourceType)
         {
-            return _globalCache.GetOrAdd(MemberSetKey.ForSource(sourceType), key =>
+            return _globalCache.GetOrAdd(TypeKey.ForSourceMembers(sourceType), key =>
             {
                 if (key.Type.IsEnumerable())
                 {
@@ -50,7 +47,7 @@
 
         public IEnumerable<Member> GetWriteableMembers(Type targetType)
         {
-            return _globalCache.GetOrAdd(MemberSetKey.ForTarget(targetType), key =>
+            return _globalCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
                 var fields = GetFields(key.Type, OnlyWriteable);
                 var properties = GetProperties(key.Type, OnlySettable);
@@ -145,39 +142,6 @@
                 .ToArray();
 
             return allMembers;
-        }
-
-        private class MemberSetKey
-        {
-            private readonly MemberType _memberType;
-
-            private MemberSetKey(Type type, MemberType memberType)
-            {
-                Type = type;
-                _memberType = memberType;
-            }
-
-            public static MemberSetKey ForSource(Type type) => new MemberSetKey(type, MemberType.Source);
-
-            public static MemberSetKey ForTarget(Type type) => new MemberSetKey(type, MemberType.Target);
-
-            public Type Type { get; }
-
-            public override bool Equals(object obj)
-            {
-                var otherKey = obj as MemberSetKey;
-
-                if (otherKey == null)
-                {
-                    return false;
-                }
-
-                return (_memberType == otherKey._memberType) && (Type == otherKey.Type);
-            }
-
-            public override int GetHashCode() => 0;
-
-            private enum MemberType { Source, Target }
         }
     }
 }

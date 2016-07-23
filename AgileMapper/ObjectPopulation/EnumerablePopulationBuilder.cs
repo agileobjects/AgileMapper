@@ -70,7 +70,7 @@
 
         private static Expression GetIdentifierOrNull(Type type, Expression parameter, IObjectMappingContext omc)
         {
-            return omc.MapperContext.Cache.GetOrAdd(new TypeIdentifierKey(type), key =>
+            return omc.MapperContext.Cache.GetOrAdd(TypeKey.ForTypeId(type), key =>
             {
                 var configuredIdentifier = omc.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
 
