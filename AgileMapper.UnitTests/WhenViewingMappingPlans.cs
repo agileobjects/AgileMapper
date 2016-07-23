@@ -80,7 +80,7 @@
                 .OnTo<IEnumerable<PersonViewModel>>();
 
             plan.ShouldContain("omc.Source.IntersectById");
-            plan.ShouldContain("omc.Source.ExcludeById");
+            plan.ShouldContain(".ExcludeById");
             plan.ShouldContain("personViewModels.Add");
         }
 
@@ -92,7 +92,7 @@
                 .Over<IEnumerable<Person>>();
 
             plan.ShouldContain("omc.Source.IntersectById");
-            plan.ShouldContain("omc.Source.ExcludeById");
+            plan.ShouldContain(".ExcludeById");
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
             plan.ShouldContain("PersonViewModel -> Person");
