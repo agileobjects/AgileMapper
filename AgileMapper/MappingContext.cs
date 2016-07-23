@@ -8,12 +8,6 @@ namespace AgileObjects.AgileMapper
 
     internal class MappingContext : IDisposable
     {
-        #region Cached Items
-
-        private static readonly object _objectCacheLock = new object();
-
-        #endregion
-
         private readonly ICollection<Action> _cleanupActions;
 
         internal MappingContext(MappingRuleSet ruleSet, MapperContext mapperContext)
@@ -55,10 +49,7 @@ namespace AgileObjects.AgileMapper
                 return;
             }
 
-            lock (_objectCacheLock)
-            {
-                ObjectCache<TKey, TComplex>.Cache.Add(key, complexType);
-            }
+            ObjectCache<TKey, TComplex>.Cache.Add(key, complexType);
 
             _cleanupActions.Add(() => ObjectCache<TKey, TComplex>.Cache.Remove(key));
         }
