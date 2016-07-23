@@ -18,9 +18,14 @@
 
         public Member GetIdentifierOrNull(Type type)
         {
-            return _globalCache.GetOrAdd(new TypeIdentifierKey(type), k =>
+            return GetIdentifierOrNull(new TypeIdentifierKey(type));
+        }
+
+        public Member GetIdentifierOrNull(TypeIdentifierKey typeId)
+        {
+            return _globalCache.GetOrAdd(typeId, key =>
             {
-                var typeMembers = GetReadableMembers(type);
+                var typeMembers = GetReadableMembers(key.Type);
 
                 return typeMembers.FirstOrDefault(member => member.IsIdentifier);
             });

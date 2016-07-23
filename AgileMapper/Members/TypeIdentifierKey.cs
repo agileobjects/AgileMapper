@@ -4,12 +4,12 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class TypeIdentifierKey
     {
-        private readonly Type _type;
-
         public TypeIdentifierKey(Type type)
         {
-            _type = type;
+            Type = type;
         }
+
+        public Type Type { get; }
 
         public override bool Equals(object obj)
         {
@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            return _type == otherKey._type;
+            return Type == otherKey.Type;
         }
 
         public override int GetHashCode() => 0;

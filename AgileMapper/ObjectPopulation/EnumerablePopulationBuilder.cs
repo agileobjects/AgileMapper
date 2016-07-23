@@ -70,16 +70,16 @@
 
         private static Expression GetIdentifierOrNull(Type type, Expression parameter, IObjectMappingContext omc)
         {
-            return omc.MapperContext.Cache.GetOrAdd(new TypeIdentifierKey(type), k =>
+            return omc.MapperContext.Cache.GetOrAdd(new TypeIdentifierKey(type), key =>
             {
-                var configuredIdentifier = omc.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(type);
+                var configuredIdentifier = omc.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
 
                 if (configuredIdentifier != null)
                 {
                     return configuredIdentifier.ReplaceParameterWith(parameter);
                 }
 
-                var identifier = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(type);
+                var identifier = omc.GlobalContext.MemberFinder.GetIdentifierOrNull(key);
 
                 return identifier?.GetAccess(parameter);
             });
