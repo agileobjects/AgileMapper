@@ -1,17 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System.Globalization;
+    using Members;
 
     internal class ObjectMapperFactory
     {
         public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMappingContext omc)
         {
-            var mapperKey = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0} -> {1}: {2} ObjectMapper",
-                omc.SourceMember.Signature,
-                omc.TargetMember.Signature,
-                omc.RuleSetName);
+            var mapperKey = new ObjectMapperKey(omc);
 
             var mapper = omc.MapperContext.Cache.GetOrAdd(mapperKey, k =>
             {
@@ -23,6 +18,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             });
 
             return mapper;
+        }
+
+        private class ObjectMapperKey
+        {
+            private readonly MappingRuleSet _ruleSet;
+            private readonly string _sourceMemberSignature;
+            private readonly string _targetMemberSignature;
+
+            public ObjectMapperKey(IMemberMappingContext context)
+            {
+                _ruleSet = context.MappingContext.RuleSet;
+                _sourceMemberSignature = context.SourceMember.Signature;
+                _targetMemberSignature = context.TargetMember.Signature;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var otherKey = (ObjectMapperKey)obj;
+
+                return
+                    (_ruleSet == otherKey._ruleSet) &&
+                    (_sourceMemberSignature == otherKey._sourceMemberSignature) &&
+                    (_targetMemberSignature == otherKey._targetMemberSignature);
+
+            }
+
+            public override int GetHashCode() => 0;
         }
     }
 }
