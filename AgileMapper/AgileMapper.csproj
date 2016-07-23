@@ -156,7 +156,6 @@
     <Compile Include="ObjectPopulation\MemberPopulationFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMapper.cs" />
     <Compile Include="ObjectPopulation\ObjectMapperFactory.cs" />
-    <Compile Include="ObjectPopulation\ObjectMapperKey.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingLambdaFactoryBase.cs" />
     <Compile Include="ObjectPopulation\OverwriteEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\ShortCircuitConditionBuilder.cs" />

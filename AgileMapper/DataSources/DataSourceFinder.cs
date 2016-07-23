@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using Extensions;
     using Members;
@@ -20,37 +20,30 @@
 
         public DataSourceSet FindFor(IMemberMappingContext context)
         {
-            var cacheKey = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0} -> {1}: {2} DataSources",
-                context.SourceType,
-                context.TargetMember.Signature,
-                context.RuleSetName);
+            var cacheKey = new DataSourceSetKey(context);
 
-            return context.MapperContext.Cache.GetOrAdd(
-                cacheKey,
-                k =>
+            return context.MapperContext.Cache.GetOrAdd(cacheKey, k =>
+            {
+                var validDataSources = EnumerateDataSources(context)
+                    .Where(ds => ds.IsValid)
+                    .ToArray();
+
+                if (context.TargetMember.IsSimple && validDataSources.Any())
                 {
-                    var validDataSources = EnumerateDataSources(context)
-                        .Where(ds => ds.IsValid)
-                        .ToArray();
+                    var initialDataSource = context
+                        .MappingContext
+                        .RuleSet
+                        .InitialDataSourceFactory
+                        .Create(context);
 
-                    if (context.TargetMember.IsSimple && validDataSources.Any())
+                    if (initialDataSource.IsValid)
                     {
-                        var initialDataSource = context
-                            .MappingContext
-                            .RuleSet
-                            .InitialDataSourceFactory
-                            .Create(context);
-
-                        if (initialDataSource.IsValid)
-                        {
-                            validDataSources = validDataSources.Prepend(initialDataSource).ToArray();
-                        }
+                        validDataSources = validDataSources.Prepend(initialDataSource).ToArray();
                     }
+                }
 
-                    return new DataSourceSet(validDataSources);
-                });
+                return new DataSourceSet(validDataSources);
+            });
         }
 
         private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
@@ -238,6 +231,37 @@
                     yield return qualifiedMember;
                 }
             }
+        }
+
+        private class DataSourceSetKey
+        {
+            private readonly Type _sourceType;
+            private readonly MappingRuleSet _ruleSet;
+            private readonly string _targetMemberSignature;
+
+            public DataSourceSetKey(IMemberMappingContext context)
+            {
+                _sourceType = context.SourceType;
+                _ruleSet = context.MappingContext.RuleSet;
+                _targetMemberSignature = context.TargetMember.Signature;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var otherKey = obj as DataSourceSetKey;
+
+                if (otherKey == null)
+                {
+                    return false;
+                }
+
+                return
+                    (_sourceType == otherKey._sourceType) &&
+                    (_ruleSet == otherKey._ruleSet) &&
+                    (_targetMemberSignature == otherKey._targetMemberSignature);
+            }
+
+            public override int GetHashCode() => 0;
         }
     }
 }

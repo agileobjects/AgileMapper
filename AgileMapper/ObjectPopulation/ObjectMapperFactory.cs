@@ -35,7 +35,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public override bool Equals(object obj)
             {
-                var otherKey = (ObjectMapperKey)obj;
+                var otherKey = obj as ObjectMapperKey;
+
+                if (otherKey == null)
+                {
+                    return false;
+                }
 
                 return
                     (_ruleSet == otherKey._ruleSet) &&
