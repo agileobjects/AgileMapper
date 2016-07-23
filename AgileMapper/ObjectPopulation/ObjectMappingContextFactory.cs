@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
@@ -36,7 +35,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static IObjectMappingContext Create<TSource, TTarget>(
             ObjectMappingContextFactoryBridge<TSource, TTarget> command)
         {
-            var funcKey = OmcConstructorKey.From(command);
+            var funcKey = DeclaredAndRuntimeTypesKey.From(command);
 
             var constructionFunc = command.MappingContext.GlobalContext.Cache.GetOrAdd(funcKey, k =>
             {
@@ -75,58 +74,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 command.Target,
                 command.EnumerableIndex,
                 command.MappingContext);
-        }
-
-        private class OmcConstructorKey
-        {
-            private readonly Type _declaredSourceType;
-            private readonly Type _runtimeSourceType;
-            private readonly Type _declaredTargetType;
-            private readonly Type _runtimeTargetType;
-            private readonly bool _sourceTypesAreTheSame;
-            private readonly bool _targetTypesAreTheSame;
-
-            private OmcConstructorKey(
-                Type declaredSourceType,
-                Type runtimeSourceType,
-                Type declaredTargetType,
-                Type runtimeTargetType)
-            {
-                _declaredSourceType = declaredSourceType;
-                _runtimeSourceType = runtimeSourceType;
-                _sourceTypesAreTheSame = (declaredSourceType == runtimeSourceType);
-                _declaredTargetType = declaredTargetType;
-                _runtimeTargetType = runtimeTargetType;
-                _targetTypesAreTheSame = (declaredTargetType == runtimeTargetType);
-            }
-
-            public static OmcConstructorKey From<TSource, TTarget>(
-                ObjectMappingContextFactoryBridge<TSource, TTarget> command)
-            {
-                return new OmcConstructorKey(
-                    typeof(TSource),
-                    command.SourceMember.Type,
-                    typeof(TTarget),
-                    command.TargetMember.Type);
-            }
-
-            public override bool Equals(object obj)
-            {
-                var otherKey = obj as OmcConstructorKey;
-
-                if (otherKey == null)
-                {
-                    return false;
-                }
-
-                return
-                    otherKey._declaredSourceType == _declaredSourceType &&
-                    ((_sourceTypesAreTheSame && otherKey._sourceTypesAreTheSame) || otherKey._runtimeSourceType == _runtimeSourceType) &&
-                    otherKey._declaredTargetType == _declaredTargetType &&
-                    ((_targetTypesAreTheSame && otherKey._targetTypesAreTheSame) || otherKey._runtimeTargetType == _runtimeTargetType);
-            }
-
-            public override int GetHashCode() => 0;
         }
     }
 }

@@ -33,16 +33,16 @@
 
         public IEnumerable<Member> GetReadableMembers(Type sourceType)
         {
-            return _globalCache.GetOrAdd(sourceType.FullName + ": SourceMembers", k =>
+            return _globalCache.GetOrAdd(MemberSetKey.ForSource(sourceType), key =>
             {
-                if (sourceType.IsEnumerable())
+                if (key.Type.IsEnumerable())
                 {
-                    return new[] { sourceType.CreateElementMember() };
+                    return new[] { key.Type.CreateElementMember() };
                 }
 
-                var fields = GetFields(sourceType, All);
-                var properties = GetProperties(sourceType, OnlyGettable);
-                var methods = GetMethods(sourceType, OnlyRelevantCallable, Member.GetMethod);
+                var fields = GetFields(key.Type, All);
+                var properties = GetProperties(key.Type, OnlyGettable);
+                var methods = GetMethods(key.Type, OnlyRelevantCallable, Member.GetMethod);
 
                 return GetMembers(fields, properties, methods);
             });
@@ -50,11 +50,11 @@
 
         public IEnumerable<Member> GetWriteableMembers(Type targetType)
         {
-            return _globalCache.GetOrAdd(targetType.FullName + ": TargetMembers", k =>
+            return _globalCache.GetOrAdd(MemberSetKey.ForTarget(targetType), key =>
             {
-                var fields = GetFields(targetType, OnlyWriteable);
-                var properties = GetProperties(targetType, OnlySettable);
-                var methods = GetMethods(targetType, OnlySettable, Member.SetMethod);
+                var fields = GetFields(key.Type, OnlyWriteable);
+                var properties = GetProperties(key.Type, OnlySettable);
+                var methods = GetMethods(key.Type, OnlySettable, Member.SetMethod);
 
                 return GetMembers(fields, properties, methods);
             });
@@ -145,6 +145,39 @@
                 .ToArray();
 
             return allMembers;
+        }
+
+        private class MemberSetKey
+        {
+            private readonly MemberType _memberType;
+
+            private MemberSetKey(Type type, MemberType memberType)
+            {
+                Type = type;
+                _memberType = memberType;
+            }
+
+            public static MemberSetKey ForSource(Type type) => new MemberSetKey(type, MemberType.Source);
+
+            public static MemberSetKey ForTarget(Type type) => new MemberSetKey(type, MemberType.Target);
+
+            public Type Type { get; }
+
+            public override bool Equals(object obj)
+            {
+                var otherKey = obj as MemberSetKey;
+
+                if (otherKey == null)
+                {
+                    return false;
+                }
+
+                return (_memberType == otherKey._memberType) && (Type == otherKey.Type);
+            }
+
+            public override int GetHashCode() => 0;
+
+            private enum MemberType { Source, Target }
         }
     }
 }

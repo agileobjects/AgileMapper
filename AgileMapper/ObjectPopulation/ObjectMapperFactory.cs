@@ -6,9 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMappingContext omc)
         {
-            var mapperKey = new ObjectMapperKey(omc);
-
-            var mapper = omc.MapperContext.Cache.GetOrAdd(mapperKey, k =>
+            var mapper = omc.MapperContext.Cache.GetOrAdd(new ObjectMapperKey(omc), k =>
             {
                 var lambda = omc.TargetMember.IsEnumerable
                     ? EnumerableMappingLambdaFactory<TSource, TTarget>.Instance.Create(omc)

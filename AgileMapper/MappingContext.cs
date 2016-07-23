@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq.Expressions;
     using ObjectPopulation;
 
@@ -86,13 +85,7 @@ namespace AgileObjects.AgileMapper
                 return GetMappingResult(mapper);
             }
 
-            var cacheKey = string.Format(
-                CultureInfo.InvariantCulture,
-                "Omc<{0}, {1}> -> Omc<{2}, {3}>: CreateMapperFunc",
-                typeof(TSource).FullName,
-                typeof(TTarget).FullName,
-                currentContext.SourceType.FullName,
-                currentContext.TargetType.FullName);
+            var cacheKey = DeclaredAndRuntimeTypesKey.From<TSource, TTarget>(currentContext);
 
             var createMapperFunc = GlobalContext.Cache.GetOrAdd(cacheKey, k =>
             {
