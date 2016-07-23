@@ -4,13 +4,25 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class TypeIdentifierKey
     {
-        private TypeIdentifierKey(string value)
+        private readonly Type _type;
+
+        public TypeIdentifierKey(Type type)
         {
-            Value = value;
+            _type = type;
         }
 
-        public static TypeIdentifierKey For(Type type) => new TypeIdentifierKey(type.FullName + ": Id");
+        public override bool Equals(object obj)
+        {
+            var otherKey = obj as TypeIdentifierKey;
 
-        public string Value { get; }
+            if (otherKey == null)
+            {
+                return false;
+            }
+
+            return _type == otherKey._type;
+        }
+
+        public override int GetHashCode() => 0;
     }
 }

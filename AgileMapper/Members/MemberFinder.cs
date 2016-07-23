@@ -18,7 +18,7 @@
 
         public Member GetIdentifierOrNull(Type type)
         {
-            return _globalCache.GetOrAdd(TypeIdentifierKey.For(type).Value, k =>
+            return _globalCache.GetOrAdd(new TypeIdentifierKey(type), k =>
             {
                 var typeMembers = GetReadableMembers(type);
 

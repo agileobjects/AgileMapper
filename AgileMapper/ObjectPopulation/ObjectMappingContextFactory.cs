@@ -112,7 +112,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public override bool Equals(object obj)
             {
-                var otherKey = (OmcConstructorKey)obj;
+                var otherKey = obj as OmcConstructorKey;
+
+                if (otherKey == null)
+                {
+                    return false;
+                }
 
                 return
                     otherKey._declaredSourceType == _declaredSourceType &&
