@@ -8,6 +8,8 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class NestedAccessFinder : ExpressionVisitor
     {
+        private static readonly object _syncLock = new object();
+
         private readonly Expression _contextParameter;
         private readonly ICollection<Expression> _memberAccessSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
@@ -25,7 +27,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             Expression[] memberAccesses;
 
-            lock (this)
+            lock (_syncLock)
             {
                 _includeSourceObjectAccesses = includeSourceObjectAccesses;
 

@@ -5,6 +5,8 @@
 
     internal class DictionaryCache : ICache
     {
+        private static readonly object _itemsLock = new object();
+
         private readonly Dictionary<object, object> _items;
 
         public DictionaryCache()
@@ -22,7 +24,7 @@
                 return (TValue)value;
             }
 
-            lock (_items)
+            lock (_itemsLock)
             {
                 if (!_items.TryGetValue(key, out value))
                 {
