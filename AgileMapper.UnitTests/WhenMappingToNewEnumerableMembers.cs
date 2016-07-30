@@ -98,6 +98,26 @@
         }
 
         [Fact]
+        public void ShouldRetainAnExistingListItem()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .ToANew<PublicField<List<int>>>()
+                    .After
+                    .CreatingTargetInstances
+                    .Call((s, pf) => pf.Value = new List<int> { 0 });
+
+                var source = new PublicField<int[]> { Value = new[] { 1, 2, 3 } };
+                var result = mapper.Map(source).ToANew<PublicField<List<int>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBe(0, 1, 2, 3);
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredExpressionToAnEnumerable()
         {
             using (var mapper = Mapper.CreateNew())
