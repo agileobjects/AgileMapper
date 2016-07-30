@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Linq.Expressions;
 
     internal class MergeEnumerablePopulationStrategy : EnumerablePopulationStrategyBase
@@ -10,27 +11,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (builder.TypesAreIdentifiable)
             {
-                var updateExistingObjects = builder
-                    .IntersectTargetById()
-                    .MapResultsToTarget();
-
-                var addNewObjects = builder
-                    .ExcludeTargetById()
-                    .ProjectToTargetType()
-                    .CallToArray()
-                    .AddResultsToTarget();
-
-                return Expression.Block(
-                    updateExistingObjects,
-                    addNewObjects,
-                    Constants.EmptyExpression);
+                return MergeEnumerables(
+                    builder,
+                    b => b.MapIntersection(),
+                    b => b.AddVariableToTarget());
             }
 
-            return builder
+            builder
                 .ProjectToTargetType()
                 .ExcludeTarget()
-                .CallToArray()
-                .AddResultsToTarget();
+                .AssignValueToVariable();
+
+            builder.IfTargetNotNull(b => b.AddVariableToTarget());
+
+            return builder;
+        }
+
+        public static EnumerablePopulationBuilder MergeEnumerables(
+            EnumerablePopulationBuilder builder,
+            params Func<EnumerablePopulationBuilder, Expression>[] nonNullTargetActionFactories)
+        {
+            builder.CreateCollectionData();
+
+            CopySourceEnumerablePopulationStrategy.MapSourceEnumerable(builder, nonNullTargetActionFactories);
+
+            return builder;
         }
     }
 }

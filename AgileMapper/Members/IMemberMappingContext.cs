@@ -19,8 +19,6 @@
 
         Expression TargetObject { get; }
 
-        Expression CreatedObject { get; }
-
         Expression EnumerableIndex { get; }
 
         ParameterExpression InstanceVariable { get; }

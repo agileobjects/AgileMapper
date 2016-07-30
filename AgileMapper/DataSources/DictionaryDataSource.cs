@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Reflection;
     using Extensions;
     using Members;
-    using ObjectPopulation;
 
     internal class DictionaryDataSource : DataSourceBase
     {
@@ -109,7 +108,7 @@ namespace AgileObjects.AgileMapper.DataSources
                     .GetConversion(variable, context.TargetMember.Type);
             }
 
-            return context.GetMapCall(variable, 0);
+            return context.GetMapCall(variable);
         }
 
         private static Expression GetFallbackValue(
@@ -155,11 +154,11 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var populationLoop = Expression.Loop(loopBody, loopBreak.Target);
 
-            var mapCall = context.GetMapCall(sourceList, 0);
+            var mapCall = context.GetMapCall(sourceList);
 
             var enumerablePopulation = Expression.Block(
                 new[] { sourceList, counter },
-                Expression.Assign(sourceList, EnumerableTypes.GetEnumerableEmptyInstance(sourceList.Type)),
+                Expression.Assign(sourceList, sourceList.Type.GetEmptyInstanceCreation()),
                 Expression.Assign(counter, Expression.Constant(0)),
                 populationLoop,
                 mapCall);

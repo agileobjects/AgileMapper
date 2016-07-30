@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using Members;
 
     internal class EnumerableMappingLambdaFactory<TSource, TTarget>
         : ObjectMappingLambdaFactoryBase<TSource, TTarget>
@@ -16,9 +17,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
             => Enumerable.Empty<Expression>();
 
-        protected override Expression GetObjectResolution(IObjectMappingContext omc)
-            => EnumerableTypes.GetEnumerableVariableValue(omc.TargetObject, omc.TargetMember.Type);
-
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
         {
             yield return omc.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(omc);
@@ -26,12 +24,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetReturnValue(IObjectMappingContext omc)
         {
-            if (omc.TargetMember.Type.IsAssignableFrom(omc.InstanceVariable.Type))
-            {
-                return omc.InstanceVariable;
-            }
-
-            return omc.InstanceVariable.WithToArrayCall();
+            return omc.SourceType.IsEnumerable()
+                ? omc.EnumerablePopulationBuilder.GetReturnValue()
+                : omc.EnumerablePopulationBuilder.ExistingOrNewEmptyInstance();
         }
     }
 }

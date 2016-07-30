@@ -35,7 +35,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<Person>()
                     .Over<Person>()
-                    .Ignore(x => x.Address);
+                    .Ignore(p => p.Address);
 
                 var source = new[] { new Person { Name = "Jon", Address = new Address { Line1 = "Blah" } } };
                 var target = new[] { new Person() };

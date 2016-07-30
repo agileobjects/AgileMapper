@@ -27,7 +27,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly Expression _enumerableIndexProperty = Expression.Property(_parameter, "EnumerableIndex");
 
         private static readonly ParameterExpression _instanceVariable = Expression.Variable(
-            typeof(TTarget).IsEnumerable() ? EnumerableTypes.GetEnumerableVariableType(typeof(TTarget)) : typeof(TTarget),
+            typeof(TTarget).IsEnumerable()
+                ? typeof(IEnumerable<>).MakeGenericType(typeof(TTarget).GetEnumerableElementType())
+                : typeof(TTarget),
             typeof(TTarget).GetVariableName(f => f.InCamelCase));
 
         private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_parameter);
@@ -86,6 +88,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 _sourceElementMember = _sourceMember.Append(_sourceMember.Type.CreateElementMember());
                 _targetElementMember = _targetMember.Append(_targetMember.Type.CreateElementMember(_targetMember.ElementType));
+                EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
             }
         }
 
@@ -210,11 +213,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression IMemberMappingContext.TargetObject => _targetObjectProperty;
 
-        Expression IMemberMappingContext.CreatedObject => _createdObjectProperty;
-
         Expression IMemberMappingContext.EnumerableIndex => _enumerableIndexProperty;
 
         ParameterExpression IMemberMappingContext.InstanceVariable => _instanceVariable;
+
+        public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
         NestedAccessFinder IMemberMappingContext.NestedAccessFinder => _nestedAccessFinder;
 
@@ -227,6 +230,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         T IObjectMappingContext.GetTarget<T>() => (T)(object)Target;
 
         public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
+
+        Expression IObjectMappingContext.CreatedObject => _createdObjectProperty;
 
         public void Set<TSourceElement, TTargetElement>(TSourceElement source, TTargetElement target, int enumerableIndex)
         {

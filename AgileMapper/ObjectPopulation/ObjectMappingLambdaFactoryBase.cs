@@ -24,10 +24,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var preMappingCallback = GetMappingCallback(CallbackPosition.Before, omc);
             var shortCircuitReturns = GetShortCircuitReturns(returnNull, omc);
-            var preCreationCallback = GetCreationCallback(CallbackPosition.Before, omc);
-            var instanceVariableValue = GetObjectResolution(omc);
-            var instanceVariableAssignment = Expression.Assign(omc.InstanceVariable, instanceVariableValue);
-            var postCreationCallback = GetCreationCallback(CallbackPosition.After, omc);
             var objectPopulation = GetObjectPopulation(omc);
             var postMappingCallback = GetMappingCallback(CallbackPosition.After, omc);
             var returnValue = GetReturnValue(omc);
@@ -37,9 +33,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 new[] { omc.InstanceVariable },
                 preMappingCallback
                     .Concat(shortCircuitReturns)
-                    .Concat(preCreationCallback)
-                    .Concat(instanceVariableAssignment)
-                    .Concat(postCreationCallback)
                     .Concat(objectPopulation)
                     .Concat(postMappingCallback)
                     .Concat(returnLabel));
@@ -66,19 +59,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, omc), omc);
         }
 
-        private static IEnumerable<Expression> GetCreationCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
-        {
-            yield return GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, omc), omc);
-        }
-
         protected static Expression GetCallbackOrEmpty(
             Func<UserConfigurationSet, Expression> callbackFactory,
             IMemberMappingContext context)
             => callbackFactory.Invoke(context.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc);
-
-        protected abstract Expression GetObjectResolution(IObjectMappingContext omc);
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc);
 

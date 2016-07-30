@@ -51,7 +51,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ifTryGetReturn;
         }
 
-        protected override Expression GetObjectResolution(IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
+        {
+            yield return GetCreationCallback(CallbackPosition.Before, omc);
+
+            var instanceVariableValue = GetObjectResolution(omc);
+            var instanceVariableAssignment = Expression.Assign(omc.InstanceVariable, instanceVariableValue);
+            yield return instanceVariableAssignment;
+
+            yield return GetCreationCallback(CallbackPosition.After, omc);
+
+            var memberPopulations = MemberPopulationFactory
+                .Create(omc)
+                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p) : p.GetPopulation())
+                .Prepend(omc.ObjectRegistrationCall);
+
+            foreach (var population in memberPopulations)
+            {
+                yield return population;
+            }
+        }
+
+        private static Expression GetCreationCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
+            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, omc), omc);
+
+        private static Expression GetObjectResolution(IObjectMappingContext omc)
         {
             var createdObjectAssignment = Expression.Assign(omc.CreatedObject, GetNewObjectCreation(omc));
             var contextTargetAssignment = Expression.Assign(omc.TargetObject, createdObjectAssignment);
@@ -133,16 +157,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             });
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
-        {
-            var memberPopulations = MemberPopulationFactory.Create(omc);
-
-            return memberPopulations
-                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p) : p.GetPopulation())
-                .Prepend(omc.ObjectRegistrationCall)
-                .ToArray();
-        }
-
         private static Expression GetPopulationWithCallbacks(IMemberPopulation memberPopulation)
         {
             var prePopulationCallback = GetCallbackOrEmpty(
@@ -164,8 +178,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.Block(prePopulationCallback, population, postPopulationCallback);
         }
 
-        protected override Expression GetReturnValue(IObjectMappingContext omc)
-            => omc.InstanceVariable;
+        protected override Expression GetReturnValue(IObjectMappingContext omc) => omc.InstanceVariable;
 
         private class ConstructorData
         {

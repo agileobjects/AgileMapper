@@ -18,6 +18,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public static TypeKey ForTypeId(Type type) => new TypeKey(type, KeyType.TypeId);
 
+        public static TypeKey ForParameter(Type type) => new TypeKey(type, KeyType.Parameter);
+
         public Type Type { get; }
 
         public override bool Equals(object obj)
@@ -34,6 +36,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public override int GetHashCode() => 0;
 
-        private enum KeyType { SourceMembers, TargetMembers, TypeId }
+        private enum KeyType { SourceMembers, TargetMembers, TypeId, Parameter }
     }
 }

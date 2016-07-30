@@ -32,7 +32,7 @@
                 return condition;
             }
 
-            var newObjectHasBeenCreated = context.CreatedObject.GetIsNotDefaultComparison();
+            var newObjectHasBeenCreated = ((IObjectMappingContext)context).CreatedObject.GetIsNotDefaultComparison();
 
             if (condition == null)
             {

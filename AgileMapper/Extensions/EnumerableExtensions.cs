@@ -50,8 +50,12 @@
         }
 
         public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
+            => (excludedItems != null) ? items.StreamExclude(excludedItems) : items;
+
+        private static IEnumerable<T> StreamExclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
         {
-            var excludedItemCountsByItem = GetCountsByItem(excludedItems);
+            int nullItemCount;
+            var excludedItemCountsByItem = GetCountsByItem(excludedItems, out nullItemCount);
 
             foreach (var item in items)
             {
@@ -70,42 +74,19 @@
             }
         }
 
-        public static IEnumerable<TSource> ExcludeById<TSource, TTarget, TId>(
-            this IEnumerable<TSource> sourceItems,
-            IEnumerable<TTarget> excludedItems,
-            Func<TSource, TId> sourceIdFactory,
-            Func<TTarget, TId> targetIdFactory)
-        {
-            var excludedItemsById = GetItemsById(excludedItems, targetIdFactory);
-            var excludedItemCountsById = GetCountsByItem(excludedItemsById.Keys);
-
-            foreach (var sourceItem in sourceItems)
-            {
-                if (sourceItem == null)
-                {
-                    yield return default(TSource);
-                    continue;
-                }
-
-                var sourceItemId = sourceIdFactory.Invoke(sourceItem);
-                int count;
-
-                if (excludedItemCountsById.TryGetValue(sourceItemId, out count) && (count > 0))
-                {
-                    excludedItemCountsById[sourceItemId] = count - 1;
-                    continue;
-                }
-
-                yield return sourceItem;
-            }
-        }
-
-        private static Dictionary<T, int> GetCountsByItem<T>(IEnumerable<T> items)
+        private static Dictionary<T, int> GetCountsByItem<T>(IEnumerable<T> items, out int nullItemCount)
         {
             var itemCountsByItem = new Dictionary<T, int>();
+            nullItemCount = 0;
 
             foreach (var item in items)
             {
+                if (item == null)
+                {
+                    ++nullItemCount;
+                    continue;
+                }
+
                 int count;
 
                 if (itemCountsByItem.TryGetValue(item, out count))
@@ -119,46 +100,6 @@
             }
 
             return itemCountsByItem;
-        }
-
-        public static IEnumerable<Tuple<TSource, TTarget>> IntersectById<TSource, TTarget, TId>(
-            this IEnumerable<TSource> sourceItems,
-            IEnumerable<TTarget> targetItems,
-            Func<TSource, TId> sourceIdFactory,
-            Func<TTarget, TId> targetIdFactory)
-        {
-            var targetsById = GetItemsById(targetItems, targetIdFactory);
-
-            foreach (var sourceItem in sourceItems)
-            {
-                if (sourceItem == null)
-                {
-                    yield return Tuple.Create(default(TSource), default(TTarget));
-                    continue;
-                }
-
-                var sourceItemId = sourceIdFactory.Invoke(sourceItem);
-
-                TTarget targetItem;
-
-                if (targetsById.TryGetValue(sourceItemId, out targetItem))
-                {
-                    yield return Tuple.Create(sourceItem, targetItem);
-                }
-            }
-        }
-
-        private static Dictionary<TId, TItem> GetItemsById<TItem, TId>(IEnumerable<TItem> items, Func<TItem, TId> idFactory)
-        {
-            return items
-                .WhereNotNull()
-                .Select(item => new
-                {
-                    Id = idFactory.Invoke(item),
-                    Item = item
-                })
-                .Where(item => !EqualityComparer<TId>.Default.Equals(item.Id, default(TId)))
-                .ToDictionary(d => d.Id, d => d.Item);
         }
 
         #region ForEach Overloads

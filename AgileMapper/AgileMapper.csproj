@@ -65,6 +65,8 @@
     <Compile Include="DataSources\DictionaryDataSourceFactory.cs" />
     <Compile Include="DataSources\IConditionalDataSourceFactory.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
+    <Compile Include="Extensions\CollectionData.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.Replace.cs" />
     <Compile Include="Members\DictionaryEntrySourceMember.cs" />
     <Compile Include="Members\DictionarySourceMember.cs" />
     <Compile Include="Members\NamingSettings.cs" />
@@ -88,7 +90,7 @@
     <Compile Include="Members\MemberMappingExceptionContext.cs" />
     <Compile Include="Members\TypeKey.cs" />
     <Compile Include="ObjectPopulation\DeclaredAndRuntimeTypesKey.cs" />
-    <Compile Include="ObjectPopulation\EnumerableTypes.cs" />
+    <Compile Include="ObjectPopulation\EnumerableTypeHelper.cs" />
     <Compile Include="DataSources\IDataSourceFactory.cs" />
     <Compile Include="ObjectPopulation\ExistingOrDefaultValueDataSourceFactory.cs" />
     <Compile Include="ObjectPopulation\IObjectCreationContext.cs" />

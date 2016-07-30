@@ -12,11 +12,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         new IObjectMappingContext Parent { get; }
 
+        EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
+
         TSource GetSource<TSource>();
 
         TTarget GetTarget<TTarget>();
 
         int? GetEnumerableIndex();
+
+        Expression CreatedObject { get; }
 
         void Set<TSourceElement, TTargetElement>(TSourceElement sourceElement, TTargetElement existingElement, int enumerableIndex);
 

@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Linq.Expressions;
 
     internal class CopySourceEnumerablePopulationStrategy : EnumerablePopulationStrategyBase
@@ -7,10 +8,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly IEnumerablePopulationStrategy Instance = new CopySourceEnumerablePopulationStrategy();
 
         protected override Expression GetEnumerablePopulation(EnumerablePopulationBuilder builder)
+            => MapSourceEnumerable(builder, b => b.AddVariableToTarget());
+
+        public static EnumerablePopulationBuilder MapSourceEnumerable(
+            EnumerablePopulationBuilder builder,
+            params Func<EnumerablePopulationBuilder, Expression>[] nonNullTargetActionFactories)
         {
-            return builder
-                .ProjectToTargetType()
-                .AddResultsToTarget();
+            builder.ProjectToTargetType().AssignValueToVariable();
+            builder.IfTargetNotNull(nonNullTargetActionFactories);
+
+            return builder;
         }
     }
 }

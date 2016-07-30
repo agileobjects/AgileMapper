@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -11,15 +12,12 @@
     {
         #region Cached Items
 
+        private static readonly MethodInfo _concatMethod = typeof(Enumerable)
+            .GetMethod("Concat", Constants.PublicStatic);
+
         private static readonly MethodInfo _selectMethod = typeof(Enumerable)
             .GetMethods(Constants.PublicStatic)
             .Last(m => (m.Name == "Select") && m.GetParameters().Length == 2);
-
-        private static readonly MethodInfo _intersectByIdMethod = typeof(EnumerableExtensions)
-            .GetMethod("IntersectById", Constants.PublicStatic);
-
-        private static readonly MethodInfo _excludeByIdMethod = typeof(EnumerableExtensions)
-            .GetMethod("ExcludeById", Constants.PublicStatic);
 
         private static readonly MethodInfo _excludeMethod = typeof(EnumerableExtensions)
             .GetMethod("Exclude", Constants.PublicStatic);
@@ -35,30 +33,47 @@
         #endregion
 
         private readonly IObjectMappingContext _omc;
+        private readonly EnumerableTypeHelper _typeHelper;
         private readonly ParameterExpression _sourceElementParameter;
         private readonly Type _sourceElementType;
         private readonly LambdaExpression _sourceElementIdLambda;
         private readonly Type _targetElementType;
         private readonly LambdaExpression _targetElementIdLambda;
         private readonly bool _elementsAreAssignable;
+        private readonly ICollection<Expression> _populationExpressions;
         private Expression _population;
+        private ParameterExpression _collectionDataVariable;
 
         public EnumerablePopulationBuilder(IObjectMappingContext omc)
         {
             _omc = omc;
+            _typeHelper = new EnumerableTypeHelper(omc.TargetMember.Type, omc.TargetMember.ElementType);
 
             _sourceElementType = omc.SourceType.GetEnumerableElementType();
+            _targetElementType = _typeHelper.ElementType;
+
             _sourceElementParameter = GetParameter(_sourceElementType, omc);
-
-            _targetElementType = omc.TargetMember.ElementType;
-            var targetElementParameter = GetParameter(_targetElementType, omc);
-
             var sourceElementId = GetIdentifierOrNull(_sourceElementType, _sourceElementParameter, omc);
-            var targetElementId = GetIdentifierOrNull(_targetElementType, targetElementParameter, omc);
-            _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
-            _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
 
-            _elementsAreAssignable = _targetElementType.IsAssignableFrom(_sourceElementType);
+            if (_sourceElementType == _targetElementType)
+            {
+                _sourceElementIdLambda =
+                    _targetElementIdLambda =
+                        GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
+
+                _elementsAreAssignable = true;
+            }
+            else
+            {
+                var targetElementParameter = GetParameter(_targetElementType, omc);
+                var targetElementId = GetIdentifierOrNull(_targetElementType, targetElementParameter, omc);
+                _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
+                _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
+
+                _elementsAreAssignable = _targetElementType.IsAssignableFrom(_sourceElementType);
+            }
+
+            _populationExpressions = new List<Expression>();
 
             SetPopulationToDefault();
         }
@@ -66,7 +81,7 @@
         #region Setup
 
         private static ParameterExpression GetParameter(Type type, IObjectMappingContext omc)
-            => omc.GlobalContext.Cache.GetOrAdd(type.FullName + ": EnumerableParameter", k => Parameters.Create(type));
+            => omc.GlobalContext.Cache.GetOrAdd(TypeKey.ForParameter(type), k => Parameters.Create(type));
 
         private static Expression GetIdentifierOrNull(Type type, Expression parameter, IObjectMappingContext omc)
         {
@@ -125,7 +140,9 @@
 
         public static implicit operator Expression(EnumerablePopulationBuilder builder)
         {
-            var population = builder._population;
+            var population = (builder._collectionDataVariable != null)
+                ? Expression.Block(new[] { builder._collectionDataVariable }, builder._populationExpressions)
+                : Expression.Block(builder._populationExpressions);
 
             builder.SetPopulationToDefault();
 
@@ -135,22 +152,6 @@
         #endregion
 
         public bool TypesAreIdentifiable => (_sourceElementIdLambda != null) && (_targetElementIdLambda != null);
-
-        public EnumerablePopulationBuilder IntersectTargetById()
-        {
-            var typedIntersectByIdMethod = _intersectByIdMethod
-                .MakeGenericMethod(_sourceElementType, _targetElementType, _targetElementIdLambda.ReturnType);
-
-            var intersectByIdCall = Expression.Call(
-                typedIntersectByIdMethod,
-                _omc.SourceObject,
-                _omc.InstanceVariable,
-                _sourceElementIdLambda,
-                _targetElementIdLambda);
-
-            _population = intersectByIdCall;
-            return this;
-        }
 
         public EnumerablePopulationBuilder ProjectToTargetType()
         {
@@ -163,6 +164,10 @@
             var typedSelectMethod = _selectMethod
                 .MakeGenericMethod(_sourceElementType, _targetElementType);
 
+            var subject = (_collectionDataVariable != null)
+                ? Expression.Property(_collectionDataVariable, "NewSourceItems")
+                : _population;
+
             var projectionFunc = Expression.Lambda(
                 Expression.GetFuncType(_sourceElementType, typeof(int), _targetElementType),
                 GetElementConversion(),
@@ -171,7 +176,7 @@
 
             var selectCall = Expression.Call(
                 typedSelectMethod,
-                _population,
+                subject,
                 projectionFunc);
 
             _population = selectCall;
@@ -191,73 +196,96 @@
         private Expression GetMapElementCall(Expression sourceObject, Expression existingObject)
             => _omc.GetMapCall(sourceObject, existingObject);
 
-        public EnumerablePopulationBuilder ExcludeSourceById()
+        public void AssignValueToVariable() => _populationExpressions.Add(GetVariableAssignment());
+
+        public void IfTargetNotNull(params Func<EnumerablePopulationBuilder, Expression>[] nonNullTargetActionFactories)
         {
-            var typedExcludeByIdMethod = _excludeByIdMethod.MakeGenericMethod(
-                _targetElementType,
-                _sourceElementType,
-                _sourceElementIdLambda.ReturnType);
+            var targetNotNull = _omc.TargetObject.GetIsNotDefaultComparison();
 
-            var excludeByIdCall = Expression.Call(
-                typedExcludeByIdMethod,
-                _omc.InstanceVariable,
-                _population,
-                _targetElementIdLambda,
-                _sourceElementIdLambda);
+            var notNullActions = (nonNullTargetActionFactories.Length == 1)
+                ? nonNullTargetActionFactories[0].Invoke(this)
+                : Expression.Block(nonNullTargetActionFactories.Select(af => af.Invoke(this)));
 
-            _population = excludeByIdCall;
-            return this;
+            var ifNotNullPerformActions = Expression.IfThen(targetNotNull, notNullActions);
+            _populationExpressions.Add(ifNotNullPerformActions);
         }
 
-        public EnumerablePopulationBuilder ExcludeTargetById()
+        public Expression AddVariableToTarget()
         {
-            var typedExcludeByIdMethod = _excludeByIdMethod.MakeGenericMethod(
-                _sourceElementType,
-                _targetElementType,
-                _targetElementIdLambda.ReturnType);
+            if (_typeHelper.IsList)
+            {
+                return GetTargetMethodCall("AddRange", _omc.InstanceVariable);
+            }
 
-            var excludeByIdCall = Expression.Call(
-                typedExcludeByIdMethod,
+            if (!(_typeHelper.IsArray || _typeHelper.IsEnumerableInterface))
+            {
+                return GetForEachCall(
+                    _omc.InstanceVariable.WithToArrayCall(_targetElementType),
+                    p => GetTargetMethodCall("Add", p));
+            }
+
+            _population = GetTargetMethodCall(
+                _concatMethod.MakeGenericMethod(_targetElementType),
+                _omc.InstanceVariable);
+
+            var reassignment = GetVariableAssignment();
+
+            return reassignment;
+        }
+
+        public Expression RemoveTargetItemsById()
+        {
+            var absentTargetItems = Expression.Property(_collectionDataVariable, "AbsentTargetItems");
+
+            if (!(_typeHelper.IsArray || _typeHelper.IsEnumerableInterface))
+            {
+                var removeExistingItems = GetForEachCall(absentTargetItems, p => GetTargetMethodCall("Remove", p));
+                var addNewItems = AddVariableToTarget();
+
+                return Expression.Block(removeExistingItems, addNewItems);
+            }
+
+            var excludeCall = Expression.Call(
+                _excludeMethod.MakeGenericMethod(_targetElementType),
+                _omc.TargetObject,
+                absentTargetItems);
+
+            var concatCall = Expression.Call(
+                _concatMethod.MakeGenericMethod(_targetElementType),
+                excludeCall,
+                _omc.InstanceVariable);
+
+            _population = concatCall;
+
+            var reassignment = GetVariableAssignment();
+
+            return reassignment;
+        }
+
+        public void CreateCollectionData()
+        {
+            var createCollectionMethod = CollectionData
+                .CreateMethod
+                .MakeGenericMethod(_sourceElementType, _targetElementType, _targetElementIdLambda.ReturnType);
+
+            var createCollectionDataCall = Expression.Call(
+                createCollectionMethod,
                 _population,
-                _omc.InstanceVariable,
+                _omc.TargetObject,
                 _sourceElementIdLambda,
                 _targetElementIdLambda);
 
-            _population = excludeByIdCall;
-            return this;
+            _collectionDataVariable = Parameters.Create(
+                typeof(CollectionData<,>).MakeGenericType(_sourceElementType, _targetElementType),
+                "collectionData");
+
+            var assignCollectionData = Expression.Assign(_collectionDataVariable, createCollectionDataCall);
+
+            _populationExpressions.Add(assignCollectionData);
         }
 
-        public EnumerablePopulationBuilder ExcludeTarget()
+        public Expression MapIntersection()
         {
-            _population = Expression.Call(
-                _excludeMethod.MakeGenericMethod(_targetElementType),
-                _population,
-                _omc.InstanceVariable);
-
-            return this;
-        }
-
-        public Expression ClearTarget()
-        {
-            _population = Expression.Call(_omc.InstanceVariable, GetTargetMethod("Clear"));
-            return this;
-        }
-
-        public EnumerablePopulationBuilder CallToArray()
-        {
-            _population = _population.WithToArrayCall();
-            return this;
-        }
-
-        public Expression AddResultsToTarget()
-        {
-            _population = GetForEachCall(_population, p => GetTargetMethodCall("Add", p));
-            return this;
-        }
-
-        public Expression MapResultsToTarget()
-        {
-            var typedForEachMethod = _forEachTupleMethod.MakeGenericMethod(_sourceElementType, _targetElementType);
             var forEachActionType = Expression.GetActionType(_sourceElementType, _targetElementType, typeof(int));
             var sourceElementParameter = Parameters.Create(_sourceElementType);
             var targetElementParameter = Parameters.Create(_targetElementType);
@@ -270,23 +298,85 @@
                 targetElementParameter,
                 Parameters.EnumerableIndex);
 
-            var forEachCall = Expression.Call(typedForEachMethod, _population, forEachLambda);
+            var forEachCall = Expression.Call(
+                _forEachTupleMethod.MakeGenericMethod(_sourceElementType, _targetElementType),
+                Expression.Property(_collectionDataVariable, "Intersection"),
+                forEachLambda);
 
-            _population = forEachCall;
-            return this;
+            return forEachCall;
         }
 
-        public Expression RemoveResultsFromTarget()
+        public EnumerablePopulationBuilder ExcludeTarget()
         {
-            _population = GetForEachCall(_population, p => GetTargetMethodCall("Remove", p));
+            _population = Expression.Call(
+                _excludeMethod.MakeGenericMethod(_targetElementType),
+                _population,
+                _omc.TargetObject);
+
             return this;
         }
+
+        public Expression ReplaceTargetItems()
+        {
+            if (_typeHelper.IsArray || _typeHelper.IsEnumerableInterface)
+            {
+                return Constants.EmptyExpression;
+            }
+
+            var clearExistingCollection = Expression.Call(_omc.TargetObject, GetTargetMethod("Clear"));
+            var addNewItems = AddVariableToTarget();
+
+            return Expression.Block(clearExistingCollection, addNewItems);
+        }
+
+        public Expression ExistingOrNewEmptyInstance()
+        {
+            var emptyInstance = _omc.TargetMember.GetEmptyInstanceCreation();
+
+            return Expression.Coalesce(_omc.TargetObject, emptyInstance);
+        }
+
+        public Expression GetReturnValue()
+        {
+            if (_typeHelper.IsArray)
+            {
+                return _omc.InstanceVariable.WithToArrayCall(_targetElementType);
+            }
+
+            var instanceToList = _omc.InstanceVariable.WithToListCall(_targetElementType);
+
+            if (_typeHelper.IsCollection)
+            {
+                // ReSharper disable once AssignNullToNotNullAttribute
+                var newCollection = Expression.New(
+                    _typeHelper.CollectionType.GetConstructor(new[] { _typeHelper.ListType }),
+                    instanceToList);
+
+                return Expression.Coalesce(_omc.TargetObject, newCollection);
+            }
+
+            if (_typeHelper.IsList)
+            {
+                return Expression.Coalesce(_omc.TargetObject, instanceToList);
+            }
+
+            return instanceToList;
+        }
+
+        private Expression GetVariableAssignment() => Expression.Assign(_omc.InstanceVariable, _population);
 
         private Expression GetTargetMethodCall(string methodName, Expression argument)
-            => Expression.Call(_omc.InstanceVariable, GetTargetMethod(methodName), argument);
+            => GetTargetMethodCall(GetTargetMethod(methodName), argument);
+
+        private Expression GetTargetMethodCall(MethodInfo method, Expression argument)
+        {
+            return method.IsStatic
+                ? Expression.Call(method, _omc.TargetObject, argument)
+                : Expression.Call(_omc.TargetObject, method, argument);
+        }
 
         private MethodInfo GetTargetMethod(string methodName)
-            => _omc.InstanceVariable.Type.GetMethod(methodName, Constants.PublicInstance);
+            => _omc.TargetObject.Type.GetMethod(methodName, Constants.PublicInstance);
 
         private static Expression GetForEachCall(Expression subject, Func<Expression, Expression> forEachActionFactory)
         {

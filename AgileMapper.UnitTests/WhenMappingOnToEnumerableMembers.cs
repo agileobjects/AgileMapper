@@ -95,6 +95,42 @@
         }
 
         [Fact]
+        public void ShouldHandleANullTargetCollection()
+        {
+            var source = new PublicField<IList<byte>>
+            {
+                Value = new List<byte> { 2, 4, 6, 8 }
+            };
+
+            var target = new PublicProperty<ICollection<int>> { Value = null };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBe(2, 4, 6, 8);
+        }
+
+        [Fact]
+        public void ShouldHandleANullIdentifiableTargetEnumerable()
+        {
+            var source = new PublicField<IList<PersonViewModel>>
+            {
+                Value = new List<PersonViewModel>
+                {
+                    new PersonViewModel { Id = Guid.NewGuid() }
+                }
+            };
+
+            var target = new PublicField<IEnumerable<Person>> { Value = null };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldHaveSingleItem();
+            result.Value.First().Id.ShouldBe(source.Value.First().Id);
+        }
+
+        [Fact]
         public void ShouldHandleNoMatchingSourceMember()
         {
             var source = new { HelloThere = "La la la" };

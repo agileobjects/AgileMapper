@@ -38,8 +38,7 @@
                 .GetPlanFor<PublicProperty<int[]>>()
                 .ToANew<PublicField<IEnumerable<int>>>();
 
-            plan.ShouldContain("omc.Source.ForEach");
-            plan.ShouldContain("int32s.Add");
+            plan.ShouldContain("omc.Target.Concat(int32s)");
         }
 
         [Fact]
@@ -79,9 +78,8 @@
                 .GetPlanFor<IEnumerable<Person>>()
                 .OnTo<IEnumerable<PersonViewModel>>();
 
-            plan.ShouldContain("omc.Source.IntersectById");
-            plan.ShouldContain(".ExcludeById");
-            plan.ShouldContain("personViewModels.Add");
+            plan.ShouldContain("collectionData.Intersection.ForEach(omc.Map)");
+            plan.ShouldContain("omc.Target.Concat(personViewModels)");
         }
 
         [Fact]
@@ -91,8 +89,8 @@
                 .GetPlanFor<IList<PersonViewModel>>()
                 .Over<IEnumerable<Person>>();
 
-            plan.ShouldContain("omc.Source.IntersectById");
-            plan.ShouldContain(".ExcludeById");
+            plan.ShouldContain("collectionData.Intersection.ForEach(omc.Map)");
+            plan.ShouldContain("omc.Target.Exclude(collectionData.AbsentTargetItems)");
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
             plan.ShouldContain("PersonViewModel -> Person");

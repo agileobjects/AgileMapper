@@ -6,6 +6,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using ObjectPopulation;
 
     internal static class MemberExtensions
     {
@@ -59,6 +60,9 @@
             // Skip(1) because the 0th member is the instance:
             return memberChain.Skip(1).Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
+
+        public static Expression GetEmptyInstanceCreation(this QualifiedMember member)
+            => member.Type.GetEmptyInstanceCreation(member.ElementType);
 
         public static Member CreateElementMember(this Type enumerableType, Type elementType = null)
         {

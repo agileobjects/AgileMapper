@@ -125,7 +125,7 @@
         }
 
         [Fact]
-        public void ShouldHandleANullComplexTypeElement()
+        public void ShouldHandleANullSourceIdentifiableElement()
         {
             var source = new List<Product>
             {
@@ -143,6 +143,23 @@
             result.ShouldNotBeNull();
             result.First().Price.ShouldBe(9.99);
             result.Second().ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleANullTargetComplexTypeElement()
+        {
+            var source = new List<Address>
+            {
+                new Address { Line1 = "La la la" }
+            };
+
+            var target = new List<Address> { null };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.ShouldNotBeNull();
+            result.First().ShouldBeNull();
+            result.Second().Line1.ShouldBe("La la la");
         }
     }
 }

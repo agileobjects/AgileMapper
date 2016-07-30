@@ -10,33 +10,18 @@
         {
             if (builder.TypesAreIdentifiable)
             {
-                var removeExistingObjects = builder
-                    .ExcludeSourceById()
-                    .CallToArray()
-                    .RemoveResultsFromTarget();
+                MergeEnumerablePopulationStrategy.MergeEnumerables(
+                    builder,
+                    b => b.MapIntersection(),
+                    b => b.RemoveTargetItemsById());
 
-                var updateExistingObjects = builder
-                    .IntersectTargetById()
-                    .MapResultsToTarget();
-
-                var addNewObjects = builder
-                    .ExcludeTargetById()
-                    .ProjectToTargetType()
-                    .CallToArray()
-                    .AddResultsToTarget();
-
-                return Expression.Block(
-                    removeExistingObjects,
-                    updateExistingObjects,
-                    addNewObjects,
-                    Constants.EmptyExpression);
+                return builder;
             }
 
-            var removeExistingItems = builder.ClearTarget();
+            builder.ProjectToTargetType().AssignValueToVariable();
+            builder.IfTargetNotNull(b => b.ReplaceTargetItems());
 
-            var addSourceItemsToTarget = builder.ProjectToTargetType().AddResultsToTarget();
-
-            return Expression.Block(removeExistingItems, addSourceItemsToTarget, Constants.EmptyExpression);
+            return builder;
         }
     }
 }
