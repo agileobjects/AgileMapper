@@ -19,6 +19,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type { get; }
 
+        public bool IsEnumerable => false;
+
         public string Name => _wrappedSourceMember.Name;
 
         public string Signature => _wrappedSourceMember.Signature;

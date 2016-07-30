@@ -11,13 +11,14 @@ namespace AgileObjects.AgileMapper.Members
         private readonly Member[] _childMembers;
 
         public ConfiguredSourceMember(Expression value, IMappingData data)
-            : this(value.Type, value.ToReadableString(), data.TargetMember)
+            : this(value.Type, value.Type.IsEnumerable(), value.ToReadableString(), data.TargetMember)
         {
         }
 
-        private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
+        private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember, bool isEnumerable)
             : this(
                   childMember.Type,
+                  isEnumerable,
                   parent.Name + childMember.JoiningName,
                   parent._matchedTargetMember.Append(childMember),
                   parent._childMembers.Append(childMember))
@@ -26,11 +27,13 @@ namespace AgileObjects.AgileMapper.Members
 
         private ConfiguredSourceMember(
             Type type,
+            bool isEnumerable,
             string name,
             QualifiedMember matchedTargetMember,
             Member[] childMembers = null)
         {
             Type = type;
+            IsEnumerable = isEnumerable;
             Name = name;
             _matchedTargetMember = matchedTargetMember;
             _childMembers = childMembers ?? new[] { Member.RootSource(name, type) };
@@ -39,13 +42,15 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type { get; }
 
+        public bool IsEnumerable { get; }
+
         public string Name { get; }
 
         public string Signature { get; }
 
         public string GetPath() => _childMembers.GetFullName();
 
-        public IQualifiedMember Append(Member childMember) => new ConfiguredSourceMember(this, childMember);
+        public IQualifiedMember Append(Member childMember) => new ConfiguredSourceMember(this, childMember, IsEnumerable);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
@@ -54,6 +59,7 @@ namespace AgileObjects.AgileMapper.Members
 
             return new ConfiguredSourceMember(
                 Type,
+                IsEnumerable,
                 Name,
                 _matchedTargetMember,
                 relativeMemberChain);

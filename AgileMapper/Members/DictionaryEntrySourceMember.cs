@@ -44,6 +44,7 @@ namespace AgileObjects.AgileMapper.Members
             Member[] childMembers = null)
         {
             Type = type;
+            IsEnumerable = type.IsEnumerable();
             _pathFactory = pathFactory;
             Signature = signature;
             _matchedTargetMember = matchedTargetMember;
@@ -51,6 +52,8 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public Type Type { get; }
+
+        public bool IsEnumerable { get; }
 
         public string Name => _matchedTargetMember.Name;
 

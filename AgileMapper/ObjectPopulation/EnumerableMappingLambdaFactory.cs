@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetReturnValue(IObjectMappingContext omc)
         {
-            return omc.SourceType.IsEnumerable()
+            return omc.SourceMember.IsEnumerable
                 ? omc.EnumerablePopulationBuilder.GetReturnValue()
                 : omc.EnumerablePopulationBuilder.ExistingOrNewEmptyInstance();
         }

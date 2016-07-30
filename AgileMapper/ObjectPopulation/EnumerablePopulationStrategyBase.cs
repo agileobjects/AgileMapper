@@ -7,7 +7,7 @@
     {
         public Expression GetPopulation(IObjectMappingContext omc)
         {
-            if (omc.SourceType.IsEnumerable())
+            if (omc.SourceMember.IsEnumerable)
             {
                 return GetEnumerablePopulation(new EnumerablePopulationBuilder(omc));
             }
