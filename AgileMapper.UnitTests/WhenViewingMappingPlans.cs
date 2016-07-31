@@ -134,5 +134,26 @@
                 plan.ShouldContain("// AddressLine1 is ignored");
             }
         }
+
+        [Fact]
+        public void ShouldNotIncludeASourceMemberWithTheSameConditionAsAConfiguredMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .From<PublicField<PublicField<string>>>()
+                    .ToANew<PublicProperty<string>>()
+                    .Map((pf, pp) => pf.Value.Value)
+                    .To(pp => pp.Value);
+
+                var plan = mapper
+                    .GetPlanFor<PublicField<PublicField<string>>>()
+                    .ToANew<PublicProperty<string>>();
+
+                plan.ShouldContain("omc.Source.Value.Value");
+                plan.ShouldNotContain("omc.Source.Value.ToString()");
+            }
+        }
     }
 }

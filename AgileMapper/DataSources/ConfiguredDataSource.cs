@@ -6,31 +6,53 @@
 
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {
+        private readonly string _conditionString;
         private readonly string _originalValueString;
 
         public ConfiguredDataSource(
             int dataSourceIndex,
-            Expression value,
             Expression configuredCondition,
+            Expression value,
             IMemberMappingContext context)
-            : base(
+            : this(
                   new ConfiguredSourceMember(value, context),
+                  configuredCondition,
                   GetConvertedValue(dataSourceIndex, value, context),
                   context)
         {
-            _originalValueString = GetConvertedValue(dataSourceIndex, value, context).ToString();
+        }
 
-            if (configuredCondition == null)
+        private ConfiguredDataSource(
+            IQualifiedMember sourceMember,
+            Expression configuredCondition,
+            Expression convertedValue,
+            IMemberMappingContext context)
+            : base(sourceMember, convertedValue, context)
+        {
+            _originalValueString = convertedValue.ToString();
+
+            Expression condition;
+
+            if (configuredCondition != null)
             {
-                Condition = base.Condition;
+                configuredCondition = Process(configuredCondition, context);
+
+                condition = (base.Condition != null)
+                    ? Expression.AndAlso(base.Condition, configuredCondition)
+                    : configuredCondition;
+            }
+            else
+            {
+                condition = base.Condition;
+            }
+
+            if (condition == null)
+            {
                 return;
             }
 
-            configuredCondition = Process(configuredCondition, context);
-
-            Condition = (base.Condition != null)
-                ? Expression.AndAlso(base.Condition, configuredCondition)
-                : configuredCondition;
+            Condition = condition;
+            _conditionString = condition.ToString();
         }
 
         #region Setup
@@ -68,6 +90,7 @@
         public override Expression Condition { get; }
 
         public bool IsSameAs(IDataSource otherDataSource)
-            => otherDataSource.Value.ToString() == _originalValueString;
+            => (otherDataSource.IsConditional && IsConditional && otherDataSource.Condition.ToString() == _conditionString) ||
+               otherDataSource.Value.ToString() == _originalValueString;
     }
 }

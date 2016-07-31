@@ -41,10 +41,10 @@
 
         public IConfiguredDataSource Create(int dataSourceIndex, IMemberMappingContext context)
         {
+            var configuredCondition = GetConditionOrNull(context);
             var value = _dataSourceLambda.GetBody(context);
-            var condition = GetConditionOrNull(context);
 
-            return new ConfiguredDataSource(dataSourceIndex, value, condition, context);
+            return new ConfiguredDataSource(dataSourceIndex, configuredCondition, value, context);
         }
     }
 }
