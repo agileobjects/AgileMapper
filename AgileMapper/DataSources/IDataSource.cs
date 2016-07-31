@@ -12,9 +12,9 @@
 
         bool IsConditional { get; }
 
-        IEnumerable<ParameterExpression> Variables { get; }
+        Expression Condition { get; }
 
-        IEnumerable<Expression> NestedAccesses { get; }
+        IEnumerable<ParameterExpression> Variables { get; }
 
         Expression Value { get; }
 

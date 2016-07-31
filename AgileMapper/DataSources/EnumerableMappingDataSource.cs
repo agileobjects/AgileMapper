@@ -10,9 +10,9 @@
             IMemberMappingContext context)
             : base(
                   sourceEnumerableDataSource.SourceMember,
-                  sourceEnumerableDataSource.NestedAccesses,
                   sourceEnumerableDataSource.Variables,
-                  context.GetMapCall(sourceEnumerableDataSource.Value, dataSourceIndex))
+                  context.GetMapCall(sourceEnumerableDataSource.Value, dataSourceIndex),
+                  sourceEnumerableDataSource.Condition)
         {
         }
     }

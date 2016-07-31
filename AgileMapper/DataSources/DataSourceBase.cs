@@ -9,18 +9,18 @@
     internal abstract class DataSourceBase : IDataSource
     {
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
-            : this(sourceMember, Enumerable.Empty<Expression>(), Enumerable.Empty<ParameterExpression>(), value)
+            : this(sourceMember, Enumerable.Empty<ParameterExpression>(), value)
         {
         }
 
         protected DataSourceBase(
             IQualifiedMember sourceMember,
-            IEnumerable<Expression> nestedAccesses,
             IEnumerable<ParameterExpression> variables,
-            Expression value)
+            Expression value,
+            Expression condition = null)
         {
             SourceMember = sourceMember;
-            NestedAccesses = nestedAccesses;
+            Condition = condition;
             Variables = variables;
             Value = value;
         }
@@ -41,7 +41,7 @@
                 out nestedAccesses,
                 out variables);
 
-            NestedAccesses = nestedAccesses;
+            Condition = nestedAccesses.GetIsNotDefaultComparisonsOrNull();
             Variables = variables;
             Value = value;
         }
@@ -90,18 +90,15 @@
 
         public virtual bool IsValid => Value != Constants.EmptyExpression;
 
-        public virtual bool IsConditional => NestedAccesses.Any();
+        public bool IsConditional => Condition != null;
+
+        public virtual Expression Condition { get; }
 
         public IEnumerable<ParameterExpression> Variables { get; }
-
-        public IEnumerable<Expression> NestedAccesses { get; }
 
         public Expression Value { get; }
 
         public virtual Expression GetValueOption(Expression valueSoFar)
-            => Expression.Condition(GetValueCondition(), Value, valueSoFar);
-
-        protected virtual Expression GetValueCondition()
-            => NestedAccesses.GetIsNotDefaultComparisonsOrNull();
+            => Expression.Condition(Condition, Value, valueSoFar);
     }
 }

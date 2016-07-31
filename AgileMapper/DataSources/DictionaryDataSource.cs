@@ -35,7 +35,6 @@ namespace AgileObjects.AgileMapper.DataSources
         private DictionaryDataSource(IMemberMappingContext context, ParameterExpression variable)
             : base(
                   new DictionarySourceMember(context),
-                  Enumerable.Empty<Expression>(),
                   new[] { variable },
                   GetValueParsing(variable, context))
         {

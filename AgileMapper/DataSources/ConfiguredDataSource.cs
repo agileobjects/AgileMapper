@@ -6,13 +6,12 @@
 
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {
-        private readonly Expression _condition;
         private readonly string _originalValueString;
 
         public ConfiguredDataSource(
             int dataSourceIndex,
             Expression value,
-            Expression condition,
+            Expression configuredCondition,
             IMemberMappingContext context)
             : base(
                   new ConfiguredSourceMember(value, context),
@@ -20,12 +19,18 @@
                   context)
         {
             _originalValueString = GetConvertedValue(dataSourceIndex, value, context).ToString();
-            HasConfiguredCondition = condition != null;
 
-            if (HasConfiguredCondition)
+            if (configuredCondition == null)
             {
-                _condition = GetCondition(condition, context);
+                Condition = base.Condition;
+                return;
             }
+
+            configuredCondition = Process(configuredCondition, context);
+
+            Condition = (base.Condition != null)
+                ? Expression.AndAlso(base.Condition, configuredCondition)
+                : configuredCondition;
         }
 
         #region Setup
@@ -42,36 +47,27 @@
             return convertedValue;
         }
 
-        private static Expression GetCondition(Expression condition, IMemberMappingContext context)
+        private static Expression Process(Expression configuredCondition, IMemberMappingContext context)
         {
             var conditionNestedAccessesChecks = context
-                .GetNestedAccessesIn(condition)
+                .GetNestedAccessesIn(configuredCondition)
                 .GetIsNotDefaultComparisonsOrNull();
 
             if (conditionNestedAccessesChecks == null)
             {
-                return condition;
+                return configuredCondition;
             }
 
-            var checkedCondition = Expression.AndAlso(conditionNestedAccessesChecks, condition);
+            var checkedConfiguredCondition = Expression.AndAlso(conditionNestedAccessesChecks, configuredCondition);
 
-            return checkedCondition;
+            return checkedConfiguredCondition;
         }
 
         #endregion
 
-        public bool HasConfiguredCondition { get; }
-
-        public override bool IsConditional => base.IsConditional || HasConfiguredCondition;
+        public override Expression Condition { get; }
 
         public bool IsSameAs(IDataSource otherDataSource)
             => otherDataSource.Value.ToString() == _originalValueString;
-
-        protected override Expression GetValueCondition()
-        {
-            return HasConfiguredCondition
-                ? base.IsConditional ? Expression.AndAlso(base.GetValueCondition(), _condition) : _condition
-                : base.GetValueCondition();
-        }
     }
 }

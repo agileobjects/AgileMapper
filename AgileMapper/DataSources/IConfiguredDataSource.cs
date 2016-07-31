@@ -2,8 +2,6 @@
 {
     internal interface IConfiguredDataSource : IDataSource
     {
-        bool HasConfiguredCondition { get; }
-
         bool IsSameAs(IDataSource otherDataSource);
     }
 }
