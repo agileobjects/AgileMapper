@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
     using System.Linq.Expressions;
@@ -11,7 +11,6 @@
         private const string AllRuleSets = "*";
 
         private Type _sourceType;
-        private Type _targetType;
         private Type _sourceValueType;
         private string _mappingRuleSetName;
         private ConfiguredLambdaInfo _conditionLambda;
@@ -52,9 +51,11 @@
 
         public MappingConfigInfo ForTargetType(Type targetType)
         {
-            _targetType = targetType;
+            TargetType = targetType;
             return this;
         }
+
+        internal Type TargetType { get; private set; }
 
         public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => _sourceType == otherConfigInfo._sourceType;
 
@@ -63,11 +64,11 @@
         public bool IsForSourceType(Type sourceType)
             => (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
 
-        public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => _targetType == otherConfigInfo._targetType;
+        public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
 
-        public bool IsForTargetType(MappingConfigInfo otherConfigInfo) => IsForTargetType(otherConfigInfo._targetType);
+        public bool IsForTargetType(MappingConfigInfo otherConfigInfo) => IsForTargetType(otherConfigInfo.TargetType);
 
-        public bool IsForTargetType(Type targetType) => _targetType.IsAssignableFrom(targetType);
+        public bool IsForTargetType(Type targetType) => TargetType.IsAssignableFrom(targetType);
 
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(AllRuleSets);
 
@@ -150,7 +151,7 @@
             return new MappingConfigInfo(MapperContext)
             {
                 _sourceType = _sourceType,
-                _targetType = _targetType,
+                TargetType = TargetType,
                 _sourceValueType = _sourceValueType,
                 _mappingRuleSetName = _mappingRuleSetName
             };

@@ -5,8 +5,8 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using AgileMapper.Configuration;
     using AgileMapper.Members;
-    using Api.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;

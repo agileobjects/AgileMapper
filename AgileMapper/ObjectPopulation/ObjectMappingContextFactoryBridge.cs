@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingData = new BasicMappingData(mappingContext.RuleSet, sourceMember.Type, typeof(TTarget));
 
             var targetMemberType =
-                mappingContext.MapperContext.UserConfigurations.GetDerivedTypeOrNull(mappingData)
+                mappingContext.MapperContext.UserConfigurations.DerivedTypePairs.GetDerivedTypeOrNull(mappingData)
                     ?? target.GetRuntimeTargetType(sourceMember.Type);
 
             targetMember = targetMember.WithType(targetMemberType);

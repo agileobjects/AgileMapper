@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Extensions;
+    using AgileMapper.Configuration;
     using Members;
 
     internal class MappingConfigurator<TSource, TTarget> : IFullMappingConfigurator<TSource, TTarget>

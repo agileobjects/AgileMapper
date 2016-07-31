@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using AgileMapper.Configuration;
+
     public class DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
@@ -17,7 +19,7 @@
                 typeof(TDerivedSource),
                 typeof(TDerivedTarget));
 
-            _configInfo.MapperContext.UserConfigurations.Add(derivedTypePair);
+            _configInfo.MapperContext.UserConfigurations.DerivedTypePairs.Add(derivedTypePair);
         }
     }
 }

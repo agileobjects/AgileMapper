@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System.Linq.Expressions;
 

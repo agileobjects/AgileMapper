@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using AgileMapper.Configuration;
+
     public class TargetTypeSpecifier<TSource>
     {
         private readonly MappingConfigInfo _configInfo;

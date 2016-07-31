@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using AgileMapper.Configuration;
     using ObjectPopulation;
 
     internal abstract class CallbackSpecifierBase

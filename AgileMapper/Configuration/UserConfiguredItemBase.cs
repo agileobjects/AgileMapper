@@ -1,7 +1,8 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Api.Configuration;
     using Members;
 
     internal abstract class UserConfiguredItemBase

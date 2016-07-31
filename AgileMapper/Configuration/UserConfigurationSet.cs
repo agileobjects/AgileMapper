@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
     using System.Collections.Generic;
@@ -16,7 +16,6 @@
         private readonly ICollection<MappingCallbackFactory> _mappingCallbackFactories;
         private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
         private readonly ICollection<ExceptionCallback> _exceptionCallbackFactories;
-        private readonly ICollection<DerivedTypePair> _typePairs;
 
         public UserConfigurationSet()
         {
@@ -27,10 +26,8 @@
             _mappingCallbackFactories = new List<MappingCallbackFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
             _exceptionCallbackFactories = new List<ExceptionCallback>();
-            _typePairs = new List<DerivedTypePair>();
+            DerivedTypePairs = new DerivedTypePairSet();
         }
-
-        public MemberIdentifierSet Identifiers { get; }
 
         #region ObjectFactories
 
@@ -40,6 +37,8 @@
             => FindMatches(_objectFactories, context).ToArray();
 
         #endregion
+
+        public MemberIdentifierSet Identifiers { get; }
 
         #region Ignored Members
 
@@ -113,14 +112,7 @@
 
         #endregion
 
-        #region DerivedTypePairs
-
-        public void Add(DerivedTypePair typePair) => _typePairs.Add(typePair);
-
-        public Type GetDerivedTypeOrNull(IMappingData data)
-            => FindMatch(_typePairs, data)?.DerivedTargetType;
-
-        #endregion
+        public DerivedTypePairSet DerivedTypePairs { get; }
 
         private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IMappingData data)
             where TItem : UserConfiguredItemBase
@@ -168,7 +160,7 @@
             _mappingCallbackFactories.Clear();
             _creationCallbackFactories.Clear();
             _exceptionCallbackFactories.Clear();
-            _typePairs.Clear();
+            DerivedTypePairs.Reset();
         }
     }
 }

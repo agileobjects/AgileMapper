@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Linq.Expressions;
+    using AgileMapper.Configuration;
     using Members;
 
     public class InstanceConfigurator<TObject> where TObject : class

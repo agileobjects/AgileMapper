@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Api.Configuration;
+    using Configuration;
     using Extensions;
     using Members;
 

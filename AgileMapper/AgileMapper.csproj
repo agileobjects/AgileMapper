@@ -41,10 +41,11 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
-    <Compile Include="Api\Configuration\ConfiguredLambdaInfo.cs" />
+    <Compile Include="Configuration\ConfiguredLambdaInfo.cs" />
     <Compile Include="Api\Configuration\DerivedPairTargetTypeSpecifier.cs" />
-    <Compile Include="Api\Configuration\DerivedTypePair.cs" />
-    <Compile Include="Api\Configuration\ExceptionCallback.cs" />
+    <Compile Include="Configuration\DerivedTypePair.cs" />
+    <Compile Include="Configuration\DerivedTypePairSet.cs" />
+    <Compile Include="Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\FactorySpecifier.cs" />
     <Compile Include="Api\Configuration\ICallbackSpecifier.cs" />
     <Compile Include="Api\Configuration\IConditionalCallbackSpecifier.cs" />
@@ -101,7 +102,7 @@
     <Compile Include="Members\ITypedMemberMappingContext.cs" />
     <Compile Include="Members\TypedMemberMappingContext.cs" />
     <Compile Include="Api\Configuration\CallbackSpecifier.cs" />
-    <Compile Include="Api\Configuration\ConfiguredIgnoredMember.cs" />
+    <Compile Include="Configuration\ConfiguredIgnoredMember.cs" />
     <Compile Include="Api\Configuration\PostEventConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PostEventMappingConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PreEventMappingConfigStartingPoint.cs" />
@@ -109,11 +110,11 @@
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
     <Compile Include="Members\IMemberMappingContext.cs" />
-    <Compile Include="Api\Configuration\MappingConfigInfo.cs" />
+    <Compile Include="Configuration\MappingConfigInfo.cs" />
     <Compile Include="Api\Configuration\MappingConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\MappingConfigurator.cs" />
     <Compile Include="Api\Configuration\TargetTypeSpecifier.cs" />
-    <Compile Include="Api\Configuration\UserConfigurationSet.cs" />
+    <Compile Include="Configuration\UserConfigurationSet.cs" />
     <Compile Include="DataSources\ComplexTypeMappingDataSource.cs" />
     <Compile Include="DataSources\ConfiguredDataSource.cs" />
     <Compile Include="DataSources\ConfiguredDataSourceFactory.cs" />
@@ -124,7 +125,7 @@
     <Compile Include="Members\NestedAccessFinder.cs" />
     <Compile Include="DataSources\SourceMemberDataSource.cs" />
     <Compile Include="DataSources\DataSourceBase.cs" />
-    <Compile Include="Api\Configuration\UserConfiguredItemBase.cs" />
+    <Compile Include="Configuration\UserConfiguredItemBase.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
@@ -174,7 +175,7 @@
     <Compile Include="TypeConversion\ConverterSet.cs" />
     <Compile Include="TypeConversion\DefaultTryParseConverter.cs" />
     <Compile Include="TypeConversion\IValueConverter.cs" />
-    <Compile Include="Api\Configuration\MappingConfigurationException.cs" />
+    <Compile Include="Configuration\MappingConfigurationException.cs" />
     <Compile Include="TypeConversion\NumericValueIsInRangeComparison.cs" />
     <Compile Include="TypeConversion\ToEnumConverter.cs" />
     <Compile Include="TypeConversion\ToNumericConverter.cs" />

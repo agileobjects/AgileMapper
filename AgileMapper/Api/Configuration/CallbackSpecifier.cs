@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using AgileMapper.Configuration;
     using Members;
     using ObjectPopulation;
 

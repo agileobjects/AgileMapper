@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Api.Configuration;
+    using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;

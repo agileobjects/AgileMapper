@@ -2,6 +2,7 @@
 {
     using Api.Configuration;
     using Caching;
+    using Configuration;
     using DataSources;
     using Flattening;
     using Members;

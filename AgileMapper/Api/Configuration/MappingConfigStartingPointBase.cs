@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System.Linq.Expressions;
+    using AgileMapper.Configuration;
     using Members;
     using ObjectPopulation;
 

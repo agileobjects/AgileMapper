@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
     using Members;
@@ -14,8 +14,11 @@
             : base(configInfo)
         {
             _derivedSourceType = derivedSourceType;
+            ParentTargetType = configInfo.TargetType;
             DerivedTargetType = derivedTargetType;
         }
+
+        public Type ParentTargetType { get; }
 
         public Type DerivedTargetType { get; }
 
