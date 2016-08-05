@@ -6,21 +6,20 @@ namespace AgileObjects.AgileMapper
 
     internal class GlobalContext
     {
-        public static readonly GlobalContext Default = new GlobalContext();
+        public static readonly GlobalContext Instance = new GlobalContext();
 
-        private readonly Lazy<ICache> _cacheLoader;
         private readonly Lazy<MemberFinder> _memberFinderLoader;
 
         private GlobalContext()
         {
-            _cacheLoader = new Lazy<ICache>(CreateCache, isThreadSafe: true);
-            _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(Cache), isThreadSafe: true);
+            Cache = new CacheSet(this);
+            _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(this), isThreadSafe: true);
         }
 
-        public ICache Cache => _cacheLoader.Value;
+        public CacheSet Cache { get; }
 
         public MemberFinder MemberFinder => _memberFinderLoader.Value;
 
-        public ICache CreateCache() => new DictionaryCache();
+        public ICache<TKey, TValue> CreateCache<TKey, TValue>() => new DictionaryCache<TKey, TValue>();
     }
 }

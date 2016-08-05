@@ -3,15 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Caching;
     using Extensions;
     using Members;
 
     internal class DataSourceFinder
     {
+        private readonly ICache<DataSourceSetKey, DataSourceSet> _cache;
         private readonly ICollection<IConditionalDataSourceFactory> _mapTimeDataSourceFactories;
 
-        public DataSourceFinder()
+        public DataSourceFinder(GlobalContext globalContext)
         {
+            _cache = globalContext.CreateCache<DataSourceSetKey, DataSourceSet>();
+
             _mapTimeDataSourceFactories = new List<IConditionalDataSourceFactory>
             {
                 new DictionaryDataSourceFactory()
@@ -22,7 +26,7 @@
         {
             var cacheKey = new DataSourceSetKey(context);
 
-            return context.MapperContext.Cache.GetOrAdd(cacheKey, k =>
+            return _cache.GetOrAdd(cacheKey, k =>
             {
                 var validDataSources = EnumerateDataSources(context)
                     .Where(ds => ds.IsValid)
@@ -233,6 +237,11 @@
             }
         }
 
+        public void Reset()
+        {
+            _cache.Empty();
+        }
+
         private class DataSourceSetKey
         {
             private readonly Type _sourceType;
@@ -248,12 +257,7 @@
 
             public override bool Equals(object obj)
             {
-                var otherKey = obj as DataSourceSetKey;
-
-                if (otherKey == null)
-                {
-                    return false;
-                }
+                var otherKey = (DataSourceSetKey)obj;
 
                 return
                     (_sourceType == otherKey._sourceType) &&

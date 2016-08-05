@@ -9,10 +9,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ComplexTypeMappingLambdaFactory<TSource, TTarget>
-        : ObjectMappingLambdaFactoryBase<TSource, TTarget>
+    internal class ComplexTypeMappingLambdaFactory<TSource, TTarget> : ObjectMappingLambdaFactoryBase<TSource, TTarget>
     {
-        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget> Instance =
+        public static readonly ObjectMappingLambdaFactoryBase<TSource, TTarget> Instance = 
             new ComplexTypeMappingLambdaFactory<TSource, TTarget>();
 
         protected override bool IsNotConstructable(IObjectMappingContext omc)

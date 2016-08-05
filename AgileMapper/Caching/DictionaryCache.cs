@@ -3,25 +3,26 @@
     using System;
     using System.Collections.Generic;
 
-    internal class DictionaryCache : ICache
+    internal class DictionaryCache<TKey, TValue> : ICache<TKey, TValue>
     {
+        // ReSharper disable once StaticMemberInGenericType
         private static readonly object _itemsLock = new object();
 
-        private readonly Dictionary<object, object> _items;
+        private readonly Dictionary<TKey, TValue> _items;
 
         public DictionaryCache()
         {
-            _items = new Dictionary<object, object>();
+            _items = new Dictionary<TKey, TValue>();
         }
 
-        public TValue GetOrAdd<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
+        public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
         {
-            object value;
+            TValue value;
 
             // ReSharper disable once InconsistentlySynchronizedField
             if (_items.TryGetValue(key, out value))
             {
-                return (TValue)value;
+                return value;
             }
 
             lock (_itemsLock)
@@ -32,7 +33,7 @@
                 }
             }
 
-            return (TValue)value;
+            return value;
         }
 
         public void Empty()

@@ -9,18 +9,20 @@
 
     internal class MemberFinder
     {
-        private readonly ICache _globalCache;
+        private readonly ICache<TypeKey, Member> _idMemberCache;
+        private readonly ICache<TypeKey, IEnumerable<Member>> _membersCache;
 
-        public MemberFinder(ICache globalCache)
+        public MemberFinder(GlobalContext globalContext)
         {
-            _globalCache = globalCache;
+            _idMemberCache = globalContext.CreateCache<TypeKey, Member>();
+            _membersCache = globalContext.CreateCache<TypeKey, IEnumerable<Member>>();
         }
 
         public Member GetIdentifierOrNull(Type type) => GetIdentifierOrNull(TypeKey.ForTypeId(type));
 
         public Member GetIdentifierOrNull(TypeKey typeIdKey)
         {
-            return _globalCache.GetOrAdd(typeIdKey, key =>
+            return _idMemberCache.GetOrAdd(typeIdKey, key =>
             {
                 var typeMembers = GetReadableMembers(key.Type);
 
@@ -30,7 +32,7 @@
 
         public IEnumerable<Member> GetReadableMembers(Type sourceType)
         {
-            return _globalCache.GetOrAdd(TypeKey.ForSourceMembers(sourceType), key =>
+            return _membersCache.GetOrAdd(TypeKey.ForSourceMembers(sourceType), key =>
             {
                 if (key.Type.IsEnumerable())
                 {
@@ -47,7 +49,7 @@
 
         public IEnumerable<Member> GetWriteableMembers(Type targetType)
         {
-            return _globalCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
+            return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
                 var fields = GetFields(key.Type, OnlyWriteable);
                 var properties = GetProperties(key.Type, OnlySettable);

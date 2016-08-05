@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Configuration;
     using Extensions;
     using Members;

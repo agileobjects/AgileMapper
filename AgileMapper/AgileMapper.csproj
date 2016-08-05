@@ -41,6 +41,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
+    <Compile Include="Caching\CacheSet.cs" />
     <Compile Include="Configuration\ConfiguredLambdaInfo.cs" />
     <Compile Include="Api\Configuration\DerivedPairTargetTypeSpecifier.cs" />
     <Compile Include="Configuration\DerivedTypePair.cs" />

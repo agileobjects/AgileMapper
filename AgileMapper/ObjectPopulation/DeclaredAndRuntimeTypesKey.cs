@@ -52,12 +52,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public override bool Equals(object obj)
         {
-            var otherKey = obj as DeclaredAndRuntimeTypesKey;
-
-            if (otherKey == null)
-            {
-                return false;
-            }
+            var otherKey = (DeclaredAndRuntimeTypesKey)obj;
 
             return
                 (_keyType == otherKey._keyType) &&

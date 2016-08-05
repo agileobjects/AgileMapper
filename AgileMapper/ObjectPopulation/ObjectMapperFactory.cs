@@ -1,12 +1,20 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using Caching;
     using Members;
 
     internal class ObjectMapperFactory
     {
+        private readonly ICache<ObjectMapperKey, object> _cache;
+
+        public ObjectMapperFactory(GlobalContext globalContext)
+        {
+            _cache = globalContext.CreateCache<ObjectMapperKey, object>();
+        }
+
         public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMappingContext omc)
         {
-            var mapper = omc.MapperContext.Cache.GetOrAdd(new ObjectMapperKey(omc), k =>
+            var mapper = (IObjectMapper<TTarget>)_cache.GetOrAdd(new ObjectMapperKey(omc), k =>
             {
                 var lambda = omc.TargetMember.IsEnumerable
                     ? EnumerableMappingLambdaFactory<TSource, TTarget>.Instance.Create(omc)
@@ -33,12 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public override bool Equals(object obj)
             {
-                var otherKey = obj as ObjectMapperKey;
-
-                if (otherKey == null)
-                {
-                    return false;
-                }
+                var otherKey = (ObjectMapperKey)obj;
 
                 return
                     (_ruleSet == otherKey._ruleSet) &&
@@ -48,6 +51,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             public override int GetHashCode() => 0;
+        }
+
+        public void Reset()
+        {
+            _cache.Empty();
         }
     }
 }

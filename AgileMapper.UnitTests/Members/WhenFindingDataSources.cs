@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
 
     public class WhenFindingDataSources : MemberFinderTestsBase
     {
-        private static readonly DataSourceFinder _dataSourceFinder = new DataSourceFinder();
+        private static readonly DataSourceFinder _dataSourceFinder = new DataSourceFinder(GlobalContext.Instance);
 
         [Fact]
         public void ShouldNotMatchSameNameIncompatibleTypeProperties()

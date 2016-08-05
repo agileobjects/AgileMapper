@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-    using Api.Configuration;
     using Caching;
     using Configuration;
     using DataSources;
@@ -15,19 +14,19 @@
 
         public MapperContext()
         {
-            DataSources = new DataSourceFinder();
+            Cache = new CacheSet(GlobalContext);
+            DataSources = new DataSourceFinder(GlobalContext);
             NamingSettings = new NamingSettings();
-            Cache = GlobalContext.CreateCache();
-            ObjectMapperFactory = new ObjectMapperFactory();
+            ObjectMapperFactory = new ObjectMapperFactory(GlobalContext);
             ObjectFlattener = new ObjectFlattener(this);
             UserConfigurations = new UserConfigurationSet();
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
         }
 
-        public GlobalContext GlobalContext => GlobalContext.Default;
+        public GlobalContext GlobalContext => GlobalContext.Instance;
 
-        public ICache Cache { get; }
+        public CacheSet Cache { get; }
 
         public DataSourceFinder DataSources { get; }
 
@@ -46,7 +45,9 @@
         public void Reset()
         {
             Cache.Empty();
+            DataSources.Reset();
             UserConfigurations.Reset();
+            ObjectMapperFactory.Reset();
         }
     }
 }

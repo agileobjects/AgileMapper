@@ -2,9 +2,9 @@
 {
     using System;
 
-    internal interface ICache
+    internal interface ICache<TKey, TValue>
     {
-        TValue GetOrAdd<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory);
+        TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory);
 
         void Empty();
     }

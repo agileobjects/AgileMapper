@@ -24,12 +24,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public override bool Equals(object obj)
         {
-            var otherKey = obj as TypeKey;
-
-            if (otherKey == null)
-            {
-                return false;
-            }
+            var otherKey = (TypeKey)obj;
 
             return (_keyType == otherKey._keyType) && (Type == otherKey.Type);
         }
