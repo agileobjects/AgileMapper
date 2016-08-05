@@ -10,9 +10,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
-    internal abstract class ObjectMappingLambdaFactoryBase<TSource, TTarget>
+    internal abstract class ObjectMappingLambdaFactoryBase
     {
-        public Expression<MapperFunc<TSource, TTarget>> Create(IObjectMappingContext omc)
+        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMappingContext omc)
         {
             var returnLabelTarget = Expression.Label(omc.TargetObject.Type, "Return");
             var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omc.TargetObject.Type));

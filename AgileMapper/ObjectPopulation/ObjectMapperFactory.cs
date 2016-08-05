@@ -17,8 +17,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapper = (IObjectMapper<TTarget>)_cache.GetOrAdd(new ObjectMapperKey(omc), k =>
             {
                 var lambda = omc.TargetMember.IsEnumerable
-                    ? EnumerableMappingLambdaFactory<TSource, TTarget>.Instance.Create(omc)
-                    : ComplexTypeMappingLambdaFactory<TSource, TTarget>.Instance.Create(omc);
+                    ? EnumerableMappingLambdaFactory.Instance.Create<TSource, TTarget>(omc)
+                    : ComplexTypeMappingLambdaFactory.Instance.Create<TSource, TTarget>(omc);
 
                 return new ObjectMapper<TSource, TTarget>(lambda);
             });
