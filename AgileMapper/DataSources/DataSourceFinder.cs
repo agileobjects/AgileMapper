@@ -146,13 +146,6 @@
 
         private IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
         {
-            if (context.Parent == null)
-            {
-                return GetSourceMemberDataSourceFor(
-                    QualifiedMember.From(Member.RootSource(context.SourceType), context.MapperContext.NamingSettings),
-                    context);
-            }
-
             var bestMatchingSourceMember = GetSourceMemberFor(context);
 
             if (bestMatchingSourceMember == null)

@@ -25,6 +25,7 @@
                 // ReSharper disable once AssignNullToNotNullAttribute
                 if (_typePairsByTargetType.TryGetValue(parentType, out typePairs))
                 {
+                    // TODO: Derived grandchild pair tests
                     typePairs.Add(typePair);
                 }
                 else

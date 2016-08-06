@@ -42,6 +42,7 @@ namespace AgileObjects.AgileMapper.Extensions
 
                 if (sourceItemId == null)
                 {
+                    // TODO: Null source item id tests
                     newSourceItems.Add(sourceItem);
                     continue;
                 }
