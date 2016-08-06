@@ -84,16 +84,21 @@
 
         public void Add(MappingCallbackFactory callbackFactory) => _mappingCallbackFactories.Add(callbackFactory);
 
-        public Expression GetCallbackOrNull(CallbackPosition position, IObjectMappingContext omc)
-            => GetCallbackOrNull(position, QualifiedMember.None, omc);
+        public Expression GetCallbackOrNull(CallbackPosition position, IMemberMappingContext context)
+            => GetCallbackOrNull(position, QualifiedMember.None, context);
 
         public Expression GetCallbackOrNull(
             CallbackPosition position,
             QualifiedMember targetMember,
-            IObjectMappingContext omc)
+            IMemberMappingContext context)
         {
-            var memberContext = new MemberMappingContext(targetMember, omc);
-            return _mappingCallbackFactories.FirstOrDefault(f => f.AppliesTo(position, memberContext))?.Create(omc);
+            var mappingData = new BasicMappingData(
+                context.MappingContext.RuleSet,
+                context.SourceType,
+                targetMember.Type);
+
+            return _mappingCallbackFactories
+                .FirstOrDefault(f => f.AppliesTo(position, mappingData))?.Create(context);
         }
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);

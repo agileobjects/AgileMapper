@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
     using Extensions;
+    using Members;
 
     internal class ShortCircuitConditionBuilder
     {
@@ -24,23 +25,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return this;
         }
 
-        public Expression GetCondition(IObjectMappingContext omc)
+        public Expression GetCondition(IMemberMappingContext context)
         {
             if (_nullSource && _nullExisting)
             {
                 return Expression.AndAlso(
-                    omc.SourceObject.GetIsDefaultComparison(),
-                    omc.TargetObject.GetIsDefaultComparison());
+                    context.SourceObject.GetIsDefaultComparison(),
+                    context.TargetObject.GetIsDefaultComparison());
             }
 
             if (_nullSource)
             {
-                return omc.SourceObject.GetIsDefaultComparison();
+                return context.SourceObject.GetIsDefaultComparison();
             }
 
             if (_nullExisting)
             {
-                return omc.TargetObject.GetIsDefaultComparison();
+                return context.TargetObject.GetIsDefaultComparison();
             }
 
             return Expression.Constant(false);

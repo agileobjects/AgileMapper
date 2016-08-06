@@ -25,10 +25,10 @@
         public virtual bool AppliesTo(CallbackPosition callbackPosition, IMappingData data)
             => (CallbackPosition == callbackPosition) && base.AppliesTo(data);
 
-        public Expression Create(IObjectMappingContext omc)
+        public Expression Create(IMemberMappingContext context)
         {
-            var callback = _callbackLambda.GetBody(omc);
-            var condition = GetConditionOrNull(omc);
+            var callback = _callbackLambda.GetBody(context);
+            var condition = GetConditionOrNull(context);
 
             if (condition != null)
             {

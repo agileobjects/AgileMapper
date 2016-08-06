@@ -79,6 +79,7 @@
     <Compile Include="MappingException.cs" />
     <Compile Include="DataSources\DataSourceSet.cs" />
     <Compile Include="DataSources\NullDataSource.cs" />
+    <Compile Include="BasicMappingData.cs" />
     <Compile Include="ObjectPopulation\ConfiguredObjectFactory.cs" />
     <Compile Include="Api\Configuration\InstanceCreationCallbackSpecifier.cs" />
     <Compile Include="Members\ConfiguredSourceMember.cs" />

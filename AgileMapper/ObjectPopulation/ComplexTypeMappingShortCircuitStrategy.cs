@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Members;
 
     internal class ComplexTypeMappingShortCircuitStrategy : IComplexTypeMappingShortCircuitStrategy
     {
@@ -23,9 +24,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool SourceCanBeNull => _conditionBuilder.SourceCanBeNull;
 
-        public IEnumerable<Expression> GetConditions(IObjectMappingContext omc)
+        public IEnumerable<Expression> GetConditions(IMemberMappingContext context)
         {
-            yield return _conditionBuilder.GetCondition(omc);
+            yield return _conditionBuilder.GetCondition(context);
         }
     }
 }

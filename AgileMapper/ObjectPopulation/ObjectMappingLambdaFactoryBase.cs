@@ -54,9 +54,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract bool IsNotConstructable(IObjectMappingContext omc);
 
-        private static IEnumerable<Expression> GetMappingCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
+        private static IEnumerable<Expression> GetMappingCallback(
+            CallbackPosition callbackPosition,
+            IMemberMappingContext context)
         {
-            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, omc), omc);
+            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, context), context);
         }
 
         protected static Expression GetCallbackOrEmpty(

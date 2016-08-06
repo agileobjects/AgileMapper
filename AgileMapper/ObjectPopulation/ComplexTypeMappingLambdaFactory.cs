@@ -22,17 +22,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             yield return GetExistingObjectShortCircuit(returnNull.Target, omc);
         }
 
-        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, IObjectMappingContext omc)
+        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, IMemberMappingContext context)
         {
-            if (!omc.SourceMember.Matches(omc.TargetMember))
+            if (!context.SourceMember.Matches(context.TargetMember))
             {
                 return Constants.EmptyExpression;
             }
 
-            var shortCircuitConditions = omc.MappingContext
+            var shortCircuitConditions = context.MappingContext
                 .RuleSet
                 .ComplexTypeMappingShortCircuitStrategy
-                .GetConditions(omc)
+                .GetConditions(context)
                 .Select(condition => (Expression)Expression.IfThen(condition, returnNull));
 
             var shortCircuitBlock = Expression.Block(shortCircuitConditions);
@@ -42,6 +42,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, IObjectMappingContext omc)
         {
+
+
             var ifTryGetReturn = Expression.IfThen(
                 omc.TryGetCall,
                 Expression.Return(returnTarget, omc.InstanceVariable));
