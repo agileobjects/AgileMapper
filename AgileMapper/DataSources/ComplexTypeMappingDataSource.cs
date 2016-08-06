@@ -7,7 +7,7 @@
     {
         public ComplexTypeMappingDataSource(int dataSourceIndex, IMemberMappingContext context)
             : this(
-                  context.MapperContext.DataSources.GetSourceMemberFor(context) ?? context.SourceMember,
+                  SourceMemberMatcher.GetMatchFor(context) ?? context.SourceMember,
                   dataSourceIndex,
                   context)
         {

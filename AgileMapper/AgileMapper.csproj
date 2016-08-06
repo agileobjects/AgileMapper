@@ -67,6 +67,7 @@
     <Compile Include="DataSources\DictionaryDataSourceFactory.cs" />
     <Compile Include="DataSources\IConditionalDataSourceFactory.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
+    <Compile Include="Members\SourceMemberMatcher.cs" />
     <Compile Include="Extensions\CollectionData.cs" />
     <Compile Include="Extensions\ExpressionExtensions.Replace.cs" />
     <Compile Include="Members\DictionaryEntrySourceMember.cs" />

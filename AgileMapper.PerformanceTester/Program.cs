@@ -21,11 +21,14 @@
                 }
             };
 
+            const int NUMBER_OF_SETUPS = 1000;
+            const int NUMBER_OF_MAPPINGS = 1000000;
+
             var stopwatch = new Stopwatch();
 
             stopwatch.Start();
 
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < NUMBER_OF_SETUPS; i++)
             {
                 using (SetupMapper(source))
                 {
@@ -34,14 +37,17 @@
 
             stopwatch.Stop();
 
-            Console.WriteLine("Average setup time: " + stopwatch.Elapsed.TotalSeconds + "ms");
+            Console.WriteLine(
+                $"Total setup time: {stopwatch.Elapsed.TotalSeconds}s " +
+                $"({NUMBER_OF_SETUPS} setups, " +
+                $"{(stopwatch.Elapsed.TotalSeconds / NUMBER_OF_SETUPS * 1000)}ms average)");
 
             using (var mapper = SetupMapper(source))
             {
                 stopwatch.Reset();
                 stopwatch.Start();
 
-                for (var i = 0; i < 10000; i++)
+                for (var i = 0; i < NUMBER_OF_MAPPINGS; i++)
                 {
                     mapper.Map(source).ToANew<CustomerViewModel>();
                 }
@@ -49,7 +55,10 @@
                 stopwatch.Stop();
             }
 
-            Console.WriteLine("Average map time: " + stopwatch.Elapsed.TotalSeconds / 10 + "ms");
+            Console.WriteLine(
+                $"Total map time: {stopwatch.Elapsed.TotalSeconds}s " +
+                $"({NUMBER_OF_MAPPINGS} mappings, " +
+                $"{(stopwatch.Elapsed.TotalSeconds / NUMBER_OF_MAPPINGS * 1000)}ms average)");
 
             Console.WriteLine("Finished!");
 

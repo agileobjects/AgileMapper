@@ -85,7 +85,7 @@
                 yield break;
             }
 
-            foreach (var dataSource in GetSourceMemberDataSources(context, configuredDataSources, dataSourceIndex))
+            foreach (var dataSource in GetSourceMemberDataSources(configuredDataSources, dataSourceIndex, context))
             {
                 yield return dataSource;
             }
@@ -118,10 +118,10 @@
         private static IDataSource FallbackDataSourceFor(IMemberMappingContext context)
             => context.MappingContext.RuleSet.FallbackDataSourceFactory.Create(context);
 
-        private IEnumerable<IDataSource> GetSourceMemberDataSources(
-            IMemberMappingContext context,
+        private static IEnumerable<IDataSource> GetSourceMemberDataSources(
             IEnumerable<IConfiguredDataSource> configuredDataSources,
-            int dataSourceIndex)
+            int dataSourceIndex,
+            IMemberMappingContext context)
         {
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(context);
 
@@ -144,9 +144,9 @@
             }
         }
 
-        private IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
+        private static IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
         {
-            var bestMatchingSourceMember = GetSourceMemberFor(context);
+            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(context);
 
             if (bestMatchingSourceMember == null)
             {
@@ -154,12 +154,10 @@
             }
 
             bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(context.SourceMember);
+            var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, context);
 
-            return GetSourceMemberDataSourceFor(bestMatchingSourceMember, context);
+            return GetFinalDataSource(sourceMemberDataSource, 0, context);
         }
-
-        private static IDataSource GetSourceMemberDataSourceFor(IQualifiedMember sourceMember, IMemberMappingContext context)
-            => GetFinalDataSource(new SourceMemberDataSource(sourceMember, context), 0, context);
 
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
@@ -172,62 +170,6 @@
             }
 
             return foundDataSource;
-        }
-
-        public IQualifiedMember GetSourceMemberFor(IMemberMappingContext context)
-        {
-            var rootSourceMember = context.SourceMember;
-
-            return GetAllSourceMembers(rootSourceMember, context)
-                .FirstOrDefault(sm => IsMatchingMember(sm, context));
-        }
-
-        private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMappingContext context)
-        {
-            return sourceMember.Matches(context.TargetMember) &&
-                   context.MapperContext.ValueConverters.CanConvert(sourceMember.Type, context.TargetMember.Type);
-        }
-
-        private static IEnumerable<IQualifiedMember> GetAllSourceMembers(
-            IQualifiedMember parentMember,
-            IMemberMappingContext context)
-        {
-            yield return parentMember;
-
-            if (!parentMember.CouldMatch(context.TargetMember))
-            {
-                yield break;
-            }
-
-            var parentMemberType = context.Parent.GetSourceMemberRuntimeType(parentMember);
-
-            if (parentMemberType != parentMember.Type)
-            {
-                parentMember = parentMember.WithType(parentMemberType);
-                yield return parentMember;
-            }
-
-            var relevantMembers = context.Parent
-                .GlobalContext
-                .MemberFinder
-                .GetReadableMembers(parentMember.Type)
-                .Where(m => (m.IsSimple && context.TargetMember.IsSimple) || !m.IsSimple);
-
-            foreach (var sourceMember in relevantMembers)
-            {
-                var childMember = parentMember.Append(sourceMember);
-
-                if (sourceMember.IsSimple)
-                {
-                    yield return childMember;
-                    continue;
-                }
-
-                foreach (var qualifiedMember in GetAllSourceMembers(childMember, context))
-                {
-                    yield return qualifiedMember;
-                }
-            }
         }
 
         public void Reset()
