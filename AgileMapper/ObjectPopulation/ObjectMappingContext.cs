@@ -13,11 +13,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingContext
     {
         #region Cached Items
+        // ReSharper disable StaticMemberInGenericType
 
         private static readonly ParameterExpression _parameter =
             Parameters.Create<ObjectMappingContext<TSource, TTarget>>("omc");
 
-        // ReSharper disable StaticMemberInGenericType
         private static readonly Expression _sourceObjectProperty = Expression.Property(_parameter, "Source");
 
         private static readonly Expression _targetObjectProperty = Expression.Property(_parameter, "Target");
@@ -34,25 +34,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly NestedAccessFinder _nestedAccessFinder = new NestedAccessFinder(_parameter);
 
-        private static readonly Expression _mappingContextProperty = Expression.Property(_parameter, "MappingContext");
-
-        private static readonly MethodInfo _tryGetMethod = _mappingContextProperty.Type
-            .GetMethod("TryGet", Constants.PublicInstance);
-
-        private static readonly MethodCallExpression _tryGetCall = Expression.Call(
-            _mappingContextProperty,
-            _tryGetMethod.MakeGenericMethod(typeof(TSource), _instanceVariable.Type),
-            _sourceObjectProperty,
-            _instanceVariable);
-
-        private static readonly MethodCallExpression _registrationCall = Expression.Call(
-            _mappingContextProperty,
-                _mappingContextProperty.Type
-                    .GetMethod("Register", Constants.PublicInstance)
-                    .MakeGenericMethod(_sourceObjectProperty.Type, _instanceVariable.Type),
-                _sourceObjectProperty,
-                _instanceVariable);
-
         private static readonly MethodInfo _mapObjectMethod = _parameter.Type
             .GetMethods(Constants.PublicInstance)
             .First(m => (m.Name == "Map") && (m.GetParameters().Length == 4));
@@ -60,8 +41,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly MethodInfo _mapEnumerableElementMethod = _parameter.Type
             .GetMethods(Constants.PublicInstance)
             .First(m => (m.Name == "Map") && (m.GetParameters().First().Name == "sourceElement"));
-        // ReSharper restore StaticMemberInGenericType
 
+        // ReSharper restore StaticMemberInGenericType
         #endregion
 
         private readonly IQualifiedMember _sourceMember;
@@ -273,10 +254,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return getRuntimeTypeFunc.Invoke(Source);
         }
-
-        MethodCallExpression IObjectMappingContext.TryGetCall => _tryGetCall;
-
-        MethodCallExpression IObjectMappingContext.ObjectRegistrationCall => _registrationCall;
 
         MethodCallExpression IObjectMappingContext.GetMapCall(
             Expression sourceObject,

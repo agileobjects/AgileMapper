@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
-    using Extensions;
 
     internal abstract class EnumerablePopulationStrategyBase : IEnumerablePopulationStrategy
     {
@@ -9,7 +8,7 @@
         {
             if (omc.SourceMember.IsEnumerable)
             {
-                return GetEnumerablePopulation(new EnumerablePopulationBuilder(omc));
+                return GetEnumerablePopulation(omc.EnumerablePopulationBuilder);
             }
 
             return Constants.EmptyExpression;

@@ -40,13 +40,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return shortCircuitBlock;
         }
 
-        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, IObjectMappingContext omc)
+        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, IMemberMappingContext context)
         {
-
+            var tryGetCall = Expression.Call(
+                Expression.Property(context.Parameter, "MappingContext"),
+                MappingContext.TryGetMethod.MakeGenericMethod(context.SourceType, context.InstanceVariable.Type),
+                context.SourceObject,
+                context.InstanceVariable);
 
             var ifTryGetReturn = Expression.IfThen(
-                omc.TryGetCall,
-                Expression.Return(returnTarget, omc.InstanceVariable));
+                tryGetCall,
+                Expression.Return(returnTarget, context.InstanceVariable));
 
             return ifTryGetReturn;
         }
@@ -61,10 +65,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             yield return GetCreationCallback(CallbackPosition.After, omc);
 
+            yield return GetObjectRegistrationCall(omc);
+
             var memberPopulations = MemberPopulationFactory
                 .Create(omc)
-                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, omc) : p.GetPopulation())
-                .Prepend(omc.ObjectRegistrationCall);
+                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, omc) : p.GetPopulation());
 
             foreach (var population in memberPopulations)
             {
@@ -72,8 +77,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static Expression GetCreationCallback(CallbackPosition callbackPosition, IObjectMappingContext omc)
-            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, omc), omc);
+        private static Expression GetCreationCallback(CallbackPosition callbackPosition, IMemberMappingContext context)
+            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, context), context);
 
         private static Expression GetObjectResolution(IObjectMappingContext omc)
         {
@@ -155,6 +160,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         (constructionSoFar, construction) =>
                             Expression.Condition(construction.Condition, construction.Expression, constructionSoFar));
             });
+        }
+
+        private static Expression GetObjectRegistrationCall(IMemberMappingContext context)
+        {
+            return Expression.Call(
+                Expression.Property(context.Parameter, "MappingContext"),
+                MappingContext.RegisterMethod.MakeGenericMethod(context.SourceType, context.TargetType),
+                context.SourceObject,
+                context.InstanceVariable);
         }
 
         private static Expression GetPopulationWithCallbacks(IMemberPopulation memberPopulation, IMemberMappingContext parentContext)

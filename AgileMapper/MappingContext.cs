@@ -3,10 +3,14 @@ namespace AgileObjects.AgileMapper
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using System.Reflection;
     using ObjectPopulation;
 
     internal class MappingContext : IDisposable
     {
+        internal static readonly MethodInfo TryGetMethod = typeof(MappingContext).GetMethod("TryGet", Constants.PublicInstance);
+        internal static readonly MethodInfo RegisterMethod = typeof(MappingContext).GetMethod("Register", Constants.PublicInstance);
+
         private readonly ICollection<Action> _cleanupActions;
 
         internal MappingContext(MappingRuleSet ruleSet, MapperContext mapperContext)

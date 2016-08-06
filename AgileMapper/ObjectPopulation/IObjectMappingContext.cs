@@ -26,10 +26,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);
 
-        MethodCallExpression TryGetCall { get; }
-
-        MethodCallExpression ObjectRegistrationCall { get; }
-
         MethodCallExpression GetMapCall(Expression sourceObject, QualifiedMember objectMember, int dataSourceIndex);
 
         MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement);
