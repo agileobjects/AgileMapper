@@ -9,7 +9,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class MemberPopulation : IMemberPopulation
     {
-        private readonly IMemberMappingContext _context;
         private readonly DataSourceSet _dataSources;
         private readonly Expression _populateCondition;
 
@@ -18,7 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             DataSourceSet dataSources,
             Expression populateCondition = null)
         {
-            _context = context;
+            Context = context;
             _dataSources = dataSources;
             _populateCondition = populateCondition;
         }
@@ -40,9 +39,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public IObjectMappingContext ObjectMappingContext => _context.Parent;
+        public IMemberMappingContext Context { get; }
 
-        public QualifiedMember TargetMember => _context.TargetMember;
+        public QualifiedMember TargetMember => Context.TargetMember;
 
         public bool IsSuccessful => _dataSources.HasValue;
 
@@ -53,7 +52,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return _dataSources.Value;
             }
 
-            var population = _context.TargetMember.LeafMember.GetPopulation(_context.InstanceVariable, _dataSources.Value);
+            var population = Context.TargetMember.LeafMember.GetPopulation(Context.InstanceVariable, _dataSources.Value);
 
             if (_dataSources.Variables.Any())
             {

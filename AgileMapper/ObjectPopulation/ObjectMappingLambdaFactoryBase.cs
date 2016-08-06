@@ -22,10 +22,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Expression.Lambda<MapperFunc<TSource, TTarget>>(GetNullMappingBlock(returnNull), omc.Parameter);
             }
 
-            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, omc);
+            var mappingData = BasicMappingData.WithNoTargetMember(omc);
+
+            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, mappingData, omc);
             var shortCircuitReturns = GetShortCircuitReturns(returnNull, omc);
             var objectPopulation = GetObjectPopulation(omc);
-            var postMappingCallback = GetMappingCallback(CallbackPosition.After, omc);
+            var postMappingCallback = GetMappingCallback(CallbackPosition.After, mappingData, omc);
             var returnValue = GetReturnValue(omc);
             var returnLabel = Expression.Label(returnLabelTarget, returnValue);
 
@@ -56,9 +58,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static IEnumerable<Expression> GetMappingCallback(
             CallbackPosition callbackPosition,
+            IMappingData mappingData,
             IMemberMappingContext context)
         {
-            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, context), context);
+            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, mappingData, context), context);
         }
 
         protected static Expression GetCallbackOrEmpty(

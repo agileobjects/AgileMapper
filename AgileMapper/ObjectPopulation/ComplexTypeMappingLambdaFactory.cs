@@ -63,7 +63,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var memberPopulations = MemberPopulationFactory
                 .Create(omc)
-                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p) : p.GetPopulation())
+                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, omc) : p.GetPopulation())
                 .Prepend(omc.ObjectRegistrationCall);
 
             foreach (var population in memberPopulations)
@@ -157,17 +157,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             });
         }
 
-        private static Expression GetPopulationWithCallbacks(IMemberPopulation memberPopulation)
+        private static Expression GetPopulationWithCallbacks(IMemberPopulation memberPopulation, IMemberMappingContext parentContext)
         {
             var prePopulationCallback = GetCallbackOrEmpty(
-                c => c.GetCallbackOrNull(CallbackPosition.Before, memberPopulation.TargetMember, memberPopulation.ObjectMappingContext),
-                memberPopulation.ObjectMappingContext);
+                c => c.GetCallbackOrNull(CallbackPosition.Before, memberPopulation.Context, parentContext),
+                parentContext);
 
             var population = memberPopulation.GetPopulation();
 
             var postPopulationCallback = GetCallbackOrEmpty(
-                c => c.GetCallbackOrNull(CallbackPosition.After, memberPopulation.TargetMember, memberPopulation.ObjectMappingContext),
-                memberPopulation.ObjectMappingContext);
+                c => c.GetCallbackOrNull(CallbackPosition.After, memberPopulation.Context, parentContext),
+                parentContext);
 
             if ((prePopulationCallback == Constants.EmptyExpression) &&
                 (postPopulationCallback == Constants.EmptyExpression))
