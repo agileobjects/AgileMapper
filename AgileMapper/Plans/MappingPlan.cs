@@ -21,22 +21,22 @@
                 .ObjectMapperFactory
                 .CreateFor<TSource, TTarget>(rootOmc);
 
-            var planFuncs = Expand(new MapperData(rootMapper.MappingLambda, rootOmc));
+            var planData = Expand(new MappingPlanData(rootMapper.MappingLambda, rootOmc));
 
             _plan = string.Join(
                 Environment.NewLine + Environment.NewLine,
-                planFuncs.Select(GetDescription).Distinct());
+                planData.Distinct().Select(GetDescription));
         }
 
-        private static IEnumerable<MapperData> Expand(MapperData mapperData)
+        private static IEnumerable<MappingPlanData> Expand(MappingPlanData mappingPlanData)
         {
-            yield return mapperData;
+            yield return mappingPlanData;
 
-            var mapCalls = MapCallFinder.FindIn(mapperData.Lambda);
+            var mapCalls = MapCallFinder.FindIn(mappingPlanData.Lambda);
 
             foreach (var mapCall in mapCalls)
             {
-                Func<MethodCallExpression, MapperData, MapperData> mappingLambdaFactory;
+                Func<MethodCallExpression, MappingPlanData, MappingPlanData> mappingLambdaFactory;
 
                 if (IsObjectMemberMapping(mapCall))
                 {
@@ -47,7 +47,7 @@
                     mappingLambdaFactory = ExpandElementMapper;
                 }
 
-                var nestedMappingFuncs = Expand(mappingLambdaFactory.Invoke(mapCall, mapperData));
+                var nestedMappingFuncs = Expand(mappingLambdaFactory.Invoke(mapCall, mappingPlanData));
 
                 foreach (var nestedMappingFunc in nestedMappingFuncs)
                 {
@@ -58,7 +58,7 @@
 
         private static bool IsObjectMemberMapping(MethodCallExpression mapCall) => mapCall.Arguments.Count == 4;
 
-        private static MapperData ExpandObjectMapper(MethodCallExpression mapCall, MapperData mapperData)
+        private static MappingPlanData ExpandObjectMapper(MethodCallExpression mapCall, MappingPlanData mappingPlanData)
         {
             var targetMemberName = (string)((ConstantExpression)mapCall.Arguments[2]).Value;
             var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments[3]).Value;
@@ -72,13 +72,13 @@
 
             var childMapperData = typedExpandMethod.Invoke(
                 null,
-                new object[] { targetMemberName, dataSourceIndex, mapperData.ObjectMappingContext });
+                new object[] { targetMemberName, dataSourceIndex, mappingPlanData.Omc });
 
-            return (MapperData)childMapperData;
+            return (MappingPlanData)childMapperData;
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static MapperData ExpandObjectMapper<TChildSource, TChildTarget>(
+        private static MappingPlanData ExpandObjectMapper<TChildSource, TChildTarget>(
             string targetMemberName,
             int dataSourceIndex,
             IObjectMappingContext omc)
@@ -108,7 +108,7 @@
                     .Invoke(null, new object[] { childOmc });
             }
 
-            return new MapperData(mappingLambda, childOmc);
+            return new MappingPlanData(mappingLambda, childOmc);
         }
 
         private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget>(
@@ -122,7 +122,7 @@
             return mapper.MappingLambda;
         }
 
-        private static MapperData ExpandElementMapper(MethodCallExpression mapCall, MapperData mapperData)
+        private static MappingPlanData ExpandElementMapper(MethodCallExpression mapCall, MappingPlanData mappingPlanData)
         {
             var typedExpandMethod = typeof(MappingPlan<TSource, TTarget>)
                 .GetMethods(Constants.NonPublicStatic)
@@ -133,13 +133,13 @@
 
             var childMapperData = typedExpandMethod.Invoke(
                 null,
-                new object[] { mapperData.ObjectMappingContext });
+                new object[] { mappingPlanData.Omc });
 
-            return (MapperData)childMapperData;
+            return (MappingPlanData)childMapperData;
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static MapperData ExpandElementMapper<TSourceElement, TTargetElement>(IObjectMappingContext omc)
+        private static MappingPlanData ExpandElementMapper<TSourceElement, TTargetElement>(IObjectMappingContext omc)
         {
             var elementOmcBridge = omc.CreateElementMappingContextBridge(
                 default(TSourceElement),
@@ -150,12 +150,12 @@
 
             var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementOmc);
 
-            return new MapperData(mappingLambda, elementOmc);
+            return new MappingPlanData(mappingLambda, elementOmc);
         }
 
-        private static string GetDescription(MapperData mapperData)
+        private static string GetDescription(MappingPlanData mappingPlanData)
         {
-            var mappingTypes = mapperData.Lambda.Type.GetGenericArguments();
+            var mappingTypes = mappingPlanData.Lambda.Type.GetGenericArguments();
             var sourceType = mappingTypes.ElementAt(0).GetFriendlyName();
             var targetType = mappingTypes.ElementAt(1).GetFriendlyName();
 
@@ -163,11 +163,11 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // Map {sourceType} -> {targetType}
-// Rule Set: {mapperData.ObjectMappingContext.RuleSetName}
+// Rule Set: {mappingPlanData.Omc.RuleSetName}
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-{mapperData.Lambda.ToReadableString()}".TrimStart();
+{mappingPlanData.Lambda.ToReadableString()}".TrimStart();
         }
 
         public static implicit operator string(MappingPlan<TSource, TTarget> mappingPlan) => mappingPlan._plan;
@@ -204,19 +204,6 @@
 
             private bool IsMapCall(MethodCallExpression methodCall)
                 => (methodCall.Object == _omcParameter) && (methodCall.Method.Name == "Map");
-        }
-
-        private class MapperData
-        {
-            public MapperData(LambdaExpression lambda, IObjectMappingContext objectMappingContext)
-            {
-                Lambda = lambda;
-                ObjectMappingContext = objectMappingContext;
-            }
-
-            public LambdaExpression Lambda { get; }
-
-            public IObjectMappingContext ObjectMappingContext { get; }
         }
     }
 }
