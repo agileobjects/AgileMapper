@@ -23,8 +23,8 @@
             Type sourceType,
             Type targetType,
             QualifiedMember targetMember,
-            ObjectMapperData parent = null)
-            : base(ruleSet, sourceType, targetType, targetMember)
+            ObjectMapperData parent)
+            : base(ruleSet, sourceType, targetType, targetMember, parent)
         {
             MapperContext = mapperContext;
             Parent = parent;

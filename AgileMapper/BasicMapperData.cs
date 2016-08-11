@@ -5,27 +5,18 @@ namespace AgileObjects.AgileMapper
 
     internal class BasicMapperData
     {
-        private BasicMapperData(
-            MappingRuleSet ruleSet,
-            Type sourceType,
-            Type targetType,
-            QualifiedMember targetMember,
-            BasicMapperData parent)
-            : this(ruleSet, sourceType, targetType, targetMember)
-        {
-            Parent = parent;
-        }
-
         public BasicMapperData(
             MappingRuleSet ruleSet,
             Type sourceType,
             Type targetType,
-            QualifiedMember targetMember = null)
+            QualifiedMember targetMember = null,
+            BasicMapperData parent = null)
         {
             SourceType = sourceType;
             TargetType = targetType;
             RuleSet = ruleSet;
             TargetMember = targetMember ?? QualifiedMember.All;
+            Parent = parent;
         }
 
         public static BasicMapperData WithNoTargetMember(MemberMapperData parent)

@@ -4,21 +4,20 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
-    using ObjectPopulation;
 
     internal class NestedAccessFinder : ExpressionVisitor
     {
         private static readonly object _syncLock = new object();
 
-        private readonly Expression _contextParameter;
+        private readonly Expression _dataParameter;
         private readonly ICollection<Expression> _memberAccessSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
         private bool _includeSourceObjectAccesses;
 
-        public NestedAccessFinder(Expression contextParameter)
+        public NestedAccessFinder(Expression dataParameter)
         {
-            _contextParameter = contextParameter;
+            _dataParameter = dataParameter;
             _memberAccessSubjects = new List<Expression>();
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
@@ -67,10 +66,10 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (memberAccess.Member.Name == "Parent")
             {
-                return !memberAccess.IsRootedIn(_contextParameter);
+                return !memberAccess.IsRootedIn(_dataParameter);
             }
 
-            if (memberAccess.Expression != _contextParameter)
+            if (memberAccess.Expression != _dataParameter)
             {
                 return true;
             }
@@ -90,8 +89,8 @@ namespace AgileObjects.AgileMapper.Members
                 _memberAccessSubjects.Add(methodCall.Object);
             }
 
-            if ((methodCall.Object != _contextParameter) &&
-                (methodCall.Method.DeclaringType != typeof(ObjectMapperData)))
+            if ((methodCall.Object != _dataParameter) &&
+                (methodCall.Method.DeclaringType != typeof(IMappingData)))
             {
                 AddMemberAccessIfAppropriate(methodCall);
             }
@@ -112,7 +111,7 @@ namespace AgileObjects.AgileMapper.Members
             return ((memberAccess.Type != typeof(string)) || _memberAccessSubjects.Contains(memberAccess)) &&
                    !_memberAccessesByPath.ContainsKey(memberAccess.ToString()) &&
                    memberAccess.Type.CanBeNull() &&
-                   memberAccess.IsRootedIn(_contextParameter);
+                   memberAccess.IsRootedIn(_dataParameter);
         }
     }
 }

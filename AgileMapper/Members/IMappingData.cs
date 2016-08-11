@@ -102,7 +102,7 @@
         }
 
         public MappingData(MappingInstanceData<TSource, TTarget> instanceData, ObjectMapperData mapperData)
-            : this(instanceData, mapperData, parent: null)
+            : this(instanceData, mapperData, instanceData.Parent)
         {
             MapperData = mapperData;
         }

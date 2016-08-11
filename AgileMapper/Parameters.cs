@@ -139,8 +139,8 @@ namespace AgileObjects.AgileMapper
 
         private class MappingContextInfo
         {
-            private static readonly MethodInfo _getSourceMethod = typeof(ObjectMapperData).GetMethod("GetSource", Constants.PublicInstance);
-            private static readonly MethodInfo _getTargetMethod = typeof(ObjectMapperData).GetMethod("GetTarget", Constants.PublicInstance);
+            private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource", Constants.PublicInstance);
+            private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget", Constants.PublicInstance);
 
             public MappingContextInfo(MemberMapperData data, Type[] contextTypes)
                 : this(data, data.MdParameter, contextTypes)
