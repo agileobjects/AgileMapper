@@ -81,27 +81,27 @@ namespace AgileObjects.AgileMapper
 
             var createMapperFunc = GlobalContext.Instance.Cache.GetOrAdd(cacheKey, k =>
             {
-                var mapperContext = Expression.Property(Parameters.ObjectMapperData, "MapperContext");
-                var mapperFactory = Expression.Property(mapperContext, "ObjectMapperFactory");
+                var mapperFactoryParameter = Parameters.Create<ObjectMapperFactory>();
 
-                var typedCreateMapperMethod = typeof(ObjectMapperFactory)
+                var typedCreateMapperMethod = mapperFactoryParameter.Type
                     .GetMethod("CreateFor", Constants.PublicInstance)
                     .MakeGenericMethod(data.MapperData.SourceType, data.MapperData.TargetType);
 
                 var createMapperCall = Expression.Call(
-                    mapperFactory,
+                    mapperFactoryParameter,
                     typedCreateMapperMethod,
-                    Parameters.ObjectMapperData);
+                    Parameters.ObjectMappingCreationData);
 
                 var createMapperLambda = Expression
-                    .Lambda<Func<ObjectMapperData, IObjectMapper<TTarget>>>(
+                    .Lambda<Func<ObjectMapperFactory, IObjectMapperCreationData, IObjectMapper<TTarget>>>(
                         createMapperCall,
-                        Parameters.ObjectMapperData);
+                        mapperFactoryParameter,
+                        Parameters.ObjectMappingCreationData);
 
                 return createMapperLambda.Compile();
             });
 
-            mapper = createMapperFunc.Invoke(data.MapperData);
+            mapper = createMapperFunc.Invoke(MapperContext.ObjectMapperFactory, data);
 
             return mapper.Execute(data);
         }
