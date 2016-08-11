@@ -2,5 +2,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using Members;
 
-    internal delegate TTarget MapperFunc<in TSource, TTarget>(IMappingData<TSource, TTarget> data);
+    internal delegate TTarget MapperFunc<TSource, TTarget>(MappingData<TSource, TTarget> data);
 }

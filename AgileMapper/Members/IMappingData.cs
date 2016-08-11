@@ -50,21 +50,25 @@
         IMemberMapperCreationData GetChildCreationData(MemberMapperData childMapperData);
     }
 
-    internal class MappingInstanceData<TSource, TTarget>
+    internal class MappingInstanceData<TSource, TTarget> : IMappingData<TSource, TTarget>
     {
         public MappingInstanceData(
             MappingContext mappingContext,
             TSource source,
             TTarget target,
-            int? enumerableIndex = null)
+            int? enumerableIndex = null,
+            IMappingData parent = null)
         {
             MappingContext = mappingContext;
+            Parent = parent;
             Source = source;
             Target = target;
             EnumerableIndex = enumerableIndex;
         }
 
         public MappingContext MappingContext { get; }
+
+        public IMappingData Parent { get; }
 
         public TSource Source { get; }
 
@@ -76,11 +80,26 @@
     internal class MappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
         IMappingData,
-        IMappingData<TSource, TTarget>,
         IMemberMapperCreationData,
         IObjectMapperCreationData
     {
         private readonly MemberMapperData _memberMapperData;
+
+        public MappingData(
+            MappingContext mappingContext,
+            TSource source,
+            TTarget target,
+            int? enumerableIndex,
+            ObjectMapperData mapperData)
+            : this(
+                  new MappingInstanceData<TSource, TTarget>(
+                      mappingContext,
+                      source,
+                      target,
+                      enumerableIndex),
+                  mapperData)
+        {
+        }
 
         public MappingData(MappingInstanceData<TSource, TTarget> instanceData, ObjectMapperData mapperData)
             : this(instanceData, mapperData, parent: null)
@@ -96,15 +115,13 @@
                   instanceData.MappingContext,
                   instanceData.Source,
                   instanceData.Target,
-                  instanceData.EnumerableIndex)
+                  instanceData.EnumerableIndex,
+                  parent)
         {
             _memberMapperData = mapperData;
-            Parent = parent;
         }
 
         public ObjectMapperData MapperData { get; }
-
-        public IMappingData Parent { get; }
 
         public TTarget CreatedObject { get; set; }
 
@@ -114,23 +131,17 @@
 
         T IMappingData.GetTarget<T>() => (T)(object)Target;
 
-        int? IMappingData.GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
-
-        #endregion
-
-        #region IMappingData<TSource, TTarget> Members
-
-        IMappingData IMappingData<TSource, TTarget>.Parent => Parent;
+        public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
 
         #endregion
 
         #region IMapperCreationData Members
 
-        MappingRuleSet IMapperCreationData.RuleSet => MapperData.RuleSet;
+        MappingRuleSet IMapperCreationData.RuleSet => _memberMapperData.RuleSet;
 
-        IQualifiedMember IMapperCreationData.SourceMember => MapperData.SourceMember;
+        IQualifiedMember IMapperCreationData.SourceMember => _memberMapperData.SourceMember;
 
-        QualifiedMember IMapperCreationData.TargetMember => MapperData.TargetMember;
+        QualifiedMember IMapperCreationData.TargetMember => _memberMapperData.TargetMember;
 
         #endregion
 
@@ -145,7 +156,7 @@
                 return sourceMember.Type;
             }
 
-            if (sourceMember == MapperData.SourceMember)
+            if (sourceMember == _memberMapperData.SourceMember)
             {
                 return sourceMember.Type;
             }
@@ -160,9 +171,9 @@
             var getRuntimeTypeFunc = GlobalContext.Instance.Cache.GetOrAdd(accessKey, k =>
             {
                 var sourceParameter = Parameters.Create<TSource>("source");
-                var relativeMember = sourceMember.RelativeTo(MapperData.SourceMember);
-                var memberAccess = relativeMember.GetQualifiedAccess(MapperData.SourceObject);
-                memberAccess = memberAccess.Replace(MapperData.SourceObject, sourceParameter);
+                var relativeMember = sourceMember.RelativeTo(_memberMapperData.SourceMember);
+                var memberAccess = relativeMember.GetQualifiedAccess(_memberMapperData.SourceObject);
+                memberAccess = memberAccess.Replace(_memberMapperData.SourceObject, sourceParameter);
 
                 var getRuntimeTypeCall = Expression.Call(
                     ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sourceMember.Type),
@@ -187,33 +198,50 @@
         #endregion
 
         public TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
-            MappingData<TDeclaredSource, TDeclaredTarget> data,
+            TDeclaredSource sourceValue,
+            TDeclaredTarget targetValue,
             string targetMemberName,
             int dataSourceIndex)
         {
-            var childMapperDataBridge = MapperData.CreateChildMapperDataBridge(
-                data,
-                targetMemberName,
-                dataSourceIndex);
-
-            return MapChild(data, childMapperDataBridge);
+            return MapChild(
+                sourceValue,
+                targetValue,
+                GetEnumerableIndex(),
+                instanceData => MapperData.CreateChildMappingDataBridge(
+                    instanceData,
+                    targetMemberName,
+                    dataSourceIndex));
         }
 
         public TTargetElement Map<TSourceElement, TTargetElement>(
-            MappingInstanceData<TSourceElement, TTargetElement> data)
+            TSourceElement sourceElement,
+            TTargetElement targetElement,
+            int enumerableIndex)
         {
-            var elementMapperDataBridge = MapperData.CreateElementMapperDataBridge(data);
-
-            return MapChild(data, elementMapperDataBridge);
+            return MapChild(
+                sourceElement,
+                targetElement,
+                enumerableIndex,
+                instanceData => MapperData.CreateElementMappingDataBridge(instanceData));
         }
 
         private TChildTarget MapChild<TChildSource, TChildTarget>(
-            MappingInstanceData<TChildSource, TChildTarget> instanceData,
-            IObjectMappingContextFactoryBridge mapperDataBridge)
+            TChildSource sourceValue,
+            TChildTarget targetValue,
+            int? enumerableIndex,
+            Func<MappingInstanceData<TChildSource, TChildTarget>, IMappingDataFactoryBridge> bridgeFactory)
         {
-            var elementMapperData = mapperDataBridge.ToMapperData();
+            var instanceData = new MappingInstanceData<TChildSource, TChildTarget>(
+                MappingContext,
+                sourceValue,
+                targetValue,
+                enumerableIndex,
+                this);
 
-            return MappingContext.MapChild(instanceData, elementMapperData);
+            var mappingDataBridge = bridgeFactory.Invoke(instanceData);
+            var mappingData = mappingDataBridge.GetMapperCreationData();
+
+            return MappingContext.MapChild<TChildSource, TChildTarget>(mappingData);
         }
     }
 }

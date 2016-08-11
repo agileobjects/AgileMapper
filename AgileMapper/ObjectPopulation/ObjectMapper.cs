@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Members;
 
-    internal class ObjectMapper<TSource, TTarget> : IObjectMapper<TSource, TTarget>
+    internal class ObjectMapper<TSource, TTarget> : IObjectMapper<TTarget>
     {
         private readonly Expression<MapperFunc<TSource, TTarget>> _mappingLambda;
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
@@ -16,9 +16,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public LambdaExpression MappingLambda => _mappingLambda;
 
-        public TTarget Execute(MappingData<TSource, TTarget> data)
+        public TTarget Execute(IObjectMapperCreationData data)
         {
-            return _mapperFunc.Invoke(data);
+            var typedData = (MappingData<TSource, TTarget>)data;
+
+            return _mapperFunc.Invoke(typedData);
         }
     }
 }

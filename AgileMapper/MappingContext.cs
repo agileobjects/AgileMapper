@@ -32,19 +32,13 @@ namespace AgileObjects.AgileMapper
                 return target;
             }
 
-            var rootMappingData = CreateRootMappingData(source, target);
+            var rootMapperCreationData = CreateRootMapperCreationData(source, target);
 
-            return Map(rootMappingData);
+            return Map<TSource, TTarget>(rootMapperCreationData);
         }
 
-        internal MappingData<TSource, TTarget> CreateRootMappingData<TSource, TTarget>(TSource source, TTarget target)
-        {
-            var rootInstanceData = new MappingInstanceData<TSource, TTarget>(this, source, target);
-            var rootMapperData = ObjectMapperDataFactory.CreateRoot(rootInstanceData);
-            var rootMappingData = new MappingData<TSource, TTarget>(rootInstanceData, rootMapperData);
-
-            return rootMappingData;
-        }
+        internal IObjectMapperCreationData CreateRootMapperCreationData<TSource, TTarget>(TSource source, TTarget target)
+            => MapperCreationDataFactory.CreateRoot(this, source, target);
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
         {
@@ -69,21 +63,16 @@ namespace AgileObjects.AgileMapper
             return false;
         }
 
-        internal TTarget MapChild<TSource, TTarget>(
-            MappingInstanceData<TSource, TTarget> childData,
-            ObjectMapperData childObjectMapperData)
+        internal TTarget MapChild<TSource, TTarget>(IObjectMapperCreationData childData)
         {
-            var childMappingData = new MappingData<TSource, TTarget>(childData, childObjectMapperData);
-
-            return Map(childMappingData);
+            return Map<TSource, TTarget>(childData);
         }
 
-        private TTarget Map<TSource, TTarget>(MappingData<TSource, TTarget> data)
+        private TTarget Map<TSource, TTarget>(IObjectMapperCreationData data)
         {
-            IObjectMapper<TSource, TTarget> mapper;
+            IObjectMapper<TTarget> mapper;
 
-            if ((typeof(TSource) == data.MapperData.SourceType) &&
-                (typeof(TTarget) == data.MapperData.TargetType))
+            if (data.MapperData.RuntimeTypesAreTheSame)
             {
                 mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(data);
 
@@ -107,7 +96,7 @@ namespace AgileObjects.AgileMapper
                     Parameters.ObjectMapperData);
 
                 var createMapperLambda = Expression
-                    .Lambda<Func<ObjectMapperData, IObjectMapper<TSource, TTarget>>>(
+                    .Lambda<Func<ObjectMapperData, IObjectMapper<TTarget>>>(
                         createMapperCall,
                         Parameters.ObjectMapperData);
 

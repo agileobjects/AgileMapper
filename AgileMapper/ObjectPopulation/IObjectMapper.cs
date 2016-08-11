@@ -3,10 +3,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Members;
 
-    internal interface IObjectMapper<TSource, TTarget>
+    internal interface IObjectMapper<out TTarget>
     {
         LambdaExpression MappingLambda { get; }
 
-        TTarget Execute(MappingData<TSource, TTarget> data);
+        TTarget Execute(IObjectMapperCreationData data);
     }
 }

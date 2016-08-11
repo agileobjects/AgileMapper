@@ -2,65 +2,103 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq;
     using System.Linq.Expressions;
+    using Extensions;
     using Members;
 
-    internal static class ObjectMapperDataFactory
+    internal static class MapperCreationDataFactory
     {
-        private delegate ObjectMapperData OmdCreator(
-            MapperContext mapperContext,
-            IQualifiedMember sourceMember,
-            QualifiedMember targetMember,
-            ObjectMapperData parent);
+        private delegate IObjectMapperCreationData MappingDataCreator<in TSource, in TTarget>(
+            MappingContext mappingContext,
+            TSource source,
+            TTarget target,
+            int? enumerableIndex,
+            ObjectMapperData mapperData);
 
-        public static ObjectMapperData CreateRoot<TDeclaredSource, TDeclaredTarget>(
-            MappingInstanceData<TDeclaredSource, TDeclaredTarget> rootInstanceData)
+        public static IObjectMapperCreationData CreateRoot<TDeclaredSource, TDeclaredTarget>(
+            MappingContext mappingContext,
+            TDeclaredSource source,
+            TDeclaredTarget target)
         {
-            var namingSettings = rootInstanceData.MappingContext.MapperContext.NamingSettings;
+            var rootInstanceData = new MappingInstanceData<TDeclaredSource, TDeclaredTarget>(
+                mappingContext,
+                source,
+                target);
 
+            var namingSettings = mappingContext.MapperContext.NamingSettings;
             var sourceMember = QualifiedMember.From(Member.RootSource(typeof(TDeclaredSource)), namingSettings);
             var targetMember = QualifiedMember.From(Member.RootTarget(typeof(TDeclaredTarget)), namingSettings);
 
-            return Create(ObjectMapperDataFactoryBridge.Create(
+            var bridge = MappingDataFactoryBridge.Create(
                 rootInstanceData,
                 sourceMember,
-                targetMember));
+                targetMember);
+
+            return Create(bridge);
         }
 
-        public static ObjectMapperData Create(ObjectMapperDataFactoryBridge command)
+        public static IObjectMapperCreationData Create<TDeclaredSource, TDeclaredTarget>(
+            MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> bridge)
         {
-            return new ObjectMapperData(
-                command.MappingContext.MapperContext,
-                command.MappingContext.RuleSet,
-                command.SourceMember,
-                command.TargetMember,
-                null);
+            var mapperData = GetObjectMapperData(bridge);
 
-            //var omcConstructorKey = DeclaredAndRuntimeTypesKey.From(command);
+            if (bridge.RuntimeTypesAreTheSame)
+            {
+                return new MappingData<TDeclaredSource, TDeclaredTarget>(bridge.InstanceData, mapperData);
+            }
 
-            //var constructionFunc = GlobalContext.Instance.Cache.GetOrAdd(omcConstructorKey, _ =>
-            //{
-            //    var contextType = typeof(ObjectMapperData<,>)
-            //        .MakeGenericType(command.SourceMember.Type, command.TargetMember.Type);
+            var constructionFunc = GetMappingDataCreator(bridge, mapperData);
 
-            //    var constructorCall = Expression.New(
-            //        contextType.GetConstructors().First(),
-            //        Parameters.SourceMember,
-            //        Parameters.TargetMember,
-            //        Parameters.MappingContext);
+            return constructionFunc.Invoke(
+                bridge.MappingContext,
+                bridge.InstanceData.Source,
+                bridge.InstanceData.Target,
+                bridge.InstanceData.EnumerableIndex,
+                mapperData);
+        }
 
-            //    var constructionLambda = Expression.Lambda<OmdCreator>(
-            //        constructorCall,
-            //        Parameters.SourceMember,
-            //        Parameters.TargetMember,
-            //        Parameters.MappingContext);
+        private static ObjectMapperData GetObjectMapperData<TDeclaredSource, TDeclaredTarget>(
+            MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> bridge)
+        {
+            var mapperDataKey = DeclaredAndRuntimeTypesKey.ForObjectMapperData(bridge);
 
-            //    return constructionLambda.Compile();
-            //});
+            var mapperData = bridge.MappingContext.MapperContext.Cache
+                .GetOrAdd(mapperDataKey, k => bridge.GetMapperData());
 
-            //return constructionFunc.Invoke(
-            //    command.SourceMember,
-            //    command.TargetMember,
-            //    command.MappingContext);
+            return mapperData;
+        }
+
+        private static MappingDataCreator<TDeclaredSource, TDeclaredTarget> GetMappingDataCreator<TDeclaredSource, TDeclaredTarget>(
+            MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> bridge,
+            ObjectMapperData mapperData)
+        {
+            var constructionFunc = GlobalContext.Instance.Cache.GetOrAdd(mapperData, _ =>
+            {
+                var dataType = typeof(MappingData<,>)
+                    .MakeGenericType(bridge.SourceMember.Type, bridge.TargetMember.Type);
+
+                var sourceParameter = Parameters.Create<TDeclaredSource>("source");
+                var targetParameter = Parameters.Create<TDeclaredTarget>("target");
+
+                var constructorCall = Expression.New(
+                    dataType.GetConstructors(Constants.PublicInstance).First(),
+                    Parameters.MappingContext,
+                    sourceParameter.GetConversionTo(bridge.SourceMember.Type),
+                    targetParameter.GetConversionTo(bridge.TargetMember.Type),
+                    Parameters.EnumerableIndexNullable,
+                    Parameters.ObjectMapperData);
+
+                var constructionLambda = Expression.Lambda<MappingDataCreator<TDeclaredSource, TDeclaredTarget>>(
+                    constructorCall,
+                    Parameters.MappingContext,
+                    sourceParameter,
+                    targetParameter,
+                    Parameters.EnumerableIndexNullable,
+                    Parameters.ObjectMapperData);
+
+                return constructionLambda.Compile();
+            });
+
+            return constructionFunc;
         }
     }
 }

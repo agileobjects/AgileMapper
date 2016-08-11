@@ -12,9 +12,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _cache = GlobalContext.Instance.CreateCache<ObjectMapperKey, object>();
         }
 
-        public IObjectMapper<TSource, TTarget> CreateFor<TSource, TTarget>(IObjectMapperCreationData data)
+        public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMapperCreationData data)
         {
-            var mapper = (IObjectMapper<TSource, TTarget>)_cache.GetOrAdd(new ObjectMapperKey(data), k =>
+            var mapper = (IObjectMapper<TTarget>)_cache.GetOrAdd(data.MapperData.MapperKey, k =>
             {
                 var lambda = data.TargetMember.IsEnumerable
                     ? EnumerableMappingLambdaFactory.Instance.Create<TSource, TTarget>(data)
@@ -38,13 +38,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly string _sourceMemberSignature;
         private readonly string _targetMemberSignature;
 
-        public ObjectMapperKey(IObjectMapperCreationData data)
+        public ObjectMapperKey(MemberMapperData data)
         {
             _ruleSet = data.RuleSet;
             _sourceMemberSignature = data.SourceMember.Signature;
             _targetMemberSignature = data.TargetMember.Signature;
-
-            data.MapperData.SetKey(this);
         }
 
         public override bool Equals(object obj)

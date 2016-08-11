@@ -36,8 +36,6 @@
 
         public virtual ParameterExpression MdParameter => Parent.MdParameter;
 
-        public virtual ParameterExpression OmdParameter => Parent.OmdParameter;
-
         public virtual IQualifiedMember SourceMember => Parent.SourceMember;
 
         public virtual Expression SourceObject => Parent.SourceObject;

@@ -11,44 +11,41 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperData : MemberMapperData
     {
-        #region Cached Items
-        // ReSharper disable StaticMemberInGenericType
-
-        private static readonly MethodInfo _mapObjectMethod = typeof(ObjectMapperData)
-            .GetMethods(Constants.PublicInstance)
-            .First(m => (m.Name == "Map") && (m.GetParameters().Length == 4));
-
-        private static readonly MethodInfo _mapEnumerableElementMethod = typeof(ObjectMapperData)
-            .GetMethods(Constants.PublicInstance)
-            .First(m => (m.Name == "Map") && (m.GetParameters().Length == 1));
-
-        // ReSharper restore StaticMemberInGenericType
-        #endregion
-
+        private readonly MethodInfo _mapObjectMethod;
+        private readonly MethodInfo _mapEnumerableElementMethod;
         private readonly IQualifiedMember _sourceElementMember;
         private readonly QualifiedMember _targetElementMember;
         private readonly Dictionary<string, Tuple<QualifiedMember, DataSourceSet>> _dataSourcesByTargetMemberName;
-        private ObjectMapperKey _key;
 
         public ObjectMapperData(
-            MapperContext mapperContext,
-            MappingRuleSet ruleSet,
+            MappingContext mappingContext,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
+            bool runtimeTypesAreTheSame,
             ObjectMapperData parent)
-            : base(mapperContext, ruleSet, sourceMember.Type, targetMember.Type, targetMember, parent)
+            : base(
+                  mappingContext.MapperContext,
+                  mappingContext.RuleSet,
+                  sourceMember.Type,
+                  targetMember.Type,
+                  targetMember,
+                  parent)
         {
             var mdType = typeof(MappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
-            var mdParameter = Parameters.Create(mdType);
+            var mdParameter = Parameters.Create(mdType, "data");
 
             MdParameter = mdParameter;
+            SourceMember = sourceMember;
+            RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
             SourceObject = Expression.Property(mdParameter, "Source");
             TargetObject = Expression.Property(mdParameter, "Target");
             CreatedObject = Expression.Property(mdParameter, "CreatedObject");
             EnumerableIndex = Expression.Property(mdParameter, "EnumerableIndex");
             NestedAccessFinder = new NestedAccessFinder(mdParameter);
 
-            SourceMember = sourceMember;
+            _mapObjectMethod = GetMapMethod(mdType, 4);
+            _mapEnumerableElementMethod = GetMapMethod(mdType, 3);
+
             _dataSourcesByTargetMemberName = new Dictionary<string, Tuple<QualifiedMember, DataSourceSet>>();
 
             var instanceVariableName = targetMember.Type.GetVariableName(f => f.InCamelCase);
@@ -67,37 +64,50 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 InstanceVariable = Expression.Variable(targetMember.Type, instanceVariableName);
             }
+
+            MapperKey = new ObjectMapperKey(this);
         }
 
-        public IObjectMappingContextFactoryBridge CreateChildMapperDataBridge<TDeclaredSource, TDeclaredTarget>(
-            MappingInstanceData<TDeclaredSource, TDeclaredTarget> data,
+        #region Setup
+
+        private MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
+        {
+            return mappingDataType
+                .GetMethods(Constants.PublicInstance)
+                .First(m => (m.Name == "Map") && (m.GetParameters().Length == numberOfArguments));
+        }
+
+        #endregion
+
+        public IMappingDataFactoryBridge CreateChildMappingDataBridge<TDeclaredSource, TDeclaredTarget>(
+            MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             string targetMemberName,
             int dataSourceIndex)
         {
             var targetMemberAndDataSourcesTuple = _dataSourcesByTargetMemberName[targetMemberName];
-            var qualifiedTargetMember = targetMemberAndDataSourcesTuple.Item1;
+            var targetMember = targetMemberAndDataSourcesTuple.Item1;
             var sourceMember = targetMemberAndDataSourcesTuple.Item2[dataSourceIndex].SourceMember;
 
-            return ObjectMapperDataFactoryBridge.Create(
-                data,
+            return MappingDataFactoryBridge.Create(
+                instanceData,
                 sourceMember,
-                qualifiedTargetMember);
+                targetMember,
+                this);
         }
 
-        public IObjectMappingContextFactoryBridge CreateElementMapperDataBridge<TSourceElement, TTargetElement>(
-            MappingInstanceData<TSourceElement, TTargetElement> data)
+        public IMappingDataFactoryBridge CreateElementMappingDataBridge<TSourceElement, TTargetElement>(
+            MappingInstanceData<TSourceElement, TTargetElement> instanceData)
         {
-            return ObjectMapperDataFactoryBridge.Create(
-                data,
+            return MappingDataFactoryBridge.Create(
+                instanceData,
                 _sourceElementMember,
-                _targetElementMember);
+                _targetElementMember,
+                this);
         }
 
-        #region IMemberMapperData Members
+        public ObjectMapperKey MapperKey { get; }
 
         public override ParameterExpression MdParameter { get; }
-
-        public override ParameterExpression OmdParameter => Parameters.ObjectMapperData;
 
         public override IQualifiedMember SourceMember { get; }
 
@@ -113,13 +123,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
-        #endregion
-
-        #region IObjectMapperData Members
-
         public Expression CreatedObject { get; }
 
-        public void SetKey(ObjectMapperKey key) => _key = key;
+        public bool RuntimeTypesAreTheSame { get; }
 
         public MethodCallExpression GetMapCall(
             Expression sourceObject,
@@ -127,7 +133,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex)
         {
             var mapCall = Expression.Call(
-                OmdParameter,
+                MdParameter,
                 _mapObjectMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
@@ -140,7 +146,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement)
         {
             var mapCall = Expression.Call(
-                OmdParameter,
+                MdParameter,
                 _mapEnumerableElementMethod.MakeGenericMethod(sourceElement.Type, existingElement.Type),
                 sourceElement,
                 existingElement,
@@ -154,7 +160,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             // TODO: Apply runtime-typed source members to ObjectMapperKey
             _dataSourcesByTargetMemberName.Add(targetMember.Name, Tuple.Create(targetMember, dataSources));
         }
-
-        #endregion
     }
 }

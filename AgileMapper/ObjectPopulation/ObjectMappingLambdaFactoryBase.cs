@@ -23,8 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                     GetNullMappingBlock(returnNull),
-                    omd.MdParameter,
-                    omd.OmdParameter);
+                    omd.MdParameter);
             }
 
             var basicMappingData = BasicMapperData.WithNoTargetMember(omd);
@@ -47,7 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var wrappedMappingBlock = WrapInTryCatch(mappingBlock, omd);
 
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, data.MapperData.OmdParameter);
+                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, data.MapperData.MdParameter);
 
             return mapperLambda;
         }
@@ -97,7 +96,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var exceptionContextCreateCall = Expression.Call(
                     exceptionContextCreateMethod,
-                    data.OmdParameter,
+                    data.MdParameter,
                     exceptionVariable);
 
                 var callbackInvocation = Expression.Invoke(configuredCallback, exceptionContextCreateCall);
@@ -108,7 +107,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingExceptionCreation = Expression.New(
                     MappingException.ConstructorInfo,
-                    data.OmdParameter,
+                    data.MdParameter,
                     exceptionVariable);
 
                 catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);

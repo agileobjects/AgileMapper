@@ -29,15 +29,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _targetTypesAreTheSame = (declaredTargetType == runtimeTargetType);
         }
 
-        public static DeclaredAndRuntimeTypesKey From(
-            ObjectMapperDataFactoryBridge command)
+        public static DeclaredAndRuntimeTypesKey ForObjectMapperData<TSource, TTarget>(
+            MappingDataFactoryBridge<TSource, TTarget> bridge)
         {
             return new DeclaredAndRuntimeTypesKey(
-                KeyType.OmcConstructor,
-                command.DeclaredSourceType,
-                command.DeclaredTargetType,
-                command.SourceMember.Type,
-                command.TargetMember.Type);
+                KeyType.ObjectMapperData,
+                typeof(TSource),
+                typeof(TTarget),
+                bridge.SourceMember.Type,
+                bridge.TargetMember.Type);
         }
 
         public static DeclaredAndRuntimeTypesKey ForCreateMapperCall<TSource, TTarget>(MemberMapperData data)
@@ -64,6 +64,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public override int GetHashCode() => 0;
 
-        private enum KeyType { OmcConstructor, CreateMapperCall }
+        private enum KeyType { ObjectMapperData, CreateMapperCall }
     }
 }

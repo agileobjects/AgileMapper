@@ -15,7 +15,7 @@
 
         public MappingPlan(MappingContext mappingContext)
         {
-            var rootMappingData = mappingContext.CreateRootMappingData(default(TSource), default(TTarget));
+            var rootMappingData = mappingContext.CreateRootMapperCreationData(default(TSource), default(TTarget));
 
             var rootMapper = mappingContext
                 .MapperContext
@@ -91,41 +91,36 @@
                 default(TChildSource),
                 default(TChildTarget));
 
-            var mapperDataBridge = data.CreateChildMapperDataBridge(
+            var mapperDataBridge = data.CreateChildMappingDataBridge(
                 instanceData,
                 targetMemberName,
                 dataSourceIndex);
 
-            var childMapperData = mapperDataBridge.ToMapperData();
+            var childMapperCreationData = mapperDataBridge.GetMapperCreationData();
 
-            var childMappingData = new MappingData<TChildSource, TChildTarget>(
-                instanceData,
-                childMapperData);
-
-            var targetType = childMapperData.TargetType;
+            var targetType = childMapperCreationData.MapperData.TargetType;
 
             LambdaExpression mappingLambda;
 
             if (targetType == typeof(TChildTarget))
             {
-                mappingLambda = GetMappingLambda(childMappingData);
+                mappingLambda = GetMappingLambda<TChildSource, TChildTarget>(childMapperCreationData);
             }
             else
             {
                 mappingLambda = (LambdaExpression)typeof(MappingPlan<TSource, TTarget>)
                     .GetMethod("GetMappingLambda", Constants.NonPublicStatic)
-                    .MakeGenericMethod(childMapperData.SourceType, targetType)
-                    .Invoke(null, new object[] { childMapperData });
+                    .MakeGenericMethod(childMapperCreationData.MapperData.SourceType, targetType)
+                    .Invoke(null, new object[] { childMapperCreationData });
             }
 
-            return new MappingPlanData(mappingLambda, childMapperData);
+            return new MappingPlanData(mappingLambda, childMapperCreationData.MapperData);
         }
 
-        private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget>(
-            MappingData<TChildSource, TChildTarget> data)
+        private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget>(IObjectMapperCreationData data)
         {
             var mapper = data
-                .MappingContext
+                .MapperData
                 .MapperContext
                 .ObjectMapperFactory
                 .CreateFor<TChildSource, TChildTarget>(data);
@@ -155,16 +150,12 @@
                 default(TSourceElement),
                 default(TTargetElement));
 
-            var elementMapperDataBridge = data.CreateElementMapperDataBridge(elementInstanceData);
-            var elementMapperData = elementMapperDataBridge.ToMapperData();
+            var elementMapperDataBridge = data.CreateElementMappingDataBridge(elementInstanceData);
+            var elementMappingData = elementMapperDataBridge.GetMapperCreationData();
 
-            var elementMappingData = new MappingData<TSourceElement, TTargetElement>(
-                elementInstanceData,
-                elementMapperData);
+            var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementMappingData);
 
-            var mappingLambda = GetMappingLambda(elementMappingData);
-
-            return new MappingPlanData(mappingLambda, elementMapperData);
+            return new MappingPlanData(mappingLambda, elementMappingData.MapperData);
         }
 
         private static string GetDescription(MappingPlanData mappingPlanData)

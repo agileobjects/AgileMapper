@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static IMemberPopulation Create(Member targetMember, IObjectMapperCreationData data)
         {
-            var qualifiedMember = data.MapperData.TargetMember.Append(targetMember);
+            var qualifiedMember = data.TargetMember.Append(targetMember);
             var childMapperData = new MemberMapperData(qualifiedMember, data.MapperData);
 
             Expression populateCondition;

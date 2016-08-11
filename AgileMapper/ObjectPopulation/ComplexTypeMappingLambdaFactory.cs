@@ -43,7 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, MemberMapperData data)
         {
             var tryGetCall = Expression.Call(
-                Expression.Property(data.OmdParameter, "MappingContext"),
+                Expression.Property(data.MdParameter, "MappingContext"),
                 MappingContext.TryGetMethod.MakeGenericMethod(data.SourceType, data.InstanceVariable.Type),
                 data.SourceObject,
                 data.InstanceVariable);
@@ -167,7 +167,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetObjectRegistrationCall(MemberMapperData data)
         {
             return Expression.Call(
-                Expression.Property(data.OmdParameter, "MappingContext"),
+                Expression.Property(data.MdParameter, "MappingContext"),
                 MappingContext.RegisterMethod.MakeGenericMethod(data.SourceType, data.TargetType),
                 data.SourceObject,
                 data.InstanceVariable);

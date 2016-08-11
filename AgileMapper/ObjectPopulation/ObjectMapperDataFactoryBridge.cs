@@ -4,45 +4,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal interface IObjectMappingContextFactoryBridge
+    internal interface IMappingDataFactoryBridge
     {
-        bool Matches(BasicMapperData data);
-
-        ObjectMapperData ToMapperData();
+        IObjectMapperCreationData GetMapperCreationData();
     }
 
-    internal class ObjectMapperDataFactoryBridge : IObjectMappingContextFactoryBridge
+    internal static class MappingDataFactoryBridge
     {
-        private ObjectMapperDataFactoryBridge(
-            Type declaredSourceType,
-            Type declaredTargetType,
+        public static MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> Create<TDeclaredSource, TDeclaredTarget>(
+            MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            MappingContext mappingContext)
+            ObjectMapperData objectMapperData = null)
         {
-            DeclaredSourceType = declaredSourceType;
-            DeclaredTargetType = declaredTargetType;
-            SourceMember = sourceMember;
-            TargetMember = targetMember;
-            MappingContext = mappingContext;
-        }
+            var runtimeSourceMember = sourceMember.WithType(instanceData.Source.GetRuntimeSourceType());
+            var runtimeTargetMember = GetTargetMember(instanceData, runtimeSourceMember, targetMember);
 
-        #region FactoryMethod
-
-        public static ObjectMapperDataFactoryBridge Create<TSource, TTarget>(
-            MappingInstanceData<TSource, TTarget> instanceData,
-            IQualifiedMember sourceMember,
-            QualifiedMember targetMember)
-        {
-            sourceMember = sourceMember.WithType(instanceData.Source.GetRuntimeSourceType());
-            targetMember = GetTargetMember(instanceData, sourceMember, targetMember);
-
-            return new ObjectMapperDataFactoryBridge(
-                typeof(TSource),
-                typeof(TTarget),
-                sourceMember,
-                targetMember,
-                instanceData.MappingContext);
+            return new MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget>(
+                instanceData,
+                objectMapperData,
+                typeof(TDeclaredSource),
+                typeof(TDeclaredTarget),
+                runtimeSourceMember,
+                runtimeTargetMember);
         }
 
         private static QualifiedMember GetTargetMember<TSource, TTarget>(
@@ -56,13 +40,35 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 instanceData.MappingContext.MapperContext.UserConfigurations.DerivedTypePairs.GetDerivedTypeOrNull(mappingData)
                     ?? instanceData.Target.GetRuntimeTargetType(sourceMember.Type);
 
-            targetMember = targetMember.WithType(targetMemberType);
-            return targetMember;
+            return targetMember.WithType(targetMemberType);
+        }
+    }
+
+    internal class MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> : IMappingDataFactoryBridge
+    {
+        public MappingDataFactoryBridge(
+            MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
+            ObjectMapperData mapperData,
+            Type declaredSourceType,
+            Type declaredTargetType,
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember)
+        {
+            InstanceData = instanceData;
+            MapperData = mapperData;
+            DeclaredSourceType = declaredSourceType;
+            DeclaredTargetType = declaredTargetType;
+            SourceMember = sourceMember;
+            TargetMember = targetMember;
+
+            RuntimeTypesAreTheSame = (SourceMember.Type == DeclaredSourceType) && (TargetMember.Type == DeclaredTargetType);
         }
 
-        #endregion
+        public MappingContext MappingContext => InstanceData.MappingContext;
 
-        public MappingContext MappingContext { get; }
+        public MappingInstanceData<TDeclaredSource, TDeclaredTarget> InstanceData { get; }
+
+        public ObjectMapperData MapperData { get; }
 
         public Type DeclaredSourceType { get; }
 
@@ -72,9 +78,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public QualifiedMember TargetMember { get; }
 
-        public bool Matches(BasicMapperData data)
-            => (data.SourceType == SourceMember.Type) && (data.TargetType == TargetMember.Type);
+        public bool RuntimeTypesAreTheSame { get; }
 
-        public ObjectMapperData ToMapperData() => ObjectMapperDataFactory.Create(this);
+        public ObjectMapperData GetMapperData()
+        {
+            return new ObjectMapperData(
+                MappingContext,
+                SourceMember,
+                TargetMember,
+                RuntimeTypesAreTheSame,
+                MapperData);
+        }
+
+        public IObjectMapperCreationData GetMapperCreationData() => MapperCreationDataFactory.Create(this);
     }
 }

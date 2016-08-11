@@ -15,8 +15,8 @@
         {
         }
 
-        internal MappingException(MemberMapperData data, Exception innerException)
-            : base(GetMessage(data), innerException)
+        internal MappingException(IMemberMapperCreationData data, Exception innerException)
+            : base(GetMessage(data.MapperData), innerException)
         {
         }
 

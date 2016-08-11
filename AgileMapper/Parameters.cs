@@ -36,9 +36,9 @@ namespace AgileObjects.AgileMapper
             var contextParameter = lambda.Parameters[0];
             var contextType = contextParameter.Type;
 
-            if (contextType.IsAssignableFrom(context.OmdParameter.Type))
+            if (contextType.IsAssignableFrom(context.MdParameter.Type))
             {
-                return lambda.ReplaceParameterWith(context.OmdParameter);
+                return lambda.ReplaceParameterWith(context.MdParameter);
             }
 
             var contextTypes = contextType.GetGenericArguments();
@@ -110,32 +110,32 @@ namespace AgileObjects.AgileMapper
         private static MappingContextInfo GetAppropriateMappingContext(LambdaExpression lambda, MemberMapperData context)
             => GetAppropriateMappingContext(new[] { lambda.Parameters[0].Type, lambda.Parameters[1].Type }, context);
 
-        private static MappingContextInfo GetAppropriateMappingContext(Type[] contextTypes, MemberMapperData context)
+        private static MappingContextInfo GetAppropriateMappingContext(Type[] dataTypes, MemberMapperData context)
         {
-            if (TypesMatch(contextTypes, context))
+            if (TypesMatch(dataTypes, context))
             {
-                return new MappingContextInfo(context, contextTypes);
+                return new MappingContextInfo(context, dataTypes);
             }
 
             var originalContext = context;
-            Expression contextAccess = context.OmdParameter;
+            Expression dataAccess = context.MdParameter;
 
             if (context.TargetMember.IsSimple)
             {
                 context = context.Parent;
             }
 
-            while (!TypesMatch(contextTypes, context))
+            while (!TypesMatch(dataTypes, context))
             {
-                contextAccess = Expression.Property(contextAccess, "Parent");
+                dataAccess = Expression.Property(dataAccess, "Parent");
                 context = context.Parent;
             }
 
-            return new MappingContextInfo(originalContext, contextAccess, contextTypes);
+            return new MappingContextInfo(originalContext, dataAccess, dataTypes);
         }
 
-        private static bool TypesMatch(IList<Type> contextTypes, BasicMapperData data)
-            => contextTypes[0].IsAssignableFrom(data.SourceType) && contextTypes[1].IsAssignableFrom(data.TargetType);
+        private static bool TypesMatch(IList<Type> dataTypes, BasicMapperData data)
+            => dataTypes[0].IsAssignableFrom(data.SourceType) && dataTypes[1].IsAssignableFrom(data.TargetType);
 
         private class MappingContextInfo
         {
@@ -158,9 +158,9 @@ namespace AgileObjects.AgileMapper
                 TargetAccess = GetAccess(data, contextAccess, _getTargetMethod, contextTypes[1], data.TargetObject);
                 Index = data.EnumerableIndex;
 
-                if (contextAccess == data.OmdParameter)
+                if (contextAccess == data.MdParameter)
                 {
-                    MappingDataAccess = data.OmdParameter;
+                    MappingDataAccess = data.MdParameter;
                     return;
                 }
 
@@ -174,7 +174,7 @@ namespace AgileObjects.AgileMapper
                 Type type,
                 Expression directAccessExpression)
             {
-                return (contextAccess != data.OmdParameter)
+                return (contextAccess != data.MdParameter)
                     ? Expression.Call(contextAccess, accessMethod.MakeGenericMethod(type))
                     : directAccessExpression;
             }
