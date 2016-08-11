@@ -28,7 +28,7 @@
 
             if (parentMemberType != parentMember.Type)
             {
-                // TODO: Add member runtime type conditions to ObjectMapperKey if the runtime type determines the source member!
+                // TODO: Add member runtime type conditions to RuleSetAndMembersKey if the runtime type determines the source member!
                 parentMember = parentMember.WithType(parentMemberType);
                 yield return parentMember;
             }

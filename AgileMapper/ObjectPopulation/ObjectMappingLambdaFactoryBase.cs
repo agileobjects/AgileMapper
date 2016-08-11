@@ -14,36 +14,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMapperCreationData data)
         {
-            var omd = data.MapperData;
+            var mapperData = data.MapperData;
 
-            var returnLabelTarget = Expression.Label(omd.TargetObject.Type, "Return");
-            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omd.TargetObject.Type));
+            var returnLabelTarget = Expression.Label(mapperData.TargetObject.Type, "Return");
+            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(mapperData.TargetObject.Type));
 
-            if (IsNotConstructable(omd))
+            if (IsNotConstructable(data))
             {
                 return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                     GetNullMappingBlock(returnNull),
-                    omd.MdParameter);
+                    mapperData.MdParameter);
             }
 
-            var basicMappingData = BasicMapperData.WithNoTargetMember(omd);
+            var basicMappingData = BasicMapperData.WithNoTargetMember(mapperData);
 
-            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, basicMappingData, omd);
-            var shortCircuitReturns = GetShortCircuitReturns(returnNull, omd);
+            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, basicMappingData, mapperData);
+            var shortCircuitReturns = GetShortCircuitReturns(returnNull, mapperData);
             var objectPopulation = GetObjectPopulation(data);
-            var postMappingCallback = GetMappingCallback(CallbackPosition.After, basicMappingData, omd);
-            var returnValue = GetReturnValue(omd);
+            var postMappingCallback = GetMappingCallback(CallbackPosition.After, basicMappingData, mapperData);
+            var returnValue = GetReturnValue(mapperData);
             var returnLabel = Expression.Label(returnLabelTarget, returnValue);
 
             var mappingBlock = Expression.Block(
-                new[] { omd.InstanceVariable },
+                new[] { mapperData.InstanceVariable },
                 preMappingCallback
                     .Concat(shortCircuitReturns)
                     .Concat(objectPopulation)
                     .Concat(postMappingCallback)
                     .Concat(returnLabel));
 
-            var wrappedMappingBlock = WrapInTryCatch(mappingBlock, omd);
+            var wrappedMappingBlock = WrapInTryCatch(mappingBlock, mapperData);
 
             var mapperLambda = Expression
                 .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, data.MapperData.MdParameter);
@@ -58,7 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 returnNull.Value);
         }
 
-        protected abstract bool IsNotConstructable(ObjectMapperData data);
+        protected abstract bool IsNotConstructable(IObjectMapperCreationData data);
 
         private static IEnumerable<Expression> GetMappingCallback(
             CallbackPosition callbackPosition,

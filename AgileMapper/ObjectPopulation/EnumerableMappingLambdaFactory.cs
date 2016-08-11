@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static ObjectMappingLambdaFactoryBase Instance = new EnumerableMappingLambdaFactory();
 
-        protected override bool IsNotConstructable(ObjectMapperData data) => false;
+        protected override bool IsNotConstructable(IObjectMapperCreationData data) => false;
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
             => Enumerable.Empty<Expression>();

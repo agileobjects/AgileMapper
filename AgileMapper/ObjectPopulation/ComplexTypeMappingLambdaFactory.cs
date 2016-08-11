@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly ObjectMappingLambdaFactoryBase Instance = new ComplexTypeMappingLambdaFactory();
 
-        protected override bool IsNotConstructable(ObjectMapperData data)
+        protected override bool IsNotConstructable(IObjectMapperCreationData data)
             => GetNewObjectCreation(data) == null;
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
@@ -57,21 +57,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data)
         {
-            var omd = data.MapperData;
+            var mapperData = data.MapperData;
 
-            yield return GetCreationCallback(CallbackPosition.Before, omd);
+            yield return GetCreationCallback(CallbackPosition.Before, mapperData);
 
-            var instanceVariableValue = GetObjectResolution(omd);
-            var instanceVariableAssignment = Expression.Assign(omd.InstanceVariable, instanceVariableValue);
+            var instanceVariableValue = GetObjectResolution(data);
+            var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, instanceVariableValue);
             yield return instanceVariableAssignment;
 
-            yield return GetCreationCallback(CallbackPosition.After, omd);
+            yield return GetCreationCallback(CallbackPosition.After, mapperData);
 
-            yield return GetObjectRegistrationCall(omd);
+            yield return GetObjectRegistrationCall(mapperData);
 
             var memberPopulations = MemberPopulationFactory
                 .Create(data)
-                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, omd) : p.GetPopulation());
+                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, mapperData) : p.GetPopulation());
 
             foreach (var population in memberPopulations)
             {
@@ -82,16 +82,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData data)
             => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, data), data);
 
-        private static Expression GetObjectResolution(ObjectMapperData data)
+        private static Expression GetObjectResolution(IObjectMapperCreationData data)
         {
-            var createdObjectAssignment = Expression.Assign(data.CreatedObject, GetNewObjectCreation(data));
-            var instanceDataTargetAssignment = Expression.Assign(data.TargetObject, createdObjectAssignment);
-            var existingOrCreatedObject = Expression.Coalesce(data.TargetObject, instanceDataTargetAssignment);
+            var mapperData = data.MapperData;
+
+            var createdObjectAssignment = Expression.Assign(mapperData.CreatedObject, GetNewObjectCreation(data));
+            var instanceDataTargetAssignment = Expression.Assign(mapperData.TargetObject, createdObjectAssignment);
+            var existingOrCreatedObject = Expression.Coalesce(mapperData.TargetObject, instanceDataTargetAssignment);
 
             return existingOrCreatedObject;
         }
 
-        private static Expression GetNewObjectCreation(ObjectMapperData data)
+        private static Expression GetNewObjectCreation(IObjectMapperCreationData data)
         {
             var objectCreationKey = string.Format(
                 CultureInfo.InvariantCulture,
@@ -100,21 +102,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 data.TargetMember.Signature,
                 data.RuleSet.Name);
 
-            return data.MapperContext.Cache.GetOrAdd(objectCreationKey, k =>
+            return data.MapperData.MapperContext.Cache.GetOrAdd(objectCreationKey, k =>
             {
+                var mapperData = data.MapperData;
+
                 var constructions = new List<Construction>();
                 var newingConstructorRequired = true;
 
-                var configuredFactories = data
+                var configuredFactories = mapperData
                     .MapperContext
                     .UserConfigurations
-                    .GetObjectFactories(data);
+                    .GetObjectFactories(mapperData);
 
                 foreach (var configuredFactory in configuredFactories)
                 {
                     var configuredConstruction = new Construction(
-                        configuredFactory.Create(data),
-                        configuredFactory.GetConditionOrNull(data));
+                        configuredFactory.Create(mapperData),
+                        configuredFactory.GetConditionOrNull(mapperData));
 
                     constructions.Insert(0, configuredConstruction);
 
@@ -127,18 +131,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (newingConstructorRequired)
                 {
-                    var greediestAvailableConstructor = data.InstanceVariable.Type
+                    var greediestAvailableConstructor = mapperData.InstanceVariable.Type
                         .GetConstructors(Constants.PublicInstance)
                         .Select(ctor => new ConstructorData(
                             ctor,
                             ctor.GetParameters()
-                                .Select(p => new MemberMapperData(
-                                    data.TargetMember.Append(Member.ConstructorParameter(p)),
-                                    data))
-                                .Select(mapperData => new DataSourceSet()/*omc
+                                .Select(p =>
+                                {
+                                    var childMapperData = new MemberMapperData(
+                                        data.TargetMember.Append(Member.ConstructorParameter(p)),
+                                        mapperData);
+
+                                    return data.GetChildCreationData(childMapperData);
+                                })
+                                .Select(memberData => mapperData
                                     .MapperContext
                                     .DataSources
-                                    .FindFor(mapperData)*/)
+                                    .FindFor(memberData))
                                 .ToArray()))
                         .Where(ctor => ctor.CanBeConstructed)
                         .OrderByDescending(ctor => ctor.NumberOfParameters)
