@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Members;
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
@@ -14,14 +15,14 @@
 
         public MappingPlan(MappingContext mappingContext)
         {
-            var rootOmc = mappingContext.CreateRootObjectContext(default(TSource), default(TTarget));
+            var rootMappingData = mappingContext.CreateRootMappingData(default(TSource), default(TTarget));
 
             var rootMapper = mappingContext
                 .MapperContext
                 .ObjectMapperFactory
-                .CreateFor<TSource, TTarget>(rootOmc);
+                .CreateFor<TSource, TTarget>(rootMappingData);
 
-            var planData = Expand(new MappingPlanData(rootMapper.MappingLambda, rootOmc));
+            var planData = Expand(new MappingPlanData(rootMapper.MappingLambda, rootMappingData.MapperData));
 
             _plan = string.Join(
                 Environment.NewLine + Environment.NewLine,
@@ -60,8 +61,9 @@
 
         private static MappingPlanData ExpandObjectMapper(MethodCallExpression mapCall, MappingPlanData mappingPlanData)
         {
-            var targetMemberName = (string)((ConstantExpression)mapCall.Arguments[2]).Value;
-            var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments[3]).Value;
+            var instanceData = ((ConstantExpression)mapCall.Arguments[0]).Value;
+            var targetMemberName = (string)((ConstantExpression)mapCall.Arguments[1]).Value;
+            var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments[2]).Value;
 
             var typedExpandMethod = typeof(MappingPlan<TSource, TTarget>)
                 .GetMethods(Constants.NonPublicStatic)
@@ -72,52 +74,61 @@
 
             var childMapperData = typedExpandMethod.Invoke(
                 null,
-                new object[] { targetMemberName, dataSourceIndex, mappingPlanData.Omc });
+                new[] { instanceData, targetMemberName, dataSourceIndex, mappingPlanData.MapperData });
 
             return (MappingPlanData)childMapperData;
         }
 
         // ReSharper disable once UnusedMember.Local
         private static MappingPlanData ExpandObjectMapper<TChildSource, TChildTarget>(
+            MappingContext mappingContext,
             string targetMemberName,
             int dataSourceIndex,
-            IObjectMappingContext omc)
+            ObjectMapperData data)
         {
-            var omcBridge = omc.CreateChildMappingContextBridge(
+            var instanceData = new MappingInstanceData<TChildSource, TChildTarget>(
+                mappingContext,
                 default(TChildSource),
-                default(TChildTarget),
+                default(TChildTarget));
+
+            var mapperDataBridge = data.CreateChildMapperDataBridge(
+                instanceData,
                 targetMemberName,
                 dataSourceIndex);
 
-            var childOmc = omcBridge.ToOmc();
+            var childMapperData = mapperDataBridge.ToMapperData();
 
-            var omcTypes = childOmc.GetType().GetGenericArguments();
-            var omcObjectType = omcTypes.Last();
+            var childMappingData = new MappingData<TChildSource, TChildTarget>(
+                instanceData,
+                childMapperData);
+
+            var targetType = childMapperData.TargetType;
 
             LambdaExpression mappingLambda;
 
-            if (omcObjectType == typeof(TChildTarget))
+            if (targetType == typeof(TChildTarget))
             {
-                mappingLambda = GetMappingLambda<TChildSource, TChildTarget>(childOmc);
+                mappingLambda = GetMappingLambda(childMappingData);
             }
             else
             {
                 mappingLambda = (LambdaExpression)typeof(MappingPlan<TSource, TTarget>)
                     .GetMethod("GetMappingLambda", Constants.NonPublicStatic)
-                    .MakeGenericMethod(omcTypes)
-                    .Invoke(null, new object[] { childOmc });
+                    .MakeGenericMethod(childMapperData.SourceType, targetType)
+                    .Invoke(null, new object[] { childMapperData });
             }
 
-            return new MappingPlanData(mappingLambda, childOmc);
+            return new MappingPlanData(mappingLambda, childMapperData);
         }
 
         private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget>(
-            IObjectMappingContext omc)
+            MappingData<TChildSource, TChildTarget> data)
         {
-            var mapper = omc
+            var mapper = data
+                .MappingContext
                 .MapperContext
                 .ObjectMapperFactory
-                .CreateFor<TChildSource, TChildTarget>(omc);
+                .CreateFor<TChildSource, TChildTarget>(data);
 
             return mapper.MappingLambda;
         }
@@ -127,30 +138,33 @@
             var typedExpandMethod = typeof(MappingPlan<TSource, TTarget>)
                 .GetMethods(Constants.NonPublicStatic)
                 .First(m => m.ContainsGenericParameters && (m.Name == "ExpandElementMapper"))
-                .MakeGenericMethod(
-                    mapCall.Arguments.ElementAt(0).Type,
-                    mapCall.Arguments.ElementAt(1).Type);
+                .MakeGenericMethod(mapCall.Method.GetGenericArguments());
 
             var childMapperData = typedExpandMethod.Invoke(
                 null,
-                new object[] { mappingPlanData.Omc });
+                new object[] { mappingPlanData.MapperData });
 
             return (MappingPlanData)childMapperData;
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static MappingPlanData ExpandElementMapper<TSourceElement, TTargetElement>(IObjectMappingContext omc)
+        private static MappingPlanData ExpandElementMapper<TSourceElement, TTargetElement>(ObjectMapperData data)
         {
-            var elementOmcBridge = omc.CreateElementMappingContextBridge(
+            var elementInstanceData = new MappingInstanceData<TSourceElement, TTargetElement>(
+                null,
                 default(TSourceElement),
-                default(TTargetElement),
-                enumerableIndex: 0);
+                default(TTargetElement));
 
-            var elementOmc = elementOmcBridge.ToOmc();
+            var elementMapperDataBridge = data.CreateElementMapperDataBridge(elementInstanceData);
+            var elementMapperData = elementMapperDataBridge.ToMapperData();
 
-            var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementOmc);
+            var elementMappingData = new MappingData<TSourceElement, TTargetElement>(
+                elementInstanceData,
+                elementMapperData);
 
-            return new MappingPlanData(mappingLambda, elementOmc);
+            var mappingLambda = GetMappingLambda(elementMappingData);
+
+            return new MappingPlanData(mappingLambda, elementMapperData);
         }
 
         private static string GetDescription(MappingPlanData mappingPlanData)
@@ -163,7 +177,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // Map {sourceType} -> {targetType}
-// Rule Set: {mappingPlanData.Omc.RuleSetName}
+// Rule Set: {mappingPlanData.MapperData.RuleSet.Name}
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 

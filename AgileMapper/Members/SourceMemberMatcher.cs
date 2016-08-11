@@ -5,38 +5,39 @@
 
     internal class SourceMemberMatcher
     {
-        public static IQualifiedMember GetMatchFor(IMemberMappingContext context)
+        public static IQualifiedMember GetMatchFor(IMemberMapperCreationData rootData)
         {
-            var rootSourceMember = context.SourceMember;
+            var rootSourceMember = rootData.SourceMember;
 
-            return GetAllSourceMembers(rootSourceMember, context)
-                .FirstOrDefault(sm => IsMatchingMember(sm, context));
+            return GetAllSourceMembers(rootSourceMember, rootData)
+                .FirstOrDefault(sm => IsMatchingMember(sm, rootData.MapperData));
         }
 
         private static IEnumerable<IQualifiedMember> GetAllSourceMembers(
             IQualifiedMember parentMember,
-            IMemberMappingContext context)
+            IMemberMapperCreationData rootData)
         {
             yield return parentMember;
 
-            if (!parentMember.CouldMatch(context.TargetMember))
+            if (!parentMember.CouldMatch(rootData.MapperData.TargetMember))
             {
                 yield break;
             }
 
-            var parentMemberType = context.Parent.GetSourceMemberRuntimeType(parentMember);
+            var parentMemberType = rootData.GetSourceMemberRuntimeType(parentMember);
 
             if (parentMemberType != parentMember.Type)
             {
+                // TODO: Add member runtime type conditions to ObjectMapperKey if the runtime type determines the source member!
                 parentMember = parentMember.WithType(parentMemberType);
                 yield return parentMember;
             }
 
-            var relevantMembers = context.Parent
-                .GlobalContext
+            var relevantMembers = GlobalContext
+                .Instance
                 .MemberFinder
                 .GetReadableMembers(parentMember.Type)
-                .Where(m => (m.IsSimple && context.TargetMember.IsSimple) || !m.IsSimple);
+                .Where(m => (m.IsSimple && rootData.TargetMember.IsSimple) || !m.IsSimple);
 
             foreach (var sourceMember in relevantMembers)
             {
@@ -48,17 +49,17 @@
                     continue;
                 }
 
-                foreach (var qualifiedMember in GetAllSourceMembers(childMember, context))
+                foreach (var qualifiedMember in GetAllSourceMembers(childMember, rootData))
                 {
                     yield return qualifiedMember;
                 }
             }
         }
 
-        private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMappingContext context)
+        private static bool IsMatchingMember(IQualifiedMember sourceMember, MemberMapperData data)
         {
-            return sourceMember.Matches(context.TargetMember) &&
-                   context.MapperContext.ValueConverters.CanConvert(sourceMember.Type, context.TargetMember.Type);
+            return sourceMember.Matches(data.TargetMember) &&
+                   data.MapperContext.ValueConverters.CanConvert(sourceMember.Type, data.TargetMember.Type);
         }
     }
 }

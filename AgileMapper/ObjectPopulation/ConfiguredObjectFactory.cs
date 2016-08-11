@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Configuration;
     using Members;
 
@@ -34,9 +33,9 @@
 
         #endregion
 
-        public override bool AppliesTo(IMappingData data)
+        public override bool AppliesTo(BasicMapperData data)
             => _objectType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(data);
 
-        public Expression Create(IMemberMappingContext context) => _factoryInfo.GetBody(context);
+        public Expression Create(MemberMapperData data) => _factoryInfo.GetBody(data);
     }
 }

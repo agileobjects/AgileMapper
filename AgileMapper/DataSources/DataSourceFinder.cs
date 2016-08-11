@@ -12,9 +12,9 @@
         private readonly ICache<DataSourceSetKey, DataSourceSet> _cache;
         private readonly ICollection<IConditionalDataSourceFactory> _mapTimeDataSourceFactories;
 
-        public DataSourceFinder(GlobalContext globalContext)
+        public DataSourceFinder()
         {
-            _cache = globalContext.CreateCache<DataSourceSetKey, DataSourceSet>();
+            _cache = GlobalContext.Instance.CreateCache<DataSourceSetKey, DataSourceSet>();
 
             _mapTimeDataSourceFactories = new List<IConditionalDataSourceFactory>
             {
@@ -22,23 +22,22 @@
             };
         }
 
-        public DataSourceSet FindFor(IMemberMappingContext context)
+        public DataSourceSet FindFor(IMemberMapperCreationData data)
         {
-            var cacheKey = new DataSourceSetKey(context);
+            var cacheKey = new DataSourceSetKey(data);
 
             return _cache.GetOrAdd(cacheKey, k =>
             {
-                var validDataSources = EnumerateDataSources(context)
+                var validDataSources = EnumerateDataSources(data)
                     .Where(ds => ds.IsValid)
                     .ToArray();
 
-                if (context.TargetMember.IsSimple && validDataSources.Any())
+                if (data.MapperData.TargetMember.IsSimple && validDataSources.Any())
                 {
-                    var initialDataSource = context
-                        .MappingContext
+                    var initialDataSource = data
                         .RuleSet
                         .InitialDataSourceFactory
-                        .Create(context);
+                        .Create(data.MapperData);
 
                     if (initialDataSource.IsValid)
                     {
@@ -50,9 +49,11 @@
             });
         }
 
-        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContext context)
+        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMapperCreationData data)
         {
-            var maptimeDataSource = GetMaptimeDataSourceOrNull(context);
+            var mmd = data.MapperData;
+
+            var maptimeDataSource = GetMaptimeDataSourceOrNull(mmd);
 
             if (maptimeDataSource != null)
             {
@@ -64,11 +65,11 @@
 
             IEnumerable<IConfiguredDataSource> configuredDataSources;
 
-            if (DataSourcesAreConfigured(context, out configuredDataSources))
+            if (DataSourcesAreConfigured(mmd, out configuredDataSources))
             {
                 foreach (var configuredDataSource in configuredDataSources)
                 {
-                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, context);
+                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, mmd);
 
                     if (!configuredDataSource.IsConditional)
                     {
@@ -79,58 +80,67 @@
                 }
             }
 
-            if (context.TargetMember.IsComplex)
+            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(data);
+
+            if (mmd.TargetMember.IsComplex)
             {
-                yield return new ComplexTypeMappingDataSource(dataSourceIndex, context);
+                yield return new ComplexTypeMappingDataSource(bestMatchingSourceMember, dataSourceIndex, mmd);
                 yield break;
             }
 
-            foreach (var dataSource in GetSourceMemberDataSources(configuredDataSources, dataSourceIndex, context))
+            var sourceMemberDataSources = GetSourceMemberDataSources(
+                bestMatchingSourceMember,
+                configuredDataSources,
+                dataSourceIndex,
+                data);
+
+            foreach (var dataSource in sourceMemberDataSources)
             {
                 yield return dataSource;
             }
         }
 
-        private IDataSource GetMaptimeDataSourceOrNull(IMemberMappingContext context)
+        private IDataSource GetMaptimeDataSourceOrNull(MemberMapperData data)
         {
-            if (context.TargetMember.IsComplex)
+            if (data.TargetMember.IsComplex)
             {
                 return null;
             }
 
             return _mapTimeDataSourceFactories
-                .FirstOrDefault(factory => factory.IsFor(context))?
-                .Create(context);
+                .FirstOrDefault(factory => factory.IsFor(data))?
+                .Create(data);
         }
 
         private static bool DataSourcesAreConfigured(
-            IMemberMappingContext context,
+            MemberMapperData data,
             out IEnumerable<IConfiguredDataSource> configuredDataSources)
         {
-            configuredDataSources = context
+            configuredDataSources = data
                 .MapperContext
                 .UserConfigurations
-                .GetDataSources(context);
+                .GetDataSources(data);
 
             return configuredDataSources.Any();
         }
 
-        private static IDataSource FallbackDataSourceFor(IMemberMappingContext context)
-            => context.MappingContext.RuleSet.FallbackDataSourceFactory.Create(context);
+        private static IDataSource FallbackDataSourceFor(MemberMapperData data)
+            => data.RuleSet.FallbackDataSourceFactory.Create(data);
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
+            IQualifiedMember bestMatchingSourceMember,
             IEnumerable<IConfiguredDataSource> configuredDataSources,
             int dataSourceIndex,
-            IMemberMappingContext context)
+            IMemberMapperCreationData data)
         {
-            var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(context);
+            var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, data);
 
             if ((matchingSourceMemberDataSource == null) ||
                 configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
                 if (dataSourceIndex > 0)
                 {
-                    yield return FallbackDataSourceFor(context);
+                    yield return FallbackDataSourceFor(data.MapperData);
                 }
 
                 yield break;
@@ -140,33 +150,33 @@
 
             if (matchingSourceMemberDataSource.IsConditional)
             {
-                yield return FallbackDataSourceFor(context);
+                yield return FallbackDataSourceFor(data.MapperData);
             }
         }
 
-        private static IDataSource GetSourceMemberDataSourceOrNull(IMemberMappingContext context)
+        private static IDataSource GetSourceMemberDataSourceOrNull(
+            IQualifiedMember bestMatchingSourceMember,
+            IMemberMapperCreationData data)
         {
-            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(context);
-
             if (bestMatchingSourceMember == null)
             {
                 return null;
             }
 
-            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(context.SourceMember);
-            var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, context);
+            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(data.MapperData.SourceMember);
+            var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, data.MapperData);
 
-            return GetFinalDataSource(sourceMemberDataSource, 0, context);
+            return GetFinalDataSource(sourceMemberDataSource, 0, data.MapperData);
         }
 
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
             int dataSourceIndex,
-            IMemberMappingContext context)
+            MemberMapperData data)
         {
-            if (context.TargetMember.IsEnumerable)
+            if (data.TargetMember.IsEnumerable)
             {
-                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, context);
+                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, data);
             }
 
             return foundDataSource;
@@ -183,11 +193,11 @@
             private readonly MappingRuleSet _ruleSet;
             private readonly string _targetMemberSignature;
 
-            public DataSourceSetKey(IMemberMappingContext context)
+            public DataSourceSetKey(IMapperCreationData data)
             {
-                _sourceType = context.SourceType;
-                _ruleSet = context.MappingContext.RuleSet;
-                _targetMemberSignature = context.TargetMember.Signature;
+                _sourceType = data.SourceMember.Type;
+                _ruleSet = data.RuleSet;
+                _targetMemberSignature = data.TargetMember.Signature;
             }
 
             public override bool Equals(object obj)

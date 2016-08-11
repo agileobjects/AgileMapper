@@ -12,10 +12,10 @@
         private readonly ICache<TypeKey, Member> _idMemberCache;
         private readonly ICache<TypeKey, IEnumerable<Member>> _membersCache;
 
-        public MemberFinder(GlobalContext globalContext)
+        public MemberFinder()
         {
-            _idMemberCache = globalContext.CreateCache<TypeKey, Member>();
-            _membersCache = globalContext.CreateCache<TypeKey, IEnumerable<Member>>();
+            _idMemberCache = GlobalContext.Instance.CreateCache<TypeKey, Member>();
+            _membersCache = GlobalContext.Instance.CreateCache<TypeKey, IEnumerable<Member>>();
         }
 
         public Member GetIdentifierOrNull(Type type) => GetIdentifierOrNull(TypeKey.ForTypeId(type));

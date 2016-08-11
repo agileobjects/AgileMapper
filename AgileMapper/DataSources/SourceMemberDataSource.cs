@@ -5,15 +5,15 @@
 
     internal class SourceMemberDataSource : DataSourceBase
     {
-        public SourceMemberDataSource(IQualifiedMember sourceMember, IMemberMappingContext context)
-            : base(sourceMember, GetValue(sourceMember, context), context)
+        public SourceMemberDataSource(IQualifiedMember sourceMember, MemberMapperData data)
+            : base(sourceMember, GetValue(sourceMember, data), data)
         {
         }
 
-        private static Expression GetValue(IQualifiedMember sourceMember, IMemberMappingContext context)
+        private static Expression GetValue(IQualifiedMember sourceMember, MemberMapperData data)
         {
-            var value = sourceMember.GetQualifiedAccess(context.SourceObject);
-            var convertedValue = context.MapperContext.ValueConverters.GetConversion(value, context.TargetMember.Type);
+            var value = sourceMember.GetQualifiedAccess(data.SourceObject);
+            var convertedValue = data.MapperContext.ValueConverters.GetConversion(value, data.TargetMember.Type);
 
             return convertedValue;
         }

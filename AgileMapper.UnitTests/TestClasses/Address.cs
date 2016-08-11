@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
 {
-    internal class Address
+    internal sealed class Address
     {
         public string Line1
         {

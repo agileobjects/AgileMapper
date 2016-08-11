@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
     public interface IFactorySpecifier<TSource, TTarget, TObject>
     {
-        void Using(Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TObject>> factory);
+        void Using(Expression<Func<IMappingData<TSource, TTarget>, TObject>> factory);
 
         void Using<TFactory>(TFactory factory) where TFactory : class;
     }

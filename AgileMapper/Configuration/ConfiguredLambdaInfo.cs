@@ -14,19 +14,19 @@
         private static readonly ParametersSwapper[] _parameterSwappers =
         {
             new ParametersSwapper(0, (ct, ft) => true, Parameters.SwapNothing),
-            new ParametersSwapper(1, IsMemberMappingContext, Parameters.SwapForContextParameter),
-            new ParametersSwapper(1, IsObjectCreationContext, Parameters.SwapForContextParameter),
+            new ParametersSwapper(1, IsMappingData, Parameters.SwapForContextParameter),
+            new ParametersSwapper(1, IsObjectCreationData, Parameters.SwapForContextParameter),
             new ParametersSwapper(2, IsSourceAndTarget, Parameters.SwapForSourceAndTarget),
             new ParametersSwapper(3, IsSourceTargetAndIndex, Parameters.SwapForSourceTargetAndIndex),
             new ParametersSwapper(3, IsSourceTargetAndInstance, Parameters.SwapForSourceTargetAndInstance),
             new ParametersSwapper(4, IsSourceTargetInstanceAndIndex, Parameters.SwapForSourceTargetInstanceAndIndex)
         };
 
-        private static bool IsMemberMappingContext(Type[] contextTypes, Type[] funcArguments)
-            => Is(typeof(ITypedMemberMappingContext<,>), contextTypes, funcArguments, IsSourceAndTarget);
+        private static bool IsMappingData(Type[] contextTypes, Type[] funcArguments)
+            => Is(typeof(IMappingData<,>), contextTypes, funcArguments, IsSourceAndTarget);
 
-        private static bool IsObjectCreationContext(Type[] contextTypes, Type[] funcArguments)
-            => Is(typeof(IObjectCreationContext<,,>), contextTypes, funcArguments, IsSourceTargetAndInstance);
+        private static bool IsObjectCreationData(Type[] contextTypes, Type[] funcArguments)
+            => Is(typeof(IObjectCreationMappingData<,,>), contextTypes, funcArguments, IsSourceTargetAndInstance);
 
         private static bool Is(
             Type contextType,
@@ -168,18 +168,18 @@
         public bool IsSameAs(ConfiguredLambdaInfo otherLambdaInfo)
             => _lambda.ToString() == otherLambdaInfo._lambda.ToString();
 
-        public Expression GetBody(IMemberMappingContext context) => _parametersSwapper.Swap(_lambda, context);
+        public Expression GetBody(MemberMapperData mapperData) => _parametersSwapper.Swap(_lambda, mapperData);
 
         private class ParametersSwapper
         {
             private readonly int _numberOfParameters;
             private readonly Func<Type[], Type[], bool> _applicabilityPredicate;
-            private readonly Func<LambdaExpression, IMemberMappingContext, Expression> _parametersSwapper;
+            private readonly Func<LambdaExpression, MemberMapperData, Expression> _parametersSwapper;
 
             public ParametersSwapper(
                 int numberOfParameters,
                 Func<Type[], Type[], bool> applicabilityPredicate,
-                Func<LambdaExpression, IMemberMappingContext, Expression> parametersSwapper)
+                Func<LambdaExpression, MemberMapperData, Expression> parametersSwapper)
             {
                 _numberOfParameters = numberOfParameters;
                 _applicabilityPredicate = applicabilityPredicate;
@@ -189,8 +189,8 @@
             public bool AppliesTo(Type[] contextTypes, Type[] funcArguments)
                 => (funcArguments.Length == _numberOfParameters) && _applicabilityPredicate.Invoke(contextTypes, funcArguments);
 
-            public Expression Swap(LambdaExpression lambda, IMemberMappingContext context)
-                => _parametersSwapper.Invoke(lambda, context);
+            public Expression Swap(LambdaExpression lambda, MemberMapperData mapperData)
+                => _parametersSwapper.Invoke(lambda, mapperData);
         }
     }
 }

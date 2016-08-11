@@ -5,22 +5,22 @@
 
     internal class MappingPlanData
     {
-        public MappingPlanData(LambdaExpression lambda, IObjectMappingContext omc)
+        public MappingPlanData(LambdaExpression lambda, ObjectMapperData mapperData)
         {
             Lambda = lambda;
-            Omc = omc;
+            MapperData = mapperData;
         }
 
         public LambdaExpression Lambda { get; }
 
-        public IObjectMappingContext Omc { get; }
+        public ObjectMapperData MapperData { get; }
 
         public override bool Equals(object obj)
         {
             var otherPlanData = (MappingPlanData)obj;
 
-            return otherPlanData.Omc.SourceType == Omc.SourceType &&
-                   otherPlanData.Omc.TargetType == Omc.TargetType;
+            return otherPlanData.MapperData.SourceType == MapperData.SourceType &&
+                   otherPlanData.MapperData.TargetType == MapperData.TargetType;
         }
 
         public override int GetHashCode() => 0;

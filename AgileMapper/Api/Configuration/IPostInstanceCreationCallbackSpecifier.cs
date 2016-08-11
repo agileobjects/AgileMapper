@@ -6,7 +6,7 @@
     public interface IPostInstanceCreationCallbackSpecifier<TSource, TTarget, out TObject>
     {
         MappingConfigContinuation<TSource, TTarget> Call(
-            Action<IObjectCreationContext<TSource, TTarget, TObject>> callback);
+            Action<IObjectCreationMappingData<TSource, TTarget, TObject>> callback);
 
         MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
 

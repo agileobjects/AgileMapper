@@ -5,31 +5,46 @@
 
     internal class ComplexTypeMappingDataSource : DataSourceBase
     {
-        public ComplexTypeMappingDataSource(int dataSourceIndex, IMemberMappingContext context)
-            : this(
-                  SourceMemberMatcher.GetMatchFor(context) ?? context.SourceMember,
-                  dataSourceIndex,
-                  context)
-        {
-        }
-
-        private ComplexTypeMappingDataSource(
-            IQualifiedMember sourceMember,
+        public ComplexTypeMappingDataSource(
+            IQualifiedMember bestMatchingSourceMember,
             int dataSourceIndex,
-            IMemberMappingContext context)
-            : base(sourceMember, GetMapCall(sourceMember, dataSourceIndex, context))
+            MemberMapperData data)
+            : base(
+                  bestMatchingSourceMember ?? data.SourceMember,
+                  GetMapCall(bestMatchingSourceMember ?? data.SourceMember, dataSourceIndex, data))
         {
         }
 
         private static Expression GetMapCall(
             IQualifiedMember sourceMember,
             int dataSourceIndex,
-            IMemberMappingContext context)
+            MemberMapperData data)
         {
-            var relativeMember = sourceMember.RelativeTo(context.SourceMember);
-            var relativeMemberAccess = relativeMember.GetQualifiedAccess(context.SourceObject);
+            var relativeMember = sourceMember.RelativeTo(data.SourceMember);
+            var relativeMemberAccess = relativeMember.GetQualifiedAccess(data.SourceObject);
 
-            return context.GetMapCall(relativeMemberAccess, dataSourceIndex);
+            if (data.TargetMember.Type.IsSealed)
+            {
+                //return GetInlineMapperCall(relativeMember, dataSourceIndex, context);
+            }
+
+            return data.GetMapCall(relativeMemberAccess, dataSourceIndex);
+        }
+
+        private static Expression GetInlineMapperCall(
+            IQualifiedMember sourceMember,
+            int dataSourceIndex,
+            MemberMapperData data)
+        {
+            //var omcBridge = data.Parent.CreateChildMapperDataBridge(
+            //    sourceMember.Type,
+            //    data.TargetMember.Type,
+            //    data.TargetMember.Name,
+            //    dataSourceIndex);
+
+            //var childOmc = omcBridge.ToMapperData();
+
+            return null;
         }
     }
 }

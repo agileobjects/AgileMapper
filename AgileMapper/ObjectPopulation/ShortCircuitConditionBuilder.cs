@@ -25,23 +25,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return this;
         }
 
-        public Expression GetCondition(IMemberMappingContext context)
+        public Expression GetCondition(MemberMapperData data)
         {
             if (_nullSource && _nullExisting)
             {
                 return Expression.AndAlso(
-                    context.SourceObject.GetIsDefaultComparison(),
-                    context.TargetObject.GetIsDefaultComparison());
+                    data.SourceObject.GetIsDefaultComparison(),
+                    data.TargetObject.GetIsDefaultComparison());
             }
 
             if (_nullSource)
             {
-                return context.SourceObject.GetIsDefaultComparison();
+                return data.SourceObject.GetIsDefaultComparison();
             }
 
             if (_nullExisting)
             {
-                return context.TargetObject.GetIsDefaultComparison();
+                return data.TargetObject.GetIsDefaultComparison();
             }
 
             return Expression.Constant(false);

@@ -23,52 +23,52 @@ namespace AgileObjects.AgileMapper.DataSources
 
         #endregion
 
-        public DictionaryDataSource(IMemberMappingContext context)
+        public DictionaryDataSource(MemberMapperData data)
             : this(
-                context,
+                data,
                 Expression.Variable(
-                    context.SourceType.GetGenericArguments().Last(),
-                    context.TargetMember.Name.ToCamelCase()))
+                    data.SourceType.GetGenericArguments().Last(),
+                    data.TargetMember.Name.ToCamelCase()))
         {
         }
 
-        private DictionaryDataSource(IMemberMappingContext context, ParameterExpression variable)
+        private DictionaryDataSource(MemberMapperData data, ParameterExpression variable)
             : base(
-                  new DictionarySourceMember(context),
+                  new DictionarySourceMember(data),
                   new[] { variable },
-                  GetValueParsing(variable, context))
+                  GetValueParsing(variable, data))
         {
         }
 
-        private static Expression GetValueParsing(Expression variable, IMemberMappingContext context)
+        private static Expression GetValueParsing(Expression variable, MemberMapperData data)
         {
-            var potentialNames = GetPotentialNames(context);
+            var potentialNames = GetPotentialNames(data);
 
             var tryGetValueCall = GetTryGetValueCall(
                 variable,
                 potentialNames.Select(Expression.Constant),
-                context);
+                data);
 
             var dictionaryValueOrFallback = Expression.Condition(
                 tryGetValueCall,
-                GetValue(variable, context),
-                GetFallbackValue(variable, potentialNames, context));
+                GetValue(variable, data),
+                GetFallbackValue(variable, potentialNames, data));
 
             return dictionaryValueOrFallback;
         }
 
-        private static string[] GetPotentialNames(IMemberMappingContext context)
+        private static string[] GetPotentialNames(MemberMapperData data)
         {
-            var alternateNames = context
+            var alternateNames = data
                 .TargetMember
                 .MemberChain
                 .Skip(1)
-                .Select(context.MapperContext.NamingSettings.GetAlternateNamesFor)
+                .Select(data.MapperContext.NamingSettings.GetAlternateNamesFor)
                 .CartesianProduct();
 
-            var flattenedNameSet = (context.TargetMember.MemberChain.Count() == 2)
+            var flattenedNameSet = (data.TargetMember.MemberChain.Count() == 2)
                 ? alternateNames.SelectMany(names => names)
-                : alternateNames.ToArray().SelectMany(context.MapperContext.NamingSettings.GetJoinedNamesFor);
+                : alternateNames.ToArray().SelectMany(data.MapperContext.NamingSettings.GetJoinedNamesFor);
 
             return flattenedNameSet.ToArray();
         }
@@ -76,11 +76,11 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetTryGetValueCall(
             Expression variable,
             IEnumerable<Expression> potentialNames,
-            IMemberMappingContext context)
+            MemberMapperData data)
         {
             var linqIntersect = Expression.Call(
                 _linqIntersectMethod,
-                Expression.Property(context.SourceObject, "Keys"),
+                Expression.Property(data.SourceObject, "Keys"),
                 Expression.NewArrayInit(typeof(string), potentialNames),
                 CaseInsensitiveStringComparer.InstanceMember);
 
@@ -89,57 +89,56 @@ namespace AgileObjects.AgileMapper.DataSources
             var matchingNameOrEmptyString = Expression.Coalesce(intersectionFirstOrDefault, emptyString);
 
             var tryGetValueCall = Expression.Call(
-                context.SourceObject,
-                context.SourceObject.Type.GetMethod("TryGetValue", Constants.PublicInstance),
+                data.SourceObject,
+                data.SourceObject.Type.GetMethod("TryGetValue", Constants.PublicInstance),
                 matchingNameOrEmptyString,
                 variable);
 
             return tryGetValueCall;
         }
 
-        private static Expression GetValue(Expression variable, IMemberMappingContext context)
+        private static Expression GetValue(Expression variable, MemberMapperData data)
         {
-            if (context.TargetMember.IsSimple)
+            if (data.TargetMember.IsSimple)
             {
-                return context
+                return data
                     .MapperContext
                     .ValueConverters
-                    .GetConversion(variable, context.TargetMember.Type);
+                    .GetConversion(variable, data.TargetMember.Type);
             }
 
-            return context.GetMapCall(variable);
+            return data.GetMapCall(variable);
         }
 
         private static Expression GetFallbackValue(
             Expression variable,
             IEnumerable<string> potentialNames,
-            IMemberMappingContext context)
+            MemberMapperData data)
         {
-            if (context.TargetMember.IsSimple)
+            if (data.TargetMember.IsSimple)
             {
-                return context
-                    .MappingContext
+                return data
                     .RuleSet
                     .FallbackDataSourceFactory
-                    .Create(context)
+                    .Create(data)
                     .Value;
             }
 
-            return GetEnumerablePopulation(variable, potentialNames, context);
+            return GetEnumerablePopulation(variable, potentialNames, data);
         }
 
         private static Expression GetEnumerablePopulation(
             Expression variable,
             IEnumerable<string> potentialNames,
-            IMemberMappingContext context)
+            MemberMapperData data)
         {
-            var sourceElementType = context.SourceType.GetGenericArguments()[1];
+            var sourceElementType = data.SourceType.GetGenericArguments()[1];
             var sourceList = Expression.Variable(typeof(List<>).MakeGenericType(sourceElementType), "sourceList");
             var counter = Expression.Variable(typeof(int), "i");
 
-            var potentialNameConstants = GetPotentialItemNames(potentialNames, counter, context);
+            var potentialNameConstants = GetPotentialItemNames(potentialNames, counter, data);
 
-            var tryGetValueCall = GetTryGetValueCall(variable, potentialNameConstants, context);
+            var tryGetValueCall = GetTryGetValueCall(variable, potentialNameConstants, data);
             var loopBreak = Expression.Break(Expression.Label());
             var ifNotTryGetValueBreak = Expression.IfThen(Expression.Not(tryGetValueCall), loopBreak);
 
@@ -153,7 +152,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var populationLoop = Expression.Loop(loopBody, loopBreak.Target);
 
-            var mapCall = context.GetMapCall(sourceList);
+            var mapCall = data.GetMapCall(sourceList);
 
             var enumerablePopulation = Expression.Block(
                 new[] { sourceList, counter },
@@ -168,13 +167,13 @@ namespace AgileObjects.AgileMapper.DataSources
         private static IEnumerable<MethodCallExpression> GetPotentialItemNames(
             IEnumerable<string> potentialNames,
             Expression counter,
-            IMemberMappingContext context)
+            MemberMapperData data)
         {
             return potentialNames
                 .Select(name =>
                 {
                     var nameAndOpenBrace = Expression.Constant(name + "[");
-                    var counterString = context.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
+                    var counterString = data.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
                     var closeBrace = Expression.Constant("]");
 
                     var stringConcatMethod = typeof(string)

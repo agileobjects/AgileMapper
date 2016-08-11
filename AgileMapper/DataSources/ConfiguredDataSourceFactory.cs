@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Configuration;
     using Members;
 
@@ -40,12 +39,12 @@
             return _dataSourceLambda.IsSameAs(otherDataSource._dataSourceLambda);
         }
 
-        public IConfiguredDataSource Create(int dataSourceIndex, IMemberMappingContext context)
+        public IConfiguredDataSource Create(int dataSourceIndex, MemberMapperData data)
         {
-            var configuredCondition = GetConditionOrNull(context);
-            var value = _dataSourceLambda.GetBody(context);
+            var configuredCondition = GetConditionOrNull(data);
+            var value = _dataSourceLambda.GetBody(data);
 
-            return new ConfiguredDataSource(dataSourceIndex, configuredCondition, value, context);
+            return new ConfiguredDataSource(dataSourceIndex, configuredCondition, value, data);
         }
     }
 }

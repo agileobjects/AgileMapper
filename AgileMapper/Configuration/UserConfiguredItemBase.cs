@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Members;
 
     internal abstract class UserConfiguredItemBase
@@ -56,17 +55,17 @@
                    _configInfo.HasSameTargetTypeAs(otherConfiguredItem._configInfo);
         }
 
-        public virtual Expression GetConditionOrNull(IMemberMappingContext context)
-            => _configInfo.GetConditionOrNull(context);
+        public virtual Expression GetConditionOrNull(MemberMapperData mapperData)
+            => _configInfo.GetConditionOrNull(mapperData);
 
-        public virtual bool AppliesTo(IMappingData data)
+        public virtual bool AppliesTo(BasicMapperData data)
         {
-            return _configInfo.IsForRuleSet(data.RuleSetName) &&
+            return _configInfo.IsForRuleSet(data.RuleSet.Name) &&
                 data.TargetMember.IsSameAs(TargetMember) &&
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
         }
 
-        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IMappingData data)
+        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(BasicMapperData data)
         {
             while (data != null)
             {

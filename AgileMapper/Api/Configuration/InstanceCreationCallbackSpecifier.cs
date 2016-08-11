@@ -25,7 +25,7 @@
 
         IPreInstanceCreationCallbackSpecifier<TSource, TTarget>
             IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget>.If(
-                Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, bool>> condition)
+                Expression<Func<IMappingData<TSource, TTarget>, bool>> condition)
             => SetCondition(condition);
 
         IPreInstanceCreationCallbackSpecifier<TSource, TTarget>
@@ -46,7 +46,7 @@
         }
 
         void IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
-            Action<ITypedMemberMappingContext<TSource, TTarget>> callback)
+            Action<IMappingData<TSource, TTarget>> callback)
             => CreateCallbackFactory(callback);
 
         void IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
@@ -63,7 +63,7 @@
 
         IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
             IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.If(
-                Expression<Func<IObjectCreationContext<TSource, TTarget, TObject>, bool>> condition)
+                Expression<Func<IObjectCreationMappingData<TSource, TTarget, TObject>, bool>> condition)
             => SetCondition(condition);
 
         IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
@@ -82,7 +82,7 @@
             => SetCondition(condition);
 
         MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
-            Action<IObjectCreationContext<TSource, TTarget, TObject>> callback)
+            Action<IObjectCreationMappingData<TSource, TTarget, TObject>> callback)
             => CreateCallbackFactory(callback);
 
         MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(

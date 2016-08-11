@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Members;
 
     internal class DerivedTypePairSet
     {
@@ -38,7 +37,7 @@
             }
         }
 
-        public Type GetDerivedTypeOrNull(IMappingData data)
+        public Type GetDerivedTypeOrNull(BasicMapperData data)
         {
             List<DerivedTypePair> typePairs;
 
@@ -52,8 +51,7 @@
 
         public void Reset()
         {
-
-
+            _typePairsByTargetType.Clear();
         }
     }
 }

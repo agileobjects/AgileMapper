@@ -7,45 +7,50 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class MemberPopulationFactory
     {
-        public static IEnumerable<IMemberPopulation> Create(IObjectMappingContext omc)
+        public static IEnumerable<IMemberPopulation> Create(IObjectMapperCreationData data)
         {
-            return omc
-                .GlobalContext
+            return GlobalContext
+                .Instance
                 .MemberFinder
-                .GetWriteableMembers(omc.TargetType)
-                .Select(targetMember => Create(targetMember, omc));
+                .GetWriteableMembers(data.MapperData.TargetType)
+                .Select(targetMember => Create(targetMember, data));
         }
 
-        private static IMemberPopulation Create(Member targetMember, IObjectMappingContext omc)
+        private static IMemberPopulation Create(Member targetMember, IObjectMapperCreationData data)
         {
-            var qualifiedMember = omc.TargetMember.Append(targetMember);
-            var context = new MemberMappingContext(qualifiedMember, omc);
+            var qualifiedMember = data.MapperData.TargetMember.Append(targetMember);
+            var childMapperData = new MemberMapperData(qualifiedMember, data.MapperData);
 
             Expression populateCondition;
 
-            if (TargetMemberPopulationIsConditional(context, out populateCondition))
+            if (TargetMemberPopulationIsConditional(childMapperData, out populateCondition))
             {
-                return MemberPopulation.IgnoredMember(context);
+                return MemberPopulation.IgnoredMember(childMapperData);
             }
 
-            var dataSources = context.GetDataSources();
+            var childMapperCreationData = data.GetChildCreationData(childMapperData);
+
+            var dataSources = childMapperData
+                .MapperContext
+                .DataSources
+                .FindFor(childMapperCreationData);
 
             if (dataSources.None)
             {
-                return MemberPopulation.NoDataSource(context);
+                return MemberPopulation.NoDataSource(childMapperData);
             }
 
-            return new MemberPopulation(context, dataSources, populateCondition);
+            return new MemberPopulation(childMapperData, dataSources, populateCondition);
         }
 
         private static bool TargetMemberPopulationIsConditional(
-            IMemberMappingContext context,
+            MemberMapperData mapperData,
             out Expression populateCondition)
         {
-            var configuredIgnore = context
+            var configuredIgnore = mapperData
                 .MapperContext
                 .UserConfigurations
-                .GetMemberIgnoreOrNull(context);
+                .GetMemberIgnoreOrNull(mapperData);
 
             if (configuredIgnore == null)
             {
@@ -53,7 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return false;
             }
 
-            populateCondition = configuredIgnore.GetConditionOrNull(context);
+            populateCondition = configuredIgnore.GetConditionOrNull(mapperData);
             return (populateCondition == null);
         }
     }

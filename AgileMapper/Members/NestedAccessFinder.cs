@@ -91,7 +91,7 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             if ((methodCall.Object != _contextParameter) &&
-                (methodCall.Method.DeclaringType != typeof(IObjectMappingContext)))
+                (methodCall.Method.DeclaringType != typeof(ObjectMapperData)))
             {
                 AddMemberAccessIfAppropriate(methodCall);
             }

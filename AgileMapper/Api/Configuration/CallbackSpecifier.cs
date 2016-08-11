@@ -33,7 +33,7 @@
         }
 
         public ICallbackSpecifier<TSource, TTarget> If(
-            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, bool>> condition)
+            Expression<Func<IMappingData<TSource, TTarget>, bool>> condition)
             => SetCondition(condition);
 
         public ICallbackSpecifier<TSource, TTarget> If(Expression<Func<TSource, TTarget, bool>> condition)
@@ -48,7 +48,7 @@
             return this;
         }
 
-        public MappingConfigContinuation<TSource, TTarget> Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback)
+        public MappingConfigContinuation<TSource, TTarget> Call(Action<IMappingData<TSource, TTarget>> callback)
             => CreateCallbackFactory(callback);
 
         public MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback)

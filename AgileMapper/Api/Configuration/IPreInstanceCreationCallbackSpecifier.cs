@@ -3,9 +3,9 @@
     using System;
     using Members;
 
-    public interface IPreInstanceCreationCallbackSpecifier<out TSource, out TTarget>
+    public interface IPreInstanceCreationCallbackSpecifier<out TSource, TTarget>
     {
-        void Call(Action<ITypedMemberMappingContext<TSource, TTarget>> callback);
+        void Call(Action<IMappingData<TSource, TTarget>> callback);
 
         void Call(Action<TSource, TTarget> callback);
 

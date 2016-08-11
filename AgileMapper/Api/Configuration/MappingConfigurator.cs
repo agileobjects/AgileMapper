@@ -17,7 +17,7 @@
         #region If Overloads
 
         public IRootMappingConfigurator<TSource, TTarget> If(
-            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, bool>> condition)
+            Expression<Func<IMappingData<TSource, TTarget>, bool>> condition)
             => SetCondition(condition);
 
         public IRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, bool>> condition)
@@ -34,7 +34,7 @@
 
         #endregion
 
-        public void CreateInstancesUsing(Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TTarget>> factory)
+        public void CreateInstancesUsing(Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
             => new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
 
         public void CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
@@ -45,7 +45,7 @@
 
         public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
-        public void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback)
+        public void PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
             var exceptionCallback = new ExceptionCallback(
                 _configInfo.ForTargetType<TTarget>(),
@@ -79,7 +79,7 @@
         #region Map Overloads
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
-            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
+            Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 _configInfo.ForSourceValueType<TSourceValue>(),

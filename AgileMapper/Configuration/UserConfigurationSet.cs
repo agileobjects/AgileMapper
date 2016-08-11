@@ -33,8 +33,8 @@
 
         public void Add(ConfiguredObjectFactory objectFactory) => _objectFactories.Add(objectFactory);
 
-        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IMemberMappingContext context)
-            => FindMatches(_objectFactories, context).ToArray();
+        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(MemberMapperData data)
+            => FindMatches(_objectFactories, data).ToArray();
 
         #endregion
 
@@ -55,8 +55,8 @@
             _ignoredMembers.Add(ignoredMember);
         }
 
-        public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IMemberMappingContext context)
-            => FindMatch(_ignoredMembers, context);
+        public ConfiguredIgnoredMember GetMemberIgnoreOrNull(BasicMapperData data)
+            => FindMatch(_ignoredMembers, data);
 
         #endregion
 
@@ -75,8 +75,8 @@
             _dataSourceFactories.Add(dataSourceFactory);
         }
 
-        public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMappingContext context)
-            => FindMatches(_dataSourceFactories, context).Select((dsf, i) => dsf.Create(i, context)).ToArray();
+        public IEnumerable<IConfiguredDataSource> GetDataSources(MemberMapperData data)
+            => FindMatches(_dataSourceFactories, data).Select((dsf, i) => dsf.Create(i, data)).ToArray();
 
         #endregion
 
@@ -86,17 +86,17 @@
 
         public Expression GetCallbackOrNull(
             CallbackPosition position,
-            IMappingData mappingData,
-            IMemberMappingContext context)
+            BasicMapperData basicData,
+            MemberMapperData data)
         {
             return _mappingCallbackFactories
-                .FirstOrDefault(f => f.AppliesTo(position, mappingData))?.Create(context);
+                .FirstOrDefault(f => f.AppliesTo(position, basicData))?.Create(data);
         }
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);
 
-        public Expression GetCreationCallbackOrNull(CallbackPosition position, IMemberMappingContext context)
-            => _creationCallbackFactories.FirstOrDefault(f => f.AppliesTo(position, context))?.Create(context);
+        public Expression GetCreationCallbackOrNull(CallbackPosition position, MemberMapperData data)
+            => _creationCallbackFactories.FirstOrDefault(f => f.AppliesTo(position, data))?.Create(data);
 
         #endregion
 
@@ -104,18 +104,18 @@
 
         public void Add(ExceptionCallback callback) => _exceptionCallbackFactories.Add(callback);
 
-        public Expression GetExceptionCallbackOrNull(IMemberMappingContext context)
-            => FindMatch(_exceptionCallbackFactories, context)?.Callback;
+        public Expression GetExceptionCallbackOrNull(MemberMapperData data)
+            => FindMatch(_exceptionCallbackFactories, data)?.Callback;
 
         #endregion
 
         public DerivedTypePairSet DerivedTypePairs { get; }
 
-        private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IMappingData data)
+        private static TItem FindMatch<TItem>(IEnumerable<TItem> items, BasicMapperData data)
             where TItem : UserConfiguredItemBase
             => items.FirstOrDefault(im => im.AppliesTo(data));
 
-        private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IMappingData data)
+        private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, BasicMapperData data)
             where TItem : UserConfiguredItemBase
             => items.Where(im => im.AppliesTo(data)).OrderBy(im => im, UserConfiguredItemBase.SpecificityComparer);
 

@@ -12,37 +12,42 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class ObjectMappingLambdaFactoryBase
     {
-        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMappingContext omc)
+        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMapperCreationData data)
         {
-            var returnLabelTarget = Expression.Label(omc.TargetObject.Type, "Return");
-            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omc.TargetObject.Type));
+            var omd = data.MapperData;
 
-            if (IsNotConstructable(omc))
+            var returnLabelTarget = Expression.Label(omd.TargetObject.Type, "Return");
+            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(omd.TargetObject.Type));
+
+            if (IsNotConstructable(omd))
             {
-                return Expression.Lambda<MapperFunc<TSource, TTarget>>(GetNullMappingBlock(returnNull), omc.Parameter);
+                return Expression.Lambda<MapperFunc<TSource, TTarget>>(
+                    GetNullMappingBlock(returnNull),
+                    omd.MdParameter,
+                    omd.OmdParameter);
             }
 
-            var mappingData = BasicMappingData.WithNoTargetMember(omc);
+            var basicMappingData = BasicMapperData.WithNoTargetMember(omd);
 
-            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, mappingData, omc);
-            var shortCircuitReturns = GetShortCircuitReturns(returnNull, omc);
-            var objectPopulation = GetObjectPopulation(omc);
-            var postMappingCallback = GetMappingCallback(CallbackPosition.After, mappingData, omc);
-            var returnValue = GetReturnValue(omc);
+            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, basicMappingData, omd);
+            var shortCircuitReturns = GetShortCircuitReturns(returnNull, omd);
+            var objectPopulation = GetObjectPopulation(data);
+            var postMappingCallback = GetMappingCallback(CallbackPosition.After, basicMappingData, omd);
+            var returnValue = GetReturnValue(omd);
             var returnLabel = Expression.Label(returnLabelTarget, returnValue);
 
             var mappingBlock = Expression.Block(
-                new[] { omc.InstanceVariable },
+                new[] { omd.InstanceVariable },
                 preMappingCallback
                     .Concat(shortCircuitReturns)
                     .Concat(objectPopulation)
                     .Concat(postMappingCallback)
                     .Concat(returnLabel));
 
-            var wrappedMappingBlock = WrapInTryCatch(mappingBlock, omc);
+            var wrappedMappingBlock = WrapInTryCatch(mappingBlock, omd);
 
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, omc.Parameter);
+                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, data.MapperData.OmdParameter);
 
             return mapperLambda;
         }
@@ -54,45 +59,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 returnNull.Value);
         }
 
-        protected abstract bool IsNotConstructable(IObjectMappingContext omc);
+        protected abstract bool IsNotConstructable(ObjectMapperData data);
 
         private static IEnumerable<Expression> GetMappingCallback(
             CallbackPosition callbackPosition,
-            IMappingData mappingData,
-            IMemberMappingContext context)
+            BasicMapperData basicData,
+            MemberMapperData data)
         {
-            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, mappingData, context), context);
+            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, basicData, data), data);
         }
 
         protected static Expression GetCallbackOrEmpty(
             Func<UserConfigurationSet, Expression> callbackFactory,
-            IMemberMappingContext context)
-            => callbackFactory.Invoke(context.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
+            MemberMapperData data)
+            => callbackFactory.Invoke(data.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
 
-        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc);
+        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data);
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc);
+        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data);
 
-        protected abstract Expression GetReturnValue(IObjectMappingContext omc);
+        protected abstract Expression GetReturnValue(ObjectMapperData data);
 
         #region Try / Catch Support
 
-        private static Expression WrapInTryCatch(Expression mappingBlock, IObjectMappingContext omc)
+        private static Expression WrapInTryCatch(Expression mappingBlock, MemberMapperData data)
         {
-            var configuredCallback = omc.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(omc);
+            var configuredCallback = data.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(data);
             var exceptionVariable = Parameters.Create<Exception>("ex");
 
             Expression catchBody;
 
             if (configuredCallback != null)
             {
-                var exceptionContextCreateMethod = MemberMappingExceptionContext
+                var exceptionContextCreateMethod = MappingExceptionContextData
                     .CreateMethod
-                    .MakeGenericMethod(omc.SourceType, omc.TargetType);
+                    .MakeGenericMethod(data.SourceType, data.TargetType);
 
                 var exceptionContextCreateCall = Expression.Call(
                     exceptionContextCreateMethod,
-                    omc.Parameter,
+                    data.OmdParameter,
                     exceptionVariable);
 
                 var callbackInvocation = Expression.Invoke(configuredCallback, exceptionContextCreateCall);
@@ -103,7 +108,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingExceptionCreation = Expression.New(
                     MappingException.ConstructorInfo,
-                    omc.Parameter,
+                    data.OmdParameter,
                     exceptionVariable);
 
                 catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);

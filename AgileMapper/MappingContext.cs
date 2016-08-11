@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Members;
     using ObjectPopulation;
 
     internal class MappingContext : IDisposable
@@ -20,30 +21,30 @@ namespace AgileObjects.AgileMapper
             _cleanupActions = new List<Action>();
         }
 
-        internal GlobalContext GlobalContext => MapperContext.GlobalContext;
-
         internal MapperContext MapperContext { get; }
 
         public MappingRuleSet RuleSet { get; }
 
-        internal IObjectMappingContext CurrentObjectMappingContext { get; private set; }
-
-        internal TTarget MapStart<TSource, TTarget>(TSource source, TTarget existing)
+        internal TTarget MapStart<TSource, TTarget>(TSource source, TTarget target)
         {
             if (source == null)
             {
-                return existing;
+                return target;
             }
 
-            CreateRootObjectContext(source, existing);
+            var rootMappingData = CreateRootMappingData(source, target);
 
-            return Map<TSource, TTarget>();
+            return Map(rootMappingData);
         }
 
-        internal IObjectMappingContext CreateRootObjectContext<TSource, TTarget>(
-            TSource source,
-            TTarget existing)
-            => (CurrentObjectMappingContext = ObjectMappingContextFactory.CreateRoot(source, existing, this));
+        internal MappingData<TSource, TTarget> CreateRootMappingData<TSource, TTarget>(TSource source, TTarget target)
+        {
+            var rootInstanceData = new MappingInstanceData<TSource, TTarget>(this, source, target);
+            var rootMapperData = ObjectMapperDataFactory.CreateRoot(rootInstanceData);
+            var rootMappingData = new MappingData<TSource, TTarget>(rootInstanceData, rootMapperData);
+
+            return rootMappingData;
+        }
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
         {
@@ -68,63 +69,54 @@ namespace AgileObjects.AgileMapper
             return false;
         }
 
-        internal TTarget MapChild<TSource, TTarget>(IObjectMappingContext omc)
+        internal TTarget MapChild<TSource, TTarget>(
+            MappingInstanceData<TSource, TTarget> childData,
+            ObjectMapperData childObjectMapperData)
         {
-            CurrentObjectMappingContext = omc;
+            var childMappingData = new MappingData<TSource, TTarget>(childData, childObjectMapperData);
 
-            return Map<TSource, TTarget>();
+            return Map(childMappingData);
         }
 
-        private TTarget Map<TSource, TTarget>()
+        private TTarget Map<TSource, TTarget>(MappingData<TSource, TTarget> data)
         {
-            var currentContext = CurrentObjectMappingContext;
+            IObjectMapper<TSource, TTarget> mapper;
 
-            IObjectMapper<TTarget> mapper;
-
-            if ((typeof(TSource) == currentContext.SourceType) &&
-                (typeof(TTarget) == currentContext.TargetType))
+            if ((typeof(TSource) == data.MapperData.SourceType) &&
+                (typeof(TTarget) == data.MapperData.TargetType))
             {
-                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(currentContext);
+                mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(data);
 
-                return GetMappingResult(mapper);
+                return mapper.Execute(data);
             }
 
-            var cacheKey = DeclaredAndRuntimeTypesKey.From<TSource, TTarget>(currentContext);
+            var cacheKey = DeclaredAndRuntimeTypesKey.ForCreateMapperCall<TSource, TTarget>(data.MapperData);
 
-            var createMapperFunc = GlobalContext.Cache.GetOrAdd(cacheKey, k =>
+            var createMapperFunc = GlobalContext.Instance.Cache.GetOrAdd(cacheKey, k =>
             {
+                var mapperContext = Expression.Property(Parameters.ObjectMapperData, "MapperContext");
+                var mapperFactory = Expression.Property(mapperContext, "ObjectMapperFactory");
+
                 var typedCreateMapperMethod = typeof(ObjectMapperFactory)
                     .GetMethod("CreateFor", Constants.PublicInstance)
-                    .MakeGenericMethod(currentContext.SourceType, currentContext.TargetType);
-
-                var mapperContext = Expression.Property(Parameters.ObjectMappingContext, "MapperContext");
-                var mapperFactory = Expression.Property(mapperContext, "ObjectMapperFactory");
+                    .MakeGenericMethod(data.MapperData.SourceType, data.MapperData.TargetType);
 
                 var createMapperCall = Expression.Call(
                     mapperFactory,
                     typedCreateMapperMethod,
-                    Parameters.ObjectMappingContext);
+                    Parameters.ObjectMapperData);
 
                 var createMapperLambda = Expression
-                    .Lambda<Func<IObjectMappingContext, IObjectMapper<TTarget>>>(
+                    .Lambda<Func<ObjectMapperData, IObjectMapper<TSource, TTarget>>>(
                         createMapperCall,
-                        Parameters.ObjectMappingContext);
+                        Parameters.ObjectMapperData);
 
                 return createMapperLambda.Compile();
             });
 
-            mapper = createMapperFunc.Invoke(currentContext);
+            mapper = createMapperFunc.Invoke(data.MapperData);
 
-            return GetMappingResult(mapper);
-        }
-
-        private TTarget GetMappingResult<TTarget>(IObjectMapper<TTarget> mapper)
-        {
-            var result = mapper.Execute(CurrentObjectMappingContext);
-
-            CurrentObjectMappingContext = CurrentObjectMappingContext.Parent;
-
-            return result;
+            return mapper.Execute(data);
         }
 
         #region IDisposable Members

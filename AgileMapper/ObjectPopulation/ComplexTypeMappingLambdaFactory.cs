@@ -13,26 +13,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly ObjectMappingLambdaFactoryBase Instance = new ComplexTypeMappingLambdaFactory();
 
-        protected override bool IsNotConstructable(IObjectMappingContext omc)
-            => GetNewObjectCreation(omc) == null;
+        protected override bool IsNotConstructable(ObjectMapperData data)
+            => GetNewObjectCreation(data) == null;
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
         {
-            yield return GetStrategyShortCircuitReturns(returnNull, omc);
-            yield return GetExistingObjectShortCircuit(returnNull.Target, omc);
+            yield return GetStrategyShortCircuitReturns(returnNull, data);
+            yield return GetExistingObjectShortCircuit(returnNull.Target, data);
         }
 
-        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, IMemberMappingContext context)
+        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, MemberMapperData data)
         {
-            if (!context.SourceMember.Matches(context.TargetMember))
+            if (!data.SourceMember.Matches(data.TargetMember))
             {
                 return Constants.EmptyExpression;
             }
 
-            var shortCircuitConditions = context.MappingContext
+            var shortCircuitConditions = data
                 .RuleSet
                 .ComplexTypeMappingShortCircuitStrategy
-                .GetConditions(context)
+                .GetConditions(data)
                 .Select(condition => (Expression)Expression.IfThen(condition, returnNull));
 
             var shortCircuitBlock = Expression.Block(shortCircuitConditions);
@@ -40,36 +40,38 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return shortCircuitBlock;
         }
 
-        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, IMemberMappingContext context)
+        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, MemberMapperData data)
         {
             var tryGetCall = Expression.Call(
-                Expression.Property(context.Parameter, "MappingContext"),
-                MappingContext.TryGetMethod.MakeGenericMethod(context.SourceType, context.InstanceVariable.Type),
-                context.SourceObject,
-                context.InstanceVariable);
+                Expression.Property(data.OmdParameter, "MappingContext"),
+                MappingContext.TryGetMethod.MakeGenericMethod(data.SourceType, data.InstanceVariable.Type),
+                data.SourceObject,
+                data.InstanceVariable);
 
             var ifTryGetReturn = Expression.IfThen(
                 tryGetCall,
-                Expression.Return(returnTarget, context.InstanceVariable));
+                Expression.Return(returnTarget, data.InstanceVariable));
 
             return ifTryGetReturn;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContext omc)
+        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data)
         {
-            yield return GetCreationCallback(CallbackPosition.Before, omc);
+            var omd = data.MapperData;
 
-            var instanceVariableValue = GetObjectResolution(omc);
-            var instanceVariableAssignment = Expression.Assign(omc.InstanceVariable, instanceVariableValue);
+            yield return GetCreationCallback(CallbackPosition.Before, omd);
+
+            var instanceVariableValue = GetObjectResolution(omd);
+            var instanceVariableAssignment = Expression.Assign(omd.InstanceVariable, instanceVariableValue);
             yield return instanceVariableAssignment;
 
-            yield return GetCreationCallback(CallbackPosition.After, omc);
+            yield return GetCreationCallback(CallbackPosition.After, omd);
 
-            yield return GetObjectRegistrationCall(omc);
+            yield return GetObjectRegistrationCall(omd);
 
             var memberPopulations = MemberPopulationFactory
-                .Create(omc)
-                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, omc) : p.GetPopulation());
+                .Create(data)
+                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, omd) : p.GetPopulation());
 
             foreach (var population in memberPopulations)
             {
@@ -77,42 +79,42 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static Expression GetCreationCallback(CallbackPosition callbackPosition, IMemberMappingContext context)
-            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, context), context);
+        private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData data)
+            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, data), data);
 
-        private static Expression GetObjectResolution(IObjectMappingContext omc)
+        private static Expression GetObjectResolution(ObjectMapperData data)
         {
-            var createdObjectAssignment = Expression.Assign(omc.CreatedObject, GetNewObjectCreation(omc));
-            var contextTargetAssignment = Expression.Assign(omc.TargetObject, createdObjectAssignment);
-            var existingOrCreatedObject = Expression.Coalesce(omc.TargetObject, contextTargetAssignment);
+            var createdObjectAssignment = Expression.Assign(data.CreatedObject, GetNewObjectCreation(data));
+            var instanceDataTargetAssignment = Expression.Assign(data.TargetObject, createdObjectAssignment);
+            var existingOrCreatedObject = Expression.Coalesce(data.TargetObject, instanceDataTargetAssignment);
 
             return existingOrCreatedObject;
         }
 
-        private static Expression GetNewObjectCreation(IObjectMappingContext omc)
+        private static Expression GetNewObjectCreation(ObjectMapperData data)
         {
             var objectCreationKey = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0} -> {1}: {2} Ctor",
-                omc.SourceMember.Signature,
-                omc.TargetMember.Signature,
-                omc.RuleSetName);
+                data.SourceMember.Signature,
+                data.TargetMember.Signature,
+                data.RuleSet.Name);
 
-            return omc.MapperContext.Cache.GetOrAdd(objectCreationKey, k =>
+            return data.MapperContext.Cache.GetOrAdd(objectCreationKey, k =>
             {
                 var constructions = new List<Construction>();
                 var newingConstructorRequired = true;
 
-                var configuredFactories = omc
+                var configuredFactories = data
                     .MapperContext
                     .UserConfigurations
-                    .GetObjectFactories(omc);
+                    .GetObjectFactories(data);
 
                 foreach (var configuredFactory in configuredFactories)
                 {
                     var configuredConstruction = new Construction(
-                        configuredFactory.Create(omc),
-                        configuredFactory.GetConditionOrNull(omc));
+                        configuredFactory.Create(data),
+                        configuredFactory.GetConditionOrNull(data));
 
                     constructions.Insert(0, configuredConstruction);
 
@@ -125,18 +127,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (newingConstructorRequired)
                 {
-                    var greediestAvailableConstructor = omc.InstanceVariable.Type
+                    var greediestAvailableConstructor = data.InstanceVariable.Type
                         .GetConstructors(Constants.PublicInstance)
                         .Select(ctor => new ConstructorData(
                             ctor,
                             ctor.GetParameters()
-                                .Select(p => new MemberMappingContext(
-                                    omc.TargetMember.Append(Member.ConstructorParameter(p)),
-                                    omc))
-                                .Select(context => omc
+                                .Select(p => new MemberMapperData(
+                                    data.TargetMember.Append(Member.ConstructorParameter(p)),
+                                    data))
+                                .Select(mapperData => new DataSourceSet()/*omc
                                     .MapperContext
                                     .DataSources
-                                    .FindFor(context))
+                                    .FindFor(mapperData)*/)
                                 .ToArray()))
                         .Where(ctor => ctor.CanBeConstructed)
                         .OrderByDescending(ctor => ctor.NumberOfParameters)
@@ -162,26 +164,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             });
         }
 
-        private static Expression GetObjectRegistrationCall(IMemberMappingContext context)
+        private static Expression GetObjectRegistrationCall(MemberMapperData data)
         {
             return Expression.Call(
-                Expression.Property(context.Parameter, "MappingContext"),
-                MappingContext.RegisterMethod.MakeGenericMethod(context.SourceType, context.TargetType),
-                context.SourceObject,
-                context.InstanceVariable);
+                Expression.Property(data.OmdParameter, "MappingContext"),
+                MappingContext.RegisterMethod.MakeGenericMethod(data.SourceType, data.TargetType),
+                data.SourceObject,
+                data.InstanceVariable);
         }
 
-        private static Expression GetPopulationWithCallbacks(IMemberPopulation memberPopulation, IMemberMappingContext parentContext)
+        private static Expression GetPopulationWithCallbacks(IMemberPopulation memberPopulation, MemberMapperData parentData)
         {
             var prePopulationCallback = GetCallbackOrEmpty(
-                c => c.GetCallbackOrNull(CallbackPosition.Before, memberPopulation.Context, parentContext),
-                parentContext);
+                c => c.GetCallbackOrNull(CallbackPosition.Before, memberPopulation.MapperData, parentData),
+                parentData);
 
             var population = memberPopulation.GetPopulation();
 
             var postPopulationCallback = GetCallbackOrEmpty(
-                c => c.GetCallbackOrNull(CallbackPosition.After, memberPopulation.Context, parentContext),
-                parentContext);
+                c => c.GetCallbackOrNull(CallbackPosition.After, memberPopulation.MapperData, parentData),
+                parentData);
 
             if ((prePopulationCallback == Constants.EmptyExpression) &&
                 (postPopulationCallback == Constants.EmptyExpression))
@@ -192,7 +194,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.Block(prePopulationCallback, population, postPopulationCallback);
         }
 
-        protected override Expression GetReturnValue(IObjectMappingContext omc) => omc.InstanceVariable;
+        protected override Expression GetReturnValue(ObjectMapperData data) => data.InstanceVariable;
 
         private class ConstructorData
         {

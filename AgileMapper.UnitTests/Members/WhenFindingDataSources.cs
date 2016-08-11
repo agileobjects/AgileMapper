@@ -1,8 +1,6 @@
 namespace AgileObjects.AgileMapper.UnitTests.Members
 {
     using AgileMapper.Members;
-    using DataSources;
-    using ObjectPopulation;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -16,10 +14,12 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var targetMember = TargetMemberFor<PublicProperty<byte>>(x => x.Value);
 
             var mappingContext = new MappingContext(new MappingRuleSetCollection().CreateNew, MapperContext.Default);
-            var rootObjectMappingContext = ObjectMappingContextFactory.CreateRoot(source, default(PublicProperty<byte>), mappingContext);
-            var memberMappingContext = new MemberMappingContext(targetMember, rootObjectMappingContext);
+            IObjectMapperCreationData rootCreationContext = mappingContext.CreateRootMappingData(source, targetMember);
 
-            var matchingSourceMember = SourceMemberMatcher.GetMatchFor(memberMappingContext);
+            var childMapperData = new MemberMapperData(targetMember, rootCreationContext.MapperData);
+            var childMappingContext = rootCreationContext.GetChildCreationData(childMapperData);
+
+            var matchingSourceMember = SourceMemberMatcher.GetMatchFor(childMappingContext);
 
             matchingSourceMember.ShouldNotBeNull();
             matchingSourceMember.Name.ShouldBe("value");

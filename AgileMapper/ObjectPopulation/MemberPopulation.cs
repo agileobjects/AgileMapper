@@ -13,35 +13,38 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly Expression _populateCondition;
 
         public MemberPopulation(
-            IMemberMappingContext context,
+            MemberMapperData mapperData,
             DataSourceSet dataSources,
             Expression populateCondition = null)
         {
-            Context = context;
+            MapperData = mapperData;
             _dataSources = dataSources;
             _populateCondition = populateCondition;
+
+            if (!mapperData.TargetMember.IsSimple)
+            {
+                MapperData.Parent.RegisterTargetMemberDataSources(mapperData.TargetMember, dataSources);
+            }
         }
 
         #region Factory Methods
 
-        public static IMemberPopulation IgnoredMember(IMemberMappingContext context)
-            => CreateNullMemberPopulation(context, targetMember => targetMember.Name + " is ignored");
+        public static IMemberPopulation IgnoredMember(MemberMapperData data)
+            => CreateNullMemberPopulation(data, targetMember => targetMember.Name + " is ignored");
 
-        public static IMemberPopulation NoDataSource(IMemberMappingContext context)
-            => CreateNullMemberPopulation(context, targetMember => "No data source for " + targetMember.Name);
+        public static IMemberPopulation NoDataSource(MemberMapperData data)
+            => CreateNullMemberPopulation(data, targetMember => "No data source for " + targetMember.Name);
 
-        private static IMemberPopulation CreateNullMemberPopulation(IMemberMappingContext context, Func<IQualifiedMember, string> commentFactory)
+        private static IMemberPopulation CreateNullMemberPopulation(MemberMapperData data, Func<IQualifiedMember, string> commentFactory)
             => new MemberPopulation(
-                   context,
+                   data,
                    new DataSourceSet(
                        new NullDataSource(
-                           ReadableExpression.Comment(commentFactory.Invoke(context.TargetMember)))));
+                           ReadableExpression.Comment(commentFactory.Invoke(data.TargetMember)))));
 
         #endregion
 
-        public IMemberMappingContext Context { get; }
-
-        public QualifiedMember TargetMember => Context.TargetMember;
+        public MemberMapperData MapperData { get; }
 
         public bool IsSuccessful => _dataSources.HasValue;
 
@@ -52,7 +55,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return _dataSources.Value;
             }
 
-            var population = Context.TargetMember.LeafMember.GetPopulation(Context.InstanceVariable, _dataSources.Value);
+            var population = MapperData.TargetMember.LeafMember.GetPopulation(MapperData.InstanceVariable, _dataSources.Value);
 
             if (_dataSources.Variables.Any())
             {

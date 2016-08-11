@@ -20,19 +20,19 @@
             _creationTargetType = creationTargetType;
         }
 
-        public override bool AppliesTo(CallbackPosition callbackPosition, IMappingData data)
+        public override bool AppliesTo(CallbackPosition callbackPosition, BasicMapperData data)
             => _creationTargetType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(callbackPosition, data);
 
-        public override Expression GetConditionOrNull(IMemberMappingContext context)
+        public override Expression GetConditionOrNull(MemberMapperData mapperData)
         {
-            var condition = base.GetConditionOrNull(context);
+            var condition = base.GetConditionOrNull(mapperData);
 
             if (CallbackPosition != CallbackPosition.After)
             {
                 return condition;
             }
 
-            var newObjectHasBeenCreated = ((IObjectMappingContext)context).CreatedObject.GetIsNotDefaultComparison();
+            var newObjectHasBeenCreated = ((ObjectMapperData)mapperData).CreatedObject.GetIsNotDefaultComparison();
 
             if (condition == null)
             {

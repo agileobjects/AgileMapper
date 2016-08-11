@@ -8,7 +8,7 @@
 
     public abstract class MemberFinderTestsBase
     {
-        internal static readonly MemberFinder MemberFinder = new MemberFinder(GlobalContext.Instance);
+        internal static readonly MemberFinder MemberFinder = new MemberFinder();
 
         internal IQualifiedMember SourceMemberFor<T>(T sourceObject)
         {

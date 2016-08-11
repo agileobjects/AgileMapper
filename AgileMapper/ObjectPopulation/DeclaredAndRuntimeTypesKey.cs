@@ -16,8 +16,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private DeclaredAndRuntimeTypesKey(
             KeyType keyType,
             Type declaredSourceType,
-            Type runtimeSourceType,
             Type declaredTargetType,
+            Type runtimeSourceType,
             Type runtimeTargetType)
         {
             _keyType = keyType;
@@ -29,25 +29,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _targetTypesAreTheSame = (declaredTargetType == runtimeTargetType);
         }
 
-        public static DeclaredAndRuntimeTypesKey From<TSource, TTarget>(
-            ObjectMappingContextFactoryBridge<TSource, TTarget> command)
+        public static DeclaredAndRuntimeTypesKey From(
+            ObjectMapperDataFactoryBridge command)
         {
             return new DeclaredAndRuntimeTypesKey(
                 KeyType.OmcConstructor,
-                typeof(TSource),
+                command.DeclaredSourceType,
+                command.DeclaredTargetType,
                 command.SourceMember.Type,
-                typeof(TTarget),
                 command.TargetMember.Type);
         }
 
-        public static DeclaredAndRuntimeTypesKey From<TSource, TTarget>(IMemberMappingContext context)
+        public static DeclaredAndRuntimeTypesKey ForCreateMapperCall<TSource, TTarget>(MemberMapperData data)
         {
             return new DeclaredAndRuntimeTypesKey(
                 KeyType.CreateMapperCall,
                 typeof(TSource),
-                context.SourceMember.Type,
                 typeof(TTarget),
-                context.TargetMember.Type);
+                data.SourceMember.Type,
+                data.TargetMember.Type);
         }
 
         public override bool Equals(object obj)

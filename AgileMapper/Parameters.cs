@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper
     internal static class Parameters
     {
         public static readonly ParameterExpression MappingContext = Create<MappingContext>();
-        public static readonly ParameterExpression ObjectMappingContext = Create<IObjectMappingContext>();
+        public static readonly ParameterExpression ObjectMapperData = Create<ObjectMapperData>();
 
         public static readonly ParameterExpression SourceMember = Create<IQualifiedMember>("sourceMember");
         public static readonly ParameterExpression TargetMember = Create<QualifiedMember>("targetMember");
@@ -29,16 +29,16 @@ namespace AgileObjects.AgileMapper
 
         #region Parameter Swapping
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapNothing = (lambda, context) => lambda.Body;
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapNothing = (lambda, context) => lambda.Body;
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForContextParameter = (lambda, context) =>
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForContextParameter = (lambda, context) =>
         {
             var contextParameter = lambda.Parameters[0];
             var contextType = contextParameter.Type;
 
-            if (contextType.IsAssignableFrom(context.Parameter.Type))
+            if (contextType.IsAssignableFrom(context.OmdParameter.Type))
             {
-                return lambda.ReplaceParameterWith(context.Parameter);
+                return lambda.ReplaceParameterWith(context.OmdParameter);
             }
 
             var contextTypes = contextType.GetGenericArguments();
@@ -75,43 +75,42 @@ namespace AgileObjects.AgileMapper
         {
             if (contextInfo.ContextTypes.Length == 2)
             {
-                return lambda.ReplaceParameterWith(contextInfo.MemberMappingContextAccess);
+                return lambda.ReplaceParameterWith(contextInfo.MappingDataAccess);
             }
 
             var objectCreationContextCreateCall = Expression.Call(
-                null,
                 ObjectCreationContext.CreateMethod.MakeGenericMethod(contextInfo.ContextTypes),
-                contextInfo.MemberMappingContextAccess,
+                contextInfo.MappingDataAccess,
                 contextInfo.InstanceVariable);
 
             return lambda.ReplaceParameterWith(objectCreationContextCreateCall);
         }
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceAndTarget = (lambda, context) =>
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceAndTarget = (lambda, context) =>
             ReplaceParameters(lambda, context, c => c.SourceAccess, c => c.TargetAccess);
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetAndIndex = (lambda, context) =>
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetAndIndex = (lambda, context) =>
             ReplaceParameters(lambda, context, c => c.SourceAccess, c => c.TargetAccess, c => c.Index);
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetAndInstance = (lambda, context) =>
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetAndInstance = (lambda, context) =>
             ReplaceParameters(lambda, context, c => c.SourceAccess, c => c.TargetAccess, c => c.InstanceVariable);
 
-        public static Func<LambdaExpression, IMemberMappingContext, Expression> SwapForSourceTargetInstanceAndIndex = (lambda, context) =>
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetInstanceAndIndex = (lambda, context) =>
             ReplaceParameters(lambda, context, c => c.SourceAccess, c => c.TargetAccess, c => c.InstanceVariable, c => c.Index);
 
         private static Expression ReplaceParameters(
             LambdaExpression lambda,
-            IMemberMappingContext context,
+            MemberMapperData context,
             params Func<MappingContextInfo, Expression>[] parameterFactories)
         {
             var contextInfo = GetAppropriateMappingContext(lambda, context);
             return lambda.ReplaceParametersWith(parameterFactories.Select(f => f.Invoke(contextInfo)).ToArray());
         }
 
-        private static MappingContextInfo GetAppropriateMappingContext(LambdaExpression lambda, IMemberMappingContext context)
+        private static MappingContextInfo GetAppropriateMappingContext(LambdaExpression lambda, MemberMapperData context)
             => GetAppropriateMappingContext(new[] { lambda.Parameters[0].Type, lambda.Parameters[1].Type }, context);
 
-        private static MappingContextInfo GetAppropriateMappingContext(Type[] contextTypes, IMemberMappingContext context)
+        private static MappingContextInfo GetAppropriateMappingContext(Type[] contextTypes, MemberMapperData context)
         {
             if (TypesMatch(contextTypes, context))
             {
@@ -119,7 +118,7 @@ namespace AgileObjects.AgileMapper
             }
 
             var originalContext = context;
-            Expression contextAccess = context.Parameter;
+            Expression contextAccess = context.OmdParameter;
 
             if (context.TargetMember.IsSimple)
             {
@@ -135,50 +134,47 @@ namespace AgileObjects.AgileMapper
             return new MappingContextInfo(originalContext, contextAccess, contextTypes);
         }
 
-        private static bool TypesMatch(IList<Type> contextTypes, IMappingData data)
+        private static bool TypesMatch(IList<Type> contextTypes, BasicMapperData data)
             => contextTypes[0].IsAssignableFrom(data.SourceType) && contextTypes[1].IsAssignableFrom(data.TargetType);
 
         private class MappingContextInfo
         {
-            private static readonly MethodInfo _getSourceMethod = typeof(IObjectMappingContext).GetMethod("GetSource", Constants.PublicInstance);
-            private static readonly MethodInfo _getTargetMethod = typeof(IObjectMappingContext).GetMethod("GetTarget", Constants.PublicInstance);
-            private static readonly MethodInfo _asMmcMethod = typeof(IObjectMappingContext).GetMethod("AsMemberContext", Constants.PublicInstance);
+            private static readonly MethodInfo _getSourceMethod = typeof(ObjectMapperData).GetMethod("GetSource", Constants.PublicInstance);
+            private static readonly MethodInfo _getTargetMethod = typeof(ObjectMapperData).GetMethod("GetTarget", Constants.PublicInstance);
 
-            public MappingContextInfo(IMemberMappingContext context, Type[] contextTypes)
-                : this(context, context.Parameter, contextTypes)
+            public MappingContextInfo(MemberMapperData data, Type[] contextTypes)
+                : this(data, data.MdParameter, contextTypes)
             {
             }
 
             public MappingContextInfo(
-                IMemberMappingContext context,
+                MemberMapperData data,
                 Expression contextAccess,
                 Type[] contextTypes)
             {
                 ContextTypes = contextTypes;
-                InstanceVariable = context.InstanceVariable;
-                SourceAccess = GetAccess(context, contextAccess, _getSourceMethod, contextTypes[0], context.SourceObject);
-                TargetAccess = GetAccess(context, contextAccess, _getTargetMethod, contextTypes[1], context.TargetObject);
-                Index = context.EnumerableIndex;
+                InstanceVariable = data.InstanceVariable;
+                SourceAccess = GetAccess(data, contextAccess, _getSourceMethod, contextTypes[0], data.SourceObject);
+                TargetAccess = GetAccess(data, contextAccess, _getTargetMethod, contextTypes[1], data.TargetObject);
+                Index = data.EnumerableIndex;
 
-                if (contextAccess == context.Parameter)
+                if (contextAccess == data.OmdParameter)
                 {
-                    MemberMappingContextAccess = context.Parameter;
+                    MappingDataAccess = data.OmdParameter;
                     return;
                 }
 
-                MemberMappingContextAccess = Expression.Call(
-                    contextAccess,
-                    _asMmcMethod.MakeGenericMethod(contextTypes[0], contextTypes[1]));
+                MappingDataAccess = contextAccess;
             }
 
             private static Expression GetAccess(
-                IMemberMappingContext context,
+                MemberMapperData data,
                 Expression contextAccess,
                 MethodInfo accessMethod,
                 Type type,
                 Expression directAccessExpression)
             {
-                return (contextAccess != context.Parameter)
+                return (contextAccess != data.OmdParameter)
                     ? Expression.Call(contextAccess, accessMethod.MakeGenericMethod(type))
                     : directAccessExpression;
             }
@@ -187,7 +183,7 @@ namespace AgileObjects.AgileMapper
 
             public Expression InstanceVariable { get; }
 
-            public Expression MemberMappingContextAccess { get; }
+            public Expression MappingDataAccess { get; }
 
             public Expression SourceAccess { get; }
 

@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using Members;
 
     internal class DerivedTypePair : UserConfiguredItemBase
     {
@@ -22,7 +21,7 @@
 
         public Type DerivedTargetType { get; }
 
-        public override bool AppliesTo(IMappingData data)
+        public override bool AppliesTo(BasicMapperData data)
             => _derivedSourceType.IsAssignableFrom(data.SourceType) && base.AppliesTo(data);
     }
 }

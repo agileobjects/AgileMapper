@@ -20,7 +20,7 @@
         {
             var targetMember =
                 targetMemberLambda?.Body.ToTargetMember(
-                    _configInfo.GlobalContext.MemberFinder,
+                    GlobalContext.Instance.MemberFinder,
                     _configInfo.MapperContext.NamingSettings)
                 ?? QualifiedMember.None;
 

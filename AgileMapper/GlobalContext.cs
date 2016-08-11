@@ -12,8 +12,8 @@ namespace AgileObjects.AgileMapper
 
         private GlobalContext()
         {
-            Cache = new CacheSet(this);
-            _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(this), isThreadSafe: true);
+            Cache = new CacheSet();
+            _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(), isThreadSafe: true);
         }
 
         public CacheSet Cache { get; }

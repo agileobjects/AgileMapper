@@ -13,12 +13,12 @@
             int dataSourceIndex,
             Expression configuredCondition,
             Expression value,
-            IMemberMappingContext context)
+            MemberMapperData data)
             : this(
-                  new ConfiguredSourceMember(value, context),
+                  new ConfiguredSourceMember(value, data),
                   configuredCondition,
-                  GetConvertedValue(dataSourceIndex, value, context),
-                  context)
+                  GetConvertedValue(dataSourceIndex, value, data),
+                  data)
         {
         }
 
@@ -26,8 +26,8 @@
             IQualifiedMember sourceMember,
             Expression configuredCondition,
             Expression convertedValue,
-            IMemberMappingContext context)
-            : base(sourceMember, convertedValue, context)
+            MemberMapperData data)
+            : base(sourceMember, convertedValue, data)
         {
             _originalValueString = convertedValue.ToString();
 
@@ -35,7 +35,7 @@
 
             if (configuredCondition != null)
             {
-                configuredCondition = Process(configuredCondition, context);
+                configuredCondition = Process(configuredCondition, data);
 
                 condition = (base.Condition != null)
                     ? Expression.AndAlso(base.Condition, configuredCondition)
@@ -57,21 +57,21 @@
 
         #region Setup
 
-        private static Expression GetConvertedValue(int dataSourceIndex, Expression value, IMemberMappingContext context)
+        private static Expression GetConvertedValue(int dataSourceIndex, Expression value, MemberMapperData data)
         {
-            if (context.TargetMember.IsComplex && (context.TargetMember.Type.Assembly != typeof(string).Assembly))
+            if (data.TargetMember.IsComplex && (data.TargetMember.Type.Assembly != typeof(string).Assembly))
             {
-                return context.GetMapCall(value, dataSourceIndex);
+                return data.GetMapCall(value, dataSourceIndex);
             }
 
-            var convertedValue = context.MapperContext.ValueConverters.GetConversion(value, context.TargetMember.Type);
+            var convertedValue = data.MapperContext.ValueConverters.GetConversion(value, data.TargetMember.Type);
 
             return convertedValue;
         }
 
-        private static Expression Process(Expression configuredCondition, IMemberMappingContext context)
+        private static Expression Process(Expression configuredCondition, MemberMapperData data)
         {
-            var conditionNestedAccessesChecks = context
+            var conditionNestedAccessesChecks = data
                 .GetNestedAccessesIn(configuredCondition)
                 .GetIsNotDefaultComparisonsOrNull();
 

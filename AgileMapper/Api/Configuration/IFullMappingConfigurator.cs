@@ -11,7 +11,7 @@
 
         void SwallowAllExceptions();
 
-        void PassExceptionsTo(Action<ITypedMemberMappingExceptionContext<TSource, TTarget>> callback);
+        void PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback);
 
         DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget> Map<TDerivedSource>()
             where TDerivedSource : TSource;

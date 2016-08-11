@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             return new Member(
                 MemberType.Property,
                 name,
-                typeof(IObjectMappingContext),
+                typeof(ObjectMapperData),
                 type,
                 isRoot: true);
         }

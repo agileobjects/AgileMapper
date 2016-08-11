@@ -8,28 +8,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly IDataSourceFactory Instance = new ExistingOrDefaultValueDataSourceFactory();
 
-        public IDataSource Create(IMemberMappingContext context)
-            => context.TargetMember.IsReadable
-                ? new ExistingMemberValueOrEmptyDataSource(context)
-                : DefaultValueDataSourceFactory.Instance.Create(context);
+        public IDataSource Create(MemberMapperData data)
+            => data.TargetMember.IsReadable
+                ? new ExistingMemberValueOrEmptyDataSource(data)
+                : DefaultValueDataSourceFactory.Instance.Create(data);
 
         private class ExistingMemberValueOrEmptyDataSource : DataSourceBase
         {
-            public ExistingMemberValueOrEmptyDataSource(IMemberMappingContext context)
-                : base(context.SourceMember, GetValue(context), context)
+            public ExistingMemberValueOrEmptyDataSource(MemberMapperData data)
+                : base(data.SourceMember, GetValue(data), data)
             {
             }
 
-            private static Expression GetValue(IMemberMappingContext context)
+            private static Expression GetValue(MemberMapperData data)
             {
-                var existingValue = context.TargetMember.GetAccess(context.InstanceVariable);
+                var existingValue = data.TargetMember.GetAccess(data.InstanceVariable);
 
-                if (!context.TargetMember.IsEnumerable)
+                if (!data.TargetMember.IsEnumerable)
                 {
                     return existingValue;
                 }
 
-                var emptyEnumerable = context.TargetMember.GetEmptyInstanceCreation();
+                var emptyEnumerable = data.TargetMember.GetEmptyInstanceCreation();
 
                 return Expression.Coalesce(existingValue, emptyEnumerable);
             }

@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             _configInfo.MapperContext.UserConfigurations.Identifiers.Add(typeof(TObject), idMember);
         }
 
-        public void CreateUsing(Expression<Func<ITypedMemberMappingContext<object, object>, TObject>> factory)
+        public void CreateUsing(Expression<Func<IMappingData<object, object>, TObject>> factory)
             => new FactorySpecifier<object, object, TObject>(_configInfo).Using(factory);
 
         public void CreateUsing<TFactory>(TFactory factory) where TFactory : class

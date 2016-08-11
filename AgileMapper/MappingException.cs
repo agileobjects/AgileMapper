@@ -15,22 +15,22 @@
         {
         }
 
-        internal MappingException(IMemberMappingContext context, Exception innerException)
-            : base(GetMessage(context), innerException)
+        internal MappingException(MemberMapperData data, Exception innerException)
+            : base(GetMessage(data), innerException)
         {
         }
 
-        private static string GetMessage(IMemberMappingContext context)
+        private static string GetMessage(MemberMapperData data)
         {
-            var rootData = GetRootMappingData(context);
+            var rootData = GetRootMapperData(data);
 
-            var sourcePath = GetMemberPath(rootData.SourceType, context.SourceMember, "Source");
-            var targetPath = GetMemberPath(rootData.TargetType, context.TargetMember, "Target");
+            var sourcePath = GetMemberPath(rootData.SourceType, data.SourceMember, "Source");
+            var targetPath = GetMemberPath(rootData.TargetType, data.TargetMember, "Target");
 
-            return $"An exception occurred mapping {sourcePath} -> {targetPath} with rule set {context.RuleSetName}.";
+            return $"An exception occurred mapping {sourcePath} -> {targetPath} with rule set {data.RuleSet.Name}.";
         }
 
-        private static IMappingData GetRootMappingData(IMappingData data)
+        private static BasicMapperData GetRootMapperData(BasicMapperData data)
         {
             while (data.Parent != null)
             {

@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Configuration;
     using Members;
 
@@ -22,13 +21,13 @@
 
         protected CallbackPosition CallbackPosition { get; }
 
-        public virtual bool AppliesTo(CallbackPosition callbackPosition, IMappingData data)
+        public virtual bool AppliesTo(CallbackPosition callbackPosition, BasicMapperData data)
             => (CallbackPosition == callbackPosition) && base.AppliesTo(data);
 
-        public Expression Create(IMemberMappingContext context)
+        public Expression Create(MemberMapperData data)
         {
-            var callback = _callbackLambda.GetBody(context);
-            var condition = GetConditionOrNull(context);
+            var callback = _callbackLambda.GetBody(data);
+            var condition = GetConditionOrNull(data);
 
             if (condition != null)
             {

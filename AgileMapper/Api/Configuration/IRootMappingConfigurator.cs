@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
     public interface IRootMappingConfigurator<TSource, TTarget>
     {
-        void CreateInstancesUsing(Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TTarget>> factory);
+        void CreateInstancesUsing(Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory);
 
         void CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class;
 
@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers);
 
         CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
-            Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TSourceValue>> valueFactoryExpression);
+            Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression);
 
         CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression);

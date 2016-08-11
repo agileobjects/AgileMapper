@@ -494,7 +494,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                Func<ITypedMemberMappingContext<Person, PersonViewModel>, string> combineAddressLine1 =
+                Func<IMappingData<Person, PersonViewModel>, string> combineAddressLine1 =
                     ctx => ctx.Source.Name + ", " + ctx.Source.Address.Line1;
 
                 mapper.WhenMapping

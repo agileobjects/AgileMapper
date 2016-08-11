@@ -31,8 +31,6 @@
 
         #endregion
 
-        public GlobalContext GlobalContext => MapperContext.GlobalContext;
-
         public MapperContext MapperContext { get; }
 
         public MappingConfigInfo ForAllSourceTypes() => ForSourceType(_allSourceTypes);
@@ -114,14 +112,14 @@
             }
         }
 
-        public Expression GetConditionOrNull(IMemberMappingContext context)
+        public Expression GetConditionOrNull(MemberMapperData mapperData)
         {
             if (!HasCondition)
             {
                 return null;
             }
 
-            var contextualisedCondition = _conditionLambda.GetBody(context);
+            var contextualisedCondition = _conditionLambda.GetBody(mapperData);
 
             if (_negateCondition)
             {
@@ -135,7 +133,7 @@
 
         public QualifiedMember GetTargetMemberFrom(LambdaExpression lambda)
         {
-            var targetMember = lambda.Body.ToTargetMember(GlobalContext.MemberFinder, MapperContext.NamingSettings);
+            var targetMember = lambda.Body.ToTargetMember(GlobalContext.Instance.MemberFinder, MapperContext.NamingSettings);
 
             if (targetMember != null)
             {

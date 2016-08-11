@@ -14,17 +14,15 @@
 
         public MapperContext()
         {
-            Cache = new CacheSet(GlobalContext);
-            DataSources = new DataSourceFinder(GlobalContext);
+            Cache = new CacheSet();
+            DataSources = new DataSourceFinder();
             NamingSettings = new NamingSettings();
-            ObjectMapperFactory = new ObjectMapperFactory(GlobalContext);
-            ObjectFlattener = new ObjectFlattener(this);
+            ObjectMapperFactory = new ObjectMapperFactory();
+            ObjectFlattener = new ObjectFlattener();
             UserConfigurations = new UserConfigurationSet();
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
         }
-
-        public GlobalContext GlobalContext => GlobalContext.Instance;
 
         public CacheSet Cache { get; }
 

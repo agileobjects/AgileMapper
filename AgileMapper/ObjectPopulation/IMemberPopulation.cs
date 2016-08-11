@@ -5,9 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal interface IMemberPopulation
     {
-        IMemberMappingContext Context { get; }
-
-        QualifiedMember TargetMember { get; }
+        MemberMapperData MapperData { get; }
 
         bool IsSuccessful { get; }
 

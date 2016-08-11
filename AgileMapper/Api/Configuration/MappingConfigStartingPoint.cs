@@ -9,6 +9,7 @@
     using Extensions;
     using Members;
     using ReadableExpressions;
+
     public class MappingConfigStartingPoint
     {
         private readonly MapperContext _mapperContext;
@@ -22,7 +23,7 @@
 
         public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
-        public void PassExceptionsTo(Action<IUntypedMemberMappingExceptionContext> callback)
+        public void PassExceptionsTo(Action<IMappingExceptionData> callback)
         {
             var exceptionCallback = new ExceptionCallback(
                 MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext),

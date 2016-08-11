@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             _configInfo = configInfo.ForTargetType(typeof(TTarget));
         }
 
-        public void Using(Expression<Func<ITypedMemberMappingContext<TSource, TTarget>, TObject>> factory)
+        public void Using(Expression<Func<IMappingData<TSource, TTarget>, TObject>> factory)
         {
             var objectFactory = ConfiguredObjectFactory.For(_configInfo, typeof(TObject), factory);
 

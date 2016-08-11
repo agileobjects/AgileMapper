@@ -4,13 +4,11 @@
 
     internal class CacheSet
     {
-        private readonly GlobalContext _globalContext;
         private readonly ICache<Type, object> _cachesByType;
 
-        public CacheSet(GlobalContext globalContext)
+        public CacheSet()
         {
-            _globalContext = globalContext;
-            _cachesByType = _globalContext.CreateCache<Type, object>();
+            _cachesByType = GlobalContext.Instance.CreateCache<Type, object>();
         }
 
         public TValue GetOrAdd<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
@@ -20,7 +18,7 @@
         {
             var cache = _cachesByType.GetOrAdd(
                 typeof(ICache<TKey, TValue>),
-                t => _globalContext.CreateCache<TKey, TValue>());
+                t => GlobalContext.Instance.CreateCache<TKey, TValue>());
 
             return (ICache<TKey, TValue>)cache;
         }

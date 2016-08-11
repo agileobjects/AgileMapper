@@ -7,18 +7,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly ICache<ObjectMapperKey, object> _cache;
 
-        public ObjectMapperFactory(GlobalContext globalContext)
+        public ObjectMapperFactory()
         {
-            _cache = globalContext.CreateCache<ObjectMapperKey, object>();
+            _cache = GlobalContext.Instance.CreateCache<ObjectMapperKey, object>();
         }
 
-        public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMappingContext omc)
+        public IObjectMapper<TSource, TTarget> CreateFor<TSource, TTarget>(IObjectMapperCreationData data)
         {
-            var mapper = (IObjectMapper<TTarget>)_cache.GetOrAdd(new ObjectMapperKey(omc), k =>
+            var mapper = (IObjectMapper<TSource, TTarget>)_cache.GetOrAdd(new ObjectMapperKey(data), k =>
             {
-                var lambda = omc.TargetMember.IsEnumerable
-                    ? EnumerableMappingLambdaFactory.Instance.Create<TSource, TTarget>(omc)
-                    : ComplexTypeMappingLambdaFactory.Instance.Create<TSource, TTarget>(omc);
+                var lambda = data.TargetMember.IsEnumerable
+                    ? EnumerableMappingLambdaFactory.Instance.Create<TSource, TTarget>(data)
+                    : ComplexTypeMappingLambdaFactory.Instance.Create<TSource, TTarget>(data);
 
                 return new ObjectMapper<TSource, TTarget>(lambda);
             });
@@ -26,36 +26,38 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapper;
         }
 
-        private class ObjectMapperKey
-        {
-            private readonly MappingRuleSet _ruleSet;
-            private readonly string _sourceMemberSignature;
-            private readonly string _targetMemberSignature;
-
-            public ObjectMapperKey(IMemberMappingContext context)
-            {
-                _ruleSet = context.MappingContext.RuleSet;
-                _sourceMemberSignature = context.SourceMember.Signature;
-                _targetMemberSignature = context.TargetMember.Signature;
-            }
-
-            public override bool Equals(object obj)
-            {
-                var otherKey = (ObjectMapperKey)obj;
-
-                return
-                    (_ruleSet == otherKey._ruleSet) &&
-                    (_sourceMemberSignature == otherKey._sourceMemberSignature) &&
-                    (_targetMemberSignature == otherKey._targetMemberSignature);
-
-            }
-
-            public override int GetHashCode() => 0;
-        }
-
         public void Reset()
         {
             _cache.Empty();
         }
+    }
+
+    internal class ObjectMapperKey
+    {
+        private readonly MappingRuleSet _ruleSet;
+        private readonly string _sourceMemberSignature;
+        private readonly string _targetMemberSignature;
+
+        public ObjectMapperKey(IObjectMapperCreationData data)
+        {
+            _ruleSet = data.RuleSet;
+            _sourceMemberSignature = data.SourceMember.Signature;
+            _targetMemberSignature = data.TargetMember.Signature;
+
+            data.MapperData.SetKey(this);
+        }
+
+        public override bool Equals(object obj)
+        {
+            var otherKey = (ObjectMapperKey)obj;
+
+            return
+                (_ruleSet == otherKey._ruleSet) &&
+                (_sourceMemberSignature == otherKey._sourceMemberSignature) &&
+                (_targetMemberSignature == otherKey._targetMemberSignature);
+
+        }
+
+        public override int GetHashCode() => 0;
     }
 }

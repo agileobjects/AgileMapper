@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly QualifiedMember _matchedTargetMember;
         private readonly Member[] _childMembers;
 
-        public ConfiguredSourceMember(Expression value, IMappingData data)
+        public ConfiguredSourceMember(Expression value, BasicMapperData data)
             : this(value.Type, value.Type.IsEnumerable(), value.ToReadableString(), data.TargetMember)
         {
         }

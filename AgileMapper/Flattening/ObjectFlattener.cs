@@ -21,13 +21,6 @@
 
         #endregion
 
-        private readonly MapperContext _mapperContext;
-
-        public ObjectFlattener(MapperContext mapperContext)
-        {
-            _mapperContext = mapperContext;
-        }
-
         public FlattenedObject Flatten<TSource>(TSource source)
             => new FlattenedObject(GetPropertyValuesByName(source));
 
@@ -44,7 +37,7 @@
             TSource parentObject,
             string parentMemberName)
         {
-            foreach (var sourceMember in _mapperContext.GlobalContext.MemberFinder.GetReadableMembers(typeof(TSource)))
+            foreach (var sourceMember in GlobalContext.Instance.MemberFinder.GetReadableMembers(typeof(TSource)))
             {
                 var name = GetName(parentMemberName, sourceMember);
                 var value = GetValue(parentObject, sourceMember);
@@ -91,7 +84,7 @@
 
             var cacheKey = typeof(TSource).FullName + $".{member.Name}: GetValue";
 
-            var valueFunc = _mapperContext.GlobalContext.Cache.GetOrAdd(cacheKey, k =>
+            var valueFunc = GlobalContext.Instance.Cache.GetOrAdd(cacheKey, k =>
             {
                 var sourceParameter = Parameters.Create<TSource>("source");
                 var valueAccess = member.GetAccess(sourceParameter);
@@ -116,7 +109,7 @@
         {
             var cacheKey = parentMemberType.FullName + ": GetPropertiesCaller";
 
-            var getPropertiesFunc = _mapperContext.GlobalContext.Cache.GetOrAdd(cacheKey, k =>
+            var getPropertiesFunc = GlobalContext.Instance.Cache.GetOrAdd(cacheKey, k =>
             {
                 var sourceParameter = Parameters.Create<object>("source");
                 var parentMemberNameParameter = Parameters.Create<string>("parentMemberName");

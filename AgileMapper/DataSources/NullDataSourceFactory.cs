@@ -6,6 +6,6 @@ namespace AgileObjects.AgileMapper.DataSources
     {
         public static readonly IDataSourceFactory Instance = new NullDataSourceFactory();
 
-        public IDataSource Create(IMemberMappingContext context) => NullDataSource.Default;
+        public IDataSource Create(MemberMapperData data) => NullDataSource.Default;
     }
 }
