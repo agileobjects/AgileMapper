@@ -43,7 +43,6 @@
         public void Reset()
         {
             Cache.Empty();
-            DataSources.Reset();
             UserConfigurations.Reset();
             ObjectMapperFactory.Reset();
         }

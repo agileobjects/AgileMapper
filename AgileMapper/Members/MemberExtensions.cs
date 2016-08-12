@@ -6,7 +6,6 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
-    using ObjectPopulation;
 
     internal static class MemberExtensions
     {

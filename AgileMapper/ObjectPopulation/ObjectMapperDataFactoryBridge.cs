@@ -46,6 +46,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> : IMappingDataFactoryBridge
     {
+        private readonly ObjectMapperData _mapperData;
+
         public MappingDataFactoryBridge(
             MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             ObjectMapperData mapperData,
@@ -55,7 +57,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember)
         {
             InstanceData = instanceData;
-            MapperData = mapperData;
+            _mapperData = mapperData;
             DeclaredSourceType = declaredSourceType;
             DeclaredTargetType = declaredTargetType;
             SourceMember = sourceMember;
@@ -67,8 +69,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MappingContext MappingContext => InstanceData.MappingContext;
 
         public MappingInstanceData<TDeclaredSource, TDeclaredTarget> InstanceData { get; }
-
-        public ObjectMapperData MapperData { get; }
 
         public Type DeclaredSourceType { get; }
 
@@ -88,7 +88,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 TargetMember,
                 RuntimeTypesAreTheSame,
                 key,
-                MapperData);
+                _mapperData);
         }
 
         public IObjectMapperCreationData GetMapperCreationData() => MapperCreationDataFactory.Create(this);

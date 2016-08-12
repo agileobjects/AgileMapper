@@ -1,21 +1,16 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Caching;
     using Extensions;
     using Members;
 
     internal class DataSourceFinder
     {
-        private readonly ICache<DataSourceSetKey, DataSourceSet> _cache;
         private readonly ICollection<IConditionalDataSourceFactory> _mapTimeDataSourceFactories;
 
         public DataSourceFinder()
         {
-            _cache = GlobalContext.Instance.CreateCache<DataSourceSetKey, DataSourceSet>();
-
             _mapTimeDataSourceFactories = new List<IConditionalDataSourceFactory>
             {
                 new DictionaryDataSourceFactory()
@@ -24,29 +19,24 @@
 
         public DataSourceSet FindFor(IMemberMapperCreationData data)
         {
-            var cacheKey = new DataSourceSetKey(data);
+            var validDataSources = EnumerateDataSources(data)
+                .Where(ds => ds.IsValid)
+                .ToArray();
 
-            return _cache.GetOrAdd(cacheKey, k =>
+            if (data.MapperData.TargetMember.IsSimple && validDataSources.Any())
             {
-                var validDataSources = EnumerateDataSources(data)
-                    .Where(ds => ds.IsValid)
-                    .ToArray();
+                var initialDataSource = data
+                    .RuleSet
+                    .InitialDataSourceFactory
+                    .Create(data.MapperData);
 
-                if (data.MapperData.TargetMember.IsSimple && validDataSources.Any())
+                if (initialDataSource.IsValid)
                 {
-                    var initialDataSource = data
-                        .RuleSet
-                        .InitialDataSourceFactory
-                        .Create(data.MapperData);
-
-                    if (initialDataSource.IsValid)
-                    {
-                        validDataSources = validDataSources.Prepend(initialDataSource).ToArray();
-                    }
+                    validDataSources = validDataSources.Prepend(initialDataSource).ToArray();
                 }
+            }
 
-                return new DataSourceSet(validDataSources);
-            });
+            return new DataSourceSet(validDataSources);
         }
 
         private IEnumerable<IDataSource> EnumerateDataSources(IMemberMapperCreationData data)
@@ -180,37 +170,6 @@
             }
 
             return foundDataSource;
-        }
-
-        public void Reset()
-        {
-            _cache.Empty();
-        }
-
-        private class DataSourceSetKey
-        {
-            private readonly Type _sourceType;
-            private readonly MappingRuleSet _ruleSet;
-            private readonly string _targetMemberSignature;
-
-            public DataSourceSetKey(IMapperCreationData data)
-            {
-                _sourceType = data.SourceMember.Type;
-                _ruleSet = data.RuleSet;
-                _targetMemberSignature = data.TargetMember.Signature;
-            }
-
-            public override bool Equals(object obj)
-            {
-                var otherKey = (DataSourceSetKey)obj;
-
-                return
-                    (_sourceType == otherKey._sourceType) &&
-                    (_ruleSet == otherKey._ruleSet) &&
-                    (_targetMemberSignature == otherKey._targetMemberSignature);
-            }
-
-            public override int GetHashCode() => 0;
         }
     }
 }

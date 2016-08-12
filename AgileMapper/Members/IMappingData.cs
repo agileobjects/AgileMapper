@@ -5,13 +5,13 @@
     using Extensions;
     using ObjectPopulation;
 
-    public interface IMappingData<out TSource, TTarget>
+    public interface IMappingData<out TSource, out TTarget>
     {
         IMappingData Parent { get; }
 
         TSource Source { get; }
 
-        TTarget Target { get; set; }
+        TTarget Target { get; }
 
         int? EnumerableIndex { get; }
     }
@@ -25,6 +25,8 @@
         TTarget GetTarget<TTarget>();
 
         int? GetEnumerableIndex();
+
+        IMappingData<TParentSource, TParentTarget> Typed<TParentSource, TParentTarget>();
     }
 
     internal interface IMapperCreationData
@@ -132,6 +134,9 @@
         T IMappingData.GetTarget<T>() => (T)(object)Target;
 
         public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
+
+        IMappingData<TParentSource, TParentTarget> IMappingData.Typed<TParentSource, TParentTarget>()
+            => (IMappingData<TParentSource, TParentTarget>)this;
 
         #endregion
 

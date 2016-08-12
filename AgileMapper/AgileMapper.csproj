@@ -89,7 +89,7 @@
     <Compile Include="Members\IQualifiedMember.cs" />
     <Compile Include="Members\IMappingExceptionData.cs" />
     <Compile Include="Members\MemberIdentifierSet.cs" />
-    <Compile Include="Members\MemberMappingContextExtensions.cs" />
+    <Compile Include="Members\MemberMapperDataExtensions.cs" />
     <Compile Include="Members\MappingExceptionData.cs" />
     <Compile Include="Members\TypeKey.cs" />
     <Compile Include="ObjectPopulation\DeclaredAndRuntimeTypesKey.cs" />

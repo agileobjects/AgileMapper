@@ -139,6 +139,7 @@ namespace AgileObjects.AgileMapper
         {
             private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource", Constants.PublicInstance);
             private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget", Constants.PublicInstance);
+            private static readonly MethodInfo _typedMethod = typeof(IMappingData).GetMethod("Typed", Constants.PublicInstance);
 
             public MappingContextInfo(MemberMapperData data, Type[] contextTypes)
                 : this(data, data.MdParameter, contextTypes)
@@ -162,7 +163,9 @@ namespace AgileObjects.AgileMapper
                     return;
                 }
 
-                MappingDataAccess = contextAccess;
+                MappingDataAccess = Expression.Call(
+                    contextAccess,
+                    _typedMethod.MakeGenericMethod(contextTypes[0], contextTypes[1]));
             }
 
             private static Expression GetAccess(
@@ -173,12 +176,6 @@ namespace AgileObjects.AgileMapper
                 Expression directAccessExpression)
             {
                 if (contextAccess == data.MdParameter)
-                {
-                    return directAccessExpression;
-                }
-
-                if ((contextAccess.NodeType == ExpressionType.MemberAccess) &&
-                    ((MemberExpression)contextAccess).Expression == data.MdParameter)
                 {
                     return directAccessExpression;
                 }

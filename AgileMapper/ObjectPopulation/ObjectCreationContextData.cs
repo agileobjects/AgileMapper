@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             typeof(ObjectCreationContext).GetMethod("Create", Constants.PublicStatic);
 
         public static ObjectCreationContextData<TSource, TTarget, TObject> Create<TSource, TTarget, TObject>(
-            MappingData<TSource, TTarget> data,
+            IMappingData<TSource, TTarget> data,
             TObject createdCbject)
         {
             return new ObjectCreationContextData<TSource, TTarget, TObject>(data, createdCbject);
@@ -17,13 +17,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     }
 
     internal class ObjectCreationContextData<TSource, TTarget, TObject> :
-        MappingData<TSource, TTarget>,
+        MappingInstanceData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TObject>
     {
         private readonly TObject _createdObject;
 
-        public ObjectCreationContextData(MappingData<TSource, TTarget> data, TObject createdObject)
-            : base(data, data.MapperData)
+        public ObjectCreationContextData(IMappingData<TSource, TTarget> data, TObject createdObject)
+            : base(
+                  null, // <- no need for a MappingContext as we're only passing this to a creation callback
+                  data.Source,
+                  data.Target,
+                  data.EnumerableIndex,
+                  data.Parent)
         {
             _createdObject = createdObject;
         }
