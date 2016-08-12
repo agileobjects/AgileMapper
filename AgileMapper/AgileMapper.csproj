@@ -151,13 +151,14 @@
     <Compile Include="ObjectPopulation\MergeEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\ObjectCreationCallbackFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMapperData.cs" />
-    <Compile Include="ObjectPopulation\ObjectMapperDataFactory.cs" />
+    <Compile Include="ObjectPopulation\MapperCreationDataFactory.cs" />
     <Compile Include="ObjectPopulation\MapperFunc.cs" />
     <Compile Include="Members\Member.cs" />
     <Compile Include="ObjectPopulation\MemberPopulation.cs" />
     <Compile Include="ObjectPopulation\MemberPopulationFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMapper.cs" />
     <Compile Include="ObjectPopulation\ObjectMapperFactory.cs" />
+    <Compile Include="ObjectPopulation\ObjectMapperKey.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingLambdaFactoryBase.cs" />
     <Compile Include="ObjectPopulation\OverwriteEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\ShortCircuitConditionBuilder.cs" />

@@ -80,13 +80,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool RuntimeTypesAreTheSame { get; }
 
-        public ObjectMapperData GetMapperData()
+        public ObjectMapperData GetMapperData(ObjectMapperKey key)
         {
             return new ObjectMapperData(
                 MappingContext,
                 SourceMember,
                 TargetMember,
                 RuntimeTypesAreTheSame,
+                key,
                 MapperData);
         }
 

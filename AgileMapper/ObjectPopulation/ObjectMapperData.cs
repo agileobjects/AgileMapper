@@ -22,6 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             bool runtimeTypesAreTheSame,
+            ObjectMapperKey key,
             ObjectMapperData parent)
             : base(
                   mappingContext.MapperContext,
@@ -65,7 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 InstanceVariable = Expression.Variable(targetMember.Type, instanceVariableName);
             }
 
-            MapperKey = new ObjectMapperKey(this);
+            MapperKey = key;
         }
 
         #region Setup

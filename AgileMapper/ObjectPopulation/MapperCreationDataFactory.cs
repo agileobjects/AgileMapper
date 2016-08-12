@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return new MappingData<TDeclaredSource, TDeclaredTarget>(bridge.InstanceData, mapperData);
             }
 
-            var constructionFunc = GetMappingDataCreator(bridge, mapperData);
+            var constructionFunc = GetMappingDataCreator(bridge);
 
             return constructionFunc.Invoke(
                 bridge.MappingContext,
@@ -59,19 +59,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static ObjectMapperData GetObjectMapperData<TDeclaredSource, TDeclaredTarget>(
             MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> bridge)
         {
-            var mapperDataKey = DeclaredAndRuntimeTypesKey.ForObjectMapperData(bridge);
+            var mapperDataKey = ObjectMapperKey.For(bridge);
 
             var mapperData = bridge.MappingContext.MapperContext.Cache
-                .GetOrAdd(mapperDataKey, k => bridge.GetMapperData());
+                .GetOrAdd(mapperDataKey, bridge.GetMapperData);
 
             return mapperData;
         }
 
         private static MappingDataCreator<TDeclaredSource, TDeclaredTarget> GetMappingDataCreator<TDeclaredSource, TDeclaredTarget>(
-            MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> bridge,
-            ObjectMapperData mapperData)
+            MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> bridge)
         {
-            var constructionFunc = GlobalContext.Instance.Cache.GetOrAdd(mapperData, _ =>
+            var constructorKey = DeclaredAndRuntimeTypesKey.ForMappingDataConstructor(bridge);
+
+            var constructionFunc = GlobalContext.Instance.Cache.GetOrAdd(constructorKey, _ =>
             {
                 var dataType = typeof(MappingData<,>)
                     .MakeGenericType(bridge.SourceMember.Type, bridge.TargetMember.Type);
