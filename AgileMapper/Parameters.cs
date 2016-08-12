@@ -15,9 +15,6 @@ namespace AgileObjects.AgileMapper
         public static readonly ParameterExpression ObjectMapperData = Create<ObjectMapperData>();
         public static readonly ParameterExpression ObjectMappingCreationData = Create<IObjectMapperCreationData>();
 
-        public static readonly ParameterExpression SourceMember = Create<IQualifiedMember>("sourceMember");
-        public static readonly ParameterExpression TargetMember = Create<QualifiedMember>("targetMember");
-
         public static readonly ParameterExpression EnumerableIndex = Create<int>("i");
         public static readonly ParameterExpression EnumerableIndexNullable = Create<int?>("i");
 
@@ -30,20 +27,20 @@ namespace AgileObjects.AgileMapper
 
         #region Parameter Swapping
 
-        public static Func<LambdaExpression, MemberMapperData, Expression> SwapNothing = (lambda, context) => lambda.Body;
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapNothing = (lambda, mapperData) => lambda.Body;
 
-        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForContextParameter = (lambda, context) =>
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForContextParameter = (lambda, mapperData) =>
         {
             var contextParameter = lambda.Parameters[0];
             var contextType = contextParameter.Type;
 
-            if (contextType.IsAssignableFrom(context.MdParameter.Type))
+            if (contextType.IsAssignableFrom(mapperData.MdParameter.Type))
             {
-                return lambda.ReplaceParameterWith(context.MdParameter);
+                return lambda.ReplaceParameterWith(mapperData.MdParameter);
             }
 
             var contextTypes = contextType.GetGenericArguments();
-            var contextInfo = GetAppropriateMappingContext(contextTypes, context);
+            var contextInfo = GetAppropriateMappingContext(contextTypes, mapperData);
 
             if (lambda.Body.NodeType != ExpressionType.Invoke)
             {
@@ -87,56 +84,56 @@ namespace AgileObjects.AgileMapper
             return lambda.ReplaceParameterWith(objectCreationContextCreateCall);
         }
 
-        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceAndTarget = (lambda, context) =>
-            ReplaceParameters(lambda, context, c => c.SourceAccess, c => c.TargetAccess);
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceAndTarget = (lambda, mapperData) =>
+            ReplaceParameters(lambda, mapperData, c => c.SourceAccess, c => c.TargetAccess);
 
-        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetAndIndex = (lambda, context) =>
-            ReplaceParameters(lambda, context, c => c.SourceAccess, c => c.TargetAccess, c => c.Index);
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetAndIndex = (lambda, mapperData) =>
+            ReplaceParameters(lambda, mapperData, c => c.SourceAccess, c => c.TargetAccess, c => c.Index);
 
-        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetAndInstance = (lambda, context) =>
-            ReplaceParameters(lambda, context, c => c.SourceAccess, c => c.TargetAccess, c => c.InstanceVariable);
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetAndInstance = (lambda, mapperData) =>
+            ReplaceParameters(lambda, mapperData, c => c.SourceAccess, c => c.TargetAccess, c => c.InstanceVariable);
 
-        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetInstanceAndIndex = (lambda, context) =>
-            ReplaceParameters(lambda, context, c => c.SourceAccess, c => c.TargetAccess, c => c.InstanceVariable, c => c.Index);
+        public static Func<LambdaExpression, MemberMapperData, Expression> SwapForSourceTargetInstanceAndIndex = (lambda, mapperData) =>
+            ReplaceParameters(lambda, mapperData, c => c.SourceAccess, c => c.TargetAccess, c => c.InstanceVariable, c => c.Index);
 
         private static Expression ReplaceParameters(
             LambdaExpression lambda,
-            MemberMapperData context,
+            MemberMapperData mapperData,
             params Func<MappingContextInfo, Expression>[] parameterFactories)
         {
-            var contextInfo = GetAppropriateMappingContext(lambda, context);
+            var contextInfo = GetAppropriateMappingContext(lambda, mapperData);
             return lambda.ReplaceParametersWith(parameterFactories.Select(f => f.Invoke(contextInfo)).ToArray());
         }
 
-        private static MappingContextInfo GetAppropriateMappingContext(LambdaExpression lambda, MemberMapperData context)
-            => GetAppropriateMappingContext(new[] { lambda.Parameters[0].Type, lambda.Parameters[1].Type }, context);
+        private static MappingContextInfo GetAppropriateMappingContext(LambdaExpression lambda, MemberMapperData mapperData)
+            => GetAppropriateMappingContext(new[] { lambda.Parameters[0].Type, lambda.Parameters[1].Type }, mapperData);
 
-        private static MappingContextInfo GetAppropriateMappingContext(Type[] dataTypes, MemberMapperData context)
+        private static MappingContextInfo GetAppropriateMappingContext(Type[] contextTypes, MemberMapperData mapperData)
         {
-            if (TypesMatch(dataTypes, context))
+            if (TypesMatch(contextTypes, mapperData))
             {
-                return new MappingContextInfo(context, dataTypes);
+                return new MappingContextInfo(mapperData, contextTypes);
             }
 
-            var originalContext = context;
-            Expression dataAccess = context.MdParameter;
+            var originalContext = mapperData;
+            Expression dataAccess = mapperData.MdParameter;
 
-            if (context.TargetMember.IsSimple)
+            if (mapperData.TargetMember.IsSimple)
             {
-                context = context.Parent;
+                mapperData = mapperData.Parent;
             }
 
-            while (!TypesMatch(dataTypes, context))
+            while (!TypesMatch(contextTypes, mapperData))
             {
                 dataAccess = Expression.Property(dataAccess, "Parent");
-                context = context.Parent;
+                mapperData = mapperData.Parent;
             }
 
-            return new MappingContextInfo(originalContext, dataAccess, dataTypes);
+            return new MappingContextInfo(originalContext, dataAccess, contextTypes);
         }
 
-        private static bool TypesMatch(IList<Type> dataTypes, BasicMapperData data)
-            => dataTypes[0].IsAssignableFrom(data.SourceType) && dataTypes[1].IsAssignableFrom(data.TargetType);
+        private static bool TypesMatch(IList<Type> contextTypes, BasicMapperData data)
+            => contextTypes[0].IsAssignableFrom(data.SourceType) && contextTypes[1].IsAssignableFrom(data.TargetType);
 
         private class MappingContextInfo
         {
@@ -175,9 +172,18 @@ namespace AgileObjects.AgileMapper
                 Type type,
                 Expression directAccessExpression)
             {
-                return (contextAccess != data.MdParameter)
-                    ? Expression.Call(contextAccess, accessMethod.MakeGenericMethod(type))
-                    : directAccessExpression;
+                if (contextAccess == data.MdParameter)
+                {
+                    return directAccessExpression;
+                }
+
+                if ((contextAccess.NodeType == ExpressionType.MemberAccess) &&
+                    ((MemberExpression)contextAccess).Expression == data.MdParameter)
+                {
+                    return directAccessExpression;
+                }
+
+                return Expression.Call(contextAccess, accessMethod.MakeGenericMethod(type));
             }
 
             public Type[] ContextTypes { get; }

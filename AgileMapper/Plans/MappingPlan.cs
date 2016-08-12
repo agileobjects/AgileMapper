@@ -32,11 +32,11 @@
                 planData.Distinct().Select(GetDescription));
         }
 
-        private static IEnumerable<MappingPlanData> Expand(MappingPlanData mappingPlanData)
+        private static IEnumerable<MappingPlanData> Expand(MappingPlanData planData)
         {
-            yield return mappingPlanData;
+            yield return planData;
 
-            var mapCalls = MapCallFinder.FindIn(mappingPlanData.Lambda);
+            var mapCalls = MapCallFinder.FindIn(planData.Lambda);
 
             foreach (var mapCall in mapCalls)
             {
@@ -51,7 +51,7 @@
                     mappingLambdaFactory = ExpandElementMapper;
                 }
 
-                var nestedMappingFuncs = Expand(mappingLambdaFactory.Invoke(mapCall, mappingPlanData));
+                var nestedMappingFuncs = Expand(mappingLambdaFactory.Invoke(mapCall, planData));
 
                 foreach (var nestedMappingFunc in nestedMappingFuncs)
                 {
@@ -132,7 +132,7 @@
             return mapper.MappingLambda;
         }
 
-        private static MappingPlanData ExpandElementMapper(MethodCallExpression mapCall, MappingPlanData mappingPlanData)
+        private static MappingPlanData ExpandElementMapper(MethodCallExpression mapCall, MappingPlanData planData)
         {
             var typedExpandMethod = typeof(MappingPlan<TSource, TTarget>)
                 .GetMethods(Constants.NonPublicStatic)
@@ -141,26 +141,26 @@
 
             var childMapperData = typedExpandMethod.Invoke(
                 null,
-                new object[] { mappingPlanData.MapperData });
+                new object[] { planData });
 
             return (MappingPlanData)childMapperData;
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static MappingPlanData ExpandElementMapper<TSourceElement, TTargetElement>(ObjectMapperData data)
+        private static MappingPlanData ExpandElementMapper<TSourceElement, TTargetElement>(MappingPlanData planData)
         {
             var elementInstanceData = new MappingInstanceData<TSourceElement, TTargetElement>(
-                null,
+                planData.MappingContext,
                 default(TSourceElement),
                 default(TTargetElement));
 
-            var elementMapperDataBridge = data.CreateElementMappingDataBridge(elementInstanceData);
+            var elementMapperDataBridge = planData.MapperData.CreateElementMappingDataBridge(elementInstanceData);
             var elementMappingData = elementMapperDataBridge.GetMapperCreationData();
 
             var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementMappingData);
 
             return new MappingPlanData(
-                null,
+                planData.MappingContext,
                 mappingLambda,
                 elementMappingData.MapperData);
         }

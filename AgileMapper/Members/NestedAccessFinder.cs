@@ -58,6 +58,11 @@ namespace AgileObjects.AgileMapper.Members
 
         private bool IsNotRootObject(Expression expression)
         {
+            if (expression == _dataParameter)
+            {
+                return false;
+            }
+
             return (expression.NodeType != ExpressionType.MemberAccess) ||
                    IsNotRootObject((MemberExpression)expression);
         }
