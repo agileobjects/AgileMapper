@@ -17,7 +17,7 @@
                 .GetPlanFor<PublicField<string>>()
                 .ToANew<PublicProperty<string>>();
 
-            plan.ShouldContain("publicProperty_String.Value = omc.Source.Value;");
+            plan.ShouldContain("publicProperty_String.Value = data.Source.Value;");
         }
 
         [Fact]
@@ -27,8 +27,8 @@
                 .GetPlanFor<PersonViewModel>()
                 .ToANew<Person>();
 
-            plan.ShouldContain("person.Name = omc.Source.Name;");
-            plan.ShouldContain("address.Line1 = omc.Source.AddressLine1;");
+            plan.ShouldContain("person.Name = data.Source.Name;");
+            plan.ShouldContain("address.Line1 = data.Source.AddressLine1;");
         }
 
         [Fact]
@@ -38,7 +38,7 @@
                 .GetPlanFor<PublicProperty<int[]>>()
                 .ToANew<PublicField<IEnumerable<int>>>();
 
-            plan.ShouldContain("omc.Target.Concat(int32s)");
+            plan.ShouldContain("data.Target.Concat(int32s)");
         }
 
         [Fact]
@@ -48,7 +48,7 @@
                 .GetPlanFor<PublicProperty<Guid>>()
                 .ToANew<PublicField<string>>();
 
-            plan.ShouldContain("omc.Source.Value.ToString(");
+            plan.ShouldContain("data.Source.Value.ToString(");
         }
 
         [Fact]
@@ -67,7 +67,7 @@
                     .GetPlanFor<Person>()
                     .Over<PersonViewModel>();
 
-                plan.ShouldContain("personViewModel.Name = omc.Source.Title + \" \" + omc.Source.Name");
+                plan.ShouldContain("personViewModel.Name = data.Source.Title + \" \" + data.Source.Name");
             }
         }
 
@@ -78,8 +78,8 @@
                 .GetPlanFor<IEnumerable<Person>>()
                 .OnTo<IEnumerable<PersonViewModel>>();
 
-            plan.ShouldContain("collectionData.Intersection.ForEach(omc.Map)");
-            plan.ShouldContain("omc.Target.Concat(personViewModels)");
+            plan.ShouldContain("collectionData.Intersection.ForEach(data.Map)");
+            plan.ShouldContain("data.Target.Concat(personViewModels)");
         }
 
         [Fact]
@@ -89,8 +89,8 @@
                 .GetPlanFor<IList<PersonViewModel>>()
                 .Over<IEnumerable<Person>>();
 
-            plan.ShouldContain("collectionData.Intersection.ForEach(omc.Map)");
-            plan.ShouldContain("omc.Target.Exclude(collectionData.AbsentTargetItems)");
+            plan.ShouldContain("collectionData.Intersection.ForEach(data.Map)");
+            plan.ShouldContain("data.Target.Exclude(collectionData.AbsentTargetItems)");
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
             plan.ShouldContain("PersonViewModel -> Person");
@@ -151,8 +151,8 @@
                     .GetPlanFor<PublicField<PublicField<string>>>()
                     .ToANew<PublicProperty<string>>();
 
-                plan.ShouldContain("omc.Source.Value.Value");
-                plan.ShouldNotContain("omc.Source.Value.ToString()");
+                plan.ShouldContain("data.Source.Value.Value");
+                plan.ShouldNotContain("data.Source.Value.ToString()");
             }
         }
     }

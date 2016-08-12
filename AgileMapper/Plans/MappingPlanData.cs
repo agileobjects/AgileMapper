@@ -5,11 +5,17 @@
 
     internal class MappingPlanData
     {
-        public MappingPlanData(LambdaExpression lambda, ObjectMapperData mapperData)
+        public MappingPlanData(
+            MappingContext mappingContext,
+            LambdaExpression lambda,
+            ObjectMapperData mapperData)
         {
+            MappingContext = mappingContext;
             Lambda = lambda;
             MapperData = mapperData;
         }
+
+        public MappingContext MappingContext { get; }
 
         public LambdaExpression Lambda { get; }
 
