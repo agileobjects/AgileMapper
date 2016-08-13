@@ -33,16 +33,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   parent)
         {
             var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
-            var mdParameter = Parameters.Create(mdType, "data");
+            var parameter = Parameters.Create(mdType, "data");
 
-            MdParameter = mdParameter;
+            Parameter = parameter;
             SourceMember = sourceMember;
             RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
-            SourceObject = Expression.Property(mdParameter, "Source");
-            TargetObject = Expression.Property(mdParameter, "Target");
-            CreatedObject = Expression.Property(mdParameter, "CreatedObject");
-            EnumerableIndex = Expression.Property(mdParameter, "EnumerableIndex");
-            NestedAccessFinder = new NestedAccessFinder(mdParameter);
+            SourceObject = Expression.Property(parameter, "Source");
+            TargetObject = Expression.Property(parameter, "Target");
+            CreatedObject = Expression.Property(parameter, "CreatedObject");
+            EnumerableIndex = Expression.Property(parameter, "EnumerableIndex");
+            NestedAccessFinder = new NestedAccessFinder(parameter);
 
             _mapObjectMethod = GetMapMethod(mdType, 4);
             _mapEnumerableElementMethod = GetMapMethod(mdType, 3);
@@ -123,7 +123,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperKey MapperKey { get; }
 
-        public override ParameterExpression MdParameter { get; }
+        public override ParameterExpression Parameter { get; }
 
         public override IQualifiedMember SourceMember { get; }
 
@@ -149,7 +149,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex)
         {
             var mapCall = Expression.Call(
-                MdParameter,
+                Parameter,
                 _mapObjectMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
@@ -162,7 +162,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement)
         {
             var mapCall = Expression.Call(
-                MdParameter,
+                Parameter,
                 _mapEnumerableElementMethod.MakeGenericMethod(sourceElement.Type, existingElement.Type),
                 sourceElement,
                 existingElement,

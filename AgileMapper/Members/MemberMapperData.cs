@@ -34,7 +34,7 @@
 
         public new ObjectMapperData Parent { get; }
 
-        public virtual ParameterExpression MdParameter => Parent.MdParameter;
+        public virtual ParameterExpression Parameter => Parent.Parameter;
 
         public virtual IQualifiedMember SourceMember => Parent.SourceMember;
 
