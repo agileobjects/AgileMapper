@@ -3,7 +3,7 @@
     using System;
     using Members;
 
-    public interface IPreInstanceCreationCallbackSpecifier<out TSource, TTarget>
+    public interface IPreInstanceCreationCallbackSpecifier<out TSource, out TTarget>
     {
         void Call(Action<IMappingData<TSource, TTarget>> callback);
 

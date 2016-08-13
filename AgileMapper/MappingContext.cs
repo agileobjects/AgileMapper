@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Members;
     using ObjectPopulation;
 
     internal class MappingContext : IDisposable

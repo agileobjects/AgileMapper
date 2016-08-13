@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using Caching;
-    using Members;
 
     internal class ObjectMapperFactory
     {

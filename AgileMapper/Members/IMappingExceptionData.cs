@@ -13,7 +13,7 @@
         Exception Exception { get; }
     }
 
-    public interface IMappingExceptionData<out TSource, TTarget>
+    public interface IMappingExceptionData<out TSource, out TTarget>
         : IMappingData<TSource, TTarget>
     {
         Exception Exception { get; }
