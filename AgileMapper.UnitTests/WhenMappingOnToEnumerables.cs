@@ -146,6 +146,26 @@
         }
 
         [Fact]
+        public void ShouldHandleANullSourceElementId()
+        {
+            var source = new List<Product>
+            {
+                new Product { ProductId = null, Price = 0.99 }
+            };
+
+            var target = new List<Product>
+            {
+                new Product { ProductId = "Bat n ball", Price = 9.99 }
+            };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.ShouldBeSameAs(target);
+            result.First().Price.ShouldBe(9.99);
+            result.Second().Price.ShouldBe(0.99);
+        }
+
+        [Fact]
         public void ShouldHandleANullTargetComplexTypeElement()
         {
             var source = new List<Address>
