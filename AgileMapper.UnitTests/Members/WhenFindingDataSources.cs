@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var targetMember = TargetMemberFor<PublicProperty<byte>>(x => x.Value);
 
             var mappingContext = new MappingContext(new MappingRuleSetCollection().CreateNew, MapperContext.Default);
-            IObjectMapperCreationData rootCreationContext = mappingContext.CreateRootMapperCreationData(source, targetMember);
+            var rootCreationContext = mappingContext.CreateRootMapperCreationData(source, targetMember);
 
             var childMapperData = new MemberMapperData(targetMember, rootCreationContext.MapperData);
             var childMappingContext = rootCreationContext.GetChildCreationData(childMapperData);

@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   targetMember,
                   parent)
         {
-            var mdType = typeof(MappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
+            var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
             var mdParameter = Parameters.Create(mdType, "data");
 
             MdParameter = mdParameter;
@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public IMappingDataFactoryBridge CreateChildMappingDataBridge<TDeclaredSource, TDeclaredTarget>(
+        public IObjectMapperDataBridge CreateChildMappingDataBridge<TDeclaredSource, TDeclaredTarget>(
             MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             string targetMemberName,
             int dataSourceIndex)
@@ -89,17 +89,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetMember = targetMemberAndDataSourcesTuple.Item1;
             var sourceMember = targetMemberAndDataSourcesTuple.Item2[dataSourceIndex].SourceMember;
 
-            return MappingDataFactoryBridge.Create(
+            return ObjectMapperDataBridge.Create(
                 instanceData,
                 sourceMember,
                 targetMember,
                 this);
         }
 
-        public IMappingDataFactoryBridge CreateElementMappingDataBridge<TSourceElement, TTargetElement>(
+        public IObjectMapperDataBridge CreateElementMappingDataBridge<TSourceElement, TTargetElement>(
             MappingInstanceData<TSourceElement, TTargetElement> instanceData)
         {
-            return MappingDataFactoryBridge.Create(
+            return ObjectMapperDataBridge.Create(
                 instanceData,
                 _sourceElementMember,
                 _targetElementMember,

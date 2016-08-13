@@ -68,7 +68,13 @@
     <Compile Include="DataSources\IConditionalDataSourceFactory.cs" />
     <Compile Include="DataSources\NullDataSource.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
+    <Compile Include="Members\IMapperCreationData.cs" />
     <Compile Include="Members\IMappingData.cs" />
+    <Compile Include="Members\IMemberMapperCreationData.cs" />
+    <Compile Include="ObjectPopulation\IObjectMapperCreationData.cs" />
+    <Compile Include="ObjectPopulation\IObjectMapperDataBridge.cs" />
+    <Compile Include="ObjectPopulation\ObjectMappingData.cs" />
+    <Compile Include="Members\MappingInstanceData.cs" />
     <Compile Include="Members\SourceMemberMatcher.cs" />
     <Compile Include="Extensions\CollectionData.cs" />
     <Compile Include="Extensions\ExpressionExtensions.Replace.cs" />
@@ -90,7 +96,7 @@
     <Compile Include="Members\IMappingExceptionData.cs" />
     <Compile Include="Members\MemberIdentifierSet.cs" />
     <Compile Include="Members\MemberMapperDataExtensions.cs" />
-    <Compile Include="Members\MappingExceptionData.cs" />
+    <Compile Include="ObjectPopulation\ObjectMappingExceptionData.cs" />
     <Compile Include="Members\TypeKey.cs" />
     <Compile Include="ObjectPopulation\DeclaredAndRuntimeTypesKey.cs" />
     <Compile Include="ObjectPopulation\EnumerableTypeHelper.cs" />

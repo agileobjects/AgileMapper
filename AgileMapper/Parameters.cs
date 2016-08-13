@@ -139,7 +139,7 @@ namespace AgileObjects.AgileMapper
         {
             private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource", Constants.PublicInstance);
             private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget", Constants.PublicInstance);
-            private static readonly MethodInfo _typedMethod = typeof(IMappingData).GetMethod("Typed", Constants.PublicInstance);
+            private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As", Constants.PublicInstance);
 
             public MappingContextInfo(MemberMapperData data, Type[] contextTypes)
                 : this(data, data.MdParameter, contextTypes)
@@ -165,7 +165,7 @@ namespace AgileObjects.AgileMapper
 
                 MappingDataAccess = Expression.Call(
                     contextAccess,
-                    _typedMethod.MakeGenericMethod(contextTypes[0], contextTypes[1]));
+                    _asMethod.MakeGenericMethod(contextTypes[0], contextTypes[1]));
             }
 
             private static Expression GetAccess(

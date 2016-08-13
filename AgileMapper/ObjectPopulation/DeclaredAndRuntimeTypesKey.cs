@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public static DeclaredAndRuntimeTypesKey ForMappingDataConstructor<TSource, TTarget>(
-            MappingDataFactoryBridge<TSource, TTarget> bridge)
+            ObjectMapperDataBridge<TSource, TTarget> bridge)
         {
             return new DeclaredAndRuntimeTypesKey(
                 KeyType.MappingDataConstructor,

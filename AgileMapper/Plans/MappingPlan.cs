@@ -97,7 +97,7 @@
                 targetMemberName,
                 dataSourceIndex);
 
-            var childMapperCreationData = mapperDataBridge.GetMapperCreationData();
+            var childMapperCreationData = mapperDataBridge.GetCreationData();
 
             var targetType = childMapperCreationData.MapperData.TargetType;
 
@@ -155,7 +155,7 @@
                 default(TTargetElement));
 
             var elementMapperDataBridge = planData.MapperData.CreateElementMappingDataBridge(elementInstanceData);
-            var elementMappingData = elementMapperDataBridge.GetMapperCreationData();
+            var elementMappingData = elementMapperDataBridge.GetCreationData();
 
             var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementMappingData);
 

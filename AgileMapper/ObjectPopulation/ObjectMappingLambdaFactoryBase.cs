@@ -90,7 +90,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (configuredCallback != null)
             {
-                var exceptionContextCreateMethod = MappingExceptionContextData
+                var exceptionContextCreateMethod = ObjectMappingExceptionData
                     .CreateMethod
                     .MakeGenericMethod(data.SourceType, data.TargetType);
 

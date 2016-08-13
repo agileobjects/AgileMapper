@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TTarget Execute(IObjectMapperCreationData data)
         {
-            var typedData = (MappingData<TSource, TTarget>)data;
+            var typedData = (ObjectMappingData<TSource, TTarget>)data;
 
             return _mapperFunc.Invoke(typedData);
         }

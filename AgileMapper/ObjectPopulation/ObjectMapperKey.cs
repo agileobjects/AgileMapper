@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #region Factory Method
 
         public static ObjectMapperKey For<TSource, TTarget>(
-            MappingDataFactoryBridge<TSource, TTarget> bridge)
+            ObjectMapperDataBridge<TSource, TTarget> bridge)
         {
             return new ObjectMapperKey(
                 bridge.MappingContext.RuleSet,

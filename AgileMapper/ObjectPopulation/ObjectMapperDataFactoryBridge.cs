@@ -4,14 +4,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal interface IMappingDataFactoryBridge
+    internal static class ObjectMapperDataBridge
     {
-        IObjectMapperCreationData GetMapperCreationData();
-    }
-
-    internal static class MappingDataFactoryBridge
-    {
-        public static MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> Create<TDeclaredSource, TDeclaredTarget>(
+        public static ObjectMapperDataBridge<TDeclaredSource, TDeclaredTarget> Create<TDeclaredSource, TDeclaredTarget>(
             MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
@@ -20,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var runtimeSourceMember = sourceMember.WithType(instanceData.Source.GetRuntimeSourceType());
             var runtimeTargetMember = GetTargetMember(instanceData, runtimeSourceMember, targetMember);
 
-            return new MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget>(
+            return new ObjectMapperDataBridge<TDeclaredSource, TDeclaredTarget>(
                 instanceData,
                 objectMapperData,
                 typeof(TDeclaredSource),
@@ -44,11 +39,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
     }
 
-    internal class MappingDataFactoryBridge<TDeclaredSource, TDeclaredTarget> : IMappingDataFactoryBridge
+    internal class ObjectMapperDataBridge<TDeclaredSource, TDeclaredTarget> : IObjectMapperDataBridge
     {
         private readonly ObjectMapperData _mapperData;
 
-        public MappingDataFactoryBridge(
+        public ObjectMapperDataBridge(
             MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             ObjectMapperData mapperData,
             Type declaredSourceType,
@@ -91,6 +86,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapperData);
         }
 
-        public IObjectMapperCreationData GetMapperCreationData() => MapperCreationDataFactory.Create(this);
+        public IObjectMapperCreationData GetCreationData() => MapperCreationDataFactory.Create(this);
     }
 }
