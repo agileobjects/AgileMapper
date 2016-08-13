@@ -53,9 +53,13 @@ namespace AgileObjects.AgileMapper.Members
 
         #region Factory Methods
 
-        public static Member RootSource(Type sourceType) => Root("Source", sourceType);
+        public static Member RootSource<TSource>() => SourceMemberCache<TSource>.MemberInstance;
+
+        public static Member RootSource(Type type) => RootSource("Source", type);
 
         public static Member RootSource(string signature, Type type) => Root(signature, type);
+
+        public static Member RootTarget<TTarget>() => TargetMemberCache<TTarget>.MemberInstance;
 
         public static Member RootTarget(Type type) => Root("Target", type);
 
@@ -117,6 +121,16 @@ namespace AgileObjects.AgileMapper.Members
             return (runtimeType == Type)
                 ? this
                 : new Member(MemberType, Name, DeclaringType, runtimeType);
+        }
+
+        private static class SourceMemberCache<T>
+        {
+            public static readonly Member MemberInstance = RootSource(typeof(T));
+        }
+
+        private static class TargetMemberCache<T>
+        {
+            public static readonly Member MemberInstance = RootTarget(typeof(T));
         }
     }
 }

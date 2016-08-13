@@ -172,7 +172,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingDataBridge = bridgeFactory.Invoke(instanceData);
             var mappingData = mappingDataBridge.GetCreationData();
 
-            return MappingContext.MapChild<TChildSource, TChildTarget>(mappingData);
+            return MappingContext.Map<TChildSource, TChildTarget>(mappingData);
         }
     }
 }

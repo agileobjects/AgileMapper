@@ -22,10 +22,10 @@
         }
 
         internal IQualifiedMember SourceMemberFor<T>(T sourceObject, Expression<Func<T, object>> childMemberExpression)
-            => SourceMemberFor(Member.RootSource(typeof(T)), childMemberExpression);
+            => SourceMemberFor(Member.RootSource<T>(), childMemberExpression);
 
         internal IQualifiedMember SourceMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
-            => SourceMemberFor(Member.RootSource(typeof(T)), childMemberExpression);
+            => SourceMemberFor(Member.RootSource<T>(), childMemberExpression);
 
         private static IQualifiedMember SourceMemberFor(Member rootSourceMember, LambdaExpression childMemberExpression)
         {

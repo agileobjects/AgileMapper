@@ -62,10 +62,7 @@ namespace AgileObjects.AgileMapper
             return false;
         }
 
-        internal TTarget MapChild<TSource, TTarget>(IObjectMapperCreationData childData)
-            => Map<TSource, TTarget>(childData);
-
-        private TTarget Map<TSource, TTarget>(IObjectMapperCreationData data)
+        internal TTarget Map<TSource, TTarget>(IObjectMapperCreationData data)
         {
             IObjectMapper<TTarget> mapper;
 

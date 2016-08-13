@@ -25,8 +25,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 target);
 
             var namingSettings = mappingContext.MapperContext.NamingSettings;
-            var sourceMember = QualifiedMember.From(Member.RootSource(typeof(TDeclaredSource)), namingSettings);
-            var targetMember = QualifiedMember.From(Member.RootTarget(typeof(TDeclaredTarget)), namingSettings);
+            var sourceMember = QualifiedMember.From(Member.RootSource<TDeclaredSource>(), namingSettings);
+            var targetMember = QualifiedMember.From(Member.RootTarget<TDeclaredTarget>(), namingSettings);
 
             var bridge = ObjectMapperDataBridge.Create(
                 rootInstanceData,
