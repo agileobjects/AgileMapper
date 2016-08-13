@@ -69,7 +69,6 @@
     <Compile Include="DataSources\MapCall.cs" />
     <Compile Include="DataSources\NullDataSource.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
-    <Compile Include="Members\SourceAndTargetMembersKey.cs" />
     <Compile Include="Members\IMapperCreationData.cs" />
     <Compile Include="Members\IMappingData.cs" />
     <Compile Include="Members\IMemberMapperCreationData.cs" />
