@@ -74,7 +74,7 @@
 
             if (mmd.TargetMember.IsComplex)
             {
-                yield return new ComplexTypeMappingDataSource(bestMatchingSourceMember, dataSourceIndex, mmd);
+                yield return new ComplexTypeMappingDataSource(bestMatchingSourceMember, dataSourceIndex, data);
                 yield break;
             }
 

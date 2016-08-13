@@ -15,7 +15,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapEnumerableElementMethod;
         private readonly IQualifiedMember _sourceElementMember;
         private readonly QualifiedMember _targetElementMember;
-        private readonly Dictionary<string, Tuple<QualifiedMember, DataSourceSet>> _dataSourcesByTargetMemberName;
+        private readonly Dictionary<string, Tuple<QualifiedMember, List<IQualifiedMember>>> _sourceMembersByTargetMemberName;
+
+        private ObjectMapperData(
+            MappingContext mappingContext,
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember,
+            ObjectMapperData parent)
+            : this(
+                  mappingContext,
+                  sourceMember,
+                  targetMember,
+                  true,
+                  ObjectMapperKey.For(mappingContext, sourceMember, targetMember),
+                  parent)
+        {
+        }
 
         public ObjectMapperData(
             MappingContext mappingContext,
@@ -33,21 +48,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   parent)
         {
             var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
-            var mdParameter = Parameters.Create(mdType, "data");
+            var parameter = Parameters.Create(mdType, "data");
 
-            MdParameter = mdParameter;
+            Parameter = parameter;
             SourceMember = sourceMember;
             RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
-            SourceObject = Expression.Property(mdParameter, "Source");
-            TargetObject = Expression.Property(mdParameter, "Target");
-            CreatedObject = Expression.Property(mdParameter, "CreatedObject");
-            EnumerableIndex = Expression.Property(mdParameter, "EnumerableIndex");
-            NestedAccessFinder = new NestedAccessFinder(mdParameter);
+            SourceObject = Expression.Property(parameter, "Source");
+            TargetObject = Expression.Property(parameter, "Target");
+            CreatedObject = Expression.Property(parameter, "CreatedObject");
+            EnumerableIndex = Expression.Property(parameter, "EnumerableIndex");
+            NestedAccessFinder = new NestedAccessFinder(parameter);
 
             _mapObjectMethod = GetMapMethod(mdType, 4);
             _mapEnumerableElementMethod = GetMapMethod(mdType, 3);
 
-            _dataSourcesByTargetMemberName = new Dictionary<string, Tuple<QualifiedMember, DataSourceSet>>();
+            _sourceMembersByTargetMemberName = new Dictionary<string, Tuple<QualifiedMember, List<IQualifiedMember>>>();
 
             var instanceVariableName = targetMember.Type.GetVariableName(f => f.InCamelCase);
 
@@ -91,17 +106,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return childMapperData;
         }
 
-        private IObjectMapperDataBridge CreateChildMappingDataBridge<TDeclaredSource, TDeclaredTarget>(
+        public IObjectMapperDataBridge CreateChildMappingDataBridge<TDeclaredSource, TDeclaredTarget>(
             MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             string targetMemberName,
             int dataSourceIndex)
         {
-            var targetMemberAndDataSourcesTuple = _dataSourcesByTargetMemberName[targetMemberName];
+            var targetMemberAndDataSourcesTuple = _sourceMembersByTargetMemberName[targetMemberName];
             var targetMember = targetMemberAndDataSourcesTuple.Item1;
-            var sourceMember = targetMemberAndDataSourcesTuple.Item2[dataSourceIndex].SourceMember;
+            var sourceMember = targetMemberAndDataSourcesTuple.Item2[dataSourceIndex];
 
             return ObjectMapperDataBridge.Create(
                 instanceData,
+                sourceMember,
+                targetMember,
+                this);
+        }
+
+        public ObjectMapperData CreateChildMapperData(
+            MappingContext mappingContext,
+            string targetMemberName,
+            int dataSourceIndex)
+        {
+            var targetMemberAndDataSourcesTuple = _sourceMembersByTargetMemberName[targetMemberName];
+            var sourceMember = targetMemberAndDataSourcesTuple.Item2[dataSourceIndex];
+            var targetMember = targetMemberAndDataSourcesTuple.Item1;
+
+            return new ObjectMapperData(
+                mappingContext,
                 sourceMember,
                 targetMember,
                 this);
@@ -123,7 +154,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperKey MapperKey { get; }
 
-        public override ParameterExpression MdParameter { get; }
+        public override ParameterExpression Parameter { get; }
 
         public override IQualifiedMember SourceMember { get; }
 
@@ -149,7 +180,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex)
         {
             var mapCall = Expression.Call(
-                MdParameter,
+                Parameter,
                 _mapObjectMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
@@ -162,7 +193,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression existingElement)
         {
             var mapCall = Expression.Call(
-                MdParameter,
+                Parameter,
                 _mapEnumerableElementMethod.MakeGenericMethod(sourceElement.Type, existingElement.Type),
                 sourceElement,
                 existingElement,
@@ -171,10 +202,39 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapCall;
         }
 
-        public void RegisterTargetMemberDataSources(QualifiedMember targetMember, DataSourceSet dataSources)
+        public void Register(
+            QualifiedMember targetMember,
+            IQualifiedMember sourceMember,
+            int dataSourceIndex)
+        {
+            Tuple<QualifiedMember, List<IQualifiedMember>> targetMemberSourceMembers;
+
+            var sourceMembers = _sourceMembersByTargetMemberName.TryGetValue(targetMember.Name, out targetMemberSourceMembers)
+                ? targetMemberSourceMembers.Item2
+                : Register(targetMember, new List<IQualifiedMember>());
+
+            var dataSourceNumber = dataSourceIndex + 1;
+
+            for (var i = 1; i <= dataSourceNumber; i++)
+            {
+                if (sourceMembers.Count < i)
+                {
+                    sourceMembers.Add(i == dataSourceNumber ? sourceMember : null);
+                }
+            }
+        }
+
+        public void Register(QualifiedMember targetMember, IEnumerable<IDataSource> dataSources)
+        {
+            Register(targetMember, dataSources.Select(ds => ds.SourceMember).ToList());
+        }
+
+        private List<IQualifiedMember> Register(QualifiedMember targetMember, List<IQualifiedMember> sourceMembers)
         {
             // TODO: Apply runtime-typed source members to RuleSetAndMembersKey
-            _dataSourcesByTargetMemberName.Add(targetMember.Name, Tuple.Create(targetMember, dataSources));
+            _sourceMembersByTargetMemberName[targetMember.Name] = Tuple.Create(targetMember, sourceMembers);
+
+            return sourceMembers;
         }
     }
 }

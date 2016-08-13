@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                     GetNullMappingBlock(returnNull),
-                    mapperData.MdParameter);
+                    mapperData.Parameter);
             }
 
             var basicMappingData = BasicMapperData.WithNoTargetMember(mapperData);
@@ -39,14 +39,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 new[] { mapperData.InstanceVariable },
                 preMappingCallback
                     .Concat(shortCircuitReturns)
-                    .Concat(objectPopulation)
+                    .Concat(objectPopulation.Actions)
                     .Concat(postMappingCallback)
                     .Concat(returnLabel));
 
             var wrappedMappingBlock = WrapInTryCatch(mappingBlock, mapperData);
 
+            var finalMappingBlock = EmbedInlineMappersIfAppropriate(wrappedMappingBlock, objectPopulation);
+
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, data.MapperData.MdParameter);
+                .Lambda<MapperFunc<TSource, TTarget>>(finalMappingBlock, data.MapperData.Parameter);
 
             return mapperLambda;
         }
@@ -75,11 +77,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data);
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data);
+        protected abstract ObjectPopulation GetObjectPopulation(IObjectMapperCreationData data);
 
         protected abstract Expression GetReturnValue(ObjectMapperData data);
-
-        #region Try / Catch Support
 
         private static Expression WrapInTryCatch(Expression mappingBlock, MemberMapperData data)
         {
@@ -90,13 +90,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (configuredCallback != null)
             {
+                var callbackActionType = configuredCallback.Type.GetGenericArguments()[0];
+
+                Type[] contextTypes;
+                Expression contextAccess;
+
+                if (callbackActionType.IsGenericType)
+                {
+                    contextTypes = callbackActionType.GetGenericArguments();
+                    contextAccess = Parameters.GetAppropriateTypedMappingContextAccess(contextTypes, data);
+                }
+                else
+                {
+                    contextTypes = new[] { data.SourceType, data.TargetType };
+                    contextAccess = data.Parameter;
+                }
+
                 var exceptionContextCreateMethod = ObjectMappingExceptionData
                     .CreateMethod
-                    .MakeGenericMethod(data.SourceType, data.TargetType);
+                    .MakeGenericMethod(contextTypes);
 
                 var exceptionContextCreateCall = Expression.Call(
                     exceptionContextCreateMethod,
-                    data.MdParameter,
+                    contextAccess,
                     exceptionVariable);
 
                 var callbackInvocation = Expression.Invoke(configuredCallback, exceptionContextCreateCall);
@@ -107,7 +123,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingExceptionCreation = Expression.New(
                     MappingException.ConstructorInfo,
-                    data.MdParameter,
+                    data.Parameter,
                     exceptionVariable);
 
                 catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);
@@ -118,6 +134,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.TryCatch(mappingBlock, catchBlock);
         }
 
-        #endregion
+        private static Expression EmbedInlineMappersIfAppropriate(Expression mappingBlock, ObjectPopulation objectPopulation)
+        {
+            if (objectPopulation.InlineObjectMappers.None())
+            {
+                return mappingBlock;
+            }
+
+            var inlineMapperVariables = new List<ParameterExpression>();
+            var finalMappingActions = new List<Expression>();
+
+            foreach (var inlineObjectMapper in objectPopulation.InlineObjectMappers)
+            {
+                var mapperVariableAssignment = Expression.Assign(
+                    inlineObjectMapper.MapperVariable,
+                    inlineObjectMapper.MapperLambda);
+
+                inlineMapperVariables.Add(inlineObjectMapper.MapperVariable);
+                finalMappingActions.Add(mapperVariableAssignment);
+            }
+
+            finalMappingActions.Add(mappingBlock);
+
+            var finalMappingBlock = Expression.Block(inlineMapperVariables, finalMappingActions);
+
+            return finalMappingBlock;
+        }
     }
 }

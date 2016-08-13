@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
@@ -23,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (!mapperData.TargetMember.IsSimple)
             {
-                MapperData.Parent.RegisterTargetMemberDataSources(mapperData.TargetMember, dataSources);
+                MapperData.Parent.Register(mapperData.TargetMember, dataSources);
             }
         }
 
@@ -47,6 +48,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MemberMapperData MapperData { get; }
 
         public bool IsSuccessful => _dataSources.HasValue;
+
+        public IEnumerable<IObjectMapper> InlineObjectMappers => _dataSources.InlineObjectMappers;
 
         public Expression GetPopulation()
         {

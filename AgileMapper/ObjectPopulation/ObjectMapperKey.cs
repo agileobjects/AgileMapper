@@ -1,5 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using Members;
+
     internal class ObjectMapperKey
     {
         private readonly MappingRuleSet _ruleSet;
@@ -21,10 +23,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static ObjectMapperKey For<TSource, TTarget>(
             ObjectMapperDataBridge<TSource, TTarget> bridge)
         {
+            return For(
+                bridge.MappingContext,
+                bridge.SourceMember,
+                bridge.TargetMember);
+        }
+
+        public static ObjectMapperKey For(
+            MappingContext mappingContext,
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember)
+        {
             return new ObjectMapperKey(
-                bridge.MappingContext.RuleSet,
-                bridge.SourceMember.Signature,
-                bridge.TargetMember.Signature);
+                mappingContext.RuleSet,
+                sourceMember.Signature,
+                targetMember.Signature);
         }
 
         #endregion

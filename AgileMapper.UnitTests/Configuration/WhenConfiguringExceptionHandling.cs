@@ -176,7 +176,6 @@
                 thrownException.Message.ShouldBe("WALLOP");
             }
         }
-        // ReSharper restore AccessToDisposedClosure
 
         private static void ShouldNotCallCallback(Action action, ref Exception thrownException)
         {

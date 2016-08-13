@@ -13,10 +13,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
             => Enumerable.Empty<Expression>();
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data)
-        {
-            yield return data.RuleSet.EnumerablePopulationStrategy.GetPopulation(data.MapperData);
-        }
+        protected override ObjectPopulation GetObjectPopulation(IObjectMapperCreationData data)
+            => new ObjectPopulation(data.RuleSet.EnumerablePopulationStrategy.GetPopulation(data.MapperData));
 
         protected override Expression GetReturnValue(ObjectMapperData omc)
         {

@@ -1,18 +1,22 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using ObjectPopulation;
 
-    internal class DataSourceSet
+    internal class DataSourceSet : IEnumerable<IDataSource>
     {
-        private readonly IDataSource[] _dataSources;
+        private readonly IEnumerable<IDataSource> _dataSources;
         private readonly List<ParameterExpression> _variables;
+        private readonly List<IObjectMapper> _inlineObjectMappers;
 
         public DataSourceSet(params IDataSource[] dataSources)
         {
             _dataSources = dataSources;
             _variables = new List<ParameterExpression>();
+            _inlineObjectMappers = new List<IObjectMapper>();
             None = dataSources.Length == 0;
 
             if (None)
@@ -26,6 +30,7 @@ namespace AgileObjects.AgileMapper.DataSources
             {
                 HasValue = HasValue || dataSource.IsValid;
                 _variables.AddRange(dataSource.Variables);
+                _inlineObjectMappers.AddRange(dataSource.InlineObjectMappers);
             }
         }
 
@@ -56,6 +61,10 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public IEnumerable<ParameterExpression> Variables => _variables;
 
-        public IDataSource this[int index] => _dataSources[index];
+        public IEnumerable<IObjectMapper> InlineObjectMappers => _inlineObjectMappers;
+
+        public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

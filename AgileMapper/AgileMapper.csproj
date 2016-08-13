@@ -66,6 +66,7 @@
     <Compile Include="DataSources\DictionaryDataSource.cs" />
     <Compile Include="DataSources\DictionaryDataSourceFactory.cs" />
     <Compile Include="DataSources\IConditionalDataSourceFactory.cs" />
+    <Compile Include="DataSources\MapCall.cs" />
     <Compile Include="DataSources\NullDataSource.cs" />
     <Compile Include="DataSources\NullDataSourceFactory.cs" />
     <Compile Include="Members\IMapperCreationData.cs" />
@@ -166,6 +167,7 @@
     <Compile Include="ObjectPopulation\ObjectMapperFactory.cs" />
     <Compile Include="ObjectPopulation\ObjectMapperKey.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingLambdaFactoryBase.cs" />
+    <Compile Include="ObjectPopulation\ObjectPopulation.cs" />
     <Compile Include="ObjectPopulation\OverwriteEnumerablePopulationStrategy.cs" />
     <Compile Include="ObjectPopulation\ShortCircuitConditionBuilder.cs" />
     <Compile Include="Parameters.cs" />

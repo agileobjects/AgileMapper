@@ -8,10 +8,6 @@ namespace AgileObjects.AgileMapper.Members
             => data.Parent.GetMapCall(value, data.TargetMember, dataSourceIndex);
 
         public static Expression[] GetNestedAccessesIn(this MemberMapperData data, Expression value)
-        {
-            return data.NestedAccessFinder.FindIn(
-                value,
-                data.RuleSet.ComplexTypeMappingShortCircuitStrategy.SourceCanBeNull);
-        }
+            => data.NestedAccessFinder.FindIn(value, data.RuleSet.SourceCanBeNull);
     }
 }

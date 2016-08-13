@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     ? EnumerableMappingLambdaFactory.Instance.Create<TSource, TTarget>(data)
                     : ComplexTypeMappingLambdaFactory.Instance.Create<TSource, TTarget>(data);
 
-                return new ObjectMapper<TSource, TTarget>(lambda);
+                return new ObjectMapper<TSource, TTarget>(data.RuleSet, lambda);
             });
 
             return mapper;

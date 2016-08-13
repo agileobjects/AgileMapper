@@ -24,7 +24,7 @@
 
             var planData = Expand(new MappingPlanData(
                 mappingContext,
-                rootMapper.MappingLambda,
+                rootMapper.MapperLambda,
                 rootMappingData.MapperData));
 
             _plan = string.Join(
@@ -127,7 +127,7 @@
                 .ObjectMapperFactory
                 .CreateFor<TChildSource, TChildTarget>(data);
 
-            return mapper.MappingLambda;
+            return mapper.MapperLambda;
         }
 
         private static MappingPlanData ExpandElementMapper(MethodCallExpression mapCall, MappingPlanData planData)

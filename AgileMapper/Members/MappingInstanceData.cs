@@ -2,6 +2,16 @@
 {
     internal class MappingInstanceData<TSource, TTarget> : IMappingData<TSource, TTarget>
     {
+        protected MappingInstanceData(IMappingData<TSource, TTarget> data)
+            : this(
+                  null, // <- no need for a MappingContext as we're only going to pass this to a callback
+                  data.Source,
+                  data.Target,
+                  data.EnumerableIndex,
+                  data.Parent)
+        {
+        }
+
         public MappingInstanceData(
             MappingContext mappingContext,
             TSource source,

@@ -164,5 +164,40 @@
 
             return false;
         }
+
+        public static Expression WithNullChecks(this Expression expression, Expression rootParameter)
+        {
+            var originalExpression = expression;
+
+            // Skip the outermost check:
+            expression = expression.GetParentOrNull();
+
+            if (expression == rootParameter)
+            {
+                return originalExpression;
+            }
+
+            var defaultValue = Expression.Default(originalExpression.Type);
+            var valueOrDefaultExpression = originalExpression;
+
+            while (expression != null)
+            {
+                var expressionIsNotDefault = expression.GetIsNotDefaultComparison();
+
+                valueOrDefaultExpression = Expression.Condition(
+                    expressionIsNotDefault,
+                    valueOrDefaultExpression,
+                    defaultValue);
+
+                expression = expression.GetParentOrNull();
+
+                if (expression == rootParameter)
+                {
+                    break;
+                }
+            }
+
+            return valueOrDefaultExpression;
+        }
     }
 }
