@@ -48,6 +48,43 @@
         }
 
         [Fact]
+        public void ShouldCreateAMemberGrandChildDerivedTargetFromADerivedSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .Map<CustomerViewModel>()
+                    .To<Customer>()
+                    .And
+                    .Map<MysteryCustomerViewModel>()
+                    .To<MysteryCustomer>();
+
+                var customerSource = new PublicProperty<PersonViewModel>
+                {
+                    Value = new CustomerViewModel { Discount = 0.5 }
+                };
+
+                var customerResult = mapper.Map(customerSource).ToANew<PublicField<Person>>();
+
+                customerResult.Value.ShouldBeOfType<Customer>();
+                ((Customer)customerResult.Value).Discount.ShouldBe(0.5);
+
+                var mysteryCustomerSource = new PublicProperty<PersonViewModel>
+                {
+                    Value = new MysteryCustomerViewModel { Report = "Great!" }
+                };
+
+                var mysteryCustomerResult = mapper.Map(mysteryCustomerSource).ToANew<PublicField<Customer>>();
+
+                mysteryCustomerResult.Value.ShouldBeOfType<MysteryCustomer>();
+                ((MysteryCustomer)mysteryCustomerResult.Value).Report.ShouldBe("Great!");
+            }
+        }
+
+        [Fact]
         public void ShouldCreateARootEnumerableDerivedTargetElementFromADerivedSourceElement()
         {
             using (var mapper = Mapper.CreateNew())

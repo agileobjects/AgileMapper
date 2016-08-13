@@ -13,7 +13,7 @@
 
         void PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback);
 
-        DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget> Map<TDerivedSource>()
+        DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget> Map<TDerivedSource>()
             where TDerivedSource : TSource;
     }
 }

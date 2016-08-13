@@ -132,8 +132,8 @@
 
         #endregion
 
-        public DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
-            => new DerivedPairTargetTypeSpecifier<TDerivedSource, TTarget>(_configInfo);
+        public DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
+            => new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(_configInfo);
 
         #endregion
     }

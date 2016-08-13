@@ -24,15 +24,13 @@
                 // ReSharper disable once AssignNullToNotNullAttribute
                 if (_typePairsByTargetType.TryGetValue(parentType, out typePairs))
                 {
-                    // TODO: Derived grandchild pair tests
                     typePairs.Add(typePair);
                 }
                 else
                 {
-                    _typePairsByTargetType[typePair.ParentTargetType] = new List<DerivedTypePair> { typePair };
+                    _typePairsByTargetType[parentType] = new List<DerivedTypePair> { typePair };
                 }
 
-                // ReSharper disable once PossibleNullReferenceException
                 parentType = parentType.BaseType;
             }
         }
