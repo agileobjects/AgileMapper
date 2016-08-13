@@ -122,32 +122,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         MappingInstanceData<TChildSource, TChildTarget> IMemberMapperCreationData
             .CreateChildMappingInstanceData<TChildSource, TChildTarget>(IQualifiedMember sourceMember)
         {
-            ParameterExpression sourceParameter;
-            var sourceMemberAccess = GetSourceMemberAccess(sourceMember, out sourceParameter);
+            var key = new SourceAndTargetMembersKey(sourceMember, _memberMapperData.TargetMember);
 
-            var targetParameter = Parameters.Create<TTarget>("target");
-            var targetMemberAccess = _memberMapperData.GetTargetMemberAccess(targetParameter);
+            var instanceDataCreationFunc = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
+            {
+                ParameterExpression sourceParameter;
+                var sourceMemberAccess = GetSourceMemberAccess(sourceMember, out sourceParameter);
 
-            var mappingDataParameter = Parameters.Create<IMappingData>("mappingData");
+                var targetParameter = Parameters.Create<TTarget>("target");
+                var targetMemberAccess = _memberMapperData.GetTargetMemberAccess(targetParameter);
 
-            var instanceDataCreation = Expression.New(
-                typeof(MappingInstanceData<TChildSource, TChildTarget>).GetConstructors().First(),
-                Parameters.MappingContext,
-                sourceMemberAccess,
-                targetMemberAccess,
-                Parameters.EnumerableIndexNullable,
-                mappingDataParameter);
+                var mappingDataParameter = Parameters.Create<IMappingData>("mappingData");
 
-            var instanceDataCreationLambda = Expression
-                .Lambda<Func<MappingContext, TSource, TTarget, int?, IMappingData, MappingInstanceData<TChildSource, TChildTarget>>>(
-                    instanceDataCreation,
+                var instanceDataCreation = Expression.New(
+                    typeof(MappingInstanceData<TChildSource, TChildTarget>).GetConstructors().First(),
                     Parameters.MappingContext,
-                    sourceParameter,
-                    targetParameter,
+                    sourceMemberAccess,
+                    targetMemberAccess,
                     Parameters.EnumerableIndexNullable,
                     mappingDataParameter);
 
-            var instanceDataCreationFunc = instanceDataCreationLambda.Compile();
+                var instanceDataCreationLambda = Expression
+                    .Lambda<Func<MappingContext, TSource, TTarget, int?, IMappingData, MappingInstanceData<TChildSource, TChildTarget>>>(
+                        instanceDataCreation,
+                        Parameters.MappingContext,
+                        sourceParameter,
+                        targetParameter,
+                        Parameters.EnumerableIndexNullable,
+                        mappingDataParameter);
+
+                return instanceDataCreationLambda.Compile();
+            });
 
             return instanceDataCreationFunc.Invoke(
                 MappingContext,

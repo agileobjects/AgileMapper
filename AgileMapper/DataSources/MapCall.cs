@@ -1,8 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using Members;
@@ -51,7 +49,7 @@
             int dataSourceIndex,
             IMemberMapperCreationData data)
         {
-            var key = new CreateChildMapperCallKey(sourceMember, data.TargetMember);
+            var key = new SourceAndTargetMembersKey(sourceMember, data.TargetMember);
 
             data.MapperData.Parent.Register(data.TargetMember, sourceMember, dataSourceIndex);
 
@@ -120,18 +118,6 @@
                 .CreateFor<TSource, TTarget>(childMapperCreationData);
 
             return childMapper;
-        }
-
-        private class CreateChildMapperCallKey
-        {
-            private readonly int _hashCode;
-
-            public CreateChildMapperCallKey(IQualifiedMember sourceMember, IQualifiedMember targetMember)
-            {
-                _hashCode = (sourceMember.Signature + ">" + targetMember.Signature).GetHashCode();
-            }
-
-            public override int GetHashCode() => _hashCode;
         }
 
         #endregion
