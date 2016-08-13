@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                     GetNullMappingBlock(returnNull),
-                    mapperData.Parameter);
+                    mapperData.MdParameter);
             }
 
             var basicMappingData = BasicMapperData.WithNoTargetMember(mapperData);
@@ -39,16 +39,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 new[] { mapperData.InstanceVariable },
                 preMappingCallback
                     .Concat(shortCircuitReturns)
-                    .Concat(objectPopulation.Actions)
+                    .Concat(objectPopulation)
                     .Concat(postMappingCallback)
                     .Concat(returnLabel));
 
             var wrappedMappingBlock = WrapInTryCatch(mappingBlock, mapperData);
 
-            var finalMappingBlock = EmbedInlineMappersIfAppropriate(wrappedMappingBlock, objectPopulation);
-
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(finalMappingBlock, data.MapperData.Parameter);
+                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, data.MapperData.MdParameter);
 
             return mapperLambda;
         }
@@ -77,9 +75,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data);
 
-        protected abstract ObjectPopulation GetObjectPopulation(IObjectMapperCreationData data);
+        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data);
 
         protected abstract Expression GetReturnValue(ObjectMapperData data);
+
+        #region Try / Catch Support
 
         private static Expression WrapInTryCatch(Expression mappingBlock, MemberMapperData data)
         {
@@ -90,29 +90,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (configuredCallback != null)
             {
-                var callbackActionType = configuredCallback.Type.GetGenericArguments()[0];
-
-                Type[] contextTypes;
-                Expression contextAccess;
-
-                if (callbackActionType.IsGenericType)
-                {
-                    contextTypes = callbackActionType.GetGenericArguments();
-                    contextAccess = Parameters.GetAppropriateTypedMappingContextAccess(contextTypes, data);
-                }
-                else
-                {
-                    contextTypes = new[] { data.SourceType, data.TargetType };
-                    contextAccess = data.Parameter;
-                }
-
                 var exceptionContextCreateMethod = ObjectMappingExceptionData
                     .CreateMethod
-                    .MakeGenericMethod(contextTypes);
+                    .MakeGenericMethod(data.SourceType, data.TargetType);
 
                 var exceptionContextCreateCall = Expression.Call(
                     exceptionContextCreateMethod,
-                    contextAccess,
+                    data.MdParameter,
                     exceptionVariable);
 
                 var callbackInvocation = Expression.Invoke(configuredCallback, exceptionContextCreateCall);
@@ -123,7 +107,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingExceptionCreation = Expression.New(
                     MappingException.ConstructorInfo,
-                    data.Parameter,
+                    data.MdParameter,
                     exceptionVariable);
 
                 catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);
@@ -134,31 +118,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.TryCatch(mappingBlock, catchBlock);
         }
 
-        private static Expression EmbedInlineMappersIfAppropriate(Expression mappingBlock, ObjectPopulation objectPopulation)
-        {
-            if (objectPopulation.InlineObjectMappers.None())
-            {
-                return mappingBlock;
-            }
-
-            var inlineMapperVariables = new List<ParameterExpression>();
-            var finalMappingActions = new List<Expression>();
-
-            foreach (var inlineObjectMapper in objectPopulation.InlineObjectMappers)
-            {
-                var mapperVariableAssignment = Expression.Assign(
-                    inlineObjectMapper.MapperVariable,
-                    inlineObjectMapper.MapperLambda);
-
-                inlineMapperVariables.Add(inlineObjectMapper.MapperVariable);
-                finalMappingActions.Add(mapperVariableAssignment);
-            }
-
-            finalMappingActions.Add(mappingBlock);
-
-            var finalMappingBlock = Expression.Block(inlineMapperVariables, finalMappingActions);
-
-            return finalMappingBlock;
-        }
+        #endregion
     }
 }

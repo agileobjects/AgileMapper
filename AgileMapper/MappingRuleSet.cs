@@ -21,8 +21,6 @@ namespace AgileObjects.AgileMapper
 
         public string Name { get; }
 
-        public bool SourceCanBeNull => ComplexTypeMappingShortCircuitStrategy.SourceCanBeNull;
-
         public IComplexTypeMappingShortCircuitStrategy ComplexTypeMappingShortCircuitStrategy { get; }
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }

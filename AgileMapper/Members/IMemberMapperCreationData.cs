@@ -7,7 +7,5 @@
         MemberMapperData MapperData { get; }
 
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);
-
-        MappingInstanceData<TSource, TTarget> CreateChildMappingInstanceData<TSource, TTarget>(IQualifiedMember sourceMember);
     }
 }

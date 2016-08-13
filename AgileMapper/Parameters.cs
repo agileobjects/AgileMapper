@@ -13,9 +13,7 @@ namespace AgileObjects.AgileMapper
     {
         public static readonly ParameterExpression MappingContext = Create<MappingContext>();
         public static readonly ParameterExpression ObjectMapperData = Create<ObjectMapperData>();
-        public static readonly ParameterExpression ObjectMapperCreationData = Create<IObjectMapperCreationData>();
-        public static readonly ParameterExpression MemberMapperCreationData = Create<IMemberMapperCreationData>();
-        public static readonly ParameterExpression DataSourceIndex = Create<int>("dataSourceIndex");
+        public static readonly ParameterExpression ObjectMappingCreationData = Create<IObjectMapperCreationData>();
 
         public static readonly ParameterExpression EnumerableIndex = Create<int>("i");
         public static readonly ParameterExpression EnumerableIndexNullable = Create<int?>("i");
@@ -36,9 +34,9 @@ namespace AgileObjects.AgileMapper
             var contextParameter = lambda.Parameters[0];
             var contextType = contextParameter.Type;
 
-            if (contextType.IsAssignableFrom(mapperData.Parameter.Type))
+            if (contextType.IsAssignableFrom(mapperData.MdParameter.Type))
             {
-                return lambda.ReplaceParameterWith(mapperData.Parameter);
+                return lambda.ReplaceParameterWith(mapperData.MdParameter);
             }
 
             var contextTypes = contextType.GetGenericArguments();
@@ -118,19 +116,7 @@ namespace AgileObjects.AgileMapper
             }
 
             var originalContext = mapperData;
-            var dataAccess = GetAppropriateMappingContextAccess(contextTypes, mapperData);
-
-            return new MappingContextInfo(originalContext, dataAccess, contextTypes);
-        }
-
-        private static Expression GetAppropriateMappingContextAccess(Type[] contextTypes, MemberMapperData mapperData)
-        {
-            if (TypesMatch(contextTypes, mapperData))
-            {
-                return mapperData.Parameter;
-            }
-
-            Expression dataAccess = mapperData.Parameter;
+            Expression dataAccess = mapperData.MdParameter;
 
             if (mapperData.TargetMember.IsSimple)
             {
@@ -143,15 +129,7 @@ namespace AgileObjects.AgileMapper
                 mapperData = mapperData.Parent;
             }
 
-            return dataAccess;
-        }
-
-        public static Expression GetAppropriateTypedMappingContextAccess(Type[] contextTypes, MemberMapperData mapperData)
-        {
-            var access = GetAppropriateMappingContextAccess(contextTypes, mapperData);
-            var typedAccess = MappingContextInfo.GetTypedContextAccess(mapperData, access, contextTypes);
-
-            return typedAccess;
+            return new MappingContextInfo(originalContext, dataAccess, contextTypes);
         }
 
         private static bool TypesMatch(IList<Type> contextTypes, BasicMapperData data)
@@ -164,7 +142,7 @@ namespace AgileObjects.AgileMapper
             private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As", Constants.PublicInstance);
 
             public MappingContextInfo(MemberMapperData data, Type[] contextTypes)
-                : this(data, data.Parameter, contextTypes)
+                : this(data, data.MdParameter, contextTypes)
             {
             }
 
@@ -178,7 +156,16 @@ namespace AgileObjects.AgileMapper
                 SourceAccess = GetAccess(data, contextAccess, _getSourceMethod, contextTypes[0], data.SourceObject);
                 TargetAccess = GetAccess(data, contextAccess, _getTargetMethod, contextTypes[1], data.TargetObject);
                 Index = data.EnumerableIndex;
-                MappingDataAccess = GetTypedContextAccess(data, contextAccess, contextTypes);
+
+                if (contextAccess == data.MdParameter)
+                {
+                    MappingDataAccess = data.MdParameter;
+                    return;
+                }
+
+                MappingDataAccess = Expression.Call(
+                    contextAccess,
+                    _asMethod.MakeGenericMethod(contextTypes[0], contextTypes[1]));
             }
 
             private static Expression GetAccess(
@@ -188,24 +175,12 @@ namespace AgileObjects.AgileMapper
                 Type type,
                 Expression directAccessExpression)
             {
-                if (contextAccess == data.Parameter)
+                if (contextAccess == data.MdParameter)
                 {
                     return directAccessExpression;
                 }
 
                 return Expression.Call(contextAccess, accessMethod.MakeGenericMethod(type));
-            }
-
-            public static Expression GetTypedContextAccess(MemberMapperData data, Expression contextAccess, Type[] contextTypes)
-            {
-                if (contextAccess == data.Parameter)
-                {
-                    return data.Parameter;
-                }
-
-                return Expression.Call(
-                    contextAccess,
-                    _asMethod.MakeGenericMethod(contextTypes[0], contextTypes[1]));
             }
 
             public Type[] ContextTypes { get; }

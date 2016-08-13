@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Members;
-    using ObjectPopulation;
 
     internal interface IDataSource
     {
@@ -16,8 +15,6 @@
         Expression Condition { get; }
 
         IEnumerable<ParameterExpression> Variables { get; }
-
-        IEnumerable<IObjectMapper> InlineObjectMappers { get; }
 
         Expression Value { get; }
 

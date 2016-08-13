@@ -93,7 +93,7 @@
         public IEnumerable<Address> Addresses { get; set; }
     }
 
-    public sealed class Address
+    public class Address
     {
         public string Line1 { get; set; }
 

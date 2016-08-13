@@ -43,7 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, MemberMapperData data)
         {
             var tryGetCall = Expression.Call(
-                Expression.Property(data.Parameter, "MappingContext"),
+                Expression.Property(data.MdParameter, "MappingContext"),
                 MappingContext.TryGetMethod.MakeGenericMethod(data.SourceType, data.InstanceVariable.Type),
                 data.SourceObject,
                 data.InstanceVariable);
@@ -55,36 +55,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ifTryGetReturn;
         }
 
-        protected override ObjectPopulation GetObjectPopulation(IObjectMapperCreationData data)
+        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data)
         {
-            var populationActions = new List<Expression>();
-            var inlineObjectMappers = new List<IObjectMapper>();
-
             var mapperData = data.MapperData;
 
-            populationActions.Add(GetCreationCallback(CallbackPosition.Before, mapperData));
+            yield return GetCreationCallback(CallbackPosition.Before, mapperData);
 
             var instanceVariableValue = GetObjectResolution(data);
             var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, instanceVariableValue);
-            populationActions.Add(instanceVariableAssignment);
+            yield return instanceVariableAssignment;
 
-            populationActions.Add(GetCreationCallback(CallbackPosition.After, mapperData));
+            yield return GetCreationCallback(CallbackPosition.After, mapperData);
 
-            populationActions.Add(GetObjectRegistrationCall(mapperData));
+            yield return GetObjectRegistrationCall(mapperData);
 
-            foreach (var memberPopulation in MemberPopulationFactory.Create(data))
+            var memberPopulations = MemberPopulationFactory
+                .Create(data)
+                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, mapperData) : p.GetPopulation());
+
+            foreach (var population in memberPopulations)
             {
-                if (memberPopulation.IsSuccessful)
-                {
-                    populationActions.Add(GetPopulationWithCallbacks(memberPopulation, mapperData));
-                    inlineObjectMappers.AddRange(memberPopulation.InlineObjectMappers);
-                    continue;
-                }
-
-                populationActions.Add(memberPopulation.GetPopulation());
+                yield return population;
             }
-
-            return new ObjectPopulation(populationActions, inlineObjectMappers);
         }
 
         private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData data)
@@ -184,7 +176,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetObjectRegistrationCall(MemberMapperData data)
         {
             return Expression.Call(
-                Expression.Property(data.Parameter, "MappingContext"),
+                Expression.Property(data.MdParameter, "MappingContext"),
                 MappingContext.RegisterMethod.MakeGenericMethod(data.SourceType, data.TargetType),
                 data.SourceObject,
                 data.InstanceVariable);

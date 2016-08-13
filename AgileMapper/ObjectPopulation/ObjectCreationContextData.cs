@@ -23,7 +23,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly TObject _createdObject;
 
         public ObjectCreationContextData(IMappingData<TSource, TTarget> data, TObject createdObject)
-            : base(data)
+            : base(
+                  null, // <- no need for a MappingContext as we're only passing this to a creation callback
+                  data.Source,
+                  data.Target,
+                  data.EnumerableIndex,
+                  data.Parent)
         {
             _createdObject = createdObject;
         }

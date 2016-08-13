@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using Members;
@@ -14,7 +13,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly MemberMapperData _memberMapperData;
 
-        // Called by MapperCreationDataFactory:
         public ObjectMappingData(
             MappingContext mappingContext,
             TSource source,
@@ -103,8 +101,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var getRuntimeTypeFunc = GlobalContext.Instance.Cache.GetOrAdd(accessKey, k =>
             {
-                ParameterExpression sourceParameter;
-                var memberAccess = GetSourceMemberAccess(sourceMember, out sourceParameter);
+                var sourceParameter = Parameters.Create<TSource>("source");
+                var relativeMember = sourceMember.RelativeTo(_memberMapperData.SourceMember);
+                var memberAccess = relativeMember.GetQualifiedAccess(_memberMapperData.SourceObject);
+                memberAccess = memberAccess.Replace(_memberMapperData.SourceObject, sourceParameter);
 
                 var getRuntimeTypeCall = Expression.Call(
                     ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sourceMember.Type),
@@ -117,52 +117,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             });
 
             return getRuntimeTypeFunc.Invoke(Source);
-        }
-
-        MappingInstanceData<TChildSource, TChildTarget> IMemberMapperCreationData
-            .CreateChildMappingInstanceData<TChildSource, TChildTarget>(IQualifiedMember sourceMember)
-        {
-            ParameterExpression sourceParameter;
-            var sourceMemberAccess = GetSourceMemberAccess(sourceMember, out sourceParameter);
-
-            var targetParameter = Parameters.Create<TTarget>("target");
-            var targetMemberAccess = _memberMapperData.GetTargetMemberAccess(targetParameter);
-
-            var mappingDataParameter = Parameters.Create<IMappingData>("mappingData");
-
-            var instanceDataCreation = Expression.New(
-                typeof(MappingInstanceData<TChildSource, TChildTarget>).GetConstructors().First(),
-                Parameters.MappingContext,
-                sourceMemberAccess,
-                targetMemberAccess,
-                Parameters.EnumerableIndexNullable,
-                mappingDataParameter);
-
-            var instanceDataCreationLambda = Expression
-                .Lambda<Func<MappingContext, TSource, TTarget, int?, IMappingData, MappingInstanceData<TChildSource, TChildTarget>>>(
-                    instanceDataCreation,
-                    Parameters.MappingContext,
-                    sourceParameter,
-                    targetParameter,
-                    Parameters.EnumerableIndexNullable,
-                    mappingDataParameter);
-
-            var instanceDataCreationFunc = instanceDataCreationLambda.Compile();
-
-            return instanceDataCreationFunc.Invoke(
-                MappingContext,
-                Source,
-                Target,
-                GetEnumerableIndex(),
-                this);
-        }
-
-        private Expression GetSourceMemberAccess(IQualifiedMember sourceMember, out ParameterExpression sourceParameter)
-        {
-            sourceParameter = Parameters.Create<TSource>("source");
-            var memberAccess = _memberMapperData.GetSourceMemberAccess(sourceMember, sourceParameter);
-
-            return memberAccess;
         }
 
         #endregion
@@ -218,32 +172,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperCreationData = creationDataFactory.Invoke(instanceData);
 
             return MappingContext.Map<TChildSource, TChildTarget>(mapperCreationData);
-        }
-
-        public ObjectMappingData<TChildSource, TChildTarget> CreateChildMappingData<TChildSource, TChildTarget>(
-            TChildSource childSource,
-            TChildTarget childTarget,
-            string targetMemberName,
-            int dataSourceIndex)
-        {
-            var childMapperData = MapperData.CreateChildMapperData(
-                MappingContext,
-                targetMemberName,
-                dataSourceIndex);
-
-            var childInstanceData = new MappingInstanceData<TChildSource, TChildTarget>(
-                MappingContext,
-                childSource,
-                childTarget,
-                GetEnumerableIndex(),
-                this);
-
-            var childMappingData = new ObjectMappingData<TChildSource, TChildTarget>(
-                childInstanceData,
-                childMapperData,
-                this);
-
-            return childMappingData;
         }
     }
 }

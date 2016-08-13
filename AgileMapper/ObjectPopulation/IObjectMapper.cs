@@ -2,15 +2,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
 
-    internal interface IObjectMapper
+    internal interface IObjectMapper<out TTarget>
     {
-        ParameterExpression MapperVariable { get; }
+        LambdaExpression MappingLambda { get; }
 
-        LambdaExpression MapperLambda { get; }
-    }
-
-    internal interface IObjectMapper<out TTarget> : IObjectMapper
-    {
         TTarget Execute(IObjectMapperCreationData data);
     }
 }

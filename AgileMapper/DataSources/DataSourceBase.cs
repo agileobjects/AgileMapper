@@ -5,21 +5,9 @@
     using System.Linq.Expressions;
     using Extensions;
     using Members;
-    using ObjectPopulation;
 
     internal abstract class DataSourceBase : IDataSource
     {
-        private readonly ICollection<IObjectMapper> _inlineObjectMappers;
-
-        protected DataSourceBase(IQualifiedMember sourceMember, MapCall mapCall)
-            : this(sourceMember, mapCall.Call)
-        {
-            if (mapCall.InlineMapper != null)
-            {
-                _inlineObjectMappers.Add(mapCall.InlineMapper);
-            }
-        }
-
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
             : this(sourceMember, Enumerable.Empty<ParameterExpression>(), value)
         {
@@ -30,8 +18,8 @@
             IEnumerable<ParameterExpression> variables,
             Expression value,
             Expression condition = null)
-            : this(sourceMember)
         {
+            SourceMember = sourceMember;
             Condition = condition;
             Variables = variables;
             Value = value;
@@ -41,8 +29,9 @@
             IQualifiedMember sourceMember,
             Expression value,
             MemberMapperData data)
-            : this(sourceMember)
         {
+            SourceMember = sourceMember;
+
             Expression[] nestedAccesses;
             ICollection<ParameterExpression> variables;
 
@@ -55,12 +44,6 @@
             Condition = nestedAccesses.GetIsNotDefaultComparisonsOrNull();
             Variables = variables;
             Value = value;
-        }
-
-        private DataSourceBase(IQualifiedMember sourceMember)
-        {
-            SourceMember = sourceMember;
-            _inlineObjectMappers = new List<IObjectMapper>();
         }
 
         #region Setup
@@ -112,8 +95,6 @@
         public virtual Expression Condition { get; }
 
         public IEnumerable<ParameterExpression> Variables { get; }
-
-        public IEnumerable<IObjectMapper> InlineObjectMappers => _inlineObjectMappers;
 
         public Expression Value { get; }
 
