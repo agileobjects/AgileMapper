@@ -11,7 +11,7 @@
                   parent.MapperContext,
                   parent.RuleSet,
                   parent.SourceType,
-                  targetMember.Type,
+                  parent.TargetType,
                   targetMember,
                   parent)
         {

@@ -42,20 +42,20 @@
 
         private static string GetMemberPath(Type rootType, IQualifiedMember member, string rootMemberName)
         {
-            var rootTargetType = rootType.GetFriendlyName();
+            var rootTypeName = rootType.GetFriendlyName();
             var memberPath = member.GetPath();
 
             if (memberPath == rootMemberName)
             {
-                return rootTargetType;
+                return rootTypeName;
             }
 
             if (memberPath.StartsWith(rootMemberName, StringComparison.Ordinal))
             {
-                return rootTargetType + memberPath.Substring(rootMemberName.Length);
+                return rootTypeName + memberPath.Substring(rootMemberName.Length);
             }
 
-            var path = memberPath.Replace("omc." + rootMemberName + ".", rootTargetType + ".");
+            var path = memberPath.Replace("data." + rootMemberName + ".", rootTypeName + ".");
 
             return path;
         }
