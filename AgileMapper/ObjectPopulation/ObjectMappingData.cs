@@ -138,7 +138,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceValue,
                 targetValue,
                 GetEnumerableIndex(),
-                instanceData => MapperData.CreateChildMappingDataBridge(
+                instanceData => MapperData.CreateChildMapperCreationData(
                     instanceData,
                     targetMemberName,
                     dataSourceIndex));
@@ -153,14 +153,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceElement,
                 targetElement,
                 enumerableIndex,
-                instanceData => MapperData.CreateElementMappingDataBridge(instanceData));
+                instanceData => MapperData.CreateElementMapperCreationData(instanceData));
         }
 
         private TChildTarget MapChild<TChildSource, TChildTarget>(
             TChildSource sourceValue,
             TChildTarget targetValue,
             int? enumerableIndex,
-            Func<MappingInstanceData<TChildSource, TChildTarget>, IObjectMapperDataBridge> bridgeFactory)
+            Func<MappingInstanceData<TChildSource, TChildTarget>, IObjectMapperCreationData> creationDataFactory)
         {
             var instanceData = new MappingInstanceData<TChildSource, TChildTarget>(
                 MappingContext,
@@ -169,10 +169,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableIndex,
                 this);
 
-            var mappingDataBridge = bridgeFactory.Invoke(instanceData);
-            var mappingData = mappingDataBridge.GetCreationData();
+            var mapperCreationData = creationDataFactory.Invoke(instanceData);
 
-            return MappingContext.Map<TChildSource, TChildTarget>(mappingData);
+            return MappingContext.Map<TChildSource, TChildTarget>(mapperCreationData);
         }
     }
 }

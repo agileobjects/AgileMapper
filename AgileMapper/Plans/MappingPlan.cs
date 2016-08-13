@@ -92,12 +92,10 @@
                 default(TChildSource),
                 default(TChildTarget));
 
-            var mapperDataBridge = planData.MapperData.CreateChildMappingDataBridge(
+            var childMapperCreationData = planData.MapperData.CreateChildMapperCreationData(
                 instanceData,
                 targetMemberName,
                 dataSourceIndex);
-
-            var childMapperCreationData = mapperDataBridge.GetCreationData();
 
             var targetType = childMapperCreationData.MapperData.TargetType;
 
@@ -154,15 +152,14 @@
                 default(TSourceElement),
                 default(TTargetElement));
 
-            var elementMapperDataBridge = planData.MapperData.CreateElementMappingDataBridge(elementInstanceData);
-            var elementMappingData = elementMapperDataBridge.GetCreationData();
+            var elementMapperCreationData = planData.MapperData.CreateElementMapperCreationData(elementInstanceData);
 
-            var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementMappingData);
+            var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementMapperCreationData);
 
             return new MappingPlanData(
                 planData.MappingContext,
                 mappingLambda,
-                elementMappingData.MapperData);
+                elementMapperCreationData.MapperData);
         }
 
         private static string GetDescription(MappingPlanData mappingPlanData)

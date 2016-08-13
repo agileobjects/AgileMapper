@@ -80,7 +80,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public IObjectMapperDataBridge CreateChildMappingDataBridge<TDeclaredSource, TDeclaredTarget>(
+        public IObjectMapperCreationData CreateChildMapperCreationData<TDeclaredSource, TDeclaredTarget>(
+            MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
+            string targetMemberName,
+            int dataSourceIndex)
+        {
+            var childBridge = CreateChildMappingDataBridge(instanceData, targetMemberName, dataSourceIndex);
+            var childMapperData = childBridge.GetCreationData();
+
+            return childMapperData;
+        }
+
+        private IObjectMapperDataBridge CreateChildMappingDataBridge<TDeclaredSource, TDeclaredTarget>(
             MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             string targetMemberName,
             int dataSourceIndex)
@@ -96,14 +107,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 this);
         }
 
-        public IObjectMapperDataBridge CreateElementMappingDataBridge<TSourceElement, TTargetElement>(
+        public IObjectMapperCreationData CreateElementMapperCreationData<TSourceElement, TTargetElement>(
             MappingInstanceData<TSourceElement, TTargetElement> instanceData)
         {
-            return ObjectMapperDataBridge.Create(
+            var elementBridge = ObjectMapperDataBridge.Create(
                 instanceData,
                 _sourceElementMember,
                 _targetElementMember,
                 this);
+
+            var elementMapperData = elementBridge.GetCreationData();
+
+            return elementMapperData;
         }
 
         public ObjectMapperKey MapperKey { get; }
