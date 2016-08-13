@@ -12,16 +12,43 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             ObjectMapperData objectMapperData = null)
         {
-            var runtimeSourceMember = sourceMember.WithType(instanceData.Source.GetRuntimeSourceType());
-            var runtimeTargetMember = GetTargetMember(instanceData, runtimeSourceMember, targetMember);
+            if (CheckSourceRuntimeType(sourceMember))
+            {
+                sourceMember = sourceMember.WithType(instanceData.Source.GetRuntimeSourceType());
+            }
+
+            if (CheckTargetRuntimeType(targetMember))
+            {
+                targetMember = GetTargetMember(instanceData, sourceMember, targetMember);
+            }
 
             return new ObjectMapperDataBridge<TDeclaredSource, TDeclaredTarget>(
                 instanceData,
                 objectMapperData,
                 typeof(TDeclaredSource),
                 typeof(TDeclaredTarget),
-                runtimeSourceMember,
-                runtimeTargetMember);
+                sourceMember,
+                targetMember);
+        }
+
+        private static bool CheckSourceRuntimeType(IQualifiedMember sourceMember)
+        {
+            if (sourceMember.IsEnumerable)
+            {
+                return !sourceMember.Type.IsGenericType;
+            }
+
+            return !sourceMember.Type.IsSealed;
+        }
+
+        private static bool CheckTargetRuntimeType(IQualifiedMember targetMember)
+        {
+            if (targetMember.IsEnumerable)
+            {
+                return targetMember.Type.IsInterface;
+            }
+
+            return !targetMember.Type.IsSealed;
         }
 
         private static QualifiedMember GetTargetMember<TSource, TTarget>(

@@ -133,17 +133,6 @@
                     : typeof(object);
         }
 
-        public static bool CouldHaveADifferentRuntimeType(this Type type)
-        {
-            return !type.IsValueType &&
-                !type.IsArray &&
-                !type.IsSealed &&
-                (type != typeof(string));
-        }
-
-        public static Type GetRuntimeTargetType(this Type declaredType, Type sourceType)
-            => declaredType.IsAssignableFrom(sourceType) ? sourceType : declaredType;
-
         public static bool IsEnumerable(this Type type)
         {
             return type.IsArray ||
