@@ -39,16 +39,6 @@
             return newArray;
         }
 
-        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> items, T newItem)
-        {
-            yield return newItem;
-
-            foreach (var item in items)
-            {
-                yield return item;
-            }
-        }
-
         public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
             => (excludedItems != null) ? items.StreamExclude(excludedItems) : items;
 
