@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using AgileMapper.Extensions;
     using Shouldly;
     using TestClasses;
@@ -71,6 +72,32 @@
             result.ShouldNotBeSameAs(source);
             result.Items.ShouldBe(item => item.ProductId, "Grass", "Flowers");
             result.Items.ShouldAllBe(item => item.Order == result);
+        }
+
+        [Fact]
+        public void ShouldMapToANewManyToManyRelationship()
+        {
+            var jack = new FacebookUser { Name = "Jack" };
+            var rose = new FacebookUser { Name = "Rose" };
+            var brock = new FacebookUser { Name = "Brock" };
+
+            jack.Friends = new List<FacebookUser> { rose, brock };
+            rose.Friends = new List<FacebookUser> { jack, brock };
+            brock.Friends = new List<FacebookUser> { jack, rose };
+
+            var clonedJack = Mapper.Clone(jack);
+
+            clonedJack.ShouldNotBeSameAs(jack);
+            clonedJack.Name.ShouldBe("Jack");
+            clonedJack.Friends.Count.ShouldBe(2);
+
+            var clonedRose = clonedJack.Friends.First(f => f.Name == "Rose");
+            clonedRose.ShouldNotBeSameAs(rose);
+            clonedRose.Friends.Count.ShouldBe(2);
+
+            var clonedBrock = clonedJack.Friends.First(f => f.Name == "Brock");
+            clonedBrock.ShouldNotBeSameAs(brock);
+            clonedBrock.Friends.Count.ShouldBe(2);
         }
     }
 }
