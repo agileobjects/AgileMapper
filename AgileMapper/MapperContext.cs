@@ -17,7 +17,7 @@
             Cache = new CacheSet();
             DataSources = new DataSourceFinder();
             NamingSettings = new NamingSettings();
-            ObjectMapperFactory = new ObjectMapperFactory();
+            ObjectMapperFactory = new ObjectMapperFactory(this);
             ObjectFlattener = new ObjectFlattener();
             UserConfigurations = new UserConfigurationSet();
             ValueConverters = new ConverterSet();

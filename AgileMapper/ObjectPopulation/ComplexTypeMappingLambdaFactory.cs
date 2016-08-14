@@ -5,13 +5,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Caching;
     using DataSources;
     using Extensions;
     using Members;
 
     internal class ComplexTypeMappingLambdaFactory : ObjectMappingLambdaFactoryBase
     {
-        public static readonly ObjectMappingLambdaFactoryBase Instance = new ComplexTypeMappingLambdaFactory();
+        private readonly ICache<string, Expression> _constructorsCache;
+
+        public ComplexTypeMappingLambdaFactory(MapperContext mapperContext)
+        {
+            _constructorsCache = mapperContext.Cache.Create<string, Expression>();
+        }
 
         protected override bool IsNotConstructable(IObjectMapperCreationData data)
             => GetNewObjectCreation(data) == null;
@@ -82,7 +88,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData data)
             => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, data), data);
 
-        private static Expression GetObjectResolution(IObjectMapperCreationData data)
+        private Expression GetObjectResolution(IObjectMapperCreationData data)
         {
             var mapperData = data.MapperData;
 
@@ -93,7 +99,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return existingOrCreatedObject;
         }
 
-        private static Expression GetNewObjectCreation(IObjectMapperCreationData data)
+        private Expression GetNewObjectCreation(IObjectMapperCreationData data)
         {
             var objectCreationKey = string.Format(
                 CultureInfo.InvariantCulture,
@@ -102,7 +108,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 data.TargetMember.Signature,
                 data.RuleSet.Name);
 
-            return data.MapperData.MapperContext.Cache.GetOrAdd(objectCreationKey, k =>
+            return _constructorsCache.GetOrAdd(objectCreationKey, k =>
             {
                 var mapperData = data.MapperData;
 
@@ -237,6 +243,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             public Expression Expression { get; }
 
             public Expression Condition { get; }
+        }
+
+        public void Reset()
+        {
+            _constructorsCache.Empty();
         }
     }
 }

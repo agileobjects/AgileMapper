@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Linq.Expressions;
+    using Caching;
     using Extensions;
     using Members;
 
@@ -11,6 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IMemberMapperCreationData,
         IObjectMapperCreationData
     {
+        private readonly ICache<string, Func<TSource, Type>> _runtimeTypeGettersCache;
         private readonly MemberMapperData _memberMapperData;
 
         public ObjectMappingData(
@@ -46,6 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 instanceData.EnumerableIndex,
                 parent)
         {
+            _runtimeTypeGettersCache = GlobalContext.Instance.Cache.Create<string, Func<TSource, Type>>();
             _memberMapperData = mapperData;
         }
 
@@ -99,7 +102,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var accessKey = sourceMember.Signature + ": GetRuntimeSourceType";
 
-            var getRuntimeTypeFunc = GlobalContext.Instance.Cache.GetOrAdd(accessKey, k =>
+            var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(accessKey, k =>
             {
                 var sourceParameter = Parameters.Create<TSource>("source");
                 var relativeMember = sourceMember.RelativeTo(_memberMapperData.SourceMember);

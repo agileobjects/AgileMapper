@@ -6,8 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class EnumerableMappingLambdaFactory : ObjectMappingLambdaFactoryBase
     {
-        public static ObjectMappingLambdaFactoryBase Instance = new EnumerableMappingLambdaFactory();
-
         protected override bool IsNotConstructable(IObjectMapperCreationData data) => false;
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)

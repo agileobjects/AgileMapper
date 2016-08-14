@@ -8,19 +8,16 @@ namespace AgileObjects.AgileMapper
     {
         public static readonly GlobalContext Instance = new GlobalContext();
 
-        private readonly Lazy<CacheSet> _cacheSetLoader;
         private readonly Lazy<MemberFinder> _memberFinderLoader;
 
         private GlobalContext()
         {
-            _cacheSetLoader = new Lazy<CacheSet>(() => new CacheSet(), isThreadSafe: true);
+            Cache = new CacheSet();
             _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(), isThreadSafe: true);
         }
 
-        public CacheSet Cache => _cacheSetLoader.Value;
+        public CacheSet Cache { get; }
 
         public MemberFinder MemberFinder => _memberFinderLoader.Value;
-
-        public ICache<TKey, TValue> CreateCache<TKey, TValue>() => new DictionaryCache<TKey, TValue>();
     }
 }

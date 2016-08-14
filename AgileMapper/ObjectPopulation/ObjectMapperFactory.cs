@@ -1,33 +1,35 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using Caching;
-
     internal class ObjectMapperFactory
     {
-        private readonly ICache<ObjectMapperKey, object> _cache;
+        private readonly EnumerableMappingLambdaFactory _enumerableMappingLambdaFactory;
+        private readonly ComplexTypeMappingLambdaFactory _complexTypeMappingLambdaFactory;
 
-        public ObjectMapperFactory()
+        public ObjectMapperFactory(MapperContext mapperContext)
         {
-            _cache = GlobalContext.Instance.CreateCache<ObjectMapperKey, object>();
+            _enumerableMappingLambdaFactory = new EnumerableMappingLambdaFactory();
+            _complexTypeMappingLambdaFactory = new ComplexTypeMappingLambdaFactory(mapperContext);
         }
 
         public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMapperCreationData data)
         {
-            var mapper = (IObjectMapper<TTarget>)_cache.GetOrAdd(data.MapperData.MapperKey, k =>
+            var objectMapper = data.MapperData.MapperContext.Cache.GetOrAdd(data.MapperData.MapperKey, k =>
             {
                 var lambda = data.TargetMember.IsEnumerable
-                    ? EnumerableMappingLambdaFactory.Instance.Create<TSource, TTarget>(data)
-                    : ComplexTypeMappingLambdaFactory.Instance.Create<TSource, TTarget>(data);
+                    ? _enumerableMappingLambdaFactory.Create<TSource, TTarget>(data)
+                    : _complexTypeMappingLambdaFactory.Create<TSource, TTarget>(data);
 
-                return new ObjectMapper<TSource, TTarget>(lambda);
+                IObjectMapper<TTarget> mapper = new ObjectMapper<TSource, TTarget>(lambda);
+
+                return mapper;
             });
 
-            return mapper;
+            return objectMapper;
         }
 
         public void Reset()
         {
-            _cache.Empty();
+            _complexTypeMappingLambdaFactory.Reset();
         }
     }
 }

@@ -14,8 +14,8 @@
 
         public MemberFinder()
         {
-            _idMemberCache = GlobalContext.Instance.CreateCache<TypeKey, Member>();
-            _membersCache = GlobalContext.Instance.CreateCache<TypeKey, IEnumerable<Member>>();
+            _idMemberCache = GlobalContext.Instance.Cache.Create<TypeKey, Member>();
+            _membersCache = GlobalContext.Instance.Cache.Create<TypeKey, IEnumerable<Member>>();
         }
 
         public Member GetIdentifierOrNull(Type type) => GetIdentifierOrNull(TypeKey.ForTypeId(type));

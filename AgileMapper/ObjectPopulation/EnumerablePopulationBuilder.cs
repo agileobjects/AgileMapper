@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Caching;
     using Extensions;
     using Members;
 
@@ -33,6 +34,8 @@
         #endregion
 
         private readonly ObjectMapperData _omd;
+        private readonly ICache<TypeKey, Expression> _typeIdsCache;
+        private readonly ICache<TypeKey, ParameterExpression> _parametersCache;
         private readonly EnumerableTypeHelper _typeHelper;
         private readonly ParameterExpression _sourceElementParameter;
         private readonly Type _sourceElementType;
@@ -47,6 +50,8 @@
         public EnumerablePopulationBuilder(ObjectMapperData omd)
         {
             _omd = omd;
+            _typeIdsCache = omd.MapperContext.Cache.Create<TypeKey, Expression>();
+            _parametersCache = GlobalContext.Instance.Cache.Create<TypeKey, ParameterExpression>();
             _typeHelper = new EnumerableTypeHelper(omd.TargetMember.Type, omd.TargetMember.ElementType);
 
             _sourceElementType = omd.SourceType.GetEnumerableElementType();
@@ -80,14 +85,14 @@
 
         #region Setup
 
-        private static ParameterExpression GetParameter(Type type)
-            => GlobalContext.Instance.Cache.GetOrAdd(TypeKey.ForParameter(type), k => Parameters.Create(type));
+        private ParameterExpression GetParameter(Type type)
+            => _parametersCache.GetOrAdd(TypeKey.ForParameter(type), k => Parameters.Create(type));
 
-        private static Expression GetIdentifierOrNull(Type type, Expression parameter, ObjectMapperData omd)
+        private Expression GetIdentifierOrNull(Type type, Expression parameter, MemberMapperData data)
         {
-            return omd.MapperContext.Cache.GetOrAdd(TypeKey.ForTypeId(type), key =>
+            return _typeIdsCache.GetOrAdd(TypeKey.ForTypeId(type), key =>
             {
-                var configuredIdentifier = omd.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
+                var configuredIdentifier = data.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
 
                 if (configuredIdentifier != null)
                 {

@@ -15,6 +15,8 @@
             _items = new Dictionary<TKey, TValue>();
         }
 
+        public IEnumerable<TValue> Values => _items.Values;
+
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
         {
             TValue value;
