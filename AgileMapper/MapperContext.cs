@@ -17,6 +17,7 @@
             Cache = new CacheSet();
             DataSources = new DataSourceFinder();
             NamingSettings = new NamingSettings();
+            RootMemberFactory = new RootQualifiedMemberFactory(this);
             ObjectMapperFactory = new ObjectMapperFactory(this);
             ObjectFlattener = new ObjectFlattener();
             UserConfigurations = new UserConfigurationSet();
@@ -29,6 +30,8 @@
         public DataSourceFinder DataSources { get; }
 
         public NamingSettings NamingSettings { get; }
+
+        public RootQualifiedMemberFactory RootMemberFactory { get; }
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
