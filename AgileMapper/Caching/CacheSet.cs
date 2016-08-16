@@ -8,22 +8,22 @@
 
         public CacheSet()
         {
-            _cachesByType = CreateCache<Type, ICache>();
+            _cachesByType = CreateNew<Type, ICache>();
         }
 
         public TValue GetOrAdd<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
-            => Create<TKey, TValue>().GetOrAdd(key, valueFactory);
+            => CreateScoped<TKey, TValue>().GetOrAdd(key, valueFactory);
 
-        public ICache<TKey, TValue> Create<TKey, TValue>()
+        public ICache<TKey, TValue> CreateScoped<TKey, TValue>()
         {
             var cache = _cachesByType.GetOrAdd(
                 typeof(ICache<TKey, TValue>),
-                t => CreateCache<TKey, TValue>());
+                t => CreateNew<TKey, TValue>());
 
             return (ICache<TKey, TValue>)cache;
         }
 
-        private static ICache<TKey, TValue> CreateCache<TKey, TValue>() => new DictionaryCache<TKey, TValue>();
+        public ICache<TKey, TValue> CreateNew<TKey, TValue>() => new DictionaryCache<TKey, TValue>();
 
         public void Empty()
         {

@@ -11,12 +11,13 @@
     internal class MapperContext
     {
         public static readonly MapperContext Default = new MapperContext();
+        internal static readonly MapperContext WithDefaultNamingSettings = new MapperContext(NamingSettings.Default);
 
-        public MapperContext()
+        public MapperContext(NamingSettings namingSettings = null)
         {
             Cache = new CacheSet();
             DataSources = new DataSourceFinder();
-            NamingSettings = new NamingSettings();
+            NamingSettings = namingSettings ?? new NamingSettings();
             RootMemberFactory = new RootQualifiedMemberFactory(this);
             ObjectMapperFactory = new ObjectMapperFactory(this);
             ObjectFlattener = new ObjectFlattener();

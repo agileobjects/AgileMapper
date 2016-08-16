@@ -21,7 +21,7 @@
             var targetMember =
                 targetMemberLambda?.Body.ToTargetMember(
                     GlobalContext.Instance.MemberFinder,
-                    _configInfo.MapperContext.NamingSettings)
+                    _configInfo.MapperContext)
                 ?? QualifiedMember.None;
 
             return new CallbackSpecifier<TSource, TTarget>(_configInfo, _callbackPosition, targetMember);

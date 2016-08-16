@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Expression populateCondition;
 
-            if (TargetMemberPopulationIsConditional(childMapperData, out populateCondition))
+            if (TargetMemberIsUnconditionallyIgnored(childMapperData, out populateCondition))
             {
                 return MemberPopulation.IgnoredMember(childMapperData);
             }
@@ -43,7 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return new MemberPopulation(childMapperData, dataSources, populateCondition);
         }
 
-        private static bool TargetMemberPopulationIsConditional(
+        private static bool TargetMemberIsUnconditionallyIgnored(
             MemberMapperData mapperData,
             out Expression populateCondition)
         {

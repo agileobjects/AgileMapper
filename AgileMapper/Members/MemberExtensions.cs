@@ -115,14 +115,14 @@
         public static QualifiedMember ToTargetMember(
             this Expression memberAccessExpression,
             MemberFinder memberFinder,
-            NamingSettings namingSettings)
-            => CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetWriteableMembers, namingSettings);
+            MapperContext mapperContext)
+            => CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetWriteableMembers, mapperContext);
 
         internal static QualifiedMember CreateMember(
             Expression memberAccessExpression,
             Func<Type, Member> rootMemberFactory,
             Func<Type, IEnumerable<Member>> membersFactory,
-            NamingSettings namingSettings)
+            MapperContext mapperContext)
         {
             var expression = memberAccessExpression;
             var memberAccesses = new List<Expression>();
@@ -156,7 +156,7 @@
                 parentMember = member;
             }
 
-            return QualifiedMember.From(memberChain, namingSettings);
+            return QualifiedMember.From(memberChain, mapperContext);
         }
     }
 }

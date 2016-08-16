@@ -50,8 +50,8 @@
         public EnumerablePopulationBuilder(ObjectMapperData omd)
         {
             _omd = omd;
-            _typeIdsCache = omd.MapperContext.Cache.Create<TypeKey, Expression>();
-            _parametersCache = GlobalContext.Instance.Cache.Create<TypeKey, ParameterExpression>();
+            _typeIdsCache = omd.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
+            _parametersCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, ParameterExpression>();
             _typeHelper = new EnumerableTypeHelper(omd.TargetMember.Type, omd.TargetMember.ElementType);
 
             _sourceElementType = omd.SourceType.GetEnumerableElementType();

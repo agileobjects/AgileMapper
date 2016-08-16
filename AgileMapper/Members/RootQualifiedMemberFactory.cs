@@ -4,13 +4,13 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class RootQualifiedMemberFactory
     {
-        private readonly NamingSettings _namingSettings;
+        private readonly MapperContext _mapperContext;
         private readonly ICache<QualifiedMemberKey, IQualifiedMember> _memberCache;
 
         public RootQualifiedMemberFactory(MapperContext mapperContext)
         {
-            _namingSettings = mapperContext.NamingSettings;
-            _memberCache = mapperContext.Cache.Create<QualifiedMemberKey, IQualifiedMember>();
+            _mapperContext = mapperContext;
+            _memberCache = mapperContext.Cache.CreateScoped<QualifiedMemberKey, IQualifiedMember>();
         }
 
         public IQualifiedMember RootSource<TSource>()
@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
 
             var rootMember = _memberCache.GetOrAdd(
                 memberKey,
-                k => QualifiedMember.From(Member.RootSource<TSource>(), _namingSettings));
+                k => QualifiedMember.From(Member.RootSource<TSource>(), _mapperContext));
 
             return rootMember;
         }
@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.Members
 
             var rootMember = _memberCache.GetOrAdd(
                 memberKey,
-                k => QualifiedMember.From(Member.RootTarget<TTarget>(), _namingSettings));
+                k => QualifiedMember.From(Member.RootTarget<TTarget>(), _mapperContext));
 
             return (QualifiedMember)rootMember;
         }

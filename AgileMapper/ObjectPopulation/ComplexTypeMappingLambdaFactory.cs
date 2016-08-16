@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ComplexTypeMappingLambdaFactory(MapperContext mapperContext)
         {
-            _constructorsCache = mapperContext.Cache.Create<string, Expression>();
+            _constructorsCache = mapperContext.Cache.CreateScoped<string, Expression>();
         }
 
         protected override bool IsNotConstructable(IObjectMapperCreationData data)

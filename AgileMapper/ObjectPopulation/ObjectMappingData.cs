@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 instanceData.EnumerableIndex,
                 parent)
         {
-            _runtimeTypeGettersCache = GlobalContext.Instance.Cache.Create<string, Func<TSource, Type>>();
+            _runtimeTypeGettersCache = GlobalContext.Instance.Cache.CreateScoped<string, Func<TSource, Type>>();
             _memberMapperData = mapperData;
         }
 
