@@ -16,7 +16,6 @@ namespace AgileObjects.AgileMapper.Members
 
         private readonly Member[] _memberChain;
         private readonly string[] _memberMatchingNames;
-        private readonly IEnumerable<string> _joinedNames;
         private readonly MapperContext _mapperContext;
         private readonly Func<string> _pathFactory;
         private readonly ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
@@ -27,7 +26,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             _memberChain = memberChain;
             _memberMatchingNames = memberMatchingNames;
-            _joinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(memberMatchingNames);
+            JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(memberMatchingNames);
             Signature = memberChain.GetSignature();
             _pathFactory = () => _memberChain.GetFullName();
         }
@@ -41,7 +40,7 @@ namespace AgileObjects.AgileMapper.Members
             {
                 _memberChain = new[] { member };
                 _memberMatchingNames = new[] { matchingName };
-                _joinedNames = _memberMatchingNames;
+                JoinedNames = _memberMatchingNames;
                 Signature = member.Signature;
                 _pathFactory = () => _memberChain[0].JoiningName;
                 return;
@@ -49,7 +48,7 @@ namespace AgileObjects.AgileMapper.Members
 
             _memberChain = parent._memberChain.Append(member);
             _memberMatchingNames = parent._memberMatchingNames.Append(matchingName);
-            _joinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(_memberMatchingNames);
+            JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(_memberMatchingNames);
 
             Signature = parent.Signature + "." + member.Signature;
             _pathFactory = () => parent.GetPath() + member.JoiningName;
@@ -86,6 +85,8 @@ namespace AgileObjects.AgileMapper.Members
         public Type ElementType => LeafMember?.ElementType;
 
         public string Name => LeafMember.Name;
+
+        public IEnumerable<string> JoinedNames { get; }
 
         public string GetPath() => _pathFactory.Invoke();
 
@@ -163,19 +164,9 @@ namespace AgileObjects.AgileMapper.Members
                    otherMember.LeafMember.DeclaringType.IsAssignableFrom(LeafMember.DeclaringType);
         }
 
-        public bool CouldMatch(QualifiedMember otherMember)
-        {
-            return otherMember._joinedNames
-                .Any(otherJoinedName => _joinedNames
-                    .Any(joinedName => otherJoinedName.StartsWith(joinedName, StringComparison.OrdinalIgnoreCase)));
-        }
+        public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);
 
-        public bool Matches(QualifiedMember otherMember)
-        {
-            return _joinedNames
-                .Intersect(otherMember._joinedNames, CaseInsensitiveStringComparer.Instance)
-                .Any();
-        }
+        public bool Matches(QualifiedMember otherMember) => JoinedNames.Match(otherMember.JoinedNames);
 
         public Expression GetAccess(Expression instance) => LeafMember.GetAccess(instance);
 

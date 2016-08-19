@@ -1,17 +1,26 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using ReadableExpressions;
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {
-        private readonly QualifiedMember _matchedTargetMember;
+        private readonly string[] _matchedTargetMemberNames;
+        private readonly IEnumerable<string> _matchedTargetMemberJoinedNames;
+        private readonly NamingSettings _namingSettings;
         private readonly Member[] _childMembers;
 
-        public ConfiguredSourceMember(Expression value, BasicMapperData data)
-            : this(value.Type, value.Type.IsEnumerable(), value.ToReadableString(), data.TargetMember)
+        public ConfiguredSourceMember(Expression value, MemberMapperData data)
+            : this(
+                  value.Type,
+                  value.Type.IsEnumerable(),
+                  value.ToReadableString(),
+                  data.TargetMember.MemberChain.Select(data.MapperContext.NamingSettings.GetMatchingNameFor).ToArray(),
+                  data.MapperContext.NamingSettings)
         {
         }
 
@@ -20,7 +29,8 @@ namespace AgileObjects.AgileMapper.Members
                   childMember.Type,
                   isEnumerable,
                   parent.Name + childMember.JoiningName,
-                  parent._matchedTargetMember.Append(childMember),
+                  parent._matchedTargetMemberNames.Append(parent._namingSettings.GetMatchingNameFor(childMember)),
+                  parent._namingSettings,
                   parent._childMembers.Append(childMember))
         {
         }
@@ -29,13 +39,35 @@ namespace AgileObjects.AgileMapper.Members
             Type type,
             bool isEnumerable,
             string name,
-            QualifiedMember matchedTargetMember,
+            string[] matchedTargetMemberNames,
+            NamingSettings namingSettings,
+            Member[] childMembers = null)
+            : this(
+                  type, 
+                  isEnumerable, 
+                  name, 
+                  matchedTargetMemberNames, 
+                  namingSettings.GetJoinedNamesFor(matchedTargetMemberNames), 
+                  namingSettings, 
+                  childMembers)
+        {
+        }
+
+        private ConfiguredSourceMember(
+            Type type,
+            bool isEnumerable,
+            string name,
+            string[] matchedTargetMemberNames,
+            IEnumerable<string> matchedTargetMemberJoinedNames,
+            NamingSettings namingSettings,
             Member[] childMembers = null)
         {
             Type = type;
             IsEnumerable = isEnumerable;
             Name = name;
-            _matchedTargetMember = matchedTargetMember;
+            _matchedTargetMemberNames = matchedTargetMemberNames;
+            _matchedTargetMemberJoinedNames = matchedTargetMemberJoinedNames;
+            _namingSettings = namingSettings;
             _childMembers = childMembers ?? new[] { Member.RootSource(name, type) };
             Signature = _childMembers.GetSignature();
         }
@@ -61,13 +93,17 @@ namespace AgileObjects.AgileMapper.Members
                 Type,
                 IsEnumerable,
                 Name,
-                _matchedTargetMember,
+                _matchedTargetMemberNames,
+                _matchedTargetMemberJoinedNames,
+                _namingSettings,
                 relativeMemberChain);
         }
 
-        public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
+        public bool CouldMatch(QualifiedMember otherMember)
+            => _matchedTargetMemberJoinedNames.CouldMatch(otherMember.JoinedNames);
 
-        public bool Matches(QualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
+        public bool Matches(QualifiedMember otherMember)
+            => _matchedTargetMemberJoinedNames.Match(otherMember.JoinedNames);
 
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
 

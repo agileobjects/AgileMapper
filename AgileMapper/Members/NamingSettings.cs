@@ -101,6 +101,10 @@
         }
 
         public IEnumerable<string> GetJoinedNamesFor(IEnumerable<string> names)
-            => names.Any() ? _joinedNameFactories.Select(f => f.Invoke(names)).ToArray() : null;
+        {
+            return names.Any()
+                ? _joinedNameFactories.Select(f => f.Invoke(names)).ToArray()
+                : Enumerable.Empty<string>();
+        }
     }
 }

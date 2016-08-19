@@ -60,6 +60,20 @@
             return memberChain.Skip(1).Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
+        public static bool CouldMatch(this IEnumerable<string> memberNames, IEnumerable<string> otherMemberNames)
+        {
+            return otherMemberNames
+                .Any(otherJoinedName => memberNames
+                    .Any(joinedName => otherJoinedName.StartsWith(joinedName, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public static bool Match(this IEnumerable<string> memberNames, IEnumerable<string> otherMemberNames)
+        {
+            return memberNames
+                .Intersect(otherMemberNames, CaseInsensitiveStringComparer.Instance)
+                .Any();
+        }
+
         public static Expression GetEmptyInstanceCreation(this QualifiedMember member)
             => member.Type.GetEmptyInstanceCreation(member.ElementType);
 
