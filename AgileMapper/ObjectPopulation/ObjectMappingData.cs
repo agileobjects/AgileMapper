@@ -8,7 +8,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
-        IMappingData,
         IMemberMapperCreationData,
         IObjectMapperCreationData
     {
@@ -55,19 +54,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public ObjectMapperData MapperData { get; }
 
         public TTarget CreatedObject { get; set; }
-
-        #region IMappingData Members
-
-        T IMappingData.GetSource<T>() => (T)(object)Source;
-
-        T IMappingData.GetTarget<T>() => (T)(object)Target;
-
-        public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
-
-        IMappingData<TParentSource, TParentTarget> IMappingData.As<TParentSource, TParentTarget>()
-            => (IMappingData<TParentSource, TParentTarget>)this;
-
-        #endregion
 
         #region IMapperCreationData Members
 

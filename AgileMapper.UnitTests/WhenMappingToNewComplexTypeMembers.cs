@@ -72,5 +72,24 @@
                 result.Address.Line1.ShouldBe("Fred, Lala Land");
             }
         }
+
+        [Fact]
+        public void ShouldHandleARuntimeTypedNestedMemberMatch()
+        {
+            var runtimeTypedSource = new
+            {
+                Address = (object)new Address { Line1 = "Line Onnneee" }
+            };
+
+            var runtimeTypedResult = Mapper.Map(runtimeTypedSource).ToANew<PersonViewModel>();
+
+            runtimeTypedResult.AddressLine1.ShouldBe("Line Onnneee");
+
+            var nonRuntimeTypedSource = new { Address = (object)123 };
+
+            var nonRuntimeTypedResult = Mapper.Map(nonRuntimeTypedSource).ToANew<PersonViewModel>();
+
+            nonRuntimeTypedResult.AddressLine1.ShouldBeNull();
+        }
     }
 }

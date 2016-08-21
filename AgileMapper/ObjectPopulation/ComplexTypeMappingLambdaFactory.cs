@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -75,11 +76,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             yield return GetObjectRegistrationCall(mapperData);
 
-            var memberPopulations = MemberPopulationFactory
-                .Create(data)
-                .Select(p => p.IsSuccessful ? GetPopulationWithCallbacks(p, mapperData) : p.GetPopulation());
-
-            foreach (var population in memberPopulations)
+            foreach (var population in GetPopulationsAndCallbacks(data))
             {
                 yield return population;
             }
@@ -188,25 +185,62 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 data.InstanceVariable);
         }
 
-        private static Expression GetPopulationWithCallbacks(IMemberPopulation memberPopulation, MemberMapperData parentData)
+        private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMapperCreationData data)
         {
-            var prePopulationCallback = GetCallbackOrEmpty(
-                c => c.GetCallbackOrNull(CallbackPosition.Before, memberPopulation.MapperData, parentData),
-                parentData);
+            var sourceMemberTypeTests = new List<Expression>();
 
-            var population = memberPopulation.GetPopulation();
-
-            var postPopulationCallback = GetCallbackOrEmpty(
-                c => c.GetCallbackOrNull(CallbackPosition.After, memberPopulation.MapperData, parentData),
-                parentData);
-
-            if ((prePopulationCallback == Constants.EmptyExpression) &&
-                (postPopulationCallback == Constants.EmptyExpression))
+            foreach (var memberPopulation in MemberPopulationFactory.Create(data))
             {
-                return population;
+                if (!memberPopulation.IsSuccessful)
+                {
+                    yield return memberPopulation.GetPopulation();
+                    continue;
+                }
+
+                var prePopulationCallback = GetPopulationCallbackOrEmpty(CallbackPosition.Before, memberPopulation, data);
+
+                if (prePopulationCallback != Constants.EmptyExpression)
+                {
+                    yield return prePopulationCallback;
+                }
+
+                yield return memberPopulation.GetPopulation();
+
+                var postPopulationCallback = GetPopulationCallbackOrEmpty(CallbackPosition.After, memberPopulation, data);
+
+                if (postPopulationCallback != Constants.EmptyExpression)
+                {
+                    yield return postPopulationCallback;
+                }
             }
 
-            return Expression.Block(prePopulationCallback, population, postPopulationCallback);
+            CreateSourceMemberTypeTesterIfRequired(sourceMemberTypeTests, data);
+        }
+
+        private static Expression GetPopulationCallbackOrEmpty(
+            CallbackPosition position,
+            IMemberPopulation memberPopulation,
+            IObjectMapperCreationData data)
+        {
+            return GetCallbackOrEmpty(
+                c => c.GetCallbackOrNull(position, memberPopulation.MapperData, data.MapperData),
+                data.MapperData);
+        }
+
+        private static void CreateSourceMemberTypeTesterIfRequired(IList<Expression> typeTests, IObjectMapperCreationData data)
+        {
+            if (typeTests.None())
+            {
+                return;
+            }
+
+            var typeTest = (typeTests.Count > 1)
+                ? typeTests.Skip(1).Aggregate(typeTests[0], Expression.AndAlso)
+                : typeTests[0];
+
+            var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, Parameters.MappingData);
+
+            data.MapperData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
         }
 
         protected override Expression GetReturnValue(ObjectMapperData data) => data.InstanceVariable;

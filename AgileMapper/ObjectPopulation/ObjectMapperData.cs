@@ -66,6 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 InstanceVariable = Expression.Variable(targetMember.Type, instanceVariableName);
             }
 
+            key.RemoveInstanceData();
             MapperKey = key;
         }
 
@@ -173,7 +174,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void RegisterTargetMemberDataSources(QualifiedMember targetMember, DataSourceSet dataSources)
         {
-            // TODO: Apply runtime-typed source members to RuleSetAndMembersKey
             _dataSourcesByTargetMemberName.Add(targetMember.Name, Tuple.Create(targetMember, dataSources));
         }
     }
