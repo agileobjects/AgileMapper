@@ -26,6 +26,11 @@ namespace AgileObjects.AgileMapper.DataSources
             {
                 HasValue = HasValue || dataSource.IsValid;
                 _variables.AddRange(dataSource.Variables);
+
+                if (dataSource.SourceMemberTypeTest != null)
+                {
+                    SourceMemberTypeTest = dataSource.SourceMemberTypeTest;
+                }
             }
         }
 
@@ -51,6 +56,8 @@ namespace AgileObjects.AgileMapper.DataSources
         public bool None { get; }
 
         public bool HasValue { get; }
+
+        public Expression SourceMemberTypeTest { get; }
 
         public Expression Value { get; }
 

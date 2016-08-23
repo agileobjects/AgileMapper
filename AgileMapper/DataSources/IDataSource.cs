@@ -8,6 +8,8 @@
     {
         IQualifiedMember SourceMember { get; }
 
+        Expression SourceMemberTypeTest { get; }
+
         bool IsValid { get; }
 
         bool IsConditional { get; }

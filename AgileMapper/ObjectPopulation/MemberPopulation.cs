@@ -48,6 +48,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsSuccessful => _dataSources.HasValue;
 
+        public Expression SourceMemberTypeTest => _dataSources.SourceMemberTypeTest;
+
         public Expression GetPopulation()
         {
             if (!IsSuccessful)

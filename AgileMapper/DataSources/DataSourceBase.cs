@@ -88,6 +88,8 @@
 
         public IQualifiedMember SourceMember { get; }
 
+        public virtual Expression SourceMemberTypeTest => null;
+
         public virtual bool IsValid => Value != Constants.EmptyExpression;
 
         public bool IsConditional => Condition != null;

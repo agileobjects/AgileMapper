@@ -55,7 +55,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 (otherKey._sourceMemberSignature == _sourceMemberSignature) &&
                 (otherKey._targetMemberSignature == _targetMemberSignature))
             {
-                return (_sourceMemberTypeTester == null) || _sourceMemberTypeTester.Invoke(otherKey._instanceData);
+                return (_sourceMemberTypeTester == null) || 
+                    ((otherKey._instanceData != null) && _sourceMemberTypeTester.Invoke(otherKey._instanceData));
             }
 
             return false;

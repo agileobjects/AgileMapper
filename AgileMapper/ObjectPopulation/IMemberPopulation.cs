@@ -9,6 +9,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         bool IsSuccessful { get; }
 
+        Expression SourceMemberTypeTest { get; }
+
         Expression GetPopulation();
     }
 }

@@ -84,6 +84,23 @@
             return Expression.Call(instance, methodInfo, valueParameter);
         }
 
+        public static Expression AndTogether(this ICollection<Expression> expressions)
+        {
+            if (expressions.Count == 0)
+            {
+                return null;
+            }
+
+            if (expressions.Count == 1)
+            {
+                return expressions.First();
+            }
+
+            var allClauses = expressions.Skip(1).Aggregate(expressions.First(), Expression.AndAlso);
+
+            return allClauses;
+        }
+
         public static Expression GetIsNotDefaultComparisonsOrNull(this IEnumerable<Expression> expressions)
         {
             var notNullChecks = expressions

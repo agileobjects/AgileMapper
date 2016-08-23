@@ -212,6 +212,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     yield return postPopulationCallback;
                 }
+
+                if (memberPopulation.SourceMemberTypeTest != null)
+                {
+                    sourceMemberTypeTests.Add(memberPopulation.SourceMemberTypeTest);
+                }
             }
 
             CreateSourceMemberTypeTesterIfRequired(sourceMemberTypeTests, data);
@@ -227,17 +232,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 data.MapperData);
         }
 
-        private static void CreateSourceMemberTypeTesterIfRequired(IList<Expression> typeTests, IObjectMapperCreationData data)
+        private static void CreateSourceMemberTypeTesterIfRequired(ICollection<Expression> typeTests, IObjectMapperCreationData data)
         {
             if (typeTests.None())
             {
                 return;
             }
 
-            var typeTest = (typeTests.Count > 1)
-                ? typeTests.Skip(1).Aggregate(typeTests[0], Expression.AndAlso)
-                : typeTests[0];
-
+            var typeTest = typeTests.AndTogether();
             var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, Parameters.MappingData);
 
             data.MapperData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
