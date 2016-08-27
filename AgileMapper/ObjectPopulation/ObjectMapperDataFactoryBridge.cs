@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            ObjectMapperData objectMapperData = null)
+            ObjectMapperData parentMapperData = null)
         {
             if (CheckSourceRuntimeType(sourceMember))
             {
@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return new ObjectMapperDataBridge<TDeclaredSource, TDeclaredTarget>(
                 instanceData,
-                objectMapperData,
+                parentMapperData,
                 typeof(TDeclaredSource),
                 typeof(TDeclaredTarget),
                 sourceMember,
@@ -56,10 +56,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IQualifiedMember sourceMember,
             QualifiedMember targetMember)
         {
-            var mappingData = new BasicMapperData(instanceData.MappingContext.RuleSet, sourceMember.Type, typeof(TTarget));
+            var mapperData = new BasicMapperData(instanceData.MappingContext.RuleSet, sourceMember.Type, typeof(TTarget));
 
             var targetMemberType =
-                instanceData.MappingContext.MapperContext.UserConfigurations.DerivedTypePairs.GetDerivedTypeOrNull(mappingData)
+                instanceData.MappingContext.MapperContext.UserConfigurations.DerivedTypePairs.GetDerivedTypeOrNull(instanceData, mapperData)
                     ?? instanceData.Target.GetRuntimeTargetType(sourceMember.Type);
 
             return targetMember.WithType(targetMemberType);
@@ -68,18 +68,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperDataBridge<TDeclaredSource, TDeclaredTarget> : IObjectMapperDataBridge
     {
-        private readonly ObjectMapperData _mapperData;
+        private readonly ObjectMapperData _parentMapperData;
 
         public ObjectMapperDataBridge(
             MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
-            ObjectMapperData mapperData,
+            ObjectMapperData parentMapperData,
             Type declaredSourceType,
             Type declaredTargetType,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember)
         {
             InstanceData = instanceData;
-            _mapperData = mapperData;
+            _parentMapperData = parentMapperData;
             DeclaredSourceType = declaredSourceType;
             DeclaredTargetType = declaredTargetType;
             SourceMember = sourceMember;
@@ -110,7 +110,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 TargetMember,
                 RuntimeTypesAreTheSame,
                 key,
-                _mapperData);
+                _parentMapperData);
         }
 
         public IObjectMapperCreationData GetCreationData() => MapperCreationDataFactory.Create(this);

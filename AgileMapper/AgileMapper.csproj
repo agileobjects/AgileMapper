@@ -41,12 +41,14 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
+    <Compile Include="Api\Configuration\IConditionalRootMappingConfigurator.cs" />
     <Compile Include="Caching\ArrayCache.cs" />
     <Compile Include="Caching\CacheSet.cs" />
     <Compile Include="Configuration\ConfiguredLambdaInfo.cs" />
     <Compile Include="Api\Configuration\DerivedPairTargetTypeSpecifier.cs" />
     <Compile Include="Configuration\DerivedTypePair.cs" />
     <Compile Include="Configuration\DerivedTypePairSet.cs" />
+    <Compile Include="Configuration\EquivalentMemberAccessComparer.cs" />
     <Compile Include="Configuration\ExceptionCallback.cs" />
     <Compile Include="Api\Configuration\FactorySpecifier.cs" />
     <Compile Include="Api\Configuration\ICallbackSpecifier.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="Api\Configuration\MappingConfigStartingPointBase.cs" />
     <Compile Include="Api\Configuration\PreEventConfigStartingPoint.cs" />
     <Compile Include="Api\PlanTargetTypeSelector.cs" />
+    <Compile Include="Configuration\ParametersSwapper.cs" />
     <Compile Include="DataSources\DictionaryDataSource.cs" />
     <Compile Include="DataSources\DictionaryDataSourceFactory.cs" />
     <Compile Include="DataSources\IConditionalDataSourceFactory.cs" />

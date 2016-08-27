@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Members;
+    using ReadableExpressions;
 
     internal abstract class UserConfiguredItemBase
     {
@@ -14,8 +15,23 @@
         }
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
-            : this(configInfo, configInfo.GetTargetMemberFrom(targetMemberLambda))
+            : this(configInfo, GetTargetMemberOrThrow(targetMemberLambda))
         {
+        }
+
+        private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda)
+        {
+            var targetMember = lambda.Body.ToTargetMember(
+                GlobalContext.Instance.MemberFinder,
+                MapperContext.WithDefaultNamingSettings);
+
+            if (targetMember != null)
+            {
+                return targetMember;
+            }
+
+            throw new MappingConfigurationException(
+                $"Target member {lambda.Body.ToReadableString()} is not writeable.");
         }
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)
@@ -60,7 +76,7 @@
 
         public virtual bool AppliesTo(BasicMapperData data)
         {
-            return _configInfo.IsForRuleSet(data.RuleSet.Name) &&
+            return _configInfo.IsFor(data.RuleSet) &&
                 data.TargetMember.IsSameAs(TargetMember) &&
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
         }

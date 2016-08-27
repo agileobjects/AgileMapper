@@ -3,16 +3,16 @@
     using System;
     using System.Linq.Expressions;
     using Members;
-    using ReadableExpressions;
 
     internal class MappingConfigInfo
     {
+        private static readonly object _configurationSync = new object();
         private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
-        private const string AllRuleSets = "*";
+        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null);
 
         private Type _sourceType;
         private Type _sourceValueType;
-        private string _mappingRuleSetName;
+        private MappingRuleSet _mappingRuleSet;
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
 
@@ -68,19 +68,22 @@
 
         public bool IsForTargetType(Type targetType) => TargetType.IsAssignableFrom(targetType);
 
-        public MappingConfigInfo ForAllRuleSets() => ForRuleSet(AllRuleSets);
+        public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 
-        public MappingConfigInfo ForRuleSet(string name)
+        public MappingConfigInfo ForRuleSet(string ruleSetName)
         {
-            _mappingRuleSetName = name;
+            _mappingRuleSet = MapperContext.RuleSets.GetByName(ruleSetName);
             return this;
         }
 
-        public bool IsForRuleSet(string mappingRuleSetName)
+        public MappingConfigInfo ForRuleSet(MappingRuleSet ruleSet)
         {
-            return (_mappingRuleSetName == AllRuleSets) ||
-                (mappingRuleSetName == _mappingRuleSetName);
+            _mappingRuleSet = ruleSet;
+            return this;
         }
+
+        public bool IsFor(MappingRuleSet mappingRuleSet)
+            => (_mappingRuleSet == _allRuleSets) || (mappingRuleSet == _mappingRuleSet);
 
         public MappingConfigInfo ForSourceValueType<TSourceValue>() => ForSourceValueType(typeof(TSourceValue));
 
@@ -112,6 +115,41 @@
             }
         }
 
+        public Expression GetConditionOrNull<TSource, TTarget>()
+        {
+            if (!HasCondition)
+            {
+                return null;
+            }
+
+            using (var stubMappingContext = new MappingContext(_mappingRuleSet, MapperContext))
+            {
+                MemberMapperData mapperData;
+
+                lock (_configurationSync)
+                {
+                    MapperContext.UserConfigurations.DerivedTypePairs.Configuring = true;
+
+                    mapperData = stubMappingContext
+                        .CreateRootMapperCreationData(default(TSource), default(TTarget))
+                        .MapperData;
+
+                    MapperContext.UserConfigurations.DerivedTypePairs.Configuring = false;
+                }
+
+                var condition = GetConditionOrNull(mapperData);
+
+                if (condition == null)
+                {
+                    return null;
+                }
+
+                condition = mapperData.ReplaceTypedParameterWithUntyped(condition);
+
+                return condition;
+            }
+        }
+
         public Expression GetConditionOrNull(MemberMapperData mapperData)
         {
             if (!HasCondition)
@@ -131,21 +169,6 @@
 
         #endregion
 
-        public QualifiedMember GetTargetMemberFrom(LambdaExpression lambda)
-        {
-            var targetMember = lambda.Body.ToTargetMember(
-                GlobalContext.Instance.MemberFinder,
-                MapperContext.WithDefaultNamingSettings);
-
-            if (targetMember != null)
-            {
-                return targetMember;
-            }
-
-            throw new MappingConfigurationException(
-                $"Target member {lambda.Body.ToReadableString()} is not writeable.");
-        }
-
         public MappingConfigInfo CloneForContinuation()
         {
             return new MappingConfigInfo(MapperContext)
@@ -153,7 +176,7 @@
                 _sourceType = _sourceType,
                 TargetType = TargetType,
                 _sourceValueType = _sourceValueType,
-                _mappingRuleSetName = _mappingRuleSetName
+                _mappingRuleSet = _mappingRuleSet
             };
         }
     }

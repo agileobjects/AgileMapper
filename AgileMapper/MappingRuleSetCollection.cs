@@ -1,11 +1,15 @@
 namespace AgileObjects.AgileMapper
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using DataSources;
     using Members;
     using ObjectPopulation;
 
     internal class MappingRuleSetCollection
     {
+        private readonly List<MappingRuleSet> _ruleSets;
+
         public MappingRuleSetCollection()
         {
             CreateNew = new MappingRuleSet(
@@ -28,6 +32,8 @@ namespace AgileObjects.AgileMapper
                 OverwriteEnumerablePopulationStrategy.Instance,
                 NullDataSourceFactory.Instance,
                 DefaultValueDataSourceFactory.Instance);
+
+            _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite };
         }
 
         public MappingRuleSet CreateNew { get; }
@@ -35,5 +41,7 @@ namespace AgileObjects.AgileMapper
         public MappingRuleSet Merge { get; }
 
         public MappingRuleSet Overwrite { get; set; }
+
+        public MappingRuleSet GetByName(string name) => _ruleSets.First(rs => rs.Name == name);
     }
 }

@@ -5,7 +5,9 @@
     using AgileMapper.Configuration;
     using Members;
 
-    internal class MappingConfigurator<TSource, TTarget> : IFullMappingConfigurator<TSource, TTarget>
+    internal class MappingConfigurator<TSource, TTarget> :
+        IFullMappingConfigurator<TSource, TTarget>,
+        IConditionalRootMappingConfigurator<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
 
@@ -16,17 +18,17 @@
 
         #region If Overloads
 
-        public IRootMappingConfigurator<TSource, TTarget> If(
+        public IConditionalRootMappingConfigurator<TSource, TTarget> If(
             Expression<Func<IMappingData<TSource, TTarget>, bool>> condition)
             => SetCondition(condition);
 
-        public IRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, bool>> condition)
+        public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, bool>> condition)
             => SetCondition(condition);
 
-        public IRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, int?, bool>> condition)
+        public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
-        private IRootMappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
+        private IConditionalRootMappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
         {
             _configInfo.AddCondition(conditionLambda);
             return this;
@@ -131,6 +133,14 @@
         }
 
         #endregion
+
+        public MappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
+            where TDerivedTarget : TTarget
+        {
+            var derivedTypePair = new DerivedPairTargetTypeSpecifier<TSource, TSource, TTarget>(_configInfo);
+
+            return derivedTypePair.To<TDerivedTarget>();
+        }
 
         public DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
             => new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(_configInfo);

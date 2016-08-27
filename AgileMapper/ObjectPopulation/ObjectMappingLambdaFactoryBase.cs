@@ -96,7 +96,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 if (callbackActionType.IsGenericType)
                 {
                     contextTypes = callbackActionType.GetGenericArguments();
-                    contextAccess = Parameters.GetAppropriateTypedMappingContextAccess(contextTypes, data);
+                    contextAccess = data.GetAppropriateTypedMappingContextAccess(contextTypes);
                 }
                 else
                 {

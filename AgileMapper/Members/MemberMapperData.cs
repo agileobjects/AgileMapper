@@ -17,7 +17,7 @@
         {
         }
 
-        protected MemberMapperData(
+        public MemberMapperData(
             MapperContext mapperContext,
             MappingRuleSet ruleSet,
             Type sourceType,

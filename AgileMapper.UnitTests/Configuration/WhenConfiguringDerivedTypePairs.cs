@@ -168,5 +168,63 @@
                 resultValues.Second().Name.ShouldBe("Fred");
             }
         }
+
+        [Fact]
+        public void ShouldMapADerivedTypePairConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var exampleInstance = new { Name = default(string), Discount = default(decimal?), Report = default(string) };
+
+                mapper
+                    .WhenMapping
+                    .From(exampleInstance)
+                    .ToANew<PersonViewModel>()
+                    .If(s => s.Source.Discount.HasValue)
+                    .MapTo<CustomerViewModel>()
+                    .And
+                    .If(x => !string.IsNullOrWhiteSpace(x.Source.Report))
+                    .MapTo<MysteryCustomerViewModel>();
+
+                var mysteryCustomerSource = new
+                {
+                    Name = "???",
+                    Discount = (decimal?).5m,
+                    Report = "Lovely!"
+                };
+
+                var mysteryCustomerResult = mapper.Map(mysteryCustomerSource).ToANew<PersonViewModel>();
+
+                mysteryCustomerResult.ShouldBeOfType<MysteryCustomerViewModel>();
+                mysteryCustomerResult.Name.ShouldBe("???");
+                ((CustomerViewModel)mysteryCustomerResult).Discount.ShouldBe(0.5);
+                ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Lovely!");
+
+                var customerSource = new
+                {
+                    Name = "Firsty",
+                    Discount = (decimal?)1,
+                    Report = string.Empty
+                };
+
+                var customerResult = mapper.Map(customerSource).ToANew<PersonViewModel>();
+
+                customerResult.ShouldBeOfType<CustomerViewModel>();
+                customerResult.Name.ShouldBe("Firsty");
+                ((CustomerViewModel)customerResult).Discount.ShouldBe(1.0);
+
+                var personSource = new
+                {
+                    Name = "Datey",
+                    Discount = default(decimal?),
+                    Report = default(string)
+                };
+
+                var personResult = mapper.Map(personSource).ToANew<PersonViewModel>();
+
+                personResult.ShouldBeOfType<PersonViewModel>();
+                personResult.Name.ShouldBe("Datey");
+            }
+        }
     }
 }

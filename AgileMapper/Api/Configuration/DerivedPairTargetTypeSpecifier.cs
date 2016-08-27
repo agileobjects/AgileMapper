@@ -14,10 +14,8 @@
         public MappingConfigContinuation<TSource, TTarget> To<TDerivedTarget>()
             where TDerivedTarget : TTarget
         {
-            var derivedTypePair = new DerivedTypePair(
-                _configInfo.ForTargetType<TTarget>(),
-                typeof(TDerivedSource),
-                typeof(TDerivedTarget));
+            var derivedTypePair = DerivedTypePair
+                .For<TSource, TDerivedSource, TTarget, TDerivedTarget>(_configInfo);
 
             _configInfo.MapperContext.UserConfigurations.DerivedTypePairs.Add(derivedTypePair);
 
