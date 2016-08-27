@@ -23,7 +23,7 @@
             return (ICache<TKey, TValue>)cache;
         }
 
-        public ICache<TKey, TValue> CreateNew<TKey, TValue>() => new DictionaryCache<TKey, TValue>();
+        public ICache<TKey, TValue> CreateNew<TKey, TValue>() => new ArrayCache<TKey, TValue>();
 
         public void Empty()
         {

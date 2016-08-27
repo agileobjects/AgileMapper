@@ -41,6 +41,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Api\Configuration\CallbackSpecifierBase.cs" />
+    <Compile Include="Caching\ArrayCache.cs" />
     <Compile Include="Caching\CacheSet.cs" />
     <Compile Include="Configuration\ConfiguredLambdaInfo.cs" />
     <Compile Include="Api\Configuration\DerivedPairTargetTypeSpecifier.cs" />
@@ -113,7 +114,6 @@
     <Compile Include="Api\Configuration\PostEventConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PostEventMappingConfigStartingPoint.cs" />
     <Compile Include="Api\Configuration\PreEventMappingConfigStartingPoint.cs" />
-    <Compile Include="Caching\DictionaryCache.cs" />
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Api\Configuration\CustomDataSourceTargetMemberSpecifier.cs" />
     <Compile Include="Configuration\MappingConfigInfo.cs" />
