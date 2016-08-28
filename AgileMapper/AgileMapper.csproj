@@ -76,6 +76,7 @@
     <Compile Include="Members\IMappingData.cs" />
     <Compile Include="Members\IMemberMapperCreationData.cs" />
     <Compile Include="Members\RootQualifiedMemberFactory.cs" />
+    <Compile Include="ObjectPopulation\ComplexTypeConstructionFactory.cs" />
     <Compile Include="ObjectPopulation\IObjectMapperCreationData.cs" />
     <Compile Include="ObjectPopulation\IObjectMapperDataBridge.cs" />
     <Compile Include="ObjectPopulation\ObjectMappingData.cs" />

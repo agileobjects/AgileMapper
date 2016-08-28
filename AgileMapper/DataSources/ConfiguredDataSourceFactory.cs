@@ -11,6 +11,15 @@
         public ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo dataSourceLambda,
+            QualifiedMember targetMember)
+            : base(configInfo, targetMember)
+        {
+            _dataSourceLambda = dataSourceLambda;
+        }
+
+        public ConfiguredDataSourceFactory(
+            MappingConfigInfo configInfo,
+            ConfiguredLambdaInfo dataSourceLambda,
             LambdaExpression targetMemberLambda)
             : base(configInfo, targetMemberLambda)
         {

@@ -2,26 +2,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
-    using Caching;
-    using DataSources;
     using Extensions;
     using Members;
 
     internal class ComplexTypeMappingLambdaFactory : ObjectMappingLambdaFactoryBase
     {
-        private readonly ICache<string, Expression> _constructorsCache;
+        private readonly ComplexTypeConstructionFactory _constructionFactory;
 
         public ComplexTypeMappingLambdaFactory(MapperContext mapperContext)
         {
-            _constructorsCache = mapperContext.Cache.CreateScoped<string, Expression>();
+            _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }
 
         protected override bool IsNotConstructable(IObjectMapperCreationData data)
-            => GetNewObjectCreation(data) == null;
+            => _constructionFactory.GetNewObjectCreation(data) == null;
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
         {
@@ -89,91 +85,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = data.MapperData;
 
-            var createdObjectAssignment = Expression.Assign(mapperData.CreatedObject, GetNewObjectCreation(data));
+            var objectCreation = _constructionFactory.GetNewObjectCreation(data);
+            var createdObjectAssignment = Expression.Assign(mapperData.CreatedObject, objectCreation);
             var instanceDataTargetAssignment = Expression.Assign(mapperData.TargetObject, createdObjectAssignment);
             var existingOrCreatedObject = Expression.Coalesce(mapperData.TargetObject, instanceDataTargetAssignment);
 
             return existingOrCreatedObject;
-        }
-
-        private Expression GetNewObjectCreation(IObjectMapperCreationData data)
-        {
-            var objectCreationKey = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0} -> {1}: {2} Ctor",
-                data.SourceMember.Signature,
-                data.TargetMember.Signature,
-                data.RuleSet.Name);
-
-            return _constructorsCache.GetOrAdd(objectCreationKey, k =>
-            {
-                var mapperData = data.MapperData;
-
-                var constructions = new List<Construction>();
-                var newingConstructorRequired = true;
-
-                var configuredFactories = mapperData
-                    .MapperContext
-                    .UserConfigurations
-                    .GetObjectFactories(mapperData);
-
-                foreach (var configuredFactory in configuredFactories)
-                {
-                    var configuredConstruction = new Construction(
-                        configuredFactory.Create(mapperData),
-                        configuredFactory.GetConditionOrNull(mapperData));
-
-                    constructions.Insert(0, configuredConstruction);
-
-                    if (!configuredFactory.HasConfiguredCondition)
-                    {
-                        newingConstructorRequired = false;
-                        break;
-                    }
-                }
-
-                if (newingConstructorRequired)
-                {
-                    var greediestAvailableConstructor = mapperData.InstanceVariable.Type
-                        .GetConstructors(Constants.PublicInstance)
-                        .Select(ctor => new ConstructorData(
-                            ctor,
-                            ctor.GetParameters()
-                                .Select(p =>
-                                {
-                                    var childMapperData = new MemberMapperData(
-                                        data.TargetMember.Append(Member.ConstructorParameter(p)),
-                                        mapperData);
-
-                                    return data.GetChildCreationData(childMapperData);
-                                })
-                                .Select(memberData => mapperData
-                                    .MapperContext
-                                    .DataSources
-                                    .FindFor(memberData))
-                                .ToArray()))
-                        .Where(ctor => ctor.CanBeConstructed)
-                        .OrderByDescending(ctor => ctor.NumberOfParameters)
-                        .FirstOrDefault();
-
-                    if (greediestAvailableConstructor != null)
-                    {
-                        constructions.Insert(0, greediestAvailableConstructor.Construction);
-                    }
-                }
-
-                if (constructions.None())
-                {
-                    return null;
-                }
-
-                return constructions
-                    .Skip(1)
-                    .Aggregate(
-                        constructions.First().Expression,
-                        (constructionSoFar, construction) =>
-                            Expression.Condition(construction.Condition, construction.Expression, constructionSoFar));
-            });
         }
 
         private static Expression GetObjectRegistrationCall(MemberMapperData data)
@@ -247,43 +164,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetReturnValue(ObjectMapperData data) => data.InstanceVariable;
 
-        private class ConstructorData
-        {
-            public ConstructorData(ConstructorInfo constructor, ICollection<DataSourceSet> argumentDataSources)
-            {
-                CanBeConstructed = argumentDataSources.All(ds => ds.HasValue);
-                NumberOfParameters = argumentDataSources.Count;
-
-                if (CanBeConstructed)
-                {
-                    Construction = new Construction(
-                        Expression.New(constructor, argumentDataSources.Select(ds => ds.Value)));
-                }
-            }
-
-            public bool CanBeConstructed { get; }
-
-            public int NumberOfParameters { get; }
-
-            public Construction Construction { get; }
-        }
-
-        private class Construction
-        {
-            public Construction(Expression construction, Expression condition = null)
-            {
-                Expression = construction;
-                Condition = condition;
-            }
-
-            public Expression Expression { get; }
-
-            public Expression Condition { get; }
-        }
-
-        public void Reset()
-        {
-            _constructorsCache.Empty();
-        }
+        public void Reset() => _constructionFactory.Reset();
     }
 }
