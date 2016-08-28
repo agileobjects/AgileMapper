@@ -17,7 +17,6 @@
             : base(configInfo)
         {
             _derivedSourceType = derivedSourceType;
-            ParentTargetType = configInfo.TargetType;
             DerivedTargetType = derivedTargetType;
             _derivedTypePredicate = derivedTypePredicate;
         }
@@ -47,8 +46,6 @@
 
             return conditionPredicate;
         }
-
-        public Type ParentTargetType { get; }
 
         public Type DerivedTargetType { get; }
 

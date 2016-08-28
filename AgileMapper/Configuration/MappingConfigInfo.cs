@@ -11,6 +11,7 @@
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null);
 
         private Type _sourceType;
+        private Type _targetType;
         private Type _sourceValueType;
         private MappingRuleSet _mappingRuleSet;
         private ConfiguredLambdaInfo _conditionLambda;
@@ -49,11 +50,9 @@
 
         public MappingConfigInfo ForTargetType(Type targetType)
         {
-            TargetType = targetType;
+            _targetType = targetType;
             return this;
         }
-
-        internal Type TargetType { get; private set; }
 
         public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => _sourceType == otherConfigInfo._sourceType;
 
@@ -62,11 +61,11 @@
         public bool IsForSourceType(Type sourceType)
             => (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
 
-        public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
+        public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => _targetType == otherConfigInfo._targetType;
 
-        public bool IsForTargetType(MappingConfigInfo otherConfigInfo) => IsForTargetType(otherConfigInfo.TargetType);
+        public bool IsForTargetType(MappingConfigInfo otherConfigInfo) => IsForTargetType(otherConfigInfo._targetType);
 
-        public bool IsForTargetType(Type targetType) => TargetType.IsAssignableFrom(targetType);
+        public bool IsForTargetType(Type targetType) => _targetType.IsAssignableFrom(targetType);
 
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 
@@ -138,12 +137,6 @@
                 }
 
                 var condition = GetConditionOrNull(mapperData);
-
-                if (condition == null)
-                {
-                    return null;
-                }
-
                 condition = mapperData.ReplaceTypedParameterWithUntyped(condition);
 
                 return condition;
@@ -174,7 +167,7 @@
             return new MappingConfigInfo(MapperContext)
             {
                 _sourceType = _sourceType,
-                TargetType = TargetType,
+                _targetType = _targetType,
                 _sourceValueType = _sourceValueType,
                 _mappingRuleSet = _mappingRuleSet
             };
