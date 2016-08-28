@@ -1,12 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
     using DataSources;
     using Members;
+    using ReadableExpressions.Extensions;
 
     public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
@@ -67,6 +69,15 @@
                 })
                 .Where(d => d.MatchingParameters.Any())
                 .ToArray();
+
+            if (matchingParameters.Length == 0)
+            {
+                throw new MappingConfigurationException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    "No constructor parameter of type {0} exists on type {1}",
+                    typeof(TParam).GetFriendlyName(),
+                    typeof(TTarget).GetFriendlyName()));
+            }
 
             var matchingParameterData = matchingParameters.First();
             var matchingParameter = matchingParameterData.MatchingParameters.First();

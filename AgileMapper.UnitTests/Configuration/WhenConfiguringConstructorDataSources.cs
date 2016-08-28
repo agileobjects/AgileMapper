@@ -1,6 +1,8 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using AgileMapper.Configuration;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -21,6 +23,38 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 var result = mapper.Map(source).ToANew<PublicCtor<string>>();
 
                 result.Value.ShouldBe(source.Value.ToString().Substring(0, 10));
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfMissingParameterTypeSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicCtor<Guid>>()
+                        .Map(Guid.NewGuid())
+                        .ToCtor<string>());
+
+                configurationException.Message.ShouldContain("No constructor parameter");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfUnconvertibleConstantSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicCtor<Guid>>()
+                        .Map(DateTime.Today)
+                        .ToCtor<Guid>());
+
+                configurationException.Message.ShouldContain("Unable to convert");
             }
         }
     }
