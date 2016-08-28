@@ -79,6 +79,22 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldErrorIfAmbiguousParameterTypeSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicTwoParamCtor<DateTime, DateTime>>()
+                        .Map(DateTime.Today)
+                        .ToCtor<DateTime>());
+
+                configurationException.Message.ShouldContain("Multiple constructor parameters");
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfUnconvertibleConstantSpecified()
         {
             using (var mapper = Mapper.CreateNew())

@@ -95,6 +95,7 @@
     <Compile Include="TestClasses\MysteryCustomerViewModel.cs" />
     <Compile Include="TestClasses\Order.cs" />
     <Compile Include="TestClasses\OrderItem.cs" />
+    <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
     <Compile Include="WhenMappingFromDictionaries.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />

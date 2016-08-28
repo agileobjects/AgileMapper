@@ -71,37 +71,38 @@
 
             if (matchingParameters.Length == 0)
             {
-                ThrowMissingParameterException<TParam>(name, !ignoreParameterType, !ignoreParameterName);
+                ThrowMissingParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
             }
 
             var matchingParameterData = matchingParameters.First();
+
+            if (matchingParameterData.MatchingParameters.Length > 1)
+            {
+                ThrowAmbiguousParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
+            }
+
             var matchingParameter = matchingParameterData.MatchingParameters.First();
 
             return matchingParameter;
         }
 
-        private static void ThrowMissingParameterException<TParam>(string name, bool matchParameterType, bool matchParameterName)
+        private static string GetParameterMatchInfo<TParam>(string name, bool matchParameterType)
+            => matchParameterType ? "of type " + typeof(TParam).GetFriendlyName() : "named '" + name + "'";
+
+        private static void ThrowMissingParameterException(string parameterMatchInfo)
         {
-            var parameterMatchInfo = "";
-
-            if (matchParameterType)
-            {
-                parameterMatchInfo = "of type " + typeof(TParam).GetFriendlyName();
-            }
-
-            if (matchParameterName)
-            {
-                if (matchParameterType)
-                {
-                    parameterMatchInfo += " ";
-                }
-
-                parameterMatchInfo += "named '" + name + "'";
-            }
-
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
                 "No constructor parameter {0} exists on type {1}",
+                parameterMatchInfo,
+                typeof(TTarget).GetFriendlyName()));
+        }
+
+        private static void ThrowAmbiguousParameterException(string parameterMatchInfo)
+        {
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "Multiple constructor parameters found {0} on type {1}",
                 parameterMatchInfo,
                 typeof(TTarget).GetFriendlyName()));
         }
