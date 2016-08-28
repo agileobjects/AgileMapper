@@ -840,7 +840,7 @@
         }
 
         [Fact]
-        public void ShouldRestrictConfigurationApplicationByMappingMode()
+        public void ShouldRestrictConfigurationApplicationByMappingRuleSet()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -851,12 +851,12 @@
                     .To(x => x.Value);
 
                 var source = new PublicProperty<int> { Value = 64738 };
-                var matchingModeResult = mapper.Map(source).ToANew<PublicProperty<long>>();
 
-                var nonMatchingModeTarget = mapper.Map(source).Over(new PublicProperty<long>());
+                var toNewResult = mapper.Map(source).ToANew<PublicProperty<long>>();
+                var overwriteResult = mapper.Map(source).Over(new PublicProperty<long>());
 
-                matchingModeResult.Value.ShouldBe(9999);
-                nonMatchingModeTarget.Value.ShouldBe(source.Value);
+                toNewResult.Value.ShouldBe(9999);
+                overwriteResult.Value.ShouldBe(source.Value);
             }
         }
 
