@@ -45,6 +45,24 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredExpressionByParameterName()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<int>>()
+                    .To<PublicCtor<long>>()
+                    .Map((s, t) => s.Value * 2)
+                    .ToCtor("value");
+
+                var source = new PublicProperty<int> { Value = 111 };
+                var result = mapper.Map(source).ToANew<PublicCtor<long>>();
+
+                result.Value.ShouldBe(222);
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfMissingParameterTypeSpecified()
         {
             using (var mapper = Mapper.CreateNew())
