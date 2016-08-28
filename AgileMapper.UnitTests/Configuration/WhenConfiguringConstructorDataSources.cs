@@ -9,6 +9,24 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
     public class WhenConfiguringConstructorDataSources
     {
         [Fact]
+        public void ShouldApplyAConfiguredConstantByParameterType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<Guid>>()
+                    .To<PublicCtor<string>>()
+                    .Map("Hello there!")
+                    .ToCtor<string>();
+
+                var source = new PublicProperty<Guid> { Value = Guid.NewGuid() };
+                var result = mapper.Map(source).ToANew<PublicCtor<string>>();
+
+                result.Value.ShouldBe("Hello there!");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredExpressionByParameterType()
         {
             using (var mapper = Mapper.CreateNew())
