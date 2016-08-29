@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly MapperContext _mapperContext;
         private readonly Func<string> _pathFactory;
         private readonly ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
-        private readonly ICache<string, QualifiedMember> _childMemberCache;
+        private readonly ICache<Member, QualifiedMember> _childMemberCache;
 
         private QualifiedMember(Member[] memberChain, string[] memberMatchingNames, MapperContext mapperContext)
             : this(memberChain.LastOrDefault(), mapperContext)
@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.Members
             LeafMember = leafMember;
             _mapperContext = mapperContext;
             _runtimeTypedMemberCache = mapperContext.Cache.CreateNew<Type, QualifiedMember>();
-            _childMemberCache = mapperContext.Cache.CreateNew<string, QualifiedMember>();
+            _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>();
         }
 
         #region Factory Method
@@ -98,11 +98,7 @@ namespace AgileObjects.AgileMapper.Members
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
         public QualifiedMember Append(Member childMember)
-        {
-            var key = childMember.IsSimple ? childMember.Name : childMember.Signature;
-
-            return _childMemberCache.GetOrAdd(key, n => new QualifiedMember(childMember, this, _mapperContext));
-        }
+            => _childMemberCache.GetOrAdd(childMember, m => new QualifiedMember(m, this, _mapperContext));
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {

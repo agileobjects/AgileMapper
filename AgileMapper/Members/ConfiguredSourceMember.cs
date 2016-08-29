@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly IEnumerable<string> _matchedTargetMemberJoinedNames;
         private readonly MapperContext _mapperContext;
         private readonly Member[] _childMembers;
-        private readonly ICache<string, ConfiguredSourceMember> _childMemberCache;
+        private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
 
         public ConfiguredSourceMember(Expression value, MemberMapperData data)
             : this(
@@ -72,7 +72,7 @@ namespace AgileObjects.AgileMapper.Members
             _matchedTargetMemberJoinedNames = matchedTargetMemberJoinedNames;
             _mapperContext = mapperContext;
             _childMembers = childMembers ?? new[] { Member.RootSource(name, type) };
-            _childMemberCache = mapperContext.Cache.CreateNew<string, ConfiguredSourceMember>();
+            _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>();
         }
 
         public Type Type { get; }
@@ -84,11 +84,7 @@ namespace AgileObjects.AgileMapper.Members
         public string GetPath() => _childMembers.GetFullName();
 
         public IQualifiedMember Append(Member childMember)
-        {
-            var key = childMember.IsSimple ? childMember.Name : childMember.Signature;
-
-            return _childMemberCache.GetOrAdd(key, n => new ConfiguredSourceMember(this, childMember, IsEnumerable));
-        }
+            => _childMemberCache.GetOrAdd(childMember, m => new ConfiguredSourceMember(this, m, IsEnumerable));
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {

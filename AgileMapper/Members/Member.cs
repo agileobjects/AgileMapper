@@ -6,9 +6,8 @@ namespace AgileObjects.AgileMapper.Members
     using System.Reflection;
     using Extensions;
     using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 
-    [DebuggerDisplay("{Signature}")]
+    [DebuggerDisplay("{Name}: {Type.Name}")]
     internal class Member
     {
         public Member(
@@ -25,7 +24,6 @@ namespace AgileObjects.AgileMapper.Members
             IsIdentifier = IsIdMember(name, declaringType);
             DeclaringType = declaringType;
             Type = type;
-            Signature = Name + ":" + type.GetFriendlyName();
 
             IsEnumerable = type.IsEnumerable();
 
@@ -44,8 +42,8 @@ namespace AgileObjects.AgileMapper.Members
         private static bool IsIdMember(string name, Type declaringType)
         {
             return (name == "Id") ||
-                   (name == "Identifier") ||
                    (name == declaringType.Name + "Id") ||
+                   (name == "Identifier") ||
                    (name == declaringType.Name + "Identifier");
         }
 
@@ -97,8 +95,6 @@ namespace AgileObjects.AgileMapper.Members
         public Type DeclaringType { get; }
 
         public Type Type { get; }
-
-        public string Signature { get; }
 
         public bool IsRoot { get; }
 
