@@ -11,8 +11,6 @@ namespace AgileObjects.AgileMapper.Members
 
         string Name { get; }
 
-        string Signature { get; }
-
         string GetPath();
 
         IQualifiedMember Append(Member childMember);

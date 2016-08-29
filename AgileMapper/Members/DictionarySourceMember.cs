@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Diagnostics;
     using System.Linq.Expressions;
 
-    [DebuggerDisplay("{Signature}")]
+    [DebuggerDisplay("{GetPath()}")]
     internal class DictionarySourceMember : IQualifiedMember
     {
         private readonly IQualifiedMember _wrappedSourceMember;
@@ -22,8 +22,6 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsEnumerable => false;
 
         public string Name => _wrappedSourceMember.Name;
-
-        public string Signature => _wrappedSourceMember.Signature;
 
         public string GetPath() => _wrappedSourceMember.GetPath();
 

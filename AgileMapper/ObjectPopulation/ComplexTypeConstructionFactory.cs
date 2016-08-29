@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -12,21 +11,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ComplexTypeConstructionFactory
     {
-        private readonly ICache<string, Expression> _constructorsCache;
+        private readonly ICache<ConstructionKey, Expression> _constructorsCache;
 
         public ComplexTypeConstructionFactory(MapperContext mapperContext)
         {
-            _constructorsCache = mapperContext.Cache.CreateScoped<string, Expression>();
+            _constructorsCache = mapperContext.Cache.CreateScoped<ConstructionKey, Expression>();
         }
 
         public Expression GetNewObjectCreation(IObjectMapperCreationData data)
         {
-            var objectCreationKey = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0} -> {1}: {2} Ctor",
-                data.SourceMember.Signature,
-                data.TargetMember.Signature,
-                data.RuleSet.Name);
+            var objectCreationKey = new ConstructionKey(
+                data.RuleSet,
+                data.SourceMember,
+                data.TargetMember);
 
             return _constructorsCache.GetOrAdd(objectCreationKey, k =>
             {
@@ -102,6 +99,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public void Reset() => _constructorsCache.Empty();
 
         #region Helper Classes
+
+        private class ConstructionKey
+        {
+            private readonly MappingRuleSet _ruleSet;
+            private readonly IQualifiedMember _sourceMember;
+            private readonly QualifiedMember _targetMember;
+
+            public ConstructionKey(MappingRuleSet ruleSet, IQualifiedMember sourceMember, QualifiedMember targetMember)
+            {
+                _ruleSet = ruleSet;
+                _sourceMember = sourceMember;
+                _targetMember = targetMember;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var otherKey = (ConstructionKey)obj;
+
+                return (otherKey._ruleSet == _ruleSet) &&
+                    (otherKey._sourceMember == _sourceMember) &&
+                    (otherKey._targetMember == _targetMember);
+            }
+
+            public override int GetHashCode() => 0;
+        }
 
         private class ConstructorData
         {

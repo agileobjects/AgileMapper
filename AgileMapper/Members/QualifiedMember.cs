@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.Members
     using Caching;
     using Extensions;
 
-    [DebuggerDisplay("{Signature}")]
+    [DebuggerDisplay("{GetPath()}")]
     internal class QualifiedMember : IQualifiedMember
     {
         public static readonly QualifiedMember All = new QualifiedMember(new Member[0], new string[0], MapperContext.WithDefaultNamingSettings);
@@ -27,7 +27,6 @@ namespace AgileObjects.AgileMapper.Members
             _memberChain = memberChain;
             _memberMatchingNames = memberMatchingNames;
             JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(memberMatchingNames);
-            Signature = memberChain.GetSignature();
             _pathFactory = () => _memberChain.GetFullName();
         }
 
@@ -41,7 +40,6 @@ namespace AgileObjects.AgileMapper.Members
                 _memberChain = new[] { member };
                 _memberMatchingNames = new[] { matchingName };
                 JoinedNames = _memberMatchingNames;
-                Signature = member.Signature;
                 _pathFactory = () => _memberChain[0].JoiningName;
                 return;
             }
@@ -50,7 +48,6 @@ namespace AgileObjects.AgileMapper.Members
             _memberMatchingNames = parent._memberMatchingNames.Append(matchingName);
             JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(_memberMatchingNames);
 
-            Signature = parent.Signature + "." + member.Signature;
             _pathFactory = () => parent.GetPath() + member.JoiningName;
         }
 
@@ -97,8 +94,6 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsSimple => LeafMember.IsSimple;
 
         public bool IsReadable => LeafMember.IsReadable;
-
-        public string Signature { get; }
 
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 

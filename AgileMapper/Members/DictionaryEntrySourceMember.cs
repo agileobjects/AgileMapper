@@ -5,9 +5,8 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
-    using ReadableExpressions.Extensions;
 
-    [DebuggerDisplay("{Signature}")]
+    [DebuggerDisplay("{GetPath()}")]
     internal class DictionaryEntrySourceMember : IQualifiedMember
     {
         private readonly QualifiedMember _matchedTargetMember;
@@ -21,7 +20,6 @@ namespace AgileObjects.AgileMapper.Members
             : this(
                 entryType,
                 () => parent.GetPath() + "." + matchedTargetMember.Name,
-                parent.Signature + ".[\"" + matchedTargetMember.Name + "\"]:" + entryType.GetFriendlyName(),
                 matchedTargetMember)
         {
         }
@@ -30,7 +28,6 @@ namespace AgileObjects.AgileMapper.Members
             : this(
                 childMember.Type,
                 () => parent.GetPath() + "." + childMember.Name,
-                parent.Signature + "." + childMember.Signature,
                 parent._matchedTargetMember.Append(childMember),
                 parent._childMembers.Append(childMember))
         {
@@ -39,16 +36,14 @@ namespace AgileObjects.AgileMapper.Members
         private DictionaryEntrySourceMember(
             Type type,
             Func<string> pathFactory,
-            string signature,
             QualifiedMember matchedTargetMember,
             Member[] childMembers = null)
         {
             Type = type;
             IsEnumerable = type.IsEnumerable();
             _pathFactory = pathFactory;
-            Signature = signature;
             _matchedTargetMember = matchedTargetMember;
-            _childMembers = childMembers ?? new[] { Member.RootSource(signature, type) };
+            _childMembers = childMembers ?? new[] { Member.RootSource("Source", type) };
         }
 
         public Type Type { get; }
@@ -56,8 +51,6 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsEnumerable { get; }
 
         public string Name => _matchedTargetMember.Name;
-
-        public string Signature { get; }
 
         public string GetPath() => _pathFactory.Invoke();
 
@@ -71,7 +64,6 @@ namespace AgileObjects.AgileMapper.Members
             return new DictionaryEntrySourceMember(
                 Type,
                 _pathFactory,
-                Signature,
                 _matchedTargetMember,
                 relativeMemberChain);
         }
@@ -90,7 +82,6 @@ namespace AgileObjects.AgileMapper.Members
             return new DictionaryEntrySourceMember(
                 runtimeType,
                 _pathFactory,
-                childMembers.GetSignature(),
                 _matchedTargetMember,
                 childMembers);
         }

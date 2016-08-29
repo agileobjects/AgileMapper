@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IMemberMapperCreationData,
         IObjectMapperCreationData
     {
-        private readonly ICache<string, Func<TSource, Type>> _runtimeTypeGettersCache;
+        private readonly ICache<IQualifiedMember, Func<TSource, Type>> _runtimeTypeGettersCache;
         private readonly MemberMapperData _memberMapperData;
 
         public ObjectMappingData(
@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 instanceData.EnumerableIndex,
                 parent)
         {
-            _runtimeTypeGettersCache = GlobalContext.Instance.Cache.CreateScoped<string, Func<TSource, Type>>();
+            _runtimeTypeGettersCache = mapperData.MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
             _memberMapperData = mapperData;
         }
 
@@ -76,27 +76,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return sourceMember.Type;
             }
 
-            if (sourceMember == _memberMapperData.SourceMember)
-            {
-                return sourceMember.Type;
-            }
-
             if (sourceMember.Type.IsSealed)
             {
                 return sourceMember.Type;
             }
 
-            var accessKey = sourceMember.Signature + ": GetRuntimeSourceType";
+            if (sourceMember == _memberMapperData.SourceMember)
+            {
+                return sourceMember.Type;
+            }
 
-            var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(accessKey, k =>
+            var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(sourceMember, sm =>
             {
                 var sourceParameter = Parameters.Create<TSource>("source");
-                var relativeMember = sourceMember.RelativeTo(_memberMapperData.SourceMember);
+                var relativeMember = sm.RelativeTo(_memberMapperData.SourceMember);
                 var memberAccess = relativeMember.GetQualifiedAccess(_memberMapperData.SourceObject);
                 memberAccess = memberAccess.Replace(_memberMapperData.SourceObject, sourceParameter);
 
                 var getRuntimeTypeCall = Expression.Call(
-                    ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sourceMember.Type),
+                    ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sm.Type),
                     memberAccess);
 
                 var getRuntimeTypeLambda = Expression

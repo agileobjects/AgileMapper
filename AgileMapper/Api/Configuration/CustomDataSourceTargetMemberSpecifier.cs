@@ -71,14 +71,14 @@
 
             if (matchingParameters.Length == 0)
             {
-                ThrowMissingParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
+                throw MissingParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
             }
 
             var matchingParameterData = matchingParameters.First();
 
             if (matchingParameterData.MatchingParameters.Length > 1)
             {
-                ThrowAmbiguousParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
+                throw AmbiguousParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
             }
 
             var matchingParameter = matchingParameterData.MatchingParameters.First();
@@ -89,18 +89,18 @@
         private static string GetParameterMatchInfo<TParam>(string name, bool matchParameterType)
             => matchParameterType ? "of type " + typeof(TParam).GetFriendlyName() : "named '" + name + "'";
 
-        private static void ThrowMissingParameterException(string parameterMatchInfo)
+        private static Exception MissingParameterException(string parameterMatchInfo)
         {
-            throw new MappingConfigurationException(string.Format(
+            return new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
                 "No constructor parameter {0} exists on type {1}",
                 parameterMatchInfo,
                 typeof(TTarget).GetFriendlyName()));
         }
 
-        private static void ThrowAmbiguousParameterException(string parameterMatchInfo)
+        private static Exception AmbiguousParameterException(string parameterMatchInfo)
         {
-            throw new MappingConfigurationException(string.Format(
+            return new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
                 "Multiple constructor parameters found {0} on type {1}",
                 parameterMatchInfo,

@@ -6,20 +6,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMapperKey
     {
         private readonly MappingRuleSet _ruleSet;
-        private readonly string _sourceMemberSignature;
-        private readonly string _targetMemberSignature;
+        private readonly IQualifiedMember _sourceMember;
+        private readonly QualifiedMember _targetMember;
         private IMappingData _instanceData;
         private Func<IMappingData, bool> _sourceMemberTypeTester;
 
         private ObjectMapperKey(
             MappingRuleSet ruleSet,
-            string sourceMemberSignature,
-            string targetMemberSignature,
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember,
             IMappingData instanceData)
         {
             _ruleSet = ruleSet;
-            _sourceMemberSignature = sourceMemberSignature;
-            _targetMemberSignature = targetMemberSignature;
+            _sourceMember = sourceMember;
+            _targetMember = targetMember;
             _instanceData = instanceData;
         }
 
@@ -30,8 +30,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return new ObjectMapperKey(
                 bridge.MappingContext.RuleSet,
-                bridge.SourceMember.Signature,
-                bridge.TargetMember.Signature,
+                bridge.SourceMember,
+                bridge.TargetMember,
                 bridge.InstanceData);
         }
 
@@ -52,10 +52,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var otherKey = (ObjectMapperKey)obj;
 
             if ((otherKey._ruleSet == _ruleSet) &&
-                (otherKey._sourceMemberSignature == _sourceMemberSignature) &&
-                (otherKey._targetMemberSignature == _targetMemberSignature))
+                (otherKey._sourceMember == _sourceMember) &&
+                (otherKey._targetMember == _targetMember))
             {
-                return (_sourceMemberTypeTester == null) || 
+                return (_sourceMemberTypeTester == null) ||
                     ((otherKey._instanceData != null) && _sourceMemberTypeTester.Invoke(otherKey._instanceData));
             }
 

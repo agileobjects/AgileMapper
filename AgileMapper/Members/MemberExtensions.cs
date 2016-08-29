@@ -48,9 +48,6 @@
             return access;
         }
 
-        public static string GetSignature(this IEnumerable<Member> members)
-            => string.Join(".", members.Select(m => m.Signature));
-
         public static string GetFullName(this IEnumerable<Member> members)
             => string.Join(string.Empty, members.Select(m => m.JoiningName));
 

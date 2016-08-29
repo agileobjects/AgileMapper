@@ -72,7 +72,6 @@ namespace AgileObjects.AgileMapper.Members
             _matchedTargetMemberJoinedNames = matchedTargetMemberJoinedNames;
             _mapperContext = mapperContext;
             _childMembers = childMembers ?? new[] { Member.RootSource(name, type) };
-            Signature = _childMembers.GetSignature();
             _childMemberCache = mapperContext.Cache.CreateNew<string, ConfiguredSourceMember>();
         }
 
@@ -81,8 +80,6 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsEnumerable { get; }
 
         public string Name { get; }
-
-        public string Signature { get; }
 
         public string GetPath() => _childMembers.GetFullName();
 
