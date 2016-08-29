@@ -12,6 +12,9 @@
 
         PostEventConfigStartingPoint After { get; }
 
+        /// <summary>
+        /// Configure how this mapper performs a mapping.
+        /// </summary>
         MappingConfigStartingPoint WhenMapping { get; }
 
         TSource Clone<TSource>(TSource source) where TSource : class;

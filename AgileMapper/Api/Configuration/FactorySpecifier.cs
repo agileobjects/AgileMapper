@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Globalization;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Members;
@@ -29,10 +30,25 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
             if (factoryInfo == null)
             {
+                var contextTypeName = typeof(IMappingData<TSource, TTarget>).GetFriendlyName();
+                var sourceTypeName = typeof(TSource).GetFriendlyName();
+                var targetTypeName = typeof(TTarget).GetFriendlyName();
                 var objectTypeName = typeof(TObject).GetFriendlyName();
 
-                throw new MappingConfigurationException(
-                    $"Unable to create objects of type {objectTypeName} using factory {factory}");
+                string[] validSignatures =
+                {
+                    "Func<" + objectTypeName + ">",
+                    $"Func<{contextTypeName}, {objectTypeName}>",
+                    $"Func<{sourceTypeName}, {targetTypeName}, {objectTypeName}>",
+                    $"Func<{sourceTypeName}, {targetTypeName}, int?, {objectTypeName}>"
+                };
+
+                throw new MappingConfigurationException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    "Unable to create objects of type {0} using factory {1}: valid function signatures are {2}",
+                    objectTypeName,
+                    factory,
+                    string.Join(", ", validSignatures)));
             }
 
             var objectFactory = ConfiguredObjectFactory.For(_configInfo, typeof(TObject), factoryInfo);

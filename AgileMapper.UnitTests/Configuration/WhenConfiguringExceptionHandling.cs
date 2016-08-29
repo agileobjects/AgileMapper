@@ -28,6 +28,27 @@
         }
 
         [Fact]
+        public void ShouldSwallowANestedMappingException()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .SwallowAllExceptions();
+
+                mapper
+                    .After
+                    .CreatingInstancesOf<Address>()
+                    .Call(ctx => { throw new InvalidOperationException("ASPLODE"); });
+
+                var result = mapper.Map(new PersonViewModel { AddressLine1 = "YO" }).ToANew<Person>();
+
+                result.ShouldNotBeNull();
+                result.Address.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldConfigureAGlobalCallback()
         {
             using (var mapper = Mapper.CreateNew())

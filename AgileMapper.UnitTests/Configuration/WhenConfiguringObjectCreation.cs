@@ -328,13 +328,13 @@
         }
 
         [Fact]
-        public void ShouldErrorIfFourParameterObjectFactorySpecifiedWithInvalidParameters()
+        public void ShouldErrorIfFourParameterObjectFactorySpecified()
         {
             Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    Func<int, string, DateTime, TimeSpan, Address> addressFactory = (i, str, dt, ts) => new Address();
+                    Func<object, object, int?, Address, Address> addressFactory = (i, str, dt, ts) => new Address();
 
                     mapper
                         .WhenMapping
