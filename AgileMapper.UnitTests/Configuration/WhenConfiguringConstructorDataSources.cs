@@ -74,12 +74,28 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                         .Map(Guid.NewGuid())
                         .ToCtor<string>());
 
-                configurationException.Message.ShouldContain("No constructor parameter");
+                configurationException.Message.ShouldContain("No constructor parameter of type");
             }
         }
 
         [Fact]
-        public void ShouldErrorIfAmbiguousParameterTypeSpecified()
+        public void ShouldErrorIfMissingParameterNameSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicCtor<Guid>>()
+                        .Map(Guid.NewGuid())
+                        .ToCtor("boing"));
+
+                configurationException.Message.ShouldContain("No constructor parameter named");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfNonUniqueParameterTypeSpecified()
         {
             using (var mapper = Mapper.CreateNew())
             {
