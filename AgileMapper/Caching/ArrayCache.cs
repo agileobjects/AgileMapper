@@ -36,14 +36,16 @@
         {
             TValue value;
 
-            if (TryGetValue(key, out value))
+            var currentLength = _length;
+
+            if (TryGetValue(key, 0, out value))
             {
                 return value;
             }
 
             lock (_keyLock)
             {
-                if (TryGetValue(key, out value))
+                if (TryGetValue(key, currentLength, out value))
                 {
                     return value;
                 }
@@ -61,9 +63,9 @@
             return value;
         }
 
-        private bool TryGetValue(TKey key, out TValue value)
+        private bool TryGetValue(TKey key, int startIndex, out TValue value)
         {
-            for (var i = 0; i < _length; i++)
+            for (var i = startIndex; i < _length; i++)
             {
                 if (_keys[i].Equals(key))
                 {
