@@ -5,6 +5,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using AgileMapper.Configuration;
     using Members;
 
+    /// <summary>
+    /// Provides options to configure mappings of the type specified by the type argument.
+    /// </summary>
+    /// <typeparam name="TObject">The type of object to which the configuration should apply.</typeparam>
     public class InstanceConfigurator<TObject> where TObject : class
     {
         private readonly MappingConfigInfo _configInfo;
