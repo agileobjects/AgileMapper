@@ -73,7 +73,7 @@
 
         IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
             IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.If(
-                Expression<Func<TSource, TTarget, int?, bool>> condition)
+                Expression<Func<TSource, TTarget, TObject, bool>> condition)
             => SetCondition(condition);
 
         IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>

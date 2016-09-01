@@ -78,7 +78,7 @@
 
                 mapper.After
                     .CreatingInstancesOf<Person>()
-                    .Call((s, t, p) => createdPerson = p);
+                    .Call((s, t, p, i) => createdPerson = p);
 
                 var nonMatchingSource = new { Value = "12345" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<int>>();
@@ -373,7 +373,7 @@
                 mapper
                     .After
                     .CreatingInstances
-                    .If((s, t, i) => !i.HasValue)
+                    .If((s, t, o, i) => !i.HasValue)
                     .Call((s, t) => postCallbackObjects.AddRange(new[] { s, t }));
 
                 var source = new Person();
