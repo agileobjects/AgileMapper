@@ -27,7 +27,8 @@
         /// Map the derived source type being configured to the derived target type specified by the type argument.
         /// </summary>
         /// <typeparam name="TDerivedTarget">
-        /// The derived target type to create for the configured derived source type.</typeparam>
+        /// The derived target type to create for the configured derived source type.
+        /// </typeparam>
         /// <returns>
         /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.

@@ -10,6 +10,11 @@
     using Members;
     using ReadableExpressions.Extensions;
 
+    /// <summary>
+    /// Provides options for specifying a target member to which a configuration option should apply.
+    /// </summary>
+    /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
+    /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
     public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
@@ -26,10 +31,28 @@
             _customValueLambda = customValueLambda;
         }
 
+        /// <summary>
+        /// Apply the configuration to the given <paramref name="targetMember"/>.
+        /// </summary>
+        /// <typeparam name="TTargetValue">The target member's type.</typeparam>
+        /// <param name="targetMember">The target member to which to apply the configuration.</param>
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
         public MappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
             => RegisterDataSource<TTargetValue>(() => CreateFromLambda(targetMember));
 
+        /// <summary>
+        /// Apply the configuration to the given <paramref name="targetSetMethod"/>.
+        /// </summary>
+        /// <typeparam name="TTargetValue">The type of the target set method's argument.</typeparam>
+        /// <param name="targetSetMethod">The target set method to which to apply the configuration.</param>
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
         public MappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
             => RegisterDataSource<TTargetValue>(() => CreateFromLambda(targetSetMethod));
@@ -37,9 +60,25 @@
         private ConfiguredDataSourceFactory CreateFromLambda(LambdaExpression targetMemberLambda)
             => new ConfiguredDataSourceFactory(_configInfo, _customValueLambda, targetMemberLambda);
 
+        /// <summary>
+        /// Apply the configuration to the constructor parameter with the type specified by the type argument.
+        /// </summary>
+        /// <typeparam name="TTargetParam">The target constructor parameter's type.</typeparam>
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
         public MappingConfigContinuation<TSource, TTarget> ToCtor<TTargetParam>()
             => RegisterDataSource<TTargetParam>(CreateForCtorParam<TTargetParam>);
 
+        /// <summary>
+        /// Apply the configuration to the constructor parameter with the specified <paramref name="parameterName"/>.
+        /// </summary>
+        /// <param name="parameterName">The target constructor parameter's name.</param>
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
         public MappingConfigContinuation<TSource, TTarget> ToCtor(string parameterName)
             => RegisterDataSource<object>(() => CreateForCtorParam(parameterName));
 
