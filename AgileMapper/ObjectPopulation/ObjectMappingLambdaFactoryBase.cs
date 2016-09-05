@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var basicMappingData = BasicMapperData.WithNoTargetMember(mapperData);
 
             var preMappingCallback = GetMappingCallback(CallbackPosition.Before, basicMappingData, mapperData);
-            var shortCircuitReturns = GetShortCircuitReturns(returnNull, mapperData);
+            var shortCircuitReturns = GetShortCircuitReturns(returnNull, data);
             var objectPopulation = GetObjectPopulation(data);
             var postMappingCallback = GetMappingCallback(CallbackPosition.After, basicMappingData, mapperData);
             var returnValue = GetReturnValue(mapperData);
@@ -73,7 +73,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MemberMapperData data)
             => callbackFactory.Invoke(data.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
 
-        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data);
+        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMapperCreationData data);
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data);
 

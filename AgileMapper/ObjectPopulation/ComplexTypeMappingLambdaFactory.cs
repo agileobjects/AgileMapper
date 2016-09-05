@@ -19,9 +19,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override bool IsNotConstructable(IObjectMapperCreationData data)
             => _constructionFactory.GetNewObjectCreation(data) == null;
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
+        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMapperCreationData data)
         {
-            yield return GetStrategyShortCircuitReturns(returnNull, data);
+            yield return GetStrategyShortCircuitReturns(returnNull, data.MapperData);
             yield return GetExistingObjectShortCircuit(returnNull.Target, data);
         }
 
@@ -43,42 +43,68 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return shortCircuitBlock;
         }
 
-        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, MemberMapperData data)
+        private Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, IObjectMapperCreationData data)
         {
-            var tryGetCall = Expression.Call(
-                Expression.Property(data.Parameter, "MappingContext"),
-                MappingContext.TryGetMethod.MakeGenericMethod(data.SourceType, data.InstanceVariable.Type),
-                data.SourceObject,
-                data.InstanceVariable);
+            var mapperData = data.MapperData;
+
+            var objectCreation = GetObjectCreation(data);
+
+            var objectCreationLambda = Expression.Lambda(
+                Expression.GetFuncType(mapperData.InstanceVariable.Type),
+                objectCreation);
+
+            var tryGetOrRegisterMethod = MappingContext
+                .TryGetOrRegisterMethod
+                .MakeGenericMethod(mapperData.SourceType, mapperData.InstanceVariable.Type);
+
+            var tryGetOrRegisterCall = Expression.Call(
+                Expression.Property(mapperData.Parameter, "MappingContext"),
+                tryGetOrRegisterMethod,
+                mapperData.SourceObject,
+                mapperData.InstanceVariable,
+                objectCreationLambda);
 
             var ifTryGetReturn = Expression.IfThen(
-                tryGetCall,
-                Expression.Return(returnTarget, data.InstanceVariable));
+                tryGetOrRegisterCall,
+                Expression.Return(returnTarget, mapperData.InstanceVariable));
 
             return ifTryGetReturn;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data)
+        private Expression GetObjectCreation(IObjectMapperCreationData data)
         {
             var mapperData = data.MapperData;
 
-            yield return GetCreationCallback(CallbackPosition.Before, mapperData);
+            var preCreationCallback = GetCreationCallbackOrEmpty(CallbackPosition.Before, mapperData);
 
-            var instanceVariableValue = GetObjectResolution(data);
-            var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, instanceVariableValue);
-            yield return instanceVariableAssignment;
+            var instanceResolution = GetObjectResolution(data);
 
-            yield return GetCreationCallback(CallbackPosition.After, mapperData);
+            var postCreationCallback = GetCreationCallbackOrEmpty(CallbackPosition.After, mapperData);
 
-            yield return GetObjectRegistrationCall(mapperData);
-
-            foreach (var population in GetPopulationsAndCallbacks(data))
+            if ((preCreationCallback == Constants.EmptyExpression) &&
+                (postCreationCallback == Constants.EmptyExpression))
             {
-                yield return population;
+                return instanceResolution;
             }
+
+            var cacheFactoryVariable = Expression.Variable(mapperData.InstanceVariable.Type, "instance");
+            var cacheFactoryAssignment = Expression.Assign(cacheFactoryVariable, instanceResolution);
+
+            if (postCreationCallback != Constants.EmptyExpression)
+            {
+                postCreationCallback = postCreationCallback
+                    .Replace(mapperData.InstanceVariable, mapperData.CreatedObject);
+            }
+
+            return Expression.Block(
+                new[] { cacheFactoryVariable },
+                preCreationCallback,
+                cacheFactoryAssignment,
+                postCreationCallback,
+                cacheFactoryVariable);
         }
 
-        private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData data)
+        private static Expression GetCreationCallbackOrEmpty(CallbackPosition callbackPosition, MemberMapperData data)
             => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, data), data);
 
         private Expression GetObjectResolution(IObjectMapperCreationData data)
@@ -93,16 +119,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return existingOrCreatedObject;
         }
 
-        private static Expression GetObjectRegistrationCall(MemberMapperData data)
-        {
-            return Expression.Call(
-                Expression.Property(data.Parameter, "MappingContext"),
-                MappingContext.RegisterMethod.MakeGenericMethod(data.SourceType, data.TargetType),
-                data.SourceObject,
-                data.InstanceVariable);
-        }
-
-        private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMapperCreationData data)
+        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data)
         {
             var sourceMemberTypeTests = new List<Expression>();
 
@@ -138,7 +155,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             CreateSourceMemberTypeTesterIfRequired(sourceMemberTypeTests, data);
         }
-
         private static Expression GetPopulationCallbackOrEmpty(
             CallbackPosition position,
             IMemberPopulation memberPopulation,

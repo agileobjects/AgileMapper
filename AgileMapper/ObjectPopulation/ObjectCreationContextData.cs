@@ -10,9 +10,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public static ObjectCreationContextData<TSource, TTarget, TObject> Create<TSource, TTarget, TObject>(
             IMappingData<TSource, TTarget> data,
-            TObject createdCbject)
+            TObject createdObject)
         {
-            return new ObjectCreationContextData<TSource, TTarget, TObject>(data, createdCbject);
+            return new ObjectCreationContextData<TSource, TTarget, TObject>(data, createdObject);
         }
     }
 

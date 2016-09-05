@@ -38,7 +38,7 @@
 
             var currentLength = _length;
 
-            if (TryGetValue(key, 0, out value))
+            if (TryGetValue(key, out value))
             {
                 return value;
             }
@@ -62,6 +62,8 @@
 
             return value;
         }
+
+        private bool TryGetValue(TKey key, out TValue value) => TryGetValue(key, 0, out value);
 
         private bool TryGetValue(TKey key, int startIndex, out TValue value)
         {
@@ -100,6 +102,26 @@
             }
 
             return biggerArray;
+        }
+
+        public void Remove(TKey key)
+        {
+            for (var i = 0; i < _length; i++)
+            {
+                if (_keys[i].Equals(key))
+                {
+                    --_length;
+
+                    for (var j = i; j < _length; j++)
+                    {
+                        _keys[j] = _keys[j + 1];
+                        _values[j] = _values[j + 1];
+                    }
+
+                    _keys[_length] = default(TKey);
+                    _values[_length] = default(TValue);
+                }
+            }
         }
 
         public void Empty()
