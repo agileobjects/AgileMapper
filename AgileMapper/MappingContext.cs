@@ -1,5 +1,3 @@
-using AgileObjects.AgileMapper.Caching;
-
 namespace AgileObjects.AgileMapper
 {
     using System;
@@ -10,8 +8,8 @@ namespace AgileObjects.AgileMapper
 
     internal class MappingContext : IDisposable
     {
-        internal static readonly MethodInfo TryGetOrRegisterMethod = typeof(MappingContext)
-            .GetMethod("TryGetOrRegister", Constants.PublicInstance);
+        internal static readonly MethodInfo TryGetMethod = typeof(MappingContext).GetMethod("TryGet", Constants.PublicInstance);
+        internal static readonly MethodInfo RegisterMethod = typeof(MappingContext).GetMethod("Register", Constants.PublicInstance);
 
         private readonly ICollection<Action> _cleanupActions;
 
@@ -41,26 +39,27 @@ namespace AgileObjects.AgileMapper
         internal IObjectMapperCreationData CreateRootMapperCreationData<TSource, TTarget>(TSource source, TTarget target)
             => MapperCreationDataFactory.CreateRoot(this, source, target);
 
-        public bool TryGetOrRegister<TKey, TComplex>(TKey key, out TComplex complexType, Func<TComplex> complexTypeFactory)
+        public void Register<TKey, TComplex>(TKey key, TComplex complexType)
         {
             if (key == null)
             {
-                complexType = complexTypeFactory.Invoke();
-                return false;
+                return;
             }
 
-            var objectAlreadyRegistered = true;
+            ObjectCache<TKey, TComplex>.Cache.Add(key, complexType);
 
-            complexType = ObjectCache<TKey, TComplex>.Cache.GetOrAdd(key, k =>
+            _cleanupActions.Add(() => ObjectCache<TKey, TComplex>.Cache.Remove(key));
+        }
+
+        public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
+        {
+            if (key != null)
             {
-                objectAlreadyRegistered = false;
+                return ObjectCache<TKey, TComplex>.Cache.TryGetValue(key, out complexType);
+            }
 
-                _cleanupActions.Add(() => ObjectCache<TKey, TComplex>.Cache.Remove(k));
-
-                return complexTypeFactory.Invoke();
-            });
-
-            return objectAlreadyRegistered;
+            complexType = default(TComplex);
+            return false;
         }
 
         internal TTarget Map<TSource, TTarget>(IObjectMapperCreationData data)
@@ -117,7 +116,7 @@ namespace AgileObjects.AgileMapper
 
         private static class ObjectCache<TKey, TObject>
         {
-            public static readonly ICache<TKey, TObject> Cache = GlobalContext.Instance.Cache.CreateNew<TKey, TObject>();
+            public static readonly Dictionary<TKey, TObject> Cache = new Dictionary<TKey, TObject>();
         }
     }
 }

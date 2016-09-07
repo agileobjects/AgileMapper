@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         protected override bool IsNotConstructable(IObjectMapperCreationData data) => false;
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMapperCreationData data)
+        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
             => Enumerable.Empty<Expression>();
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data)

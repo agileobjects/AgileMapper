@@ -13,7 +13,5 @@
         IEnumerable<TValue> Values { get; }
 
         TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory);
-
-        void Remove(TKey key);
     }
 }
