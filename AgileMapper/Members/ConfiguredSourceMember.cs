@@ -26,10 +26,10 @@ namespace AgileObjects.AgileMapper.Members
         {
         }
 
-        private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember, bool isEnumerable)
+        private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(
                   childMember.Type,
-                  isEnumerable,
+                  parent.IsEnumerable,
                   parent.Name + childMember.JoiningName,
                   parent._matchedTargetMemberNames.Append(
                       parent._mapperContext.NamingSettings.GetMatchingNameFor(childMember)),
@@ -84,7 +84,7 @@ namespace AgileObjects.AgileMapper.Members
         public string GetPath() => _childMembers.GetFullName();
 
         public IQualifiedMember Append(Member childMember)
-            => _childMemberCache.GetOrAdd(childMember, m => new ConfiguredSourceMember(this, m, IsEnumerable));
+            => _childMemberCache.GetOrAdd(childMember, cm => new ConfiguredSourceMember(this, cm));
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {

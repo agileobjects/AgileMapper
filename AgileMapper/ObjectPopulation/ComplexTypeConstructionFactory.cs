@@ -20,14 +20,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression GetNewObjectCreation(IObjectMapperCreationData data)
         {
-            var objectCreationKey = new ConstructionKey(
-                data.RuleSet,
-                data.SourceMember,
-                data.TargetMember);
-
-            return _constructorsCache.GetOrAdd(objectCreationKey, k =>
+            return _constructorsCache.GetOrAdd(new ConstructionKey(data), key =>
             {
-                var mapperData = data.MapperData;
+                var mapperData = key.Data.MapperData;
 
                 var constructions = new List<Construction>();
                 var newingConstructorRequired = true;
@@ -62,10 +57,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                                 .Select(p =>
                                 {
                                     var parameterMapperData = new MemberMapperData(
-                                        data.TargetMember.Append(Member.ConstructorParameter(p)),
+                                        key.Data.TargetMember.Append(Member.ConstructorParameter(p)),
                                         mapperData);
 
-                                    return data.GetChildCreationData(parameterMapperData);
+                                    return key.Data.GetChildCreationData(parameterMapperData);
                                 })
                                 .Select(memberData => mapperData
                                     .MapperContext
@@ -81,6 +76,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         constructions.Insert(0, greediestAvailableConstructor.Construction);
                     }
                 }
+
+                key.RemoveCreationData();
 
                 if (constructions.None())
                 {
@@ -106,12 +103,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             private readonly IQualifiedMember _sourceMember;
             private readonly QualifiedMember _targetMember;
 
-            public ConstructionKey(MappingRuleSet ruleSet, IQualifiedMember sourceMember, QualifiedMember targetMember)
+            public ConstructionKey(IObjectMapperCreationData data)
             {
-                _ruleSet = ruleSet;
-                _sourceMember = sourceMember;
-                _targetMember = targetMember;
+                _ruleSet = data.RuleSet;
+                _sourceMember = data.SourceMember;
+                _targetMember = data.TargetMember;
+                Data = data;
             }
+
+            public IObjectMapperCreationData Data { get; private set; }
 
             public override bool Equals(object obj)
             {
@@ -123,6 +123,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             public override int GetHashCode() => 0;
+
+            public void RemoveCreationData() => Data = null;
         }
 
         private class ConstructorData

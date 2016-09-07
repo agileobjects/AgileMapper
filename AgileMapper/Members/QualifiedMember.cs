@@ -98,7 +98,7 @@ namespace AgileObjects.AgileMapper.Members
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
         public QualifiedMember Append(Member childMember)
-            => _childMemberCache.GetOrAdd(childMember, m => new QualifiedMember(m, this, _mapperContext));
+            => _childMemberCache.GetOrAdd(childMember, cm => new QualifiedMember(cm, this, _mapperContext));
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
@@ -123,9 +123,9 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            var runtimeTypedMember = _runtimeTypedMemberCache.GetOrAdd(runtimeType, t =>
+            var runtimeTypedMember = _runtimeTypedMemberCache.GetOrAdd(runtimeType, rt =>
             {
-                _memberChain[_memberChain.Length - 1] = LeafMember.WithType(t);
+                _memberChain[_memberChain.Length - 1] = LeafMember.WithType(rt);
 
                 return new QualifiedMember(_memberChain, _memberMatchingNames, _mapperContext);
             });

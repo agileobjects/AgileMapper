@@ -86,7 +86,7 @@
         #region Setup
 
         private ParameterExpression GetParameter(Type type)
-            => _parametersCache.GetOrAdd(TypeKey.ForParameter(type), k => Parameters.Create(type));
+            => _parametersCache.GetOrAdd(TypeKey.ForParameter(type), key => Parameters.Create(key.Type));
 
         private Expression GetIdentifierOrNull(Type type, Expression parameter, MemberMapperData data)
         {
