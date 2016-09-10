@@ -5,6 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using AgileMapper.Configuration;
+    using AgileMapper.Members;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -53,7 +54,7 @@
         }
 
         [Fact]
-        public void ShouldUseAConfiguredFactoryFuncForASpecifiedSourceAndTargetType()
+        public void ShouldUseAConfiguredParameterlessFactoryFuncForASpecifiedSourceAndTargetType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -77,11 +78,12 @@
         }
 
         [Fact]
-        public void ShouldUseAConfiguredFactoryFuncForASpecifiedSourceTargetAndObjectType()
+        public void ShouldUseAConfiguredSingleParameterFactoryFuncForASpecifiedSourceTargetAndObjectType()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                Func<Address> addressFactory = () => new Address { Line2 = "Customer House" };
+                Func<IMappingData<CustomerViewModel, Customer>, Address> addressFactory =
+                    ctx => new Address { Line2 = ctx.Source.Name + " House" };
 
                 mapper.WhenMapping
                     .From<CustomerViewModel>()
@@ -89,8 +91,8 @@
                     .CreateInstancesOf<Address>()
                     .Using(addressFactory);
 
-                var matchingSource = new CustomerViewModel { AddressLine1 = "Meh" };
-                var nonMatchingSource = new PersonViewModel { AddressLine1 = "Blah" };
+                var nonMatchingSource = new PersonViewModel { Name = "Benny", AddressLine1 = "Blah" };
+                var matchingSource = new CustomerViewModel { Name = "Frankie", AddressLine1 = "Meh" };
 
                 var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<Customer>();
                 nonMatchingSourceResult.Address.Line2.ShouldBeNull();
@@ -99,7 +101,7 @@
                 nonMatchingTargetResult.Address.Line2.ShouldBeNull();
 
                 var matchingResult = mapper.Map(matchingSource).ToANew<Customer>();
-                matchingResult.Address.Line2.ShouldBe("Customer House");
+                matchingResult.Address.Line2.ShouldBe("Frankie House");
             }
         }
 
@@ -170,17 +172,20 @@
         }
 
         [Fact]
-        public void ShouldUseAConfiguredFactoryWithAnObjectInitialiser()
+        public void ShouldUseAConfiguredTwoParameterFactoryFuncWithAnObjectInitialiser()
         {
             using (var mapper = Mapper.CreateNew())
             {
+                Func<Person, PublicReadOnlyProperty<Address>, PublicReadOnlyProperty<Address>> factory =
+                    (p, prop) => new PublicReadOnlyProperty<Address>(new Address())
+                    {
+                        Value = { Line1 = p.Address.Line1, Line2 = p.Address.Line2 }
+                    };
+
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicReadOnlyProperty<Address>>()
-                    .CreateInstancesUsing(ctx => new PublicReadOnlyProperty<Address>(new Address())
-                    {
-                        Value = { Line1 = ctx.Source.Address.Line1, Line2 = ctx.Source.Address.Line2 }
-                    });
+                    .CreateInstancesUsing(factory);
 
                 var source = new Person { Address = new Address { Line1 = "Here", Line2 = "There" } };
                 var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<Address>>();
@@ -191,22 +196,25 @@
         }
 
         [Fact]
-        public void ShouldUseAConfiguredFactoryWithAnListInitialiser()
+        public void ShouldUseAConfiguredThreeParameterFactoryWithAListInitialiser()
         {
             using (var mapper = Mapper.CreateNew())
             {
+                Func<Person, PublicReadOnlyProperty<List<string>>, int?, PublicReadOnlyProperty<List<string>>> factory =
+                    (p, prop, i) => new PublicReadOnlyProperty<List<string>>(new List<string>())
+                    {
+                        Value = { p.Id.ToString(), p.Name, i.GetValueOrDefault().ToString() }
+                    };
+
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicReadOnlyProperty<List<string>>>()
-                    .CreateInstancesUsing(ctx => new PublicReadOnlyProperty<List<string>>(new List<string>())
-                    {
-                        Value = { ctx.Source.Id.ToString(), ctx.Source.Name }
-                    });
+                    .CreateInstancesUsing(factory);
 
                 var source = new Person { Id = Guid.NewGuid(), Name = "Giles" };
                 var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<List<string>>>();
 
-                result.Value.ShouldBe(source.Id.ToString(), "Giles");
+                result.Value.ShouldBe(source.Id.ToString(), "Giles", "0");
             }
         }
 
