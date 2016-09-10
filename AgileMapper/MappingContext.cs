@@ -86,13 +86,13 @@ namespace AgileObjects.AgileMapper
                 var createMapperCall = Expression.Call(
                     mapperFactoryParameter,
                     typedCreateMapperMethod,
-                    Parameters.ObjectMappingCreationData);
+                    Parameters.ObjectMapperCreationData);
 
                 var createMapperLambda = Expression
                     .Lambda<Func<ObjectMapperFactory, IObjectMapperCreationData, IObjectMapper<TTarget>>>(
                         createMapperCall,
                         mapperFactoryParameter,
-                        Parameters.ObjectMappingCreationData);
+                        Parameters.ObjectMapperCreationData);
 
                 return createMapperLambda.Compile();
             });

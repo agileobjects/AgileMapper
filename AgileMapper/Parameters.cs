@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper
         public static readonly ParameterExpression MappingContext = Create<MappingContext>();
         public static readonly ParameterExpression MappingData = Create<IMappingData>();
         public static readonly ParameterExpression ObjectMapperData = Create<ObjectMapperData>();
-        public static readonly ParameterExpression ObjectMappingCreationData = Create<IObjectMapperCreationData>();
+        public static readonly ParameterExpression ObjectMapperCreationData = Create<IObjectMapperCreationData>();
 
         public static readonly ParameterExpression EnumerableIndex = Create<int>("i");
         public static readonly ParameterExpression EnumerableIndexNullable = Create<int?>("i");
