@@ -2,6 +2,11 @@
 {
     using AgileMapper.Configuration;
 
+    /// <summary>
+    /// Provides options for specifying the target type and mapping rule set to which the configuration should
+    /// apply.
+    /// </summary>
+    /// <typeparam name="TSource">The source type being configured.</typeparam>
     public class TargetTypeSpecifier<TSource>
     {
         private readonly MappingConfigInfo _configInfo;

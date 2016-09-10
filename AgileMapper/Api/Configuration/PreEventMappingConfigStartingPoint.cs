@@ -6,7 +6,7 @@
     using ObjectPopulation;
 
     /// <summary>
-    /// Provides options to configure the execution of a callback before a particular type of event for a 
+    /// Provides options for configuring the execution of a callback before a particular type of event for a 
     /// particular source and target type.
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>

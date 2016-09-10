@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api
 {
     /// <summary>
-    /// Provides options to specify the type of mapping to perform.
+    /// Provides options for specifying the type of mapping to perform.
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
     public class TargetTypeSelector<TSource>

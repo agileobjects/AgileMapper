@@ -17,7 +17,8 @@
         }
 
         /// <summary>
-        /// Configure how this mapper performs another mapping.
+        /// Perform another configuration of how this mapper maps to and from the source and target types
+        /// being configured.
         /// </summary>
         public IFullMappingConfigurator<TSource, TTarget> And
             => new MappingConfigurator<TSource, TTarget>(_configInfo.CloneForContinuation());

@@ -4,7 +4,7 @@
     using ObjectPopulation;
 
     /// <summary>
-    /// Provides options to configure the execution of a callback after a particular type of event for all
+    /// Provides options for configuring the execution of a callback after a particular type of event for all
     /// source and target types.
     /// </summary>
     public class PostEventConfigStartingPoint

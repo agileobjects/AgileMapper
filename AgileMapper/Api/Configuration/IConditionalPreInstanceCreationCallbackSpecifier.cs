@@ -5,7 +5,7 @@
     using Members;
 
     /// <summary>
-    /// Provides options to configure the execution of a callback before a particular type of event for mappings
+    /// Provides options for configuring the execution of a callback before a particular type of event for mappings
     /// from and to the source and target types being configured.
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>

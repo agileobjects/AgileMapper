@@ -10,6 +10,9 @@
     using Members;
     using ReadableExpressions;
 
+    /// <summary>
+    /// Provides options for configuring how a mapper performs a mapping.
+    /// </summary>
     public class MappingConfigStartingPoint
     {
         private readonly MapperContext _mapperContext;

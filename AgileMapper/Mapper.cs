@@ -3,6 +3,10 @@
     using Api;
     using Api.Configuration;
 
+    /// <summary>
+    /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
+    /// instance via the static Mapper access methods.
+    /// </summary>
     public sealed class Mapper : IMapper
     {
         private static readonly IMapper _default = CreateNew();
@@ -16,10 +20,11 @@
 
         #region Factory Methods
 
-        public static IMapper CreateNew()
-        {
-            return new Mapper(new MapperContext());
-        }
+        /// <summary>
+        /// Creates an instance implementing IMapper with which to perform mappings.
+        /// </summary>
+        /// <returns>A new instance implementing IMapper.</returns>
+        public static IMapper CreateNew() => new Mapper(new MapperContext());
 
         #endregion
 
