@@ -11,13 +11,13 @@ namespace AgileObjects.AgileMapper
         internal static readonly MethodInfo TryGetMethod = typeof(MappingContext).GetMethod("TryGet", Constants.PublicInstance);
         internal static readonly MethodInfo RegisterMethod = typeof(MappingContext).GetMethod("Register", Constants.PublicInstance);
 
-        private readonly ICollection<Action> _cleanupActions;
+        private readonly ICollection<ICachedItemRemover> _cacheCleaners;
 
         internal MappingContext(MappingRuleSet ruleSet, MapperContext mapperContext)
         {
             RuleSet = ruleSet;
             MapperContext = mapperContext;
-            _cleanupActions = new List<Action>();
+            _cacheCleaners = new List<ICachedItemRemover>();
         }
 
         internal MapperContext MapperContext { get; }
@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper
 
             ObjectCache<TKey, TComplex>.Cache.Add(key, complexType);
 
-            _cleanupActions.Add(() => ObjectCache<TKey, TComplex>.Cache.Remove(key));
+            _cacheCleaners.Add(new ObjectCacheRemover<TKey, TComplex>(key));
         }
 
         public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
@@ -106,10 +106,12 @@ namespace AgileObjects.AgileMapper
 
         public void Dispose()
         {
-            foreach (var cleanupAction in _cleanupActions)
+            foreach (var cleanupAction in _cacheCleaners)
             {
-                cleanupAction.Invoke();
+                cleanupAction.RemoveCachedItem();
             }
+
+            _cacheCleaners.Clear();
         }
 
         #endregion
@@ -117,6 +119,26 @@ namespace AgileObjects.AgileMapper
         private static class ObjectCache<TKey, TObject>
         {
             public static readonly Dictionary<TKey, TObject> Cache = new Dictionary<TKey, TObject>();
+        }
+
+        private interface ICachedItemRemover
+        {
+            void RemoveCachedItem();
+        }
+
+        private class ObjectCacheRemover<TKey, TObject> : ICachedItemRemover
+        {
+            private readonly TKey _key;
+
+            public ObjectCacheRemover(TKey key)
+            {
+                _key = key;
+            }
+
+            public void RemoveCachedItem()
+            {
+                ObjectCache<TKey, TObject>.Cache.Remove(_key);
+            }
         }
     }
 }
