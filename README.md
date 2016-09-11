@@ -15,5 +15,5 @@ You can use it to deep-clone:
     Mapper.Map(customerOne).OnTo(customerTwo);
 
 It's [available via NuGet](https://www.nuget.org/packages/AgileObjects.AgileMapper) and licensed with the 
-[MIT licence](https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md). Check out [the wiki](https://github.com/agileobjects/AgileMapper/wiki/Welcome!)
+[MIT licence](https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md). Check out [the wiki](https://github.com/agileobjects/AgileMapper/wiki)
 for more information!
