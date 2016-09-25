@@ -1,6 +1,7 @@
 # AgileMapper
-AgileMapper is a zero-configuration, highly-configurable, portable object-object mapper with [viewable execution 
-plans](https://github.com/agileobjects/AgileMapper/wiki/Using-Execution-Plans) via a static or instance API.
+AgileMapper is a zero-configuration, [highly-configurable](https://github.com/agileobjects/AgileMapper/wiki/Configuration), 
+portable object-object mapper with [viewable execution plans](https://github.com/agileobjects/AgileMapper/wiki/Using-Execution-Plans) 
+via a [static or instance](https://github.com/agileobjects/AgileMapper/wiki/Static-vs-Instance-Mappers) API.
 
 You can use it to create new objects:
 
@@ -8,13 +9,13 @@ You can use it to create new objects:
 var customerDto = Mapper.Map(customer).ToANew<CustomerDto>();
 ```
 
-...perform id-aware updates:
+...perform [id-aware updates](https://github.com/agileobjects/AgileMapper/wiki/Performing-Updates):
 
 ```C#
 Mapper.Map(customerViewModel).Over(customer);
 ```
 
-...and merges:
+...and [merges](https://github.com/agileobjects/AgileMapper/wiki/Performing-Merges):
 
 ```C#
 Mapper.Map(customerOne).OnTo(customerTwo);
