@@ -99,5 +99,16 @@
             clonedBrock.ShouldNotBeSameAs(brock);
             clonedBrock.Friends.Count.ShouldBe(2);
         }
+
+        [Fact]
+        public void ShouldGenerateAMappingPlanForAOneToOneRelationship()
+        {
+            var plan = Mapper
+                .GetPlanFor<Parent>()
+                .ToANew<Parent>();
+
+            plan.ShouldContain("Map Parent -> Parent");
+            plan.ShouldContain("Map Child -> Child");
+        }
     }
 }

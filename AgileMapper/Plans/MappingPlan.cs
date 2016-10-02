@@ -9,10 +9,13 @@
 
     internal class MappingPlan<TSource, TTarget>
     {
+        private readonly List<MappingPlanData> _generatedPlanData;
         private readonly string _plan;
 
         public MappingPlan(MappingContext mappingContext)
         {
+            _generatedPlanData = new List<MappingPlanData>();
+
             var rootMappingData = mappingContext.CreateRootMapperCreationData(default(TSource), default(TTarget));
 
             var rootMapper = mappingContext
@@ -20,18 +23,29 @@
                 .ObjectMapperFactory
                 .CreateFor<TSource, TTarget>(rootMappingData);
 
-            var planData = Expand(new MappingPlanData(
+            var rootPlanData = new MappingPlanData(
                 mappingContext,
                 rootMapper.MappingLambda,
-                rootMappingData.MapperData));
+                rootMappingData.MapperData);
+
+            var planData = Expand(rootPlanData);
 
             _plan = string.Join(
                 Environment.NewLine + Environment.NewLine,
-                planData.Distinct().Select(GetDescription));
+                planData.Select(GetDescription));
+
+            _generatedPlanData.Clear();
         }
 
-        private static IEnumerable<MappingPlanData> Expand(MappingPlanData planData)
+        private IEnumerable<MappingPlanData> Expand(MappingPlanData planData)
         {
+            if (_generatedPlanData.Contains(planData))
+            {
+                yield break;
+            }
+
+            _generatedPlanData.Add(planData);
+
             yield return planData;
 
             var mapCalls = MapCallFinder.FindIn(planData.Lambda);
