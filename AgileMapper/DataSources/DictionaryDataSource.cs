@@ -12,12 +12,12 @@ namespace AgileObjects.AgileMapper.DataSources
         #region Cached Items
 
         private static readonly MethodInfo _linqIntersectMethod = typeof(Enumerable)
-            .GetMethods(Constants.PublicStatic)
+            .GetPublicStaticMethods()
             .First(m => m.Name == "Intersect" && m.GetParameters().Length == 3)
             .MakeGenericMethod(typeof(string));
 
         private static readonly MethodInfo _linqFirstOrDefaultMethod = typeof(Enumerable)
-            .GetMethods(Constants.PublicStatic)
+            .GetPublicStaticMethods()
             .First(m => m.Name == "FirstOrDefault" && m.GetParameters().Length == 1)
             .MakeGenericMethod(typeof(string));
 
@@ -90,7 +90,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var tryGetValueCall = Expression.Call(
                 data.SourceObject,
-                data.SourceObject.Type.GetMethod("TryGetValue", Constants.PublicInstance),
+                data.SourceObject.Type.GetMethod("TryGetValue"),
                 matchingNameOrEmptyString,
                 variable);
 
@@ -177,7 +177,7 @@ namespace AgileObjects.AgileMapper.DataSources
                     var closeBrace = Expression.Constant("]");
 
                     var stringConcatMethod = typeof(string)
-                        .GetMethods(Constants.PublicStatic)
+                        .GetPublicStaticMethods()
                         .First(m => (m.Name == "Concat") &&
                                     (m.GetParameters().Length == 3) &&
                                     (m.GetParameters().First().ParameterType == typeof(string)));

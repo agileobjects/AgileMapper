@@ -44,8 +44,8 @@
 
         public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
 
-        IMappingData<TParentSource, TParentTarget> IMappingData.As<TParentSource, TParentTarget>()
-            => (IMappingData<TParentSource, TParentTarget>)this;
+        IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
+            => (IMappingData<TDataSource, TDataTarget>)this;
 
         #endregion
     }

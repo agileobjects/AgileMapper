@@ -83,45 +83,5 @@
         }
 
         #endregion
-
-        #region CanBeNull
-
-        [Fact]
-        public void ShouldEvaluateAComplexTypeAsPotentiallyNull()
-        {
-            typeof(Person).CanBeNull().ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldEvaluateAnArrayAsPotentiallyNull()
-        {
-            typeof(string[]).CanBeNull().ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldEvaluateAGenericEnumerableAsPotentiallyNull()
-        {
-            typeof(IEnumerable<DateTime>).CanBeNull().ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldEvaluateAStringAsPotentiallyNull()
-        {
-            typeof(string).CanBeNull().ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldNotEvaluateAGuidAsPotentiallyNull()
-        {
-            typeof(Guid).CanBeNull().ShouldBeFalse();
-        }
-
-        [Fact]
-        public void ShouldEvaluateANullableValueTypeAsPotentiallyNull()
-        {
-            typeof(long?).CanBeNull().ShouldBeTrue();
-        }
-
-        #endregion
     }
 }

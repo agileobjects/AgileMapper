@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using ReadableExpressions.Extensions;
 
     internal class NestedAccessFinder : ExpressionVisitor
     {

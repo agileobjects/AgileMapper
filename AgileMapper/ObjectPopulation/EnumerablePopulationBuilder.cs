@@ -14,21 +14,21 @@
         #region Cached Items
 
         private static readonly MethodInfo _concatMethod = typeof(Enumerable)
-            .GetMethod("Concat", Constants.PublicStatic);
+            .GetPublicStaticMethod("Concat");
 
         private static readonly MethodInfo _selectMethod = typeof(Enumerable)
-            .GetMethods(Constants.PublicStatic)
+            .GetPublicStaticMethods()
             .Last(m => (m.Name == "Select") && m.GetParameters().Length == 2);
 
         private static readonly MethodInfo _excludeMethod = typeof(EnumerableExtensions)
-            .GetMethod("Exclude", Constants.PublicStatic);
+            .GetPublicStaticMethod("Exclude");
 
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
-            .GetMethods(Constants.PublicStatic)
+            .GetPublicStaticMethods()
             .First(m => m.Name == "ForEach");
 
         private static readonly MethodInfo _forEachTupleMethod = typeof(EnumerableExtensions)
-            .GetMethods(Constants.PublicStatic)
+            .GetPublicStaticMethods()
             .Last(m => m.Name == "ForEach");
 
         #endregion
@@ -380,8 +380,7 @@
                 : Expression.Call(_omd.TargetObject, method, argument);
         }
 
-        private MethodInfo GetTargetMethod(string methodName)
-            => _omd.TargetObject.Type.GetMethod(methodName, Constants.PublicInstance);
+        private MethodInfo GetTargetMethod(string methodName) => _omd.TargetObject.Type.GetMethod(methodName);
 
         private static Expression GetForEachCall(Expression subject, Func<Expression, Expression> forEachActionFactory)
         {

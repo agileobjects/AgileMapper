@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using ReadableExpressions.Extensions;
 
     internal class ToEnumConverter : IValueConverter
     {
@@ -16,12 +17,12 @@
 
         public bool IsFor(Type nonNullableTargetType)
         {
-            return nonNullableTargetType.IsEnum;
+            return nonNullableTargetType.IsEnum();
         }
 
         public bool CanConvert(Type nonNullableSourceType)
         {
-            return nonNullableSourceType.IsEnum ||
+            return nonNullableSourceType.IsEnum() ||
                 (nonNullableSourceType == typeof(string)) ||
                 (nonNullableSourceType == typeof(char)) ||
                 nonNullableSourceType.IsNumeric();
@@ -37,7 +38,7 @@
             var nonNullableEnumType = targetType.GetNonNullableUnderlyingTypeIfAppropriate();
 
             var tryParseMethod = typeof(Enum)
-                .GetMethods(Constants.PublicStatic)
+                .GetPublicStaticMethods()
                 .First(m => (m.Name == "TryParse") && (m.GetParameters().Length == 3))
                 .MakeGenericMethod(nonNullableEnumType);
 
@@ -51,7 +52,7 @@
 
             var isDefinedCall = Expression.Call(
                 null,
-                typeof(Enum).GetMethod("IsDefined", Constants.PublicStatic),
+                typeof(Enum).GetPublicStaticMethod("IsDefined"),
                 Expression.Constant(nonNullableEnumType),
                 valueVariable.GetConversionTo(typeof(object)));
 

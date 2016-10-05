@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Configuration;
     using Extensions;
     using Members;
@@ -93,7 +94,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 Type[] contextTypes;
                 Expression contextAccess;
 
-                if (callbackActionType.IsGenericType)
+                if (callbackActionType.IsGenericType())
                 {
                     contextTypes = callbackActionType.GetGenericArguments();
                     contextAccess = data.GetAppropriateTypedMappingContextAccess(contextTypes);

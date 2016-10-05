@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using ReadableExpressions.Extensions;
 
     internal abstract class ToNumericConverterBase : TryParseConverterBase
     {
@@ -20,7 +21,7 @@
         public override bool CanConvert(Type nonNullableSourceType)
         {
             return base.CanConvert(nonNullableSourceType) ||
-                   nonNullableSourceType.IsEnum ||
+                   nonNullableSourceType.IsEnum() ||
                    _handledSourceTypes.Contains(nonNullableSourceType);
         }
 
@@ -45,37 +46,7 @@
 
         private static Type GetNonEnumSourceType(Expression sourceValue)
         {
-            if (sourceValue.Type.IsEnum)
-            {
-                switch (Type.GetTypeCode(sourceValue.Type))
-                {
-                    case TypeCode.Byte:
-                        return typeof(byte);
-
-                    case TypeCode.SByte:
-                        return typeof(sbyte);
-
-                    case TypeCode.Int16:
-                        return typeof(short);
-
-                    case TypeCode.UInt16:
-                        return typeof(ushort);
-
-                    case TypeCode.Int32:
-                        return typeof(int);
-
-                    case TypeCode.UInt32:
-                        return typeof(uint);
-
-                    case TypeCode.Int64:
-                        return typeof(long);
-
-                    case TypeCode.UInt64:
-                        return typeof(ulong);
-                }
-            }
-
-            return sourceValue.Type;
+            return sourceValue.Type.IsEnum() ? Enum.GetUnderlyingType(sourceValue.Type) : sourceValue.Type;
         }
 
         private static bool IsNonNumericType(Type type)
@@ -118,7 +89,7 @@
 
         private static bool NonWholeNumberCheckIsNotRequired(Expression sourceValue, Type nonNullableTargetType)
         {
-            return sourceValue.Type.IsEnum ||
+            return sourceValue.Type.IsEnum() ||
                    sourceValue.Type.IsWholeNumberNumeric() ||
                    !nonNullableTargetType.IsWholeNumberNumeric();
         }

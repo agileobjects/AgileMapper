@@ -3,7 +3,9 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class ConfiguredLambdaInfo
     {
@@ -66,7 +68,7 @@
         {
             var funcType = typeof(T);
 
-            if (!funcType.IsGenericType)
+            if (!funcType.IsGenericType())
             {
                 return null;
             }

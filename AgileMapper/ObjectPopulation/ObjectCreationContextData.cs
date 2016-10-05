@@ -2,11 +2,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Reflection;
     using Members;
+    using Extensions;
 
     internal static class ObjectCreationContext
     {
         internal static readonly MethodInfo CreateMethod =
-            typeof(ObjectCreationContext).GetMethod("Create", Constants.PublicStatic);
+            typeof(ObjectCreationContext).GetPublicStaticMethod("Create");
 
         public static ObjectCreationContextData<TSource, TTarget, TObject> Create<TSource, TTarget, TObject>(
             IMappingData<TSource, TTarget> data,

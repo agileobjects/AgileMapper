@@ -11,10 +11,10 @@
     internal static partial class ExpressionExtensions
     {
         private static readonly MethodInfo _toArrayMethod = typeof(Enumerable)
-            .GetMethod("ToArray", Constants.PublicStatic);
+            .GetPublicStaticMethod("ToArray");
 
         private static readonly MethodInfo _toListMethod = typeof(Enumerable)
-            .GetMethod("ToList", Constants.PublicStatic);
+            .GetPublicStaticMethod("ToList");
 
         public static Expression GetParentOrNull(this Expression expression)
         {
@@ -127,9 +127,11 @@
 
         public static Expression GetToValueOrDefaultCall(this Expression nullableExpression)
         {
-            return Expression.Call(
-                nullableExpression,
-                nullableExpression.Type.GetMethod("GetValueOrDefault", Constants.NoTypeArguments));
+            var parameterlessGetValueOrDefault = nullableExpression.Type
+                .GetPublicInstanceMethods()
+                .First(m => (m.Name == "GetValueOrDefault") && !m.GetParameters().Any());
+
+            return Expression.Call(nullableExpression, parameterlessGetValueOrDefault);
         }
 
         public static Expression GetConversionTo(this Expression expression, Type targetType)

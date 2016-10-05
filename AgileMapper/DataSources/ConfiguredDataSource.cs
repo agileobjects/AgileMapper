@@ -3,6 +3,7 @@
     using System.Linq.Expressions;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {
@@ -59,7 +60,7 @@
 
         private static Expression GetConvertedValue(int dataSourceIndex, Expression value, MemberMapperData data)
         {
-            if (data.TargetMember.IsComplex && (data.TargetMember.Type.Assembly != typeof(string).Assembly))
+            if (data.TargetMember.IsComplex && (data.TargetMember.Type.GetAssembly() != typeof(string).GetAssembly()))
             {
                 return data.GetMapCall(value, dataSourceIndex);
             }

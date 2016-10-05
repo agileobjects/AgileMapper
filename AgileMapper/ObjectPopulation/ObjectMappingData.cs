@@ -76,7 +76,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return sourceMember.Type;
             }
 
-            if (sourceMember.Type.IsSealed)
+            if (sourceMember.Type.IsSealed())
             {
                 return sourceMember.Type;
             }

@@ -4,7 +4,9 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 
     internal static class TypeExtensions
     {
@@ -31,12 +33,12 @@
             var namingType = typeIsEnumerable ? type.GetEnumerableElementType() : type;
             var variableName = namingType.Name;
 
-            if (namingType.IsInterface)
+            if (namingType.IsInterface())
             {
                 variableName = variableName.Substring(1);
             }
 
-            if (namingType.IsGenericType)
+            if (namingType.IsGenericType())
             {
                 variableName = variableName.Substring(0, variableName.IndexOf('`'));
 
@@ -128,7 +130,7 @@
         {
             return enumerableType.IsArray
                 ? enumerableType.GetElementType()
-                : enumerableType.IsGenericType
+                : enumerableType.IsGenericType()
                     ? enumerableType.GetGenericArguments().First()
                     : typeof(object);
         }
@@ -147,17 +149,7 @@
 
         public static bool IsSimple(this Type type)
         {
-            return type.IsValueType || (type == typeof(string));
-        }
-
-        public static bool CanBeNull(this Type type)
-        {
-            return type.IsClass || type.IsInterface || type.IsNullableType();
-        }
-
-        public static bool IsNullableType(this Type type)
-        {
-            return Nullable.GetUnderlyingType(type) != null;
+            return type.IsValueType() || (type == typeof(string));
         }
 
         public static Type GetNonNullableUnderlyingTypeIfAppropriate(this Type type)
@@ -210,7 +202,7 @@
         {
             type = type.GetNonNullableUnderlyingTypeIfAppropriate();
 
-            return type.IsEnum ? enumValueFactory.Invoke(GetEnumValues(type)) : cache[type];
+            return type.IsEnum() ? enumValueFactory.Invoke(GetEnumValues(type)) : cache[type];
         }
 
         private static IEnumerable<long> GetEnumValues(Type enumType)

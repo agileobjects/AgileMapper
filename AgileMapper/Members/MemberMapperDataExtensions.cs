@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
                 data.RuleSet.ComplexTypeMappingShortCircuitStrategy.SourceCanBeNull);
         }
 
-        private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As", Constants.PublicInstance);
+        private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As");
 
         public static Expression GetAppropriateTypedMappingContextAccess(this MemberMapperData data, Type[] contextTypes)
         {
@@ -67,8 +67,8 @@ namespace AgileObjects.AgileMapper.Members
                 _asMethod.MakeGenericMethod(contextTypes[0], contextTypes[1]));
         }
 
-        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource", Constants.PublicInstance);
-        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget", Constants.PublicInstance);
+        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
+        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget");
 
         public static Expression GetSourceAccess(this MemberMapperData data, Expression contextAccess, Type sourceType)
             => GetAccess(data, contextAccess, GetSourceAccess, sourceType, data.SourceObject);

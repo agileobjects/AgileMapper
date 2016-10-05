@@ -3,14 +3,21 @@
     using System;
     using System.Linq;
     using System.Reflection;
+    using Extensions;
     using Members;
     using ReadableExpressions.Extensions;
 
+    /// <summary>
+    /// Represents an error that occurred during a mapping.
+    /// </summary>
     public class MappingException : Exception
     {
         internal static readonly ConstructorInfo ConstructorInfo =
-            typeof(MappingException).GetConstructors(Constants.NonPublicInstance).First();
+            typeof(MappingException).GetNonPublicInstanceConstructors().First();
 
+        /// <summary>
+        /// Initializes a new instance of the MappingException class.
+        /// </summary>
         public MappingException()
         {
         }

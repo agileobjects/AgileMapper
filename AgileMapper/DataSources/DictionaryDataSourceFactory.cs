@@ -1,14 +1,16 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
+    using System.Reflection;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class DictionaryDataSourceFactory : IConditionalDataSourceFactory
     {
         public bool IsFor(MemberMapperData data)
         {
-            return data.SourceType.IsGenericType &&
+            return data.SourceType.IsGenericType() &&
                   (data.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) &&
                   DictionaryHasUseableTypes(data);
         }

@@ -79,13 +79,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.Net40\AgileMapper.Net40.csproj">
+      <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
+      <Name>AgileMapper.Net40</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests\AgileMapper.UnitTests.csproj">
       <Project>{a3f2d405-8c0b-4033-9ec5-1b64007593fb}</Project>
       <Name>AgileMapper.UnitTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
-      <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
-      <Name>AgileMapper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

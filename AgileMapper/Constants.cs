@@ -13,6 +13,7 @@
 
         public static readonly Expression EmptyExpression = Expression.Empty();
 
+#if !NET_STANDARD
         public static readonly BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
 
         public static readonly BindingFlags NonPublicInstance = BindingFlags.NonPublic | BindingFlags.Instance;
@@ -20,7 +21,7 @@
         public static readonly BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static;
 
         public static readonly BindingFlags NonPublicStatic = BindingFlags.NonPublic | BindingFlags.Static;
-
+#endif
         public const string CreateNew = "CreateNew";
 
         public const string Merge = "Merge";

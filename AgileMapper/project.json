@@ -1,0 +1,45 @@
+{
+  "version": "0.3.0-*",
+  "authors": [ "Steve Wilkes" ],
+  "title": "AgileMapper",
+  "name": "AgileObjects.AgileMapper",
+  "description": "A zero-configuration, highly-configurable, portable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API.",
+  "copyright": "2016 Steve Wilkes",
+  "packOptions": {
+    "copyright": "2016 Steve Wilkes",
+    "owners": [ "Steve Wilkes" ],
+    "licenseUrl": "https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md",
+    "projectUrl": "https://github.com/AgileObjects/AgileMapper",
+    "requireLicenseAcceptance": false,
+    "summary": "A zero-configuration object mapper with viewable execution plans",
+    "tags": [ "Mapping, Mapper, ViewModel" ],
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/AgileObjects/AgileMapper"
+    }
+  },
+
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "xmlDoc": true,
+    "outputName": "AgileObjects.AgileMapper"
+  },
+
+  "dependencies": {
+    "AgileObjects.ReadableExpressions": "1.7.1"
+  },
+
+  "frameworks": {
+    "netstandard1.0": {
+      "imports": "dnxcore50",
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "System.Reflection.TypeExtensions": "4.1.0"
+      },
+      "buildOptions": {
+        "define": [ "NET_STANDARD" ]
+      }
+    },
+    "net40": {}
+  }
+}

@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Flattening
 {
+#if !NET_STANDARD
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -16,7 +17,7 @@
         private static readonly ParameterExpression _objectFlattenerParameter = Parameters.Create<ObjectFlattener>();
 
         private static readonly MethodInfo _getPropertiesMethod = typeof(ObjectFlattener)
-            .GetMethods(Constants.NonPublicInstance)
+            .GetNonPublicInstanceMethods()
             .Last(m => m.Name == "GetPropertyValuesByName");
 
         #endregion
@@ -155,4 +156,5 @@
             }
         }
     }
+#endif
 }

@@ -8,8 +8,8 @@ namespace AgileObjects.AgileMapper
 
     internal class MappingContext : IDisposable
     {
-        internal static readonly MethodInfo TryGetMethod = typeof(MappingContext).GetMethod("TryGet", Constants.PublicInstance);
-        internal static readonly MethodInfo RegisterMethod = typeof(MappingContext).GetMethod("Register", Constants.PublicInstance);
+        internal static readonly MethodInfo TryGetMethod = typeof(MappingContext).GetMethod("TryGet");
+        internal static readonly MethodInfo RegisterMethod = typeof(MappingContext).GetMethod("Register");
 
         private readonly ICollection<ICachedItemRemover> _cacheCleaners;
 
@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper
                 var mapperFactoryParameter = Parameters.Create<ObjectMapperFactory>();
 
                 var typedCreateMapperMethod = mapperFactoryParameter.Type
-                    .GetMethod("CreateFor", Constants.PublicInstance)
+                    .GetMethod("CreateFor")
                     .MakeGenericMethod(data.MapperData.SourceType, data.MapperData.TargetType);
 
                 var createMapperCall = Expression.Call(

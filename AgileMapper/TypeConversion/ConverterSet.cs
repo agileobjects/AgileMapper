@@ -3,8 +3,10 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Configuration;
     using Extensions;
+    using ReadableExpressions.Extensions;
 
     internal class ConverterSet
     {
@@ -17,7 +19,6 @@
             _converters = new IValueConverter[]
             {
                 toStringConverter,
-                //new ToDateTimeConverter(),
                 new ToEnumConverter(toStringConverter),
                 new ToNumericConverter<int>(toStringConverter),
                 new DefaultTryParseConverter<DateTime>(toStringConverter),

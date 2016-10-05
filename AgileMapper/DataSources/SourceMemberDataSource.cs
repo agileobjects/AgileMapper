@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.DataSources
             return allTests;
         }
 
-        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource", Constants.PublicInstance);
+        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
 
         private static Expression GetRuntimeTypeCheck(UnaryExpression cast, MemberMapperData data)
         {

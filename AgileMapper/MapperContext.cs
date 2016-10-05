@@ -20,7 +20,9 @@
             NamingSettings = namingSettings ?? new NamingSettings();
             RootMemberFactory = new RootQualifiedMemberFactory(this);
             ObjectMapperFactory = new ObjectMapperFactory(this);
+#if !NET_STANDARD
             ObjectFlattener = new ObjectFlattener();
+#endif
             UserConfigurations = new UserConfigurationSet();
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
@@ -36,8 +38,9 @@
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
+#if !NET_STANDARD
         public ObjectFlattener ObjectFlattener { get; }
-
+#endif
         public UserConfigurationSet UserConfigurations { get; }
 
         public ConverterSet ValueConverters { get; }

@@ -44,7 +44,7 @@
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
         TSource Clone<TSource>(TSource source) where TSource : class;
-
+#if !NET_STANDARD
         /// <summary>
         /// Flattens the given <paramref name="source"/> object so it has only value-type or string members
         /// and returns the result.
@@ -56,7 +56,7 @@
         /// properties.
         /// </returns>
         dynamic Flatten<TSource>(TSource source) where TSource : class;
-
+#endif
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.
         /// </summary>

@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Flattening
 {
+#if !NET_STANDARD
     using System.Collections.Generic;
     using System.Dynamic;
 
@@ -15,4 +16,5 @@
         public override bool TryGetMember(GetMemberBinder binder, out object result)
             => _propertyValuesByName.TryGetValue(binder.Name, out result);
     }
+#endif
 }

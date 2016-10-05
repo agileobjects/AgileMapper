@@ -72,10 +72,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Setup
 
-        private MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
+        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
         {
             return mappingDataType
-                .GetMethods(Constants.PublicInstance)
+                .GetPublicInstanceMethods()
                 .First(m => (m.Name == "Map") && (m.GetParameters().Length == numberOfArguments));
         }
 

@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class DerivedTypePairSet
     {
@@ -18,7 +20,7 @@
 
         public void Add(DerivedTypePair typePair)
         {
-            var parentType = typePair.DerivedTargetType.BaseType;
+            var parentType = typePair.DerivedTargetType.GetBaseType();
 
             while (parentType != typeof(object))
             {
@@ -35,7 +37,7 @@
                     _typePairsByTargetType[parentType] = new List<DerivedTypePair> { typePair };
                 }
 
-                parentType = parentType.BaseType;
+                parentType = parentType.GetBaseType();
             }
         }
 

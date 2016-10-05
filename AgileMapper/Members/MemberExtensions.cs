@@ -21,12 +21,7 @@
 
         private static TMemberInfo FindMember<TMemberInfo>(Member member)
             where TMemberInfo : MemberInfo
-        {
-            return (TMemberInfo)
-                member.DeclaringType
-                    .GetMember(member.Name, BindingFlags.Public | BindingFlags.Instance)
-                    .First();
-        }
+            => (TMemberInfo)member.DeclaringType.GetPublicInstanceMember(member.Name).First();
 
         #endregion
 

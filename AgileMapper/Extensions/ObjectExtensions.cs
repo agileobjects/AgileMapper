@@ -2,11 +2,12 @@
 {
     using System;
     using System.Reflection;
+    using Extensions;
 
     internal static class ObjectExtensions
     {
         public static readonly MethodInfo GetRuntimeSourceTypeMethod =
-            typeof(ObjectExtensions).GetMethod("GetRuntimeSourceType", Constants.PublicStatic);
+            typeof(ObjectExtensions).GetPublicStaticMethod("GetRuntimeSourceType");
 
         public static Type GetRuntimeSourceType<TDeclared>(this TDeclared item)
         {

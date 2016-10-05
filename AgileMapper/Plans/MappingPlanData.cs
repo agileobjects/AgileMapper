@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using Extensions;
     using Members;
     using ObjectPopulation;
 
@@ -42,7 +43,7 @@
             var expandObjectCaller = GlobalContext.Instance.Cache.GetOrAdd(new SourceAndTargetTypesKey(mapCall), k =>
             {
                 var typedExpandMethod = typeof(MappingPlanData)
-                    .GetMethods(Constants.NonPublicInstance)
+                    .GetNonPublicInstanceMethods()
                     .First(m => m.Name == "ExpandObjectMapper")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
@@ -100,7 +101,7 @@
                 var getMappingLambdaCaller = GlobalContext.Instance.Cache.GetOrAdd(methodCallerKey, k =>
                 {
                     var getMappingLambdaMethod = typeof(MappingPlanData)
-                        .GetMethod("GetMappingLambda", Constants.NonPublicStatic)
+                        .GetNonPublicStaticMethod("GetMappingLambda")
                         .MakeGenericMethod(k.SourceType, k.TargetType);
 
                     var getMappingLambdaCall = Expression.Call(
@@ -128,7 +129,7 @@
             var expandElementCaller = GlobalContext.Instance.Cache.GetOrAdd(new SourceAndTargetTypesKey(mapCall), k =>
             {
                 var typedExpandMethod = typeof(MappingPlanData)
-                    .GetMethods(Constants.NonPublicInstance)
+                    .GetNonPublicInstanceMethods()
                     .First(m => m.Name == "ExpandElementMapper")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 

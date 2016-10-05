@@ -64,20 +64,14 @@
         private static IEnumerable<Member> GetFields(Type targetType, Func<FieldInfo, bool> filter)
         {
             return targetType
-                .GetFields(Constants.PublicInstance)
+                .GetPublicInstanceFields()
                 .Where(filter)
                 .Select(Member.Field);
         }
 
-        private static bool All(FieldInfo field)
-        {
-            return true;
-        }
+        private static bool All(FieldInfo field) => true;
 
-        private static bool OnlyWriteable(FieldInfo field)
-        {
-            return !field.IsInitOnly;
-        }
+        private static bool OnlyWriteable(FieldInfo field) => !field.IsInitOnly;
 
         #endregion
 
@@ -86,7 +80,7 @@
         private static IEnumerable<Member> GetProperties(Type targetType, Func<PropertyInfo, bool> filter)
         {
             return targetType
-                .GetProperties(Constants.PublicInstance)
+                .GetPublicInstanceProperties()
                 .Where(filter)
                 .Where(p => p.GetGetMethod(nonPublic: false) != null)
                 .Select(Member.Property);
@@ -112,7 +106,7 @@
             Func<MethodInfo, Member> memberFactory)
         {
             return targetType
-                .GetMethods(Constants.PublicInstance)
+                .GetPublicInstanceMethods()
                 .Where(filter)
                 .Select(memberFactory);
         }

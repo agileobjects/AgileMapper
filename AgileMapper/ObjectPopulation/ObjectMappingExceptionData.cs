@@ -2,12 +2,13 @@
 {
     using System;
     using System.Reflection;
+    using Extensions;
     using Members;
 
     internal static class ObjectMappingExceptionData
     {
         internal static readonly MethodInfo CreateMethod =
-            typeof(ObjectMappingExceptionData).GetMethod("Create", Constants.PublicStatic);
+            typeof(ObjectMappingExceptionData).GetPublicStaticMethod("Create");
 
         public static ObjectMappingExceptionData<TSource, TTarget> Create<TSource, TTarget>(
             IMappingData<TSource, TTarget> data,

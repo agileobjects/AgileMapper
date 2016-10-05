@@ -4,11 +4,12 @@ namespace AgileObjects.AgileMapper.Extensions
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Extensions;
 
     internal class CollectionData
     {
         public static readonly MethodInfo CreateMethod = typeof(CollectionData)
-            .GetMethod("Create", Constants.PublicStatic);
+            .GetPublicStaticMethod("Create");
 
         public static CollectionData<TSource, TTarget> Create<TSource, TTarget, TId>(
             IEnumerable<TSource> sourceItems,

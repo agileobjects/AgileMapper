@@ -7,6 +7,7 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using DataSources;
+    using Extensions;
     using Members;
     using ReadableExpressions.Extensions;
 
@@ -94,7 +95,7 @@
             var ignoreParameterName = name == null;
 
             var matchingParameters = typeof(TTarget)
-                .GetConstructors(Constants.PublicInstance)
+                .GetPublicInstanceConstructors()
                 .Select(ctor => new
                 {
                     Ctor = ctor,

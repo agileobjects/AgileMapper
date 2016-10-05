@@ -4,9 +4,11 @@ namespace AgileObjects.AgileMapper.Configuration
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Extensions;
     using Members;
     using ObjectPopulation;
+    using ReadableExpressions.Extensions;
 
     internal class ParametersSwapper
     {
@@ -36,7 +38,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             var contextTypeArgument = funcArguments[0];
 
-            if (!contextTypeArgument.IsGenericType)
+            if (!contextTypeArgument.IsGenericType())
             {
                 return false;
             }
@@ -84,10 +86,10 @@ namespace AgileObjects.AgileMapper.Configuration
 
             if (lambda.Body.NodeType != ExpressionType.Invoke)
             {
-                var memberContextType = (contextTypes.Length == 2) ? contextType : contextType.GetInterfaces()[0];
-                var sourceProperty = memberContextType.GetProperty("Source", Constants.PublicInstance);
-                var targetProperty = memberContextType.GetProperty("Target", Constants.PublicInstance);
-                var indexProperty = memberContextType.GetProperty("EnumerableIndex", Constants.PublicInstance);
+                var memberContextType = (contextTypes.Length == 2) ? contextType : contextType.GetInterfaces().First();
+                var sourceProperty = memberContextType.GetPublicInstanceProperty("Source");
+                var targetProperty = memberContextType.GetPublicInstanceProperty("Target");
+                var indexProperty = memberContextType.GetPublicInstanceProperty("EnumerableIndex");
 
                 var replacementsByTarget = new Dictionary<Expression, Expression>(EquivalentMemberAccessComparer.Instance)
                 {

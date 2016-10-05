@@ -36,6 +36,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.7.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Shouldly, Version=2.8.2.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
       <HintPath>..\packages\Shouldly.2.8.2\lib\net451\Shouldly.dll</HintPath>
       <Private>True</Private>
@@ -148,12 +152,6 @@
     <Compile Include="Members\WhenMatchingSourceToTargetMembers.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
-      <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
-      <Name>AgileMapper</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -161,7 +159,12 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.Net40\AgileMapper.Net40.csproj">
+      <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
+      <Name>AgileMapper.Net40</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

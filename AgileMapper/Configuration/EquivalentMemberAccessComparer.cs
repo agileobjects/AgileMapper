@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Configuration
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     internal class EquivalentMemberAccessComparer : IEqualityComparer<Expression>
     {

@@ -50,7 +50,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 if (newingConstructorRequired)
                 {
                     var greediestAvailableConstructor = mapperData.InstanceVariable.Type
-                        .GetConstructors(Constants.PublicInstance)
+                        .GetPublicInstanceConstructors()
                         .Select(ctor => new ConstructorData(
                             ctor,
                             ctor.GetParameters()

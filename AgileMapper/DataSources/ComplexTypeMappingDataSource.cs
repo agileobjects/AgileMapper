@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
+    using Extensions;
     using Members;
 
     internal class ComplexTypeMappingDataSource : DataSourceBase
@@ -23,7 +24,7 @@
             var relativeMember = sourceMember.RelativeTo(data.SourceMember);
             var relativeMemberAccess = relativeMember.GetQualifiedAccess(data.SourceObject);
 
-            if (data.TargetMember.Type.IsSealed)
+            if (data.TargetMember.Type.IsSealed())
             {
                 //return GetInlineMapperCall(relativeMember, dataSourceIndex, context);
             }

@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var targetParameter = Parameters.Create<TDeclaredTarget>("target");
 
                 var constructorCall = Expression.New(
-                    dataType.GetConstructors(Constants.PublicInstance).First(),
+                    dataType.GetPublicInstanceConstructors().First(),
                     Parameters.MappingContext,
                     sourceParameter.GetConversionTo(bridge.SourceMember.Type),
                     targetParameter.GetConversionTo(bridge.TargetMember.Type),

@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using ReadableExpressions.Extensions;
 
     internal class ToStringConverter : IValueConverter
     {
@@ -26,7 +27,7 @@
             }
 
             var toStringMethod = sourceValue.Type
-                .GetMethods(Constants.PublicInstance)
+                .GetPublicInstanceMethods()
                 .First(m => m.Name == "ToString");
 
             Expression toStringCall = Expression.Call(sourceValue, toStringMethod);
@@ -45,7 +46,7 @@
         #region Byte[] Conversion
 
         private static readonly MethodInfo _toBase64String = typeof(Convert)
-            .GetMethods(Constants.PublicStatic)
+            .GetPublicStaticMethods()
             .First(m => (m.Name == "ToBase64String") && m.GetParameters().HasOne());
 
         private static Expression GetBase64StringToByteArrayConversion(Expression sourceValue)

@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Reflection;
 
     internal class EnumerableTypeHelper
     {

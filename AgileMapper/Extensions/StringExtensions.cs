@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         public static string ToPascalCase(this string value)
             => char.ToUpperInvariant(value[0]) + value.Substring(1);

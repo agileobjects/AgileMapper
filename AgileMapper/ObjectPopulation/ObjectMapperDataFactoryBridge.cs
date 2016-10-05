@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal static class ObjectMapperDataBridge
     {
@@ -35,20 +36,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (sourceMember.IsEnumerable)
             {
-                return !sourceMember.Type.IsGenericType;
+                return !sourceMember.Type.IsGenericType();
             }
 
-            return !sourceMember.Type.IsSealed;
+            return !sourceMember.Type.IsSealed();
         }
 
         private static bool CheckTargetRuntimeType(IQualifiedMember targetMember)
         {
             if (targetMember.IsEnumerable)
             {
-                return targetMember.Type.IsInterface;
+                return targetMember.Type.IsInterface();
             }
 
-            return !targetMember.Type.IsSealed;
+            return !targetMember.Type.IsSealed();
         }
 
         private static QualifiedMember GetTargetMember<TSource, TTarget>(

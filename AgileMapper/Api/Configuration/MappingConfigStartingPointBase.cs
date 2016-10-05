@@ -5,6 +5,11 @@
     using Members;
     using ObjectPopulation;
 
+    /// <summary>
+    /// Provides options for configuring an element of how this mapper performs a mapping.
+    /// </summary>
+    /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
+    /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
     public abstract class MappingConfigStartingPointBase<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
