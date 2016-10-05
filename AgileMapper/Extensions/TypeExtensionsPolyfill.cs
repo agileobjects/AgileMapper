@@ -46,7 +46,7 @@
         public static IEnumerable<FieldInfo> GetPublicInstanceFields(this Type type)
         {
 #if NET_STANDARD
-            return type.GetTypeInfo().DeclaredFields;
+            return type.GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
 #else
             return type.GetFields(Constants.PublicInstance);
 #endif
@@ -64,7 +64,9 @@
         public static IEnumerable<PropertyInfo> GetPublicInstanceProperties(this Type type)
         {
 #if NET_STANDARD
-            return type.GetTypeInfo().DeclaredProperties;
+            return type.GetTypeInfo().DeclaredProperties.Where(p => 
+                !(p.GetMethod ?? p.SetMethod).IsStatic &&
+                ((p.GetMethod != null && p.GetMethod.IsPublic) || (p.SetMethod != null && p.SetMethod.IsPublic)));
 #else
             return type.GetProperties(Constants.PublicInstance);
 #endif
