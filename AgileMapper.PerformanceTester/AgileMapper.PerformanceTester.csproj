@@ -33,6 +33,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AgileObjects.AgileMapper, Version=0.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.AgileMapper.0.4.1\lib\net40\AgileObjects.AgileMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.7.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AutoMapper, Version=5.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.5.1.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ExpressMapper, Version=1.8.3.0, Culture=neutral, PublicKeyToken=ac363faa09311ba0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Expressmapper.1.8.3\lib\net45\ExpressMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Omu.ValueInjecter, Version=3.1.1.0, Culture=neutral, PublicKeyToken=c7694541b0ac80e4, processorArchitecture=MSIL">
+      <HintPath>..\packages\valueinjecter.3.1.1.3\lib\net40\Omu.ValueInjecter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,18 +69,57 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="AbstractMappers\UnflatteningMapperBase.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperCtorMapper.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperComplexTypeMapper.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperDeepMapper.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperFlatteningMapper.cs" />
+    <Compile Include="AbstractMappers\ComplexTypeMapperBase.cs" />
+    <Compile Include="AbstractMappers\CtorMapperBase.cs" />
+    <Compile Include="AbstractMappers\DeepMapperBase.cs" />
+    <Compile Include="AbstractMappers\FlatteningMapperBase.cs" />
+    <Compile Include="AbstractMappers\IObjectMapper.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperCtorMapper.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperComplexTypeMapper.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperDeepMapper.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperFlatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperCtorMapper.cs" />
+    <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperComplexTypeMapper.cs" />
+    <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperDeepMapper.cs" />
+    <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperFlatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\Manual\ManualComplexTypeMapper.cs" />
+    <Compile Include="ConcreteMappers\Manual\ManualCtorMapper.cs" />
+    <Compile Include="ConcreteMappers\Manual\ManualDeepMapper.cs" />
+    <Compile Include="ConcreteMappers\Manual\ManualFlatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\Manual\ManualUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\ValueInjecter\ValueInjecterCtorMapper.cs" />
+    <Compile Include="ConcreteMappers\ValueInjecter\ValueInjecterComplexTypeMapper.cs" />
+    <Compile Include="ConcreteMappers\ValueInjecter\ValueInjecterDeepMapper.cs" />
+    <Compile Include="ConcreteMappers\ValueInjecter\ValueInjecterUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\ValueInjecter\ValueInjecterFlatteningMapper.cs" />
+    <Compile Include="MapperTester.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestClasses\Address.cs" />
+    <Compile Include="TestClasses\AddressDto.cs" />
+    <Compile Include="TestClasses\Customer.cs" />
+    <Compile Include="TestClasses\CustomerDto.cs" />
+    <Compile Include="TestClasses\ConstructedObject.cs" />
+    <Compile Include="TestClasses\Foo.cs" />
+    <Compile Include="TestClasses\ValueObject.cs" />
+    <Compile Include="TestClasses\ModelDto.cs" />
+    <Compile Include="TestClasses\ModelObject.cs" />
+    <Compile Include="TestClasses\ModelSubObject.cs" />
+    <Compile Include="TestClasses\ModelSubSubObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AgileMapper.Net40\AgileMapper.Net40.csproj">
-      <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
-      <Name>AgileMapper.Net40</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
