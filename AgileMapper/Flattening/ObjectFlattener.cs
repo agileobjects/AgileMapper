@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Flattening
 {
-#if !NET_STANDARD
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -80,7 +79,7 @@
         {
             if (source == null)
             {
-                return member.Type.IsValueType ? Activator.CreateInstance(member.Type) : null;
+                return member.Type.IsValueType() ? Activator.CreateInstance(member.Type) : null;
             }
 
             var cacheKey = typeof(TSource).FullName + $".{member.Name}: GetValue";
@@ -90,7 +89,7 @@
                 var sourceParameter = Parameters.Create<TSource>("source");
                 var valueAccess = member.GetAccess(sourceParameter);
 
-                if (member.Type.IsValueType)
+                if (member.Type.IsValueType())
                 {
                     valueAccess = valueAccess.GetConversionTo(typeof(object));
                 }
@@ -156,5 +155,4 @@
             }
         }
     }
-#endif
 }

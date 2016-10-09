@@ -74,7 +74,6 @@
         public static TSource Clone<TSource>(TSource source) where TSource : class
             => _default.Clone(source);
 
-#if !NET_STANDARD
         /// <summary>
         /// Flattens the given <paramref name="source"/> object so it has only value-type or string members
         /// and returns the result.
@@ -87,7 +86,7 @@
         /// </returns>
         public static dynamic Flatten<TSource>(TSource source) where TSource : class
             => _default.Flatten(source);
-#endif
+
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.
         /// </summary>
@@ -104,9 +103,8 @@
 
         TSource IMapper.Clone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
 
-#if !NET_STANDARD
         dynamic IMapper.Flatten<TSource>(TSource source) => _mapperContext.ObjectFlattener.Flatten(source);
-#endif
+
         TargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
         {
             return new TargetTypeSelector<TSource>(source, _mapperContext);
