@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
         {
             yield return GetStrategyShortCircuitReturns(returnNull, data);
-            yield return GetExistingObjectShortCircuit(returnNull.Target, data);
+            yield return GetAlreadyMappedObjectShortCircuit(returnNull.Target, data);
         }
 
         private static Expression GetStrategyShortCircuitReturns(Expression returnNull, MemberMapperData data)
@@ -43,7 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return shortCircuitBlock;
         }
 
-        private static Expression GetExistingObjectShortCircuit(LabelTarget returnTarget, MemberMapperData data)
+        private static Expression GetAlreadyMappedObjectShortCircuit(LabelTarget returnTarget, MemberMapperData data)
         {
             var tryGetCall = Expression.Call(
                 Expression.Property(data.Parameter, "MappingContext"),
@@ -70,7 +70,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             yield return GetCreationCallback(CallbackPosition.After, mapperData);
 
-            yield return GetObjectRegistrationCall(mapperData);
+            var registrationCall = GetObjectRegistrationCallOrNull(mapperData);
+            if (registrationCall != null)
+            {
+                yield return registrationCall;
+            }
 
             foreach (var population in GetPopulationsAndCallbacks(data))
             {
@@ -93,14 +97,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return existingOrCreatedObject;
         }
 
-        private static Expression GetObjectRegistrationCall(MemberMapperData data)
+        private static Expression GetObjectRegistrationCallOrNull(MemberMapperData data)
         {
-            return Expression.Call(
-                Expression.Property(data.Parameter, "MappingContext"),
-                MappingContext.RegisterMethod.MakeGenericMethod(data.SourceType, data.TargetType),
-                data.SourceObject,
-                data.InstanceVariable);
+            if (IsEnumerableElementMapping(data) || SourceAndTargetAreExactMatches(data))
+            {
+                return Expression.Call(
+                    Expression.Property(data.Parameter, "MappingContext"),
+                    MappingContext.RegisterMethod.MakeGenericMethod(data.SourceType, data.TargetType),
+                    data.SourceObject,
+                    data.InstanceVariable);
+            }
+
+            return null;
         }
+
+        private static bool IsEnumerableElementMapping(BasicMapperData data)
+            => data.TargetMember.LeafMember.MemberType == MemberType.EnumerableElement;
+
+        private static bool SourceAndTargetAreExactMatches(MemberMapperData data)
+            => data.TargetMember.LeafMember.IsRoot || data.SourceMember.Matches(data.TargetMember);
 
         private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMapperCreationData data)
         {

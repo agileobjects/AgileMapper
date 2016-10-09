@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -43,6 +44,25 @@
             var result = Mapper.Map(source).ToANew<Customer>();
 
             result.Address.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public void ShouldUnflattenToNestedProperties()
+        {
+            var source = new WeddingDto
+            {
+                BrideName = "Nathalie",
+                BrideAddressLine1 = "Somewhere",
+                GroomName = "Andy"
+            };
+
+            var result = Mapper.Map(source).ToANew<Wedding>();
+
+            result.Bride.ShouldNotBeNull();
+            result.Bride.Name.ShouldBe("Nathalie");
+            result.Bride.Address.Line1.ShouldBe("Somewhere");
+            result.Groom.Name.ShouldBe("Andy");
+            result.Groom.Address.Line1.ShouldBeNull();
         }
 
         [Fact]
