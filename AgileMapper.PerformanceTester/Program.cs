@@ -6,6 +6,7 @@
     using ConcreteMappers.AutoMapper;
     using ConcreteMappers.ExpressMapper;
     using ConcreteMappers.Manual;
+    using ConcreteMappers.Mapster;
     using ConcreteMappers.ValueInjecter;
 
     public class Program
@@ -22,6 +23,7 @@
                     new AgileMapperCtorMapper(),
                     new AutoMapperCtorMapper(),
                     new ExpressMapperCtorMapper(),
+                    new MapsterCtorMapper(),
                     new ValueInjecterCtorMapper()
                 },
                 new IObjectMapper[]
@@ -30,6 +32,7 @@
                     new AgileMapperComplexTypeMapper(),
                     new AutoMapperComplexTypeMapper(),
                     new ExpressMapperComplexTypeMapper(),
+                    new MapsterComplexTypeMapper(),
                     new ValueInjecterComplexTypeMapper()
                 },
                 new IObjectMapper[]
@@ -38,6 +41,7 @@
                     new AgileMapperFlatteningMapper(),
                     new AutoMapperFlatteningMapper(),
                     new ExpressMapperFlatteningMapper(),
+                    new MapsterFlatteningMapper(),
                     new ValueInjecterFlatteningMapper()
                 },
                 new IObjectMapper[]
@@ -46,6 +50,7 @@
                     new AgileMapperUnflatteningMapper(),
                     //new AutoMapperUnflatteningMapper(),    // Not supported
                     //new ExpressMapperUnflatteningMapper(), // Not supported
+                    //new MapsterUnflatteningMapper(),       // Not supported
                     new ValueInjecterUnflatteningMapper()
                 },
                 new IObjectMapper[]
@@ -54,6 +59,7 @@
                     new AgileMapperDeepMapper(),
                     new AutoMapperDeepMapper(),
                     new ExpressMapperDeepMapper(),
+                    new MapsterDeepMapper(),
                     new ValueInjecterDeepMapper()
                 }
             };
@@ -61,6 +67,7 @@
             foreach (var mapperSet in mapperSets)
             {
                 MapperTester.Test(mapperSet);
+                Console.WriteLine();
             }
 
             Console.WriteLine("Done! (press return to close)");

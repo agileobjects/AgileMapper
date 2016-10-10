@@ -1,8 +1,7 @@
-﻿using ViMapper = Omu.ValueInjecter.Mapper;
-
-namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ValueInjecter
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ValueInjecter
 {
     using AbstractMappers;
+    using Omu.ValueInjecter;
     using TestClasses;
 
     internal class ValueInjecterComplexTypeMapper : ComplexTypeMapperBase
@@ -13,7 +12,7 @@ namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ValueInject
 
         protected override Foo Clone(Foo foo)
         {
-            return ViMapper.Map<Foo>(foo);
+            return Mapper.Map<Foo>(foo);
         }
     }
 }

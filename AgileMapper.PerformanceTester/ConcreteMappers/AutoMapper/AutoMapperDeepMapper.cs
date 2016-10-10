@@ -1,15 +1,14 @@
-﻿using AmMapper = AutoMapper.Mapper;
-
-namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.AutoMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.AutoMapper
 {
     using AbstractMappers;
+    using global::AutoMapper;
     using TestClasses;
 
     internal class AutoMapperDeepMapper : DeepMapperBase
     {
         public override void Initialise()
         {
-            AmMapper.Initialize(cfg =>
+            Mapper.Initialize(cfg =>
             {
                 cfg.CreateMap<Address, Address>();
                 cfg.CreateMap<Address, AddressDto>();
@@ -19,7 +18,7 @@ namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.AutoMapper
 
         protected override CustomerDto Map(Customer customer)
         {
-            return AmMapper.Map<Customer, CustomerDto>(customer);
+            return Mapper.Map<Customer, CustomerDto>(customer);
         }
     }
 }

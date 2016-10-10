@@ -1,24 +1,23 @@
-﻿using ExMapper = ExpressMapper.Mapper;
-
-namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
 {
     using AbstractMappers;
+    using global::ExpressMapper;
     using TestClasses;
 
     internal class ExpressMapperDeepMapper : DeepMapperBase
     {
         public override void Initialise()
         {
-            ExMapper
+            Mapper
                 .Register<Customer, CustomerDto>()
                 .Member(dest => dest.AddressCity, src => src.Address.City);
 
-            ExMapper.Compile();
+            Mapper.Compile();
         }
 
         protected override CustomerDto Map(Customer customer)
         {
-            return ExMapper.Map<Customer, CustomerDto>(customer);
+            return Mapper.Map<Customer, CustomerDto>(customer);
         }
     }
 }

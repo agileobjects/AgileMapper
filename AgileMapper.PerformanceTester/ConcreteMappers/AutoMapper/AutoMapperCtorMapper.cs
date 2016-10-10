@@ -1,20 +1,19 @@
-﻿using AmMapper = AutoMapper.Mapper;
-
-namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.AutoMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.AutoMapper
 {
     using AbstractMappers;
+    using global::AutoMapper;
     using TestClasses;
 
     internal class AutoMapperCtorMapper : CtorMapperBase
     {
         public override void Initialise()
         {
-            AmMapper.Initialize(cfg => cfg.CreateMap<ValueObject, ConstructedObject>());
+            Mapper.Initialize(cfg => cfg.CreateMap<ValueObject, ConstructedObject>());
         }
 
         protected override ConstructedObject Construct(ValueObject valueObject)
         {
-            return AmMapper.Map<ValueObject, ConstructedObject>(valueObject);
+            return Mapper.Map<ValueObject, ConstructedObject>(valueObject);
         }
     }
 }

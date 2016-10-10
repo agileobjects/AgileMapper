@@ -1,21 +1,20 @@
-﻿using ExMapper = ExpressMapper.Mapper;
-
-namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
 {
     using AbstractMappers;
+    using global::ExpressMapper;
     using TestClasses;
 
     internal class ExpressMapperComplexTypeMapper : ComplexTypeMapperBase
     {
         public override void Initialise()
         {
-            ExMapper.Register<Foo, Foo>();
-            ExMapper.Compile();
+            Mapper.Register<Foo, Foo>();
+            Mapper.Compile();
         }
 
         protected override Foo Clone(Foo foo)
         {
-            return ExMapper.Map<Foo, Foo>(foo);
+            return Mapper.Map<Foo, Foo>(foo);
         }
     }
 }
