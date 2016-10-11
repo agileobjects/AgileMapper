@@ -163,7 +163,7 @@
         private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget>(IObjectMappingContextData data)
         {
             var mapper = data
-                .MapperData
+                .MappingContext
                 .MapperContext
                 .ObjectMapperFactory
                 .CreateFor<TChildSource, TChildTarget>(data);

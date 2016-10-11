@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMappingContextData data)
         {
-            var objectMapper = data.MapperData.MapperContext.Cache.GetOrAdd(
+            var objectMapper = data.MappingContext.MapperContext.Cache.GetOrAdd(
                 (IObjectMapperKey)data,
                 key =>
                 {

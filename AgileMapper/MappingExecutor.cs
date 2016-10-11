@@ -77,7 +77,7 @@
                 return mapper.Execute(data);
             }
 
-            var cacheKey = DeclaredAndRuntimeTypesKey.ForCreateMapperCall<TDataSource, TDataTarget>(data.MapperData);
+            var cacheKey = DeclaredAndRuntimeTypesKey.ForCreateMapperCall(data);
 
             var createMapperFunc = GlobalContext.Instance.Cache.GetOrAdd(cacheKey, key =>
             {

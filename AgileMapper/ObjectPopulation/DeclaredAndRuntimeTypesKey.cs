@@ -39,12 +39,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 runtimeTargetType);
         }
 
-        public static DeclaredAndRuntimeTypesKey ForCreateMapperCall<TSource, TTarget>(MemberMapperData data)
+        public static DeclaredAndRuntimeTypesKey ForCreateMapperCall(IBasicMappingContextData data)
         {
             return new DeclaredAndRuntimeTypesKey(
                 KeyType.CreateMapperCall,
-                typeof(TSource),
-                typeof(TTarget),
+                data.SourceType,
+                data.TargetType,
                 data.SourceMember.Type,
                 data.TargetMember.Type);
         }
