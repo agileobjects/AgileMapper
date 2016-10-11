@@ -48,7 +48,7 @@
             int? enumerableIndex,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            MappingContext mappingContext,
+            IMappingContext mappingContext,
             IBasicMappingContextData parent)
         {
             if (Configuring)

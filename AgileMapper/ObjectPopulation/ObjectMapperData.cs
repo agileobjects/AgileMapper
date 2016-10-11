@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly Dictionary<string, Tuple<QualifiedMember, DataSourceSet>> _dataSourcesByTargetMemberName;
 
         public ObjectMapperData(
-            MappingContext mappingContext,
+            IMappingContext mappingContext,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             ObjectMapperData parent)

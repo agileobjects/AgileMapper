@@ -13,7 +13,7 @@
         private readonly List<MappingPlanData> _generatedPlanData;
         private readonly string _plan;
 
-        public MappingPlan(MappingContext mappingContext)
+        public MappingPlan(IMappingContext mappingContext)
         {
             _generatedPlanData = new List<MappingPlanData>();
 

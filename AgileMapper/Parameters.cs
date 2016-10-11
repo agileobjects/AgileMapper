@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper
 
     internal static class Parameters
     {
-        public static readonly ParameterExpression MappingContext = Create<MappingContext>();
+        public static readonly ParameterExpression MappingContext = Create<IMappingContext>();
         public static readonly ParameterExpression MappingData = Create<IMappingData>();
         public static readonly ParameterExpression ObjectMapperData = Create<ObjectMapperData>();
         public static readonly ParameterExpression ObjectMappingContextData = Create<IObjectMappingContextData>();

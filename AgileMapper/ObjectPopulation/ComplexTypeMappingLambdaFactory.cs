@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Extensions;
     using Members;
 
@@ -43,11 +44,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return shortCircuitBlock;
         }
 
+        private static readonly MethodInfo _tryGetMethod = typeof(IMappingContext).GetMethod("TryGet");
+
         private static Expression GetAlreadyMappedObjectShortCircuit(LabelTarget returnTarget, MemberMapperData data)
         {
             var tryGetCall = Expression.Call(
                 Expression.Property(data.Parameter, "MappingContext"),
-                MappingContext.TryGetMethod.MakeGenericMethod(data.SourceType, data.InstanceVariable.Type),
+                _tryGetMethod.MakeGenericMethod(data.SourceType, data.InstanceVariable.Type),
                 data.SourceObject,
                 data.InstanceVariable);
 
@@ -97,13 +100,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return existingOrCreatedObject;
         }
 
+        private static readonly MethodInfo _registerMethod = typeof(IMappingContext).GetMethod("Register");
+
         private static Expression GetObjectRegistrationCallOrNull(MemberMapperData data)
         {
             if (IsEnumerableElementMapping(data) || SourceAndTargetAreExactMatches(data))
             {
                 return Expression.Call(
                     Expression.Property(data.Parameter, "MappingContext"),
-                    MappingContext.RegisterMethod.MakeGenericMethod(data.SourceType, data.TargetType),
+                    _registerMethod.MakeGenericMethod(data.SourceType, data.TargetType),
                     data.SourceObject,
                     data.InstanceVariable);
             }

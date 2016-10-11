@@ -93,7 +93,7 @@
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
         /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        public static TargetTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
+        public static ITargetTypeSelector Map<TSource>(TSource source) => _default.Map(source);
 
         internal static void ResetDefaultInstance() => _default.Dispose();
 
@@ -105,10 +105,7 @@
 
         dynamic IMapper.Flatten<TSource>(TSource source) => _mapperContext.ObjectFlattener.Flatten(source);
 
-        TargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
-        {
-            return new TargetTypeSelector<TSource>(source, _mapperContext);
-        }
+        ITargetTypeSelector IMapper.Map<TSource>(TSource source) => new MappingExecutor<TSource>(source, _mapperContext);
 
         #region IDisposable Members
 

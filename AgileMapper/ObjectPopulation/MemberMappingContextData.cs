@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MemberMappingContextData(ObjectMappingContextData<TSource, TTarget> parent)
         {
             _parent = parent;
-            _runtimeTypeGettersCache = parent.MappingContext.MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
+            _runtimeTypeGettersCache = parent.MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
         }
 
         public MappingRuleSet RuleSet => _parent.RuleSet;

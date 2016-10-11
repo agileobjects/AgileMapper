@@ -120,7 +120,7 @@
                 return null;
             }
 
-            using (var stubMappingContext = new MappingContext(_mappingRuleSet, MapperContext))
+            using (var stubMappingContext = new MappingExecutor<TSource>(_mappingRuleSet, MapperContext))
             {
                 MemberMapperData mapperData;
 

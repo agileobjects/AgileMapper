@@ -9,7 +9,7 @@
     internal class MappingPlanData
     {
         public MappingPlanData(
-            MappingContext mappingContext,
+            IMappingContext mappingContext,
             LambdaExpression lambda,
             IObjectMappingContextData contextData)
         {
@@ -18,7 +18,7 @@
             ContextData = contextData;
         }
 
-        public MappingContext MappingContext { get; }
+        public IMappingContext MappingContext { get; }
 
         public LambdaExpression Lambda { get; }
 
@@ -28,6 +28,7 @@
         {
             var otherPlanData = (MappingPlanData)obj;
 
+            // ReSharper disable once PossibleNullReferenceException
             return otherPlanData.ContextData.SourceType == ContextData.SourceType &&
                    otherPlanData.ContextData.TargetType == ContextData.TargetType;
         }

@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal interface IObjectMappingContextData : IBasicMappingContextData
     {
-        MappingContext MappingContext { get; }
+        IMappingContext MappingContext { get; }
 
         bool RuntimeTypesAreTheSame { get; }
 

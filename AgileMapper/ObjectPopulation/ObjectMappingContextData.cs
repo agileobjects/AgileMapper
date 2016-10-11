@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             bool runtimeTypesAreTheSame,
-            MappingContext mappingContext,
+            IMappingContext mappingContext,
             IObjectMappingContextData parent = null)
             : base(source, target, enumerableIndex, sourceMember, targetMember, mappingContext.RuleSet, parent)
         {
@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ObjectMapperData GetObjectMapperData()
         {
-            var mapperData = MappingContext.MapperContext.Cache.GetOrAdd(
+            var mapperData = MapperContext.Cache.GetOrAdd(
                 (IObjectMapperKey)this,
                 key => new ObjectMapperData(
                     MappingContext,
@@ -55,7 +55,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public MappingContext MappingContext { get; }
+        public IMappingContext MappingContext { get; }
+
+        public MapperContext MapperContext => MappingContext.MapperContext;
 
         public TTarget CreatedObject { get; set; }
 

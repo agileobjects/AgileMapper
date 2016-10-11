@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static IObjectMappingContextData ForRoot<TSource, TTarget>(
             TSource source,
             TTarget target,
-            MappingContext mappingContext)
+            IMappingContext mappingContext)
         {
             var sourceMember = mappingContext.MapperContext.RootMemberFactory.RootSource<TSource>();
             var targetMember = mappingContext.MapperContext.RootMemberFactory.RootTarget<TTarget>();
@@ -68,7 +68,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int? enumerableIndex,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            MappingContext mappingContext,
+            IMappingContext mappingContext,
             IObjectMappingContextData parent = null)
         {
             sourceMember = Verify(sourceMember, source);
@@ -108,7 +108,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             bool runtimeTypesAreTheSame,
-            MappingContext mappingContext,
+            IMappingContext mappingContext,
             IObjectMappingContextData parent);
 
         private static ContextDataCreator<TDeclaredSource, TDeclaredTarget> GetContextDataCreator<TDeclaredSource, TDeclaredTarget>(
@@ -176,7 +176,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? enumerableIndex,
-            MappingContext mappingContext,
+            IMappingContext mappingContext,
             IBasicMappingContextData parent)
         {
             if (!CheckTargetRuntimeType(targetMember))
@@ -185,14 +185,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var targetMemberType = mappingContext.MapperContext.UserConfigurations.DerivedTypePairs
-                                       .GetDerivedTypeOrNull(
-                                           source,
-                                           target,
-                                           enumerableIndex,
-                                           sourceMember,
-                                           targetMember,
-                                           mappingContext,
-                                           parent) ?? target.GetRuntimeTargetType(sourceMember.Type);
+                .GetDerivedTypeOrNull(
+                    source,
+                    target,
+                    enumerableIndex,
+                    sourceMember,
+                    targetMember,
+                    mappingContext,
+                    parent) ?? target.GetRuntimeTargetType(sourceMember.Type);
 
             return targetMember.WithType(targetMemberType);
         }
