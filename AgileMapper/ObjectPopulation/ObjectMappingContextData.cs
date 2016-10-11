@@ -63,7 +63,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool RuntimeTypesAreTheSame { get; }
 
-        public ObjectMapperData MapperData { get; internal set; }
+        public ObjectMapperData MapperData { get; }
 
         #region IObjectMapperKey Members
 
