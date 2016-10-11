@@ -74,14 +74,14 @@
         public virtual Expression GetConditionOrNull(MemberMapperData mapperData)
             => _configInfo.GetConditionOrNull(mapperData);
 
-        public virtual bool AppliesTo(BasicMapperData data)
+        public virtual bool AppliesTo(IBasicMapperData data)
         {
             return _configInfo.IsFor(data.RuleSet) &&
                 data.TargetMember.IsSameAs(TargetMember) &&
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
         }
 
-        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(BasicMapperData data)
+        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IBasicMapperData data)
         {
             while (data != null)
             {

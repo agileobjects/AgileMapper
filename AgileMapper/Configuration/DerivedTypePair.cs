@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
     using Members;
+    using ObjectPopulation;
 
     internal class DerivedTypePair : UserConfiguredItemBase
     {
@@ -49,11 +50,11 @@
 
         public Type DerivedTargetType { get; }
 
-        public bool AppliesTo(IMappingData mappingData, BasicMapperData data)
+        public bool AppliesTo(IBasicMappingContextData contextData)
         {
-            if ((_derivedSourceType == data.SourceType) && base.AppliesTo(data))
+            if ((_derivedSourceType == contextData.SourceType) && base.AppliesTo(contextData))
             {
-                return (_derivedTypePredicate == null) || _derivedTypePredicate.Invoke(mappingData);
+                return (_derivedTypePredicate == null) || _derivedTypePredicate.Invoke(contextData);
             }
 
             return false;

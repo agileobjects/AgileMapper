@@ -33,6 +33,9 @@
         }
 
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
+            => GetOrAdd(key, valueFactory, k => k);
+
+        public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory, Func<TKey, TKey> keyFactory)
         {
             TValue value;
 
@@ -53,6 +56,7 @@
                 EnsureCapacity();
 
                 value = valueFactory.Invoke(key);
+                key = keyFactory.Invoke(key);
 
                 _keys[_length] = key;
                 _values[_length] = value;

@@ -6,6 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         LambdaExpression MappingLambda { get; }
 
-        TTarget Execute(IObjectMapperCreationData data);
+        TTarget Execute(IObjectMappingContextData data);
     }
 }

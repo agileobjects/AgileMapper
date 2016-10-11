@@ -5,7 +5,7 @@
 
     internal class SourceMemberMatcher
     {
-        public static IQualifiedMember GetMatchFor(IMemberMapperCreationData rootData)
+        public static IQualifiedMember GetMatchFor(IMemberMappingContextData rootData)
         {
             var rootSourceMember = rootData.SourceMember;
 
@@ -15,11 +15,11 @@
 
         private static IEnumerable<IQualifiedMember> GetAllSourceMembers(
             IQualifiedMember parentMember,
-            IMemberMapperCreationData rootData)
+            IMemberMappingContextData rootData)
         {
             yield return parentMember;
 
-            if (!parentMember.CouldMatch(rootData.MapperData.TargetMember))
+            if (!parentMember.CouldMatch(rootData.TargetMember))
             {
                 yield break;
             }

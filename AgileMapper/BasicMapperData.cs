@@ -1,16 +1,17 @@
 namespace AgileObjects.AgileMapper
 {
     using System;
+    using Configuration;
     using Members;
 
-    internal class BasicMapperData
+    internal class BasicMapperData : IBasicMapperData
     {
         public BasicMapperData(
             MappingRuleSet ruleSet,
             Type sourceType,
             Type targetType,
             QualifiedMember targetMember = null,
-            BasicMapperData parent = null)
+            IBasicMapperData parent = null)
         {
             SourceType = sourceType;
             TargetType = targetType;
@@ -29,7 +30,7 @@ namespace AgileObjects.AgileMapper
                 parent);
         }
 
-        public BasicMapperData Parent { get; }
+        public IBasicMapperData Parent { get; }
 
         public MappingRuleSet RuleSet { get; }
 

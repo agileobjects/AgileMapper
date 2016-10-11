@@ -129,7 +129,7 @@
                     MapperContext.UserConfigurations.DerivedTypePairs.Configuring = true;
 
                     mapperData = stubMappingContext
-                        .CreateRootMapperCreationData(default(TSource), default(TTarget))
+                        .CreateRootMappingContextData(default(TSource), default(TTarget))
                         .MapperData;
 
                     MapperContext.UserConfigurations.DerivedTypePairs.Configuring = false;

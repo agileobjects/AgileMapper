@@ -59,7 +59,5 @@ namespace AgileObjects.AgileMapper.DataSources
 
             return memberHasRuntimeType;
         }
-
-        public override Expression SourceMemberTypeTest { get; }
     }
 }

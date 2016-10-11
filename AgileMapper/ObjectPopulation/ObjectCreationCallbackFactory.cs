@@ -21,7 +21,7 @@
             _creationTargetType = creationTargetType;
         }
 
-        public override bool AppliesTo(CallbackPosition callbackPosition, BasicMapperData data)
+        public override bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData data)
             => _creationTargetType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(callbackPosition, data);
 
         public override Expression GetConditionOrNull(MemberMapperData mapperData)

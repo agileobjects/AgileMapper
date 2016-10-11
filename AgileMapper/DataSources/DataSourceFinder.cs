@@ -17,13 +17,13 @@
             };
         }
 
-        public DataSourceSet FindFor(IMemberMapperCreationData data)
+        public DataSourceSet FindFor(IMemberMappingContextData data)
         {
             var validDataSources = EnumerateDataSources(data)
                 .Where(ds => ds.IsValid)
                 .ToArray();
 
-            if (data.MapperData.TargetMember.IsSimple && validDataSources.Any())
+            if (data.TargetMember.IsSimple && validDataSources.Any())
             {
                 var initialDataSource = data
                     .RuleSet
@@ -39,7 +39,7 @@
             return new DataSourceSet(validDataSources);
         }
 
-        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMapperCreationData data)
+        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingContextData data)
         {
             var mmd = data.MapperData;
 
@@ -121,7 +121,7 @@
             IQualifiedMember bestMatchingSourceMember,
             IEnumerable<IConfiguredDataSource> configuredDataSources,
             int dataSourceIndex,
-            IMemberMapperCreationData data)
+            IMemberMappingContextData data)
         {
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, data);
 
@@ -146,14 +146,14 @@
 
         private static IDataSource GetSourceMemberDataSourceOrNull(
             IQualifiedMember bestMatchingSourceMember,
-            IMemberMapperCreationData data)
+            IMemberMappingContextData data)
         {
             if (bestMatchingSourceMember == null)
             {
                 return null;
             }
 
-            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(data.MapperData.SourceMember);
+            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(data.SourceMember);
             var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, data.MapperData);
 
             return GetFinalDataSource(sourceMemberDataSource, 0, data.MapperData);

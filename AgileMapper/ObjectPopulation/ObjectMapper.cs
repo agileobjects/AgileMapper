@@ -15,9 +15,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public LambdaExpression MappingLambda => _mappingLambda;
 
-        public TTarget Execute(IObjectMapperCreationData data)
+        public TTarget Execute(IObjectMappingContextData data)
         {
-            var typedData = (ObjectMappingData<TSource, TTarget>)data;
+            var typedData = (ObjectMappingContextData<TSource, TTarget>)data;
 
             return _mapperFunc.Invoke(typedData);
         }

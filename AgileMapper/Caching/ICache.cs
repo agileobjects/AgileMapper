@@ -13,5 +13,7 @@
         IEnumerable<TValue> Values { get; }
 
         TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory);
+
+        TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory, Func<TKey, TKey> keyFactory);
     }
 }

@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }
 
-        protected override bool IsNotConstructable(IObjectMapperCreationData data)
+        protected override bool IsNotConstructable(IObjectMappingContextData data)
             => _constructionFactory.GetNewObjectCreation(data) == null;
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
@@ -58,7 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ifTryGetReturn;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data)
+        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContextData data)
         {
             var mapperData = data.MapperData;
 
@@ -85,7 +85,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData data)
             => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, data), data);
 
-        private Expression GetObjectResolution(IObjectMapperCreationData data)
+        private Expression GetObjectResolution(IObjectMappingContextData data)
         {
             var mapperData = data.MapperData;
 
@@ -117,7 +117,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static bool SourceAndTargetAreExactMatches(MemberMapperData data)
             => data.TargetMember.LeafMember.IsRoot || data.SourceMember.Matches(data.TargetMember);
 
-        private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMapperCreationData data)
+        private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingContextData data)
         {
             var sourceMemberTypeTests = new List<Expression>();
 
@@ -157,14 +157,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetPopulationCallbackOrEmpty(
             CallbackPosition position,
             IMemberPopulation memberPopulation,
-            IObjectMapperCreationData data)
+            IObjectMappingContextData data)
         {
             return GetCallbackOrEmpty(
                 c => c.GetCallbackOrNull(position, memberPopulation.MapperData, data.MapperData),
                 data.MapperData);
         }
 
-        private static void CreateSourceMemberTypeTesterIfRequired(ICollection<Expression> typeTests, IObjectMapperCreationData data)
+        private static void CreateSourceMemberTypeTesterIfRequired(ICollection<Expression> typeTests, IObjectMappingContextData data)
         {
             if (typeTests.None())
             {
@@ -174,7 +174,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var typeTest = typeTests.AndTogether();
             var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, Parameters.MappingData);
 
-            data.MapperData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
+            data.AddSourceMemberTypeTester(typeTestLambda.Compile());
         }
 
         protected override Expression GetReturnValue(ObjectMapperData data) => data.InstanceVariable;

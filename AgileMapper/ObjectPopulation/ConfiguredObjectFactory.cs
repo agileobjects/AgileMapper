@@ -34,7 +34,7 @@
 
         #endregion
 
-        public override bool AppliesTo(BasicMapperData data)
+        public override bool AppliesTo(IBasicMapperData data)
             => _objectType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(data);
 
         public Expression Create(MemberMapperData data) => _factoryInfo.GetBody(data);

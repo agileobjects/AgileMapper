@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using Members;
+    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal class DerivedTypePairSet
@@ -41,7 +42,14 @@
             }
         }
 
-        public Type GetDerivedTypeOrNull(IMappingData mappingData, BasicMapperData mapperData)
+        public Type GetDerivedTypeOrNull<TSource, TTarget>(
+            TSource source,
+            TTarget target,
+            int? enumerableIndex,
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember,
+            MappingContext mappingContext,
+            IBasicMappingContextData parent)
         {
             if (Configuring)
             {
@@ -50,9 +58,18 @@
 
             List<DerivedTypePair> typePairs;
 
-            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out typePairs))
+            if (_typePairsByTargetType.TryGetValue(targetMember.Type, out typePairs))
             {
-                return typePairs.FirstOrDefault(tp => tp.AppliesTo(mappingData, mapperData))?.DerivedTargetType;
+                var contextData = new BasicMappingContextData<TSource, TTarget>(
+                    source,
+                    target,
+                    enumerableIndex,
+                    sourceMember,
+                    targetMember,
+                    mappingContext.RuleSet,
+                    parent);
+
+                return typePairs.FirstOrDefault(tp => tp.AppliesTo(contextData))?.DerivedTargetType;
             }
 
             return null;

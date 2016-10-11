@@ -119,7 +119,7 @@ namespace AgileObjects.AgileMapper.Configuration
             }
 
             var objectCreationContextCreateCall = Expression.Call(
-                ObjectCreationContext.CreateMethod.MakeGenericMethod(contextInfo.ContextTypes),
+                ObjectCreationContextData.CreateMethod.MakeGenericMethod(contextInfo.ContextTypes),
                 contextInfo.MappingDataAccess,
                 contextInfo.InstanceVariable);
 

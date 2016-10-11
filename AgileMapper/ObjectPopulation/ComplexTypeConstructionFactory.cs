@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _constructorsCache = mapperContext.Cache.CreateScoped<ConstructionKey, Expression>();
         }
 
-        public Expression GetNewObjectCreation(IObjectMapperCreationData data)
+        public Expression GetNewObjectCreation(IObjectMappingContextData data)
         {
             return _constructorsCache.GetOrAdd(new ConstructionKey(data), key =>
             {
@@ -60,7 +60,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                                         key.Data.TargetMember.Append(Member.ConstructorParameter(p)),
                                         mapperData);
 
-                                    return key.Data.GetChildCreationData(parameterMapperData);
+                                    return key.Data.GetChildContextData(parameterMapperData);
                                 })
                                 .Select(memberData => mapperData
                                     .MapperContext
@@ -103,7 +103,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             private readonly IQualifiedMember _sourceMember;
             private readonly QualifiedMember _targetMember;
 
-            public ConstructionKey(IObjectMapperCreationData data)
+            public ConstructionKey(IObjectMappingContextData data)
             {
                 _ruleSet = data.RuleSet;
                 _sourceMember = data.SourceMember;
@@ -111,7 +111,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 Data = data;
             }
 
-            public IObjectMapperCreationData Data { get; private set; }
+            public IObjectMappingContextData Data { get; private set; }
 
             public override bool Equals(object obj)
             {

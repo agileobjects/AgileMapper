@@ -21,7 +21,7 @@
 
         protected CallbackPosition CallbackPosition { get; }
 
-        public virtual bool AppliesTo(CallbackPosition callbackPosition, BasicMapperData data)
+        public virtual bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData data)
             => (CallbackPosition == callbackPosition) && base.AppliesTo(data);
 
         public Expression Create(MemberMapperData data)

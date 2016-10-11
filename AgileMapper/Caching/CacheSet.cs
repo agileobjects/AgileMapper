@@ -14,6 +14,9 @@
         public TValue GetOrAdd<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
             => CreateScoped<TKey, TValue>().GetOrAdd(key, valueFactory);
 
+        public TValue GetOrAdd<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory, Func<TKey, TKey> keyFactory)
+            => CreateScoped<TKey, TValue>().GetOrAdd(key, valueFactory, keyFactory);
+
         public ICache<TKey, TValue> CreateScoped<TKey, TValue>()
         {
             var cache = _cachesByType.GetOrAdd(

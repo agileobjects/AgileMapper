@@ -4,10 +4,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Extensions;
 
-    internal static class ObjectCreationContext
+    internal static class ObjectCreationContextData
     {
         internal static readonly MethodInfo CreateMethod =
-            typeof(ObjectCreationContext).GetPublicStaticMethod("Create");
+            typeof(ObjectCreationContextData).GetPublicStaticMethod("Create");
 
         public static ObjectCreationContextData<TSource, TTarget, TObject> Create<TSource, TTarget, TObject>(
             IMappingData<TSource, TTarget> data,
@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     }
 
     internal class ObjectCreationContextData<TSource, TTarget, TObject> :
-        MappingInstanceData<TSource, TTarget>,
+        MappingInstanceDataBase<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TObject>
     {
         private readonly TObject _createdObject;

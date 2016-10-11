@@ -17,17 +17,17 @@
         {
             _generatedPlanData = new List<MappingPlanData>();
 
-            var rootMappingData = mappingContext.CreateRootMapperCreationData(default(TSource), default(TTarget));
+            var rootContextData = mappingContext.CreateRootMappingContextData(default(TSource), default(TTarget));
 
             var rootMapper = mappingContext
                 .MapperContext
                 .ObjectMapperFactory
-                .CreateFor<TSource, TTarget>(rootMappingData);
+                .CreateFor<TSource, TTarget>(rootContextData);
 
             var rootPlanData = new MappingPlanData(
                 mappingContext,
                 rootMapper.MappingLambda,
-                rootMappingData.MapperData);
+                rootContextData);
 
             var planData = Expand(rootPlanData);
 
@@ -85,7 +85,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // Map {sourceType} -> {targetType}
-// Rule Set: {mappingPlanData.MapperData.RuleSet.Name}
+// Rule Set: {mappingPlanData.ContextData.RuleSet.Name}
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 

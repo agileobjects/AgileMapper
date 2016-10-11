@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class ObjectMappingLambdaFactoryBase
     {
-        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMapperCreationData data)
+        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMappingContextData data)
         {
             var mapperData = data.MapperData;
 
@@ -59,11 +59,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 returnNull.Value);
         }
 
-        protected abstract bool IsNotConstructable(IObjectMapperCreationData data);
+        protected abstract bool IsNotConstructable(IObjectMappingContextData data);
 
         private static IEnumerable<Expression> GetMappingCallback(
             CallbackPosition callbackPosition,
-            BasicMapperData basicData,
+            IBasicMapperData basicData,
             MemberMapperData data)
         {
             yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, basicData, data), data);
@@ -76,7 +76,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data);
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMapperCreationData data);
+        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingContextData data);
 
         protected abstract Expression GetReturnValue(ObjectMapperData data);
 

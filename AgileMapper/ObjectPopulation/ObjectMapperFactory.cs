@@ -11,18 +11,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _complexTypeMappingLambdaFactory = new ComplexTypeMappingLambdaFactory(mapperContext);
         }
 
-        public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMapperCreationData data)
+        public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMappingContextData data)
         {
-            var objectMapper = data.MapperData.MapperContext.Cache.GetOrAdd(data.MapperData.MapperKey, k =>
-            {
-                var lambda = data.TargetMember.IsEnumerable
-                    ? _enumerableMappingLambdaFactory.Create<TSource, TTarget>(data)
-                    : _complexTypeMappingLambdaFactory.Create<TSource, TTarget>(data);
+            var objectMapper = data.MapperData.MapperContext.Cache.GetOrAdd(
+                (IObjectMapperKey)data,
+                key =>
+                {
+                    var contextData = (IObjectMappingContextData)key;
 
-                IObjectMapper<TTarget> mapper = new ObjectMapper<TSource, TTarget>(lambda);
+                    var lambda = contextData.TargetMember.IsEnumerable
+                        ? _enumerableMappingLambdaFactory.Create<TSource, TTarget>(contextData)
+                        : _complexTypeMappingLambdaFactory.Create<TSource, TTarget>(contextData);
 
-                return mapper;
-            });
+                    IObjectMapper<TTarget> mapper = new ObjectMapper<TSource, TTarget>(lambda);
+
+                    return mapper;
+                },
+                key => ((IObjectMappingContextData)key).MapperKeyObject);
 
             return objectMapper;
         }

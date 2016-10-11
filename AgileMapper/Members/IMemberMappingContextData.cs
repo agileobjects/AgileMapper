@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal interface IMemberMapperCreationData : IMapperCreationData
+    internal interface IMemberMappingContextData : IMappingContextData
     {
         MemberMapperData MapperData { get; }
 

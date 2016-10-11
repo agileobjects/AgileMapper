@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
-    internal interface IMapperCreationData
+    internal interface IMappingContextData
     {
         MappingRuleSet RuleSet { get; }
 

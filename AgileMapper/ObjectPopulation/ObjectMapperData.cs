@@ -13,16 +13,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly MethodInfo _mapObjectMethod;
         private readonly MethodInfo _mapEnumerableElementMethod;
-        private readonly IQualifiedMember _sourceElementMember;
-        private readonly QualifiedMember _targetElementMember;
         private readonly Dictionary<string, Tuple<QualifiedMember, DataSourceSet>> _dataSourcesByTargetMemberName;
 
         public ObjectMapperData(
             MappingContext mappingContext,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            bool runtimeTypesAreTheSame,
-            ObjectMapperKey key,
             ObjectMapperData parent)
             : base(
                   mappingContext.MapperContext,
@@ -32,12 +28,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   targetMember,
                   parent)
         {
-            var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
+            var mdType = typeof(ObjectMappingContextData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
             var parameter = Parameters.Create(mdType, "data");
 
             Parameter = parameter;
             SourceMember = sourceMember;
-            RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
             SourceObject = Expression.Property(parameter, "Source");
             TargetObject = Expression.Property(parameter, "Target");
             CreatedObject = Expression.Property(parameter, "CreatedObject");
@@ -53,8 +48,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (targetMember.IsEnumerable)
             {
-                _sourceElementMember = sourceMember.Append(sourceMember.Type.CreateElementMember());
-                _targetElementMember = targetMember.Append(targetMember.Type.CreateElementMember(targetMember.ElementType));
+                SourceElementMember = sourceMember.Append(sourceMember.Type.CreateElementMember());
+                TargetElementMember = targetMember.Append(targetMember.Type.CreateElementMember(targetMember.ElementType));
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
 
                 InstanceVariable = Expression.Variable(
@@ -65,9 +60,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 InstanceVariable = Expression.Variable(targetMember.Type, instanceVariableName);
             }
-
-            key.RemoveInstanceData();
-            MapperKey = key;
         }
 
         #region Setup
@@ -81,52 +73,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public IObjectMapperCreationData CreateChildMapperCreationData<TDeclaredSource, TDeclaredTarget>(
-            MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
-            string targetMemberName,
-            int dataSourceIndex)
-        {
-            var childBridge = CreateChildMappingDataBridge(instanceData, targetMemberName, dataSourceIndex);
-            var childMapperData = childBridge.GetCreationData();
+        public IQualifiedMember GetSourceMemberFor(string targetMemberName, int dataSourceIndex)
+            => _dataSourcesByTargetMemberName[targetMemberName].Item2[dataSourceIndex].SourceMember;
 
-            return childMapperData;
-        }
-
-        private IObjectMapperDataBridge CreateChildMappingDataBridge<TDeclaredSource, TDeclaredTarget>(
-            MappingInstanceData<TDeclaredSource, TDeclaredTarget> instanceData,
-            string targetMemberName,
-            int dataSourceIndex)
-        {
-            var targetMemberAndDataSourcesTuple = _dataSourcesByTargetMemberName[targetMemberName];
-            var targetMember = targetMemberAndDataSourcesTuple.Item1;
-            var sourceMember = targetMemberAndDataSourcesTuple.Item2[dataSourceIndex].SourceMember;
-
-            return ObjectMapperDataBridge.Create(
-                instanceData,
-                sourceMember,
-                targetMember,
-                this);
-        }
-
-        public IObjectMapperCreationData CreateElementMapperCreationData<TSourceElement, TTargetElement>(
-            MappingInstanceData<TSourceElement, TTargetElement> instanceData)
-        {
-            var elementBridge = ObjectMapperDataBridge.Create(
-                instanceData,
-                _sourceElementMember,
-                _targetElementMember,
-                this);
-
-            var elementMapperData = elementBridge.GetCreationData();
-
-            return elementMapperData;
-        }
-
-        public ObjectMapperKey MapperKey { get; }
+        public QualifiedMember GetTargetMemberFor(string targetMemberName)
+            => _dataSourcesByTargetMemberName[targetMemberName].Item1;
 
         public override ParameterExpression Parameter { get; }
 
         public override IQualifiedMember SourceMember { get; }
+
+        public IQualifiedMember SourceElementMember { get; }
+
+        public QualifiedMember TargetElementMember { get; }
 
         public override Expression SourceObject { get; }
 
@@ -141,8 +100,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
         public Expression CreatedObject { get; }
-
-        public bool RuntimeTypesAreTheSame { get; }
 
         public MethodCallExpression GetMapCall(
             Expression sourceObject,

@@ -55,7 +55,7 @@
             _ignoredMembers.Add(ignoredMember);
         }
 
-        public ConfiguredIgnoredMember GetMemberIgnoreOrNull(BasicMapperData data)
+        public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IBasicMapperData data)
             => FindMatch(_ignoredMembers, data);
 
         #endregion
@@ -86,7 +86,7 @@
 
         public Expression GetCallbackOrNull(
             CallbackPosition position,
-            BasicMapperData basicData,
+            IBasicMapperData basicData,
             MemberMapperData data)
         {
             return _mappingCallbackFactories
@@ -111,11 +111,11 @@
 
         public DerivedTypePairSet DerivedTypePairs { get; }
 
-        private static TItem FindMatch<TItem>(IEnumerable<TItem> items, BasicMapperData data)
+        private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IBasicMapperData data)
             where TItem : UserConfiguredItemBase
             => items.FirstOrDefault(im => im.AppliesTo(data));
 
-        private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, BasicMapperData data)
+        private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IBasicMapperData data)
             where TItem : UserConfiguredItemBase
             => items.Where(im => im.AppliesTo(data)).OrderBy(im => im, UserConfiguredItemBase.SpecificityComparer);
 

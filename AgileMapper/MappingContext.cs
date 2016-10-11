@@ -31,13 +31,13 @@ namespace AgileObjects.AgileMapper
                 return target;
             }
 
-            var rootMapperCreationData = CreateRootMapperCreationData(source, target);
+            var rootMapperCreationData = CreateRootMappingContextData(source, target);
 
             return Map<TSource, TTarget>(rootMapperCreationData);
         }
 
-        internal IObjectMapperCreationData CreateRootMapperCreationData<TSource, TTarget>(TSource source, TTarget target)
-            => MapperCreationDataFactory.CreateRoot(this, source, target);
+        internal IObjectMappingContextData CreateRootMappingContextData<TSource, TTarget>(TSource source, TTarget target)
+            => ObjectMappingContextDataFactory.ForRoot(source, target, this);
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
         {
@@ -62,11 +62,11 @@ namespace AgileObjects.AgileMapper
             return false;
         }
 
-        internal TTarget Map<TSource, TTarget>(IObjectMapperCreationData data)
+        internal TTarget Map<TSource, TTarget>(IObjectMappingContextData data)
         {
             IObjectMapper<TTarget> mapper;
 
-            if (data.MapperData.RuntimeTypesAreTheSame)
+            if (data.RuntimeTypesAreTheSame)
             {
                 mapper = MapperContext.ObjectMapperFactory.CreateFor<TSource, TTarget>(data);
 
@@ -75,24 +75,24 @@ namespace AgileObjects.AgileMapper
 
             var cacheKey = DeclaredAndRuntimeTypesKey.ForCreateMapperCall<TSource, TTarget>(data.MapperData);
 
-            var createMapperFunc = GlobalContext.Instance.Cache.GetOrAdd(cacheKey, k =>
+            var createMapperFunc = GlobalContext.Instance.Cache.GetOrAdd(cacheKey, key =>
             {
                 var mapperFactoryParameter = Parameters.Create<ObjectMapperFactory>();
 
                 var typedCreateMapperMethod = mapperFactoryParameter.Type
                     .GetMethod("CreateFor")
-                    .MakeGenericMethod(data.MapperData.SourceType, data.MapperData.TargetType);
+                    .MakeGenericMethod(key.RuntimeSourceType, key.RuntimeTargetType);
 
                 var createMapperCall = Expression.Call(
                     mapperFactoryParameter,
                     typedCreateMapperMethod,
-                    Parameters.ObjectMapperCreationData);
+                    Parameters.ObjectMappingContextData);
 
                 var createMapperLambda = Expression
-                    .Lambda<Func<ObjectMapperFactory, IObjectMapperCreationData, IObjectMapper<TTarget>>>(
+                    .Lambda<Func<ObjectMapperFactory, IObjectMappingContextData, IObjectMapper<TTarget>>>(
                         createMapperCall,
                         mapperFactoryParameter,
-                        Parameters.ObjectMapperCreationData);
+                        Parameters.ObjectMappingContextData);
 
                 return createMapperLambda.Compile();
             });

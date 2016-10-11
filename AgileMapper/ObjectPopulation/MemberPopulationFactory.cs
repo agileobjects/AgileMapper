@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class MemberPopulationFactory
     {
-        public static IEnumerable<IMemberPopulation> Create(IObjectMapperCreationData data)
+        public static IEnumerable<IMemberPopulation> Create(IObjectMappingContextData data)
         {
             return GlobalContext
                 .Instance
@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Select(targetMember => Create(targetMember, data));
         }
 
-        private static IMemberPopulation Create(Member targetMember, IObjectMapperCreationData data)
+        private static IMemberPopulation Create(Member targetMember, IObjectMappingContextData data)
         {
             var qualifiedMember = data.TargetMember.Append(targetMember);
             var childMapperData = new MemberMapperData(qualifiedMember, data.MapperData);
@@ -28,12 +28,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return MemberPopulation.IgnoredMember(childMapperData);
             }
 
-            var childMapperCreationData = data.GetChildCreationData(childMapperData);
+            var childMappingContextData = data.GetChildContextData(childMapperData);
 
             var dataSources = childMapperData
                 .MapperContext
                 .DataSources
-                .FindFor(childMapperCreationData);
+                .FindFor(childMappingContextData);
 
             if (dataSources.None)
             {

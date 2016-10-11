@@ -5,6 +5,7 @@
     using System.Reflection;
     using Extensions;
     using Members;
+    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     /// <summary>
@@ -22,7 +23,7 @@
         {
         }
 
-        internal MappingException(IMemberMapperCreationData data, Exception innerException)
+        internal MappingException(IObjectMappingContextData data, Exception innerException)
             : base(GetMessage(data.MapperData), innerException)
         {
         }
@@ -37,7 +38,7 @@
             return $"An exception occurred mapping {sourcePath} -> {targetPath} with rule set {data.RuleSet.Name}.";
         }
 
-        private static BasicMapperData GetRootMapperData(BasicMapperData data)
+        private static IBasicMapperData GetRootMapperData(IBasicMapperData data)
         {
             while (data.Parent != null)
             {

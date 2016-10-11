@@ -6,10 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class DeclaredAndRuntimeTypesKey
     {
         private readonly KeyType _keyType;
-        private readonly Type _declaredSourceType;
-        private readonly Type _runtimeSourceType;
-        private readonly Type _declaredTargetType;
-        private readonly Type _runtimeTargetType;
         private readonly bool _sourceTypesAreTheSame;
         private readonly bool _targetTypesAreTheSame;
 
@@ -21,23 +17,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Type runtimeTargetType)
         {
             _keyType = keyType;
-            _declaredSourceType = declaredSourceType;
-            _runtimeSourceType = runtimeSourceType;
+            DeclaredSourceType = declaredSourceType;
+            RuntimeSourceType = runtimeSourceType;
             _sourceTypesAreTheSame = (declaredSourceType == runtimeSourceType);
-            _declaredTargetType = declaredTargetType;
-            _runtimeTargetType = runtimeTargetType;
+            DeclaredTargetType = declaredTargetType;
+            RuntimeTargetType = runtimeTargetType;
             _targetTypesAreTheSame = (declaredTargetType == runtimeTargetType);
         }
 
-        public static DeclaredAndRuntimeTypesKey ForMappingDataConstructor<TSource, TTarget>(
-            ObjectMapperDataBridge<TSource, TTarget> bridge)
+        public static DeclaredAndRuntimeTypesKey ForMappingDataConstructor(
+            Type declaredSourceType,
+            Type declaredTargetType,
+            Type runtimeSourceType,
+            Type runtimeTargetType)
         {
             return new DeclaredAndRuntimeTypesKey(
                 KeyType.MappingDataConstructor,
-                typeof(TSource),
-                typeof(TTarget),
-                bridge.SourceMember.Type,
-                bridge.TargetMember.Type);
+                declaredSourceType,
+                declaredTargetType,
+                runtimeSourceType,
+                runtimeTargetType);
         }
 
         public static DeclaredAndRuntimeTypesKey ForCreateMapperCall<TSource, TTarget>(MemberMapperData data)
@@ -50,16 +49,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 data.TargetMember.Type);
         }
 
+        public Type DeclaredSourceType { get; }
+
+        public Type DeclaredTargetType { get; }
+
+        public Type RuntimeSourceType { get; }
+
+        public Type RuntimeTargetType { get; }
+
         public override bool Equals(object obj)
         {
             var otherKey = (DeclaredAndRuntimeTypesKey)obj;
 
             return
                 (_keyType == otherKey._keyType) &&
-                (_declaredSourceType == otherKey._declaredSourceType) &&
-                ((_sourceTypesAreTheSame && otherKey._sourceTypesAreTheSame) || _runtimeSourceType == otherKey._runtimeSourceType) &&
-                (_declaredTargetType == otherKey._declaredTargetType) &&
-                ((_targetTypesAreTheSame && otherKey._targetTypesAreTheSame) || _runtimeTargetType == otherKey._runtimeTargetType);
+                (DeclaredSourceType == otherKey.DeclaredSourceType) &&
+                ((_sourceTypesAreTheSame && otherKey._sourceTypesAreTheSame) || RuntimeSourceType == otherKey.RuntimeSourceType) &&
+                (DeclaredTargetType == otherKey.DeclaredTargetType) &&
+                ((_targetTypesAreTheSame && otherKey._targetTypesAreTheSame) || RuntimeTargetType == otherKey.RuntimeTargetType);
         }
 
         public override int GetHashCode() => 0;

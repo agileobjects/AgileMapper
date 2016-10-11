@@ -3,60 +3,53 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using Members;
 
-    internal class ObjectMapperKey
+    internal interface IObjectMapperKey
     {
-        private readonly MappingRuleSet _ruleSet;
-        private readonly IQualifiedMember _sourceMember;
-        private readonly QualifiedMember _targetMember;
-        private IMappingData _instanceData;
+        MappingRuleSet RuleSet { get; }
+
+        IQualifiedMember SourceMember { get; }
+
+        QualifiedMember TargetMember { get; }
+
+        bool SourceHasRequiredTypes(IMappingData data);
+    }
+
+    internal class ObjectMapperKey : IObjectMapperKey
+    {
         private Func<IMappingData, bool> _sourceMemberTypeTester;
 
-        private ObjectMapperKey(
+        public ObjectMapperKey(
             MappingRuleSet ruleSet,
             IQualifiedMember sourceMember,
-            QualifiedMember targetMember,
-            IMappingData instanceData)
+            QualifiedMember targetMember)
         {
-            _ruleSet = ruleSet;
-            _sourceMember = sourceMember;
-            _targetMember = targetMember;
-            _instanceData = instanceData;
+            RuleSet = ruleSet;
+            SourceMember = sourceMember;
+            TargetMember = targetMember;
         }
 
-        #region Factory Method
+        public MappingRuleSet RuleSet { get; }
 
-        public static ObjectMapperKey For<TSource, TTarget>(
-            ObjectMapperDataBridge<TSource, TTarget> bridge)
-        {
-            return new ObjectMapperKey(
-                bridge.MappingContext.RuleSet,
-                bridge.SourceMember,
-                bridge.TargetMember,
-                bridge.InstanceData);
-        }
+        public IQualifiedMember SourceMember { get; }
 
-        #endregion
+        public QualifiedMember TargetMember { get; }
 
         public void AddSourceMemberTypeTester(Func<IMappingData, bool> tester)
-        {
-            _sourceMemberTypeTester = tester;
-        }
+            => _sourceMemberTypeTester = tester;
 
-        internal void RemoveInstanceData()
-        {
-            _instanceData = null;
-        }
+        public bool SourceHasRequiredTypes(IMappingData data)
+            => (_sourceMemberTypeTester == null) || _sourceMemberTypeTester.Invoke(data);
 
         public override bool Equals(object obj)
         {
-            var otherKey = (ObjectMapperKey)obj;
+            var otherKey = (IObjectMapperKey)obj;
 
-            if ((otherKey._ruleSet == _ruleSet) &&
-                (otherKey._sourceMember == _sourceMember) &&
-                (otherKey._targetMember == _targetMember))
+            // ReSharper disable once PossibleNullReferenceException
+            if ((otherKey.RuleSet == RuleSet) &&
+                (otherKey.SourceMember == SourceMember) &&
+                (otherKey.TargetMember == TargetMember))
             {
-                return (_sourceMemberTypeTester == null) ||
-                    ((otherKey._instanceData != null) && _sourceMemberTypeTester.Invoke(otherKey._instanceData));
+                return SourceHasRequiredTypes((IMappingData)otherKey);
             }
 
             return false;

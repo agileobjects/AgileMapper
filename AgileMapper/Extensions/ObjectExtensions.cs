@@ -2,7 +2,6 @@
 {
     using System;
     using System.Reflection;
-    using Extensions;
 
     internal static class ObjectExtensions
     {
