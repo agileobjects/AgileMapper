@@ -16,5 +16,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         ObjectMapperKey MapperKeyObject { get; }
 
         void AddSourceMemberTypeTester(Func<IMappingData, bool> tester);
+
+        bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType);
+
+        void Register<TKey, TComplex>(TKey key, TComplex complexType);
     }
 }

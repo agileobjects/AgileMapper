@@ -45,10 +45,9 @@
 
         private string GetMappingPlan<TTarget>(MappingRuleSet ruleSet)
         {
-            using (var planContext = new MappingExecutor<TSource>(ruleSet, _mapperContext))
-            {
-                return new MappingPlan<TSource, TTarget>(planContext);
-            }
+            var planContext = new MappingExecutor<TSource>(ruleSet, _mapperContext);
+
+            return new MappingPlan<TSource, TTarget>(planContext);
         }
     }
 }

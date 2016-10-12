@@ -1,33 +1,25 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
     using Api;
     using ObjectPopulation;
 
-    internal class MappingExecutor<TSource> : ITargetTypeSelector, IMappingContext, IDisposable
+    internal class MappingExecutor<TSource> : ITargetTypeSelector, IMappingContext
     {
-        private readonly ICollection<ICachedItemRemover> _cacheCleaners;
         private readonly TSource _source;
 
         public MappingExecutor(TSource source, MapperContext mapperContext)
-            : this(mapperContext)
         {
             _source = source;
+            MapperContext = mapperContext;
         }
 
         public MappingExecutor(MappingRuleSet ruleSet, MapperContext mapperContext)
-            : this(mapperContext)
         {
             RuleSet = ruleSet;
-        }
-
-        private MappingExecutor(MapperContext mapperContext)
-        {
             MapperContext = mapperContext;
-            _cacheCleaners = new List<ICachedItemRemover>();
         }
 
         public MapperContext MapperContext { get; }
@@ -52,12 +44,9 @@
 
             RuleSet = ruleSet;
 
-            using (this)
-            {
-                var rootMapperCreationData = CreateRootMappingContextData(existing);
+            var rootMapperCreationData = CreateRootMappingContextData(existing);
 
-                return Map<TSource, TTarget>(rootMapperCreationData);
-            }
+            return Map<TSource, TTarget>(rootMapperCreationData);
         }
 
         private IObjectMappingContextData CreateRootMappingContextData<TTarget>(TTarget target)
@@ -104,68 +93,6 @@
             mapper = createMapperFunc.Invoke(MapperContext.ObjectMapperFactory, data);
 
             return mapper.Execute(data);
-        }
-
-        public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
-        {
-            if (key != null)
-            {
-                return ObjectCache<TKey, TComplex>.Cache.TryGetValue(key, out complexType);
-            }
-
-            complexType = default(TComplex);
-            return false;
-        }
-
-        public void Register<TKey, TComplex>(TKey key, TComplex complexType)
-        {
-            if (key == null)
-            {
-                return;
-            }
-
-            ObjectCache<TKey, TComplex>.Cache.Add(key, complexType);
-
-            _cacheCleaners.Add(new ObjectCacheRemover<TKey, TComplex>(key));
-        }
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            foreach (var cleanupAction in _cacheCleaners)
-            {
-                cleanupAction.RemoveCachedItem();
-            }
-
-            _cacheCleaners.Clear();
-        }
-
-        #endregion
-
-        private static class ObjectCache<TKey, TObject>
-        {
-            public static readonly Dictionary<TKey, TObject> Cache = new Dictionary<TKey, TObject>();
-        }
-
-        private interface ICachedItemRemover
-        {
-            void RemoveCachedItem();
-        }
-
-        private class ObjectCacheRemover<TKey, TObject> : ICachedItemRemover
-        {
-            private readonly TKey _key;
-
-            public ObjectCacheRemover(TKey key)
-            {
-                _key = key;
-            }
-
-            public void RemoveCachedItem()
-            {
-                ObjectCache<TKey, TObject>.Cache.Remove(_key);
-            }
         }
     }
 }

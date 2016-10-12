@@ -120,26 +120,25 @@
                 return null;
             }
 
-            using (var stubMappingContext = new MappingExecutor<TSource>(_mappingRuleSet, MapperContext))
+            var stubMappingContext = new MappingExecutor<TSource>(_mappingRuleSet, MapperContext);
+
+            MemberMapperData mapperData;
+
+            lock (_configurationSync)
             {
-                MemberMapperData mapperData;
+                MapperContext.UserConfigurations.DerivedTypePairs.Configuring = true;
 
-                lock (_configurationSync)
-                {
-                    MapperContext.UserConfigurations.DerivedTypePairs.Configuring = true;
+                mapperData = stubMappingContext
+                    .CreateRootMappingContextData(default(TSource), default(TTarget))
+                    .MapperData;
 
-                    mapperData = stubMappingContext
-                        .CreateRootMappingContextData(default(TSource), default(TTarget))
-                        .MapperData;
-
-                    MapperContext.UserConfigurations.DerivedTypePairs.Configuring = false;
-                }
-
-                var condition = GetConditionOrNull(mapperData);
-                condition = mapperData.ReplaceTypedParameterWithUntyped(condition);
-
-                return condition;
+                MapperContext.UserConfigurations.DerivedTypePairs.Configuring = false;
             }
+
+            var condition = GetConditionOrNull(mapperData);
+            condition = mapperData.ReplaceTypedParameterWithUntyped(condition);
+
+            return condition;
         }
 
         public Expression GetConditionOrNull(MemberMapperData mapperData)

@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Collections.Generic;
     using Members;
 
     internal class ObjectMappingContextData<TSource, TTarget> : BasicMappingContextData<TSource, TTarget>,
@@ -9,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMapperKey
     {
         private readonly IObjectMappingContextData _parent;
+        private readonly Dictionary<object, Dictionary<object, object>> _mappedObjectsByTypes;
 
         public ObjectMappingContextData(
             TSource source,
@@ -25,6 +27,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingContext = mappingContext;
             RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
             MapperData = GetObjectMapperData();
+
+            if (parent == null)
+            {
+                _mappedObjectsByTypes = new Dictionary<object, Dictionary<object, object>>();
+            }
         }
 
         #region Setup
@@ -142,5 +149,63 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #endregion
+
+        public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
+        {
+            if (_parent != null)
+            {
+                return _parent.TryGet(key, out complexType);
+            }
+
+            if (key != null)
+            {
+                var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance;
+                Dictionary<object, object> mappedTargetsBySource;
+
+                if (_mappedObjectsByTypes.TryGetValue(typesKey, out mappedTargetsBySource))
+                {
+                    object mappedObject;
+
+                    if (mappedTargetsBySource.TryGetValue(key, out mappedObject))
+                    {
+                        complexType = (TComplex)mappedObject;
+                        return true;
+                    }
+                }
+            }
+
+            complexType = default(TComplex);
+            return false;
+        }
+
+        public void Register<TKey, TComplex>(TKey key, TComplex complexType)
+        {
+            if (key == null)
+            {
+                return;
+            }
+
+            if (_parent != null)
+            {
+                _parent.Register(key, complexType);
+                return;
+            }
+
+            var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance;
+            Dictionary<object, object> mappedTargetsBySource;
+
+            if (_mappedObjectsByTypes.TryGetValue(typesKey, out mappedTargetsBySource))
+            {
+                mappedTargetsBySource[key] = complexType;
+                return;
+            }
+
+            _mappedObjectsByTypes[typesKey] = new Dictionary<object, object> { [key] = complexType };
+        }
+
+        private class SourceAndTargetTypeKey<TKey, TComplex>
+        {
+            public static readonly object Instance = new SourceAndTargetTypeKey<TKey, TComplex>();
+        }
     }
 }
