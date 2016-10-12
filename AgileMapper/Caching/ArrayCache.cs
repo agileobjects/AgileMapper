@@ -71,7 +71,9 @@
         {
             for (var i = startIndex; i < _length; i++)
             {
-                if (_keys[i].Equals(key))
+                var thisKey = _keys[i];
+
+                if (ReferenceEquals(thisKey, key) || thisKey.Equals(key))
                 {
                     value = _values[i];
                     return true;
