@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMapperKey
     {
         private readonly IObjectMappingContextData _parent;
+        private readonly Lazy<ObjectMapperData> _mapperDataLoader;
         private readonly Dictionary<object, Dictionary<object, object>> _mappedObjectsByTypes;
 
         public ObjectMappingContextData(
@@ -26,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _parent = parent;
             MappingContext = mappingContext;
             RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
-            MapperData = GetObjectMapperData();
+            _mapperDataLoader = new Lazy<ObjectMapperData>(GetObjectMapperData, isThreadSafe: true);
 
             if (parent == null)
             {
@@ -70,7 +71,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool RuntimeTypesAreTheSame { get; }
 
-        public ObjectMapperData MapperData { get; }
+        public ObjectMapperData MapperData => _mapperDataLoader.Value;
 
         #region IObjectMapperKey Members
 
