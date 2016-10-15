@@ -4,11 +4,11 @@
 
     internal abstract class EnumerablePopulationStrategyBase : IEnumerablePopulationStrategy
     {
-        public Expression GetPopulation(ObjectMapperData data)
+        public Expression GetPopulation(ObjectMapperData mapperData)
         {
-            if (data.SourceMember.IsEnumerable)
+            if (mapperData.SourceMember.IsEnumerable)
             {
-                return GetEnumerablePopulation(data.EnumerablePopulationBuilder);
+                return GetEnumerablePopulation(mapperData.EnumerablePopulationBuilder);
             }
 
             return Constants.EmptyExpression;

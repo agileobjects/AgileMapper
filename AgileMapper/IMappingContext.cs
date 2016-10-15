@@ -8,8 +8,6 @@
 
         MappingRuleSet RuleSet { get; }
 
-        IObjectMappingContextData CreateRootMappingContextData<TSource, TTarget>(TSource source, TTarget target);
-
-        TTarget Map<TSource, TTarget>(IObjectMappingContextData data);
+        IObjectMappingData CreateRootMappingData<TSource, TTarget>(TSource source, TTarget target);
     }
 }

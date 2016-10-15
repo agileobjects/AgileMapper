@@ -9,33 +9,33 @@
         public ComplexTypeMappingDataSource(
             IQualifiedMember bestMatchingSourceMember,
             int dataSourceIndex,
-            MemberMapperData data)
+            MemberMapperData mapperData)
             : base(
-                  bestMatchingSourceMember ?? data.SourceMember,
-                  GetMapCall(bestMatchingSourceMember ?? data.SourceMember, dataSourceIndex, data))
+                  bestMatchingSourceMember ?? mapperData.SourceMember,
+                  GetMapCall(bestMatchingSourceMember ?? mapperData.SourceMember, dataSourceIndex, mapperData))
         {
         }
 
         private static Expression GetMapCall(
             IQualifiedMember sourceMember,
             int dataSourceIndex,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
-            var relativeMember = sourceMember.RelativeTo(data.SourceMember);
-            var relativeMemberAccess = relativeMember.GetQualifiedAccess(data.SourceObject);
+            var relativeMember = sourceMember.RelativeTo(mapperData.SourceMember);
+            var relativeMemberAccess = relativeMember.GetQualifiedAccess(mapperData.SourceObject);
 
-            if (data.TargetMember.Type.IsSealed())
+            if (mapperData.TargetType.IsSealed())
             {
                 //return GetInlineMapperCall(relativeMember, dataSourceIndex, context);
             }
 
-            return data.GetMapCall(relativeMemberAccess, dataSourceIndex);
+            return mapperData.GetMapCall(relativeMemberAccess, dataSourceIndex);
         }
 
         private static Expression GetInlineMapperCall(
             IQualifiedMember sourceMember,
             int dataSourceIndex,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
             //var omcBridge = data.Parent.CreateChildMapperDataBridge(
             //    sourceMember.Type,

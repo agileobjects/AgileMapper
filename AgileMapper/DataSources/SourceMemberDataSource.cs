@@ -1,41 +1,40 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using AgileObjects.AgileMapper.Extensions;
-
-namespace AgileObjects.AgileMapper.DataSources
+﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using Extensions;
     using Members;
 
     internal class SourceMemberDataSource : DataSourceBase
     {
-        public SourceMemberDataSource(IQualifiedMember sourceMember, MemberMapperData data)
-            : this(sourceMember, sourceMember.GetQualifiedAccess(data.SourceObject), data)
+        public SourceMemberDataSource(IQualifiedMember sourceMember, MemberMapperData mapperData)
+            : this(sourceMember, sourceMember.GetQualifiedAccess(mapperData.SourceObject), mapperData)
         {
         }
 
-        private SourceMemberDataSource(IQualifiedMember sourceMember, Expression value, MemberMapperData data)
+        private SourceMemberDataSource(IQualifiedMember sourceMember, Expression value, MemberMapperData mapperData)
             : base(
                   sourceMember,
-                  data.MapperContext.ValueConverters.GetConversion(value, data.TargetMember.Type),
-                  data)
+                  mapperData.MapperContext.ValueConverters.GetConversion(value, mapperData.TargetMember.Type),
+                  mapperData)
         {
-            SourceMemberTypeTest = CreateSourceMemberTypeTest(value, data);
+            SourceMemberTypeTest = CreateSourceMemberTypeTest(value, mapperData);
         }
 
-        private static Expression CreateSourceMemberTypeTest(Expression value, MemberMapperData data)
+        private static Expression CreateSourceMemberTypeTest(Expression value, MemberMapperData mapperData)
         {
             var parent = value.GetParentOrNull();
             var typeTests = new List<Expression>();
 
-            while (parent != data.SourceObject)
+            while (parent != mapperData.SourceObject)
             {
                 if (parent.NodeType == ExpressionType.Convert)
                 {
                     var cast = (UnaryExpression)parent;
                     parent = cast.Operand;
 
-                    typeTests.Insert(0, GetRuntimeTypeCheck(cast, data));
+                    typeTests.Insert(0, GetRuntimeTypeCheck(cast, mapperData));
                 }
 
                 parent = parent.GetParentOrNull();
@@ -48,13 +47,13 @@ namespace AgileObjects.AgileMapper.DataSources
 
         private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
 
-        private static Expression GetRuntimeTypeCheck(UnaryExpression cast, MemberMapperData data)
+        private static Expression GetRuntimeTypeCheck(UnaryExpression cast, MemberMapperData mapperData)
         {
             var getSourceCall = Expression.Call(
                 Parameters.MappingData,
-                _getSourceMethod.MakeGenericMethod(data.SourceType));
+                _getSourceMethod.MakeGenericMethod(mapperData.SourceType));
 
-            var rootedValue = cast.Operand.Replace(data.SourceObject, getSourceCall);
+            var rootedValue = cast.Operand.Replace(mapperData.SourceObject, getSourceCall);
             var memberHasRuntimeType = Expression.TypeIs(rootedValue, cast.Type);
 
             return memberHasRuntimeType;

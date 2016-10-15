@@ -5,18 +5,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class DeclaredAndRuntimeTypesKey
     {
-        private readonly KeyType _keyType;
         private readonly bool _sourceTypesAreTheSame;
         private readonly bool _targetTypesAreTheSame;
 
         private DeclaredAndRuntimeTypesKey(
-            KeyType keyType,
             Type declaredSourceType,
             Type declaredTargetType,
             Type runtimeSourceType,
             Type runtimeTargetType)
         {
-            _keyType = keyType;
             DeclaredSourceType = declaredSourceType;
             RuntimeSourceType = runtimeSourceType;
             _sourceTypesAreTheSame = (declaredSourceType == runtimeSourceType);
@@ -25,28 +22,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _targetTypesAreTheSame = (declaredTargetType == runtimeTargetType);
         }
 
-        public static DeclaredAndRuntimeTypesKey ForMappingDataConstructor(
-            Type declaredSourceType,
-            Type declaredTargetType,
-            Type runtimeSourceType,
-            Type runtimeTargetType)
+        public static DeclaredAndRuntimeTypesKey For<TSource, TTarget>(MappingTypes mappingTypes)
         {
             return new DeclaredAndRuntimeTypesKey(
-                KeyType.MappingDataConstructor,
-                declaredSourceType,
-                declaredTargetType,
-                runtimeSourceType,
-                runtimeTargetType);
-        }
-
-        public static DeclaredAndRuntimeTypesKey ForCreateMapperCall(IBasicMappingContextData data)
-        {
-            return new DeclaredAndRuntimeTypesKey(
-                KeyType.CreateMapperCall,
-                data.SourceType,
-                data.TargetType,
-                data.SourceMember.Type,
-                data.TargetMember.Type);
+                typeof(TSource),
+                typeof(TTarget),
+                mappingTypes.SourceType,
+                mappingTypes.TargetType);
         }
 
         public Type DeclaredSourceType { get; }
@@ -62,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var otherKey = (DeclaredAndRuntimeTypesKey)obj;
 
             return
-                (_keyType == otherKey._keyType) &&
+                // ReSharper disable once PossibleNullReferenceException
                 (DeclaredSourceType == otherKey.DeclaredSourceType) &&
                 ((_sourceTypesAreTheSame && otherKey._sourceTypesAreTheSame) || RuntimeSourceType == otherKey.RuntimeSourceType) &&
                 (DeclaredTargetType == otherKey.DeclaredTargetType) &&
@@ -70,7 +52,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public override int GetHashCode() => 0;
-
-        private enum KeyType { MappingDataConstructor, CreateMapperCall }
     }
 }

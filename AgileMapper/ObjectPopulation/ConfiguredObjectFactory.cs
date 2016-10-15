@@ -34,9 +34,9 @@
 
         #endregion
 
-        public override bool AppliesTo(IBasicMapperData data)
-            => _objectType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(data);
+        public override bool AppliesTo(IBasicMapperData mapperData)
+            => _objectType.IsAssignableFrom(mapperData.TargetType) && base.AppliesTo(mapperData);
 
-        public Expression Create(MemberMapperData data) => _factoryInfo.GetBody(data);
+        public Expression Create(MemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
     }
 }

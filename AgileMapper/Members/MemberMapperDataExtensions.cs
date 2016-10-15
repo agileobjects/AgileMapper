@@ -9,57 +9,57 @@ namespace AgileObjects.AgileMapper.Members
 
     internal static class MemberMapperDataExtensions
     {
-        public static Expression GetMapCall(this MemberMapperData data, Expression value, int dataSourceIndex = 0)
-            => data.Parent.GetMapCall(value, data.TargetMember, dataSourceIndex);
+        public static Expression GetMapCall(this MemberMapperData mapperData, Expression value, int dataSourceIndex = 0)
+            => mapperData.Parent.GetMapCall(value, mapperData.TargetMember, dataSourceIndex);
 
-        public static Expression[] GetNestedAccessesIn(this MemberMapperData data, Expression value)
+        public static Expression[] GetNestedAccessesIn(this MemberMapperData mapperData, Expression value)
         {
-            return data.NestedAccessFinder.FindIn(
+            return mapperData.NestedAccessFinder.FindIn(
                 value,
-                data.RuleSet.ComplexTypeMappingShortCircuitStrategy.SourceCanBeNull);
+                mapperData.RuleSet.ComplexTypeMappingShortCircuitStrategy.SourceCanBeNull);
         }
 
         private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As");
 
-        public static Expression GetAppropriateTypedMappingContextAccess(this MemberMapperData data, Type[] contextTypes)
+        public static Expression GetAppropriateTypedMappingContextAccess(this MemberMapperData mapperData, Type[] contextTypes)
         {
-            var access = data.GetAppropriateMappingContextAccess(contextTypes);
-            var typedAccess = data.GetTypedContextAccess(access, contextTypes);
+            var access = mapperData.GetAppropriateMappingContextAccess(contextTypes);
+            var typedAccess = mapperData.GetTypedContextAccess(access, contextTypes);
 
             return typedAccess;
         }
 
-        public static Expression GetAppropriateMappingContextAccess(this MemberMapperData data, Type[] contextTypes)
+        public static Expression GetAppropriateMappingContextAccess(this MemberMapperData mapperData, Type[] contextTypes)
         {
-            if (data.TypesMatch(contextTypes))
+            if (mapperData.TypesMatch(contextTypes))
             {
-                return data.Parameter;
+                return mapperData.Parameter;
             }
 
-            Expression dataAccess = data.Parameter;
+            Expression dataAccess = mapperData.Parameter;
 
-            if (data.TargetMember.IsSimple)
+            if (mapperData.TargetMember.IsSimple)
             {
-                data = data.Parent;
+                mapperData = mapperData.Parent;
             }
 
-            while (!data.TypesMatch(contextTypes))
+            while (!mapperData.TypesMatch(contextTypes))
             {
                 dataAccess = Expression.Property(dataAccess, "Parent");
-                data = data.Parent;
+                mapperData = mapperData.Parent;
             }
 
             return dataAccess;
         }
 
-        public static bool TypesMatch(this BasicMapperData data, IList<Type> contextTypes)
-            => contextTypes[0].IsAssignableFrom(data.SourceType) && contextTypes[1].IsAssignableFrom(data.TargetType);
+        public static bool TypesMatch(this IBasicMapperData mapperData, IList<Type> contextTypes)
+            => contextTypes[0].IsAssignableFrom(mapperData.SourceType) && contextTypes[1].IsAssignableFrom(mapperData.TargetType);
 
-        public static Expression GetTypedContextAccess(this MemberMapperData data, Expression contextAccess, Type[] contextTypes)
+        public static Expression GetTypedContextAccess(this MemberMapperData mapperData, Expression contextAccess, Type[] contextTypes)
         {
-            if (contextAccess == data.Parameter)
+            if (contextAccess == mapperData.Parameter)
             {
-                return data.Parameter;
+                return mapperData.Parameter;
             }
 
             return Expression.Call(
@@ -70,30 +70,30 @@ namespace AgileObjects.AgileMapper.Members
         private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
         private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget");
 
-        public static Expression GetSourceAccess(this MemberMapperData data, Expression contextAccess, Type sourceType)
-            => GetAccess(data, contextAccess, GetSourceAccess, sourceType, data.SourceObject);
+        public static Expression GetSourceAccess(this MemberMapperData mapperData, Expression contextAccess, Type sourceType)
+            => GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject);
 
-        public static Expression GetTargetAccess(this MemberMapperData data, Expression contextAccess, Type targetType)
-            => GetAccess(data, contextAccess, GetTargetAccess, targetType, data.TargetObject);
+        public static Expression GetTargetAccess(this MemberMapperData mapperData, Expression contextAccess, Type targetType)
+            => GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject);
 
         private static Expression GetAccess(
-            MemberMapperData data,
+            MemberMapperData mapperData,
             Expression contextAccess,
             Func<Expression, Type, Expression> accessMethodFactory,
             Type type,
             Expression directAccessExpression)
         {
-            return (contextAccess == data.Parameter)
+            return (contextAccess == mapperData.Parameter)
                 ? directAccessExpression
                 : accessMethodFactory.Invoke(contextAccess, type);
         }
 
-        public static Expression ReplaceTypedParameterWithUntyped(this MemberMapperData data, Expression expression)
+        public static Expression ReplaceTypedParameterWithUntyped(this MemberMapperData mapperData, Expression expression)
         {
             var replacementsByTarget = new Dictionary<Expression, Expression>(EquivalentMemberAccessComparer.Instance)
             {
-                [data.SourceObject] = GetSourceAccess(Parameters.MappingData, data.SourceType),
-                [data.TargetObject] = GetTargetAccess(Parameters.MappingData, data.TargetType)
+                [mapperData.SourceObject] = GetSourceAccess(Parameters.MappingData, mapperData.SourceType),
+                [mapperData.TargetObject] = GetTargetAccess(Parameters.MappingData, mapperData.TargetType)
             };
 
             return expression.Replace(replacementsByTarget);

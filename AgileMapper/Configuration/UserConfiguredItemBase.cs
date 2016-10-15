@@ -2,6 +2,9 @@
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
     using Members;
     using ReadableExpressions;
 
@@ -21,9 +24,7 @@
 
         private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda)
         {
-            var targetMember = lambda.Body.ToTargetMember(
-                GlobalContext.Instance.MemberFinder,
-                MapperContext.WithDefaultNamingSettings);
+            var targetMember = lambda.Body.ToTargetMember(MapperContext.WithDefaultNamingSettings);
 
             if (targetMember != null)
             {
@@ -51,18 +52,12 @@
                 return false;
             }
 
-            if (SourceAndTargetTypesAreCompatible(otherConfiguredItem))
+            if (_configInfo.HasCompatibleTypes(otherConfiguredItem._configInfo))
             {
                 return TargetMember.Matches(otherConfiguredItem.TargetMember);
             }
 
             return false;
-        }
-
-        private bool SourceAndTargetTypesAreCompatible(UserConfiguredItemBase otherConfiguredItem)
-        {
-            return _configInfo.IsForSourceType(otherConfiguredItem._configInfo) &&
-                   _configInfo.IsForTargetType(otherConfiguredItem._configInfo);
         }
 
         protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherConfiguredItem)
@@ -74,24 +69,46 @@
         public virtual Expression GetConditionOrNull(MemberMapperData mapperData)
             => _configInfo.GetConditionOrNull(mapperData);
 
-        public virtual bool AppliesTo(IBasicMapperData data)
+        public virtual bool AppliesTo(IBasicMapperData mapperData)
         {
-            return _configInfo.IsFor(data.RuleSet) &&
-                data.TargetMember.IsSameAs(TargetMember) &&
-                ObjectHeirarchyHasMatchingSourceAndTargetTypes(data);
+            return _configInfo.IsFor(mapperData.RuleSet) &&
+                TargetMembersMatch(mapperData) &&
+                ObjectHeirarchyHasMatchingSourceAndTargetTypes(mapperData);
         }
 
-        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IBasicMapperData data)
+        private bool TargetMembersMatch(IBasicMapperData mapperData)
         {
-            while (data != null)
+            // The order of these checks is significant!
+            if ((TargetMember == QualifiedMember.All) || (mapperData.TargetMember == QualifiedMember.All))
             {
-                if (_configInfo.IsForSourceType(data.SourceType) &&
-                    _configInfo.IsForTargetType(data.TargetMember.Type ?? data.TargetType))
+                return true;
+            }
+
+            if (TargetMember == mapperData.TargetMember)
+            {
+                return true;
+            }
+
+            if ((TargetMember == QualifiedMember.None) || (mapperData.TargetMember == QualifiedMember.None))
+            {
+                return false;
+            }
+
+            return (mapperData.TargetMember.Type == TargetMember.Type) &&
+                   (mapperData.TargetMember.Name == TargetMember.Name) &&
+                   mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableFrom(TargetMember.LeafMember.DeclaringType);
+        }
+
+        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
+        {
+            while (mapperData != null)
+            {
+                if (_configInfo.HasCompatibleTypes(mapperData))
                 {
                     return true;
                 }
 
-                data = data.Parent;
+                mapperData = mapperData.Parent;
             }
 
             return false;

@@ -16,13 +16,13 @@ namespace AgileObjects.AgileMapper.Members
         private readonly Member[] _childMembers;
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
 
-        public ConfiguredSourceMember(Expression value, MemberMapperData data)
+        public ConfiguredSourceMember(Expression value, MemberMapperData mapperData)
             : this(
                   value.Type,
                   value.Type.IsEnumerable(),
                   value.ToReadableString(),
-                  data.TargetMember.MemberChain.Select(data.MapperContext.NamingSettings.GetMatchingNameFor).ToArray(),
-                  data.MapperContext)
+                  mapperData.TargetMember.MemberChain.Select(mapperData.MapperContext.NamingSettings.GetMatchingNameFor).ToArray(),
+                  mapperData.MapperContext)
         {
         }
 
@@ -109,6 +109,21 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
 
-        public IQualifiedMember WithType(Type runtimeType) => this;
+        public IQualifiedMember WithType(Type runtimeType)
+        {
+            if (runtimeType == Type)
+            {
+                return this;
+            }
+
+            return new ConfiguredSourceMember(
+                runtimeType,
+                IsEnumerable || runtimeType.IsEnumerable(),
+                Name,
+                _matchedTargetMemberNames,
+                _matchedTargetMemberJoinedNames,
+                _mapperContext,
+                _childMembers);
+        }
     }
 }

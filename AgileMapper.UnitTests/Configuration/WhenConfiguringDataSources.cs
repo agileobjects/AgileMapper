@@ -559,6 +559,8 @@
 
             mappingEx.Message.ShouldContain("-> PublicField<Person>");
             mappingEx.InnerException.ShouldNotBeNull();
+
+            // ReSharper disable once PossibleNullReferenceException
             mappingEx.InnerException.Message.ShouldContain("<PersonViewModel>.PersonVm -> PublicField<Person>");
         }
 

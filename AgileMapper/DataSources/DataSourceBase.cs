@@ -28,7 +28,7 @@
         protected DataSourceBase(
             IQualifiedMember sourceMember,
             Expression value,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
             SourceMember = sourceMember;
 
@@ -36,7 +36,7 @@
             ICollection<ParameterExpression> variables;
 
             ProcessNestedAccesses(
-                data,
+                mapperData,
                 ref value,
                 out nestedAccesses,
                 out variables);
@@ -49,12 +49,12 @@
         #region Setup
 
         private static void ProcessNestedAccesses(
-            MemberMapperData data,
+            MemberMapperData mapperData,
             ref Expression value,
             out Expression[] nestedAccesses,
             out ICollection<ParameterExpression> variables)
         {
-            nestedAccesses = data.GetNestedAccessesIn(value);
+            nestedAccesses = mapperData.GetNestedAccessesIn(value);
             variables = new List<ParameterExpression>();
 
             if (nestedAccesses.None())

@@ -6,22 +6,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class MemberMappingContextData<TSource, TTarget> : IMemberMappingContextData
+    internal class MemberMappingData<TSource, TTarget> : IMemberMappingData
     {
-        private readonly ObjectMappingContextData<TSource, TTarget> _parent;
+        private readonly ObjectMappingData<TSource, TTarget> _parent;
         private readonly ICache<IQualifiedMember, Func<TSource, Type>> _runtimeTypeGettersCache;
 
-        public MemberMappingContextData(ObjectMappingContextData<TSource, TTarget> parent)
+        public MemberMappingData(ObjectMappingData<TSource, TTarget> parent)
         {
             _parent = parent;
             _runtimeTypeGettersCache = parent.MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
         }
 
         public MappingRuleSet RuleSet => _parent.RuleSet;
-
-        public IQualifiedMember SourceMember => MapperData.SourceMember;
-
-        public QualifiedMember TargetMember => MapperData.TargetMember;
 
         public MemberMapperData MapperData { get; internal set; }
 

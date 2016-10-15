@@ -24,9 +24,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool SourceCanBeNull => _conditionBuilder.SourceCanBeNull;
 
-        public IEnumerable<Expression> GetConditions(MemberMapperData data)
+        public IEnumerable<Expression> GetConditions(MemberMapperData mapperData)
         {
-            yield return _conditionBuilder.GetCondition(data);
+            yield return _conditionBuilder.GetConditionOrNull(mapperData);
         }
     }
 }

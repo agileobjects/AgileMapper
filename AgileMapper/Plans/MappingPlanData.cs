@@ -11,26 +11,26 @@
         public MappingPlanData(
             IMappingContext mappingContext,
             LambdaExpression lambda,
-            IObjectMappingContextData contextData)
+            IObjectMappingData mappingData)
         {
             MappingContext = mappingContext;
             Lambda = lambda;
-            ContextData = contextData;
+            MappingData = mappingData;
         }
 
         public IMappingContext MappingContext { get; }
 
         public LambdaExpression Lambda { get; }
 
-        public IObjectMappingContextData ContextData { get; }
+        public IObjectMappingData MappingData { get; }
 
         public override bool Equals(object obj)
         {
             var otherPlanData = (MappingPlanData)obj;
 
             // ReSharper disable once PossibleNullReferenceException
-            return otherPlanData.ContextData.SourceType == ContextData.SourceType &&
-                   otherPlanData.ContextData.TargetType == ContextData.TargetType;
+            return otherPlanData.MappingData.SourceType == MappingData.SourceType &&
+                   otherPlanData.MappingData.TargetType == MappingData.TargetType;
         }
 
         public override int GetHashCode() => 0;
@@ -74,48 +74,20 @@
             string targetMemberName,
             int dataSourceIndex)
         {
-            var childContextData = ObjectMappingContextDataFactory.ForChild(
+            var childMappingData = ObjectMappingDataFactory.ForChild(
                 default(TChildSource),
                 default(TChildTarget),
                 null,
                 targetMemberName,
                 dataSourceIndex,
-                ContextData);
+                MappingData);
 
-            LambdaExpression mappingLambda;
-
-            if (childContextData.TargetType == typeof(TChildTarget))
-            {
-                mappingLambda = GetMappingLambda<TChildSource, TChildTarget>(childContextData);
-            }
-            else
-            {
-                var methodCallerKey = new SourceAndTargetTypesKey(childContextData.SourceType, childContextData.TargetType);
-
-                var getMappingLambdaCaller = GlobalContext.Instance.Cache.GetOrAdd(methodCallerKey, k =>
-                {
-                    var getMappingLambdaMethod = typeof(MappingPlanData)
-                        .GetNonPublicStaticMethod("GetMappingLambda")
-                        .MakeGenericMethod(k.SourceType, k.TargetType);
-
-                    var getMappingLambdaCall = Expression.Call(
-                        getMappingLambdaMethod,
-                        Parameters.ObjectMappingContextData);
-
-                    var getMappingLambdaCallLambda = Expression.Lambda<Func<IObjectMappingContextData, LambdaExpression>>(
-                        getMappingLambdaCall,
-                        Parameters.ObjectMappingContextData);
-
-                    return getMappingLambdaCallLambda.Compile();
-                });
-
-                mappingLambda = getMappingLambdaCaller.Invoke(childContextData);
-            }
+            var mappingLambda = childMappingData.CreateMapper().MappingLambda;
 
             return new MappingPlanData(
                 MappingContext,
                 mappingLambda,
-                childContextData);
+                childMappingData);
         }
 
         public MappingPlanData GetElementMappingPlanData(MethodCallExpression mapCall)
@@ -146,42 +118,26 @@
         // ReSharper disable once UnusedMember.Local
         private MappingPlanData ExpandElementMapper<TSourceElement, TTargetElement>()
         {
-            var elementContextData = ObjectMappingContextDataFactory.ForElement(
+            var elementMappingData = ObjectMappingDataFactory.ForElement(
                 default(TSourceElement),
                 default(TTargetElement),
                 0,
-                ContextData);
+                MappingData);
 
-            var mappingLambda = GetMappingLambda<TSourceElement, TTargetElement>(elementContextData);
+            var mappingLambda = elementMappingData.CreateMapper().MappingLambda;
 
             return new MappingPlanData(
                 MappingContext,
                 mappingLambda,
-                elementContextData);
-        }
-
-        private static LambdaExpression GetMappingLambda<TChildSource, TChildTarget>(IObjectMappingContextData data)
-        {
-            var mapper = data
-                .MappingContext
-                .MapperContext
-                .ObjectMapperFactory
-                .CreateFor<TChildSource, TChildTarget>(data);
-
-            return mapper.MappingLambda;
+                elementMappingData);
         }
 
         private class SourceAndTargetTypesKey
         {
             public SourceAndTargetTypesKey(MethodCallExpression mapCall)
-                : this(mapCall.Arguments[0].Type, mapCall.Arguments[1].Type)
             {
-            }
-
-            public SourceAndTargetTypesKey(Type sourceType, Type targetType)
-            {
-                SourceType = sourceType;
-                TargetType = targetType;
+                SourceType = mapCall.Arguments[0].Type;
+                TargetType = mapCall.Arguments[1].Type;
             }
 
             public Type SourceType { get; }
@@ -192,6 +148,7 @@
             {
                 var otherKey = (SourceAndTargetTypesKey)obj;
 
+                // ReSharper disable once PossibleNullReferenceException
                 return (otherKey.SourceType == SourceType) &&
                        (otherKey.TargetType == TargetType);
             }

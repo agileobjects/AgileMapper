@@ -9,8 +9,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly IDataSourceFactory Instance = new DefaultValueDataSourceFactory();
 
-        public IDataSource Create(MemberMapperData data)
-            => new DefaultValueDataSource(data.SourceMember, data.TargetMember.Type);
+        public IDataSource Create(MemberMapperData mapperData)
+            => new DefaultValueDataSource(mapperData.SourceMember, mapperData.TargetMember.Type);
 
         private class DefaultValueDataSource : DataSourceBase
         {

@@ -23,52 +23,52 @@ namespace AgileObjects.AgileMapper.DataSources
 
         #endregion
 
-        public DictionaryDataSource(MemberMapperData data)
+        public DictionaryDataSource(MemberMapperData mapperData)
             : this(
-                data,
+                mapperData,
                 Expression.Variable(
-                    data.SourceType.GetGenericArguments().Last(),
-                    data.TargetMember.Name.ToCamelCase()))
+                    mapperData.SourceType.GetGenericArguments().Last(),
+                    mapperData.TargetMember.Name.ToCamelCase()))
         {
         }
 
-        private DictionaryDataSource(MemberMapperData data, ParameterExpression variable)
+        private DictionaryDataSource(MemberMapperData mapperData, ParameterExpression variable)
             : base(
-                  new DictionarySourceMember(data),
+                  new DictionarySourceMember(mapperData),
                   new[] { variable },
-                  GetValueParsing(variable, data))
+                  GetValueParsing(variable, mapperData))
         {
         }
 
-        private static Expression GetValueParsing(Expression variable, MemberMapperData data)
+        private static Expression GetValueParsing(Expression variable, MemberMapperData mapperData)
         {
-            var potentialNames = GetPotentialNames(data);
+            var potentialNames = GetPotentialNames(mapperData);
 
             var tryGetValueCall = GetTryGetValueCall(
                 variable,
                 potentialNames.Select(Expression.Constant),
-                data);
+                mapperData);
 
             var dictionaryValueOrFallback = Expression.Condition(
                 tryGetValueCall,
-                GetValue(variable, data),
-                GetFallbackValue(variable, potentialNames, data));
+                GetValue(variable, mapperData),
+                GetFallbackValue(variable, potentialNames, mapperData));
 
             return dictionaryValueOrFallback;
         }
 
-        private static string[] GetPotentialNames(MemberMapperData data)
+        private static string[] GetPotentialNames(MemberMapperData mapperData)
         {
-            var alternateNames = data
+            var alternateNames = mapperData
                 .TargetMember
                 .MemberChain
                 .Skip(1)
-                .Select(data.MapperContext.NamingSettings.GetAlternateNamesFor)
+                .Select(mapperData.MapperContext.NamingSettings.GetAlternateNamesFor)
                 .CartesianProduct();
 
-            var flattenedNameSet = (data.TargetMember.MemberChain.Count() == 2)
+            var flattenedNameSet = (mapperData.TargetMember.MemberChain.Count() == 2)
                 ? alternateNames.SelectMany(names => names)
-                : alternateNames.ToArray().SelectMany(data.MapperContext.NamingSettings.GetJoinedNamesFor);
+                : alternateNames.ToArray().SelectMany(mapperData.MapperContext.NamingSettings.GetJoinedNamesFor);
 
             return flattenedNameSet.ToArray();
         }
@@ -76,11 +76,11 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetTryGetValueCall(
             Expression variable,
             IEnumerable<Expression> potentialNames,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
             var linqIntersect = Expression.Call(
                 _linqIntersectMethod,
-                Expression.Property(data.SourceObject, "Keys"),
+                Expression.Property(mapperData.SourceObject, "Keys"),
                 Expression.NewArrayInit(typeof(string), potentialNames),
                 CaseInsensitiveStringComparer.InstanceMember);
 
@@ -89,56 +89,56 @@ namespace AgileObjects.AgileMapper.DataSources
             var matchingNameOrEmptyString = Expression.Coalesce(intersectionFirstOrDefault, emptyString);
 
             var tryGetValueCall = Expression.Call(
-                data.SourceObject,
-                data.SourceObject.Type.GetMethod("TryGetValue"),
+                mapperData.SourceObject,
+                mapperData.SourceObject.Type.GetMethod("TryGetValue"),
                 matchingNameOrEmptyString,
                 variable);
 
             return tryGetValueCall;
         }
 
-        private static Expression GetValue(Expression variable, MemberMapperData data)
+        private static Expression GetValue(Expression variable, MemberMapperData mapperData)
         {
-            if (data.TargetMember.IsSimple)
+            if (mapperData.TargetMember.IsSimple)
             {
-                return data
+                return mapperData
                     .MapperContext
                     .ValueConverters
-                    .GetConversion(variable, data.TargetMember.Type);
+                    .GetConversion(variable, mapperData.TargetMember.Type);
             }
 
-            return data.GetMapCall(variable);
+            return mapperData.GetMapCall(variable);
         }
 
         private static Expression GetFallbackValue(
             Expression variable,
             IEnumerable<string> potentialNames,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
-            if (data.TargetMember.IsSimple)
+            if (mapperData.TargetMember.IsSimple)
             {
-                return data
+                return mapperData
                     .RuleSet
                     .FallbackDataSourceFactory
-                    .Create(data)
+                    .Create(mapperData)
                     .Value;
             }
 
-            return GetEnumerablePopulation(variable, potentialNames, data);
+            return GetEnumerablePopulation(variable, potentialNames, mapperData);
         }
 
         private static Expression GetEnumerablePopulation(
             Expression variable,
             IEnumerable<string> potentialNames,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
-            var sourceElementType = data.SourceType.GetGenericArguments()[1];
+            var sourceElementType = mapperData.SourceType.GetGenericArguments()[1];
             var sourceList = Expression.Variable(typeof(List<>).MakeGenericType(sourceElementType), "sourceList");
             var counter = Expression.Variable(typeof(int), "i");
 
-            var potentialNameConstants = GetPotentialItemNames(potentialNames, counter, data);
+            var potentialNameConstants = GetPotentialItemNames(potentialNames, counter, mapperData);
 
-            var tryGetValueCall = GetTryGetValueCall(variable, potentialNameConstants, data);
+            var tryGetValueCall = GetTryGetValueCall(variable, potentialNameConstants, mapperData);
             var loopBreak = Expression.Break(Expression.Label());
             var ifNotTryGetValueBreak = Expression.IfThen(Expression.Not(tryGetValueCall), loopBreak);
 
@@ -152,7 +152,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var populationLoop = Expression.Loop(loopBody, loopBreak.Target);
 
-            var mapCall = data.GetMapCall(sourceList);
+            var mapCall = mapperData.GetMapCall(sourceList);
 
             var enumerablePopulation = Expression.Block(
                 new[] { sourceList, counter },
@@ -167,13 +167,13 @@ namespace AgileObjects.AgileMapper.DataSources
         private static IEnumerable<MethodCallExpression> GetPotentialItemNames(
             IEnumerable<string> potentialNames,
             Expression counter,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
             return potentialNames
                 .Select(name =>
                 {
                     var nameAndOpenBrace = Expression.Constant(name + "[");
-                    var counterString = data.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
+                    var counterString = mapperData.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
                     var closeBrace = Expression.Constant("]");
 
                     var stringConcatMethod = typeof(string)

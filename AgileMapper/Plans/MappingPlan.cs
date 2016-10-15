@@ -4,50 +4,39 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
     internal class MappingPlan<TSource, TTarget>
     {
         private readonly List<MappingPlanData> _generatedPlanData;
-        private readonly string _plan;
 
         public MappingPlan(IMappingContext mappingContext)
         {
             _generatedPlanData = new List<MappingPlanData>();
 
-            var rootContextData = mappingContext.CreateRootMappingContextData(default(TSource), default(TTarget));
-
-            var rootMapper = mappingContext
-                .MapperContext
-                .ObjectMapperFactory
-                .CreateFor<TSource, TTarget>(rootContextData);
+            var rootMappingData = mappingContext
+                .CreateRootMappingData(default(TSource), default(TTarget));
 
             var rootPlanData = new MappingPlanData(
                 mappingContext,
-                rootMapper.MappingLambda,
-                rootContextData);
+                rootMappingData.Mapper.MappingLambda,
+                rootMappingData);
 
-            var planData = Expand(rootPlanData);
-
-            _plan = string.Join(
-                Environment.NewLine + Environment.NewLine,
-                planData.Select(GetDescription));
-
-            _generatedPlanData.Clear();
+            Expand(rootPlanData);
         }
 
-        private IEnumerable<MappingPlanData> Expand(MappingPlanData planData)
+        private void Expand(MappingPlanData planData)
         {
             if (_generatedPlanData.Contains(planData))
             {
-                yield break;
+                return;
             }
 
             _generatedPlanData.Add(planData);
-
-            yield return planData;
 
             var mapCalls = MapCallFinder.FindIn(planData.Lambda);
 
@@ -64,12 +53,7 @@
                     mappingLambdaFactory = planData.GetElementMappingPlanData;
                 }
 
-                var nestedMappingFuncs = Expand(mappingLambdaFactory.Invoke(mapCall));
-
-                foreach (var nestedMappingFunc in nestedMappingFuncs)
-                {
-                    yield return nestedMappingFunc;
-                }
+                Expand(mappingLambdaFactory.Invoke(mapCall));
             }
         }
 
@@ -85,14 +69,19 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // Map {sourceType} -> {targetType}
-// Rule Set: {mappingPlanData.ContextData.RuleSet.Name}
+// Rule Set: {mappingPlanData.MappingData.MappingContext.RuleSet.Name}
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 {mappingPlanData.Lambda.ToReadableString()}".TrimStart();
         }
 
-        public static implicit operator string(MappingPlan<TSource, TTarget> mappingPlan) => mappingPlan._plan;
+        public static implicit operator string(MappingPlan<TSource, TTarget> mappingPlan)
+        {
+            return string.Join(
+                Environment.NewLine + Environment.NewLine,
+                mappingPlan._generatedPlanData.Select(GetDescription));
+        }
 
         private class MapCallFinder : ExpressionVisitor
         {

@@ -48,12 +48,12 @@
             return _dataSourceLambda.IsSameAs(otherDataSource._dataSourceLambda);
         }
 
-        public IConfiguredDataSource Create(int dataSourceIndex, MemberMapperData data)
+        public IConfiguredDataSource Create(int dataSourceIndex, MemberMapperData mapperData)
         {
-            var configuredCondition = GetConditionOrNull(data);
-            var value = _dataSourceLambda.GetBody(data);
+            var configuredCondition = GetConditionOrNull(mapperData);
+            var value = _dataSourceLambda.GetBody(mapperData);
 
-            return new ConfiguredDataSource(dataSourceIndex, configuredCondition, value, data);
+            return new ConfiguredDataSource(dataSourceIndex, configuredCondition, value, mapperData);
         }
     }
 }

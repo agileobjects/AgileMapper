@@ -1,39 +1,36 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using Caching;
+
     internal class ObjectMapperFactory
     {
         private readonly EnumerableMappingLambdaFactory _enumerableMappingLambdaFactory;
         private readonly ComplexTypeMappingLambdaFactory _complexTypeMappingLambdaFactory;
+        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _rootMappers;
 
         public ObjectMapperFactory(MapperContext mapperContext)
         {
             _enumerableMappingLambdaFactory = new EnumerableMappingLambdaFactory();
             _complexTypeMappingLambdaFactory = new ComplexTypeMappingLambdaFactory(mapperContext);
+            _rootMappers = mapperContext.Cache.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();
         }
 
-        public IObjectMapper<TTarget> CreateFor<TSource, TTarget>(IObjectMappingContextData data)
+        public void CreateRoot(IObjectMappingData mappingData) => _rootMappers.GetOrAddMapper(mappingData);
+
+        public IObjectMapper Create<TSource, TTarget>(IObjectMappingData mappingData)
         {
-            var objectMapper = data.MappingContext.MapperContext.Cache.GetOrAdd(
-                (IObjectMapperKey)data,
-                key =>
-                {
-                    var contextData = (IObjectMappingContextData)key;
+            var lambda = mappingData.MapperKey.MappingTypes.IsEnumerable
+                ? _enumerableMappingLambdaFactory.Create<TSource, TTarget>(mappingData)
+                : _complexTypeMappingLambdaFactory.Create<TSource, TTarget>(mappingData);
 
-                    var lambda = contextData.TargetMember.IsEnumerable
-                        ? _enumerableMappingLambdaFactory.Create<TSource, TTarget>(contextData)
-                        : _complexTypeMappingLambdaFactory.Create<TSource, TTarget>(contextData);
+            var mapper = new ObjectMapper<TSource, TTarget>(lambda, mappingData.MapperData);
 
-                    IObjectMapper<TTarget> mapper = new ObjectMapper<TSource, TTarget>(lambda);
-
-                    return mapper;
-                },
-                key => ((IObjectMappingContextData)key).MapperKeyObject);
-
-            return objectMapper;
+            return mapper;
         }
 
         public void Reset()
         {
+            _rootMappers.Empty();
             _complexTypeMappingLambdaFactory.Reset();
         }
     }

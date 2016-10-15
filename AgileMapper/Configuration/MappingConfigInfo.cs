@@ -2,7 +2,9 @@
 {
     using System;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using Members;
 
     internal class MappingConfigInfo
@@ -57,16 +59,21 @@
 
         public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => _sourceType == otherConfigInfo._sourceType;
 
-        public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo._sourceType);
-
-        public bool IsForSourceType(Type sourceType)
-            => (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
-
         public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => _targetType == otherConfigInfo._targetType;
 
-        public bool IsForTargetType(MappingConfigInfo otherConfigInfo) => IsForTargetType(otherConfigInfo._targetType);
+        public bool HasCompatibleTypes(MappingConfigInfo otherConfigInfo)
+            => HasCompatibleTypes(otherConfigInfo._sourceType, otherConfigInfo._targetType);
 
-        public bool IsForTargetType(Type targetType) => _targetType.IsAssignableFrom(targetType);
+        public bool HasCompatibleTypes(IBasicMapperData mapperData)
+            => HasCompatibleTypes(mapperData.SourceType, mapperData.TargetType);
+
+        private bool HasCompatibleTypes(Type sourceType, Type targetType)
+            => IsForSourceType(sourceType) && _targetType.IsAssignableFrom(targetType);
+
+        public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo._sourceType);
+
+        private bool IsForSourceType(Type sourceType)
+            => (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
 
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 
@@ -129,7 +136,7 @@
                 MapperContext.UserConfigurations.DerivedTypePairs.Configuring = true;
 
                 mapperData = stubMappingContext
-                    .CreateRootMappingContextData(default(TSource), default(TTarget))
+                    .CreateRootMappingData(default(TSource), default(TTarget))
                     .MapperData;
 
                 MapperContext.UserConfigurations.DerivedTypePairs.Configuring = false;

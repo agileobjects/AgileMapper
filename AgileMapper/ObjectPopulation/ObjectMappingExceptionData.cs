@@ -11,9 +11,9 @@
             typeof(ObjectMappingExceptionData).GetPublicStaticMethod("Create");
 
         public static ObjectMappingExceptionData<TSource, TTarget> Create<TSource, TTarget>(
-            IMappingData<TSource, TTarget> data,
+            IMappingData<TSource, TTarget> mappingData,
             Exception exception)
-            => new ObjectMappingExceptionData<TSource, TTarget>(data, exception);
+            => new ObjectMappingExceptionData<TSource, TTarget>(mappingData, exception);
     }
 
     internal class ObjectMappingExceptionData<TSource, TTarget> :
@@ -21,8 +21,8 @@
         IMappingExceptionData,
         IMappingExceptionData<TSource, TTarget>
     {
-        public ObjectMappingExceptionData(IMappingData<TSource, TTarget> data, Exception exception)
-            : base(data)
+        public ObjectMappingExceptionData(IMappingData<TSource, TTarget> mappingData, Exception exception)
+            : base(mappingData)
         {
             Exception = exception;
         }

@@ -23,29 +23,29 @@
         {
         }
 
-        internal MappingException(IObjectMappingContextData data, Exception innerException)
-            : base(GetMessage(data.MapperData), innerException)
+        internal MappingException(IObjectMappingData mappingData, Exception innerException)
+            : base(GetMessage(mappingData.MapperData), innerException)
         {
         }
 
-        private static string GetMessage(MemberMapperData data)
+        private static string GetMessage(MemberMapperData mapperData)
         {
-            var rootData = GetRootMapperData(data);
+            var rootData = GetRootMapperData(mapperData);
 
-            var sourcePath = GetMemberPath(rootData.SourceType, data.SourceMember, "Source");
-            var targetPath = GetMemberPath(rootData.TargetType, data.TargetMember, "Target");
+            var sourcePath = GetMemberPath(rootData.SourceType, mapperData.SourceMember, rootData.SourceMember.Name);
+            var targetPath = GetMemberPath(rootData.TargetType, mapperData.TargetMember, rootData.TargetMember.Name);
 
-            return $"An exception occurred mapping {sourcePath} -> {targetPath} with rule set {data.RuleSet.Name}.";
+            return $"An exception occurred mapping {sourcePath} -> {targetPath} with rule set {mapperData.RuleSet.Name}.";
         }
 
-        private static IBasicMapperData GetRootMapperData(IBasicMapperData data)
+        private static MemberMapperData GetRootMapperData(MemberMapperData mapperData)
         {
-            while (data.Parent != null)
+            while (mapperData.Parent != null)
             {
-                data = data.Parent;
+                mapperData = mapperData.Parent;
             }
 
-            return data;
+            return mapperData;
         }
 
         private static string GetMemberPath(Type rootType, IQualifiedMember member, string rootMemberName)

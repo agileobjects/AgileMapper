@@ -2,13 +2,11 @@
 {
     public class ConstructedObject
     {
-        private readonly int _value;
-
         public ConstructedObject(int value)
         {
-            _value = value;
+            Value = value;
         }
 
-        public int Value => _value;
+        public int Value { get; }
     }
 }

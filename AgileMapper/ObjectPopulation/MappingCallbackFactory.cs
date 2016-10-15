@@ -21,13 +21,13 @@
 
         protected CallbackPosition CallbackPosition { get; }
 
-        public virtual bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData data)
-            => (CallbackPosition == callbackPosition) && base.AppliesTo(data);
+        public virtual bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
+            => (CallbackPosition == callbackPosition) && base.AppliesTo(mapperData);
 
-        public Expression Create(MemberMapperData data)
+        public Expression Create(MemberMapperData mapperData)
         {
-            var callback = _callbackLambda.GetBody(data);
-            var condition = GetConditionOrNull(data);
+            var callback = _callbackLambda.GetBody(mapperData);
+            var condition = GetConditionOrNull(mapperData);
 
             if (condition != null)
             {

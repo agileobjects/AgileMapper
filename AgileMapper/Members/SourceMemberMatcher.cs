@@ -5,9 +5,9 @@
 
     internal class SourceMemberMatcher
     {
-        public static IQualifiedMember GetMatchFor(IMemberMappingContextData rootData)
+        public static IQualifiedMember GetMatchFor(IMemberMappingData rootData)
         {
-            var rootSourceMember = rootData.SourceMember;
+            var rootSourceMember = rootData.MapperData.SourceMember;
 
             return GetAllSourceMembers(rootSourceMember, rootData)
                 .FirstOrDefault(sm => IsMatchingMember(sm, rootData.MapperData));
@@ -15,11 +15,11 @@
 
         private static IEnumerable<IQualifiedMember> GetAllSourceMembers(
             IQualifiedMember parentMember,
-            IMemberMappingContextData rootData)
+            IMemberMappingData rootData)
         {
             yield return parentMember;
 
-            if (!parentMember.CouldMatch(rootData.TargetMember))
+            if (!parentMember.CouldMatch(rootData.MapperData.TargetMember))
             {
                 yield break;
             }
@@ -36,7 +36,7 @@
                 .Instance
                 .MemberFinder
                 .GetReadableMembers(parentMember.Type)
-                .Where(m => (m.IsSimple && rootData.TargetMember.IsSimple) || !m.IsSimple);
+                .Where(m => (m.IsSimple && rootData.MapperData.TargetMember.IsSimple) || !m.IsSimple);
 
             foreach (var sourceMember in relevantMembers)
             {
@@ -55,10 +55,10 @@
             }
         }
 
-        private static bool IsMatchingMember(IQualifiedMember sourceMember, MemberMapperData data)
+        private static bool IsMatchingMember(IQualifiedMember sourceMember, MemberMapperData mapperData)
         {
-            return sourceMember.Matches(data.TargetMember) &&
-                   data.MapperContext.ValueConverters.CanConvert(sourceMember.Type, data.TargetMember.Type);
+            return sourceMember.Matches(mapperData.TargetMember) &&
+                   mapperData.MapperContext.ValueConverters.CanConvert(sourceMember.Type, mapperData.TargetMember.Type);
         }
     }
 }

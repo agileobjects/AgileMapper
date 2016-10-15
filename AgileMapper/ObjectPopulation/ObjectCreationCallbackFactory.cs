@@ -2,7 +2,9 @@
 {
     using System;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using Configuration;
     using Extensions;
     using Members;
@@ -21,8 +23,8 @@
             _creationTargetType = creationTargetType;
         }
 
-        public override bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData data)
-            => _creationTargetType.IsAssignableFrom(data.TargetMember.Type) && base.AppliesTo(callbackPosition, data);
+        public override bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
+            => _creationTargetType.IsAssignableFrom(mapperData.TargetMember.Type) && base.AppliesTo(callbackPosition, mapperData);
 
         public override Expression GetConditionOrNull(MemberMapperData mapperData)
         {

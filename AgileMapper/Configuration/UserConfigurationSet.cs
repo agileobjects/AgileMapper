@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
+    using Extensions;
     using Members;
     using ObjectPopulation;
 
@@ -33,8 +34,8 @@
 
         public void Add(ConfiguredObjectFactory objectFactory) => _objectFactories.Add(objectFactory);
 
-        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(MemberMapperData data)
-            => FindMatches(_objectFactories, data).ToArray();
+        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(MemberMapperData mapperData)
+            => FindMatches(_objectFactories, mapperData).ToArray();
 
         #endregion
 
@@ -55,8 +56,8 @@
             _ignoredMembers.Add(ignoredMember);
         }
 
-        public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IBasicMapperData data)
-            => FindMatch(_ignoredMembers, data);
+        public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IBasicMapperData mapperData)
+            => FindMatch(_ignoredMembers, mapperData);
 
         #endregion
 
@@ -75,8 +76,8 @@
             _dataSourceFactories.Add(dataSourceFactory);
         }
 
-        public IEnumerable<IConfiguredDataSource> GetDataSources(MemberMapperData data)
-            => FindMatches(_dataSourceFactories, data).Select((dsf, i) => dsf.Create(i, data)).ToArray();
+        public IEnumerable<IConfiguredDataSource> GetDataSources(MemberMapperData mapperData)
+            => FindMatches(_dataSourceFactories, mapperData).Select((dsf, i) => dsf.Create(i, mapperData)).ToArray();
 
         #endregion
 
@@ -87,16 +88,28 @@
         public Expression GetCallbackOrNull(
             CallbackPosition position,
             IBasicMapperData basicData,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
+            if (_mappingCallbackFactories.None())
+            {
+                return null;
+            }
+
             return _mappingCallbackFactories
-                .FirstOrDefault(f => f.AppliesTo(position, basicData))?.Create(data);
+                .FirstOrDefault(f => f.AppliesTo(position, basicData))?.Create(mapperData);
         }
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);
 
-        public Expression GetCreationCallbackOrNull(CallbackPosition position, MemberMapperData data)
-            => _creationCallbackFactories.FirstOrDefault(f => f.AppliesTo(position, data))?.Create(data);
+        public Expression GetCreationCallbackOrNull(CallbackPosition position, MemberMapperData mapperData)
+        {
+            if (_creationCallbackFactories.None())
+            {
+                return null;
+            }
+
+            return _creationCallbackFactories.FirstOrDefault(f => f.AppliesTo(position, mapperData))?.Create(mapperData);
+        }
 
         #endregion
 
@@ -104,20 +117,20 @@
 
         public void Add(ExceptionCallback callback) => _exceptionCallbackFactories.Add(callback);
 
-        public Expression GetExceptionCallbackOrNull(MemberMapperData data)
-            => FindMatch(_exceptionCallbackFactories, data)?.Callback;
+        public Expression GetExceptionCallbackOrNull(MemberMapperData mapperData)
+            => FindMatch(_exceptionCallbackFactories, mapperData)?.Callback;
 
         #endregion
 
         public DerivedTypePairSet DerivedTypePairs { get; }
 
-        private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IBasicMapperData data)
+        private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
             where TItem : UserConfiguredItemBase
-            => items.FirstOrDefault(im => im.AppliesTo(data));
+            => items.FirstOrDefault(im => im.AppliesTo(mapperData));
 
-        private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IBasicMapperData data)
+        private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
             where TItem : UserConfiguredItemBase
-            => items.Where(im => im.AppliesTo(data)).OrderBy(im => im, UserConfiguredItemBase.SpecificityComparer);
+            => items.Where(im => im.AppliesTo(mapperData)).OrderBy(im => im, UserConfiguredItemBase.SpecificityComparer);
 
         #region Conflict Handling
 

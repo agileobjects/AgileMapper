@@ -3,9 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET_STANDARD
     using System.Reflection;
+#endif
+    using Extensions;
     using Members;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal class DerivedTypePairSet
@@ -46,30 +48,29 @@
             TSource source,
             TTarget target,
             int? enumerableIndex,
-            IQualifiedMember sourceMember,
-            QualifiedMember targetMember,
+            Type runtimeSourceType,
             IMappingContext mappingContext,
-            IBasicMappingContextData parent)
+            IBasicMappingData parent)
         {
-            if (Configuring)
+            if (Configuring || _typePairsByTargetType.None())
             {
                 return null;
             }
 
             List<DerivedTypePair> typePairs;
 
-            if (_typePairsByTargetType.TryGetValue(targetMember.Type, out typePairs))
+            if (_typePairsByTargetType.TryGetValue(typeof(TTarget), out typePairs))
             {
-                var contextData = new BasicMappingContextData<TSource, TTarget>(
+                var mappingData = new BasicMappingData<TSource, TTarget>(
                     source,
                     target,
                     enumerableIndex,
-                    sourceMember,
-                    targetMember,
+                    runtimeSourceType,
+                    typeof(TTarget),
                     mappingContext.RuleSet,
                     parent);
 
-                return typePairs.FirstOrDefault(tp => tp.AppliesTo(contextData))?.DerivedTargetType;
+                return typePairs.FirstOrDefault(tp => tp.AppliesTo(mappingData))?.DerivedTargetType;
             }
 
             return null;

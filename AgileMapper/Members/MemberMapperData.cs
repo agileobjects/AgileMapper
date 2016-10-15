@@ -32,7 +32,7 @@
 
         public MapperContext MapperContext { get; }
 
-        public new ObjectMapperData Parent { get; }
+        public ObjectMapperData Parent { get; }
 
         public virtual ParameterExpression Parameter => Parent.Parameter;
 

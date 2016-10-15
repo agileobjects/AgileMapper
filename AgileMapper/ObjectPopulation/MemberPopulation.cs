@@ -29,18 +29,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Factory Methods
 
-        public static IMemberPopulation IgnoredMember(MemberMapperData data)
-            => CreateNullMemberPopulation(data, targetMember => targetMember.Name + " is ignored");
+        public static IMemberPopulation IgnoredMember(MemberMapperData mapperData)
+            => CreateNullMemberPopulation(mapperData, targetMember => targetMember.Name + " is ignored");
 
-        public static IMemberPopulation NoDataSource(MemberMapperData data)
-            => CreateNullMemberPopulation(data, targetMember => "No data source for " + targetMember.Name);
+        public static IMemberPopulation NoDataSource(MemberMapperData mapperData)
+            => CreateNullMemberPopulation(mapperData, targetMember => "No data source for " + targetMember.Name);
 
-        private static IMemberPopulation CreateNullMemberPopulation(MemberMapperData data, Func<IQualifiedMember, string> commentFactory)
-            => new MemberPopulation(
-                   data,
-                   new DataSourceSet(
-                       new NullDataSource(
-                           ReadableExpression.Comment(commentFactory.Invoke(data.TargetMember)))));
+        private static IMemberPopulation CreateNullMemberPopulation(
+            MemberMapperData mapperData,
+            Func<IQualifiedMember, string> commentFactory)
+        {
+            return new MemberPopulation(
+                mapperData,
+                new DataSourceSet(
+                    new NullDataSource(
+                        ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember)))));
+        }
 
         #endregion
 

@@ -18,11 +18,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _constructorsCache = mapperContext.Cache.CreateScoped<ConstructionKey, Expression>();
         }
 
-        public Expression GetNewObjectCreation(IObjectMappingContextData data)
+        public Expression GetNewObjectCreation(IObjectMappingData mappingData)
         {
-            return _constructorsCache.GetOrAdd(new ConstructionKey(data), key =>
+            return _constructorsCache.GetOrAdd(new ConstructionKey(mappingData), key =>
             {
-                var mapperData = key.Data.MapperData;
+                var mapperData = key.MappingData.MapperData;
 
                 var constructions = new List<Construction>();
                 var newingConstructorRequired = true;
@@ -57,10 +57,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                                 .Select(p =>
                                 {
                                     var parameterMapperData = new MemberMapperData(
-                                        key.Data.TargetMember.Append(Member.ConstructorParameter(p)),
+                                        mapperData.TargetMember.Append(Member.ConstructorParameter(p)),
                                         mapperData);
 
-                                    return key.Data.GetChildContextData(parameterMapperData);
+                                    return key.MappingData.GetChildMappingData(parameterMapperData);
                                 })
                                 .Select(memberData => mapperData
                                     .MapperContext
@@ -77,7 +77,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     }
                 }
 
-                key.RemoveCreationData();
+                key.MappingData = null;
 
                 if (constructions.None())
                 {
@@ -103,28 +103,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             private readonly IQualifiedMember _sourceMember;
             private readonly QualifiedMember _targetMember;
 
-            public ConstructionKey(IObjectMappingContextData data)
+            public ConstructionKey(IObjectMappingData mappingData)
             {
-                _ruleSet = data.RuleSet;
-                _sourceMember = data.SourceMember;
-                _targetMember = data.TargetMember;
-                Data = data;
+                MappingData = mappingData;
+                _ruleSet = mappingData.RuleSet;
+                _sourceMember = mappingData.MapperData.SourceMember;
+                _targetMember = mappingData.MapperData.TargetMember;
             }
 
-            public IObjectMappingContextData Data { get; private set; }
+            public IObjectMappingData MappingData { get; set; }
 
             public override bool Equals(object obj)
             {
                 var otherKey = (ConstructionKey)obj;
 
+                // ReSharper disable once PossibleNullReferenceException
                 return (otherKey._ruleSet == _ruleSet) &&
                     (otherKey._sourceMember == _sourceMember) &&
                     (otherKey._targetMember == _targetMember);
             }
 
             public override int GetHashCode() => 0;
-
-            public void RemoveCreationData() => Data = null;
         }
 
         private class ConstructorData

@@ -1,25 +1,83 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
+    using Caching;
 
-    internal class ObjectMapper<TSource, TTarget> : IObjectMapper<TTarget>
+    internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {
         private readonly Expression<MapperFunc<TSource, TTarget>> _mappingLambda;
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
+        private readonly ObjectMapperData _mapperData;
+        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _childMappersByKey;
+        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _elementMappersByKey;
 
-        public ObjectMapper(Expression<MapperFunc<TSource, TTarget>> mappingLambda)
+        public ObjectMapper(
+            Expression<MapperFunc<TSource, TTarget>> mappingLambda,
+            ObjectMapperData mapperData)
         {
             _mappingLambda = mappingLambda;
             _mapperFunc = mappingLambda.Compile();
+            _mapperData = mapperData;
+
+            if (mapperData.RequiresChildMapping)
+            {
+                _childMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
+            }
+            else if (mapperData.RequiresElementMapping)
+            {
+                _elementMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
+            }
         }
 
         public LambdaExpression MappingLambda => _mappingLambda;
 
-        public TTarget Execute(IObjectMappingContextData data)
+
+        public object Map(IObjectMappingData mappingData)
         {
-            var typedData = (ObjectMappingContextData<TSource, TTarget>)data;
+            var typedData = (ObjectMappingData<TSource, TTarget>)mappingData;
+
+            typedData.MapperData = _mapperData;
 
             return _mapperFunc.Invoke(typedData);
         }
+
+        public object MapChild<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource source,
+            TDeclaredTarget target,
+            int? enumerableIndex,
+            string targetMemberName,
+            int dataSourceIndex,
+            IObjectMappingData parentMappingData)
+        {
+            var childMappingData = ObjectMappingDataFactory.ForChild(
+                source,
+                target,
+                enumerableIndex,
+                targetMemberName,
+                dataSourceIndex,
+                parentMappingData);
+
+            return Map(childMappingData, _childMappersByKey);
+        }
+
+        public object MapElement<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceElement,
+            TDeclaredTarget targetElement,
+            int? enumerableIndex,
+            IObjectMappingData parentMappingData)
+        {
+            var elementMappingData = ObjectMappingDataFactory.ForElement(
+                sourceElement,
+                targetElement,
+                enumerableIndex,
+                parentMappingData);
+
+            return Map(elementMappingData, _elementMappersByKey);
+        }
+
+        private static object Map(
+            IObjectMappingData mappingData,
+            ICache<ObjectMapperKeyBase, IObjectMapper> subMapperCache)
+            => subMapperCache.GetOrAddMapper(mappingData).Map(mappingData);
     }
 }

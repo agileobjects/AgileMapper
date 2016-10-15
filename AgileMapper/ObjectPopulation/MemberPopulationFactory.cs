@@ -7,19 +7,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class MemberPopulationFactory
     {
-        public static IEnumerable<IMemberPopulation> Create(IObjectMappingContextData data)
+        public static IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
         {
             return GlobalContext
                 .Instance
                 .MemberFinder
-                .GetWriteableMembers(data.MapperData.TargetType)
-                .Select(targetMember => Create(targetMember, data));
+                .GetWriteableMembers(mappingData.TargetType)
+                .Select(targetMember => Create(targetMember, mappingData));
         }
 
-        private static IMemberPopulation Create(Member targetMember, IObjectMappingContextData data)
+        private static IMemberPopulation Create(Member targetMember, IObjectMappingData mappingData)
         {
-            var qualifiedMember = data.TargetMember.Append(targetMember);
-            var childMapperData = new MemberMapperData(qualifiedMember, data.MapperData);
+            var qualifiedMember = mappingData.MapperData.TargetMember.Append(targetMember);
+            var childMapperData = new MemberMapperData(qualifiedMember, mappingData.MapperData);
 
             Expression populateCondition;
 
@@ -28,12 +28,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return MemberPopulation.IgnoredMember(childMapperData);
             }
 
-            var childMappingContextData = data.GetChildContextData(childMapperData);
+            var childMappingData = mappingData.GetChildMappingData(childMapperData);
 
             var dataSources = childMapperData
                 .MapperContext
                 .DataSources
-                .FindFor(childMappingContextData);
+                .FindFor(childMappingData);
 
             if (dataSources.None)
             {

@@ -17,57 +17,66 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }
 
-        protected override bool IsNotConstructable(IObjectMappingContextData data)
-            => _constructionFactory.GetNewObjectCreation(data) == null;
+        protected override bool IsNotConstructable(IObjectMappingData mappingData)
+            => _constructionFactory.GetNewObjectCreation(mappingData) == null;
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data)
+        protected override IEnumerable<Expression> GetShortCircuitReturns(
+            GotoExpression returnNull,
+            ObjectMapperData mapperData)
         {
-            yield return GetStrategyShortCircuitReturns(returnNull, data);
-            yield return GetAlreadyMappedObjectShortCircuit(returnNull.Target, data);
+            yield return GetStrategyShortCircuitReturns(returnNull, mapperData);
+            yield return GetAlreadyMappedObjectShortCircuit(returnNull.Target, mapperData);
         }
 
-        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, MemberMapperData data)
+        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, MemberMapperData mapperData)
         {
-            if (!data.SourceMember.Matches(data.TargetMember))
+            if (!mapperData.SourceMember.Matches(mapperData.TargetMember))
             {
                 return Constants.EmptyExpression;
             }
 
-            var shortCircuitConditions = data
+            var shortCircuitConditions = mapperData
                 .RuleSet
                 .ComplexTypeMappingShortCircuitStrategy
-                .GetConditions(data)
-                .Select(condition => (Expression)Expression.IfThen(condition, returnNull));
+                .GetConditions(mapperData)
+                .WhereNotNull()
+                .Select(condition => (Expression)Expression.IfThen(condition, returnNull))
+                .ToArray();
+
+            if (shortCircuitConditions.None())
+            {
+                return Constants.EmptyExpression;
+            }
 
             var shortCircuitBlock = Expression.Block(shortCircuitConditions);
 
             return shortCircuitBlock;
         }
 
-        private static readonly MethodInfo _tryGetMethod = typeof(IObjectMappingContextData).GetMethod("TryGet");
+        private static readonly MethodInfo _tryGetMethod = typeof(IObjectMappingData).GetMethod("TryGet");
 
-        private static Expression GetAlreadyMappedObjectShortCircuit(LabelTarget returnTarget, MemberMapperData data)
+        private static Expression GetAlreadyMappedObjectShortCircuit(LabelTarget returnTarget, MemberMapperData mapperData)
         {
             var tryGetCall = Expression.Call(
-                data.Parameter,
-                _tryGetMethod.MakeGenericMethod(data.SourceType, data.InstanceVariable.Type),
-                data.SourceObject,
-                data.InstanceVariable);
+                mapperData.Parameter,
+                _tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.InstanceVariable.Type),
+                mapperData.SourceObject,
+                mapperData.InstanceVariable);
 
             var ifTryGetReturn = Expression.IfThen(
                 tryGetCall,
-                Expression.Return(returnTarget, data.InstanceVariable));
+                Expression.Return(returnTarget, mapperData.InstanceVariable));
 
             return ifTryGetReturn;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingContextData data)
+        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            var mapperData = data.MapperData;
+            var mapperData = mappingData.MapperData;
 
             yield return GetCreationCallback(CallbackPosition.Before, mapperData);
 
-            var instanceVariableValue = GetObjectResolution(data);
+            var instanceVariableValue = GetObjectResolution(mappingData);
             var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, instanceVariableValue);
             yield return instanceVariableAssignment;
 
@@ -79,54 +88,52 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield return registrationCall;
             }
 
-            foreach (var population in GetPopulationsAndCallbacks(data))
+            foreach (var population in GetPopulationsAndCallbacks(mappingData))
             {
                 yield return population;
             }
         }
 
-        private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData data)
-            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, data), data);
+        private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData mapperData)
+            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, mapperData), mapperData);
 
-        private Expression GetObjectResolution(IObjectMappingContextData data)
+        private Expression GetObjectResolution(IObjectMappingData mappingData)
         {
-            var mapperData = data.MapperData;
-
-            var objectCreation = _constructionFactory.GetNewObjectCreation(data);
-            var createdObjectAssignment = Expression.Assign(mapperData.CreatedObject, objectCreation);
-            var instanceDataTargetAssignment = Expression.Assign(mapperData.TargetObject, createdObjectAssignment);
-            var existingOrCreatedObject = Expression.Coalesce(mapperData.TargetObject, instanceDataTargetAssignment);
+            var objectCreation = _constructionFactory.GetNewObjectCreation(mappingData);
+            var createdObjectAssignment = Expression.Assign(mappingData.MapperData.CreatedObject, objectCreation);
+            var instanceDataTargetAssignment = Expression.Assign(mappingData.MapperData.TargetObject, createdObjectAssignment);
+            var existingOrCreatedObject = Expression.Coalesce(mappingData.MapperData.TargetObject, instanceDataTargetAssignment);
 
             return existingOrCreatedObject;
         }
 
-        private static readonly MethodInfo _registerMethod = typeof(IObjectMappingContextData).GetMethod("Register");
+        private static readonly MethodInfo _registerMethod = typeof(IObjectMappingData).GetMethod("Register");
 
-        private static Expression GetObjectRegistrationCallOrNull(MemberMapperData data)
+        private static Expression GetObjectRegistrationCallOrNull(MemberMapperData mapperData)
         {
-            if (IsEnumerableElementMapping(data) || SourceAndTargetAreExactMatches(data))
+            if (IsEnumerableElementMapping(mapperData) || SourceAndTargetAreExactMatches(mapperData))
             {
                 return Expression.Call(
-                    data.Parameter,
-                    _registerMethod.MakeGenericMethod(data.SourceType, data.TargetType),
-                    data.SourceObject,
-                    data.InstanceVariable);
+                    mapperData.Parameter,
+                    _registerMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
+                    mapperData.SourceObject,
+                    mapperData.InstanceVariable);
             }
 
             return null;
         }
 
-        private static bool IsEnumerableElementMapping(BasicMapperData data)
-            => data.TargetMember.LeafMember.MemberType == MemberType.EnumerableElement;
+        private static bool IsEnumerableElementMapping(IBasicMapperData mapperData)
+            => mapperData.TargetMember.LeafMember.MemberType == MemberType.EnumerableElement;
 
-        private static bool SourceAndTargetAreExactMatches(MemberMapperData data)
-            => data.TargetMember.LeafMember.IsRoot || data.SourceMember.Matches(data.TargetMember);
+        private static bool SourceAndTargetAreExactMatches(MemberMapperData mapperData)
+            => mapperData.TargetMember.LeafMember.IsRoot || mapperData.SourceMember.Matches(mapperData.TargetMember);
 
-        private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingContextData data)
+        private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)
         {
             var sourceMemberTypeTests = new List<Expression>();
 
-            foreach (var memberPopulation in MemberPopulationFactory.Create(data))
+            foreach (var memberPopulation in MemberPopulationFactory.Create(mappingData))
             {
                 if (!memberPopulation.IsSuccessful)
                 {
@@ -134,7 +141,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                var prePopulationCallback = GetPopulationCallbackOrEmpty(CallbackPosition.Before, memberPopulation, data);
+                var prePopulationCallback = GetPopulationCallbackOrEmpty(CallbackPosition.Before, memberPopulation, mappingData);
 
                 if (prePopulationCallback != Constants.EmptyExpression)
                 {
@@ -143,7 +150,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 yield return memberPopulation.GetPopulation();
 
-                var postPopulationCallback = GetPopulationCallbackOrEmpty(CallbackPosition.After, memberPopulation, data);
+                var postPopulationCallback = GetPopulationCallbackOrEmpty(CallbackPosition.After, memberPopulation, mappingData);
 
                 if (postPopulationCallback != Constants.EmptyExpression)
                 {
@@ -156,20 +163,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 }
             }
 
-            CreateSourceMemberTypeTesterIfRequired(sourceMemberTypeTests, data);
+            CreateSourceMemberTypeTesterIfRequired(sourceMemberTypeTests, mappingData);
         }
 
         private static Expression GetPopulationCallbackOrEmpty(
             CallbackPosition position,
             IMemberPopulation memberPopulation,
-            IObjectMappingContextData data)
+            IObjectMappingData mappingData)
         {
             return GetCallbackOrEmpty(
-                c => c.GetCallbackOrNull(position, memberPopulation.MapperData, data.MapperData),
-                data.MapperData);
+                c => c.GetCallbackOrNull(position, memberPopulation.MapperData, mappingData.MapperData),
+                mappingData.MapperData);
         }
 
-        private static void CreateSourceMemberTypeTesterIfRequired(ICollection<Expression> typeTests, IObjectMappingContextData data)
+        private static void CreateSourceMemberTypeTesterIfRequired(
+            ICollection<Expression> typeTests,
+            IObjectMappingData mappingData)
         {
             if (typeTests.None())
             {
@@ -179,10 +188,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var typeTest = typeTests.AndTogether();
             var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, Parameters.MappingData);
 
-            data.AddSourceMemberTypeTester(typeTestLambda.Compile());
+            mappingData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
         }
 
-        protected override Expression GetReturnValue(ObjectMapperData data) => data.InstanceVariable;
+        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;
 
         public void Reset() => _constructionFactory.Reset();
     }

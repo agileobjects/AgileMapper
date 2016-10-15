@@ -2,8 +2,10 @@
 {
     using System;
 
-    internal interface IMemberMappingContextData : IMappingContextData
+    internal interface IMemberMappingData
     {
+        MappingRuleSet RuleSet { get; }
+
         MemberMapperData MapperData { get; }
 
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);

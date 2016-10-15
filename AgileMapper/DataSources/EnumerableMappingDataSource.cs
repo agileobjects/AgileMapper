@@ -8,18 +8,18 @@
         public EnumerableMappingDataSource(
             IDataSource sourceEnumerableDataSource,
             int dataSourceIndex,
-            MemberMapperData data)
+            MemberMapperData mapperData)
             : base(
                   sourceEnumerableDataSource.SourceMember,
                   sourceEnumerableDataSource.Variables,
-                  GetMapCall(sourceEnumerableDataSource.Value, dataSourceIndex, data),
+                  GetMapCall(sourceEnumerableDataSource.Value, dataSourceIndex, mapperData),
                   sourceEnumerableDataSource.Condition)
         {
         }
 
-        private static Expression GetMapCall(Expression value, int dataSourceIndex, MemberMapperData data)
+        private static Expression GetMapCall(Expression value, int dataSourceIndex, MemberMapperData mapperData)
         {
-            return data.GetMapCall(value, dataSourceIndex);
+            return mapperData.GetMapCall(value, dataSourceIndex);
         }
     }
 }

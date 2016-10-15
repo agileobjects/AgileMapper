@@ -8,7 +8,7 @@
 
     public abstract class MemberFinderTestsBase
     {
-        internal static readonly MemberFinder MemberFinder = new MemberFinder();
+        internal static readonly MemberFinder MemberFinder = GlobalContext.Instance.MemberFinder;
 
         internal IQualifiedMember SourceMemberFor<T>(T sourceObject)
         {
@@ -42,7 +42,7 @@
         {
             return (childMemberExpression == null)
                 ? QualifiedMember.From(Member.RootTarget(typeof(T)), MapperContext.WithDefaultNamingSettings)
-                : childMemberExpression.ToTargetMember(MemberFinder, MapperContext.WithDefaultNamingSettings);
+                : childMemberExpression.ToTargetMember(MapperContext.WithDefaultNamingSettings);
         }
     }
 }

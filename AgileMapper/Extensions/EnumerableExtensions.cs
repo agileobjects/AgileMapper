@@ -6,11 +6,11 @@
 
     internal static class EnumerableExtensions
     {
-        public static bool None<T>(this IEnumerable<T> items) => !items.Any();
+        public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
-        public static bool HasOne<T>(this IEnumerable<T> items) => items.Count() == 1;
+        public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
 
-        public static bool DoesNotContain<T>(this IEnumerable<T> items, T item) => !items.Contains(item);
+        public static bool DoesNotContain<T>(this ICollection<T> items, T item) => !items.Contains(item);
 
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, params T[] extraItems)
             => items.Concat(extraItems.AsEnumerable());

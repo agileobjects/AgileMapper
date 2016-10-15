@@ -4,7 +4,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using Configuration;
     using Extensions;
     using Members;
@@ -13,26 +15,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class ObjectMappingLambdaFactoryBase
     {
-        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMappingContextData data)
+        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMappingData mappingData)
         {
-            var mapperData = data.MapperData;
+            var mapperData = mappingData.MapperData;
 
-            var returnLabelTarget = Expression.Label(mapperData.TargetObject.Type, "Return");
-            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(mapperData.TargetObject.Type));
+            var returnLabelTarget = Expression.Label(mappingData.TargetType, "Return");
+            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(mappingData.TargetType));
 
-            if (IsNotConstructable(data))
+            if (IsNotConstructable(mappingData))
             {
                 return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                     GetNullMappingBlock(returnNull),
                     mapperData.Parameter);
             }
 
-            var basicMappingData = BasicMapperData.WithNoTargetMember(mapperData);
+            var basicMapperData = BasicMapperData.WithNoTargetMember(mapperData);
 
-            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, basicMappingData, mapperData);
+            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, basicMapperData, mapperData);
             var shortCircuitReturns = GetShortCircuitReturns(returnNull, mapperData);
-            var objectPopulation = GetObjectPopulation(data);
-            var postMappingCallback = GetMappingCallback(CallbackPosition.After, basicMappingData, mapperData);
+            var objectPopulation = GetObjectPopulation(mappingData);
+            var postMappingCallback = GetMappingCallback(CallbackPosition.After, basicMapperData, mapperData);
             var returnValue = GetReturnValue(mapperData);
             var returnLabel = Expression.Label(returnLabelTarget, returnValue);
 
@@ -47,7 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var wrappedMappingBlock = WrapInTryCatch(mappingBlock, mapperData);
 
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, data.MapperData.Parameter);
+                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, mapperData.Parameter);
 
             return mapperLambda;
         }
@@ -59,30 +61,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 returnNull.Value);
         }
 
-        protected abstract bool IsNotConstructable(IObjectMappingContextData data);
+        protected abstract bool IsNotConstructable(IObjectMappingData mappingData);
 
         private static IEnumerable<Expression> GetMappingCallback(
             CallbackPosition callbackPosition,
             IBasicMapperData basicData,
-            MemberMapperData data)
+            MemberMapperData mapperData)
         {
-            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, basicData, data), data);
+            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, basicData, mapperData), mapperData);
         }
 
         protected static Expression GetCallbackOrEmpty(
             Func<UserConfigurationSet, Expression> callbackFactory,
-            MemberMapperData data)
-            => callbackFactory.Invoke(data.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
+            MemberMapperData mapperData)
+            => callbackFactory.Invoke(mapperData.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
 
-        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData data);
+        protected abstract IEnumerable<Expression> GetShortCircuitReturns(
+            GotoExpression returnNull,
+            ObjectMapperData mapperData);
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingContextData data);
+        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
-        protected abstract Expression GetReturnValue(ObjectMapperData data);
+        protected abstract Expression GetReturnValue(ObjectMapperData mapperData);
 
-        private static Expression WrapInTryCatch(Expression mappingBlock, MemberMapperData data)
+        private static Expression WrapInTryCatch(Expression mappingBlock, MemberMapperData mapperData)
         {
-            var configuredCallback = data.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(data);
+            var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
             var exceptionVariable = Parameters.Create<Exception>("ex");
 
             Expression catchBody;
@@ -97,12 +101,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 if (callbackActionType.IsGenericType())
                 {
                     contextTypes = callbackActionType.GetGenericArguments();
-                    contextAccess = data.GetAppropriateTypedMappingContextAccess(contextTypes);
+                    contextAccess = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
                 }
                 else
                 {
-                    contextTypes = new[] { data.SourceType, data.TargetType };
-                    contextAccess = data.Parameter;
+                    contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
+                    contextAccess = mapperData.Parameter;
                 }
 
                 var exceptionContextCreateMethod = ObjectMappingExceptionData
@@ -122,7 +126,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingExceptionCreation = Expression.New(
                     MappingException.ConstructorInfo,
-                    data.Parameter,
+                    mapperData.Parameter,
                     exceptionVariable);
 
                 catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);

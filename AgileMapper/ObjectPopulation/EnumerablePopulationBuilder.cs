@@ -88,11 +88,12 @@
         private ParameterExpression GetParameter(Type type)
             => _parametersCache.GetOrAdd(TypeKey.ForParameter(type), key => Parameters.Create(key.Type));
 
-        private Expression GetIdentifierOrNull(Type type, Expression parameter, MemberMapperData data)
+        private Expression GetIdentifierOrNull(Type type, Expression parameter, MemberMapperData mapperData)
         {
             return _typeIdsCache.GetOrAdd(TypeKey.ForTypeId(type), key =>
             {
-                var configuredIdentifier = data.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
+                var configuredIdentifier = 
+                    mapperData.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
 
                 if (configuredIdentifier != null)
                 {

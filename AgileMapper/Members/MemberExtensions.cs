@@ -118,11 +118,14 @@
             return population;
         }
 
-        public static QualifiedMember ToTargetMember(
-            this Expression memberAccessExpression,
-            MemberFinder memberFinder,
-            MapperContext mapperContext)
-            => CreateMember(memberAccessExpression, Member.RootTarget, memberFinder.GetWriteableMembers, mapperContext);
+        public static QualifiedMember ToTargetMember(this Expression memberAccess, MapperContext mapperContext)
+        {
+            return CreateMember(
+                memberAccess,
+                Member.RootTarget,
+                GlobalContext.Instance.MemberFinder.GetWriteableMembers,
+                mapperContext);
+        }
 
         internal static QualifiedMember CreateMember(
             Expression memberAccessExpression,

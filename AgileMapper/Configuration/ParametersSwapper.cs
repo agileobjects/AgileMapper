@@ -4,7 +4,9 @@ namespace AgileObjects.AgileMapper.Configuration
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using Extensions;
     using Members;
     using ObjectPopulation;
@@ -119,7 +121,7 @@ namespace AgileObjects.AgileMapper.Configuration
             }
 
             var objectCreationContextCreateCall = Expression.Call(
-                ObjectCreationContextData.CreateMethod.MakeGenericMethod(contextInfo.ContextTypes),
+                ObjectCreationMappingData.CreateMethod.MakeGenericMethod(contextInfo.ContextTypes),
                 contextInfo.MappingDataAccess,
                 contextInfo.InstanceVariable);
 
@@ -194,22 +196,22 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private class MappingContextInfo
         {
-            public MappingContextInfo(MemberMapperData data, Type[] contextTypes)
-                : this(data, data.Parameter, contextTypes)
+            public MappingContextInfo(MemberMapperData mapperData, Type[] contextTypes)
+                : this(mapperData, mapperData.Parameter, contextTypes)
             {
             }
 
             public MappingContextInfo(
-                MemberMapperData data,
+                MemberMapperData mapperData,
                 Expression contextAccess,
                 Type[] contextTypes)
             {
                 ContextTypes = contextTypes;
-                InstanceVariable = data.InstanceVariable;
-                SourceAccess = data.GetSourceAccess(contextAccess, contextTypes[0]);
-                TargetAccess = data.GetTargetAccess(contextAccess, contextTypes[1]);
-                Index = data.EnumerableIndex;
-                MappingDataAccess = data.GetTypedContextAccess(contextAccess, contextTypes);
+                InstanceVariable = mapperData.InstanceVariable;
+                SourceAccess = mapperData.GetSourceAccess(contextAccess, contextTypes[0]);
+                TargetAccess = mapperData.GetTargetAccess(contextAccess, contextTypes[1]);
+                Index = mapperData.EnumerableIndex;
+                MappingDataAccess = mapperData.GetTypedContextAccess(contextAccess, contextTypes);
             }
 
             public Type[] ContextTypes { get; }

@@ -70,8 +70,7 @@
                 Console.WriteLine();
             }
 
-            Console.WriteLine("Done! (press return to close)");
-            Console.ReadLine();
+            Console.WriteLine("Done!");
         }
     }
 }

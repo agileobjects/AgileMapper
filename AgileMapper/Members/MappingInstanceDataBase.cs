@@ -2,8 +2,8 @@
 {
     internal abstract class MappingInstanceDataBase<TSource, TTarget> : IMappingData<TSource, TTarget>
     {
-        protected MappingInstanceDataBase(IMappingData<TSource, TTarget> data)
-            : this(data.Source, data.Target, data.EnumerableIndex, data.Parent)
+        protected MappingInstanceDataBase(IMappingData<TSource, TTarget> mappingData)
+            : this(mappingData.Source, mappingData.Target, mappingData.EnumerableIndex, mappingData.Parent)
         {
         }
 

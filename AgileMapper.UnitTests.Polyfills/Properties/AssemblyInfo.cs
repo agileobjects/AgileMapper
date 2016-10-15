@@ -1,19 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AgileMapper.UnitTests.Polyfills")]
-[assembly: AssemblyTrademark("")]
-
-// Setting ComVisible to false makes the types in this assembly not visible
-// to COM components.  If you need to access a type in this assembly from
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("59f266bb-9efb-430a-9ffe-4c5f88d330f0")]
+[assembly: AssemblyTitle("AgileObjects.AgileMapper.UnitTests.Polyfills")]
+[assembly: AssemblyDescription("AgileObjects.AgileMapper.UnitTests.Polyfills")]

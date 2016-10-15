@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.Members
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using Caching;
     using Extensions;
 
@@ -21,6 +20,15 @@ namespace AgileObjects.AgileMapper.Members
         private readonly Func<string> _pathFactory;
         private readonly ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
         private readonly ICache<Member, QualifiedMember> _childMemberCache;
+
+        private QualifiedMember(Member[] memberChain, QualifiedMember adaptedMember)
+            : this(memberChain, adaptedMember._memberMatchingNames, adaptedMember._mapperContext)
+        {
+            foreach (var childMember in adaptedMember._childMemberCache.Values)
+            {
+                _childMemberCache.GetOrAdd(childMember.LeafMember, m => childMember);
+            }
+        }
 
         private QualifiedMember(Member[] memberChain, string[] memberMatchingNames, MapperContext mapperContext)
             : this(memberChain.LastOrDefault(), mapperContext)
@@ -101,6 +109,9 @@ namespace AgileObjects.AgileMapper.Members
         public QualifiedMember Append(Member childMember)
             => _childMemberCache.GetOrAdd(childMember, cm => new QualifiedMember(cm, this, _mapperContext));
 
+        public QualifiedMember GetChildMember(string name)
+            => _childMemberCache.Values.First(childMember => childMember.LeafMember.Name == name);
+
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
             var otherQualifiedMember = (QualifiedMember)otherMember;
@@ -112,7 +123,7 @@ namespace AgileObjects.AgileMapper.Members
 
             var relativeMemberChain = _memberChain.RelativeTo(otherQualifiedMember._memberChain);
 
-            return new QualifiedMember(relativeMemberChain, _memberMatchingNames, _mapperContext);
+            return new QualifiedMember(relativeMemberChain, this);
         }
 
         IQualifiedMember IQualifiedMember.WithType(Type runtimeType) => WithType(runtimeType);
@@ -126,34 +137,19 @@ namespace AgileObjects.AgileMapper.Members
 
             var runtimeTypedMember = _runtimeTypedMemberCache.GetOrAdd(runtimeType, rt =>
             {
-                _memberChain[_memberChain.Length - 1] = LeafMember.WithType(rt);
+                var newMemberChain = new Member[_memberChain.Length];
 
-                return new QualifiedMember(_memberChain, _memberMatchingNames, _mapperContext);
+                for (var i = 0; i < _memberChain.Length - 1; i++)
+                {
+                    newMemberChain[i] = _memberChain[i];
+                }
+
+                newMemberChain[_memberChain.Length - 1] = LeafMember.WithType(rt);
+
+                return new QualifiedMember(newMemberChain, this);
             });
 
             return runtimeTypedMember;
-        }
-
-        public bool IsSameAs(QualifiedMember otherMember)
-        {
-            if (this == otherMember)
-            {
-                return true;
-            }
-
-            if ((this == All) || (otherMember == All))
-            {
-                return true;
-            }
-
-            if ((this == None) || (otherMember == None))
-            {
-                return false;
-            }
-
-            return (otherMember.Type == Type) &&
-                   (otherMember.Name == Name) &&
-                   otherMember.LeafMember.DeclaringType.IsAssignableFrom(LeafMember.DeclaringType);
         }
 
         public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);

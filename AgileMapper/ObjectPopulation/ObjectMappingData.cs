@@ -1,89 +1,68 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using System.Collections.Generic;
     using Members;
 
-    internal class ObjectMappingContextData<TSource, TTarget> : BasicMappingContextData<TSource, TTarget>,
-        IMappingContextData,
-        IObjectMappingContextData,
-        IObjectMapperKey
+    internal class ObjectMappingData<TSource, TTarget> :
+        BasicMappingData<TSource, TTarget>,
+        IObjectMappingData
     {
-        private readonly IObjectMappingContextData _parent;
-        private readonly Lazy<ObjectMapperData> _mapperDataLoader;
+        private readonly IMembersSource _membersSource;
+        private readonly IObjectMappingData _parent;
         private readonly Dictionary<object, Dictionary<object, object>> _mappedObjectsByTypes;
+        private readonly bool _isRoot;
+        private ObjectMapperData _createdMapperData;
 
-        public ObjectMappingContextData(
+        public ObjectMappingData(
             TSource source,
             TTarget target,
             int? enumerableIndex,
-            IQualifiedMember sourceMember,
-            QualifiedMember targetMember,
-            bool runtimeTypesAreTheSame,
+            ObjectMapperKeyBase mapperKey,
+            IMembersSource membersSource,
             IMappingContext mappingContext,
-            IObjectMappingContextData parent = null)
-            : base(source, target, enumerableIndex, sourceMember, targetMember, mappingContext.RuleSet, parent)
+            IObjectMappingData parent = null)
+            : base(
+                  source,
+                  target,
+                  enumerableIndex,
+                  mapperKey.MappingTypes.SourceType,
+                  mapperKey.MappingTypes.TargetType,
+                  mappingContext.RuleSet,
+                  parent)
         {
-            _parent = parent;
+            _membersSource = membersSource;
+            MapperKey = mapperKey;
+            mapperKey.MappingData = this;
             MappingContext = mappingContext;
-            RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
-            _mapperDataLoader = new Lazy<ObjectMapperData>(GetObjectMapperData, isThreadSafe: true);
 
-            if (parent == null)
+            if (mapperKey.MappingTypes.IsEnumerable)
             {
-                _mappedObjectsByTypes = new Dictionary<object, Dictionary<object, object>>();
+                ElementMembersSource = new ElementMembersSource(this);
             }
+
+            if (parent != null)
+            {
+                _parent = parent;
+                return;
+            }
+
+            _mappedObjectsByTypes = new Dictionary<object, Dictionary<object, object>>();
+            _isRoot = true;
+
+            MapperContext.ObjectMapperFactory.CreateRoot(this);
         }
-
-        #region Setup
-
-        private ObjectMapperData GetObjectMapperData()
-        {
-            var mapperData = MapperContext.Cache.GetOrAdd(
-                (IObjectMapperKey)this,
-                key => new ObjectMapperData(
-                    MappingContext,
-                    SourceMember,
-                    TargetMember,
-                    _parent?.MapperData),
-                key =>
-                {
-                    var data = (ObjectMappingContextData<TSource, TTarget>)key;
-
-                    data.MapperKeyObject = new ObjectMapperKey(
-                        data.RuleSet,
-                        data.SourceMember,
-                        data.TargetMember);
-
-                    return data.MapperKeyObject;
-                });
-
-            return mapperData;
-        }
-
-        #endregion
 
         public IMappingContext MappingContext { get; }
 
         public MapperContext MapperContext => MappingContext.MapperContext;
 
+        public ObjectMapperKeyBase MapperKey { get; }
+
+        public IObjectMapper Mapper { get; set; }
+
+        public ElementMembersSource ElementMembersSource { get; }
+
         public TTarget CreatedObject { get; set; }
-
-        public bool RuntimeTypesAreTheSame { get; }
-
-        public ObjectMapperData MapperData => _mapperDataLoader.Value;
-
-        #region IObjectMapperKey Members
-
-        public ObjectMapperKey MapperKeyObject { get; private set; }
-
-        public void AddSourceMemberTypeTester(Func<IMappingData, bool> tester)
-            => MapperKeyObject.AddSourceMemberTypeTester(tester);
-
-        bool IObjectMapperKey.SourceHasRequiredTypes(IMappingData data)
-            => MapperKeyObject.SourceHasRequiredTypes(data);
-
-        #endregion
 
         #region IMappingData Members
 
@@ -98,25 +77,59 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        #region IObjectMappingContextData Members
+        #region IObjectMappingData Members
 
-        private MemberMappingContextData<TSource, TTarget> _childContextData;
+        private ObjectMapperData _mapperData;
 
-        IMemberMappingContextData IObjectMappingContextData.GetChildContextData(MemberMapperData childMapperData)
+        public ObjectMapperData MapperData
         {
-            if (_childContextData == null)
+            get { return _mapperData ?? (_mapperData = CreateMapperData()); }
+            set { _mapperData = value; }
+        }
+
+        private ObjectMapperData CreateMapperData()
+        {
+            lock (ObjectMapperData.Lock)
             {
-                _childContextData = new MemberMappingContextData<TSource, TTarget>(this);
+                if (_createdMapperData != null)
+                {
+                    return _createdMapperData;
+                }
+
+                var sourceMember = _membersSource.GetSourceMember<TSource>().WithType(MapperKey.MappingTypes.SourceType);
+                var targetMember = _membersSource.GetTargetMember<TTarget>().WithType(MapperKey.MappingTypes.TargetType);
+
+                _createdMapperData = new ObjectMapperData(
+                    MappingContext,
+                    sourceMember,
+                    targetMember,
+                    _parent?.MapperData);
             }
 
-            _childContextData.MapperData = childMapperData;
+            return _createdMapperData;
+        }
 
-            return _childContextData;
+        public IObjectMapper CreateMapper() => MapperKey.CreateMapper<TSource, TTarget>();
+
+        private MemberMappingData<TSource, TTarget> _childMappingData;
+
+        IMemberMappingData IObjectMappingData.GetChildMappingData(MemberMapperData childMapperData)
+        {
+            if (_childMappingData == null)
+            {
+                _childMappingData = new MemberMappingData<TSource, TTarget>(this);
+            }
+
+            _childMappingData.MapperData = childMapperData;
+
+            return _childMappingData;
         }
 
         #endregion
 
         #region Map Methods
+
+        public object MapStart() => Mapper.Map(this);
 
         public TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
@@ -124,15 +137,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             string targetMemberName,
             int dataSourceIndex)
         {
-            var childContextData = ObjectMappingContextDataFactory.ForChild(
+            return (TDeclaredTarget)Mapper.MapChild(
                 sourceValue,
                 targetValue,
                 GetEnumerableIndex(),
                 targetMemberName,
                 dataSourceIndex,
                 this);
-
-            return MappingContext.Map<TDeclaredSource, TDeclaredTarget>(childContextData);
         }
 
         public TTargetElement Map<TSourceElement, TTargetElement>(
@@ -140,20 +151,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTargetElement targetElement,
             int enumerableIndex)
         {
-            var elementContextData = ObjectMappingContextDataFactory.ForElement(
+            return (TTargetElement)Mapper.MapElement(
                 sourceElement,
                 targetElement,
                 enumerableIndex,
                 this);
-
-            return MappingContext.Map<TSourceElement, TTargetElement>(elementContextData);
         }
 
         #endregion
 
         public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
         {
-            if (_parent != null)
+            if (!_isRoot)
             {
                 return _parent.TryGet(key, out complexType);
             }
@@ -186,7 +195,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            if (_parent != null)
+            if (!_isRoot)
             {
                 _parent.Register(key, complexType);
                 return;
