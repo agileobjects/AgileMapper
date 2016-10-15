@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _rootMappers = mapperContext.Cache.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();
         }
 
-        public void CreateRoot(IObjectMappingData mappingData) => _rootMappers.GetOrAddMapper(mappingData);
+        public IObjectMapper CreateRoot(IObjectMappingData mappingData) => _rootMappers.GetOrAddMapper(mappingData);
 
         public IObjectMapper Create<TSource, TTarget>(IObjectMappingData mappingData)
         {

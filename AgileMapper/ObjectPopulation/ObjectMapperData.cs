@@ -11,8 +11,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperData : MemberMapperData
     {
-        public static readonly object Lock = new object();
-
         private readonly MethodInfo _mapObjectMethod;
         private readonly MethodInfo _mapEnumerableElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;

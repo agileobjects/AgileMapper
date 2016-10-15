@@ -6,6 +6,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         LambdaExpression MappingLambda { get; }
 
+        ObjectMapperData MapperData { get; }
+
         object Map(IObjectMappingData mappingData);
 
         object MapChild<TSource, TTarget>(

@@ -8,11 +8,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             this ICache<ObjectMapperKeyBase, IObjectMapper> objectMapperCache,
             IObjectMappingData mappingData)
         {
-            mappingData.Mapper = objectMapperCache.GetOrAdd(
+            var mapper = objectMapperCache.GetOrAdd(
                 mappingData.MapperKey,
                 key => key.MappingData.CreateMapper());
 
-            return mappingData.Mapper;
+            return mapper;
         }
     }
 }

@@ -11,7 +11,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly IObjectMappingData _parent;
         private readonly Dictionary<object, Dictionary<object, object>> _mappedObjectsByTypes;
         private readonly bool _isRoot;
-        private ObjectMapperData _createdMapperData;
 
         public ObjectMappingData(
             TSource source,
@@ -49,7 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappedObjectsByTypes = new Dictionary<object, Dictionary<object, object>>();
             _isRoot = true;
 
-            MapperContext.ObjectMapperFactory.CreateRoot(this);
+            Mapper = MapperContext.ObjectMapperFactory.CreateRoot(this);
         }
 
         public IMappingContext MappingContext { get; }
@@ -58,7 +57,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperKeyBase MapperKey { get; }
 
-        public IObjectMapper Mapper { get; set; }
+        public IObjectMapper Mapper
+        {
+            get { return _mapper; }
+            set
+            {
+                _mapper = value;
+                _mapperData = _mapper.MapperData;
+            }
+        }
 
         public ElementMembersSource ElementMembersSource { get; }
 
@@ -81,37 +88,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ObjectMapperData _mapperData;
 
-        public ObjectMapperData MapperData
-        {
-            get { return _mapperData ?? (_mapperData = CreateMapperData()); }
-            set { _mapperData = value; }
-        }
+        public ObjectMapperData MapperData => _mapperData ?? (_mapperData = CreateMapperData());
 
         private ObjectMapperData CreateMapperData()
         {
-            lock (ObjectMapperData.Lock)
-            {
-                if (_createdMapperData != null)
-                {
-                    return _createdMapperData;
-                }
+            var sourceMember = _membersSource.GetSourceMember<TSource>().WithType(MapperKey.MappingTypes.SourceType);
+            var targetMember = _membersSource.GetTargetMember<TTarget>().WithType(MapperKey.MappingTypes.TargetType);
 
-                var sourceMember = _membersSource.GetSourceMember<TSource>().WithType(MapperKey.MappingTypes.SourceType);
-                var targetMember = _membersSource.GetTargetMember<TTarget>().WithType(MapperKey.MappingTypes.TargetType);
+            var mapperData = new ObjectMapperData(
+                MappingContext,
+                sourceMember,
+                targetMember,
+                _parent?.MapperData);
 
-                _createdMapperData = new ObjectMapperData(
-                    MappingContext,
-                    sourceMember,
-                    targetMember,
-                    _parent?.MapperData);
-            }
-
-            return _createdMapperData;
+            return mapperData;
         }
 
         public IObjectMapper CreateMapper() => MapperKey.CreateMapper<TSource, TTarget>();
 
         private MemberMappingData<TSource, TTarget> _childMappingData;
+        private IObjectMapper _mapper;
 
         IMemberMappingData IObjectMappingData.GetChildMappingData(MemberMapperData childMapperData)
         {

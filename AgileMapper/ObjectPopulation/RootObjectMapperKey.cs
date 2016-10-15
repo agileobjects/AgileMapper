@@ -1,7 +1,9 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System.Diagnostics;
     using Members;
 
+    [DebuggerDisplay("{_ruleSet.Name}: {MappingTypes.SourceType.Name} -> {MappingTypes.TargetType.Name}")]
     internal class RootObjectMapperKey : ObjectMapperKeyBase
     {
         private readonly MappingRuleSet _ruleSet;

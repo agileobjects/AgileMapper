@@ -7,7 +7,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly Expression<MapperFunc<TSource, TTarget>> _mappingLambda;
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
-        private readonly ObjectMapperData _mapperData;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _childMappersByKey;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _elementMappersByKey;
 
@@ -17,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             _mappingLambda = mappingLambda;
             _mapperFunc = mappingLambda.Compile();
-            _mapperData = mapperData;
+            MapperData = mapperData;
 
             if (mapperData.RequiresChildMapping)
             {
@@ -31,12 +30,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public LambdaExpression MappingLambda => _mappingLambda;
 
+        public ObjectMapperData MapperData { get; }
 
         public object Map(IObjectMappingData mappingData)
         {
             var typedData = (ObjectMappingData<TSource, TTarget>)mappingData;
-
-            typedData.MapperData = _mapperData;
 
             return _mapperFunc.Invoke(typedData);
         }
@@ -78,6 +76,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static object Map(
             IObjectMappingData mappingData,
             ICache<ObjectMapperKeyBase, IObjectMapper> subMapperCache)
-            => subMapperCache.GetOrAddMapper(mappingData).Map(mappingData);
+        {
+            mappingData.Mapper = subMapperCache.GetOrAddMapper(mappingData);
+
+            return mappingData.Mapper.Map(mappingData);
+        }
     }
 }

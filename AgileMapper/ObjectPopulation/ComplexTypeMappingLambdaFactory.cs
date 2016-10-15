@@ -59,7 +59,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var tryGetCall = Expression.Call(
                 mapperData.Parameter,
-                _tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.InstanceVariable.Type),
+                _tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
                 mapperData.SourceObject,
                 mapperData.InstanceVariable);
 

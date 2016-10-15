@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (!mapperData.TargetMember.IsSimple)
             {
-                MapperData.Parent.RegisterTargetMemberDataSources(mapperData.TargetMember, dataSources);
+                mapperData.Parent.RegisterTargetMemberDataSources(mapperData.TargetMember, dataSources);
             }
         }
 
