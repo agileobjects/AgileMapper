@@ -8,7 +8,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
 #endif
     using Configuration;
-    using Extensions;
     using Members;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
@@ -19,8 +18,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            var returnLabelTarget = Expression.Label(mappingData.TargetType, "Return");
-            var returnNull = Expression.Return(returnLabelTarget, Expression.Default(mappingData.TargetType));
+            var returnNull = Expression.Return(
+                mapperData.ReturnLabelTarget,
+                Expression.Default(mappingData.TargetType));
 
             if (IsNotConstructable(mappingData))
             {
@@ -29,22 +29,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     mapperData.Parameter);
             }
 
+            var mappingExpressions = new List<Expression>();
             var basicMapperData = BasicMapperData.WithNoTargetMember(mapperData);
 
-            var preMappingCallback = GetMappingCallback(CallbackPosition.Before, basicMapperData, mapperData);
-            var shortCircuitReturns = GetShortCircuitReturns(returnNull, mapperData);
-            var objectPopulation = GetObjectPopulation(mappingData);
-            var postMappingCallback = GetMappingCallback(CallbackPosition.After, basicMapperData, mapperData);
-            var returnValue = GetReturnValue(mapperData);
-            var returnLabel = Expression.Label(returnLabelTarget, returnValue);
+            mappingExpressions.Add(GetMappingCallback(CallbackPosition.Before, basicMapperData, mapperData));
+            mappingExpressions.AddRange(GetShortCircuitReturns(returnNull, mapperData));
+            mappingExpressions.AddRange(GetObjectPopulation(mappingData));
+            mappingExpressions.Add(GetMappingCallback(CallbackPosition.After, basicMapperData, mapperData));
+            mappingExpressions.Add(Expression.Label(mapperData.ReturnLabelTarget, GetReturnValue(mapperData)));
 
-            var mappingBlock = Expression.Block(
-                new[] { mapperData.InstanceVariable },
-                preMappingCallback
-                    .Concat(shortCircuitReturns)
-                    .Concat(objectPopulation)
-                    .Concat(postMappingCallback)
-                    .Concat(returnLabel));
+            var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
 
             var wrappedMappingBlock = WrapInTryCatch(mappingBlock, mapperData);
 
@@ -63,12 +57,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract bool IsNotConstructable(IObjectMappingData mappingData);
 
-        private static IEnumerable<Expression> GetMappingCallback(
+        private static Expression GetMappingCallback(
             CallbackPosition callbackPosition,
             IBasicMapperData basicData,
             MemberMapperData mapperData)
         {
-            yield return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, basicData, mapperData), mapperData);
+            return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, basicData, mapperData), mapperData);
         }
 
         protected static Expression GetCallbackOrEmpty(

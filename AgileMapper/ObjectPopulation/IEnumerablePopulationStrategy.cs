@@ -4,6 +4,8 @@
 
     internal interface IEnumerablePopulationStrategy
     {
+        bool DiscardExistingValues { get; }
+
         Expression GetPopulation(ObjectMapperData mapperData);
     }
 }

@@ -4,6 +4,8 @@
 
     internal abstract class EnumerablePopulationStrategyBase : IEnumerablePopulationStrategy
     {
+        public virtual bool DiscardExistingValues => false;
+
         public Expression GetPopulation(ObjectMapperData mapperData)
         {
             if (mapperData.SourceMember.IsEnumerable)

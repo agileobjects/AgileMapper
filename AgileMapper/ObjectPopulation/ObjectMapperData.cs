@@ -44,8 +44,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             _dataSourcesByTargetMemberName = new Dictionary<string, DataSourceSet>();
 
-            var instanceVariableName = targetMember.Type.GetVariableName(f => f.InCamelCase);
-
             if (targetMember.IsEnumerable)
             {
                 if (!targetMember.ElementType.IsSimple())
@@ -55,15 +53,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 }
 
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
-
-                InstanceVariable = Expression.Variable(
-                    typeof(IEnumerable<>).MakeGenericType(targetMember.ElementType),
-                    instanceVariableName);
+                InstanceVariable = EnumerablePopulationBuilder.TargetVariable;
             }
             else
             {
-                InstanceVariable = Expression.Variable(targetMember.Type, instanceVariableName);
+                InstanceVariable = Expression
+                    .Variable(TargetType, TargetType.GetVariableName(f => f.InCamelCase));
             }
+
+            ReturnLabelTarget = Expression.Label(TargetType, "Return");
         }
 
         #region Setup
@@ -107,6 +105,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
         public Expression CreatedObject { get; }
+
+        public LabelTarget ReturnLabelTarget { get; }
 
         public MethodCallExpression GetMapCall(
             Expression sourceObject,

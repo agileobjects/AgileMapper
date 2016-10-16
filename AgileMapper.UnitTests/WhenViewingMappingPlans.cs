@@ -38,7 +38,9 @@
                 .GetPlanFor<PublicProperty<int[]>>()
                 .ToANew<PublicField<IEnumerable<int>>>();
 
-            plan.ShouldContain("data.Target.Concat(int32s)");
+            plan.ShouldContain("return data.Source.ToArray()");
+            plan.ShouldContain("targetInt32s = new List<int>(data.Target)");
+            plan.ShouldContain("targetInt32s.Add(sourceInt32s[i])");
         }
 
         [Fact]
@@ -79,7 +81,7 @@
                 .OnTo<IEnumerable<PersonViewModel>>();
 
             plan.ShouldContain("collectionData.Intersection.ForEach(data.Map)");
-            plan.ShouldContain("data.Target.Concat(personViewModels)");
+            plan.ShouldContain("persons = collectionData.NewSourceItems");
         }
 
         [Fact]
@@ -89,8 +91,9 @@
                 .GetPlanFor<IList<PersonViewModel>>()
                 .Over<IEnumerable<Person>>();
 
+            plan.ShouldContain("personViewModels = collectionData.NewSourceItems");
             plan.ShouldContain("collectionData.Intersection.ForEach(data.Map)");
-            plan.ShouldContain("data.Target.Exclude(collectionData.AbsentTargetItems)");
+            plan.ShouldContain("collectionData.AbsentTargetItems.ForEach(persons.Remove)");
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
             plan.ShouldContain("PersonViewModel -> Person");

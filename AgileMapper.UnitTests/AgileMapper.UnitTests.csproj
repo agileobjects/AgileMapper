@@ -102,6 +102,7 @@
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
+    <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
     <Compile Include="WhenMappingFromDictionaries.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />

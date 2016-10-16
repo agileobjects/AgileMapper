@@ -5,10 +5,21 @@ namespace AgileObjects.AgileMapper.Extensions
     using System.Linq;
     using System.Reflection;
 
-    internal class CollectionData
+    internal static class CollectionData
     {
-        public static readonly MethodInfo CreateMethod = typeof(CollectionData)
-            .GetPublicStaticMethod("Create");
+        private static readonly MethodInfo[] _createMethods = typeof(CollectionData)
+            .GetPublicStaticMethods()
+            .Where(m => m.Name == "Create")
+            .ToArray();
+
+        public static readonly MethodInfo IdSameTypesCreateMethod = _createMethods[0];
+        public static readonly MethodInfo IdDifferentTypesCreateMethod = _createMethods[1];
+
+        public static CollectionData<T, T> Create<T, TId>(
+            IEnumerable<T> sourceItems,
+            IEnumerable<T> targetItems,
+            Func<T, TId> idFactory)
+            => Create(sourceItems, targetItems, idFactory, idFactory);
 
         public static CollectionData<TSource, TTarget> Create<TSource, TTarget, TId>(
             IEnumerable<TSource> sourceItems,

@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using System.Linq.Expressions;
 
     internal class MergeEnumerablePopulationStrategy : EnumerablePopulationStrategyBase
@@ -9,31 +8,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetEnumerablePopulation(EnumerablePopulationBuilder builder)
         {
-            if (builder.TypesAreIdentifiable)
+            if (builder.ElementTypesAreSimple)
             {
-                return MergeEnumerables(
-                    builder,
-                    b => b.MapIntersection(),
-                    b => b.AddVariableToTarget());
+                builder.AddNullTargetShortCircuit();
+                builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType().ExcludingTargetItems());
+                builder.AssignTargetVariable();
+                builder.AddNewItemsToTargetVariable();
+
+                return builder;
             }
 
-            builder
-                .ProjectToTargetType()
-                .ExcludeTarget()
-                .AssignValueToVariable();
+            if (builder.ElementTypesAreIdentifiable)
+            {
+                builder.CreateCollectionData();
+                builder.MapIntersection();
+                builder.AssignSourceVariableFrom(s => s.CollectionDataNewSourceItems());
+                builder.AssignTargetVariable();
+                builder.AddNewItemsToTargetVariable();
 
-            builder.IfTargetNotNull(b => b.AddVariableToTarget());
+                return builder;
+            }
 
-            return builder;
-        }
-
-        public static EnumerablePopulationBuilder MergeEnumerables(
-            EnumerablePopulationBuilder builder,
-            params Func<EnumerablePopulationBuilder, Expression>[] nonNullTargetActionFactories)
-        {
-            builder.CreateCollectionData();
-
-            CopySourceEnumerablePopulationStrategy.MapSourceEnumerable(builder, nonNullTargetActionFactories);
+            builder.AssignSourceVariableFromSourceObject();
+            builder.AssignTargetVariable();
+            builder.AddNewItemsToTargetVariable();
 
             return builder;
         }

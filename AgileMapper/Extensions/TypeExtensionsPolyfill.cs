@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+#if NET_STANDARD
     using System.Linq;
+#endif
     using System.Reflection;
 
     internal static class TypeExtensionsPolyfill
