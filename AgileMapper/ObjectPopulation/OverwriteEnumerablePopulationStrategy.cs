@@ -18,7 +18,6 @@
                     return builder;
                 }
 
-                builder.AddNullTargetShortCircuit();
                 builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType());
                 builder.AssignTargetVariable();
                 builder.RemoveAllTargetItems();

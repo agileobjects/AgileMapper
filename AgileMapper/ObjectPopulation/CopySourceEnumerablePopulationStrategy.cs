@@ -8,7 +8,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetEnumerablePopulation(EnumerablePopulationBuilder builder)
         {
-            builder.AddNullTargetShortCircuitIfAppropriate();
             builder.AssignSourceVariableFromSourceObject();
             builder.AssignTargetVariable();
             builder.AddNewItemsToTargetVariable();

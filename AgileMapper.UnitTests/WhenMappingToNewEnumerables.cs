@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -9,7 +10,7 @@
     public class WhenMappingToNewEnumerables
     {
         [Fact]
-        public void ShouldCreateARootSimpleTypeArray()
+        public void ShouldCreateASimpleTypeArray()
         {
             var source = new[] { 1, 2, 3 };
             var result = Mapper.Map(source).ToANew<int[]>();
@@ -20,7 +21,7 @@
         }
 
         [Fact]
-        public void ShouldCreateARootSimpleTypeList()
+        public void ShouldCreateASimpleTypeList()
         {
             var source = new[] { 'O', 'M', 'G' };
             var result = Mapper.Map(source).ToANew<List<char>>();
@@ -30,7 +31,18 @@
         }
 
         [Fact]
-        public void ShouldCreateARootSimpleTypeEnumerable()
+        public void ShouldCreateAConvertedSimpleTypeCollection()
+        {
+            var source = new List<string> { "1", "2", "3" };
+            var result = Mapper.Map(source).ToANew<Collection<byte?>>();
+
+            result.ShouldNotBeNull();
+            result.ShouldNotBeSameAs(source);
+            result.ShouldBe<byte?>(1, 2, 3);
+        }
+
+        [Fact]
+        public void ShouldCreateASimpleTypeEnumerable()
         {
             var source = new List<string> { "One", "Two", "Three" };
             var result = Mapper.Map(source).ToANew<IEnumerable<string>>();
@@ -41,7 +53,7 @@
         }
 
         [Fact]
-        public void ShouldCreateARootComplexTypeList()
+        public void ShouldCreateAComplexTypeList()
         {
             var source = new List<Person>
             {

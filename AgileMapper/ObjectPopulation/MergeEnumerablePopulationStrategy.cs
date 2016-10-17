@@ -10,7 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (builder.ElementTypesAreSimple)
             {
-                builder.AddNullTargetShortCircuit();
                 builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType().ExcludingTargetItems());
                 builder.AssignTargetVariable();
                 builder.AddNewItemsToTargetVariable();

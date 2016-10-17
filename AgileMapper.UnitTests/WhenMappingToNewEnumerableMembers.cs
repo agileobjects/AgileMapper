@@ -118,6 +118,29 @@
         }
 
         [Fact]
+        public void ShouldRetainAnExistingCollection()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var existingCollection = new Collection<string>();
+
+                mapper
+                    .WhenMapping
+                    .From<PublicProperty<IEnumerable<int?>>>()
+                    .To<PublicProperty<Collection<string>>>()
+                    .After
+                    .CreatingTargetInstances
+                    .Call((s, t) => t.Value = existingCollection);
+
+                var source = new PublicProperty<IEnumerable<int?>> { Value = new int?[] { 6, 7, 8 } };
+                var result = mapper.Map(source).ToANew<PublicProperty<Collection<string>>>();
+
+                result.Value.ShouldBeSameAs(existingCollection);
+                result.Value.ShouldBe("6", "7", "8");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredExpressionToAnEnumerable()
         {
             using (var mapper = Mapper.CreateNew())

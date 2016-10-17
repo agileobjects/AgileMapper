@@ -9,17 +9,11 @@
     using Caching;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class EnumerablePopulationBuilder
     {
-        #region Cached Items
-
-        private static readonly MethodInfo _selectMethod = typeof(Enumerable)
-            .GetPublicStaticMethods()
-            .Last(m => (m.Name == "Select") && m.GetParameters().Length == 2);
-
-        private static readonly MethodInfo _excludeMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethod("Exclude");
+        #region Untyped MethodInfos
 
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
             .GetPublicStaticMethods()
@@ -49,7 +43,6 @@
         private readonly LambdaExpression _targetElementIdLambda;
         private readonly bool _discardExistingValues;
         private readonly ICollection<Expression> _populationExpressions;
-        private bool _hasNullTargetShortCircuit;
         private ParameterExpression _collectionDataVariable;
 
         public EnumerablePopulationBuilder(ObjectMapperData omd)
@@ -150,11 +143,18 @@
 
         private ParameterExpression GetTargetVariable(string name)
         {
-            var targetVariableType = ElementTypesAreSimple && TargetIsReadOnly && _discardExistingValues
-                ? _omd.TargetType
-                : _targetTypeHelper.IsList
-                    ? _targetTypeHelper.ListType
-                    : _targetTypeHelper.CollectionInterfaceType;
+            Type targetVariableType;
+
+            if (TargetIsReadOnly)
+            {
+                targetVariableType = ElementTypesAreSimple && _discardExistingValues
+                    ? _omd.TargetType
+                    : _targetTypeHelper.ListType;
+            }
+            else
+            {
+                targetVariableType = _omd.TargetType;
+            }
 
             return Expression.Variable(targetVariableType, name);
         }
@@ -241,16 +241,22 @@
                 nonNullTargetVariableValue = _omd.TargetObject;
             }
 
-            if (_hasNullTargetShortCircuit)
-            {
-                return nonNullTargetVariableValue;
-            }
+            var nullTargetVariableType = nonNullTargetVariableValue.Type.IsInterface()
+                ? _targetTypeHelper.ListType
+                : nonNullTargetVariableValue.Type;
+
+            var nullTargetVariableValue = _sourceTypeHelper.IsEnumerableInterface || _targetTypeHelper.IsCollection
+                ? Expression.New(nullTargetVariableType)
+                : Expression.New(
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    nullTargetVariableType.GetConstructor(new[] { typeof(int) }),
+                    GetCountPropertyAccess());
 
             var targetVariableValue = Expression.Condition(
                 _omd.TargetObject.GetIsNotDefaultComparison(),
                 nonNullTargetVariableValue,
-                Expression.New(_targetTypeHelper.ListType),
-                TargetVariable.Type);
+                nullTargetVariableValue,
+                nonNullTargetVariableValue.Type);
 
             return targetVariableValue;
         }
@@ -304,20 +310,18 @@
         }
 
         private Expression GetCounterEqualsCountCheck(Expression counter)
-        {
-            Expression countProperty;
+            => Expression.Equal(counter, GetCountPropertyAccess());
 
+        private Expression GetCountPropertyAccess()
+        {
             if (_sourceTypeHelper.IsArray)
             {
-                countProperty = Expression.Property(_sourceVariable, "Length");
-            }
-            else
-            {
-                var countPropertyInfo = _sourceTypeHelper.CollectionInterfaceType.GetPublicInstanceProperty("Count");
-                countProperty = Expression.Property(_sourceVariable, countPropertyInfo);
+                return Expression.Property(_sourceVariable, "Length");
             }
 
-            return Expression.Equal(counter, countProperty);
+            var countPropertyInfo = _sourceTypeHelper.CollectionInterfaceType.GetPublicInstanceProperty("Count");
+
+            return Expression.Property(_sourceVariable, countPropertyInfo);
         }
 
         private Expression GetIndexedElementAccess(Expression counter)
@@ -370,36 +374,21 @@
         private Expression GetElementConversion(Expression sourceElement)
         {
             return sourceElement.Type.IsSimple()
-                ? GetSimpleElementConversion(sourceElement, _targetElementType)
-                : GetMapElementCall(sourceElement, Expression.Default(_targetElementType));
+                ? GetSimpleElementConversion(sourceElement)
+                : GetMapElementCall(sourceElement);
         }
+
+        private Expression GetSimpleElementConversion(Expression sourceElement)
+            => GetSimpleElementConversion(sourceElement, _targetElementType);
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
             => _omd.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
 
+        private Expression GetMapElementCall(Expression sourceObject)
+            => GetMapElementCall(sourceObject, Expression.Default(_targetElementType));
+
         private Expression GetMapElementCall(Expression sourceObject, Expression existingObject)
             => _omd.GetMapCall(sourceObject, existingObject);
-
-        public void AddNullTargetShortCircuitIfAppropriate()
-        {
-            if (ElementTypesAreSimple)
-            {
-                AddNullTargetShortCircuit();
-            }
-        }
-
-        public void AddNullTargetShortCircuit()
-        {
-            var returnValue = GetSourceOnlyReturnValue();
-
-            var ifTargetNullShortCircuit = Expression.IfThen(
-                _omd.TargetObject.GetIsDefaultComparison(),
-                Expression.Return(_omd.ReturnLabelTarget, returnValue));
-
-            _populationExpressions.Add(ifTargetNullShortCircuit);
-
-            _hasNullTargetShortCircuit = true;
-        }
 
         private Expression GetSourceOnlyReturnValue()
         {
@@ -435,7 +424,7 @@
             _populationExpressions.Add(assignCollectionData);
         }
 
-        public Expression MapIntersection()
+        public void MapIntersection()
         {
             var forEachActionType = Expression.GetActionType(_sourceElementType, _targetElementType, typeof(int));
             var sourceElementParameter = Parameters.Create(_sourceElementType);
@@ -455,8 +444,6 @@
                 forEachLambda);
 
             _populationExpressions.Add(forEachCall);
-
-            return forEachCall;
         }
 
         public void RemoveTargetItemsById()
@@ -500,7 +487,7 @@
             if (_targetTypeHelper.IsCollection)
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
-                var newCollection = Expression.New(
+                Expression newCollection = Expression.New(
                     _targetTypeHelper.CollectionType.GetConstructor(new[] { _targetTypeHelper.ListType }),
                     value.GetConversionTo(_targetTypeHelper.ListType));
 
@@ -512,7 +499,8 @@
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
         {
-            var method = TargetVariable.Type.GetMethod(methodName);
+            var method = _targetTypeHelper.CollectionInterfaceType.GetMethod(methodName)
+                ?? TargetVariable.Type.GetMethod(methodName);
 
             return (argument != null)
                 ? Expression.Call(TargetVariable, method, argument)
@@ -534,6 +522,25 @@
 
         public class SourceItemsSelector
         {
+            #region Untyped MethodInfos
+
+            private static readonly MethodInfo _selectWithoutIndexMethod = GetLinqSelectMethod(2);
+            private static readonly MethodInfo _selectWithIndexMethod = GetLinqSelectMethod(3);
+
+            private static MethodInfo GetLinqSelectMethod(int numberOfFuncParameters)
+            {
+                return typeof(Enumerable)
+                    .GetPublicStaticMethods()
+                    .Last(m => (m.Name == "Select") &&
+                        m.GetParameters().Length == 2 &&
+                        m.GetParameters()[1].ParameterType.GetGenericArguments().Length == numberOfFuncParameters);
+            }
+
+            private static readonly MethodInfo _excludeMethod = typeof(EnumerableExtensions)
+                .GetPublicStaticMethod("Exclude");
+
+            #endregion
+
             private readonly EnumerablePopulationBuilder _builder;
             private Expression _result;
 
@@ -550,14 +557,31 @@
                     return this;
                 }
 
-                var typedSelectMethod = _selectMethod
-                    .MakeGenericMethod(_builder._sourceElementType, _builder._targetElementType);
+                MethodInfo selectMethod;
+                Expression projectionFunc;
 
-                var projectionFunc = Expression.Lambda(
-                    Expression.GetFuncType(_builder._sourceElementType, typeof(int), _builder._targetElementType),
-                    _builder.GetElementConversion(_builder._sourceElementParameter),
-                    _builder._sourceElementParameter,
-                    Parameters.EnumerableIndex);
+                if (_builder.ElementTypesAreSimple)
+                {
+                    selectMethod = _selectWithoutIndexMethod;
+
+                    projectionFunc = Expression.Lambda(
+                        Expression.GetFuncType(_builder._sourceElementType, _builder._targetElementType),
+                        _builder.GetSimpleElementConversion(_builder._sourceElementParameter),
+                        _builder._sourceElementParameter);
+                }
+                else
+                {
+                    selectMethod = _selectWithIndexMethod;
+
+                    projectionFunc = Expression.Lambda(
+                        Expression.GetFuncType(_builder._sourceElementType, typeof(int), _builder._targetElementType),
+                        _builder.GetMapElementCall(_builder._sourceElementParameter),
+                        _builder._sourceElementParameter,
+                        Parameters.EnumerableIndex);
+                }
+
+                var typedSelectMethod = selectMethod
+                    .MakeGenericMethod(_builder._sourceElementType, _builder._targetElementType);
 
                 _result = Expression.Call(typedSelectMethod, _builder._omd.SourceObject, projectionFunc);
 

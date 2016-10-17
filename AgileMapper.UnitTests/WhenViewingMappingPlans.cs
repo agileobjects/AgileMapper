@@ -38,8 +38,8 @@
                 .GetPlanFor<PublicProperty<int[]>>()
                 .ToANew<PublicField<IEnumerable<int>>>();
 
-            plan.ShouldContain("return data.Source.ToArray()");
-            plan.ShouldContain("targetInt32s = new List<int>(data.Target)");
+            plan.ShouldContain("targetInt32s = ");
+            plan.ShouldContain("new List<int>(data.Target)");
             plan.ShouldContain("targetInt32s.Add(sourceInt32s[i])");
         }
 
