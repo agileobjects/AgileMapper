@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly IObjectMappingData _parent;
         private readonly Dictionary<object, Dictionary<object, object>> _mappedObjectsByTypes;
         private readonly bool _isRoot;
+        private IObjectMapper _mapper;
 
         public ObjectMappingData(
             TSource source,
@@ -71,24 +72,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TTarget CreatedObject { get; set; }
 
-        #region IMappingData Members
-
-        T IMappingData.GetSource<T>() => (T)(object)Source;
-
-        T IMappingData.GetTarget<T>() => (T)(object)Target;
-
-        public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
-
-        IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
-            => (IMappingData<TDataSource, TDataTarget>)this;
-
-        #endregion
-
         #region IObjectMappingData Members
 
         private ObjectMapperData _mapperData;
 
-        public ObjectMapperData MapperData => _mapperData ?? (_mapperData = CreateMapperData());
+        ObjectMapperData IObjectMappingData.MapperData => _mapperData ?? (_mapperData = CreateMapperData());
 
         private ObjectMapperData CreateMapperData()
         {
@@ -104,10 +92,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public IObjectMapper CreateMapper() => MapperKey.CreateMapper<TSource, TTarget>();
+        IObjectMapper IObjectMappingData.CreateMapper() => MapperKey.CreateMapper<TSource, TTarget>();
 
         private MemberMappingData<TSource, TTarget> _childMappingData;
-        private IObjectMapper _mapper;
 
         IMemberMappingData IObjectMappingData.GetChildMappingData(MemberMapperData childMapperData)
         {

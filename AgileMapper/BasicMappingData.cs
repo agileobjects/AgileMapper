@@ -32,7 +32,6 @@ namespace AgileObjects.AgileMapper
 
         public Type TargetType { get; }
 
-
         IBasicMapperData IBasicMappingData.MapperData => _mapperData ?? (_mapperData = CreateMapperData());
 
         private IBasicMapperData CreateMapperData()
@@ -42,7 +41,7 @@ namespace AgileObjects.AgileMapper
 
         T IMappingData.GetTarget<T>() => (T)(object)Target;
 
-        int? IMappingData.GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
+        public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
 
         IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
             => (IMappingData<TDataSource, TDataTarget>)this;
