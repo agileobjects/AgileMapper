@@ -21,10 +21,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _dataSources = dataSources;
             _populateCondition = populateCondition;
 
-            if (!mapperData.TargetMember.IsSimple)
-            {
-                mapperData.Parent.RegisterTargetMemberDataSources(mapperData.TargetMember, dataSources);
-            }
+            mapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(mapperData.TargetMember, dataSources);
         }
 
         #region Factory Methods

@@ -7,34 +7,6 @@
     public class WhenMappingToNewComplexTypes
     {
         [Fact]
-        public void ShouldCreateAResultObjectViaADefaultConstructor()
-        {
-            var source = new PublicField<string>();
-            var result = Mapper.Map(source).ToANew<PublicProperty<string>>();
-
-            result.ShouldNotBeNull();
-        }
-
-        [Fact]
-        public void ShouldCreateAResultObjectViaAParameterisedConstructor()
-        {
-            var source = new PublicGetMethod<string>("Barney");
-            var result = Mapper.Map(source).ToANew<PublicCtor<string>>();
-
-            result.ShouldNotBeNull();
-            result.Value.ShouldBe("Barney");
-        }
-
-        [Fact]
-        public void ShouldConvertASimpleTypeConstructorArgument()
-        {
-            var source = new PublicGetMethod<string>("80.6537");
-            var result = Mapper.Map(source).ToANew<PublicCtor<decimal>>();
-
-            result.Value.ShouldBe(80.6537);
-        }
-
-        [Fact]
         public void ShouldMapFromAnAnonymousType()
         {
             var source = new { Value = "Hello there!" };

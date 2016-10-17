@@ -219,7 +219,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapObjectMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
-                Expression.Constant(targetMember.Name),
+                Expression.Constant(targetMember.GetRegistrationName()),
                 Expression.Constant(dataSourceIndex));
 
             return mapCall;
@@ -237,7 +237,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapCall;
         }
 
-        public void RegisterTargetMemberDataSources(QualifiedMember targetMember, DataSourceSet dataSources)
-            => _dataSourcesByTargetMemberName.Add(targetMember.Name, dataSources);
+        public void RegisterTargetMemberDataSourcesIfRequired(QualifiedMember targetMember, DataSourceSet dataSources)
+        {
+            if (targetMember.IsSimple)
+            {
+                return;
+            }
+
+            _dataSourcesByTargetMemberName.Add(targetMember.GetRegistrationName(), dataSources);
+        }
     }
 }

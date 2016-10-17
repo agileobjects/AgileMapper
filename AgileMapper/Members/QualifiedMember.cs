@@ -92,6 +92,16 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Name => LeafMember.Name;
 
+        public string GetRegistrationName()
+        {
+            if (LeafMember.MemberType != MemberType.ConstructorParameter)
+            {
+                return Name;
+            }
+
+            return "ctor:" + Name;
+        }
+
         public IEnumerable<string> JoinedNames { get; }
 
         public string GetPath() => _pathFactory.Invoke();
@@ -110,7 +120,7 @@ namespace AgileObjects.AgileMapper.Members
             => _childMemberCache.GetOrAdd(childMember, cm => new QualifiedMember(cm, this, _mapperContext));
 
         public QualifiedMember GetChildMember(string name)
-            => _childMemberCache.Values.First(childMember => childMember.LeafMember.Name == name);
+            => _childMemberCache.Values.First(childMember => childMember.GetRegistrationName() == name);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {

@@ -1,0 +1,115 @@
+﻿namespace AgileObjects.AgileMapper.UnitTests
+{
+    using System;
+    using Shouldly;
+    using TestClasses;
+    using Xunit;
+
+    public class WhenMappingToConstructors
+    {
+        [Fact]
+        public void ShouldUseADefaultConstructor()
+        {
+            var source = new PublicField<string>();
+            var result = Mapper.Map(source).ToANew<PublicProperty<string>>();
+
+            result.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public void ShouldUseAParameterisedConstructor()
+        {
+            var source = new PublicGetMethod<string>("Barney");
+            var result = Mapper.Map(source).ToANew<PublicCtor<string>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBe("Barney");
+        }
+
+        [Fact]
+        public void ShouldConvertASimpleTypeConstructorArgument()
+        {
+            var source = new PublicGetMethod<string>("80.6537");
+            var result = Mapper.Map(source).ToANew<PublicCtor<decimal>>();
+
+            result.Value.ShouldBe(80.6537);
+        }
+
+        [Fact]
+        public void ShouldUseAMultipleParameterConstructor()
+        {
+            var source = new { Value1 = 123, Value2 = 456 };
+            var result = Mapper.Map(source).ToANew<PublicTwoParamCtor<byte?, string>>();
+
+            result.Value1.ShouldBe<byte?>(123);
+            result.Value2.ShouldBe("456");
+        }
+
+        [Fact]
+        public void ShouldUseTheGreediestConstructor()
+        {
+            var value1OnlySource = new { Value1 = "Good bye" };
+
+            var value1OnlyResult = Mapper.Map(value1OnlySource).ToANew<MultipleConstructors<string, string>>();
+            value1OnlyResult.ShouldNotBeNull();
+            value1OnlyResult.Value1.ShouldBe("Good bye");
+
+            var value1And2Source = new { Value1 = "Hello", Value2 = "Again!" };
+            var value1And2Result = Mapper.Map(value1And2Source).ToANew<MultipleConstructors<string, string>>();
+            value1And2Result.ShouldNotBeNull();
+            value1And2Result.Value1.ShouldBe("Hello");
+            value1And2Result.Value2.ShouldBe("Again!");
+        }
+
+        [Fact]
+        public void ShouldUseAComplexTypeConstructorParameter()
+        {
+            var source = new PublicField<Address> { Value = new Address { Line1 = "Over there" } };
+            var result = Mapper.Map(source).ToANew<PublicCtor<Address>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldNotBeNull();
+            result.Value.Line1.ShouldBe("Over there");
+        }
+
+        [Fact]
+        public void ShouldIgnoreConstructorsWithNoUseableDataSource()
+        {
+            var source = new { Value1 = "Yo Bo", Value2 = DateTime.Today };
+            var result = Mapper.Map(source).ToANew<MultipleConstructors<string, byte>>();
+
+            result.ShouldNotBeNull();
+            result.Value1.ShouldBe("Yo Bo");
+            result.Value2.ShouldBeDefault();
+        }
+
+        #region Helper Classes
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class MultipleConstructors<T1, T2>
+        {
+            // ReSharper disable UnusedMember.Local
+            public MultipleConstructors()
+            {
+            }
+
+            public MultipleConstructors(T1 value1)
+            {
+                Value1 = value1;
+            }
+
+            public MultipleConstructors(T1 value1, T2 value2)
+            {
+                Value1 = value1;
+                Value2 = value2;
+            }
+            // ReSharper restore UnusedMember.Local
+
+            public T1 Value1 { get; }
+
+            public T2 Value2 { get; }
+        }
+
+        #endregion
+    }
+}

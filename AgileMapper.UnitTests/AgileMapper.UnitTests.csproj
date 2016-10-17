@@ -105,6 +105,7 @@
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
     <Compile Include="WhenMappingFromDictionaries.cs" />
+    <Compile Include="WhenMappingToConstructors.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />
     <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />

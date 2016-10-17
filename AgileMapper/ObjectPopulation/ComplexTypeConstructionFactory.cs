@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -62,10 +63,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                                     return key.MappingData.GetChildMappingData(parameterMapperData);
                                 })
-                                .Select(memberData => mapperData
-                                    .MapperContext
-                                    .DataSources
-                                    .FindFor(memberData))
+                                .Select(memberData =>
+                                {
+                                    var dataSources = mapperData
+                                        .MapperContext
+                                        .DataSources
+                                        .FindFor(memberData);
+
+                                    return Tuple.Create(memberData.MapperData.TargetMember, dataSources);
+                                })
                                 .ToArray()))
                         .Where(ctor => ctor.CanBeConstructed)
                         .OrderByDescending(ctor => ctor.NumberOfParameters)
@@ -73,6 +79,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                     if (greediestAvailableConstructor != null)
                     {
+                        foreach (var memberAndDataSourceSet in greediestAvailableConstructor.ArgumentDataSources)
+                        {
+                            key.MappingData.MapperData.RegisterTargetMemberDataSourcesIfRequired(
+                                memberAndDataSourceSet.Item1,
+                                memberAndDataSourceSet.Item2);
+                        }
+
                         constructions.Insert(0, greediestAvailableConstructor.Construction);
                     }
                 }
@@ -128,9 +141,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private class ConstructorData
         {
-            public ConstructorData(ConstructorInfo constructor, ICollection<DataSourceSet> argumentDataSources)
+            public ConstructorData(
+                ConstructorInfo constructor,
+                ICollection<Tuple<QualifiedMember, DataSourceSet>> argumentDataSources)
             {
-                CanBeConstructed = argumentDataSources.All(ds => ds.HasValue);
+                CanBeConstructed = argumentDataSources.All(ds => ds.Item2.HasValue);
                 NumberOfParameters = argumentDataSources.Count;
 
                 if (!CanBeConstructed)
@@ -143,11 +158,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 foreach (var argumentDataSource in argumentDataSources)
                 {
-                    variables.AddRange(argumentDataSource.Variables);
-                    argumentValues.Add(argumentDataSource.Value);
+                    variables.AddRange(argumentDataSource.Item2.Variables);
+                    argumentValues.Add(argumentDataSource.Item2.Value);
                 }
 
                 var objectConstruction = Expression.New(constructor, argumentValues);
+
+                ArgumentDataSources = argumentDataSources;
 
                 Construction = variables.None()
                     ? new Construction(objectConstruction)
@@ -157,6 +174,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             public bool CanBeConstructed { get; }
 
             public int NumberOfParameters { get; }
+
+            public IEnumerable<Tuple<QualifiedMember, DataSourceSet>> ArgumentDataSources { get; }
 
             public Construction Construction { get; }
         }
