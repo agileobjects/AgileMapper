@@ -44,8 +44,7 @@
 
         private static IEnumerable<T> StreamExclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
         {
-            int nullItemCount;
-            var excludedItemCountsByItem = GetCountsByItem(excludedItems, out nullItemCount);
+            var excludedItemCountsByItem = GetCountsByItem(excludedItems);
 
             foreach (var item in items)
             {
@@ -64,16 +63,14 @@
             }
         }
 
-        private static Dictionary<T, int> GetCountsByItem<T>(IEnumerable<T> items, out int nullItemCount)
+        private static Dictionary<T, int> GetCountsByItem<T>(IEnumerable<T> items)
         {
             var itemCountsByItem = new Dictionary<T, int>();
-            nullItemCount = 0;
 
             foreach (var item in items)
             {
                 if (item == null)
                 {
-                    ++nullItemCount;
                     continue;
                 }
 

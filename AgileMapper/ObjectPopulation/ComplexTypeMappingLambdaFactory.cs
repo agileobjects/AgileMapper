@@ -87,14 +87,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
+            var preCreationCallback = GetCreationCallbackOrEmpty(CallbackPosition.Before, mapperData);
+            var postCreationCallback = GetCreationCallbackOrEmpty(CallbackPosition.After, mapperData);
 
-            yield return GetCreationCallback(CallbackPosition.Before, mapperData);
+            yield return preCreationCallback;
 
-            var instanceVariableValue = GetObjectResolution(mappingData);
+            var instanceVariableValue = GetObjectResolution(mappingData, postCreationCallback != Constants.EmptyExpression);
             var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, instanceVariableValue);
             yield return instanceVariableAssignment;
 
-            yield return GetCreationCallback(CallbackPosition.After, mapperData);
+            yield return postCreationCallback;
 
             var registrationCall = GetObjectRegistrationCallOrNull(mapperData);
             if (registrationCall != null)
@@ -108,14 +110,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static Expression GetCreationCallback(CallbackPosition callbackPosition, IMemberMapperData mapperData)
+        private static Expression GetCreationCallbackOrEmpty(CallbackPosition callbackPosition, IMemberMapperData mapperData)
             => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, mapperData), mapperData);
 
-        private Expression GetObjectResolution(IObjectMappingData mappingData)
+        private Expression GetObjectResolution(IObjectMappingData mappingData, bool postCreationCallbackExists)
         {
-            var objectCreation = _constructionFactory.GetNewObjectCreation(mappingData);
-            var createdObjectAssignment = Expression.Assign(mappingData.MapperData.CreatedObject, objectCreation);
-            var instanceDataTargetAssignment = Expression.Assign(mappingData.MapperData.TargetObject, createdObjectAssignment);
+            var objectCreationValue = _constructionFactory.GetNewObjectCreation(mappingData);
+
+            if (postCreationCallbackExists)
+            {
+                objectCreationValue = Expression.Assign(mappingData.MapperData.CreatedObject, objectCreationValue);
+            }
+
+            var instanceDataTargetAssignment = Expression.Assign(mappingData.MapperData.TargetObject, objectCreationValue);
             var existingOrCreatedObject = Expression.Coalesce(mappingData.MapperData.TargetObject, instanceDataTargetAssignment);
 
             return existingOrCreatedObject;
@@ -123,8 +130,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly MethodInfo _registerMethod = typeof(IObjectMappingData).GetMethod("Register");
 
-        private static Expression GetObjectRegistrationCallOrNull(IMemberMapperData mapperData)
+        private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {
+            if (mapperData.TargetTypeWillNotBeMappedAgain)
+            {
+                return null;
+            }
+
             if (IsEnumerableElementMapping(mapperData) || SourceAndTargetAreExactMatches(mapperData))
             {
                 return Expression.Call(

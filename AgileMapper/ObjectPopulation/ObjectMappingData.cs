@@ -173,11 +173,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
         {
-            if (key == null)
-            {
-                return;
-            }
-
             if (!_isRoot)
             {
                 _parent.Register(key, complexType);

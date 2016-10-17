@@ -53,6 +53,42 @@
         }
 
         [Fact]
+        public void ShouldMapToANewOneToManyViaIntermediateRelationship()
+        {
+            var pilot = new Pilot
+            {
+                Name = "Walls",
+                Qualifications = new PilotQualifications
+                {
+                    TrainedAeroplanes = new List<Aeroplane>()
+                }
+            };
+
+            var concorde = new Aeroplane { Model = "Concorde", Pilot = pilot };
+            var f16 = new Aeroplane { Model = "F16", Pilot = pilot };
+
+            pilot.Qualifications.TrainedAeroplanes.Add(concorde);
+            pilot.Qualifications.TrainedAeroplanes.Add(f16);
+
+            var clonedPilot = Mapper.Clone(pilot);
+
+            clonedPilot.ShouldNotBeSameAs(pilot);
+            clonedPilot.Name.ShouldBe("Walls");
+            clonedPilot.Qualifications.ShouldNotBeNull();
+            clonedPilot.Qualifications.ShouldNotBeSameAs(pilot.Qualifications);
+            clonedPilot.Qualifications.TrainedAeroplanes.ShouldNotBeNull();
+            clonedPilot.Qualifications.TrainedAeroplanes.Count.ShouldBe(2);
+
+            clonedPilot.Qualifications.TrainedAeroplanes.First().ShouldNotBeSameAs(concorde);
+            clonedPilot.Qualifications.TrainedAeroplanes.First().Model.ShouldBe("Concorde");
+            clonedPilot.Qualifications.TrainedAeroplanes.First().Pilot.ShouldBe(clonedPilot);
+
+            clonedPilot.Qualifications.TrainedAeroplanes.Second().ShouldNotBeSameAs(f16);
+            clonedPilot.Qualifications.TrainedAeroplanes.Second().Model.ShouldBe("F16");
+            clonedPilot.Qualifications.TrainedAeroplanes.Second().Pilot.ShouldBe(clonedPilot);
+        }
+
+        [Fact]
         public void ShouldMapToANewOneToManyRelationship()
         {
             var source = new Order
@@ -110,5 +146,28 @@
             plan.ShouldContain("Map Parent -> Parent");
             plan.ShouldContain("Map Child -> Child");
         }
+
+        #region Helper Classes
+
+        internal class Aeroplane
+        {
+            public string Model { get; set; }
+
+            public Pilot Pilot { get; set; }
+        }
+
+        internal class Pilot
+        {
+            public string Name { get; set; }
+
+            public PilotQualifications Qualifications { get; set; }
+        }
+
+        internal class PilotQualifications
+        {
+            public IList<Aeroplane> TrainedAeroplanes { get; set; }
+        }
+
+        #endregion
     }
 }

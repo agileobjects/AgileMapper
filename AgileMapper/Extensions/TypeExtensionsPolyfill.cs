@@ -118,14 +118,5 @@
             return type.GetMethod(name, Constants.PublicStatic);
 #endif
         }
-
-        public static MethodInfo GetNonPublicStaticMethod(this Type type, string name)
-        {
-#if NET_STANDARD
-            return type.GetTypeInfo().DeclaredMethods.First(m => !m.IsPublic && m.IsStatic && (m.Name == name));
-#else
-            return type.GetMethod(name, Constants.NonPublicStatic);
-#endif
-        }
     }
 }

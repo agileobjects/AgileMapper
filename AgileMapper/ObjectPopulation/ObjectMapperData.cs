@@ -12,6 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
         private readonly ObjectMapperData _parent;
+        private readonly List<ObjectMapperData> _childMapperDatas;
         private readonly MethodInfo _mapObjectMethod;
         private readonly MethodInfo _mapEnumerableElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
@@ -30,8 +31,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             MapperContext = mappingContext.MapperContext;
             _parent = parent;
-            var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
+            _parent?._childMapperDatas.Add(this);
+            _childMapperDatas = new List<ObjectMapperData>();
 
+            var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
             Parameter = Parameters.Create(mdType, "data");
             SourceMember = sourceMember;
             SourceObject = Expression.Property(Parameter, "Source");
@@ -58,6 +61,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
+                TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping();
+                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping();
+
                 InstanceVariable = Expression
                     .Variable(TargetType, TargetType.GetVariableName(f => f.InCamelCase));
             }
@@ -66,6 +72,62 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #region Setup
+
+        private bool IsTargetTypeFirstMapping()
+        {
+            if (_parent == null)
+            {
+                return true;
+            }
+
+            var parent = _parent;
+
+            while (parent != null)
+            {
+                if (parent.HasTypeBeenMapped(TargetType, this))
+                {
+                    return false;
+                }
+
+                parent = parent._parent;
+            }
+
+            return false;
+        }
+
+        private bool IsTargetTypeLastMapping() => !DoesTypeHaveACompatibleChildMember(TargetType, TargetType);
+
+        private static bool DoesTypeHaveACompatibleChildMember(Type targetType, Type parentType)
+        {
+            var childTargetMembers = GlobalContext.Instance.MemberFinder.GetWriteableMembers(parentType);
+
+            foreach (var childMember in childTargetMembers)
+            {
+                if (childMember.IsSimple)
+                {
+                    continue;
+                }
+
+                if (childMember.IsComplex)
+                {
+                    if (childMember.Type.IsAssignableFrom(targetType))
+                    {
+                        return true;
+                    }
+
+                    return DoesTypeHaveACompatibleChildMember(targetType, childMember.Type);
+                }
+
+                if (childMember.ElementType.IsComplex() && childMember.ElementType.IsAssignableFrom(targetType))
+                {
+                    return true;
+                }
+
+                return DoesTypeHaveACompatibleChildMember(targetType, childMember.ElementType);
+            }
+
+            return false;
+        }
 
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
         {
@@ -84,6 +146,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool RequiresElementMapping => TargetElementMember != null;
 
+        private bool HasTypeBeenMapped(Type targetType, IBasicMapperData requestingMapperData)
+        {
+            var mappedType = TargetMember.IsEnumerable ? TargetMember.ElementType : TargetType;
+
+            if (mappedType.IsAssignableFrom(targetType))
+            {
+                return true;
+            }
+
+            foreach (var childMapperData in _childMapperDatas)
+            {
+                if (childMapperData == requestingMapperData)
+                {
+                    break;
+                }
+
+                if (childMapperData.HasTypeBeenMapped(targetType, this))
+                {
+                    return true;
+                }
+            }
+
+            if ((_parent != null) && (requestingMapperData != _parent))
+            {
+                return _parent.HasTypeBeenMapped(targetType, this);
+            }
+
+            return false;
+        }
+
         public IQualifiedMember GetSourceMemberFor(string targetMemberName, int dataSourceIndex)
             => _dataSourcesByTargetMemberName[targetMemberName][dataSourceIndex].SourceMember;
 
@@ -97,7 +189,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public QualifiedMember TargetElementMember { get; }
 
-        public bool TargetTypeHasNotYetBeenMapped { get; set; }
+        public bool TargetTypeHasNotYetBeenMapped { get; }
+
+        public bool TargetTypeWillNotBeMappedAgain { get; }
 
         public Expression SourceObject { get; }
 

@@ -13,6 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Type _listType;
         private Type _listInterfaceType;
         private Type _collectionType;
+        private Type _collectionInterfaceType;
         private Type _enumerableInterfaceType;
 
         public EnumerableTypeHelper(Type enumerableType, Type elementType)
@@ -38,6 +39,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Type ListInterfaceType => GetEnumerableType(ref _listInterfaceType, typeof(IList<>));
 
         public Type CollectionType => GetEnumerableType(ref _collectionType, typeof(Collection<>));
+
+        public Type CollectionInterfaceType => GetEnumerableType(ref _collectionInterfaceType, typeof(ICollection<>));
 
         public Type EnumerableInterfaceType => GetEnumerableType(ref _enumerableInterfaceType, typeof(IEnumerable<>));
 

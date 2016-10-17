@@ -154,7 +154,7 @@
                 ? _omd.TargetType
                 : _targetTypeHelper.IsList
                     ? _targetTypeHelper.ListType
-                    : typeof(ICollection<>).MakeGenericType(_targetElementType);
+                    : _targetTypeHelper.CollectionInterfaceType;
 
             return Expression.Variable(targetVariableType, name);
         }
@@ -305,8 +305,17 @@
 
         private Expression GetCounterEqualsCountCheck(Expression counter)
         {
-            var countPropertyName = _sourceTypeHelper.IsArray ? "Length" : "Count";
-            var countProperty = Expression.Property(_sourceVariable, countPropertyName);
+            Expression countProperty;
+
+            if (_sourceTypeHelper.IsArray)
+            {
+                countProperty = Expression.Property(_sourceVariable, "Length");
+            }
+            else
+            {
+                var countPropertyInfo = _sourceTypeHelper.CollectionInterfaceType.GetPublicInstanceProperty("Count");
+                countProperty = Expression.Property(_sourceVariable, countPropertyInfo);
+            }
 
             return Expression.Equal(counter, countProperty);
         }
@@ -531,12 +540,6 @@
             internal SourceItemsSelector(EnumerablePopulationBuilder builder)
             {
                 _builder = builder;
-            }
-
-            public SourceItemsSelector SourceItems()
-            {
-                _result = _builder._omd.SourceObject;
-                return this;
             }
 
             public SourceItemsSelector SourceItemsProjectedToTargetType()

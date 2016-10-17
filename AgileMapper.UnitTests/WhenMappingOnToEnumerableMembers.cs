@@ -31,6 +31,26 @@
         }
 
         [Fact]
+        public void ShouldMergeANullableIntArray()
+        {
+            var source = new PublicProperty<ICollection<long>>
+            {
+                Value = new List<long> { 2, 3 }
+            };
+
+            var target = new PublicField<IList<int?>>
+            {
+                Value = new int?[] { 1, 2, null }
+            };
+
+            var originalArray = target.Value;
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeSameAs(originalArray);
+            result.Value.ShouldBe(1, 2, null, 3);
+        }
+
+        [Fact]
         public void ShouldMergeAComplexTypeCollection()
         {
             var source = new PublicField<PublicField<long>[]>
