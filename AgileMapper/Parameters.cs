@@ -14,6 +14,8 @@ namespace AgileObjects.AgileMapper
 
         public static readonly ParameterExpression EnumerableIndex = Create<int>("i");
         public static readonly ParameterExpression EnumerableIndexNullable = Create<int?>("i");
+        public static readonly ParameterExpression TargetMemberName = Create<string>("targetMemberName");
+        public static readonly ParameterExpression DataSourceIndex = Create<int>("dataSourceIndex");
 
         public static readonly ParameterExpression MapperKey = Create<ObjectMapperKeyBase>("mapperKey");
         public static readonly ParameterExpression MembersSource = Create<IMembersSource>("membersSource");

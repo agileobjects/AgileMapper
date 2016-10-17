@@ -22,6 +22,42 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingContext);
         }
 
+        public static IObjectMappingData ForChildByTypes(
+            Type sourceType,
+            Type targetType,
+            string targetMemberName,
+            int dataSourceIndex,
+            IObjectMappingData parent)
+        {
+            var key = new SourceAndTargetTypesKey(sourceType, targetType);
+
+            var typedForChildCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
+            {
+                var typedForChildMethod = typeof(ObjectMappingDataFactory)
+                    .GetPublicStaticMethod("ForChild")
+                    .MakeGenericMethod(k.SourceType, k.TargetType);
+
+                var typedForChildCall = Expression.Call(
+                    typedForChildMethod,
+                    Expression.Default(k.SourceType),
+                    Expression.Default(k.TargetType),
+                    Expression.Default(typeof(int?)),
+                    Parameters.TargetMemberName,
+                    Parameters.DataSourceIndex,
+                    Parameters.ObjectMappingData);
+
+                var typedForChildLambda = Expression.Lambda<Func<string, int, IObjectMappingData, IObjectMappingData>>(
+                    typedForChildCall,
+                    Parameters.TargetMemberName,
+                    Parameters.DataSourceIndex,
+                    Parameters.ObjectMappingData);
+
+                return typedForChildLambda.Compile();
+            });
+
+            return typedForChildCaller.Invoke(targetMemberName, dataSourceIndex, parent);
+        }
+
         public static IObjectMappingData ForChild<TSource, TTarget>(
             TSource source,
             TTarget target,
@@ -40,6 +76,38 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 memberSource,
                 parent.MappingContext,
                 parent);
+        }
+
+        public static IObjectMappingData ForElementByTypes(
+            Type sourceType,
+            Type targetType,
+            int? enumerableIndex,
+            IObjectMappingData parent)
+        {
+            var key = new SourceAndTargetTypesKey(sourceType, targetType);
+
+            var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
+            {
+                var typedForElementMethod = typeof(ObjectMappingDataFactory)
+                    .GetPublicStaticMethod("ForElement")
+                    .MakeGenericMethod(k.SourceType, k.TargetType);
+
+                var typedForElementCall = Expression.Call(
+                    typedForElementMethod,
+                    Expression.Default(k.SourceType),
+                    Expression.Default(k.TargetType),
+                    Parameters.EnumerableIndexNullable,
+                    Parameters.ObjectMappingData);
+
+                var typedForElementLambda = Expression.Lambda<Func<int?, IObjectMappingData, IObjectMappingData>>(
+                    typedForElementCall,
+                    Parameters.EnumerableIndexNullable,
+                    Parameters.ObjectMappingData);
+
+                return typedForElementLambda.Compile();
+            });
+
+            return typedForElementCaller.Invoke(enumerableIndex, parent);
         }
 
         public static IObjectMappingData ForElement<TSource, TTarget>(
@@ -143,5 +211,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return constructionFunc;
         }
+
+        #region Key Class
+
+        private class SourceAndTargetTypesKey
+        {
+            public SourceAndTargetTypesKey(Type sourceType, Type targetType)
+            {
+                SourceType = sourceType;
+                TargetType = targetType;
+            }
+
+            public Type SourceType { get; }
+
+            public Type TargetType { get; }
+
+            public override bool Equals(object obj)
+            {
+                var otherKey = (SourceAndTargetTypesKey)obj;
+
+                // ReSharper disable once PossibleNullReferenceException
+                return (otherKey.SourceType == SourceType) &&
+                       (otherKey.TargetType == TargetType);
+            }
+
+            public override int GetHashCode() => 0;
+        }
+
+        #endregion
     }
 }
