@@ -2,7 +2,9 @@
 {
     using System;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using Configuration;
     using Members;
 
@@ -37,6 +39,6 @@
         public override bool AppliesTo(IBasicMapperData mapperData)
             => _objectType.IsAssignableFrom(mapperData.TargetType) && base.AppliesTo(mapperData);
 
-        public Expression Create(MemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
+        public Expression Create(IMemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
     }
 }

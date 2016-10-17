@@ -9,10 +9,10 @@ namespace AgileObjects.AgileMapper.Members
 
     internal static class MemberMapperDataExtensions
     {
-        public static Expression GetMapCall(this MemberMapperData mapperData, Expression value, int dataSourceIndex = 0)
+        public static Expression GetMapCall(this IMemberMapperData mapperData, Expression value, int dataSourceIndex = 0)
             => mapperData.Parent.GetMapCall(value, mapperData.TargetMember, dataSourceIndex);
 
-        public static Expression[] GetNestedAccessesIn(this MemberMapperData mapperData, Expression value)
+        public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value)
         {
             return mapperData.NestedAccessFinder.FindIn(
                 value,
@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper.Members
 
         private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As");
 
-        public static Expression GetAppropriateTypedMappingContextAccess(this MemberMapperData mapperData, Type[] contextTypes)
+        public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
         {
             var access = mapperData.GetAppropriateMappingContextAccess(contextTypes);
             var typedAccess = mapperData.GetTypedContextAccess(access, contextTypes);
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.Members
             return typedAccess;
         }
 
-        public static Expression GetAppropriateMappingContextAccess(this MemberMapperData mapperData, Type[] contextTypes)
+        public static Expression GetAppropriateMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
         {
             if (mapperData.TypesMatch(contextTypes))
             {
@@ -55,7 +55,7 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TypesMatch(this IBasicMapperData mapperData, IList<Type> contextTypes)
             => contextTypes[0].IsAssignableFrom(mapperData.SourceType) && contextTypes[1].IsAssignableFrom(mapperData.TargetType);
 
-        public static Expression GetTypedContextAccess(this MemberMapperData mapperData, Expression contextAccess, Type[] contextTypes)
+        public static Expression GetTypedContextAccess(this IMemberMapperData mapperData, Expression contextAccess, Type[] contextTypes)
         {
             if (contextAccess == mapperData.Parameter)
             {
@@ -70,14 +70,14 @@ namespace AgileObjects.AgileMapper.Members
         private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
         private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget");
 
-        public static Expression GetSourceAccess(this MemberMapperData mapperData, Expression contextAccess, Type sourceType)
+        public static Expression GetSourceAccess(this IMemberMapperData mapperData, Expression contextAccess, Type sourceType)
             => GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject);
 
-        public static Expression GetTargetAccess(this MemberMapperData mapperData, Expression contextAccess, Type targetType)
+        public static Expression GetTargetAccess(this IMemberMapperData mapperData, Expression contextAccess, Type targetType)
             => GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject);
 
         private static Expression GetAccess(
-            MemberMapperData mapperData,
+            IMemberMapperData mapperData,
             Expression contextAccess,
             Func<Expression, Type, Expression> accessMethodFactory,
             Type type,
@@ -88,7 +88,7 @@ namespace AgileObjects.AgileMapper.Members
                 : accessMethodFactory.Invoke(contextAccess, type);
         }
 
-        public static Expression ReplaceTypedParameterWithUntyped(this MemberMapperData mapperData, Expression expression)
+        public static Expression ReplaceTypedParameterWithUntyped(this IMemberMapperData mapperData, Expression expression)
         {
             var replacementsByTarget = new Dictionary<Expression, Expression>(EquivalentMemberAccessComparer.Instance)
             {

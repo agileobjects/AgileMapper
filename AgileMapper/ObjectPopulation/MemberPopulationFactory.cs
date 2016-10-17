@@ -44,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static bool TargetMemberIsUnconditionallyIgnored(
-            MemberMapperData mapperData,
+            IMemberMapperData mapperData,
             out Expression populateCondition)
         {
             var configuredIgnore = mapperData

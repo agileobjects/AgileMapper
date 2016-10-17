@@ -1,0 +1,9 @@
+Source                                     -> Target
+Source.SubFoo                              -> Target.SubFoo
+Source.SubFoo.Foos                         -> Target.SubFoo.Foos
+Source.SubFoo.Foos[i]                      -> Target.SubFoo.Foos[i]
+Source.SubFoo.Foos[i].FooArray             -> Target.SubFoo.Foos[i].FooArray
+Source.SubFoo.Foos[i].FooArray[i]          -> Target.SubFoo.Foos[i].FooArray[i]
+Source.SubFoo.Foos[i].FooArray[i].Ints     -> Target.SubFoo.Foos[i].FooArray[i].Ints
+Source.SubFoo.Foos[i].FooArray[i].IntArray -> Target.SubFoo.Foos[i].FooArray[i].IntArray
+

@@ -90,7 +90,7 @@
             }
         }
 
-        private IDataSource GetMaptimeDataSourceOrNull(MemberMapperData mapperData)
+        private IDataSource GetMaptimeDataSourceOrNull(IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsComplex)
             {
@@ -103,7 +103,7 @@
         }
 
         private static bool DataSourcesAreConfigured(
-            MemberMapperData mapperData,
+            IMemberMapperData mapperData,
             out IEnumerable<IConfiguredDataSource> configuredDataSources)
         {
             configuredDataSources = mapperData
@@ -114,7 +114,7 @@
             return configuredDataSources.Any();
         }
 
-        private static IDataSource FallbackDataSourceFor(MemberMapperData mapperData)
+        private static IDataSource FallbackDataSourceFor(IMemberMapperData mapperData)
             => mapperData.RuleSet.FallbackDataSourceFactory.Create(mapperData);
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
@@ -162,7 +162,7 @@
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
             int dataSourceIndex,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsEnumerable)
             {

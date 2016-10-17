@@ -28,7 +28,7 @@
         {
         }
 
-        private static string GetMessage(MemberMapperData mapperData)
+        private static string GetMessage(IMemberMapperData mapperData)
         {
             var rootData = GetRootMapperData(mapperData);
 
@@ -38,7 +38,7 @@
             return $"An exception occurred mapping {sourcePath} -> {targetPath} with rule set {mapperData.RuleSet.Name}.";
         }
 
-        private static MemberMapperData GetRootMapperData(MemberMapperData mapperData)
+        private static IMemberMapperData GetRootMapperData(IMemberMapperData mapperData)
         {
             while (mapperData.Parent != null)
             {

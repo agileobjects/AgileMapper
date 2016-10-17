@@ -14,7 +14,7 @@
             int dataSourceIndex,
             Expression configuredCondition,
             Expression value,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
             : this(
                   new ConfiguredSourceMember(value, mapperData),
                   configuredCondition,
@@ -27,7 +27,7 @@
             IQualifiedMember sourceMember,
             Expression configuredCondition,
             Expression convertedValue,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
             : base(sourceMember, convertedValue, mapperData)
         {
             _originalValueString = convertedValue.ToString();
@@ -58,7 +58,7 @@
 
         #region Setup
 
-        private static Expression GetConvertedValue(int dataSourceIndex, Expression value, MemberMapperData mapperData)
+        private static Expression GetConvertedValue(int dataSourceIndex, Expression value, IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsComplex && (mapperData.TargetMember.Type.GetAssembly() != typeof(string).GetAssembly()))
             {
@@ -70,7 +70,7 @@
             return convertedValue;
         }
 
-        private static Expression Process(Expression configuredCondition, MemberMapperData mapperData)
+        private static Expression Process(Expression configuredCondition, IMemberMapperData mapperData)
         {
             var conditionNestedAccessesChecks = mapperData
                 .GetNestedAccessesIn(configuredCondition)

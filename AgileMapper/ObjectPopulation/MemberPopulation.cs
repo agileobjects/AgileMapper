@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly Expression _populateCondition;
 
         public MemberPopulation(
-            MemberMapperData mapperData,
+            IMemberMapperData mapperData,
             DataSourceSet dataSources,
             Expression populateCondition = null)
         {
@@ -29,14 +29,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Factory Methods
 
-        public static IMemberPopulation IgnoredMember(MemberMapperData mapperData)
+        public static IMemberPopulation IgnoredMember(IMemberMapperData mapperData)
             => CreateNullMemberPopulation(mapperData, targetMember => targetMember.Name + " is ignored");
 
-        public static IMemberPopulation NoDataSource(MemberMapperData mapperData)
+        public static IMemberPopulation NoDataSource(IMemberMapperData mapperData)
             => CreateNullMemberPopulation(mapperData, targetMember => "No data source for " + targetMember.Name);
 
         private static IMemberPopulation CreateNullMemberPopulation(
-            MemberMapperData mapperData,
+            IMemberMapperData mapperData,
             Func<IQualifiedMember, string> commentFactory)
         {
             return new MemberPopulation(
@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public MemberMapperData MapperData { get; }
+        public IMemberMapperData MapperData { get; }
 
         public bool IsSuccessful => _dataSources.HasValue;
 

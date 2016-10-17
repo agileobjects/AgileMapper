@@ -24,15 +24,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             GotoExpression returnNull,
             ObjectMapperData mapperData)
         {
-            yield return GetStrategyShortCircuitReturns(returnNull, mapperData);
-            yield return GetAlreadyMappedObjectShortCircuit(returnNull.Target, mapperData);
+            var strategyShortCircuitReturns = GetStrategyShortCircuitReturnsOrNull(returnNull, mapperData);
+            if (strategyShortCircuitReturns != null)
+            {
+                yield return strategyShortCircuitReturns;
+            }
+
+            var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(returnNull.Target, mapperData);
+            if (alreadyMappedShortCircuit != null)
+            {
+                yield return alreadyMappedShortCircuit;
+            }
         }
 
-        private static Expression GetStrategyShortCircuitReturns(Expression returnNull, MemberMapperData mapperData)
+        private static Expression GetStrategyShortCircuitReturnsOrNull(Expression returnNull, IMemberMapperData mapperData)
         {
             if (!mapperData.SourceMember.Matches(mapperData.TargetMember))
             {
-                return Constants.EmptyExpression;
+                return null;
             }
 
             var shortCircuitConditions = mapperData
@@ -45,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (shortCircuitConditions.None())
             {
-                return Constants.EmptyExpression;
+                return null;
             }
 
             var shortCircuitBlock = Expression.Block(shortCircuitConditions);
@@ -55,8 +64,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly MethodInfo _tryGetMethod = typeof(IObjectMappingData).GetMethod("TryGet");
 
-        private static Expression GetAlreadyMappedObjectShortCircuit(LabelTarget returnTarget, MemberMapperData mapperData)
+        private static Expression GetAlreadyMappedObjectShortCircuitOrNull(LabelTarget returnTarget, ObjectMapperData mapperData)
         {
+            if (mapperData.TargetTypeHasNotYetBeenMapped)
+            {
+                return null;
+            }
+
             var tryGetCall = Expression.Call(
                 mapperData.Parameter,
                 _tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
@@ -94,7 +108,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static Expression GetCreationCallback(CallbackPosition callbackPosition, MemberMapperData mapperData)
+        private static Expression GetCreationCallback(CallbackPosition callbackPosition, IMemberMapperData mapperData)
             => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, mapperData), mapperData);
 
         private Expression GetObjectResolution(IObjectMappingData mappingData)
@@ -109,7 +123,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static readonly MethodInfo _registerMethod = typeof(IObjectMappingData).GetMethod("Register");
 
-        private static Expression GetObjectRegistrationCallOrNull(MemberMapperData mapperData)
+        private static Expression GetObjectRegistrationCallOrNull(IMemberMapperData mapperData)
         {
             if (IsEnumerableElementMapping(mapperData) || SourceAndTargetAreExactMatches(mapperData))
             {
@@ -126,7 +140,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static bool IsEnumerableElementMapping(IBasicMapperData mapperData)
             => mapperData.TargetMember.LeafMember.MemberType == MemberType.EnumerableElement;
 
-        private static bool SourceAndTargetAreExactMatches(MemberMapperData mapperData)
+        private static bool SourceAndTargetAreExactMatches(IMemberMapperData mapperData)
             => mapperData.TargetMember.LeafMember.IsRoot || mapperData.SourceMember.Matches(mapperData.TargetMember);
 
         private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)

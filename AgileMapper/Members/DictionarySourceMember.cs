@@ -10,11 +10,11 @@ namespace AgileObjects.AgileMapper.Members
         private readonly IQualifiedMember _wrappedSourceMember;
         private readonly QualifiedMember _targetMember;
 
-        public DictionarySourceMember(MemberMapperData data)
+        public DictionarySourceMember(IMemberMapperData mapperData)
         {
-            _wrappedSourceMember = data.SourceMember;
-            _targetMember = data.TargetMember;
-            Type = data.SourceType;
+            _wrappedSourceMember = mapperData.SourceMember;
+            _targetMember = mapperData.TargetMember;
+            Type = mapperData.SourceType;
         }
 
         public Type Type { get; }

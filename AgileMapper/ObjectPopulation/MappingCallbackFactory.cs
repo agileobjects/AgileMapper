@@ -24,7 +24,7 @@
         public virtual bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
             => (CallbackPosition == callbackPosition) && base.AppliesTo(mapperData);
 
-        public Expression Create(MemberMapperData mapperData)
+        public Expression Create(IMemberMapperData mapperData)
         {
             var callback = _callbackLambda.GetBody(mapperData);
             var condition = GetConditionOrNull(mapperData);

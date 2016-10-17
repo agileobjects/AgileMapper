@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
 #if NET_STANDARD
     using System.Reflection;
@@ -60,14 +59,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetMappingCallback(
             CallbackPosition callbackPosition,
             IBasicMapperData basicData,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, basicData, mapperData), mapperData);
         }
 
         protected static Expression GetCallbackOrEmpty(
             Func<UserConfigurationSet, Expression> callbackFactory,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
             => callbackFactory.Invoke(mapperData.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(
@@ -78,7 +77,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract Expression GetReturnValue(ObjectMapperData mapperData);
 
-        private static Expression WrapInTryCatch(Expression mappingBlock, MemberMapperData mapperData)
+        private static Expression WrapInTryCatch(Expression mappingBlock, IMemberMapperData mapperData)
         {
             var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
             var exceptionVariable = Parameters.Create<Exception>("ex");

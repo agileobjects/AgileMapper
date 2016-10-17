@@ -107,6 +107,6 @@
         public bool IsSameAs(ConfiguredLambdaInfo otherLambdaInfo)
             => _lambda.ToString() == otherLambdaInfo._lambda.ToString();
 
-        public Expression GetBody(MemberMapperData mapperData) => _parametersSwapper.Swap(_lambda, mapperData);
+        public Expression GetBody(IMemberMapperData mapperData) => _parametersSwapper.Swap(_lambda, mapperData);
     }
 }

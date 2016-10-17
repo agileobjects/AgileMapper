@@ -9,8 +9,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ObjectMapperData : MemberMapperData
+    internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
+        private readonly ObjectMapperData _parent;
         private readonly MethodInfo _mapObjectMethod;
         private readonly MethodInfo _mapEnumerableElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
@@ -21,23 +22,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             ObjectMapperData parent)
             : base(
-                  mappingContext.MapperContext,
                   mappingContext.RuleSet,
                   sourceMember.Type,
                   targetMember.Type,
                   targetMember,
                   parent)
         {
+            MapperContext = mappingContext.MapperContext;
+            _parent = parent;
             var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
-            var parameter = Parameters.Create(mdType, "data");
 
-            Parameter = parameter;
+            Parameter = Parameters.Create(mdType, "data");
             SourceMember = sourceMember;
-            SourceObject = Expression.Property(parameter, "Source");
-            TargetObject = Expression.Property(parameter, "Target");
-            CreatedObject = Expression.Property(parameter, "CreatedObject");
-            EnumerableIndex = Expression.Property(parameter, "EnumerableIndex");
-            NestedAccessFinder = new NestedAccessFinder(parameter);
+            SourceObject = Expression.Property(Parameter, "Source");
+            TargetObject = Expression.Property(Parameter, "Target");
+            CreatedObject = Expression.Property(Parameter, "CreatedObject");
+            EnumerableIndex = Expression.Property(Parameter, "EnumerableIndex");
+            NestedAccessFinder = new NestedAccessFinder(Parameter);
 
             _mapObjectMethod = GetMapMethod(mdType, 4);
             _mapEnumerableElementMethod = GetMapMethod(mdType, 3);
@@ -75,6 +76,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
+        public MapperContext MapperContext { get; }
+
+        ObjectMapperData IMemberMapperData.Parent => _parent;
+
         public bool RequiresChildMapping => _dataSourcesByTargetMemberName.Count > 0;
 
         public bool RequiresElementMapping => TargetElementMember != null;
@@ -84,23 +89,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public QualifiedMember GetTargetMemberFor(string targetMemberName) => TargetMember.GetChildMember(targetMemberName);
 
-        public override ParameterExpression Parameter { get; }
+        public ParameterExpression Parameter { get; }
 
-        public override IQualifiedMember SourceMember { get; }
+        public IQualifiedMember SourceMember { get; }
 
         public IQualifiedMember SourceElementMember { get; }
 
         public QualifiedMember TargetElementMember { get; }
 
-        public override Expression SourceObject { get; }
+        public bool TargetTypeHasNotYetBeenMapped { get; set; }
 
-        public override Expression TargetObject { get; }
+        public Expression SourceObject { get; }
 
-        public override Expression EnumerableIndex { get; }
+        public Expression TargetObject { get; }
 
-        public override ParameterExpression InstanceVariable { get; }
+        public Expression EnumerableIndex { get; }
 
-        public override NestedAccessFinder NestedAccessFinder { get; }
+        public ParameterExpression InstanceVariable { get; }
+
+        public NestedAccessFinder NestedAccessFinder { get; }
 
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 

@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly Member[] _childMembers;
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
 
-        public ConfiguredSourceMember(Expression value, MemberMapperData mapperData)
+        public ConfiguredSourceMember(Expression value, IMemberMapperData mapperData)
             : this(
                   value.Type,
                   value.Type.IsEnumerable(),

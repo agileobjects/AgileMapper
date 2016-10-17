@@ -9,7 +9,7 @@
         public ComplexTypeMappingDataSource(
             IQualifiedMember bestMatchingSourceMember,
             int dataSourceIndex,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
             : base(
                   bestMatchingSourceMember ?? mapperData.SourceMember,
                   GetMapCall(bestMatchingSourceMember ?? mapperData.SourceMember, dataSourceIndex, mapperData))
@@ -19,7 +19,7 @@
         private static Expression GetMapCall(
             IQualifiedMember sourceMember,
             int dataSourceIndex,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             var relativeMember = sourceMember.RelativeTo(mapperData.SourceMember);
             var relativeMemberAccess = relativeMember.GetQualifiedAccess(mapperData.SourceObject);
@@ -35,7 +35,7 @@
         private static Expression GetInlineMapperCall(
             IQualifiedMember sourceMember,
             int dataSourceIndex,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             //var omcBridge = data.Parent.CreateChildMapperDataBridge(
             //    sourceMember.Type,

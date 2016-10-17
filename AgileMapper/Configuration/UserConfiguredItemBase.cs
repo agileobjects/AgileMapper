@@ -66,7 +66,7 @@
                    _configInfo.HasSameTargetTypeAs(otherConfiguredItem._configInfo);
         }
 
-        public virtual Expression GetConditionOrNull(MemberMapperData mapperData)
+        public virtual Expression GetConditionOrNull(IMemberMapperData mapperData)
             => _configInfo.GetConditionOrNull(mapperData);
 
         public virtual bool AppliesTo(IBasicMapperData mapperData)

@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MappingRuleSet RuleSet => _parent.RuleSet;
 
-        public MemberMapperData MapperData { get; internal set; }
+        public IMemberMapperData MapperData { get; internal set; }
 
         public Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {

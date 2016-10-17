@@ -34,7 +34,7 @@
 
         public void Add(ConfiguredObjectFactory objectFactory) => _objectFactories.Add(objectFactory);
 
-        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(MemberMapperData mapperData)
+        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
             => FindMatches(_objectFactories, mapperData).ToArray();
 
         #endregion
@@ -76,7 +76,7 @@
             _dataSourceFactories.Add(dataSourceFactory);
         }
 
-        public IEnumerable<IConfiguredDataSource> GetDataSources(MemberMapperData mapperData)
+        public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
             => FindMatches(_dataSourceFactories, mapperData).Select((dsf, i) => dsf.Create(i, mapperData)).ToArray();
 
         #endregion
@@ -88,7 +88,7 @@
         public Expression GetCallbackOrNull(
             CallbackPosition position,
             IBasicMapperData basicData,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             if (_mappingCallbackFactories.None())
             {
@@ -101,7 +101,7 @@
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);
 
-        public Expression GetCreationCallbackOrNull(CallbackPosition position, MemberMapperData mapperData)
+        public Expression GetCreationCallbackOrNull(CallbackPosition position, IMemberMapperData mapperData)
         {
             if (_creationCallbackFactories.None())
             {
@@ -117,7 +117,7 @@
 
         public void Add(ExceptionCallback callback) => _exceptionCallbackFactories.Add(callback);
 
-        public Expression GetExceptionCallbackOrNull(MemberMapperData mapperData)
+        public Expression GetExceptionCallbackOrNull(IBasicMapperData mapperData)
             => FindMatch(_exceptionCallbackFactories, mapperData)?.Callback;
 
         #endregion

@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper
             TargetMember = targetMember ?? QualifiedMember.All;
         }
 
-        public static BasicMapperData WithNoTargetMember(MemberMapperData parent)
+        public static BasicMapperData WithNoTargetMember(IMemberMapperData parent)
         {
             return new BasicMapperData(
                 parent.RuleSet,

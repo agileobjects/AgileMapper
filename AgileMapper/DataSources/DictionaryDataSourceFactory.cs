@@ -10,14 +10,14 @@
 
     internal class DictionaryDataSourceFactory : IConditionalDataSourceFactory
     {
-        public bool IsFor(MemberMapperData mapperData)
+        public bool IsFor(IMemberMapperData mapperData)
         {
             return mapperData.SourceType.IsGenericType() &&
                   (mapperData.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) &&
                   DictionaryHasUseableTypes(mapperData);
         }
 
-        private static bool DictionaryHasUseableTypes(MemberMapperData mapperData)
+        private static bool DictionaryHasUseableTypes(IMemberMapperData mapperData)
         {
             var keyAndValueTypes = mapperData.SourceType.GetGenericArguments();
 
@@ -40,6 +40,6 @@
                 .CanConvert(keyAndValueTypes[1], mapperData.TargetMember.Type);
         }
 
-        public IDataSource Create(MemberMapperData mapperData) => new DictionaryDataSource(mapperData);
+        public IDataSource Create(IMemberMapperData mapperData) => new DictionaryDataSource(mapperData);
     }
 }

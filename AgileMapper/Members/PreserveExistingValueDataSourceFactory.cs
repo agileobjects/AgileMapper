@@ -8,11 +8,11 @@ namespace AgileObjects.AgileMapper.Members
     {
         public static readonly IDataSourceFactory Instance = new PreserveExistingValueDataSourceFactory();
 
-        public IDataSource Create(MemberMapperData mapperData) => new PreserveExistingValueDataSource(mapperData);
+        public IDataSource Create(IMemberMapperData mapperData) => new PreserveExistingValueDataSource(mapperData);
 
         private class PreserveExistingValueDataSource : DataSourceBase
         {
-            public PreserveExistingValueDataSource(MemberMapperData mapperData)
+            public PreserveExistingValueDataSource(IMemberMapperData mapperData)
                 : base(
                       mapperData.SourceMember,
                       mapperData.TargetMember.IsReadable

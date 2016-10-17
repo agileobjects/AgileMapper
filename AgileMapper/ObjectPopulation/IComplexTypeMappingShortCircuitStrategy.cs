@@ -8,6 +8,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         bool SourceCanBeNull { get; }
 
-        IEnumerable<Expression> GetConditions(MemberMapperData mapperData);
+        IEnumerable<Expression> GetConditions(IMemberMapperData mapperData);
     }
 }

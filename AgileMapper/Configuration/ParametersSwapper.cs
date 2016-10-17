@@ -71,9 +71,9 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #region Swap Implementations
 
-        private static Expression SwapNothing(LambdaExpression lambda, MemberMapperData mapperData) => lambda.Body;
+        private static Expression SwapNothing(LambdaExpression lambda, IMemberMapperData mapperData) => lambda.Body;
 
-        private static Expression SwapForContextParameter(LambdaExpression lambda, MemberMapperData mapperData)
+        private static Expression SwapForContextParameter(LambdaExpression lambda, IMemberMapperData mapperData)
         {
             var contextParameter = lambda.Parameters[0];
             var contextType = contextParameter.Type;
@@ -128,21 +128,21 @@ namespace AgileObjects.AgileMapper.Configuration
             return lambda.ReplaceParameterWith(objectCreationContextCreateCall);
         }
 
-        private static Expression SwapForSourceAndTarget(LambdaExpression lambda, MemberMapperData mapperData) =>
+        private static Expression SwapForSourceAndTarget(LambdaExpression lambda, IMemberMapperData mapperData) =>
             ReplaceParameters(lambda, mapperData, c => c.SourceAccess, c => c.TargetAccess);
 
-        private static Expression SwapForSourceTargetAndIndex(LambdaExpression lambda, MemberMapperData mapperData) =>
+        private static Expression SwapForSourceTargetAndIndex(LambdaExpression lambda, IMemberMapperData mapperData) =>
             ReplaceParameters(lambda, mapperData, c => c.SourceAccess, c => c.TargetAccess, c => c.Index);
 
-        private static Expression SwapForSourceTargetAndInstance(LambdaExpression lambda, MemberMapperData mapperData) =>
+        private static Expression SwapForSourceTargetAndInstance(LambdaExpression lambda, IMemberMapperData mapperData) =>
             ReplaceParameters(lambda, mapperData, c => c.SourceAccess, c => c.TargetAccess, c => c.InstanceVariable);
 
-        private static Expression SwapForSourceTargetInstanceAndIndex(LambdaExpression lambda, MemberMapperData mapperData) =>
+        private static Expression SwapForSourceTargetInstanceAndIndex(LambdaExpression lambda, IMemberMapperData mapperData) =>
             ReplaceParameters(lambda, mapperData, c => c.SourceAccess, c => c.TargetAccess, c => c.InstanceVariable, c => c.Index);
 
         private static Expression ReplaceParameters(
             LambdaExpression lambda,
-            MemberMapperData mapperData,
+            IMemberMapperData mapperData,
             params Func<MappingContextInfo, Expression>[] parameterFactories)
         {
             var contextInfo = GetAppropriateMappingContext(
@@ -152,7 +152,7 @@ namespace AgileObjects.AgileMapper.Configuration
             return lambda.ReplaceParametersWith(parameterFactories.Select(f => f.Invoke(contextInfo)).ToArray());
         }
 
-        private static MappingContextInfo GetAppropriateMappingContext(Type[] contextTypes, MemberMapperData mapperData)
+        private static MappingContextInfo GetAppropriateMappingContext(Type[] contextTypes, IMemberMapperData mapperData)
         {
             if (mapperData.TypesMatch(contextTypes))
             {
@@ -171,12 +171,12 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private readonly int _numberOfParameters;
         private readonly Func<Type[], Type[], bool> _applicabilityPredicate;
-        private readonly Func<LambdaExpression, MemberMapperData, Expression> _parametersSwapper;
+        private readonly Func<LambdaExpression, IMemberMapperData, Expression> _parametersSwapper;
 
         private ParametersSwapper(
             int numberOfParameters,
             Func<Type[], Type[], bool> applicabilityPredicate,
-            Func<LambdaExpression, MemberMapperData, Expression> parametersSwapper)
+            Func<LambdaExpression, IMemberMapperData, Expression> parametersSwapper)
         {
             _numberOfParameters = numberOfParameters;
             _applicabilityPredicate = applicabilityPredicate;
@@ -189,20 +189,20 @@ namespace AgileObjects.AgileMapper.Configuration
         public bool AppliesTo(Type[] contextTypes, Type[] funcArguments)
             => (funcArguments.Length == _numberOfParameters) && _applicabilityPredicate.Invoke(contextTypes, funcArguments);
 
-        public Expression Swap(LambdaExpression lambda, MemberMapperData mapperData)
+        public Expression Swap(LambdaExpression lambda, IMemberMapperData mapperData)
             => _parametersSwapper.Invoke(lambda, mapperData);
 
         #region Helper Classes
 
         private class MappingContextInfo
         {
-            public MappingContextInfo(MemberMapperData mapperData, Type[] contextTypes)
+            public MappingContextInfo(IMemberMapperData mapperData, Type[] contextTypes)
                 : this(mapperData, mapperData.Parameter, contextTypes)
             {
             }
 
             public MappingContextInfo(
-                MemberMapperData mapperData,
+                IMemberMapperData mapperData,
                 Expression contextAccess,
                 Type[] contextTypes)
             {

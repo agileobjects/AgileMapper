@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return this;
         }
 
-        public Expression GetConditionOrNull(MemberMapperData mapperData)
+        public Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
             if (_nullSource && _nullExisting)
             {

@@ -129,7 +129,7 @@
 
             var stubMappingContext = new MappingExecutor<TSource>(_mappingRuleSet, MapperContext);
 
-            MemberMapperData mapperData;
+            IMemberMapperData mapperData;
 
             lock (_configurationSync)
             {
@@ -148,7 +148,7 @@
             return condition;
         }
 
-        public Expression GetConditionOrNull(MemberMapperData mapperData)
+        public Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
             if (!HasCondition)
             {

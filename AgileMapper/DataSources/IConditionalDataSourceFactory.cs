@@ -4,6 +4,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
     internal interface IConditionalDataSourceFactory : IDataSourceFactory
     {
-        bool IsFor(MemberMapperData mapperData);
+        bool IsFor(IMemberMapperData mapperData);
     }
 }

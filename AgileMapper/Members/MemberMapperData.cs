@@ -4,7 +4,7 @@
     using System.Linq.Expressions;
     using ObjectPopulation;
 
-    internal class MemberMapperData : BasicMapperData
+    internal class MemberMapperData : BasicMapperData, IMemberMapperData
     {
         public MemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
             : this(
@@ -34,18 +34,18 @@
 
         public ObjectMapperData Parent { get; }
 
-        public virtual ParameterExpression Parameter => Parent.Parameter;
+        public ParameterExpression Parameter => Parent.Parameter;
 
-        public virtual IQualifiedMember SourceMember => Parent.SourceMember;
+        public IQualifiedMember SourceMember => Parent.SourceMember;
 
-        public virtual Expression SourceObject => Parent.SourceObject;
+        public Expression SourceObject => Parent.SourceObject;
 
-        public virtual Expression TargetObject => Parent.TargetObject;
+        public Expression TargetObject => Parent.TargetObject;
 
-        public virtual Expression EnumerableIndex => Parent.EnumerableIndex;
+        public Expression EnumerableIndex => Parent.EnumerableIndex;
 
-        public virtual ParameterExpression InstanceVariable => Parent.InstanceVariable;
+        public ParameterExpression InstanceVariable => Parent.InstanceVariable;
 
-        public virtual NestedAccessFinder NestedAccessFinder => Parent.NestedAccessFinder;
+        public NestedAccessFinder NestedAccessFinder => Parent.NestedAccessFinder;
     }
 }

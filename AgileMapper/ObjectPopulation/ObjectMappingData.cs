@@ -96,7 +96,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private MemberMappingData<TSource, TTarget> _childMappingData;
 
-        IMemberMappingData IObjectMappingData.GetChildMappingData(MemberMapperData childMapperData)
+        IMemberMappingData IObjectMappingData.GetChildMappingData(IMemberMapperData childMapperData)
         {
             if (_childMappingData == null)
             {

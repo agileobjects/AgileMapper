@@ -33,10 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgileObjects.AgileMapper, Version=0.4.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.AgileMapper.0.4.1\lib\net40\AgileObjects.AgileMapper.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="AgileObjects.ReadableExpressions, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\AgileObjects.ReadableExpressions.1.7.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
       <Private>True</Private>
@@ -125,7 +121,12 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.Net40\AgileMapper.Net40.csproj">
+      <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
+      <Name>AgileMapper.Net40</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

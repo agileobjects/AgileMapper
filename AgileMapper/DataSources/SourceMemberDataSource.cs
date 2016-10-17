@@ -8,12 +8,12 @@
 
     internal class SourceMemberDataSource : DataSourceBase
     {
-        public SourceMemberDataSource(IQualifiedMember sourceMember, MemberMapperData mapperData)
+        public SourceMemberDataSource(IQualifiedMember sourceMember, IMemberMapperData mapperData)
             : this(sourceMember, sourceMember.GetQualifiedAccess(mapperData.SourceObject), mapperData)
         {
         }
 
-        private SourceMemberDataSource(IQualifiedMember sourceMember, Expression value, MemberMapperData mapperData)
+        private SourceMemberDataSource(IQualifiedMember sourceMember, Expression value, IMemberMapperData mapperData)
             : base(
                   sourceMember,
                   mapperData.MapperContext.ValueConverters.GetConversion(value, mapperData.TargetMember.Type),
@@ -22,7 +22,7 @@
             SourceMemberTypeTest = CreateSourceMemberTypeTest(value, mapperData);
         }
 
-        private static Expression CreateSourceMemberTypeTest(Expression value, MemberMapperData mapperData)
+        private static Expression CreateSourceMemberTypeTest(Expression value, IMemberMapperData mapperData)
         {
             var parent = value.GetParentOrNull();
             var typeTests = new List<Expression>();
@@ -47,7 +47,7 @@
 
         private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
 
-        private static Expression GetRuntimeTypeCheck(UnaryExpression cast, MemberMapperData mapperData)
+        private static Expression GetRuntimeTypeCheck(UnaryExpression cast, IMemberMapperData mapperData)
         {
             var getSourceCall = Expression.Call(
                 Parameters.MappingData,

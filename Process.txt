@@ -1,32 +1,10 @@
 Root:
- - Create MappingContext - MappingContext.MapStart
-   - MapperCreationDataFactory.CreateRoot
-     - Create MappingInstanceData
-     - Get root SourceMember
-     - Get root TargetMember
-     - Create ObjectMapperDataBridge - ObjectMapperDataBridge.Create
-       - Runtime type SourceMember
-       - Runtime type TargetMember
-         - Create BasicMapperData - RuleSet, Source type, Target type
-         - Check for DerivedTypePair
-     - Create ObjectMapperKey - RuleSet, SourceMember, TargetMember, MappingInstanceData
-     - Create ObjectMapperData
- - MappingContext.Map
-   - ObjectMapperFactory.CreateFor
+ - Create MappingExecutor - MappingExecutor.PerformMapping
+   - ObjectMappingContextDataFactory.ForRoot
+
 
 Children:
- - ObjectMappingData.MapChild
-   - Create MappingInstanceData
-   - ObjectMapperData.CreateChildMapperCreationData / ObjectMapperData.CreateElementMapperCreationData
-     - Create ObjectMapperDataBridge - ObjectMapperDataBridge.Create
-       - Runtime type SourceMember
-       - Runtime type TargetMember
-         - Create BasicMapperData - RuleSet, Source type, Target type
-         - Check for DerivedTypePair
-     - MapperCreationDataFactory.Create
-       - Create ObjectMapperKey - RuleSet, SourceMember, TargetMember, MappingInstanceData
-       - Create ObjectMapperData
-  - MappingContext.Map
+
    
 
 MappingData<TSource, TTarget>
@@ -45,3 +23,13 @@ MappingData<TSource, TTarget>
  - Parent: IMappingData
 
  - Map() // Complex types + Enumerables
+
+MappingTypes
+{
+    SourceType
+    TargetType
+    RuntimeTypesAreTheSame
+}
+
+ - Create MappingTypes
+ - CreateRoot using MappingTypes

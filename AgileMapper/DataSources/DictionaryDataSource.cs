@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         #endregion
 
-        public DictionaryDataSource(MemberMapperData mapperData)
+        public DictionaryDataSource(IMemberMapperData mapperData)
             : this(
                 mapperData,
                 Expression.Variable(
@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.DataSources
         {
         }
 
-        private DictionaryDataSource(MemberMapperData mapperData, ParameterExpression variable)
+        private DictionaryDataSource(IMemberMapperData mapperData, ParameterExpression variable)
             : base(
                   new DictionarySourceMember(mapperData),
                   new[] { variable },
@@ -40,7 +40,7 @@ namespace AgileObjects.AgileMapper.DataSources
         {
         }
 
-        private static Expression GetValueParsing(Expression variable, MemberMapperData mapperData)
+        private static Expression GetValueParsing(Expression variable, IMemberMapperData mapperData)
         {
             var potentialNames = GetPotentialNames(mapperData);
 
@@ -57,7 +57,7 @@ namespace AgileObjects.AgileMapper.DataSources
             return dictionaryValueOrFallback;
         }
 
-        private static string[] GetPotentialNames(MemberMapperData mapperData)
+        private static string[] GetPotentialNames(IMemberMapperData mapperData)
         {
             var alternateNames = mapperData
                 .TargetMember
@@ -76,7 +76,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetTryGetValueCall(
             Expression variable,
             IEnumerable<Expression> potentialNames,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             var linqIntersect = Expression.Call(
                 _linqIntersectMethod,
@@ -97,7 +97,7 @@ namespace AgileObjects.AgileMapper.DataSources
             return tryGetValueCall;
         }
 
-        private static Expression GetValue(Expression variable, MemberMapperData mapperData)
+        private static Expression GetValue(Expression variable, IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsSimple)
             {
@@ -113,7 +113,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetFallbackValue(
             Expression variable,
             IEnumerable<string> potentialNames,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsSimple)
             {
@@ -130,7 +130,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetEnumerablePopulation(
             Expression variable,
             IEnumerable<string> potentialNames,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             var sourceElementType = mapperData.SourceType.GetGenericArguments()[1];
             var sourceList = Expression.Variable(typeof(List<>).MakeGenericType(sourceElementType), "sourceList");
@@ -167,7 +167,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private static IEnumerable<MethodCallExpression> GetPotentialItemNames(
             IEnumerable<string> potentialNames,
             Expression counter,
-            MemberMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             return potentialNames
                 .Select(name =>

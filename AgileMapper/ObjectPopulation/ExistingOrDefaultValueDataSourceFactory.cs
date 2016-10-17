@@ -8,19 +8,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly IDataSourceFactory Instance = new ExistingOrDefaultValueDataSourceFactory();
 
-        public IDataSource Create(MemberMapperData mapperData)
+        public IDataSource Create(IMemberMapperData mapperData)
             => mapperData.TargetMember.IsReadable
                 ? new ExistingMemberValueOrEmptyDataSource(mapperData)
                 : DefaultValueDataSourceFactory.Instance.Create(mapperData);
 
         private class ExistingMemberValueOrEmptyDataSource : DataSourceBase
         {
-            public ExistingMemberValueOrEmptyDataSource(MemberMapperData mapperData)
+            public ExistingMemberValueOrEmptyDataSource(IMemberMapperData mapperData)
                 : base(mapperData.SourceMember, GetValue(mapperData), mapperData)
             {
             }
 
-            private static Expression GetValue(MemberMapperData mapperData)
+            private static Expression GetValue(IMemberMapperData mapperData)
             {
                 var existingValue = mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
 

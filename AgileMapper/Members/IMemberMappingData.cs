@@ -6,7 +6,7 @@
     {
         MappingRuleSet RuleSet { get; }
 
-        MemberMapperData MapperData { get; }
+        IMemberMapperData MapperData { get; }
 
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);
     }

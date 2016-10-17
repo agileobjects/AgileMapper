@@ -55,7 +55,7 @@
             }
         }
 
-        private static bool IsMatchingMember(IQualifiedMember sourceMember, MemberMapperData mapperData)
+        private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMapperData mapperData)
         {
             return sourceMember.Matches(mapperData.TargetMember) &&
                    mapperData.MapperContext.ValueConverters.CanConvert(sourceMember.Type, mapperData.TargetMember.Type);

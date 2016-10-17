@@ -101,7 +101,7 @@
         private ParameterExpression GetParameter(Type type)
             => _parametersCache.GetOrAdd(TypeKey.ForParameter(type), key => Parameters.Create(key.Type));
 
-        private Expression GetIdentifierOrNull(Type type, Expression parameter, MemberMapperData mapperData)
+        private Expression GetIdentifierOrNull(Type type, Expression parameter, IMemberMapperData mapperData)
         {
             return _typeIdsCache.GetOrAdd(TypeKey.ForTypeId(type), key =>
             {
