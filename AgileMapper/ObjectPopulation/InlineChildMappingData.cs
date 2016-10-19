@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using Members;
 
     internal class InlineChildMappingData<TSource, TTarget> :
@@ -9,23 +8,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly string _targetMemberRegistrationName;
         private readonly int _dataSourceIndex;
-        private readonly IObjectMappingData _objectMappingDataParent;
-        private readonly IInlineMappingData _inlineMappingDataParent;
-        private readonly Func<ObjectMapperData> _mapperDataLoader;
+        private readonly IInlineMappingData _parent;
         private ObjectMapperData _mapperData;
-
-        public InlineChildMappingData(
-            TSource source,
-            TTarget target,
-            int? enumerableIndex,
-            string targetMemberRegistrationName,
-            int dataSourceIndex,
-            IObjectMappingData parent)
-            : this(source, target, enumerableIndex, targetMemberRegistrationName, dataSourceIndex, (IInlineMappingData)parent)
-        {
-            _objectMappingDataParent = parent;
-            _mapperDataLoader = LoadMapperDataFromObjectMapperDataParent;
-        }
 
         public InlineChildMappingData(
             TSource source,
@@ -38,23 +22,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             _targetMemberRegistrationName = targetMemberRegistrationName;
             _dataSourceIndex = dataSourceIndex;
-            _inlineMappingDataParent = parent;
-            _mapperDataLoader = LoadMapperDataFromInlineMapperDataParent;
+            _parent = parent;
         }
 
-        public IMemberMapperData MapperData => _mapperData ?? (_mapperData = _mapperDataLoader.Invoke());
+        public IMemberMapperData MapperData => _mapperData ?? (_mapperData = LoadMapperData());
 
-        private ObjectMapperData LoadMapperDataFromObjectMapperDataParent()
+        private ObjectMapperData LoadMapperData()
         {
-            var childMapperData = _objectMappingDataParent.MapperData
-                .GetChildMapperDataFor(_targetMemberRegistrationName, _dataSourceIndex);
+            var objectMappingDataParent = _parent as IObjectMappingData;
 
-            return childMapperData;
-        }
+            var parentMapperData = (ObjectMapperData)((objectMappingDataParent != null)
+                ? objectMappingDataParent.MapperData
+                : _parent.MapperData);
 
-        private ObjectMapperData LoadMapperDataFromInlineMapperDataParent()
-        {
-            var parentMapperData = (ObjectMapperData)_inlineMappingDataParent.MapperData;
             var childMapperData = parentMapperData.GetChildMapperDataFor(_targetMemberRegistrationName, _dataSourceIndex);
 
             return childMapperData;
@@ -63,9 +43,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public TTarget CreatedObject { get; set; }
 
         public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
-            => _inlineMappingDataParent.TryGet(key, out complexType);
+            => _parent.TryGet(key, out complexType);
 
         public void Register<TKey, TComplex>(TKey key, TComplex complexType)
-            => _inlineMappingDataParent.Register(key, complexType);
+            => _parent.Register(key, complexType);
     }
 }

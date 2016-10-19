@@ -11,11 +11,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
-        private readonly ObjectMapperData _parent;
         private readonly List<ObjectMapperData> _childMapperDatas;
         private readonly MethodInfo _mapObjectMethod;
         private readonly MethodInfo _mapEnumerableElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
+        private readonly List<string> _inlineMappingTargetMemberNames;
 
         public ObjectMapperData(
             IObjectMappingData mappingData,
@@ -31,8 +31,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             MapperContext = mappingData.MappingContext.MapperContext;
             MappingData = mappingData;
-            _parent = parent;
-            _parent?._childMapperDatas.Add(this);
+            Parent = parent;
+            Parent?._childMapperDatas.Add(this);
             _childMapperDatas = new List<ObjectMapperData>();
 
             var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
@@ -49,6 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapEnumerableElementMethod = GetMapMethod(mdType, 3);
 
             _dataSourcesByTargetMemberName = new Dictionary<string, DataSourceSet>();
+            _inlineMappingTargetMemberNames = new List<string>();
 
             if (targetMember.IsEnumerable)
             {
@@ -77,12 +78,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private bool IsTargetTypeFirstMapping()
         {
-            if (_parent == null)
+            if (Parent == null)
             {
                 return true;
             }
 
-            var parent = _parent;
+            var parent = Parent;
 
             while (parent != null)
             {
@@ -91,7 +92,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return false;
                 }
 
-                parent = parent._parent;
+                parent = parent.Parent;
             }
 
             return true;
@@ -142,11 +143,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MapperContext MapperContext { get; }
 
-        ObjectMapperData IMemberMapperData.Parent => _parent;
+        public ObjectMapperData Parent { get; }
 
         public IObjectMappingData MappingData { get; set; }
 
-        public bool RequiresChildMapping => _dataSourcesByTargetMemberName.Count > 0;
+        public bool RequiresChildMapping
+            => _dataSourcesByTargetMemberName.Any(kvp => _inlineMappingTargetMemberNames.DoesNotContain(kvp.Key));
 
         public bool RequiresElementMapping => TargetElementMember != null;
 
@@ -172,9 +174,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 }
             }
 
-            if ((_parent != null) && (requestingMapperData != _parent))
+            if ((Parent != null) && (requestingMapperData != Parent))
             {
-                return _parent.HasTypeBeenMapped(targetType, this);
+                return Parent.HasTypeBeenMapped(targetType, this);
             }
 
             return false;
@@ -262,5 +264,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             _dataSourcesByTargetMemberName.Add(targetMember.RegistrationName, dataSources);
         }
+
+        public void MappingInlinedFor(QualifiedMember targetMember)
+            => _inlineMappingTargetMemberNames.Add(targetMember.RegistrationName);
     }
 }

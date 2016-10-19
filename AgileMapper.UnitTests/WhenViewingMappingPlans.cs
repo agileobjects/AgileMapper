@@ -158,5 +158,17 @@
                 plan.ShouldNotContain("data.Source.Value.ToString()");
             }
         }
+
+        [Fact]
+        public void ShouldUseNestedInlineMappers()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicField<PublicField<PublicField<int>>>>()
+                .ToANew<PublicField<PublicSealed<PublicSealed<long>>>>();
+
+            var numberOfHeaders = Regex.Matches(plan, "// Map ").Count;
+
+            numberOfHeaders.ShouldBe(1);
+        }
     }
 }

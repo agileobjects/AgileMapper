@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System.Linq.Expressions;
     using Members;
 
     internal class EnumerableMappingDataSource : DataSourceBase
@@ -11,9 +12,14 @@
             : base(
                   sourceEnumerableDataSource.SourceMember,
                   sourceEnumerableDataSource.Variables,
-                  mapperData.GetMapCall(sourceEnumerableDataSource.Value, dataSourceIndex),
+                  GetMapCall(sourceEnumerableDataSource.Value, dataSourceIndex, mapperData),
                   sourceEnumerableDataSource.Condition)
         {
+        }
+
+        private static Expression GetMapCall(Expression sourceEnumerable, int dataSourceIndex, IMemberMapperData mapperData)
+        {
+            return mapperData.GetMapCall(sourceEnumerable, dataSourceIndex);
         }
     }
 }

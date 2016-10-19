@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
-    using Configuration;
     using Extensions;
     using Members;
     using ObjectPopulation;
@@ -60,7 +59,7 @@
             var inlineMappingDataVariable = Expression.Variable(inlineMappingDataType, inlineMappingDataVariableName);
 
             var createInlineMappingDataMethod = MappingDataFactory
-                .ForChildObjectMappingDataMethod
+                .ForChildMethod
                 .MakeGenericMethod(inlineMappingTypes);
 
             var targetMemberAccess = mapperData.TargetMember.GetAccess(mapperData.Parent.InstanceVariable);
@@ -91,6 +90,8 @@
                 mappingTryCatch.Fault);
 
             var inlineMappingBlock = Expression.Block(new[] { inlineMappingDataVariable }, mappingTryCatch);
+
+            childMapper.MapperData.Parent.MappingInlinedFor(mapperData.TargetMember);
 
             return inlineMappingBlock;
         }

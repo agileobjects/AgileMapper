@@ -7,26 +7,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class MappingDataFactory
     {
-        public static readonly MethodInfo ForChildObjectMappingDataMethod = typeof(MappingDataFactory)
-            .GetPublicStaticMethods()
-            .First(m => m.Name == "ForChild" && m.GetParameters().Last().ParameterType == typeof(IObjectMappingData));
-
-        public static InlineChildMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
-            TSource source,
-            TTarget target,
-            int? enumerableIndex,
-            string targetMemberRegistrationName,
-            int dataSourceIndex,
-            IObjectMappingData parent)
-        {
-            return new InlineChildMappingData<TSource, TTarget>(
-                source,
-                target,
-                enumerableIndex,
-                targetMemberRegistrationName,
-                dataSourceIndex,
-                parent);
-        }
+        public static readonly MethodInfo ForChildMethod = typeof(MappingDataFactory)
+            .GetPublicStaticMethod("ForChild");
 
         public static InlineChildMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
             TSource source,
