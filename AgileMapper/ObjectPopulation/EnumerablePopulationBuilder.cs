@@ -68,8 +68,8 @@
                     _targetElementIdLambda =
                         GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
 
-                _sourceVariableName = "source" + _omd.TargetType.GetVariableName();
-                targetVariableName = "target" + _omd.TargetType.GetVariableName();
+                _sourceVariableName = "source" + _omd.TargetType.GetVariableNameInPascalCase();
+                targetVariableName = "target" + _omd.TargetType.GetVariableNameInPascalCase();
             }
             else
             {
@@ -78,8 +78,8 @@
                 _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
                 _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
 
-                _sourceVariableName = _omd.SourceType.GetVariableName(f => f.InCamelCase);
-                targetVariableName = _omd.TargetType.GetVariableName(f => f.InCamelCase);
+                _sourceVariableName = _omd.SourceType.GetVariableNameInCamelCase();
+                targetVariableName = _omd.TargetType.GetVariableNameInCamelCase();
             }
 
             _discardExistingValues = omd.RuleSet.EnumerablePopulationStrategy.DiscardExistingValues;

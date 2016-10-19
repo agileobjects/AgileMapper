@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
             _valueVariable = Expression.Variable(
                 nonNullableTargetType,
-                nonNullableTargetType.GetVariableName(f => f.InCamelCase) + "Value");
+                nonNullableTargetType.GetVariableNameInCamelCase() + "Value");
         }
 
         public bool IsFor(Type nonNullableTargetType)

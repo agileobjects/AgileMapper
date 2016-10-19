@@ -90,7 +90,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression ReplaceTypedParameterWithUntyped(this IMemberMapperData mapperData, Expression expression)
         {
-            var replacementsByTarget = new Dictionary<Expression, Expression>(EquivalentMemberAccessComparer.Instance)
+            var replacementsByTarget = new ExpressionReplacementDictionary
             {
                 [mapperData.SourceObject] = GetSourceAccess(Parameters.MappingData, mapperData.SourceType),
                 [mapperData.TargetObject] = GetTargetAccess(Parameters.MappingData, mapperData.TargetType)

@@ -54,6 +54,8 @@
                     case ExpressionType.Add:
                     case ExpressionType.And:
                     case ExpressionType.AndAlso:
+                    case ExpressionType.Assign:
+                    case ExpressionType.Coalesce:
                     case ExpressionType.Divide:
                     case ExpressionType.Equal:
                     case ExpressionType.GreaterThan:
@@ -68,6 +70,9 @@
                     case ExpressionType.Subtract:
                         return ReplaceIn((BinaryExpression)expression);
 
+                    case ExpressionType.Block:
+                        return ReplaceIn((BlockExpression)expression);
+
                     case ExpressionType.Call:
                         return ReplaceIn((MethodCallExpression)expression);
 
@@ -76,11 +81,18 @@
 
                     case ExpressionType.Convert:
                     case ExpressionType.Not:
+                    case ExpressionType.Throw:
                     case ExpressionType.TypeAs:
                         return ReplaceIn((UnaryExpression)expression);
 
+                    case ExpressionType.Goto:
+                        return ReplaceIn((GotoExpression)expression);
+
                     case ExpressionType.Invoke:
                         return ReplaceIn((InvocationExpression)expression);
+
+                    case ExpressionType.Label:
+                        return ReplaceIn((LabelExpression)expression);
 
                     case ExpressionType.Lambda:
                         return ReplaceIn((LambdaExpression)expression);
@@ -100,6 +112,13 @@
                     case ExpressionType.NewArrayInit:
                         return ReplaceIn((NewArrayExpression)expression);
 
+                    case ExpressionType.Parameter:
+                        return ReplaceIn((ParameterExpression)expression);
+
+                    
+                    case ExpressionType.Try:
+                        return ReplaceIn((TryExpression)expression);
+
                     case ExpressionType.TypeIs:
                         return ReplaceIn((TypeBinaryExpression)expression);
                 }
@@ -108,37 +127,41 @@
             }
 
             private Expression ReplaceIn(BinaryExpression binary)
-                => ReplaceIn(binary, () => binary.Update(Replace(binary.Left), binary.Conversion, Replace(binary.Right)));
+                => ReplaceIn(binary, b => b.Update(Replace(b.Left), b.Conversion, Replace(b.Right)));
 
             private Expression ReplaceIn(ConditionalExpression conditional)
             {
                 return ReplaceIn(
                     conditional,
-                    () => conditional.Update(
-                        Replace(conditional.Test),
-                        Replace(conditional.IfTrue),
-                        Replace(conditional.IfFalse)));
+                    cnd => cnd.Update(Replace(cnd.Test), Replace(cnd.IfTrue), Replace(cnd.IfFalse)));
             }
+
+            private Expression ReplaceIn(LabelExpression label) => ReplaceIn(label, l => l.Update(l.Target, Replace(l.DefaultValue)));
 
             private Expression ReplaceIn(LambdaExpression lambda)
             {
                 // TODO: Replace in Lambda tests
                 return ReplaceIn(
                     lambda,
-                    () => Expression.Lambda(
-                        lambda.Type,
-                        Replace(lambda.Body),
-                        lambda.Parameters.Select(Replace).Cast<ParameterExpression>()));
+                    l => Expression.Lambda(l.Type, Replace(l.Body), l.Parameters.Select(ReplaceIn)));
+            }
+
+            private Expression ReplaceIn(BlockExpression block)
+            {
+                return ReplaceIn(
+                    block,
+                    b => b.Update(b.Variables.Select(ReplaceIn), b.Expressions.Select(Replace)));
             }
 
             private Expression ReplaceIn(MethodCallExpression call)
-                => ReplaceIn(call, () => ReplaceInCall(call.Object, call.Arguments, call.Update));
+                => ReplaceIn(call, cl => ReplaceInCall(cl.Object, cl.Arguments, cl.Update));
 
-            private Expression ReplaceIn(UnaryExpression unary)
-                => ReplaceIn(unary, () => unary.Update(Replace(unary.Operand)));
+            private Expression ReplaceIn(UnaryExpression unary) => ReplaceIn(unary, un => un.Update(Replace(un.Operand)));
+
+            private Expression ReplaceIn(GotoExpression goTo) => ReplaceIn(goTo, gt => gt.Update(gt.Target, Replace(gt.Value)));
 
             private Expression ReplaceIn(InvocationExpression invocation)
-                => ReplaceIn(invocation, () => ReplaceInCall(invocation.Expression, invocation.Arguments, invocation.Update));
+                => ReplaceIn(invocation, inv => ReplaceInCall(inv.Expression, inv.Arguments, inv.Update));
 
             private Expression ReplaceInCall(
                 Expression subject,
@@ -148,26 +171,13 @@
                 return replacer.Invoke(Replace(subject), arguments.Select(Replace).ToArray());
             }
 
-            private Expression ReplaceIn(MemberExpression memberAccess)
-                => ReplaceIn(memberAccess, () => memberAccess.Update(Replace(memberAccess.Expression)));
+            private Expression ReplaceIn(MemberExpression memberAccess) => ReplaceIn(memberAccess, ma => ma.Update(Replace(ma.Expression)));
 
             private Expression ReplaceIn(MemberInitExpression memberInit)
-            {
-                return ReplaceIn(
-                    memberInit,
-                    () => memberInit.Update(
-                        ReplaceIn(memberInit.NewExpression),
-                        memberInit.Bindings.Select(ReplaceIn)));
-            }
+                => ReplaceIn(memberInit, mi => mi.Update(ReplaceIn(mi.NewExpression), mi.Bindings.Select(ReplaceIn)));
 
             private Expression ReplaceIn(ListInitExpression listInit)
-            {
-                return ReplaceIn(
-                    listInit,
-                    () => listInit.Update(
-                        ReplaceIn(listInit.NewExpression),
-                        ReplaceIn(listInit.Initializers)));
-            }
+                => ReplaceIn(listInit, li => li.Update(ReplaceIn(li.NewExpression), ReplaceIn(li.Initializers)));
 
             private MemberBinding ReplaceIn(MemberBinding binding)
             {
@@ -192,24 +202,47 @@
             private IEnumerable<ElementInit> ReplaceIn(IEnumerable<ElementInit> initializers)
                 => initializers.Select(init => init.Update(init.Arguments.Select(Replace)));
 
-            private NewExpression ReplaceIn(NewExpression newing) => (NewExpression)ReplaceIn(newing, () => newing.Update(newing.Arguments.Select(Replace)));
+            private NewExpression ReplaceIn(NewExpression newing) => (NewExpression)ReplaceIn(newing, nw => nw.Update(nw.Arguments.Select(Replace)));
 
-            private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, () => newArray.Update(newArray.Expressions.Select(Replace)));
+            private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, na => na.Update(na.Expressions.Select(Replace)));
 
-            private Expression ReplaceIn(TypeBinaryExpression typeBinary) => ReplaceIn(typeBinary, () => typeBinary.Update(Replace(typeBinary.Expression)));
+            private ParameterExpression ReplaceIn(ParameterExpression parameter) => (ParameterExpression)ReplaceIn(parameter, p => p);
 
-            private Expression Replace(Expression expression) => ReplaceIn(expression, () => ReplaceIn(expression));
+            private Expression ReplaceIn(TypeBinaryExpression typeBinary) => ReplaceIn(typeBinary, tb => tb.Update(Replace(tb.Expression)));
 
-            private Expression ReplaceIn(Expression expression, Func<Expression> replacer)
+            private Expression ReplaceIn(TryExpression @try)
+            {
+                return ReplaceIn(
+                    @try,
+                    t => t.Update(Replace(t.Body), t.Handlers.Select(ReplaceIn), Replace(t.Finally), Replace(t.Fault)));
+            }
+
+            private CatchBlock ReplaceIn(CatchBlock @catch)
+                => @catch.Update(ReplaceIn(@catch.Variable), Replace(@catch.Filter), Replace(@catch.Body));
+
+            private Expression Replace(Expression expression) => ReplaceIn(expression, ReplaceIn);
+
+            private Expression ReplaceIn<TExpression>(TExpression expression, Func<TExpression, Expression> replacer)
+                where TExpression : Expression
             {
                 if (expression == null)
                 {
                     return null;
                 }
 
+                if (expression.NodeType == ExpressionType.Default)
+                {
+                    return expression;
+                }
+
                 Expression replacement;
 
-                return _replacementsByTarget.TryGetValue(expression, out replacement) ? replacement : replacer.Invoke();
+                if (_replacementsByTarget.TryGetValue(expression, out replacement))
+                {
+                    return replacement;
+                }
+
+                return replacer.Invoke(expression);
             }
         }
     }

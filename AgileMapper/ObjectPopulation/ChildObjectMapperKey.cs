@@ -4,16 +4,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ChildObjectMapperKey : ObjectMapperKeyBase
     {
-        private readonly string _targetMemberName;
+        private readonly string _targetMemberRegistrationName;
         private readonly int _dataSourceIndex;
 
         public ChildObjectMapperKey(
-            string targetMemberName,
+            string targetMemberRegistrationName,
             int dataSourceIndex,
             MappingTypes mappingTypes)
             : base(mappingTypes)
         {
-            _targetMemberName = targetMemberName;
+            _targetMemberRegistrationName = targetMemberRegistrationName;
             _dataSourceIndex = dataSourceIndex;
         }
 
@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (TypesMatch(otherKey) &&
                 // ReSharper disable once PossibleNullReferenceException
                 (otherKey._dataSourceIndex == _dataSourceIndex) &&
-                (otherKey._targetMemberName == _targetMemberName))
+                (otherKey._targetMemberRegistrationName == _targetMemberRegistrationName))
             {
                 return SourceHasRequiredTypes(otherKey);
             }

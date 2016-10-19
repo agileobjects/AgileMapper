@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.Members
+namespace AgileObjects.AgileMapper.Members.Sources
 {
     using ObjectPopulation;
 

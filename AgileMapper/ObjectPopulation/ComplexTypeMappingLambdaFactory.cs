@@ -62,7 +62,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return shortCircuitBlock;
         }
 
-        private static readonly MethodInfo _tryGetMethod = typeof(IObjectMappingData).GetMethod("TryGet");
+        private static readonly MethodInfo _tryGetMethod = typeof(IInlineMappingData).GetMethod("TryGet");
 
         private static Expression GetAlreadyMappedObjectShortCircuitOrNull(LabelTarget returnTarget, ObjectMapperData mapperData)
         {
@@ -128,7 +128,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return existingOrCreatedObject;
         }
 
-        private static readonly MethodInfo _registerMethod = typeof(IObjectMappingData).GetMethod("Register");
+        private static readonly MethodInfo _registerMethod = typeof(IInlineMappingData).GetMethod("Register");
 
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {

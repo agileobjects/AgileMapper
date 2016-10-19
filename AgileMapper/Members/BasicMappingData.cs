@@ -1,7 +1,6 @@
-namespace AgileObjects.AgileMapper
+namespace AgileObjects.AgileMapper.Members
 {
     using System;
-    using Members;
 
     internal class BasicMappingData<TSource, TTarget> :
         MappingInstanceDataBase<TSource, TTarget>,
@@ -36,14 +35,5 @@ namespace AgileObjects.AgileMapper
 
         private IBasicMapperData CreateMapperData()
             => new BasicMapperData(RuleSet, SourceType, TargetType, QualifiedMember.All, _parent?.MapperData);
-
-        T IMappingData.GetSource<T>() => (T)(object)Source;
-
-        T IMappingData.GetTarget<T>() => (T)(object)Target;
-
-        public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
-
-        IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
-            => (IMappingData<TDataSource, TDataTarget>)this;
     }
 }

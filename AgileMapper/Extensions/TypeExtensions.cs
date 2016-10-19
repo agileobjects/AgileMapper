@@ -4,7 +4,9 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
@@ -12,7 +14,7 @@
     {
         public static string GetShortVariableName(this Type type)
         {
-            var variableName = type.GetVariableName();
+            var variableName = type.GetVariableNameInPascalCase();
 
             var shortVariableName =
                 variableName[0] +
@@ -25,9 +27,13 @@
             return type.IsEnumerable() ? Pluralise(shortVariableName) : shortVariableName;
         }
 
-        public static string GetVariableName(
+        public static string GetVariableNameInCamelCase(this Type type) => type.GetVariableName(f => f.InCamelCase);
+
+        public static string GetVariableNameInPascalCase(this Type type) => type.GetVariableName(f => f.InPascalCase);
+
+        private static string GetVariableName(
             this Type type,
-            Func<VariableFormatterSelector, Func<string, string>> formatter = null)
+            Func<VariableFormatterSelector, Func<string, string>> formatter)
         {
             var typeIsEnumerable = type.IsEnumerable();
             var namingType = typeIsEnumerable ? type.GetEnumerableElementType() : type;
@@ -44,7 +50,7 @@
 
                 variableName += string.Join(
                     string.Empty,
-                    namingType.GetGenericArguments().Select(arg => "_" + arg.GetVariableName(f => f.InPascalCase)));
+                    namingType.GetGenericArguments().Select(arg => "_" + arg.GetVariableNameInPascalCase()));
             }
 
             if (formatter != null)

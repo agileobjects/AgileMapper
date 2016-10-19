@@ -18,18 +18,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
 
         public ObjectMapperData(
-            IMappingContext mappingContext,
+            IObjectMappingData mappingData,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             ObjectMapperData parent)
             : base(
-                  mappingContext.RuleSet,
+                  mappingData.RuleSet,
                   sourceMember.Type,
                   targetMember.Type,
                   targetMember,
                   parent)
         {
-            MapperContext = mappingContext.MapperContext;
+            MapperContext = mappingData.MappingContext.MapperContext;
+            MappingData = mappingData;
             _parent = parent;
             _parent?._childMapperDatas.Add(this);
             _childMapperDatas = new List<ObjectMapperData>();
@@ -37,6 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mdType = typeof(ObjectMappingData<,>).MakeGenericType(sourceMember.Type, targetMember.Type);
             Parameter = Parameters.Create(mdType, "data");
             SourceMember = sourceMember;
+            ParentObject = Expression.Property(Parameter, "Parent");
             SourceObject = Expression.Property(Parameter, "Source");
             TargetObject = Expression.Property(Parameter, "Target");
             CreatedObject = Expression.Property(Parameter, "CreatedObject");
@@ -65,7 +67,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping();
 
                 InstanceVariable = Expression
-                    .Variable(TargetType, TargetType.GetVariableName(f => f.InCamelCase));
+                    .Variable(TargetType, TargetType.GetVariableNameInCamelCase());
             }
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
@@ -92,7 +94,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parent = parent._parent;
             }
 
-            return false;
+            return true;
         }
 
         private bool IsTargetTypeLastMapping() => !DoesTypeHaveACompatibleChildMember(TargetType, TargetType);
@@ -142,6 +144,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ObjectMapperData IMemberMapperData.Parent => _parent;
 
+        public IObjectMappingData MappingData { get; set; }
+
         public bool RequiresChildMapping => _dataSourcesByTargetMemberName.Count > 0;
 
         public bool RequiresElementMapping => TargetElementMember != null;
@@ -176,12 +180,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        public IQualifiedMember GetSourceMemberFor(string targetMemberName, int dataSourceIndex)
-            => _dataSourcesByTargetMemberName[targetMemberName][dataSourceIndex].SourceMember;
+        public ObjectMapperData GetChildMapperDataFor(string targetMemberRegistrationName, int dataSourceIndex)
+        {
+            var sourceMember = GetSourceMemberFor(targetMemberRegistrationName, dataSourceIndex);
+            var targetMember = GetTargetMemberFor(targetMemberRegistrationName);
 
-        public QualifiedMember GetTargetMemberFor(string targetMemberName) => TargetMember.GetChildMember(targetMemberName);
+            return _childMapperDatas
+                .First(md => (md.SourceMember == sourceMember) && (md.TargetMember == targetMember));
+        }
+
+        public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
+            => _dataSourcesByTargetMemberName[targetMemberRegistrationName][dataSourceIndex].SourceMember;
+
+        public QualifiedMember GetTargetMemberFor(string targetMemberRegistrationName)
+            => TargetMember.GetChildMember(targetMemberRegistrationName);
 
         public ParameterExpression Parameter { get; }
+
+        public Expression ParentObject { get; }
 
         public IQualifiedMember SourceMember { get; }
 
@@ -219,7 +235,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapObjectMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
-                Expression.Constant(targetMember.GetRegistrationName()),
+                Expression.Constant(targetMember.RegistrationName),
                 Expression.Constant(dataSourceIndex));
 
             return mapCall;
@@ -244,7 +260,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            _dataSourcesByTargetMemberName.Add(targetMember.GetRegistrationName(), dataSources);
+            _dataSourcesByTargetMemberName.Add(targetMember.RegistrationName, dataSources);
         }
     }
 }

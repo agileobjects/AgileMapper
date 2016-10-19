@@ -33,16 +33,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             mappingExpressions.Add(GetMappingCallback(CallbackPosition.Before, basicMapperData, mapperData));
             mappingExpressions.AddRange(GetShortCircuitReturns(returnNull, mapperData));
-            mappingExpressions.AddRange(GetObjectPopulation(mappingData));
+            mappingExpressions.Add(GetObjectPopulationBlock(mappingData));
             mappingExpressions.Add(GetMappingCallback(CallbackPosition.After, basicMapperData, mapperData));
             mappingExpressions.Add(Expression.Label(mapperData.ReturnLabelTarget, GetReturnValue(mapperData)));
 
             var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
-
-            var wrappedMappingBlock = WrapInTryCatch(mappingBlock, mapperData);
+            var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
 
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(wrappedMappingBlock, mapperData.Parameter);
+                .Lambda<MapperFunc<TSource, TTarget>>(mappingBlockWithTryCatch, mapperData.Parameter);
 
             return mapperLambda;
         }
@@ -73,11 +72,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             GotoExpression returnNull,
             ObjectMapperData mapperData);
 
+        private Expression GetObjectPopulationBlock(IObjectMappingData mappingData)
+        {
+            var populationBlock = Expression.Block(GetObjectPopulation(mappingData));
+
+            return populationBlock;
+        }
+
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
         protected abstract Expression GetReturnValue(ObjectMapperData mapperData);
 
-        private static Expression WrapInTryCatch(Expression mappingBlock, IMemberMapperData mapperData)
+        private static Expression WrapInTryCatch(Expression mappingBlock, ObjectMapperData mapperData)
         {
             var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
             var exceptionVariable = Parameters.Create<Exception>("ex");

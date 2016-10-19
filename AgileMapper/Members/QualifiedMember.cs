@@ -66,6 +66,14 @@ namespace AgileObjects.AgileMapper.Members
             _mapperContext = mapperContext;
             _runtimeTypedMemberCache = mapperContext.Cache.CreateNew<Type, QualifiedMember>();
             _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>();
+
+            if (leafMember == null)
+            {
+                return;
+            }
+
+            RegistrationName = (LeafMember.MemberType != MemberType.ConstructorParameter)
+                ? Name : "ctor:" + Name;
         }
 
         #region Factory Method
@@ -92,15 +100,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Name => LeafMember.Name;
 
-        public string GetRegistrationName()
-        {
-            if (LeafMember.MemberType != MemberType.ConstructorParameter)
-            {
-                return Name;
-            }
-
-            return "ctor:" + Name;
-        }
+        public string RegistrationName { get; }
 
         public IEnumerable<string> JoinedNames { get; }
 
@@ -119,8 +119,8 @@ namespace AgileObjects.AgileMapper.Members
         public QualifiedMember Append(Member childMember)
             => _childMemberCache.GetOrAdd(childMember, cm => new QualifiedMember(cm, this, _mapperContext));
 
-        public QualifiedMember GetChildMember(string name)
-            => _childMemberCache.Values.First(childMember => childMember.GetRegistrationName() == name);
+        public QualifiedMember GetChildMember(string registrationName)
+            => _childMemberCache.Values.First(childMember => childMember.RegistrationName == registrationName);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {

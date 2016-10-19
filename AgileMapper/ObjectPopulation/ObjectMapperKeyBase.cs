@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .ObjectMapperFactory
                 .Create<TSource, TTarget>(MappingData);
 
-            MappingData = null;
+            MappingData = mapper.MapperData.MappingData = null;
 
             return mapper;
         }

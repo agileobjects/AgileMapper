@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Extensions;
     using Members;
+    using Members.Sources;
 
     internal static class ObjectMappingDataFactory
     {
@@ -22,19 +23,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingContext);
         }
 
-        public static IObjectMappingData ForChildByTypes(
-            Type sourceType,
-            Type targetType,
-            string targetMemberName,
+        public static IObjectMappingData ForChild(
+            string targetMemberRegistrationName,
             int dataSourceIndex,
             IObjectMappingData parent)
         {
-            var key = new SourceAndTargetTypesKey(sourceType, targetType);
+            var sourceMember = parent.MapperData.GetSourceMemberFor(targetMemberRegistrationName, dataSourceIndex);
+            var targetMember = parent.MapperData.GetTargetMemberFor(targetMemberRegistrationName);
+
+            return ForChild(sourceMember, targetMember, dataSourceIndex, parent);
+        }
+
+        public static IObjectMappingData ForChild(
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember,
+            int dataSourceIndex,
+            IObjectMappingData parent)
+        {
+            var key = new SourceAndTargetTypesKey(sourceMember.Type, targetMember.Type);
 
             var typedForChildCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
                 var typedForChildMethod = typeof(ObjectMappingDataFactory)
-                    .GetPublicStaticMethod("ForChild")
+                    .GetNonPublicStaticMethod("ForChild")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
                 var typedForChildCall = Expression.Call(
@@ -42,38 +53,53 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     Expression.Default(k.SourceType),
                     Expression.Default(k.TargetType),
                     Expression.Default(typeof(int?)),
-                    Parameters.TargetMemberName,
-                    Parameters.DataSourceIndex,
+                    Parameters.ChildMembersSource,
                     Parameters.ObjectMappingData);
 
-                var typedForChildLambda = Expression.Lambda<Func<string, int, IObjectMappingData, IObjectMappingData>>(
+                var typedForChildLambda = Expression.Lambda<Func<IChildMembersSource, IObjectMappingData, IObjectMappingData>>(
                     typedForChildCall,
-                    Parameters.TargetMemberName,
-                    Parameters.DataSourceIndex,
+                    Parameters.ChildMembersSource,
                     Parameters.ObjectMappingData);
 
                 return typedForChildLambda.Compile();
             });
 
-            return typedForChildCaller.Invoke(targetMemberName, dataSourceIndex, parent);
+            var membersSource = new TargetMemberChildMembersSource(sourceMember, targetMember, dataSourceIndex);
+
+            return typedForChildCaller.Invoke(membersSource, parent);
         }
 
         public static IObjectMappingData ForChild<TSource, TTarget>(
             TSource source,
             TTarget target,
             int? enumerableIndex,
-            string targetMemberName,
+            string targetMemberRegistrationName,
             int dataSourceIndex,
             IObjectMappingData parent)
         {
-            var memberSource = new ChildMembersSource(parent, targetMemberName, dataSourceIndex);
+            var membersSource = new TargetMemberNameChildMembersSource(parent, targetMemberRegistrationName, dataSourceIndex);
 
+            return ForChild(
+                source,
+                target,
+                enumerableIndex,
+                membersSource,
+                parent);
+        }
+
+        private static IObjectMappingData ForChild<TSource, TTarget>(
+            TSource source,
+            TTarget target,
+            int? enumerableIndex,
+            IChildMembersSource membersSource,
+            IObjectMappingData parent)
+        {
             return Create(
                 source,
                 target,
                 enumerableIndex,
-                (mt, ms, mc) => new ChildObjectMapperKey(ms.TargetMemberName, ms.DataSourceIndex, mt),
-                memberSource,
+                (mt, ms, mc) => new ChildObjectMapperKey(ms.TargetMemberRegistrationName, ms.DataSourceIndex, mt),
+                membersSource,
                 parent.MappingContext,
                 parent);
         }

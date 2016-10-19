@@ -1,7 +1,6 @@
-namespace AgileObjects.AgileMapper
+namespace AgileObjects.AgileMapper.Members
 {
     using System;
-    using Members;
 
     internal class BasicMapperData : IBasicMapperData
     {

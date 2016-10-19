@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using Members;
+    using Members.Sources;
 
     internal class ObjectMappingData<TSource, TTarget> :
         BasicMappingData<TSource, TTarget>,
@@ -12,6 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly Dictionary<object, Dictionary<object, object>> _mappedObjectsByTypes;
         private readonly bool _isRoot;
         private IObjectMapper _mapper;
+        private ObjectMapperData _mapperData;
 
         public ObjectMappingData(
             TSource source,
@@ -72,11 +74,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TTarget CreatedObject { get; set; }
 
+        #region IMapperDataOwner Members
+
+        IMemberMapperData IMapperDataOwner.MapperData => MapperData;
+
+        #endregion
+
         #region IObjectMappingData Members
 
-        private ObjectMapperData _mapperData;
+        ObjectMapperData IObjectMappingData.MapperData => MapperData;
 
-        ObjectMapperData IObjectMappingData.MapperData => _mapperData ?? (_mapperData = CreateMapperData());
+        private ObjectMapperData MapperData => _mapperData ?? (_mapperData = CreateMapperData());
 
         private ObjectMapperData CreateMapperData()
         {
@@ -84,7 +92,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetMember = _membersSource.GetTargetMember<TTarget>().WithType(MapperKey.MappingTypes.TargetType);
 
             var mapperData = new ObjectMapperData(
-                MappingContext,
+                this,
                 sourceMember,
                 targetMember,
                 _parent?.MapperData);

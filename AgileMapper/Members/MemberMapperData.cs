@@ -34,6 +34,8 @@
 
         public ObjectMapperData Parent { get; }
 
+        public Expression ParentObject => Parent.ParentObject;
+
         public ParameterExpression Parameter => Parent.Parameter;
 
         public IQualifiedMember SourceMember => Parent.SourceMember;

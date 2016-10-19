@@ -5,6 +5,14 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class MappingTypes
     {
+        public MappingTypes(
+            Type sourceType,
+            Type targetType,
+            MapperContext mapperContext)
+            : this(sourceType, targetType, true, targetType.IsEnumerable(), mapperContext)
+        {
+        }
+
         private MappingTypes(
             Type sourceType,
             Type targetType,

@@ -9,6 +9,8 @@
 
         new ObjectMapperData Parent { get; }
 
+        Expression ParentObject { get; }
+
         ParameterExpression Parameter { get; }
 
         IQualifiedMember SourceMember { get; }

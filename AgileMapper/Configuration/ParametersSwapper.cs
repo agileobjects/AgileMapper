@@ -93,7 +93,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 var targetProperty = memberContextType.GetPublicInstanceProperty("Target");
                 var indexProperty = memberContextType.GetPublicInstanceProperty("EnumerableIndex");
 
-                var replacementsByTarget = new Dictionary<Expression, Expression>(EquivalentMemberAccessComparer.Instance)
+                var replacementsByTarget = new ExpressionReplacementDictionary
                 {
                     [Expression.Property(contextParameter, sourceProperty)] = contextInfo.SourceAccess,
                     [Expression.Property(contextParameter, targetProperty)] = contextInfo.TargetAccess,

@@ -23,8 +23,8 @@
         {
         }
 
-        internal MappingException(IObjectMappingData mappingData, Exception innerException)
-            : base(GetMessage(mappingData.MapperData), innerException)
+        internal MappingException(IMapperDataOwner mapperDataOwner, Exception innerException)
+            : base(GetMessage(mapperDataOwner.MapperData), innerException)
         {
         }
 

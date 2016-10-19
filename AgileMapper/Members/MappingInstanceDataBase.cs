@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
-    internal abstract class MappingInstanceDataBase<TSource, TTarget> : IMappingData<TSource, TTarget>
+    internal abstract class MappingInstanceDataBase<TSource, TTarget> : IMappingData<TSource, TTarget>, IMappingData
     {
         protected MappingInstanceDataBase(IMappingData<TSource, TTarget> mappingData)
             : this(mappingData.Source, mappingData.Target, mappingData.EnumerableIndex, mappingData.Parent)
@@ -26,5 +26,14 @@
         public TTarget Target { get; set; }
 
         public int? EnumerableIndex { get; }
+
+        T IMappingData.GetSource<T>() => (T)(object)Source;
+
+        T IMappingData.GetTarget<T>() => (T)(object)Target;
+
+        public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
+
+        IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
+            => (IMappingData<TDataSource, TDataTarget>)this;
     }
 }

@@ -34,17 +34,11 @@
 
         public MappingPlanData GetObjectMappingPlanData(MethodCallExpression mapCall)
         {
-            var sourceType = mapCall.Arguments[0].Type;
-            var targetType = mapCall.Arguments[1].Type;
             var targetMemberName = (string)((ConstantExpression)mapCall.Arguments[2]).Value;
             var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments[3]).Value;
 
-            var childMappingData = ObjectMappingDataFactory.ForChildByTypes(
-                sourceType,
-                targetType,
-                targetMemberName,
-                dataSourceIndex,
-                MappingData);
+            var childMappingData = ObjectMappingDataFactory
+                .ForChild(targetMemberName, dataSourceIndex, MappingData);
 
             var mappingLambda = childMappingData.CreateMapper().MappingLambda;
 

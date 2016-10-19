@@ -28,7 +28,7 @@
                 .ToANew<Person>();
 
             plan.ShouldContain("person.Name = data.Source.Name;");
-            plan.ShouldContain("address.Line1 = data.Source.AddressLine1;");
+            plan.ShouldContain("address.Line1 = addressData.Source.AddressLine1;");
         }
 
         [Fact]
@@ -97,7 +97,7 @@
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
             plan.ShouldContain("PersonViewModel -> Person");
-            plan.ShouldContain("PersonViewModel -> Address");
+            plan.ShouldNotContain("PersonViewModel -> Address"); // <- because the Address mapping is inlined
         }
 
         [Fact]

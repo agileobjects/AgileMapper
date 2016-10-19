@@ -5,6 +5,7 @@
     using DataSources;
     using Flattening;
     using Members;
+    using Members.Sources;
     using ObjectPopulation;
     using TypeConversion;
 

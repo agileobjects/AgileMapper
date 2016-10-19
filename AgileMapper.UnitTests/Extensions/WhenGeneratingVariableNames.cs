@@ -22,43 +22,43 @@
         [Fact]
         public void ShouldNameAVariableForACollectionTypeEndingInX()
         {
-            typeof(ICollection<Box>).GetVariableName(f => f.InCamelCase).ShouldBe("boxes");
+            typeof(ICollection<Box>).GetVariableNameInCamelCase().ShouldBe("boxes");
         }
 
         [Fact]
         public void ShouldNameAVariableForAnEnumerableTypeEndingInZ()
         {
-            typeof(IEnumerable<Fuzz>).GetVariableName(f => f.InPascalCase).ShouldBe("Fuzzes");
+            typeof(IEnumerable<Fuzz>).GetVariableNameInPascalCase().ShouldBe("Fuzzes");
         }
 
         [Fact]
         public void ShouldNameAVariableForAnEnumerableTypeEndingInDoubleS()
         {
-            typeof(IEnumerable<Glass>).GetVariableName(f => f.InPascalCase).ShouldBe("Glasses");
+            typeof(IEnumerable<Glass>).GetVariableNameInPascalCase().ShouldBe("Glasses");
         }
 
         [Fact]
         public void ShouldNameAVariableForAListTypeEndingInCh()
         {
-            typeof(List<Church>).GetVariableName(f => f.InCamelCase).ShouldBe("churches");
+            typeof(List<Church>).GetVariableNameInCamelCase().ShouldBe("churches");
         }
 
         [Fact]
         public void ShouldNameAVariableForAListTypeEndingInSh()
         {
-            typeof(List<Hush>).GetVariableName(f => f.InCamelCase).ShouldBe("hushes");
+            typeof(List<Hush>).GetVariableNameInCamelCase().ShouldBe("hushes");
         }
 
         [Fact]
         public void ShouldNameAVariableForAListTypeEndingInVowelY()
         {
-            typeof(List<Journey>).GetVariableName(f => f.InCamelCase).ShouldBe("journeys");
+            typeof(List<Journey>).GetVariableNameInCamelCase().ShouldBe("journeys");
         }
 
         [Fact]
         public void ShouldNameAVariableForAnIListTypeEndingInConsonantY()
         {
-            typeof(IList<Body>).GetVariableName(f => f.InPascalCase).ShouldBe("Bodies");
+            typeof(IList<Body>).GetVariableNameInPascalCase().ShouldBe("Bodies");
         }
 
         // ReSharper disable ClassNeverInstantiated.Local

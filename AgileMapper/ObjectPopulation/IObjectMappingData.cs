@@ -1,8 +1,9 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using Members;
+    using Members.Sources;
 
-    internal interface IObjectMappingData : IBasicMappingData
+    internal interface IObjectMappingData : IBasicMappingData, IInlineMappingData
     {
         IMappingContext MappingContext { get; }
 
@@ -19,9 +20,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IMemberMappingData GetChildMappingData(IMemberMapperData childMapperData);
 
         object MapStart();
-
-        bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType);
-
-        void Register<TKey, TComplex>(TKey key, TComplex complexType);
     }
 }
