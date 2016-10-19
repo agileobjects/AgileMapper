@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.Members
     internal static class MemberMapperDataExtensions
     {
         public static bool CanInlineMappingFor(this IMemberMapperData mapperData, QualifiedMember targetMember)
-            => mapperData.MapperContext.UserConfigurations.DerivedTypes.CanInlineMappingFor(mapperData.TargetMember);
+            => mapperData.MapperContext.UserConfigurations.DerivedTypes.CanInlineMappingFor(targetMember);
 
         public static Expression GetMapCall(this IMemberMapperData mapperData, Expression value, int dataSourceIndex = 0)
             => mapperData.Parent.GetMapCall(value, mapperData.TargetMember, dataSourceIndex);

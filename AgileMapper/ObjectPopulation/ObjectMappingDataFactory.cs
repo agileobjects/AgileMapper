@@ -104,36 +104,34 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parent);
         }
 
-        public static IObjectMappingData ForElementByTypes(
-            Type sourceType,
-            Type targetType,
-            int? enumerableIndex,
-            IObjectMappingData parent)
+        public static IObjectMappingData ForElement(IObjectMappingData parent)
         {
+            var sourceType = parent.MapperData.SourceElementMember.Type;
+            var targetType = parent.MapperData.TargetElementMember.Type;
             var key = new SourceAndTargetTypesKey(sourceType, targetType);
 
             var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
                 var typedForElementMethod = typeof(ObjectMappingDataFactory)
-                    .GetPublicStaticMethod("ForElement")
+                    .GetPublicStaticMethods()
+                    .Last(m => m.Name == "ForElement")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
                 var typedForElementCall = Expression.Call(
                     typedForElementMethod,
                     Expression.Default(k.SourceType),
                     Expression.Default(k.TargetType),
-                    Parameters.EnumerableIndexNullable,
+                    Expression.Constant(0, typeof(int?)),
                     Parameters.ObjectMappingData);
 
-                var typedForElementLambda = Expression.Lambda<Func<int?, IObjectMappingData, IObjectMappingData>>(
+                var typedForElementLambda = Expression.Lambda<Func<IObjectMappingData, IObjectMappingData>>(
                     typedForElementCall,
-                    Parameters.EnumerableIndexNullable,
                     Parameters.ObjectMappingData);
 
                 return typedForElementLambda.Compile();
             });
 
-            return typedForElementCaller.Invoke(enumerableIndex, parent);
+            return typedForElementCaller.Invoke(parent);
         }
 
         public static IObjectMappingData ForElement<TSource, TTarget>(

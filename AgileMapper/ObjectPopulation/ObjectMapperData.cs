@@ -16,6 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapEnumerableElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private readonly List<string> _inlineMappingTargetMemberNames;
+        private bool _elementMappingInlined;
 
         public ObjectMapperData(
             IObjectMappingData mappingData,
@@ -150,7 +151,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool RequiresChildMapping
             => _dataSourcesByTargetMemberName.Any(kvp => _inlineMappingTargetMemberNames.DoesNotContain(kvp.Key));
 
-        public bool RequiresElementMapping => TargetElementMember != null;
+        public bool RequiresElementMapping => (TargetElementMember != null) && !_elementMappingInlined;
 
         private bool HasTypeBeenMapped(Type targetType, IBasicMapperData requestingMapperData)
         {
@@ -187,6 +188,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceMember = GetSourceMemberFor(targetMemberRegistrationName, dataSourceIndex);
             var targetMember = GetTargetMemberFor(targetMemberRegistrationName);
 
+            return GetChildMapperDataFor(sourceMember, targetMember);
+        }
+
+        public ObjectMapperData GetElementMapperData()
+            => GetChildMapperDataFor(SourceElementMember, TargetElementMember);
+
+        private ObjectMapperData GetChildMapperDataFor(IQualifiedMember sourceMember, QualifiedMember targetMember)
+        {
             return _childMapperDatas
                 .First(md => (md.SourceMember == sourceMember) && (md.TargetMember == targetMember));
         }
@@ -264,6 +273,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             _dataSourcesByTargetMemberName.Add(targetMember.RegistrationName, dataSources);
         }
+
+        public void ElementMappingInlined() => _elementMappingInlined = true;
 
         public void MappingInlinedFor(QualifiedMember targetMember)
             => _inlineMappingTargetMemberNames.Add(targetMember.RegistrationName);

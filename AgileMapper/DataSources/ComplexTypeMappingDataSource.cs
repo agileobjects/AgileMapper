@@ -25,7 +25,7 @@
             var relativeMember = sourceMember.RelativeTo(mapperData.SourceMember);
             var relativeMemberAccess = relativeMember.GetQualifiedAccess(mapperData.SourceObject);
 
-            var mapping = ChildMappingFactory.GetChildMapping(
+            var mapping = InlineMappingFactory.GetChildMapping(
                 relativeMember,
                 relativeMemberAccess,
                 dataSourceIndex,

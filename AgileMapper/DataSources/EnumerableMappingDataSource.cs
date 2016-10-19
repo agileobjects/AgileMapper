@@ -22,7 +22,7 @@
             int dataSourceIndex,
             IMemberMapperData mapperData)
         {
-            var mapping = ChildMappingFactory.GetChildMapping(
+            var mapping = InlineMappingFactory.GetChildMapping(
                 sourceEnumerableDataSource.SourceMember,
                 sourceEnumerableDataSource.Value,
                 dataSourceIndex,

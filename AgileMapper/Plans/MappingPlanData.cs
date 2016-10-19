@@ -47,12 +47,7 @@
 
         public MappingPlanData GetElementMappingPlanData(MethodCallExpression mapCall)
         {
-            var elementMappingData = ObjectMappingDataFactory.ForElementByTypes(
-                mapCall.Arguments[0].Type,
-                mapCall.Arguments[1].Type,
-                0,
-                MappingData);
-
+            var elementMappingData = ObjectMappingDataFactory.ForElement(MappingData);
             var mappingLambda = elementMappingData.CreateMapper().MappingLambda;
 
             return new MappingPlanData(MappingContext, mappingLambda, elementMappingData);

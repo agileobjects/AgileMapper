@@ -7,6 +7,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Caching;
+    using DataSources;
     using Extensions;
     using Members;
     using ReadableExpressions.Extensions;
@@ -388,7 +389,7 @@
             => GetMapElementCall(sourceObject, Expression.Default(_targetElementType));
 
         private Expression GetMapElementCall(Expression sourceObject, Expression existingObject)
-            => _omd.GetMapCall(sourceObject, existingObject);
+            => InlineMappingFactory.GetElementMapping(sourceObject, existingObject, _omd);
 
         private Expression GetSourceOnlyReturnValue()
         {
