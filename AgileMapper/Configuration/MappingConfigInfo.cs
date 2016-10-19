@@ -133,13 +133,13 @@
 
             lock (_configurationSync)
             {
-                MapperContext.UserConfigurations.DerivedTypePairs.Configuring = true;
+                MapperContext.UserConfigurations.DerivedTypes.Configuring = true;
 
                 mapperData = stubMappingContext
                     .CreateRootMappingData(default(TSource), default(TTarget))
                     .MapperData;
 
-                MapperContext.UserConfigurations.DerivedTypePairs.Configuring = false;
+                MapperContext.UserConfigurations.DerivedTypes.Configuring = false;
             }
 
             var condition = GetConditionOrNull(mapperData);

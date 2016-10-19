@@ -4,11 +4,13 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Configuration;
     using Extensions;
 
     internal static class MemberMapperDataExtensions
     {
+        public static bool CanInlineMappingFor(this IMemberMapperData mapperData, QualifiedMember targetMember)
+            => mapperData.MapperContext.UserConfigurations.DerivedTypes.CanInlineMappingFor(mapperData.TargetMember);
+
         public static Expression GetMapCall(this IMemberMapperData mapperData, Expression value, int dataSourceIndex = 0)
             => mapperData.Parent.GetMapCall(value, mapperData.TargetMember, dataSourceIndex);
 

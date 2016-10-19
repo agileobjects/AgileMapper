@@ -39,7 +39,7 @@
             var derivedTypePair = DerivedTypePair
                 .For<TSource, TDerivedSource, TTarget, TDerivedTarget>(_configInfo);
 
-            _configInfo.MapperContext.UserConfigurations.DerivedTypePairs.Add(derivedTypePair);
+            _configInfo.MapperContext.UserConfigurations.DerivedTypes.Add(derivedTypePair);
 
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }

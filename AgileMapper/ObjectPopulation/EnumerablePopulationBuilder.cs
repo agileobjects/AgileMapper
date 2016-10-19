@@ -472,29 +472,7 @@
                 return value;
             }
 
-            if (_targetTypeHelper.IsArray)
-            {
-                return value.WithToArrayCall(_targetElementType);
-            }
-
-            if (_targetTypeHelper.IsList)
-            {
-                return allowSameValue
-                    ? value.GetConversionTo(_targetTypeHelper.ListType)
-                    : value.WithToListCall(_targetElementType);
-            }
-
-            if (_targetTypeHelper.IsCollection)
-            {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Expression newCollection = Expression.New(
-                    _targetTypeHelper.CollectionType.GetConstructor(new[] { _targetTypeHelper.ListType }),
-                    value.GetConversionTo(_targetTypeHelper.ListType));
-
-                return Expression.Coalesce(_omd.TargetObject, newCollection);
-            }
-
-            return value.WithToListCall(_targetElementType);
+            return value.WithToArrayCall(_targetElementType);
         }
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
@@ -524,17 +502,11 @@
         {
             #region Untyped MethodInfos
 
-            private static readonly MethodInfo _selectWithoutIndexMethod = GetLinqSelectMethod(2);
-            private static readonly MethodInfo _selectWithIndexMethod = GetLinqSelectMethod(3);
-
-            private static MethodInfo GetLinqSelectMethod(int numberOfFuncParameters)
-            {
-                return typeof(Enumerable)
+            private static readonly MethodInfo _selectWithoutIndexMethod = typeof(Enumerable)
                     .GetPublicStaticMethods()
                     .Last(m => (m.Name == "Select") &&
-                        m.GetParameters().Length == 2 &&
-                        m.GetParameters()[1].ParameterType.GetGenericArguments().Length == numberOfFuncParameters);
-            }
+                        (m.GetParameters().Length == 2) &&
+                        (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2));
 
             private static readonly MethodInfo _excludeMethod = typeof(EnumerableExtensions)
                 .GetPublicStaticMethod("Exclude");
@@ -557,30 +529,12 @@
                     return this;
                 }
 
-                MethodInfo selectMethod;
-                Expression projectionFunc;
+                var projectionFunc = Expression.Lambda(
+                    Expression.GetFuncType(_builder._sourceElementType, _builder._targetElementType),
+                    _builder.GetSimpleElementConversion(_builder._sourceElementParameter),
+                    _builder._sourceElementParameter);
 
-                if (_builder.ElementTypesAreSimple)
-                {
-                    selectMethod = _selectWithoutIndexMethod;
-
-                    projectionFunc = Expression.Lambda(
-                        Expression.GetFuncType(_builder._sourceElementType, _builder._targetElementType),
-                        _builder.GetSimpleElementConversion(_builder._sourceElementParameter),
-                        _builder._sourceElementParameter);
-                }
-                else
-                {
-                    selectMethod = _selectWithIndexMethod;
-
-                    projectionFunc = Expression.Lambda(
-                        Expression.GetFuncType(_builder._sourceElementType, typeof(int), _builder._targetElementType),
-                        _builder.GetMapElementCall(_builder._sourceElementParameter),
-                        _builder._sourceElementParameter,
-                        Parameters.EnumerableIndex);
-                }
-
-                var typedSelectMethod = selectMethod
+                var typedSelectMethod = _selectWithoutIndexMethod
                     .MakeGenericMethod(_builder._sourceElementType, _builder._targetElementType);
 
                 _result = Expression.Call(typedSelectMethod, _builder._omd.SourceObject, projectionFunc);

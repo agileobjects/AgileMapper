@@ -63,7 +63,7 @@ namespace AgileObjects.AgileMapper.Members
                 return typeof(TTarget);
             }
 
-            var targetMemberType = mappingContext.MapperContext.UserConfigurations.DerivedTypePairs
+            var targetMemberType = mappingContext.MapperContext.UserConfigurations.DerivedTypes
                 .GetDerivedTypeOrNull(
                     source,
                     target,

@@ -10,16 +10,31 @@
     using Members;
     using ReadableExpressions.Extensions;
 
-    internal class DerivedTypePairSet
+    internal class DerivedTypeSettings
     {
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
 
-        public DerivedTypePairSet()
+        public DerivedTypeSettings()
         {
             _typePairsByTargetType = new Dictionary<Type, List<DerivedTypePair>>();
         }
 
         internal bool Configuring { get; set; }
+
+        public bool CanInlineMappingFor(QualifiedMember targetMember)
+        {
+            if (targetMember.Type.IsSealed())
+            {
+                return true;
+            }
+
+            if (targetMember.IsEnumerable)
+            {
+                return !targetMember.Type.IsInterface();
+            }
+
+            return false;
+        }
 
         public void Add(DerivedTypePair typePair)
         {

@@ -12,14 +12,23 @@
             : base(
                   sourceEnumerableDataSource.SourceMember,
                   sourceEnumerableDataSource.Variables,
-                  GetMapCall(sourceEnumerableDataSource.Value, dataSourceIndex, mapperData),
+                  GetMapping(sourceEnumerableDataSource, dataSourceIndex, mapperData),
                   sourceEnumerableDataSource.Condition)
         {
         }
 
-        private static Expression GetMapCall(Expression sourceEnumerable, int dataSourceIndex, IMemberMapperData mapperData)
+        private static Expression GetMapping(
+            IDataSource sourceEnumerableDataSource,
+            int dataSourceIndex,
+            IMemberMapperData mapperData)
         {
-            return mapperData.GetMapCall(sourceEnumerable, dataSourceIndex);
+            var mapping = ChildMappingFactory.GetChildMapping(
+                sourceEnumerableDataSource.SourceMember,
+                sourceEnumerableDataSource.Value,
+                dataSourceIndex,
+                mapperData);
+
+            return mapping;
         }
     }
 }
