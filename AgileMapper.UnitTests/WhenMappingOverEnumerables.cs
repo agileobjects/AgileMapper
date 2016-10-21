@@ -12,13 +12,13 @@
         [Fact]
         public void ShouldOverwriteARootSimpleTypeArray()
         {
-            var source = new[] { 5, 4, 3, 2 };
+            var source = new[] { '5', '4', '3', '2' };
             var target = new[] { 9, 8, 7, 1 };
             var result = Mapper.Map(source).Over(target);
 
             result.ShouldNotBeNull();
             result.ShouldNotBeSameAs(source);
-            result.SequenceEqual(source).ShouldBeTrue();
+            result.ShouldBe(5, 4, 3, 2);
         }
 
         [Fact]
