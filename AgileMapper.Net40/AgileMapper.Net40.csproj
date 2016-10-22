@@ -33,8 +33,8 @@
     <DocumentationFile>bin\Release\AgileObjects.AgileMapper.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.7.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.7.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.7.2\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
