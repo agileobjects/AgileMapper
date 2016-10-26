@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             private static Expression GetValue(IMemberMapperData mapperData)
             {
-                var existingValue = mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
+                var existingValue = mapperData.GetTargetMemberAccess();
 
                 if (!mapperData.TargetMember.IsEnumerable)
                 {

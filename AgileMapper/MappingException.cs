@@ -23,13 +23,18 @@
         {
         }
 
-        internal MappingException(IMapperDataOwner mapperDataOwner, Exception innerException)
-            : base(GetMessage(mapperDataOwner.MapperData), innerException)
+        internal MappingException(IObjectMappingData mappingData, Exception innerException)
+            : base(GetMessage(mappingData?.MapperData), innerException)
         {
         }
 
         private static string GetMessage(IMemberMapperData mapperData)
         {
+            if (mapperData == null)
+            {
+                return "An exception occurred creating a mapping data instance";
+            }
+
             var rootData = GetRootMapperData(mapperData);
 
             var sourcePath = GetMemberPath(rootData.SourceType, mapperData.SourceMember, rootData.SourceMember.Name);
@@ -40,7 +45,7 @@
 
         private static IMemberMapperData GetRootMapperData(IMemberMapperData mapperData)
         {
-            while (mapperData.Parent != null)
+            while (!mapperData.IsRoot)
             {
                 mapperData = mapperData.Parent;
             }

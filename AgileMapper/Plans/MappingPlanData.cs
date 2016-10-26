@@ -32,7 +32,7 @@
 
         public override int GetHashCode() => 0;
 
-        public MappingPlanData GetObjectMappingPlanData(MethodCallExpression mapCall)
+        public MappingPlanData GetChildMappingPlanData(MethodCallExpression mapCall)
         {
             var targetMemberName = (string)((ConstantExpression)mapCall.Arguments[2]).Value;
             var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments[3]).Value;
@@ -40,17 +40,17 @@
             var childMappingData = ObjectMappingDataFactory
                 .ForChild(targetMemberName, dataSourceIndex, MappingData);
 
-            var mappingLambda = childMappingData.CreateMapper().MappingLambda;
-
-            return new MappingPlanData(MappingContext, mappingLambda, childMappingData);
+            return GetMappingPlanDataFor(childMappingData);
         }
 
         public MappingPlanData GetElementMappingPlanData(MethodCallExpression mapCall)
-        {
-            var elementMappingData = ObjectMappingDataFactory.ForElement(MappingData);
-            var mappingLambda = elementMappingData.CreateMapper().MappingLambda;
+            => GetMappingPlanDataFor(ObjectMappingDataFactory.ForElement(MappingData));
 
-            return new MappingPlanData(MappingContext, mappingLambda, elementMappingData);
+        private MappingPlanData GetMappingPlanDataFor(IObjectMappingData mappingData)
+        {
+            var mappingLambda = mappingData.Mapper.MappingLambda;
+
+            return new MappingPlanData(MappingContext, mappingLambda, mappingData);
         }
     }
 }

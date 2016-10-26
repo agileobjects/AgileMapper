@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Text.RegularExpressions;
     using Shouldly;
     using TestClasses;
@@ -17,7 +16,7 @@
                 .GetPlanFor<PublicField<string>>()
                 .ToANew<PublicProperty<string>>();
 
-            plan.ShouldContain("publicProperty_String.Value = data.Source.Value;");
+            plan.ShouldContain("publicProperty_String.Value = pfsToPpsData.Source.Value;");
         }
 
         [Fact]
@@ -27,8 +26,8 @@
                 .GetPlanFor<PersonViewModel>()
                 .ToANew<Person>();
 
-            plan.ShouldContain("person.Name = data.Source.Name;");
-            plan.ShouldContain("address.Line1 = addressData.Source.AddressLine1;");
+            plan.ShouldContain("person.Name = pvmToPData.Source.Name;");
+            plan.ShouldContain("address.Line1 = pvmToAData.Source.AddressLine1;");
         }
 
         [Fact]
@@ -39,7 +38,7 @@
                 .ToANew<PublicField<IEnumerable<int>>>();
 
             plan.ShouldContain("targetInt32s = ");
-            plan.ShouldContain("new List<int>(data.Target)");
+            plan.ShouldContain("new List<int>(isToIsData.Target)");
             plan.ShouldContain("targetInt32s.Add(sourceInt32s[i])");
         }
 
@@ -69,7 +68,7 @@
                     .GetPlanFor<Person>()
                     .Over<PersonViewModel>();
 
-                plan.ShouldContain("personViewModel.Name = data.Source.Title + \" \" + data.Source.Name");
+                plan.ShouldContain("personViewModel.Name = pToPvmData.Source.Title + \" \" + pToPvmData.Source.Name");
             }
         }
 
@@ -80,7 +79,7 @@
                 .GetPlanFor<IEnumerable<Person>>()
                 .OnTo<IEnumerable<PersonViewModel>>();
 
-            plan.ShouldContain("collectionData.Intersection.ForEach(data.Map)");
+            plan.ShouldContain("collectionData.Intersection.ForEach((p, pvm, i) =>");
             plan.ShouldContain("persons = collectionData.NewSourceItems");
         }
 
@@ -92,22 +91,12 @@
                 .Over<IEnumerable<Person>>();
 
             plan.ShouldContain("personViewModels = collectionData.NewSourceItems");
-            plan.ShouldContain("collectionData.Intersection.ForEach(data.Map)");
+            plan.ShouldContain("collectionData.Intersection.ForEach((pvm, p, i) =>");
             plan.ShouldContain("collectionData.AbsentTargetItems.ForEach(persons.Remove)");
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
-            plan.ShouldContain("PersonViewModel -> Person");
-            plan.ShouldNotContain("PersonViewModel -> Address"); // <- because the Address mapping is inlined
-        }
-
-        [Fact]
-        public void ShouldNotDuplicateMappingPlans()
-        {
-            var plan = Mapper
-                .GetPlanFor<IEnumerable<PersonViewModel>>()
-                .OnTo<IEnumerable<Person>>();
-
-            Regex.Matches(plan, "PersonViewModel -> Person").Cast<Match>().ShouldHaveSingleItem();
+            plan.ShouldNotContain("PersonViewModel -> Person");  // <- because the mapping is inlined
+            plan.ShouldNotContain("PersonViewModel -> Address"); // <- because the mapping is inlined
         }
 
         [Fact]

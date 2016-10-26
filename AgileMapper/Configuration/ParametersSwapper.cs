@@ -78,9 +78,9 @@ namespace AgileObjects.AgileMapper.Configuration
             var contextParameter = lambda.Parameters[0];
             var contextType = contextParameter.Type;
 
-            if (contextType.IsAssignableFrom(mapperData.Parameter.Type))
+            if (contextType.IsAssignableFrom(mapperData.MappingDataObject.Type))
             {
-                return lambda.ReplaceParameterWith(mapperData.Parameter);
+                return lambda.ReplaceParameterWith(mapperData.MappingDataObject);
             }
 
             var contextTypes = contextType.GetGenericArguments();
@@ -197,7 +197,7 @@ namespace AgileObjects.AgileMapper.Configuration
         private class MappingContextInfo
         {
             public MappingContextInfo(IMemberMapperData mapperData, Type[] contextTypes)
-                : this(mapperData, mapperData.Parameter, contextTypes)
+                : this(mapperData, mapperData.MappingDataObject, contextTypes)
             {
             }
 

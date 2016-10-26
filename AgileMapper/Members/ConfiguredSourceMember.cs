@@ -104,8 +104,27 @@ namespace AgileObjects.AgileMapper.Members
         public bool CouldMatch(QualifiedMember otherMember)
             => _matchedTargetMemberJoinedNames.CouldMatch(otherMember.JoinedNames);
 
-        public bool Matches(QualifiedMember otherMember)
-            => _matchedTargetMemberJoinedNames.Match(otherMember.JoinedNames);
+        public bool Matches(IQualifiedMember otherMember)
+        {
+            if (otherMember == this)
+            {
+                return true;
+            }
+
+            var otherQualifiedMember = otherMember as QualifiedMember;
+            if (otherQualifiedMember != null)
+            {
+                return _matchedTargetMemberJoinedNames.Match(otherQualifiedMember.JoinedNames);
+            }
+
+            var otherConfiguredMember = otherMember as ConfiguredSourceMember;
+            if (otherConfiguredMember != null)
+            {
+                return _matchedTargetMemberJoinedNames.Match(otherConfiguredMember._matchedTargetMemberJoinedNames);
+            }
+
+            return false;
+        }
 
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
 

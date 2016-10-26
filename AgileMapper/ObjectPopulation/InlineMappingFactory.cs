@@ -9,143 +9,225 @@
 
     internal static class InlineMappingFactory
     {
+        public static Expression GetRuntimeTypedMapping(
+            ObjectMapperData mapperData,
+            Expression sourceValue,
+            Type targetType)
+        {
+            var runtimeMapperData = mapperData.WithTypes(sourceValue.Type, targetType);
+
+            var targetValue = mapperData.TargetMember.IsReadable
+                ? mapperData.TargetObject.GetConversionTo(targetType)
+                : Expression.Default(targetType);
+
+            if (runtimeMapperData.IsRoot)
+            {
+                return GetRootMapping(runtimeMapperData, mapperData, sourceValue, targetValue);
+            }
+
+            if (mapperData.TargetMember.LeafMember.MemberType == MemberType.EnumerableElement)
+            {
+                return GetElementMapping(
+                    sourceValue,
+                    targetValue,
+                    Expression.Property(mapperData.EnumerableIndex, "Value"),
+                    runtimeMapperData,
+                    mapperData,
+                    PopulateMappingDataMapperData,
+                    ResetMappingDataMapperData);
+            }
+
+            return GetChildMapping(
+                runtimeMapperData.SourceMember,
+                sourceValue,
+                targetValue,
+                mapperData.EnumerableIndex,
+                mapperData.DataSourceIndex,
+                runtimeMapperData,
+                mapperData,
+                PopulateMappingDataMapperData,
+                ResetMappingDataMapperData);
+        }
+
+        private static void PopulateMappingDataMapperData(IObjectMappingData mappingData, ObjectMapperData runtimeMapperData)
+        {
+            mappingData.MapperData = runtimeMapperData;
+            mappingData.MapperData.MappingData.MapperData = runtimeMapperData;
+        }
+
+        private static void ResetMappingDataMapperData(IObjectMappingData mappingData, ObjectMapperData preInlineMapperData)
+        {
+            preInlineMapperData.MappingData.MapperData = preInlineMapperData;
+        }
+
+        private static Expression GetRootMapping(
+            ObjectMapperData runtimeMapperData,
+            IMemberMapperData preInlineMapperData,
+            Expression sourceValue,
+            Expression targetValue)
+        {
+            var rootMappingData = ObjectMappingDataFactory.ForRoot(runtimeMapperData);
+            rootMappingData.MapperData = runtimeMapperData;
+
+            var rootMapper = runtimeMapperData.MapperContext
+                .ObjectMapperFactory
+                .CreateRoot(rootMappingData);
+
+            var inlineMappingBlock = GetInlineMappingBlock(
+                rootMapper,
+                MappingDataFactory.ForRootMethod,
+                sourceValue,
+                targetValue,
+                Expression.Property(preInlineMapperData.MappingDataObject, "MappingContext"));
+
+            return inlineMappingBlock;
+        }
+
+        public static Expression GetChildMapping(int dataSourceIndex, IMemberMapperData childMapperData)
+        {
+            var relativeMember = childMapperData.SourceMember.RelativeTo(childMapperData.SourceMember);
+            var sourceMemberAccess = relativeMember.GetQualifiedAccess(childMapperData.SourceObject);
+
+            return GetChildMapping(
+                relativeMember,
+                sourceMemberAccess,
+                dataSourceIndex,
+                childMapperData);
+        }
+
         public static Expression GetChildMapping(
             IQualifiedMember sourceMember,
             Expression sourceMemberAccess,
             int dataSourceIndex,
             IMemberMapperData childMapperData)
         {
-            var inlineMapping = GetInlineChildMappingOrNull(
+            var targetMemberAccess = childMapperData.GetTargetMemberAccess();
+
+            return GetChildMapping(
                 sourceMember,
                 sourceMemberAccess,
+                targetMemberAccess,
+                childMapperData.Parent.EnumerableIndex,
                 dataSourceIndex,
-                childMapperData);
-
-            return inlineMapping ?? childMapperData.GetMapCall(sourceMemberAccess, dataSourceIndex);
+                childMapperData,
+                childMapperData.Parent,
+                (mappingData, mapperData) => { },
+                (mappingData, mapperData) => { });
         }
 
-        private static Expression GetInlineChildMappingOrNull(
+        private static Expression GetChildMapping<TMapperData>(
             IQualifiedMember sourceMember,
-            Expression sourceMemberAccess,
+            Expression sourceValue,
+            Expression targetValue,
+            Expression enumerableIndex,
             int dataSourceIndex,
-            IMemberMapperData childMapperData)
+            TMapperData childMapperData,
+            ObjectMapperData preInlineMapperData,
+            Action<IObjectMappingData, TMapperData> preMapperCreationCallback,
+            Action<IObjectMappingData, ObjectMapperData> postMapperCreationCallback)
+            where TMapperData : IMemberMapperData
         {
-            if (!childMapperData.CanInlineMappingFor(childMapperData.TargetMember))
-            {
-                return null;
-            }
-
             var childMappingData = ObjectMappingDataFactory.ForChild(
                 sourceMember,
                 childMapperData.TargetMember,
                 dataSourceIndex,
                 childMapperData.Parent.MappingData);
 
-            var childMapper = childMappingData.CreateMapper();
+            if (childMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
+            {
+                return preInlineMapperData.GetMapCall(sourceValue, childMapperData.TargetMember, dataSourceIndex);
+            }
 
-            var inlineMappingBlock = GetInlineMappingBlockOrNull(
-                childMapperData,
+            preMapperCreationCallback.Invoke(childMappingData, childMapperData);
+
+            var childMapper = childMappingData.Mapper;
+
+            var inlineMappingBlock = GetInlineMappingBlock(
                 childMapper,
                 MappingDataFactory.ForChildMethod,
-                md => new[]
-                {
-                    sourceMemberAccess,
-                    md.TargetMember.GetAccess(md.Parent.InstanceVariable),
-                    md.EnumerableIndex,
-                    Expression.Constant(md.TargetMember.RegistrationName),
-                    Expression.Constant(dataSourceIndex),
-                    md.Parameter
-                });
+                sourceValue,
+                targetValue,
+                enumerableIndex,
+                Expression.Constant(childMapperData.TargetMember.RegistrationName),
+                Expression.Constant(dataSourceIndex),
+                preInlineMapperData.MappingDataObject);
 
-            if (inlineMappingBlock == null)
-            {
-                return null;
-            }
-
-            childMapper.MapperData.Parent.MappingInlinedFor(childMapperData.TargetMember);
+            postMapperCreationCallback.Invoke(childMappingData, preInlineMapperData);
 
             return inlineMappingBlock;
         }
 
-        public static Expression GetElementMapping(
-            Expression sourceObject,
-            Expression existingObject,
-            ObjectMapperData enumerableMapperData)
+        public static Expression GetElementMapping(IMemberMapperData elementMapperData)
         {
-            var inlineMapping = GetInlineElementMappingOrNull(
-                sourceObject,
-                existingObject,
-                enumerableMapperData);
-
-            return inlineMapping ?? enumerableMapperData.GetMapCall(sourceObject, existingObject);
+            return GetElementMapping(
+                elementMapperData.SourceObject,
+                elementMapperData.TargetObject,
+                Parameters.EnumerableIndex,
+                elementMapperData,
+                elementMapperData.Parent,
+                (mappingData, mapperData) => { },
+                (mappingData, mapperData) => { });
         }
 
-        private static Expression GetInlineElementMappingOrNull(
+        private static Expression GetElementMapping<TMapperData>(
             Expression sourceObject,
-            Expression existingObject,
-            ObjectMapperData enumerableMapperData)
+            Expression targetObject,
+            Expression enumerableIndex,
+            TMapperData elementMapperData,
+            ObjectMapperData preInlineMapperData,
+            Action<IObjectMappingData, TMapperData> preMapperCreationCallback,
+            Action<IObjectMappingData, ObjectMapperData> postMapperCreationCallback)
+            where TMapperData : IMemberMapperData
         {
-            if (!enumerableMapperData.CanInlineMappingFor(enumerableMapperData.TargetElementMember))
+            var elementMappingData = ObjectMappingDataFactory.ForElement(
+                elementMapperData.SourceMember,
+                elementMapperData.TargetMember,
+                elementMapperData.Parent.MappingData);
+
+            if (elementMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
-                return null;
+                return preInlineMapperData.GetMapCall(sourceObject, targetObject);
             }
 
-            var elementMappingData = ObjectMappingDataFactory.ForElement(enumerableMapperData.MappingData);
+            preMapperCreationCallback.Invoke(elementMappingData, elementMapperData);
 
-            var elementMapper = elementMappingData.CreateMapper();
+            var elementMapper = elementMappingData.Mapper;
 
-            var inlineMappingBlock = GetInlineMappingBlockOrNull(
-                enumerableMapperData,
+            var inlineMappingBlock = GetInlineMappingBlock(
                 elementMapper,
                 MappingDataFactory.ForElementMethod,
-                md => new[]
-                {
-                    sourceObject,
-                    existingObject,
-                    Parameters.EnumerableIndex,
-                    md.Parameter
-                });
+                sourceObject,
+                targetObject,
+                enumerableIndex,
+                preInlineMapperData.MappingDataObject);
 
-            if (inlineMappingBlock == null)
-            {
-                return null;
-            }
-
-            enumerableMapperData.ElementMappingInlined();
+            postMapperCreationCallback.Invoke(elementMappingData, preInlineMapperData);
 
             return inlineMappingBlock;
         }
 
-        private static Expression GetInlineMappingBlockOrNull(
-            IMemberMapperData mapperData,
+        private static Expression GetInlineMappingBlock(
             IObjectMapper childMapper,
             MethodInfo createMethod,
-            Func<IMemberMapperData, Expression[]> createMethodCallArgumentsFactory)
+            params Expression[] createMethodCallArguments)
         {
-            if (childMapper.MapperData.RequiresChildMapping || childMapper.MapperData.RequiresElementMapping)
+            if (childMapper.MappingLambda.Body.NodeType != ExpressionType.Try)
             {
-                return null;
+                return childMapper.MappingLambda.Body;
             }
 
             var childMapperData = childMapper.MapperData;
             var inlineMappingTypes = new[] { childMapperData.SourceType, childMapperData.TargetType };
-            var createInlineMappingDataMethod = createMethod.MakeGenericMethod(inlineMappingTypes);
-            var inlineMappingDataType = createInlineMappingDataMethod.ReturnType;
-            var inlineMappingDataVariableName = childMapperData.TargetType.GetVariableNameInCamelCase() + "Data";
-            var inlineMappingDataVariable = Expression.Variable(inlineMappingDataType, inlineMappingDataVariableName);
 
-            var methodCallArguments = createMethodCallArgumentsFactory.Invoke(mapperData);
-            var createInlineMappingDataCall = Expression.Call(createInlineMappingDataMethod, methodCallArguments);
+            var inlineMappingDataVariable = childMapperData.MappingDataObject;
+
+            var createInlineMappingDataCall = Expression.Call(
+                createMethod.MakeGenericMethod(inlineMappingTypes),
+                createMethodCallArguments);
 
             var inlineMappingDataAssignment = Expression.Assign(inlineMappingDataVariable, createInlineMappingDataCall);
 
-            var replacementsByTarget = new ExpressionReplacementDictionary
-            {
-                [childMapperData.CreatedObject] = Expression.Property(inlineMappingDataVariable, "CreatedObject"),
-                [childMapperData.Parameter] = inlineMappingDataVariable
-            };
-
-            var mappingTryCatch = (TryExpression)childMapper.MappingLambda.Body.Replace(replacementsByTarget);
+            var mappingTryCatch = (TryExpression)childMapper.MappingLambda.Body;
 
             mappingTryCatch = mappingTryCatch.Update(
                 Expression.Block(inlineMappingDataAssignment, mappingTryCatch.Body),

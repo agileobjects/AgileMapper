@@ -1,42 +1,23 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
-    using System;
     using System.Linq.Expressions;
     using ObjectPopulation;
 
-    internal class MemberMapperData : BasicMapperData, IMemberMapperData
+    internal class ChildMemberMapperData : BasicMapperData, IMemberMapperData
     {
-        public MemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
-            : this(
-                  parent.MapperContext,
-                  parent.RuleSet,
-                  parent.SourceType,
-                  parent.TargetType,
-                  targetMember,
-                  parent)
+        public ChildMemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
+            : base(parent.RuleSet, parent.SourceType, parent.TargetType, targetMember, parent)
         {
-        }
-
-        public MemberMapperData(
-            MapperContext mapperContext,
-            MappingRuleSet ruleSet,
-            Type sourceType,
-            Type targetType,
-            QualifiedMember targetMember,
-            ObjectMapperData parent)
-            : base(ruleSet, sourceType, targetType, targetMember, parent)
-        {
-            MapperContext = mapperContext;
             Parent = parent;
         }
 
-        public MapperContext MapperContext { get; }
+        public MapperContext MapperContext => Parent.MapperContext;
 
         public ObjectMapperData Parent { get; }
 
         public Expression ParentObject => Parent.ParentObject;
 
-        public ParameterExpression Parameter => Parent.Parameter;
+        public ParameterExpression MappingDataObject => Parent.MappingDataObject;
 
         public IQualifiedMember SourceMember => Parent.SourceMember;
 

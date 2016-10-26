@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
 {
-    internal class Customer : Person
+    public class Customer : Person
     {
         public decimal Discount
         {

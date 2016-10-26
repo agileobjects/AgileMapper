@@ -11,7 +11,8 @@ namespace AgileObjects.AgileMapper.Members
         private static readonly object _syncLock = new object();
 
         private readonly Expression _dataParameter;
-        private readonly ICollection<Expression> _memberAccessSubjects;
+        private readonly ICollection<Expression> _stringMemberAccessSubjects;
+        private readonly ICollection<Expression> _hasValueAccessSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
         private bool _includeSourceObjectAccesses;
@@ -19,7 +20,8 @@ namespace AgileObjects.AgileMapper.Members
         public NestedAccessFinder(Expression dataParameter)
         {
             _dataParameter = dataParameter;
-            _memberAccessSubjects = new List<Expression>();
+            _stringMemberAccessSubjects = new List<Expression>();
+            _hasValueAccessSubjects = new List<Expression>();
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
 
@@ -35,7 +37,8 @@ namespace AgileObjects.AgileMapper.Members
 
                 memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
 
-                _memberAccessSubjects.Clear();
+                _stringMemberAccessSubjects.Clear();
+                _hasValueAccessSubjects.Clear();
                 _memberAccessesByPath.Clear();
             }
 
@@ -46,11 +49,14 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (IsNotRootObject(memberAccess))
             {
-                if ((memberAccess.Expression != null) && IsNotRootObject(memberAccess.Expression))
+                if ((memberAccess.Expression != null) &&
+                    (memberAccess.Member.Name == "HasValue") &&
+                    (memberAccess.Expression.Type.IsNullableType()))
                 {
-                    _memberAccessSubjects.Add(memberAccess.Expression);
+                    _hasValueAccessSubjects.Add(memberAccess.Expression);
                 }
 
+                AddStringMemberAccessSubjectIfAppropriate(memberAccess.Expression);
                 AddMemberAccessIfAppropriate(memberAccess);
             }
 
@@ -90,10 +96,7 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if ((methodCall.Object != null) && IsNotRootObject(methodCall.Object))
-            {
-                _memberAccessSubjects.Add(methodCall.Object);
-            }
+            AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
 
             if ((methodCall.Object != _dataParameter) &&
                 (methodCall.Method.DeclaringType != typeof(IMappingData)))
@@ -102,6 +105,14 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             return base.VisitMethodCall(methodCall);
+        }
+
+        private void AddStringMemberAccessSubjectIfAppropriate(Expression member)
+        {
+            if ((member != null) && (member.Type == typeof(string)) && IsNotRootObject(member))
+            {
+                _stringMemberAccessSubjects.Add(member);
+            }
         }
 
         private void AddMemberAccessIfAppropriate(Expression memberAccess)
@@ -114,7 +125,8 @@ namespace AgileObjects.AgileMapper.Members
 
         private bool Add(Expression memberAccess)
         {
-            return ((memberAccess.Type != typeof(string)) || _memberAccessSubjects.Contains(memberAccess)) &&
+            return !_hasValueAccessSubjects.Contains(memberAccess) &&
+                   ((memberAccess.Type != typeof(string)) || _stringMemberAccessSubjects.Contains(memberAccess)) &&
                    !_memberAccessesByPath.ContainsKey(memberAccess.ToString()) &&
                    memberAccess.Type.CanBeNull() &&
                    memberAccess.IsRootedIn(_dataParameter);

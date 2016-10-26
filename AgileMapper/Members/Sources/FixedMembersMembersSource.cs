@@ -1,14 +1,14 @@
 namespace AgileObjects.AgileMapper.Members.Sources
 {
-    internal class TargetMemberChildMembersSource : IChildMembersSource
+    internal class FixedMembersMembersSource : IChildMembersSource
     {
         private readonly IQualifiedMember _sourceMember;
         private readonly QualifiedMember _targetMember;
 
-        public TargetMemberChildMembersSource(
+        public FixedMembersMembersSource(
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            int dataSourceIndex)
+            int dataSourceIndex = 0)
         {
             _sourceMember = sourceMember;
             _targetMember = targetMember;

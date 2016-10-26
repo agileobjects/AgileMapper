@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal class PersonViewModel
+    public class PersonViewModel
     {
         public Guid Id
         {

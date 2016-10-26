@@ -76,7 +76,7 @@
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(mapperData);
         }
 
-        private bool TargetMembersMatch(IBasicMapperData mapperData)
+        protected virtual bool TargetMembersMatch(IBasicMapperData mapperData)
         {
             // The order of these checks is significant!
             if ((TargetMember == QualifiedMember.All) || (mapperData.TargetMember == QualifiedMember.All))

@@ -69,6 +69,12 @@
         public static Expression GetEmptyInstanceCreation(this QualifiedMember member)
             => member.Type.GetEmptyInstanceCreation(member.ElementType);
 
+        public static IQualifiedMember GetElementMember(this IQualifiedMember enumerableMember)
+            => enumerableMember.Append(CreateElementMember(enumerableMember.Type));
+
+        public static QualifiedMember GetElementMember(this QualifiedMember enumerableMember)
+            => enumerableMember.Append(CreateElementMember(enumerableMember.Type, enumerableMember.ElementType));
+
         public static Member CreateElementMember(this Type enumerableType, Type elementType = null)
         {
             return new Member(

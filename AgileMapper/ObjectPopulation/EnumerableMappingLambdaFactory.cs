@@ -6,12 +6,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class EnumerableMappingLambdaFactory : ObjectMappingLambdaFactoryBase
     {
-        protected override bool IsNotConstructable(IObjectMappingData mappingData) => false;
+        protected override bool TargetTypeIsNotConstructable(IObjectMappingData mappingData) => false;
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(
-            GotoExpression returnNull, 
-            ObjectMapperData mapperData)
+        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
             => Enumerable.Empty<Expression>();
+
+        protected override Expression GetTypeTests(ObjectMapperData mapperData) => Constants.EmptyExpression;
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {

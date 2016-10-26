@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var rootMappingData = mappingContext.CreateRootMappingData(source, targetMember);
             var rootMapperData = rootMappingData.MapperData;
 
-            var childMapperData = new MemberMapperData(targetMember, rootMapperData);
+            var childMapperData = new ChildMemberMapperData(targetMember, rootMapperData);
             var childMappingContext = rootMappingData.GetChildMappingData(childMapperData);
 
             var matchingSourceMember = SourceMemberMatcher.GetMatchFor(childMappingContext);

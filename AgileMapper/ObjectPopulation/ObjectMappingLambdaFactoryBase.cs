@@ -19,21 +19,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var returnNull = Expression.Return(
                 mapperData.ReturnLabelTarget,
-                Expression.Default(mappingData.TargetType));
+                Expression.Default(mapperData.TargetType));
 
-            if (IsNotConstructable(mappingData))
+            if (TargetTypeIsNotConstructable(mappingData))
             {
                 return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                     GetNullMappingBlock(returnNull),
-                    mapperData.Parameter);
+                    mapperData.MappingDataObject);
             }
 
             var mappingExpressions = new List<Expression>();
             var basicMapperData = BasicMapperData.WithNoTargetMember(mapperData);
 
-            mappingExpressions.Add(GetMappingCallback(CallbackPosition.Before, basicMapperData, mapperData));
             mappingExpressions.AddRange(GetShortCircuitReturns(returnNull, mapperData));
-            mappingExpressions.Add(GetObjectPopulationBlock(mappingData));
+            mappingExpressions.Add(GetTypeTests(mapperData));
+            mappingExpressions.Add(GetMappingCallback(CallbackPosition.Before, basicMapperData, mapperData));
+            mappingExpressions.AddRange(GetObjectPopulation(mappingData));
             mappingExpressions.Add(GetMappingCallback(CallbackPosition.After, basicMapperData, mapperData));
             mappingExpressions.Add(Expression.Label(mapperData.ReturnLabelTarget, GetReturnValue(mapperData)));
 
@@ -41,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
 
             var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(mappingBlockWithTryCatch, mapperData.Parameter);
+                .Lambda<MapperFunc<TSource, TTarget>>(mappingBlockWithTryCatch, mapperData.MappingDataObject);
 
             return mapperLambda;
         }
@@ -53,7 +54,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 returnNull.Value);
         }
 
-        protected abstract bool IsNotConstructable(IObjectMappingData mappingData);
+        protected abstract bool TargetTypeIsNotConstructable(IObjectMappingData mappingData);
+
+        protected abstract IEnumerable<Expression> GetShortCircuitReturns(
+            GotoExpression returnNull,
+            ObjectMapperData mapperData);
+
+        protected abstract Expression GetTypeTests(ObjectMapperData mapperData);
 
         private static Expression GetMappingCallback(
             CallbackPosition callbackPosition,
@@ -67,17 +74,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Func<UserConfigurationSet, Expression> callbackFactory,
             IMemberMapperData mapperData)
             => callbackFactory.Invoke(mapperData.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
-
-        protected abstract IEnumerable<Expression> GetShortCircuitReturns(
-            GotoExpression returnNull,
-            ObjectMapperData mapperData);
-
-        private Expression GetObjectPopulationBlock(IObjectMappingData mappingData)
-        {
-            var populationBlock = Expression.Block(GetObjectPopulation(mappingData));
-
-            return populationBlock;
-        }
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
@@ -105,7 +101,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 else
                 {
                     contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
-                    contextAccess = mapperData.Parameter;
+                    contextAccess = mapperData.MappingDataObject;
                 }
 
                 var exceptionContextCreateMethod = ObjectMappingExceptionData
@@ -125,7 +121,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingExceptionCreation = Expression.New(
                     MappingException.ConstructorInfo,
-                    mapperData.Parameter,
+                    mapperData.MappingDataObject,
                     exceptionVariable);
 
                 catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);

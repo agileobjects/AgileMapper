@@ -6,6 +6,8 @@ namespace AgileObjects.AgileMapper.Members
     {
         MappingRuleSet RuleSet { get; }
 
+        bool IsRoot { get; }
+
         IBasicMapperData Parent { get; }
 
         Type SourceType { get; }

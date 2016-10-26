@@ -2,25 +2,38 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Reflection;
     using Extensions;
-    using Members;
 
     internal static class MappingDataFactory
     {
+        public static readonly MethodInfo ForRootMethod = typeof(MappingDataFactory)
+            .GetPublicStaticMethod("ForRoot");
+
         public static readonly MethodInfo ForChildMethod = typeof(MappingDataFactory)
             .GetPublicStaticMethod("ForChild");
 
         public static readonly MethodInfo ForElementMethod = typeof(MappingDataFactory)
             .GetPublicStaticMethod("ForElement");
 
-        public static InlineChildMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
+        public static ObjectMappingData<TSource, TTarget> ForRoot<TSource, TTarget>(
+            TSource source,
+            TTarget target,
+            IMappingContext mappingContext)
+        {
+            return (ObjectMappingData<TSource, TTarget>)ObjectMappingDataFactory.ForRoot(
+                source,
+                target,
+                mappingContext);
+        }
+
+        public static ObjectMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
             TSource source,
             TTarget target,
             int? enumerableIndex,
             string targetMemberRegistrationName,
             int dataSourceIndex,
-            IInlineMappingData parent)
+            IObjectMappingData parent)
         {
-            return new InlineChildMappingData<TSource, TTarget>(
+            return (ObjectMappingData<TSource, TTarget>)ObjectMappingDataFactory.ForChild(
                 source,
                 target,
                 enumerableIndex,
@@ -29,13 +42,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parent);
         }
 
-        public static InlineElementMappingData<TSourceElement, TTargetElement> ForElement<TSourceElement, TTargetElement>(
+        public static ObjectMappingData<TSourceElement, TTargetElement> ForElement<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
             int enumerableIndex,
-            IInlineMappingData parent)
+            IObjectMappingData parent)
         {
-            return new InlineElementMappingData<TSourceElement, TTargetElement>(
+            return (ObjectMappingData<TSourceElement, TTargetElement>)ObjectMappingDataFactory.ForElement(
                 sourceElement,
                 targetElement,
                 enumerableIndex,

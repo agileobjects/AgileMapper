@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapper = objectMapperCache.GetOrAdd(
                 mappingData.MapperKey,
-                key => key.MappingData.CreateMapper());
+                key => key.MappingData.Mapper);
 
             return mapper;
         }

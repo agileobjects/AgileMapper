@@ -14,12 +14,9 @@
         }
 
         public static Type GetRuntimeTargetType<TDeclared>(this TDeclared item, Type sourceType)
-        {
-            return (item != null)
-                ? item.GetType()
-                : typeof(TDeclared).IsAssignableFrom(sourceType)
-                    ? sourceType
-                    : typeof(TDeclared);
-        }
+            => (item != null) ? item.GetType() : typeof(TDeclared).GetRuntimeTargetType(sourceType);
+
+        public static Type GetRuntimeTargetType(this Type targetType, Type sourceType)
+            => targetType.IsAssignableFrom(sourceType) ? sourceType : targetType;
     }
 }

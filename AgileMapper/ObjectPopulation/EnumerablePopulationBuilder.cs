@@ -376,7 +376,7 @@
         {
             return sourceElement.Type.IsSimple()
                 ? GetSimpleElementConversion(sourceElement)
-                : GetMapElementCall(sourceElement);
+                : GetElementMapping(sourceElement);
         }
 
         private Expression GetSimpleElementConversion(Expression sourceElement)
@@ -385,11 +385,15 @@
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
             => _omd.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
 
-        private Expression GetMapElementCall(Expression sourceObject)
-            => GetMapElementCall(sourceObject, Expression.Default(_targetElementType));
+        private Expression GetElementMapping(Expression sourceElement)
+            => GetElementMapping(sourceElement, Expression.Default(_targetElementType));
 
-        private Expression GetMapElementCall(Expression sourceObject, Expression existingObject)
-            => InlineMappingFactory.GetElementMapping(sourceObject, existingObject, _omd);
+        private Expression GetElementMapping(Expression sourceElement, Expression targetElement)
+        {
+            var elementMapperData = new ElementMapperData(sourceElement, targetElement, _omd);
+
+            return InlineMappingFactory.GetElementMapping(elementMapperData);
+        }
 
         private Expression GetSourceOnlyReturnValue()
         {
@@ -430,7 +434,7 @@
             var forEachActionType = Expression.GetActionType(_sourceElementType, _targetElementType, typeof(int));
             var sourceElementParameter = Parameters.Create(_sourceElementType);
             var targetElementParameter = Parameters.Create(_targetElementType);
-            var forEachAction = GetMapElementCall(sourceElementParameter, targetElementParameter);
+            var forEachAction = GetElementMapping(sourceElementParameter, targetElementParameter);
 
             var forEachLambda = Expression.Lambda(
                 forEachActionType,

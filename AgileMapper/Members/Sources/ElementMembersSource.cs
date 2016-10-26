@@ -11,8 +11,8 @@ namespace AgileObjects.AgileMapper.Members.Sources
 
         public IObjectMappingData Parent { get; }
 
-        public IQualifiedMember GetSourceMember<TSource>() => Parent.MapperData.SourceElementMember;
+        public IQualifiedMember GetSourceMember<TSource>() => Parent.MapperData.SourceMember.GetElementMember();
 
-        public QualifiedMember GetTargetMember<TTarget>() => Parent.MapperData.TargetElementMember;
+        public QualifiedMember GetTargetMember<TTarget>() => Parent.MapperData.TargetMember.GetElementMember();
     }
 }

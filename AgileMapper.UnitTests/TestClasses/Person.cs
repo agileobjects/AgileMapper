@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal class Person
+    public class Person
     {
         public Guid Id
         {

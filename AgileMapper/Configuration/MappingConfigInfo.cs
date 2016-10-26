@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using Extensions;
 #if NET_STANDARD
     using System.Reflection;
 #endif
@@ -9,7 +10,6 @@
 
     internal class MappingConfigInfo
     {
-        private static readonly object _configurationSync = new object();
         private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null);
 
@@ -120,34 +120,6 @@
             }
         }
 
-        public Expression GetConditionOrNull<TSource, TTarget>()
-        {
-            if (!HasCondition)
-            {
-                return null;
-            }
-
-            var stubMappingContext = new MappingExecutor<TSource>(_mappingRuleSet, MapperContext);
-
-            IMemberMapperData mapperData;
-
-            lock (_configurationSync)
-            {
-                MapperContext.UserConfigurations.DerivedTypes.Configuring = true;
-
-                mapperData = stubMappingContext
-                    .CreateRootMappingData(default(TSource), default(TTarget))
-                    .MapperData;
-
-                MapperContext.UserConfigurations.DerivedTypes.Configuring = false;
-            }
-
-            var condition = GetConditionOrNull(mapperData);
-            condition = mapperData.ReplaceTypedParameterWithUntyped(condition);
-
-            return condition;
-        }
-
         public Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
             if (!HasCondition)
@@ -162,7 +134,19 @@
                 contextualisedCondition = Expression.Not(contextualisedCondition);
             }
 
-            return contextualisedCondition;
+            var conditionNestedAccessesChecks = mapperData
+                .GetNestedAccessesIn(contextualisedCondition)
+                .GetIsNotDefaultComparisonsOrNull();
+
+            if (conditionNestedAccessesChecks == null)
+            {
+                return contextualisedCondition;
+            }
+
+            var checkedConfiguredCondition = Expression
+                .AndAlso(conditionNestedAccessesChecks, contextualisedCondition);
+
+            return checkedConfiguredCondition;
         }
 
         #endregion

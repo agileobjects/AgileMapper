@@ -57,7 +57,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                             ctor.GetParameters()
                                 .Select(p =>
                                 {
-                                    var parameterMapperData = new MemberMapperData(
+                                    var parameterMapperData = new ChildMemberMapperData(
                                         mapperData.TargetMember.Append(Member.ConstructorParameter(p)),
                                         mapperData);
 

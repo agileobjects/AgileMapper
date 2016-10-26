@@ -34,12 +34,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     mapperData.TargetObject.GetIsDefaultComparison());
             }
 
-            // Root source is null-checked before mapping begins:
             if (_nullSource)
             {
-                return (mapperData.Parent != null) ?
-                    mapperData.SourceObject.GetIsDefaultComparison()
-                    : null;
+                // Root source is null-checked before mapping begins:
+                return mapperData.IsRoot ? null : mapperData.SourceObject.GetIsDefaultComparison();
             }
 
             if (_nullExisting)

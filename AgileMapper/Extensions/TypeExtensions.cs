@@ -27,13 +27,13 @@
             return type.IsEnumerable() ? Pluralise(shortVariableName) : shortVariableName;
         }
 
-        public static string GetVariableNameInCamelCase(this Type type) => type.GetVariableName(f => f.InCamelCase);
+        public static string GetVariableNameInCamelCase(this Type type) => type.GetVariableName(f => f.ToCamelCase());
 
-        public static string GetVariableNameInPascalCase(this Type type) => type.GetVariableName(f => f.InPascalCase);
+        public static string GetVariableNameInPascalCase(this Type type) => type.GetVariableName(f => f.ToPascalCase());
 
         private static string GetVariableName(
             this Type type,
-            Func<VariableFormatterSelector, Func<string, string>> formatter)
+            Func<string, string> formatter)
         {
             var typeIsEnumerable = type.IsEnumerable();
             var namingType = typeIsEnumerable ? type.GetEnumerableElementType() : type;
@@ -53,12 +53,25 @@
                     namingType.GetGenericArguments().Select(arg => "_" + arg.GetVariableNameInPascalCase()));
             }
 
+            variableName = RemoveNonAlphaNumerics(variableName);
+
             if (formatter != null)
             {
-                variableName = formatter.Invoke(VariableFormatterSelector.Instance).Invoke(variableName);
+                variableName = formatter.Invoke(variableName);
             }
 
             return typeIsEnumerable ? Pluralise(variableName) : variableName;
+        }
+
+        private static string RemoveNonAlphaNumerics(string value)
+        {
+            // Anonymous types start with non-alphanumeric characters
+            while (!char.IsLetterOrDigit(value, 0))
+            {
+                value = value.Substring(1);
+            }
+
+            return value;
         }
 
         private static string Pluralise(string value)
@@ -108,29 +121,6 @@
 
             return true;
         }
-
-        #region VariableFormatterSelector
-
-        public class VariableFormatterSelector
-        {
-            internal static readonly VariableFormatterSelector Instance = new VariableFormatterSelector();
-
-            private VariableFormatterSelector()
-            {
-            }
-
-            public string InCamelCase(string variableName)
-            {
-                return variableName.ToCamelCase();
-            }
-
-            public string InPascalCase(string variableName)
-            {
-                return variableName.ToPascalCase();
-            }
-        }
-
-        #endregion
 
         public static Type GetEnumerableElementType(this Type enumerableType)
         {

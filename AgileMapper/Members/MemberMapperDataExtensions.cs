@@ -4,12 +4,14 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
 
     internal static class MemberMapperDataExtensions
     {
-        public static bool CanInlineMappingFor(this IMemberMapperData mapperData, QualifiedMember targetMember)
-            => mapperData.MapperContext.UserConfigurations.DerivedTypes.CanInlineMappingFor(targetMember);
+        public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
+            => !mapperData.IsRoot && mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
+
+        public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
+            => mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
 
         public static Expression GetMapCall(this IMemberMapperData mapperData, Expression value, int dataSourceIndex = 0)
             => mapperData.Parent.GetMapCall(value, mapperData.TargetMember, dataSourceIndex);
@@ -35,10 +37,10 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (mapperData.TypesMatch(contextTypes))
             {
-                return mapperData.Parameter;
+                return mapperData.MappingDataObject;
             }
 
-            Expression dataAccess = mapperData.Parameter;
+            Expression dataAccess = mapperData.MappingDataObject;
 
             if (mapperData.TargetMember.IsSimple)
             {
@@ -59,9 +61,9 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetTypedContextAccess(this IMemberMapperData mapperData, Expression contextAccess, Type[] contextTypes)
         {
-            if (contextAccess == mapperData.Parameter)
+            if (contextAccess == mapperData.MappingDataObject)
             {
-                return mapperData.Parameter;
+                return mapperData.MappingDataObject;
             }
 
             return Expression.Call(
@@ -85,20 +87,9 @@ namespace AgileObjects.AgileMapper.Members
             Type type,
             Expression directAccessExpression)
         {
-            return (contextAccess == mapperData.Parameter)
+            return (contextAccess == mapperData.MappingDataObject)
                 ? directAccessExpression
                 : accessMethodFactory.Invoke(contextAccess, type);
-        }
-
-        public static Expression ReplaceTypedParameterWithUntyped(this IMemberMapperData mapperData, Expression expression)
-        {
-            var replacementsByTarget = new ExpressionReplacementDictionary
-            {
-                [mapperData.SourceObject] = GetSourceAccess(Parameters.MappingData, mapperData.SourceType),
-                [mapperData.TargetObject] = GetTargetAccess(Parameters.MappingData, mapperData.TargetType)
-            };
-
-            return expression.Replace(replacementsByTarget);
         }
 
         private static Expression GetSourceAccess(Expression dataAccess, Type sourceType)

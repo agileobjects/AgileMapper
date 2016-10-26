@@ -37,7 +37,7 @@
             where TDerivedTarget : TTarget
         {
             var derivedTypePair = DerivedTypePair
-                .For<TSource, TDerivedSource, TTarget, TDerivedTarget>(_configInfo);
+                .For<TDerivedSource, TTarget, TDerivedTarget>(_configInfo);
 
             _configInfo.MapperContext.UserConfigurations.DerivedTypes.Add(derivedTypePair);
 

@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.Members
                 : base(
                       mapperData.SourceMember,
                       mapperData.TargetMember.IsReadable
-                          ? mapperData.TargetMember.GetAccess(mapperData.InstanceVariable)
+                          ? mapperData.GetTargetMemberAccess()
                           : Constants.EmptyExpression,
                       mapperData)
             {

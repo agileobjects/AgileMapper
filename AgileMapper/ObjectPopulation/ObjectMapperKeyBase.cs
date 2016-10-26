@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMapper CreateMapper<TSource, TTarget>()
         {
-            var mapper = MappingTypes.MapperContext
+            var mapper = MappingData.MappingContext.MapperContext
                 .ObjectMapperFactory
                 .Create<TSource, TTarget>(MappingData);
 

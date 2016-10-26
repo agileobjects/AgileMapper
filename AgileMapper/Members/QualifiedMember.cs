@@ -114,6 +114,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsReadable => LeafMember.IsReadable;
 
+        public bool IsRecursive { get; }
+
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
         public QualifiedMember Append(Member childMember)
@@ -164,7 +166,21 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);
 
-        public bool Matches(QualifiedMember otherMember) => JoinedNames.Match(otherMember.JoinedNames);
+        public bool Matches(IQualifiedMember otherMember)
+        {
+            if (otherMember == this)
+            {
+                return true;
+            }
+
+            var otherQualifiedMember = otherMember as QualifiedMember;
+            if (otherQualifiedMember != null)
+            {
+                return JoinedNames.Match(otherQualifiedMember.JoinedNames);
+            }
+
+            return otherMember.Matches(this);
+        }
 
         public Expression GetAccess(Expression instance) => LeafMember.GetAccess(instance);
 

@@ -74,8 +74,8 @@
 
             if (mapperData.TargetMember.IsComplex)
             {
-                yield return new ComplexTypeMappingDataSource(bestMatchingSourceMember, dataSourceIndex, mapperData);
-                yield break;
+                //yield return new ComplexTypeMappingDataSource(bestMatchingSourceMember, dataSourceIndex, mapperData);
+                //yield break;
             }
 
             var sourceMemberDataSources = GetSourceMemberDataSources(
@@ -123,14 +123,22 @@
             int dataSourceIndex,
             IMemberMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, mappingData);
 
             if ((matchingSourceMemberDataSource == null) ||
                 configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
-                if (dataSourceIndex > 0)
+                if (dataSourceIndex == 0)
                 {
-                    yield return FallbackDataSourceFor(mappingData.MapperData);
+                    if (mapperData.TargetMember.IsComplex)
+                    {
+                        yield return new ComplexTypeMappingDataSource(dataSourceIndex, mapperData);
+                    }
+                }
+                else
+                {
+                    yield return FallbackDataSourceFor(mapperData);
                 }
 
                 yield break;
@@ -140,7 +148,7 @@
 
             if (matchingSourceMemberDataSource.IsConditional)
             {
-                yield return FallbackDataSourceFor(mappingData.MapperData);
+                yield return FallbackDataSourceFor(mapperData);
             }
         }
 
@@ -164,6 +172,11 @@
             int dataSourceIndex,
             IMemberMapperData mapperData)
         {
+            if (mapperData.TargetMember.IsComplex)
+            {
+                return new ComplexTypeMappingDataSource(foundDataSource, dataSourceIndex, mapperData);
+            }
+
             if (mapperData.TargetMember.IsEnumerable)
             {
                 return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, mapperData);
