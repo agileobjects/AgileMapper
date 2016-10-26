@@ -36,7 +36,13 @@ namespace AgileObjects.AgileMapper.Members
             _memberChain = memberChain;
             _memberMatchingNames = memberMatchingNames;
             JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(memberMatchingNames);
+
             _pathFactory = () => _memberChain.GetFullName();
+
+            if (LeafMember != null)
+            {
+                IsRecursive = DetermineRecursion();
+            }
         }
 
         private QualifiedMember(Member member, QualifiedMember parent, MapperContext mapperContext)
@@ -58,6 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(_memberMatchingNames);
 
             _pathFactory = () => parent.GetPath() + member.JoiningName;
+            IsRecursive = DetermineRecursion();
         }
 
         private QualifiedMember(Member leafMember, MapperContext mapperContext)
@@ -75,6 +82,42 @@ namespace AgileObjects.AgileMapper.Members
             RegistrationName = (LeafMember.MemberType != MemberType.ConstructorParameter)
                 ? Name : "ctor:" + Name;
         }
+
+        #region Setup
+
+        private bool DetermineRecursion()
+        {
+            if (IsSimple)
+            {
+                return false;
+            }
+
+            if (_memberChain.Length < 3)
+            {
+                // Need at least 3 members for recursion: 
+                // Foo -> Foo.ChildFoo -> Foo.ChildFoo.ChildFoo
+                return false;
+            }
+
+            for (var i = _memberChain.Length - 1; i > 0; i--)
+            {
+                var currentMember = _memberChain[i];
+
+                for (var j = i - 1; j > 0; j--)
+                {
+                    var parentMember = _memberChain[j];
+
+                    if (currentMember == parentMember)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        #endregion
 
         #region Factory Method
 

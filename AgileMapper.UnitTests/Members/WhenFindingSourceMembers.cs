@@ -7,7 +7,7 @@
     using Xunit;
 
     // ReSharper disable PossibleNullReferenceException
-    public class WhenFindingSourceMembers : MemberFinderTestsBase
+    public class WhenFindingSourceMembers : MemberTestsBase
     {
         [Fact]
         public void ShouldFindAPublicProperty()

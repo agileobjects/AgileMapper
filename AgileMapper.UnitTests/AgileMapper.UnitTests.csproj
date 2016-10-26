@@ -88,9 +88,10 @@
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Extensions\WhenGeneratingVariableNames.cs" />
     <Compile Include="Extensions\WhenGettingAParentExpressionNode.cs" />
-    <Compile Include="Members\MemberFinderTestsBase.cs" />
+    <Compile Include="Members\MemberTestsBase.cs" />
     <Compile Include="Members\WhenCreatingTargetMembersFromExpressions.cs" />
     <Compile Include="Members\WhenDeterminingATypeIdentifier.cs" />
+    <Compile Include="Members\WhenDeterminingRecursion.cs" />
     <Compile Include="Members\WhenFindingDataSources.cs" />
     <Compile Include="Members\WhenFindingSourceMembers.cs" />
     <Compile Include="Members\WhenFindingTargetMembers.cs" />

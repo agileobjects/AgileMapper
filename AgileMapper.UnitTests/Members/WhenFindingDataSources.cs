@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
     using TestClasses;
     using Xunit;
 
-    public class WhenFindingDataSources : MemberFinderTestsBase
+    public class WhenFindingDataSources : MemberTestsBase
     {
         [Fact]
         public void ShouldNotMatchSameNameIncompatibleTypeProperties()
