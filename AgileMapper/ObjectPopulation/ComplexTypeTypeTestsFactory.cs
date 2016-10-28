@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static Expression CreateFor(ObjectMapperData mapperData)
         {
-            if (mapperData.IsForDerivedTypeMappingRoot || mapperData.HasSameSourceAsParent())
+            if (mapperData.IsPartOfDerivedTypeMapping || mapperData.HasSameSourceAsParent())
             {
                 return Constants.EmptyExpression;
             }
@@ -126,7 +126,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var targetType = mapperData.TargetType.GetRuntimeTargetType(derivedSourceType);
 
-                var condition = GetTypePairCondition(typedVariable, derivedSourceType, targetType, mapperData);
+                var condition = GetTypePairCondition(typedVariable, derivedSourceType, ref targetType, mapperData);
 
                 var mapping = InlineMappingFactory
                     .GetRuntimeTypedMapping(mapperData, typedVariable, targetType);
@@ -143,7 +143,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetTypePairCondition(
             Expression typedVariable,
             Type derivedSourceType,
-            Type targetType,
+            ref Type targetType,
             IMemberMapperData mapperData)
         {
             Expression condition = typedVariable.GetIsNotDefaultComparison();

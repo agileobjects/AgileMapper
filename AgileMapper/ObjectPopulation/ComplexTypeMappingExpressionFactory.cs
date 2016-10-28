@@ -8,11 +8,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ComplexTypeMappingLambdaFactory : ObjectMappingLambdaFactoryBase
+    internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
         private readonly ComplexTypeConstructionFactory _constructionFactory;
 
-        public ComplexTypeMappingLambdaFactory(MapperContext mapperContext)
+        public ComplexTypeMappingExpressionFactory(MapperContext mapperContext)
         {
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }
@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetStrategyShortCircuitReturnsOrNull(Expression returnNull, ObjectMapperData mapperData)
         {
-            if (mapperData.IsForDerivedTypeMappingRoot || mapperData.HasSameSourceAsParent())
+            if (mapperData.IsPartOfDerivedTypeMapping || mapperData.HasSameSourceAsParent())
             {
                 return null;
             }

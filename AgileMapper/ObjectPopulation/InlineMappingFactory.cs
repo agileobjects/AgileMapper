@@ -62,12 +62,13 @@
 
         private static Expression GetRootMapping(
             ObjectMapperData runtimeMapperData,
-            IMemberMapperData preInlineMapperData,
+            ObjectMapperData preInlineMapperData,
             Expression sourceValue,
             Expression targetValue)
         {
             var rootMappingData = ObjectMappingDataFactory.ForRoot(runtimeMapperData);
-            rootMappingData.MapperData = runtimeMapperData;
+
+            PopulateMappingDataMapperData(rootMappingData, runtimeMapperData);
 
             var rootMapper = runtimeMapperData.MapperContext
                 .ObjectMapperFactory
@@ -79,6 +80,8 @@
                 sourceValue,
                 targetValue,
                 Expression.Property(preInlineMapperData.MappingDataObject, "MappingContext"));
+
+            ResetMappingDataMapperData(rootMappingData, preInlineMapperData);
 
             return inlineMappingBlock;
         }
@@ -138,23 +141,53 @@
                 return preInlineMapperData.GetMapCall(sourceValue, childMapperData.TargetMember, dataSourceIndex);
             }
 
+            var createMethodCallArguments = new[]
+            {
+                sourceValue,
+                targetValue,
+                enumerableIndex,
+                Expression.Constant(childMapperData.TargetMember.RegistrationName),
+                Expression.Constant(dataSourceIndex),
+                preInlineMapperData.MappingDataObject
+            };
+
             preMapperCreationCallback.Invoke(childMappingData, childMapperData);
+
+            if (childMapperData.TargetMemberReferencesRecursionRoot())
+            {
+                var mapperFuncCall = GetMapperFuncCallFor(childMappingData.MapperData, createMethodCallArguments);
+
+                postMapperCreationCallback.Invoke(childMappingData, preInlineMapperData);
+
+                return mapperFuncCall;
+            }
 
             var childMapper = childMappingData.Mapper;
 
             var inlineMappingBlock = GetInlineMappingBlock(
                 childMapper,
                 MappingDataFactory.ForChildMethod,
-                sourceValue,
-                targetValue,
-                enumerableIndex,
-                Expression.Constant(childMapperData.TargetMember.RegistrationName),
-                Expression.Constant(dataSourceIndex),
-                preInlineMapperData.MappingDataObject);
+                createMethodCallArguments);
 
             postMapperCreationCallback.Invoke(childMappingData, preInlineMapperData);
 
             return inlineMappingBlock;
+        }
+
+        private static Expression GetMapperFuncCallFor(
+            ObjectMapperData childMapperData,
+            Expression[] createMethodCallArguments)
+        {
+            var mapperFuncVariable = childMapperData.FindRequiredMapperFuncVariable();
+
+            var createInlineMappingDataCall = GetCreateMappingDataCall(
+                MappingDataFactory.ForChildMethod,
+                childMapperData,
+                createMethodCallArguments);
+
+            var mapperFuncCall = Expression.Invoke(mapperFuncVariable, createInlineMappingDataCall);
+
+            return mapperFuncCall;
         }
 
         public static Expression GetElementMapping(IMemberMapperData elementMapperData)
@@ -211,23 +244,22 @@
             MethodInfo createMethod,
             params Expression[] createMethodCallArguments)
         {
-            if (childMapper.MappingLambda.Body.NodeType != ExpressionType.Try)
+            if (childMapper.MappingExpression.NodeType != ExpressionType.Try)
             {
-                return childMapper.MappingLambda.Body;
+                return childMapper.MappingExpression;
             }
 
             var childMapperData = childMapper.MapperData;
-            var inlineMappingTypes = new[] { childMapperData.SourceType, childMapperData.TargetType };
-
             var inlineMappingDataVariable = childMapperData.MappingDataObject;
 
-            var createInlineMappingDataCall = Expression.Call(
-                createMethod.MakeGenericMethod(inlineMappingTypes),
+            var createInlineMappingDataCall = GetCreateMappingDataCall(
+                createMethod,
+                childMapperData,
                 createMethodCallArguments);
 
             var inlineMappingDataAssignment = Expression.Assign(inlineMappingDataVariable, createInlineMappingDataCall);
 
-            var mappingTryCatch = (TryExpression)childMapper.MappingLambda.Body;
+            var mappingTryCatch = (TryExpression)childMapper.MappingExpression;
 
             mappingTryCatch = mappingTryCatch.Update(
                 Expression.Block(inlineMappingDataAssignment, mappingTryCatch.Body),
@@ -236,6 +268,18 @@
                 mappingTryCatch.Fault);
 
             return Expression.Block(new[] { inlineMappingDataVariable }, mappingTryCatch);
+        }
+
+        private static Expression GetCreateMappingDataCall(
+            MethodInfo createMethod,
+            IBasicMapperData childMapperData,
+            Expression[] createMethodCallArguments)
+        {
+            var inlineMappingTypes = new[] { childMapperData.SourceType, childMapperData.TargetType };
+
+            return Expression.Call(
+                createMethod.MakeGenericMethod(inlineMappingTypes),
+                createMethodCallArguments);
         }
     }
 }

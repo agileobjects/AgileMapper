@@ -10,6 +10,32 @@ namespace AgileObjects.AgileMapper.Members
         public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
             => !mapperData.IsRoot && mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
 
+        public static bool TargetMemberReferencesRecursionRoot(this IMemberMapperData mapperData)
+        {
+            if (!mapperData.TargetMember.IsRecursive)
+            {
+                return false;
+            }
+
+            var parentMapperData = mapperData.Parent;
+
+            while (!parentMapperData.IsRoot)
+            {
+                if ((parentMapperData.TargetMember.LeafMember == mapperData.TargetMember.LeafMember) &&
+                    TargetMemberIsRecursionRoot(parentMapperData))
+                {
+                    return true;
+                }
+
+                parentMapperData = parentMapperData.Parent;
+            }
+
+            return false;
+        }
+
+        private static bool TargetMemberIsRecursionRoot(IMemberMapperData mapperData)
+            => mapperData.TargetMember.IsRecursive && !mapperData.Parent.TargetMember.IsRecursive;
+
         public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
             => mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
 

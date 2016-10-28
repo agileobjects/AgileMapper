@@ -83,11 +83,15 @@
             rootChildEnumerableElementChildMember.IsRecursive.ShouldBeTrue();
         }
 
+        #region Helper Class
+
         // ReSharper disable once ClassNeverInstantiated.Local
         private class SelfReferencingClass
         {
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public SelfReferencingClass Reference { get; set; }
         }
+
+        #endregion
     }
 }

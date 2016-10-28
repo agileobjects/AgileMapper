@@ -87,29 +87,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData MapperData
         {
-            get { return _mapperData ?? (_mapperData = CreateMapperData()); }
+            get { return _mapperData ?? (_mapperData = ObjectMapperData.For<TSource, TTarget>(_membersSource, this)); }
             set { _mapperData = value; }
-        }
-
-        private ObjectMapperData CreateMapperData()
-        {
-            var sourceMember = _membersSource.GetSourceMember<TSource>();
-            var targetMember = _membersSource.GetTargetMember<TTarget>();
-
-            if (!IsRoot)
-            {
-                sourceMember = sourceMember.WithType(typeof(TSource));
-                targetMember = targetMember.WithType(typeof(TTarget));
-            }
-
-            var mapperData = new ObjectMapperData(
-                this,
-                sourceMember,
-                targetMember,
-                (_membersSource as IChildMembersSource)?.DataSourceIndex,
-                _parent?.MapperData);
-
-            return mapperData;
         }
 
         private MemberMappingData<TSource, TTarget> _childMappingData;

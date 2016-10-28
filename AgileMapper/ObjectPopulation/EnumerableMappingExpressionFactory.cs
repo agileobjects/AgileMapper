@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
 
-    internal class EnumerableMappingLambdaFactory : ObjectMappingLambdaFactoryBase
+    internal class EnumerableMappingExpressionFactory : MappingExpressionFactoryBase
     {
         protected override bool TargetTypeIsNotConstructable(IObjectMappingData mappingData) => false;
 

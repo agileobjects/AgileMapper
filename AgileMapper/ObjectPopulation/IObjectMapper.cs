@@ -1,10 +1,11 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using System.Linq.Expressions;
 
     internal interface IObjectMapper
     {
+        Expression MappingExpression { get; }
+
         LambdaExpression MappingLambda { get; }
 
         ObjectMapperData MapperData { get; }

@@ -144,7 +144,7 @@
                 .ToANew<Parent>();
 
             plan.ShouldContain("Map Parent -> Parent");
-            plan.ShouldContain("Map Child -> Child");
+            plan.ShouldContain("mapEldestChildToChild"); // The name of the recusive mapper function
         }
 
         #region Helper Classes

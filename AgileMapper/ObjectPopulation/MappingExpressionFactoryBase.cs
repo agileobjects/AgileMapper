@@ -11,9 +11,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
-    internal abstract class ObjectMappingLambdaFactoryBase
+    internal abstract class MappingExpressionFactoryBase
     {
-        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMappingData mappingData)
+        public Expression Create(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
@@ -23,9 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (TargetTypeIsNotConstructable(mappingData))
             {
-                return Expression.Lambda<MapperFunc<TSource, TTarget>>(
-                    GetNullMappingBlock(returnNull),
-                    mapperData.MappingDataObject);
+                return GetNullMappingBlock(returnNull);
             }
 
             var mappingExpressions = new List<Expression>();
@@ -41,10 +39,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
             var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
 
-            var mapperLambda = Expression
-                .Lambda<MapperFunc<TSource, TTarget>>(mappingBlockWithTryCatch, mapperData.MappingDataObject);
-
-            return mapperLambda;
+            return mappingBlockWithTryCatch;
         }
 
         private static Expression GetNullMappingBlock(GotoExpression returnNull)
