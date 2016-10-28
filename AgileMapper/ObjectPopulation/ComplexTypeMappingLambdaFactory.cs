@@ -8,11 +8,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
+    internal class ComplexTypeMappingLambdaFactory : MappingLambdaFactoryBase
     {
         private readonly ComplexTypeConstructionFactory _constructionFactory;
 
-        public ComplexTypeMappingExpressionFactory(MapperContext mapperContext)
+        public ComplexTypeMappingLambdaFactory(MapperContext mapperContext)
         {
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }

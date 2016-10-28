@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
@@ -70,9 +71,9 @@
 
             PopulateMappingDataMapperData(rootMappingData, runtimeMapperData);
 
-            var rootMapper = runtimeMapperData.MapperContext
-                .ObjectMapperFactory
-                .CreateRoot(rootMappingData);
+            var rootMapper = runtimeMapperData.IsPartOfDerivedTypeMapping
+                ? rootMappingData.Mapper
+                : runtimeMapperData.MapperContext.ObjectMapperFactory.CreateRoot(rootMappingData);
 
             var inlineMappingBlock = GetInlineMappingBlock(
                 rootMapper,
@@ -244,7 +245,9 @@
             MethodInfo createMethod,
             params Expression[] createMethodCallArguments)
         {
-            if (childMapper.MappingExpression.NodeType != ExpressionType.Try)
+            var mappingExpression = MappingExpression.For(childMapper);
+
+            if (!mappingExpression.IsSuccessful)
             {
                 return childMapper.MappingExpression;
             }
@@ -257,17 +260,12 @@
                 childMapperData,
                 createMethodCallArguments);
 
-            var inlineMappingDataAssignment = Expression.Assign(inlineMappingDataVariable, createInlineMappingDataCall);
+            var inlineMappingDataAssignment = Expression
+                .Assign(inlineMappingDataVariable, createInlineMappingDataCall);
 
-            var mappingTryCatch = (TryExpression)childMapper.MappingExpression;
+            var updatedMappingExpression = mappingExpression.GetUpdatedMappingExpression(inlineMappingDataAssignment);
 
-            mappingTryCatch = mappingTryCatch.Update(
-                Expression.Block(inlineMappingDataAssignment, mappingTryCatch.Body),
-                mappingTryCatch.Handlers,
-                mappingTryCatch.Finally,
-                mappingTryCatch.Fault);
-
-            return Expression.Block(new[] { inlineMappingDataVariable }, mappingTryCatch);
+            return updatedMappingExpression;
         }
 
         private static Expression GetCreateMappingDataCall(
@@ -281,5 +279,82 @@
                 createMethod.MakeGenericMethod(inlineMappingTypes),
                 createMethodCallArguments);
         }
+
+        #region Helper Class
+
+        private class MappingExpression
+        {
+            private static readonly MappingExpression _unableToMap = new MappingExpression();
+
+            private readonly TryExpression _mappingTryCatch;
+            private readonly Func<BlockExpression, Expression> _finalMappingBlockFactory;
+
+            private MappingExpression()
+            {
+            }
+
+            private MappingExpression(
+                TryExpression mappingTryCatch,
+                Func<BlockExpression, Expression> finalMappingBlockFactory)
+            {
+                _mappingTryCatch = mappingTryCatch;
+                _finalMappingBlockFactory = finalMappingBlockFactory;
+                IsSuccessful = true;
+            }
+
+            #region Factory Method
+
+            public static MappingExpression For(IObjectMapper mapper)
+            {
+                if (mapper.MappingExpression.NodeType == ExpressionType.Try)
+                {
+                    return new MappingExpression((TryExpression)mapper.MappingExpression, b => b);
+                }
+
+                var blockExpression = (BlockExpression)mapper.MappingExpression;
+
+                var mappingTryCatch = blockExpression.Expressions.Last() as TryExpression;
+
+                if (mappingTryCatch == null)
+                {
+                    return _unableToMap;
+                }
+
+                return new MappingExpression(
+                    mappingTryCatch,
+                    updatedTryCatch =>
+                    {
+                        var blockExpressions = blockExpression
+                            .Expressions
+                            .Take(blockExpression.Expressions.Count - 1)
+                            .ToList();
+
+                        blockExpressions.Add(updatedTryCatch);
+
+                        return Expression.Block(blockExpression.Variables, blockExpressions);
+                    });
+            }
+
+            #endregion
+
+            public bool IsSuccessful { get; }
+
+            public Expression GetUpdatedMappingExpression(BinaryExpression mappingDataAssignment)
+            {
+                var updatedTryCatch = _mappingTryCatch.Update(
+                    Expression.Block(mappingDataAssignment, _mappingTryCatch.Body),
+                    _mappingTryCatch.Handlers,
+                    _mappingTryCatch.Finally,
+                    _mappingTryCatch.Fault);
+
+                var mappingDataVariable = (ParameterExpression)mappingDataAssignment.Left;
+                var mappingBlock = Expression.Block(new[] { mappingDataVariable }, updatedTryCatch);
+                var finalMappingBlock = _finalMappingBlockFactory.Invoke(mappingBlock);
+
+                return finalMappingBlock;
+            }
+        }
+
+        #endregion
     }
 }

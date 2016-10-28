@@ -4,14 +4,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperFactory
     {
-        private readonly EnumerableMappingExpressionFactory _enumerableMappingExpressionFactory;
-        private readonly ComplexTypeMappingExpressionFactory _complexTypeMappingExpressionFactory;
+        private readonly EnumerableMappingLambdaFactory _enumerableMappingLambdaFactory;
+        private readonly ComplexTypeMappingLambdaFactory _complexTypeMappingLambdaFactory;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _rootMappers;
 
         public ObjectMapperFactory(MapperContext mapperContext)
         {
-            _enumerableMappingExpressionFactory = new EnumerableMappingExpressionFactory();
-            _complexTypeMappingExpressionFactory = new ComplexTypeMappingExpressionFactory(mapperContext);
+            _enumerableMappingLambdaFactory = new EnumerableMappingLambdaFactory();
+            _complexTypeMappingLambdaFactory = new ComplexTypeMappingLambdaFactory(mapperContext);
             _rootMappers = mapperContext.Cache.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();
         }
 
@@ -20,8 +20,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMapper Create<TSource, TTarget>(IObjectMappingData mappingData)
         {
             var mappingExpression = mappingData.MapperKey.MappingTypes.IsEnumerable
-                ? _enumerableMappingExpressionFactory.Create(mappingData)
-                : _complexTypeMappingExpressionFactory.Create(mappingData);
+                ? _enumerableMappingLambdaFactory.Create<TSource, TTarget>(mappingData)
+                : _complexTypeMappingLambdaFactory.Create<TSource, TTarget>(mappingData);
 
             var mapper = new ObjectMapper<TSource, TTarget>(mappingExpression, mappingData.MapperData);
 
@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public void Reset()
         {
             _rootMappers.Empty();
-            _complexTypeMappingExpressionFactory.Reset();
+            _complexTypeMappingLambdaFactory.Reset();
         }
     }
 }

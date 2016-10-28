@@ -11,9 +11,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
-    internal abstract class MappingExpressionFactoryBase
+    internal abstract class MappingLambdaFactoryBase
     {
-        public Expression Create(IObjectMappingData mappingData)
+        public Expression<MapperFunc<TSource, TTarget>> Create<TSource, TTarget>(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (TargetTypeIsNotConstructable(mappingData))
             {
-                return GetNullMappingBlock(returnNull);
+                return CreateMappingLambda<TSource, TTarget>(GetNullMappingBlock(returnNull), mapperData);
             }
 
             var mappingExpressions = new List<Expression>();
@@ -38,8 +38,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
             var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
+            var mappingBlockWithMapperFuncs = PrependMapperFuncsIfNecessary(mappingBlockWithTryCatch, mapperData);
 
-            return mappingBlockWithTryCatch;
+            return CreateMappingLambda<TSource, TTarget>(mappingBlockWithMapperFuncs, mapperData);
         }
 
         private static Expression GetNullMappingBlock(GotoExpression returnNull)
@@ -74,7 +75,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract Expression GetReturnValue(ObjectMapperData mapperData);
 
-        private static Expression WrapInTryCatch(Expression mappingBlock, ObjectMapperData mapperData)
+        private static Expression WrapInTryCatch(Expression mappingBlock, IMemberMapperData mapperData)
         {
             var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
             var exceptionVariable = Parameters.Create<Exception>("ex");
@@ -125,6 +126,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var catchBlock = Expression.Catch(exceptionVariable, catchBody);
 
             return Expression.TryCatch(mappingBlock, catchBlock);
+        }
+
+        private static Expression PrependMapperFuncsIfNecessary(Expression mappingBlock, ObjectMapperData mapperData)
+        {
+            if (!mapperData.HasMapperFuncs)
+            {
+                return mappingBlock;
+            }
+
+            var allMappingExpressions = new List<Expression>(mapperData.RequiredMapperFuncsByVariable.Values)
+            {
+                mappingBlock
+            };
+
+            mappingBlock = Expression.Block(
+                mapperData.RequiredMapperFuncsByVariable.Keys,
+                allMappingExpressions);
+
+            return mappingBlock;
+        }
+
+        private static Expression<MapperFunc<TSource, TTarget>> CreateMappingLambda<TSource, TTarget>(
+            Expression mappingExpression,
+            IMemberMapperData mapperData)
+        {
+            return Expression.Lambda<MapperFunc<TSource, TTarget>>(mappingExpression, mapperData.MappingDataObject);
         }
     }
 }

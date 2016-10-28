@@ -1,9 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Caching;
-    using Extensions;
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {
@@ -13,20 +11,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _elementMappersByKey;
 
         public ObjectMapper(
-            Expression mappingExpression,
+            Expression<MapperFunc<TSource, TTarget>> mappingLambda,
             ObjectMapperData mapperData)
         {
-            MappingExpression = mappingExpression;
+            _mappingLambda = mappingLambda;
             MapperData = mapperData;
 
-            if (mapperData.IsForStandaloneMapping)
+            if (mapperData.IsForStandaloneMapping && !mapperData.IsPartOfDerivedTypeMapping)
             {
-                _mappingLambda = GetStandaloneMappingLambda(mappingExpression, mapperData);
                 _mapperFunc = _mappingLambda.Compile();
             }
             else
             {
-                mapperData.RegisterMapperFuncIfRequired<TSource, TTarget>(mappingExpression);
+                mapperData.RegisterMapperFuncIfRequired(_mappingLambda);
             }
 
             if (mapperData.RequiresChildMapping)
@@ -39,53 +36,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static Expression<MapperFunc<TSource, TTarget>> GetStandaloneMappingLambda(
-            Expression mappingExpression,
-            ObjectMapperData mapperData)
-        {
-            var mapperFuncVariables = new List<ParameterExpression>();
-            var mapperFuncAssignments = new List<Expression>();
-
-            PopulateMapperFuncs(mapperData, mapperFuncVariables, mapperFuncAssignments);
-
-            if (mapperFuncVariables.Any())
-            {
-                mapperFuncAssignments.Add(mappingExpression);
-                mappingExpression = Expression.Block(mapperFuncVariables, mapperFuncAssignments);
-            }
-
-            var mappingLambda = mapperData.GetMappingLambda<TSource, TTarget>(mappingExpression);
-
-            return mappingLambda;
-        }
-
-        private static void PopulateMapperFuncs(
-            ObjectMapperData mapperData,
-            ICollection<ParameterExpression> mapperFuncVariables,
-            ICollection<Expression> mapperFuncAssignments)
-        {
-            foreach (var childMapperData in mapperData.ChildMapperDatas)
-            {
-                PopulateMapperFunc(childMapperData, mapperFuncVariables, mapperFuncAssignments);
-                PopulateMapperFuncs(childMapperData, mapperFuncVariables, mapperFuncAssignments);
-            }
-        }
-
-        private static void PopulateMapperFunc(
-            ObjectMapperData mapperData,
-            ICollection<ParameterExpression> mapperFuncVariables,
-            ICollection<Expression> mapperFuncAssignments)
-        {
-            if (mapperData.HasMapperFuncVariable)
-            {
-                mapperFuncVariables.Add((ParameterExpression)mapperData.MapperFuncAssignment.Left);
-                mapperFuncAssignments.Add(mapperData.MapperFuncAssignment);
-            }
-        }
-
-        public Expression MappingExpression { get; }
-
         public LambdaExpression MappingLambda => _mappingLambda;
+
+        public Expression MappingExpression => MappingLambda.Body;
 
         public ObjectMapperData MapperData { get; }
 

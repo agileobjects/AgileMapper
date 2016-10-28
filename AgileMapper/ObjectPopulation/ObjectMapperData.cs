@@ -69,8 +69,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     .Variable(TargetType, TargetType.GetVariableNameInCamelCase());
             }
 
-            IsForStandaloneMapping = !isPartOfDerivedTypeMapping && isForStandaloneMapping;
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
+            IsForStandaloneMapping = IsRoot || (isForStandaloneMapping && !isPartOfDerivedTypeMapping);
+
+            if (IsForStandaloneMapping)
+            {
+                RequiredMapperFuncsByVariable = new Dictionary<ParameterExpression, Expression>();
+            }
 
             if (IsRoot)
             {
@@ -236,7 +241,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IEnumerable<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
 
-        public bool IsForStandaloneMapping { get; set; }
+        public bool IsForStandaloneMapping { get; }
 
         public bool IsPartOfDerivedTypeMapping { get; }
 
@@ -301,38 +306,44 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ParameterExpression GetMapperFuncVariableFor(QualifiedMember targetMember)
         {
-            return (targetMember.LeafMember == TargetMember.LeafMember)
-                ? (_mapperFuncVariable = CreateMapperFuncVariable())
-                : Parent.GetMapperFuncVariableFor(targetMember);
-        }
+            if (targetMember.LeafMember != TargetMember.LeafMember)
+            {
+                return Parent.GetMapperFuncVariableFor(targetMember);
+            }
 
-        private ParameterExpression CreateMapperFuncVariable()
-        {
-            return Parameters.Create(
+            _mapperFuncVariable = Parameters.Create(
                 typeof(MapperFunc<,>).MakeGenericType(SourceType, TargetType),
                 "map" + SourceMember.Name.ToPascalCase() + "To" + TargetType.GetVariableNameInPascalCase());
+
+            return _mapperFuncVariable;
         }
 
-        public void RegisterMapperFuncIfRequired<TSource, TTarget>(Expression mappingExpression)
+        public void RegisterMapperFuncIfRequired(Expression mappingLambda)
         {
-            if (HasMapperFuncVariable)
+            if (_mapperFuncVariable != null)
             {
-                var mappingLambda = GetMappingLambda<TSource, TTarget>(mappingExpression);
-                MapperFuncAssignment = Expression.Assign(_mapperFuncVariable, mappingLambda);
+                RegisterMapperFuncFor(_mapperFuncVariable, mappingLambda);
             }
         }
 
-        public bool HasMapperFuncVariable => _mapperFuncVariable != null;
-
-        public Expression<MapperFunc<TSource, TTarget>> GetMappingLambda<TSource, TTarget>(
-            Expression mappingExpression)
+        private void RegisterMapperFuncFor(ParameterExpression variable, Expression mappingLambda)
         {
-            return Expression.Lambda<MapperFunc<TSource, TTarget>>(mappingExpression, MappingDataObject);
+            if (!IsForStandaloneMapping)
+            {
+                Parent.RegisterMapperFuncFor(variable, mappingLambda);
+                return;
+            }
+
+            var variableAssignment = Expression.Assign(variable, mappingLambda);
+
+            RequiredMapperFuncsByVariable.Add(variable, variableAssignment);
         }
 
-        public BinaryExpression MapperFuncAssignment { get; private set; }
-
         public LabelTarget ReturnLabelTarget { get; }
+
+        public bool HasMapperFuncs => (RequiredMapperFuncsByVariable != null) && RequiredMapperFuncsByVariable.Any();
+
+        public Dictionary<ParameterExpression, Expression> RequiredMapperFuncsByVariable { get; }
 
         public MethodCallExpression GetMapCall(
             Expression sourceObject,
