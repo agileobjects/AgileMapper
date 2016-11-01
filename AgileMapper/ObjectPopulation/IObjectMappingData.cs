@@ -14,6 +14,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         new IObjectMappingData Parent { get; }
 
+        bool IsPartOfDerivedTypeMapping { get; }
+
+        IObjectMappingData DeclaredTypeMappingData { get; }
+
         Type SourceType { get; }
 
         Type TargetType { get; }
@@ -33,5 +37,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType);
 
         void Register<TKey, TComplex>(TKey key, TComplex complexType);
+
+        IObjectMappingData WithTypes(Type newSourceType, Type newTargetType);
     }
 }

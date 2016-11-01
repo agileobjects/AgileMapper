@@ -8,7 +8,9 @@
 
         public override bool DiscardExistingValues => true;
 
-        protected override Expression GetEnumerablePopulation(EnumerablePopulationBuilder builder)
+        protected override Expression GetEnumerablePopulation(
+            EnumerablePopulationBuilder builder, 
+            IObjectMappingData mappingData)
         {
             if (builder.ElementTypesAreSimple)
             {
@@ -21,7 +23,7 @@
                 builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType());
                 builder.AssignTargetVariable();
                 builder.RemoveAllTargetItems();
-                builder.AddNewItemsToTargetVariable();
+                builder.AddNewItemsToTargetVariable(mappingData);
 
                 return builder;
             }
@@ -29,11 +31,11 @@
             if (builder.ElementTypesAreIdentifiable)
             {
                 builder.CreateCollectionData();
-                builder.MapIntersection();
+                builder.MapIntersection(mappingData);
                 builder.AssignSourceVariableFrom(s => s.CollectionDataNewSourceItems());
                 builder.AssignTargetVariable();
                 builder.RemoveTargetItemsById();
-                builder.AddNewItemsToTargetVariable();
+                builder.AddNewItemsToTargetVariable(mappingData);
 
                 return builder;
             }
@@ -41,7 +43,7 @@
             builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType());
             builder.AssignTargetVariable();
             builder.RemoveAllTargetItems();
-            builder.AddNewItemsToTargetVariable();
+            builder.AddNewItemsToTargetVariable(mappingData);
 
             return builder;
         }

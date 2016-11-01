@@ -4,6 +4,7 @@
     using System.Linq;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class DataSourceFinder
     {
@@ -59,7 +60,7 @@
             {
                 foreach (var configuredDataSource in configuredDataSources)
                 {
-                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, mapperData);
+                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, mappingData);
 
                     if (!configuredDataSource.IsConditional)
                     {
@@ -70,19 +71,8 @@
                 }
             }
 
-            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData);
-
-            if (mapperData.TargetMember.IsComplex)
-            {
-                //yield return new ComplexTypeMappingDataSource(bestMatchingSourceMember, dataSourceIndex, mapperData);
-                //yield break;
-            }
-
-            var sourceMemberDataSources = GetSourceMemberDataSources(
-                bestMatchingSourceMember,
-                configuredDataSources,
-                dataSourceIndex,
-                mappingData);
+            var sourceMemberDataSources =
+                GetSourceMemberDataSources(configuredDataSources, dataSourceIndex, mappingData);
 
             foreach (var dataSource in sourceMemberDataSources)
             {
@@ -118,11 +108,11 @@
             => mapperData.RuleSet.FallbackDataSourceFactory.Create(mapperData);
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
-            IQualifiedMember bestMatchingSourceMember,
             IEnumerable<IConfiguredDataSource> configuredDataSources,
             int dataSourceIndex,
             IMemberMappingData mappingData)
         {
+            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData);
             var mapperData = mappingData.MapperData;
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, mappingData);
 
@@ -133,7 +123,7 @@
                 {
                     if (mapperData.TargetMember.IsComplex)
                     {
-                        yield return new ComplexTypeMappingDataSource(dataSourceIndex, mapperData);
+                        yield return new ComplexTypeMappingDataSource(dataSourceIndex, mappingData);
                     }
                 }
                 else
@@ -164,25 +154,42 @@
             bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(mappingData.MapperData.SourceMember);
             var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, mappingData.MapperData);
 
-            return GetFinalDataSource(sourceMemberDataSource, 0, mappingData.MapperData);
+            return GetFinalDataSource(sourceMemberDataSource, 0, mappingData);
         }
 
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
             int dataSourceIndex,
-            IMemberMapperData mapperData)
+            IMemberMappingData mappingData)
         {
-            if (mapperData.TargetMember.IsComplex)
+            var mapperData = mappingData.MapperData;
+
+            if (UseComplexTypeDataSource(mapperData.TargetMember))
             {
-                return new ComplexTypeMappingDataSource(foundDataSource, dataSourceIndex, mapperData);
+                return new ComplexTypeMappingDataSource(foundDataSource, dataSourceIndex, mappingData);
             }
 
             if (mapperData.TargetMember.IsEnumerable)
             {
-                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, mapperData);
+                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, mappingData);
             }
 
             return foundDataSource;
+        }
+
+        private static bool UseComplexTypeDataSource(QualifiedMember targetMember)
+        {
+            if (!targetMember.IsComplex)
+            {
+                return false;
+            }
+
+            if (targetMember.Type == typeof(object))
+            {
+                return true;
+            }
+
+            return targetMember.Type.GetAssembly() != typeof(string).GetAssembly();
         }
     }
 }

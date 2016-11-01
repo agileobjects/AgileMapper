@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.Members
 
         private readonly Expression _dataParameter;
         private readonly ICollection<Expression> _stringMemberAccessSubjects;
-        private readonly ICollection<Expression> _hasValueAccessSubjects;
+        private readonly ICollection<string> _nullCheckSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
         private bool _includeSourceObjectAccesses;
@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             _dataParameter = dataParameter;
             _stringMemberAccessSubjects = new List<Expression>();
-            _hasValueAccessSubjects = new List<Expression>();
+            _nullCheckSubjects = new List<string>();
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
 
@@ -38,11 +38,24 @@ namespace AgileObjects.AgileMapper.Members
                 memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
 
                 _stringMemberAccessSubjects.Clear();
-                _hasValueAccessSubjects.Clear();
+                _nullCheckSubjects.Clear();
                 _memberAccessesByPath.Clear();
             }
 
             return memberAccesses;
+        }
+
+        protected override Expression VisitBinary(BinaryExpression binary)
+        {
+            if ((binary.NodeType == ExpressionType.NotEqual) &&
+                (binary.Right.NodeType == ExpressionType.Constant) &&
+                (((ConstantExpression)binary.Right).Value == null) &&
+                ShouldAddNullCheck(binary.Left))
+            {
+                _nullCheckSubjects.Add(binary.Left.ToString());
+            }
+
+            return base.VisitBinary(binary);
         }
 
         protected override Expression VisitMember(MemberExpression memberAccess)
@@ -53,7 +66,7 @@ namespace AgileObjects.AgileMapper.Members
                     (memberAccess.Member.Name == "HasValue") &&
                     (memberAccess.Expression.Type.IsNullableType()))
                 {
-                    _hasValueAccessSubjects.Add(memberAccess.Expression);
+                    _nullCheckSubjects.Add(memberAccess.Expression.ToString());
                 }
 
                 AddStringMemberAccessSubjectIfAppropriate(memberAccess.Expression);
@@ -96,11 +109,10 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
-
             if ((methodCall.Object != _dataParameter) &&
                 (methodCall.Method.DeclaringType != typeof(IMappingData)))
             {
+                AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
                 AddMemberAccessIfAppropriate(methodCall);
             }
 
@@ -117,17 +129,19 @@ namespace AgileObjects.AgileMapper.Members
 
         private void AddMemberAccessIfAppropriate(Expression memberAccess)
         {
-            if (Add(memberAccess))
+            if (ShouldAddNullCheck(memberAccess))
             {
                 _memberAccessesByPath.Add(memberAccess.ToString(), memberAccess);
             }
         }
 
-        private bool Add(Expression memberAccess)
+        private bool ShouldAddNullCheck(Expression memberAccess)
         {
-            return !_hasValueAccessSubjects.Contains(memberAccess) &&
+            var memberAccessString = memberAccess.ToString();
+
+            return !_nullCheckSubjects.Contains(memberAccessString) &&
                    ((memberAccess.Type != typeof(string)) || _stringMemberAccessSubjects.Contains(memberAccess)) &&
-                   !_memberAccessesByPath.ContainsKey(memberAccess.ToString()) &&
+                   !_memberAccessesByPath.ContainsKey(memberAccessString) &&
                    memberAccess.Type.CanBeNull() &&
                    memberAccess.IsRootedIn(_dataParameter);
         }

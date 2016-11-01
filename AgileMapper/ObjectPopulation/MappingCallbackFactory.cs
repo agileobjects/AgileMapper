@@ -12,7 +12,7 @@
             MappingConfigInfo configInfo,
             CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda,
-            QualifiedMember targetMember)
+            QualifiedMember targetMember = null)
             : base(configInfo, targetMember)
         {
             CallbackPosition = callbackPosition;

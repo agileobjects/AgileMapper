@@ -9,33 +9,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class ObjectMappingDataFactory
     {
-        public static IObjectMappingData ForRoot(ObjectMapperData mapperData)
-        {
-            var key = new SourceAndTargetTypesKey(mapperData.SourceType, mapperData.TargetType);
-
-            var typedForRootCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
-            {
-                var typedForRootMethod = typeof(ObjectMappingDataFactory)
-                    .GetPublicStaticMethods()
-                    .Last(m => m.Name == "ForRoot")
-                    .MakeGenericMethod(k.SourceType, k.TargetType);
-
-                var typedForRootCall = Expression.Call(
-                    typedForRootMethod,
-                    Expression.Default(k.SourceType),
-                    Expression.Default(k.TargetType),
-                    Parameters.MappingContext);
-
-                var typedForRootLambda = Expression.Lambda<Func<IMappingContext, IObjectMappingData>>(
-                    typedForRootCall,
-                    Parameters.MappingContext);
-
-                return typedForRootLambda.Compile();
-            });
-
-            return typedForRootCaller.Invoke(mapperData.MappingData.MappingContext);
-        }
-
         public static IObjectMappingData ForRoot<TSource, TTarget>(
             TSource source,
             TTarget target,
@@ -294,7 +267,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Key Class
 
-        private class SourceAndTargetTypesKey
+        public class SourceAndTargetTypesKey
         {
             public SourceAndTargetTypesKey(Type sourceType, Type targetType)
             {

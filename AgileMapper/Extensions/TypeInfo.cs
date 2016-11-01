@@ -1,21 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using ReadableExpressions.Extensions;
 
     internal static class TypeInfo<T>
     {
         public static readonly bool IsEnumerable = typeof(T).IsEnumerable();
         public static readonly bool IsSimple = typeof(T).IsSimple();
-
-        public static readonly bool RuntimeSourceTypeNeeded =
-            (typeof(T) == typeof(object)) ||
-            (IsEnumerable && (typeof(T) == typeof(IEnumerable)) || (typeof(T) == typeof(ICollection)));
-
-        public static readonly bool RuntimeTargetTypeNeeded =
-            RuntimeSourceTypeNeeded ||
-            (IsEnumerable && typeof(T).IsGenericType() && (typeof(T).GetGenericTypeDefinition() == typeof(IEnumerable<>)));
+        public static readonly bool RuntimeSourceTypeNeeded = typeof(T).RuntimeSourceTypeNeeded();
+        public static readonly bool RuntimeTargetTypeNeeded = typeof(T).RuntimeTargetTypeNeeded();
 
         // ReSharper disable StaticMemberInGenericType
         public static readonly bool CheckSourceType = IsSourceTypeCheckRequired();

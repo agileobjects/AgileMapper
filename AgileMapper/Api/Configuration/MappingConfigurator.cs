@@ -30,7 +30,7 @@
 
         private IConditionalRootMappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
         {
-            _configInfo.AddCondition(conditionLambda);
+            _configInfo.AddConditionOrThrow(conditionLambda);
             return this;
         }
 

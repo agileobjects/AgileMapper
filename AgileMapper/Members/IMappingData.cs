@@ -17,7 +17,7 @@
         /// </summary>
         /// <typeparam name="TSource">The type to which to cast the source object.</typeparam>
         /// <returns>The source object for the mapping context.</returns>
-        TSource GetSource<TSource>();
+        TSource GetSource<TSource>() where TSource : class;
 
         /// <summary>
         /// Gets the target object for the mapping context described by the 
@@ -25,7 +25,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The type to which to cast the target object.</typeparam>
         /// <returns>The target object for the mapping context.</returns>
-        TTarget GetTarget<TTarget>();
+        TTarget GetTarget<TTarget>() where TTarget : class;
 
         /// <summary>
         /// Gets the index of the current enumerable being mapped in the mapping context described by the 

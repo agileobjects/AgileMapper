@@ -92,12 +92,14 @@ namespace AgileObjects.AgileMapper.Configuration
                 var sourceProperty = memberContextType.GetPublicInstanceProperty("Source");
                 var targetProperty = memberContextType.GetPublicInstanceProperty("Target");
                 var indexProperty = memberContextType.GetPublicInstanceProperty("EnumerableIndex");
+                var parentProperty = memberContextType.GetPublicInstanceProperty("Parent");
 
                 var replacementsByTarget = new ExpressionReplacementDictionary
                 {
                     [Expression.Property(contextParameter, sourceProperty)] = contextInfo.SourceAccess,
                     [Expression.Property(contextParameter, targetProperty)] = contextInfo.TargetAccess,
-                    [Expression.Property(contextParameter, indexProperty)] = contextInfo.Index
+                    [Expression.Property(contextParameter, indexProperty)] = contextInfo.Index,
+                    [Expression.Property(contextParameter, parentProperty)] = contextInfo.Parent
                 };
 
                 if (contextTypes.Length == 3)
@@ -211,6 +213,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 SourceAccess = mapperData.GetSourceAccess(contextAccess, contextTypes[0]);
                 TargetAccess = mapperData.GetTargetAccess(contextAccess, contextTypes[1]);
                 Index = mapperData.EnumerableIndex;
+                Parent = mapperData.ParentObject;
                 MappingDataAccess = mapperData.GetTypedContextAccess(contextAccess, contextTypes);
             }
 
@@ -225,6 +228,8 @@ namespace AgileObjects.AgileMapper.Configuration
             public Expression TargetAccess { get; }
 
             public Expression Index { get; }
+
+            public Expression Parent { get; }
         }
 
         #endregion

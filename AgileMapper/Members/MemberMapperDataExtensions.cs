@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Extensions;
 
     internal static class MemberMapperDataExtensions
     {
@@ -49,6 +50,9 @@ namespace AgileObjects.AgileMapper.Members
                 mapperData.RuleSet.ComplexTypeMappingShortCircuitStrategy.SourceCanBeNull);
         }
 
+        public static bool IsForInlineMapping(this IMemberMapperData mapperData)
+            => !(mapperData.SourceType.RuntimeSourceTypeNeeded() || mapperData.TargetType.RuntimeTargetTypeNeeded());
+
         private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As");
 
         public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
@@ -66,6 +70,7 @@ namespace AgileObjects.AgileMapper.Members
                 return mapperData.MappingDataObject;
             }
 
+            // TODO: Use IsForInlineMapping and access parent data objects directly
             Expression dataAccess = mapperData.MappingDataObject;
 
             if (mapperData.TargetMember.IsSimple)
@@ -82,8 +87,34 @@ namespace AgileObjects.AgileMapper.Members
             return dataAccess;
         }
 
+        public static IMemberMapperData GetAppropriateMappingContext(this IMemberMapperData mapperData, Type[] contextTypes)
+        {
+            if (mapperData.TypesMatch(contextTypes))
+            {
+                return mapperData;
+            }
+
+            if (mapperData.TargetMember.IsSimple)
+            {
+                mapperData = mapperData.Parent;
+            }
+
+            while (!mapperData.TypesMatch(contextTypes))
+            {
+                mapperData = mapperData.Parent;
+            }
+
+            return mapperData;
+        }
+
         public static bool TypesMatch(this IBasicMapperData mapperData, IList<Type> contextTypes)
-            => contextTypes[0].IsAssignableFrom(mapperData.SourceType) && contextTypes[1].IsAssignableFrom(mapperData.TargetType);
+            => TypesMatch(mapperData, contextTypes[0], contextTypes[1]);
+
+        public static bool TypesMatch(this IBasicMapperData mapperData, Type sourceType, Type targetType)
+        {
+            return sourceType.IsAssignableFrom(mapperData.SourceType) &&
+                (targetType.IsAssignableFrom(mapperData.TargetType) || mapperData.TargetType.IsAssignableFrom(targetType));
+        }
 
         public static Expression GetTypedContextAccess(this IMemberMapperData mapperData, Expression contextAccess, Type[] contextTypes)
         {

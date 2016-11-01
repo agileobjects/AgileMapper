@@ -18,13 +18,15 @@
             Type creationTargetType,
             CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo, callbackPosition, callbackLambda, QualifiedMember.All)
+            : base(configInfo, callbackPosition, callbackLambda)
         {
             _creationTargetType = creationTargetType;
         }
 
         public override bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
             => _creationTargetType.IsAssignableFrom(mapperData.TargetMember.Type) && base.AppliesTo(callbackPosition, mapperData);
+
+        protected override bool TargetMembersMatch(IBasicMapperData mapperData) => true;
 
         public override Expression GetConditionOrNull(IMemberMapperData mapperData)
         {

@@ -8,11 +8,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ComplexTypeMappingLambdaFactory : MappingLambdaFactoryBase
+    internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
         private readonly ComplexTypeConstructionFactory _constructionFactory;
 
-        public ComplexTypeMappingLambdaFactory(MapperContext mapperContext)
+        public ComplexTypeMappingExpressionFactory(MapperContext mapperContext)
         {
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }
@@ -82,8 +82,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ifTryGetReturn;
         }
 
-        protected override Expression GetTypeTests(ObjectMapperData mapperData)
-            => ComplexTypeTypeTestsFactory.CreateFor(mapperData);
+        protected override Expression GetTypeTests(IObjectMappingData mappingData)
+            => DerivedComplexTypeMappingsFactory.CreateFor(mappingData);
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {

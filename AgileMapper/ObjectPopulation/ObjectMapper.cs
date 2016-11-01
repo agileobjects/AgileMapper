@@ -21,10 +21,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 _mapperFunc = _mappingLambda.Compile();
             }
-            else
-            {
-                mapperData.RegisterMapperFuncIfRequired(_mappingLambda);
-            }
 
             if (mapperData.RequiresChildMapping)
             {

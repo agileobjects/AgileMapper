@@ -77,6 +77,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringDataSourcesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypePairs.cs" />
     <Compile Include="Configuration\WhenConfiguringExceptionHandling.cs" />
     <Compile Include="Configuration\WhenConfiguringMappingCallbacks.cs" />

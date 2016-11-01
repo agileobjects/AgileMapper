@@ -6,6 +6,6 @@
     {
         bool DiscardExistingValues { get; }
 
-        Expression GetPopulation(ObjectMapperData mapperData);
+        Expression GetPopulation(IObjectMappingData mappingData);
     }
 }

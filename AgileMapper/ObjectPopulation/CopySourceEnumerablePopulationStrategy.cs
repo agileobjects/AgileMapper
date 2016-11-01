@@ -6,11 +6,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly IEnumerablePopulationStrategy Instance = new CopySourceEnumerablePopulationStrategy();
 
-        protected override Expression GetEnumerablePopulation(EnumerablePopulationBuilder builder)
+        protected override Expression GetEnumerablePopulation(
+            EnumerablePopulationBuilder builder,
+            IObjectMappingData mappingData)
         {
             builder.AssignSourceVariableFromSourceObject();
             builder.AssignTargetVariable();
-            builder.AddNewItemsToTargetVariable();
+            builder.AddNewItemsToTargetVariable(mappingData);
 
             return builder;
         }

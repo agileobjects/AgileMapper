@@ -9,24 +9,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
 
-    internal class ComplexTypeTypeTestsFactory
+    internal class DerivedComplexTypeMappingsFactory
     {
-        public static Expression CreateFor(ObjectMapperData mapperData)
+        public static Expression CreateFor(IObjectMappingData declaredTypeMappingData)
         {
-            if (mapperData.IsPartOfDerivedTypeMapping || mapperData.HasSameSourceAsParent())
+            var declaredTypeMapperData = declaredTypeMappingData.MapperData;
+
+            if (declaredTypeMapperData.IsPartOfDerivedTypeMapping || declaredTypeMapperData.HasSameSourceAsParent())
             {
                 return Constants.EmptyExpression;
             }
 
-            var derivedSourceTypes = mapperData.MapperContext
+            var derivedSourceTypes = declaredTypeMapperData.MapperContext
                 .DerivedTypes
-                .GetTypesDerivedFrom(mapperData.SourceType)
+                .GetTypesDerivedFrom(declaredTypeMapperData.SourceType)
                 .ToArray();
 
-            var derivedTypePairs = mapperData.MapperContext
+            var derivedTypePairs = declaredTypeMapperData.MapperContext
                 .UserConfigurations
                 .DerivedTypes
-                .GetDerivedTypePairsFor(mapperData)
+                .GetDerivedTypePairsFor(declaredTypeMapperData)
                 .ToArray();
 
             if (derivedSourceTypes.None() && derivedTypePairs.None())
@@ -34,59 +36,61 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Constants.EmptyExpression;
             }
 
-            var typeTests = new List<Expression>();
+            var derivedTypeMappings = new List<Expression>();
 
             bool declaredTypeHasUnconditionalTypePair;
 
-            AddDeclaredSourceTypeTests(
+            AddDeclaredSourceTypeMappings(
                 derivedTypePairs,
-                mapperData,
-                typeTests,
+                declaredTypeMappingData,
+                derivedTypeMappings,
                 out declaredTypeHasUnconditionalTypePair);
 
             if (declaredTypeHasUnconditionalTypePair)
             {
-                return typeTests.First();
+                return derivedTypeMappings.First();
             }
 
             var typedObjectVariables = new List<ParameterExpression>();
 
-            AddDerivedSourceTypeTests(
+            AddDerivedSourceTypeMappings(
                 derivedSourceTypes,
-                mapperData,
+                declaredTypeMappingData,
                 typedObjectVariables,
-                typeTests);
+                derivedTypeMappings);
 
-            return Expression.Block(typedObjectVariables, typeTests);
+            return Expression.Block(typedObjectVariables, derivedTypeMappings);
         }
 
-        private static void AddDeclaredSourceTypeTests(
+        private static void AddDeclaredSourceTypeMappings(
             IEnumerable<DerivedTypePair> derivedTypePairs,
-            ObjectMapperData mapperData,
-            ICollection<Expression> typeTests,
+            IObjectMappingData declaredTypeMappingData,
+            ICollection<Expression> derivedTypeMappings,
             out bool declaredTypeHasUnconditionalTypePair)
         {
+            var declaredTypeMapperData = declaredTypeMappingData.MapperData;
+
             foreach (var derivedTypePair in derivedTypePairs)
             {
-                var condition = GetTypePairCondition(derivedTypePair, mapperData);
+                var condition = GetTypePairCondition(derivedTypePair, declaredTypeMapperData);
 
-                var mapping = InlineMappingFactory.GetRuntimeTypedMapping(
-                    mapperData,
-                    mapperData.SourceObject,
+                var derivedTypeMapping = InlineMappingFactory.GetDerivedTypeMapping(
+                    declaredTypeMappingData,
+                    declaredTypeMapperData.SourceObject,
                     derivedTypePair.DerivedTargetType);
 
-                var returnMappingResult = Expression.Return(mapperData.ReturnLabelTarget, mapping);
+                var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
                 declaredTypeHasUnconditionalTypePair = (condition == null);
 
                 if (declaredTypeHasUnconditionalTypePair)
                 {
-                    typeTests.Add(returnMappingResult);
+                    derivedTypeMappings.Add(returnMappingResult);
                     return;
                 }
 
                 var ifConditionThenMap = Expression.IfThen(condition, returnMappingResult);
 
-                typeTests.Add(ifConditionThenMap);
+                derivedTypeMappings.Add(ifConditionThenMap);
             }
 
             declaredTypeHasUnconditionalTypePair = false;
@@ -111,27 +115,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.AndAlso(pairCondition, condition);
         }
 
-        private static void AddDerivedSourceTypeTests(
+        private static void AddDerivedSourceTypeMappings(
             IEnumerable<Type> derivedSourceTypes,
-            ObjectMapperData mapperData,
+            IObjectMappingData declaredTypeMappingData,
             ICollection<ParameterExpression> typedObjectVariables,
             ICollection<Expression> typeTests)
         {
+            var declaredTypeMapperData = declaredTypeMappingData.MapperData;
+
             foreach (var derivedSourceType in derivedSourceTypes)
             {
                 var typedVariableName = "source" + derivedSourceType.GetVariableNameInPascalCase();
                 var typedVariable = Expression.Variable(derivedSourceType, typedVariableName);
-                var typeAsConversion = Expression.TypeAs(mapperData.SourceObject, derivedSourceType);
+                var typeAsConversion = Expression.TypeAs(declaredTypeMapperData.SourceObject, derivedSourceType);
                 var typedVariableAssignment = Expression.Assign(typedVariable, typeAsConversion);
 
-                var targetType = mapperData.TargetType.GetRuntimeTargetType(derivedSourceType);
+                var targetType = declaredTypeMappingData.TargetType.GetRuntimeTargetType(derivedSourceType);
 
-                var condition = GetTypePairCondition(typedVariable, derivedSourceType, ref targetType, mapperData);
+                var condition = GetTypePairCondition(typedVariable, derivedSourceType, ref targetType, declaredTypeMapperData);
 
                 var mapping = InlineMappingFactory
-                    .GetRuntimeTypedMapping(mapperData, typedVariable, targetType);
+                    .GetDerivedTypeMapping(declaredTypeMappingData, typedVariable, targetType);
 
-                var returnMappingResult = Expression.Return(mapperData.ReturnLabelTarget, mapping);
+                var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, mapping);
                 var ifConditionThenMap = Expression.IfThen(condition, returnMappingResult);
 
                 typedObjectVariables.Add(typedVariable);

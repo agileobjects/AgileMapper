@@ -27,9 +27,9 @@
 
         public int? EnumerableIndex { get; }
 
-        T IMappingData.GetSource<T>() => (T)(object)Source;
+        T IMappingData.GetSource<T>() => Source as T;
 
-        T IMappingData.GetTarget<T>() => (T)(object)Target;
+        T IMappingData.GetTarget<T>() => Target as T;
 
         public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
 

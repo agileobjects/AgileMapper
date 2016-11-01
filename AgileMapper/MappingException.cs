@@ -68,7 +68,9 @@
                 return rootTypeName + memberPath.Substring(rootMemberName.Length);
             }
 
-            var path = memberPath.Replace("data." + rootMemberName + ".", rootTypeName + ".");
+            var rootMemberNameIndex = memberPath.IndexOf("." + rootMemberName + ".", StringComparison.Ordinal);
+            var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMemberName.Length + 2);
+            var path = rootTypeName + "." + rootMemberString;
 
             return path;
         }

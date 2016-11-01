@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                     constructions.Insert(0, configuredConstruction);
 
-                    if (!configuredFactory.HasConfiguredCondition)
+                    if (configuredConstruction.Condition == null)
                     {
                         newingConstructorRequired = false;
                         break;

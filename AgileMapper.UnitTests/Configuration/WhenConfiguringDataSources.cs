@@ -5,7 +5,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using AgileMapper.Configuration;
     using AgileMapper.Members;
     using Shouldly;
     using TestClasses;
@@ -462,17 +461,17 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .From<Person>()
+                    .From<Customer>()
                     .Over<PersonViewModel>()
-                    .If((s, t) => (s as Customer) != null)
-                    .Map((s, t) => t.Name + $" ({((Customer)s).Discount})")
+                    .If((c, pvm) => c.Discount > 0.5m)
+                    .Map((c, pvm) => pvm.Name + $" (Big discount! {c.Discount})")
                     .To(pvm => pvm.Name);
 
                 var customerId = Guid.NewGuid();
 
                 var source = new[]
                 {
-                    new Customer { Id = customerId, Name = "Mr Thomas", Discount = 0.10m },
+                    new Customer { Id = customerId, Name = "Mr Thomas", Discount = 0.60m },
                     new Person { Name = "Mrs Edison" }
                 };
 
@@ -484,7 +483,7 @@
                 var result = mapper.Map(source).Over(target);
 
                 result.Count.ShouldBe(2);
-                result.First().Name.ShouldBe("Mrs Thomas (0.10)");
+                result.First().Name.ShouldBe("Mrs Thomas (Big discount! 0.60)");
                 result.Second().Name.ShouldBe("Mrs Edison");
             }
         }
@@ -860,123 +859,6 @@
                 toNewResult.Value.ShouldBe(9999);
                 overwriteResult.Value.ShouldBe(source.Value);
             }
-        }
-
-        [Fact]
-        public void ShouldErrorIfUnconvertibleConstantSpecified()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<PublicField<int>>()
-                        .To<PublicField<DateTime>>()
-                        .Map(new byte[] { 2, 4, 6, 8 })
-                        .To(x => x.Value);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfIgnoredMemberIsConfigured()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<PublicField<int>>()
-                        .To<PublicField<DateTime>>()
-                        .Ignore(pf => pf.Value);
-
-                    mapper.WhenMapping
-                        .From<PublicField<int>>()
-                        .To<PublicField<DateTime>>()
-                        .Map(ctx => DateTime.UtcNow)
-                        .To(x => x.Value);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfRedundantDataSourceIsConfigured()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<Person>()
-                        .To<PublicField<string>>()
-                        .Map((p, x) => p.Id)
-                        .To(x => x.Value);
-
-                    mapper.WhenMapping
-                        .From<Customer>()
-                        .To<PublicField<string>>()
-                        .Map((p, x) => p.Id)
-                        .To(x => x.Value);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfConflictingDataSourceIsConfigured()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<Person>()
-                        .To<PublicField<string>>()
-                        .Map((p, x) => p.Id)
-                        .To(x => x.Value);
-
-                    mapper.WhenMapping
-                        .From<Person>()
-                        .To<PublicField<string>>()
-                        .Map((p, x) => p.Name)
-                        .To(x => x.Value);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldNotErrorIfDerivedSourceTypeConflictingDataSourceIsConfigured()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Person>()
-                    .To<PublicField<string>>()
-                    .Map((p, x) => p.Id)
-                    .To(x => x.Value);
-
-                mapper.WhenMapping
-                    .From<Customer>()
-                    .To<PublicField<string>>()
-                    .Map((p, x) => p.Name)
-                    .To(x => x.Value);
-            }
-        }
-
-        [Fact]
-        public void ShouldErrorIfReadOnlyMemberSpecified()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper
-                        .WhenMapping
-                        .From<PublicProperty<string>>()
-                        .To<PublicSetMethod<string>>()
-                        .Map(ctx => ctx.Source.Value)
-                        .To(psm => psm.Value);
-                }
-            });
         }
     }
 }
