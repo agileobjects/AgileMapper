@@ -3,6 +3,9 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Diagnostics;
     using System.Linq.Expressions;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
 
     [DebuggerDisplay("{GetPath()}")]
     internal class DictionarySourceMember : IQualifiedMember

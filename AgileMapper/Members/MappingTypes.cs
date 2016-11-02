@@ -27,33 +27,41 @@ namespace AgileObjects.AgileMapper.Members
             var runtimeTargetTypeNeeded = TypeInfo<TTarget>.RuntimeTargetTypeNeeded;
 
             Type sourceType, targetType;
-            bool sourceTypeIsTheSame, targetTypeIsTheSame;
+            bool runtimeTypesAreTheSame;
 
             if (runtimeSourceTypeNeeded)
             {
                 sourceType = source.GetRuntimeSourceType();
-                sourceTypeIsTheSame = sourceType == typeof(TSource);
+                runtimeTypesAreTheSame = sourceType == typeof(TSource);
+
+                if (!runtimeTargetTypeNeeded && !runtimeTypesAreTheSame &&
+                    sourceType.IsDerivedFrom(typeof(TTarget)))
+                {
+                    runtimeTargetTypeNeeded = true;
+                }
             }
             else
             {
                 sourceType = typeof(TSource);
-                sourceTypeIsTheSame = true;
+                runtimeTypesAreTheSame = true;
             }
 
             if (runtimeTargetTypeNeeded)
             {
                 targetType = target.GetRuntimeTargetType(sourceType);
-                targetTypeIsTheSame = targetType == typeof(TTarget);
+
+                if (runtimeTypesAreTheSame)
+                {
+                    runtimeTypesAreTheSame = targetType == typeof(TTarget);
+                }
             }
             else
             {
                 targetType = typeof(TTarget);
-                targetTypeIsTheSame = true;
             }
 
             var runtimeTypesNeeded = runtimeSourceTypeNeeded || runtimeTargetTypeNeeded;
-            var runtimeTypesAreTheSame = sourceTypeIsTheSame && targetTypeIsTheSame;
-            var isEnumerable = TypeInfo<TTarget>.IsEnumerable || (!targetTypeIsTheSame && targetType.IsEnumerable());
+            var isEnumerable = TypeInfo<TTarget>.IsEnumerable || (!runtimeTypesAreTheSame && targetType.IsEnumerable());
 
             return new MappingTypes(
                 sourceType,
