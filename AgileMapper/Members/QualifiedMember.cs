@@ -171,7 +171,9 @@ namespace AgileObjects.AgileMapper.Members
         {
             var otherQualifiedMember = (QualifiedMember)otherMember;
 
-            if (otherQualifiedMember.LeafMember == _memberChain[0])
+            if ((otherQualifiedMember.LeafMember == _memberChain[0]) &&
+                otherQualifiedMember._memberChain[0].IsRoot &&
+                ((otherQualifiedMember._memberChain.Length + 1) == _memberChain.Length))
             {
                 return this;
             }

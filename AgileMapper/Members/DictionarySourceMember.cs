@@ -15,9 +15,12 @@ namespace AgileObjects.AgileMapper.Members
             _wrappedSourceMember = mapperData.SourceMember;
             _targetMember = mapperData.TargetMember;
             Type = mapperData.SourceType;
+            EntryType = Type.GetGenericArguments()[1];
         }
 
         public Type Type { get; }
+
+        public Type EntryType { get; }
 
         public bool IsEnumerable => false;
 

@@ -58,18 +58,16 @@
 
         private static Expression GetDerivedTypeElementMapping(
             IObjectMappingData derivedTypeMappingData,
-            Expression sourceValue,
-            Expression targetValue)
+            Expression sourceElementValue,
+            Expression targetElementValue)
         {
             var declaredTypeMapperData = derivedTypeMappingData.DeclaredTypeMappingData.MapperData;
-            var derivedTypeMapperData = derivedTypeMappingData.MapperData;
 
             return GetElementMapping(
-                sourceValue,
-                targetValue,
+                sourceElementValue,
+                targetElementValue,
                 Expression.Property(declaredTypeMapperData.EnumerableIndex, "Value"),
                 derivedTypeMappingData,
-                derivedTypeMapperData,
                 declaredTypeMapperData);
         }
 
@@ -125,22 +123,21 @@
                 childMapperData.Parent);
         }
 
-        private static Expression GetChildMapping<TMapperData>(
+        private static Expression GetChildMapping(
             IQualifiedMember sourceMember,
             Expression sourceValue,
             Expression targetValue,
             Expression enumerableIndex,
             int dataSourceIndex,
-            IObjectMappingData enumerableMappingData,
-            TMapperData childMapperData,
+            IObjectMappingData parentMappingData,
+            IMemberMapperData childMapperData,
             ObjectMapperData declaredTypeMapperData)
-            where TMapperData : IMemberMapperData
         {
             var childMappingData = ObjectMappingDataFactory.ForChild(
                 sourceMember,
                 childMapperData.TargetMember,
                 dataSourceIndex,
-                enumerableMappingData);
+                parentMappingData);
 
             if (childMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
@@ -196,29 +193,13 @@
             Expression targetElementValue,
             IObjectMappingData enumerableMappingData)
         {
+            var declaredTypeEnumerableMapperData = enumerableMappingData.MapperData;
+
             var elementMapperData = new ElementMapperData(
                 sourceElementValue,
                 targetElementValue,
-                enumerableMappingData.MapperData);
+                declaredTypeEnumerableMapperData);
 
-            return GetElementMapping(
-                sourceElementValue,
-                targetElementValue,
-                Parameters.EnumerableIndex,
-                enumerableMappingData,
-                elementMapperData,
-                enumerableMappingData.MapperData);
-        }
-
-        private static Expression GetElementMapping<TMapperData>(
-            Expression sourceObject,
-            Expression targetObject,
-            Expression enumerableIndex,
-            IObjectMappingData enumerableMappingData,
-            TMapperData elementMapperData,
-            ObjectMapperData declaredTypeMapperData)
-            where TMapperData : IMemberMapperData
-        {
             var elementMappingData = ObjectMappingDataFactory.ForElement(
                 elementMapperData.SourceMember,
                 elementMapperData.TargetMember,
@@ -226,17 +207,32 @@
 
             if (elementMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
-                return declaredTypeMapperData.GetMapCall(sourceObject, targetObject);
+                return declaredTypeEnumerableMapperData.GetMapCall(sourceElementValue, targetElementValue);
             }
 
+            return GetElementMapping(
+                sourceElementValue,
+                targetElementValue,
+                Parameters.EnumerableIndex,
+                elementMappingData,
+                declaredTypeEnumerableMapperData);
+        }
+
+        private static Expression GetElementMapping(
+            Expression sourceElementValue,
+            Expression targetElementValue,
+            Expression enumerableIndex,
+            IObjectMappingData elementMappingData,
+            IMemberMapperData declaredTypeMapperData)
+        {
             var elementMapper = elementMappingData.Mapper;
 
             var inlineMappingBlock = GetInlineMappingBlock(
                 elementMapper,
                 elementMappingData.MapperData,
                 MappingDataFactory.ForElementMethod,
-                sourceObject,
-                targetObject,
+                sourceElementValue,
+                targetElementValue,
                 enumerableIndex,
                 declaredTypeMapperData.MappingDataObject);
 

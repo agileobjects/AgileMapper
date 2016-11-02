@@ -40,9 +40,6 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
             => mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
 
-        public static Expression GetMapCall(this IMemberMapperData mapperData, Expression value, int dataSourceIndex = 0)
-            => mapperData.Parent.GetMapCall(value, mapperData.TargetMember, dataSourceIndex);
-
         public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value)
         {
             return mapperData.NestedAccessFinder.FindIn(

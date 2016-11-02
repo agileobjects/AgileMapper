@@ -70,27 +70,37 @@
             => member.Type.GetEmptyInstanceCreation(member.ElementType);
 
         public static IQualifiedMember GetElementMember(this IQualifiedMember enumerableMember)
-            => enumerableMember.Append(CreateElementMember(enumerableMember.Type));
+            => enumerableMember.Append(GetElementMember(enumerableMember.Type));
 
         public static QualifiedMember GetElementMember(this QualifiedMember enumerableMember)
-            => enumerableMember.Append(CreateElementMember(enumerableMember.Type, enumerableMember.ElementType));
+            => enumerableMember.Append(GetElementMember(enumerableMember.Type));
 
-        public static Member CreateElementMember(this Type enumerableType, Type elementType = null)
-        {
-            return new Member(
-                MemberType.EnumerableElement,
-                "[i]",
-                enumerableType,
-                elementType ?? enumerableType.GetEnumerableElementType());
-        }
+        private static Member GetElementMember(Type enumerableType)
+            => GlobalContext.Instance.MemberFinder.GetReadableMembers(enumerableType).First();
 
-        public static Member[] RelativeTo(this IEnumerable<Member> memberChain, IEnumerable<Member> otherMemberChain)
+        public static Member[] RelativeTo(this Member[] memberChain, Member[] otherMemberChain)
         {
             var otherMembersLeafMember = otherMemberChain.Last();
+            Member[] relativeMemberChain = null;
 
-            var relativeMemberChain = memberChain
-                .SkipWhile(member => member != otherMembersLeafMember)
-                .ToArray();
+            for (var i = memberChain.Length - 1; i >= 0; --i)
+            {
+                var member = memberChain[i];
+
+                if (member != otherMembersLeafMember)
+                {
+                    continue;
+                }
+
+                relativeMemberChain = new Member[memberChain.Length - i];
+
+                for (var j = 0; j < relativeMemberChain.Length; j++)
+                {
+                    relativeMemberChain[j] = memberChain[j + i];
+                }
+
+                break;
+            }
 
             return relativeMemberChain;
         }

@@ -29,7 +29,7 @@
                 var initialDataSource = mappingData
                     .RuleSet
                     .InitialDataSourceFactory
-                    .Create(mappingData.MapperData);
+                    .Create(mappingData);
 
                 if (initialDataSource.IsValid)
                 {
@@ -42,9 +42,7 @@
 
         private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingData mappingData)
         {
-            var mapperData = mappingData.MapperData;
-
-            var maptimeDataSource = GetMaptimeDataSourceOrNull(mapperData);
+            var maptimeDataSource = GetMaptimeDataSourceOrNull(mappingData);
 
             if (maptimeDataSource != null)
             {
@@ -56,7 +54,7 @@
 
             IEnumerable<IConfiguredDataSource> configuredDataSources;
 
-            if (DataSourcesAreConfigured(mapperData, out configuredDataSources))
+            if (DataSourcesAreConfigured(mappingData.MapperData, out configuredDataSources))
             {
                 foreach (var configuredDataSource in configuredDataSources)
                 {
@@ -80,8 +78,10 @@
             }
         }
 
-        private IDataSource GetMaptimeDataSourceOrNull(IMemberMapperData mapperData)
+        private IDataSource GetMaptimeDataSourceOrNull(IMemberMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
+
             if (mapperData.TargetMember.IsComplex)
             {
                 return null;
@@ -89,7 +89,7 @@
 
             return _mapTimeDataSourceFactories
                 .FirstOrDefault(factory => factory.IsFor(mapperData))?
-                .Create(mapperData);
+                .Create(mappingData);
         }
 
         private static bool DataSourcesAreConfigured(
@@ -104,8 +104,8 @@
             return configuredDataSources.Any();
         }
 
-        private static IDataSource FallbackDataSourceFor(IMemberMapperData mapperData)
-            => mapperData.RuleSet.FallbackDataSourceFactory.Create(mapperData);
+        private static IDataSource FallbackDataSourceFor(IMemberMappingData mappingData)
+            => mappingData.RuleSet.FallbackDataSourceFactory.Create(mappingData);
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
             IEnumerable<IConfiguredDataSource> configuredDataSources,
@@ -113,7 +113,6 @@
             IMemberMappingData mappingData)
         {
             var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData);
-            var mapperData = mappingData.MapperData;
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, mappingData);
 
             if ((matchingSourceMemberDataSource == null) ||
@@ -121,14 +120,14 @@
             {
                 if (dataSourceIndex == 0)
                 {
-                    if (mapperData.TargetMember.IsComplex)
+                    if (mappingData.MapperData.TargetMember.IsComplex)
                     {
                         yield return new ComplexTypeMappingDataSource(dataSourceIndex, mappingData);
                     }
                 }
                 else
                 {
-                    yield return FallbackDataSourceFor(mapperData);
+                    yield return FallbackDataSourceFor(mappingData);
                 }
 
                 yield break;
@@ -138,7 +137,7 @@
 
             if (matchingSourceMemberDataSource.IsConditional)
             {
-                yield return FallbackDataSourceFor(mapperData);
+                yield return FallbackDataSourceFor(mappingData);
             }
         }
 
