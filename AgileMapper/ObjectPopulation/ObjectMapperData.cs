@@ -292,7 +292,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
             var mapperFuncType = typeof(MapperFunc<,>).MakeGenericType(SourceType, TargetType);
-            var mapperFuncVariable = GetMapperFuncVariableFrom(nearestStandaloneMapperData, mapperFuncType);
+
+            var mapperFuncVariable = nearestStandaloneMapperData
+                .RequiredMapperFuncsByVariable
+                .FirstOrDefault(fbv => fbv.Key.Type == mapperFuncType)
+                .Key;
 
             if (mapperFuncVariable != null)
             {
@@ -312,27 +316,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             nearestStandaloneMapperData.RequiredMapperFuncsByVariable[mapperFuncVariable] = mappingLambda;
 
             return mapperFuncVariable;
-        }
-
-        private static ParameterExpression GetMapperFuncVariableFrom(
-            ObjectMapperData standaloneMapperData,
-            Type mapperFuncType)
-        {
-            var mapperFuncVariable = standaloneMapperData
-                .RequiredMapperFuncsByVariable
-                .FirstOrDefault(fbv => fbv.Key.Type == mapperFuncType)
-                .Key;
-
-            return mapperFuncVariable;
-        }
-
-        public void AddMapperFuncBody(LambdaExpression mappingLambda)
-        {
-            var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
-            var mapperFuncType = mappingLambda.Type;
-            var mapperFuncVariable = GetMapperFuncVariableFrom(nearestStandaloneMapperData, mapperFuncType);
-
-            nearestStandaloneMapperData.RequiredMapperFuncsByVariable[mapperFuncVariable] = mappingLambda;
         }
 
         private ObjectMapperData GetNearestStandaloneMapperData()
