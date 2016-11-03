@@ -130,7 +130,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var typeAsConversion = Expression.TypeAs(declaredTypeMapperData.SourceObject, derivedSourceType);
                 var typedVariableAssignment = Expression.Assign(typedVariable, typeAsConversion);
 
-                var targetType = declaredTypeMappingData.TargetType.GetRuntimeTargetType(derivedSourceType);
+                var targetType = declaredTypeMapperData.TargetType.GetRuntimeTargetType(derivedSourceType);
 
                 var condition = GetTypePairCondition(typedVariable, derivedSourceType, ref targetType, declaredTypeMapperData);
 

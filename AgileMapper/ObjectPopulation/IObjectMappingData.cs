@@ -7,8 +7,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         IMappingContext MappingContext { get; }
 
-        MappingRuleSet RuleSet { get; }
-
         bool IsRoot { get; }
 
         new IObjectMappingData Parent { get; }
@@ -17,13 +15,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IObjectMappingData DeclaredTypeMappingData { get; }
 
-        Type SourceType { get; }
-
-        Type TargetType { get; }
-
         ObjectMapperKeyBase MapperKey { get; }
 
-        ObjectMapperData MapperData { get; set; }
+        ObjectMapperData MapperData { get; }
 
         IObjectMapper Mapper { get; set; }
 

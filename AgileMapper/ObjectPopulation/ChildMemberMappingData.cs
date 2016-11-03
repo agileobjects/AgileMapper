@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _runtimeTypeGettersCache = parent.MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
         }
 
-        public MappingRuleSet RuleSet => _parent.RuleSet;
+        public MappingRuleSet RuleSet => _parent.MappingContext.RuleSet;
 
         public IObjectMappingData Parent => _parent;
 

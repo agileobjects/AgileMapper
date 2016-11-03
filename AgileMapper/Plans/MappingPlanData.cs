@@ -26,8 +26,7 @@
             var otherPlanData = (MappingPlanData)obj;
 
             // ReSharper disable once PossibleNullReferenceException
-            return otherPlanData.MappingData.SourceType == MappingData.SourceType &&
-                   otherPlanData.MappingData.TargetType == MappingData.TargetType;
+            return otherPlanData.MappingData.MapperKey.MappingTypes.Equals(MappingData.MapperKey.MappingTypes);
         }
 
         public override int GetHashCode() => 0;

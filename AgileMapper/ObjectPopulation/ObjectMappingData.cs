@@ -51,12 +51,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             : base(source, target, enumerableIndex, parent)
         {
             _membersSource = membersSource;
-            mapperKey.MappingData = this;
             MapperKey = mapperKey;
             MappingContext = mappingContext;
-            RuleSet = mappingContext.RuleSet;
-            SourceType = mapperKey.MappingTypes.SourceType;
-            TargetType = mapperKey.MappingTypes.TargetType;
             DeclaredTypeMappingData = declaredTypeMappingData;
 
             if (parent != null)
@@ -68,10 +64,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappedObjectsByTypes = new Dictionary<object, Dictionary<object, object>>();
             IsRoot = true;
 
-            if (!IsPartOfDerivedTypeMapping)
+            if (IsPartOfDerivedTypeMapping)
             {
-                Mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
+                return;
             }
+
+            Mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
         }
 
         public IMappingContext MappingContext { get; }
@@ -82,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMapper Mapper
         {
-            get { return _mapper ?? (_mapper = CreateMapper()); }
+            get { return _mapper ?? (Mapper = MapperContext.ObjectMapperFactory.Create<TSource, TTarget>(this)); }
             set
             {
                 _mapper = value;
@@ -90,20 +88,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private IObjectMapper CreateMapper()
-        {
-            var mapper = MapperContext.ObjectMapperFactory.Create<TSource, TTarget>(this);
-
-            MapperKey.MappingData = null;
-
-            return mapper;
-        }
-
         public TTarget CreatedObject { get; set; }
 
         #region IObjectMappingData Members
-
-        public MappingRuleSet RuleSet { get; }
 
         public bool IsRoot { get; }
 
@@ -113,15 +100,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingData DeclaredTypeMappingData { get; }
 
-        public Type SourceType { get; }
-
-        public Type TargetType { get; }
-
         public ObjectMapperData MapperData
-        {
-            get { return _mapperData ?? (_mapperData = ObjectMapperData.For<TSource, TTarget>(_membersSource, this)); }
-            set { _mapperData = value; }
-        }
+            => _mapperData ?? (_mapperData = ObjectMapperData.For<TSource, TTarget>(_membersSource, this));
 
         private ChildMemberMappingData<TSource, TTarget> _childMappingData;
 

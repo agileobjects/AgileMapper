@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             bool isForStandaloneMapping,
             bool isPartOfDerivedTypeMapping)
             : base(
-                  mappingData.RuleSet,
+                  mappingData.MappingContext.RuleSet,
                   sourceMember.Type,
                   targetMember.Type,
                   targetMember,

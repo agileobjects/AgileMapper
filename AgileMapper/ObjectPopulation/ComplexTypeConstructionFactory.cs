@@ -128,7 +128,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             public ConstructionKey(IObjectMappingData mappingData)
             {
                 MappingData = mappingData;
-                _ruleSet = mappingData.RuleSet;
+                _ruleSet = mappingData.MappingContext.RuleSet;
                 _sourceMember = mappingData.MapperData.SourceMember;
                 _targetMember = mappingData.MapperData.TargetMember;
             }
