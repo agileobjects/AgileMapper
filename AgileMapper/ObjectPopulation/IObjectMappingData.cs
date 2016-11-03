@@ -25,6 +25,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         object MapStart();
 
+        TDeclaredTarget MapRecursion<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceValue,
+            TDeclaredTarget targetValue,
+            string targetMemberName,
+            int dataSourceIndex);
+
         bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType);
 
         void Register<TKey, TComplex>(TKey key, TComplex complexType);

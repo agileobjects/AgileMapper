@@ -25,36 +25,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ? _enumerableMappingExpressionFactory.Create(mappingData)
                 : _complexTypeMappingExpressionFactory.Create(mappingData);
 
-            var mapperData = mappingData.MapperData;
-
-            if (mapperData.HasMapperFuncs)
-            {
-                mappingExpression = PrependMapperFuncsTo(mappingExpression, mapperData);
-            }
-
             var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
                 mappingExpression,
-                mapperData.MappingDataObject);
+                mappingData.MapperData.MappingDataObject);
 
-            var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mapperData);
+            var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mappingData.MapperData);
 
             return mapper;
-        }
-
-        private static Expression PrependMapperFuncsTo(Expression mappingExpression, ObjectMapperData mapperData)
-        {
-            var allMappingExpressions = mapperData
-                .RequiredMapperFuncsByVariable
-                .Select(kvp => (Expression)Expression.Assign(kvp.Key, kvp.Value))
-                .ToList();
-
-            allMappingExpressions.Add(mappingExpression);
-
-            var updatedMappingExpression = Expression.Block(
-                mapperData.RequiredMapperFuncsByVariable.Keys,
-                allMappingExpressions);
-
-            return updatedMappingExpression;
         }
 
         public void Reset()

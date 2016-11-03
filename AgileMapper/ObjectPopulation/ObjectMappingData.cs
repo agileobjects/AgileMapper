@@ -150,6 +150,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 this);
         }
 
+        public TDeclaredTarget MapRecursion<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceValue,
+            TDeclaredTarget targetValue,
+            string targetMemberName,
+            int dataSourceIndex)
+        {
+            if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
+            {
+                return (TDeclaredTarget)Mapper.MapRecursion(
+                    sourceValue,
+                    targetValue,
+                    GetEnumerableIndex(),
+                    targetMemberName,
+                    dataSourceIndex,
+                    this);
+            }
+
+            return _parent.MapRecursion(
+                sourceValue,
+                targetValue,
+                targetMemberName,
+                dataSourceIndex);
+        }
+
         #endregion
 
         public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
@@ -207,7 +231,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType)
         {
-            var typesKey = new ObjectMappingDataFactory.SourceAndTargetTypesKey(newSourceType, newTargetType);
+            var typesKey = new SourceAndTargetTypesKey(newSourceType, newTargetType);
 
             var typedWithTypesCaller = GlobalContext.Instance.Cache.GetOrAdd(typesKey, k =>
             {

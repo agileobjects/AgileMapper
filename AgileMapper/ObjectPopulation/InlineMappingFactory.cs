@@ -144,19 +144,13 @@
                 return declaredTypeMapperData.GetMapCall(sourceValue, childMapperData.TargetMember, dataSourceIndex);
             }
 
-            var createMethodCallArguments = new[]
-            {
-                sourceValue,
-                targetValue,
-                enumerableIndex,
-                Expression.Constant(childMapperData.TargetMember.RegistrationName),
-                Expression.Constant(dataSourceIndex),
-                declaredTypeMapperData.MappingDataObject
-            };
-
             if (TargetMemberIsRecursive(childMapperData))
             {
-                var mapperFuncCall = GetMapperFuncCallFor(childMappingData, createMethodCallArguments);
+                var mapperFuncCall = GetMapRecursionCallFor(
+                    childMappingData,
+                    sourceValue,
+                    dataSourceIndex,
+                    declaredTypeMapperData);
 
                 return mapperFuncCall;
             }
@@ -167,7 +161,12 @@
                 childMapper,
                 childMappingData.MapperData,
                 MappingDataFactory.ForChildMethod,
-                createMethodCallArguments);
+                sourceValue,
+                targetValue,
+                enumerableIndex,
+                Expression.Constant(childMapperData.TargetMember.RegistrationName),
+                Expression.Constant(dataSourceIndex),
+                declaredTypeMapperData.MappingDataObject);
 
             return inlineMappingBlock;
         }
@@ -215,21 +214,22 @@
                    nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(m, member));
         }
 
-        private static Expression GetMapperFuncCallFor(
+        private static Expression GetMapRecursionCallFor(
             IObjectMappingData childMappingData,
-            Expression[] createMethodCallArguments)
+            Expression sourceValue,
+            int dataSourceIndex,
+            ObjectMapperData declaredTypeMapperData)
         {
             var childMapperData = childMappingData.MapperData;
-            var mapperFuncVariable = childMapperData.GetMapperFuncVariable(childMappingData);
 
-            var createInlineMappingDataCall = GetCreateMappingDataCall(
-                MappingDataFactory.ForChildMethod,
-                childMapperData,
-                createMethodCallArguments);
+            childMapperData.RegisterRequiredMapperFunc(childMappingData);
 
-            var mapperFuncCall = Expression.Invoke(mapperFuncVariable, createInlineMappingDataCall);
+            var mapRecursionCall = declaredTypeMapperData.GetMapRecursionCall(
+                sourceValue,
+                childMapperData.TargetMember,
+                dataSourceIndex);
 
-            return mapperFuncCall;
+            return mapRecursionCall;
         }
 
         public static Expression GetElementMapping(
