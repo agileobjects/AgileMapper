@@ -2,6 +2,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Reflection;
     using Extensions;
+    using Members;
+    using Members.Sources;
 
     internal static class MappingDataFactory
     {
@@ -19,10 +21,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTarget target,
             IMappingContext mappingContext)
         {
-            return (ObjectMappingData<TSource, TTarget>)ObjectMappingDataFactory.ForRoot(
+            var mapperKey = new RootObjectMapperKey(mappingContext.RuleSet, MappingTypes.Fixed<TSource, TTarget>());
+
+            return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
-                mappingContext);
+                null,
+                mapperKey,
+                mappingContext.MapperContext.RootMembersSource,
+                mappingContext,
+                parent: null);
         }
 
         public static ObjectMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
@@ -33,12 +41,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex,
             IObjectMappingData parent)
         {
-            return (ObjectMappingData<TSource, TTarget>)ObjectMappingDataFactory.ForChild(
+            var mapperKey = new ChildObjectMapperKey(
+                targetMemberRegistrationName,
+                dataSourceIndex,
+                MappingTypes.Fixed<TSource, TTarget>());
+
+            var membersSource = new MemberLookupsChildMembersSource(parent, targetMemberRegistrationName, dataSourceIndex);
+
+            return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
                 enumerableIndex,
-                targetMemberRegistrationName,
-                dataSourceIndex,
+                mapperKey,
+                membersSource,
+                parent.MappingContext,
                 parent);
         }
 
@@ -48,10 +64,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int enumerableIndex,
             IObjectMappingData parent)
         {
-            return (ObjectMappingData<TSourceElement, TTargetElement>)ObjectMappingDataFactory.ForElement(
+            return new ObjectMappingData<TSourceElement, TTargetElement>(
                 sourceElement,
                 targetElement,
                 enumerableIndex,
+                new ElementObjectMapperKey(MappingTypes.Fixed<TSourceElement, TTargetElement>()),
+                new ElementMembersSource(parent),
+                parent.MappingContext,
                 parent);
         }
     }

@@ -21,6 +21,8 @@ namespace AgileObjects.AgileMapper.Members
 
         #region Factory Method
 
+        public static MappingTypes Fixed<TSource, TTarget>() => MappingTypesCache<TSource, TTarget>.Instance;
+
         public static MappingTypes For<TSource, TTarget>(TSource source, TTarget target)
         {
             var runtimeSourceTypeNeeded = TypeInfo<TSource>.RuntimeSourceTypeNeeded;
@@ -101,6 +103,16 @@ namespace AgileObjects.AgileMapper.Members
                 RuntimeTypesNeeded,
                 RuntimeTypesAreTheSame,
                 IsEnumerable);
+        }
+
+        private static class MappingTypesCache<TSource, TTarget>
+        {
+            public static readonly MappingTypes Instance = new MappingTypes(
+                typeof(TSource),
+                typeof(TTarget),
+                runtimeTypesNeeded: false,
+                runtimeTypesAreTheSame: true,
+                isEnumerable: TypeInfo<TTarget>.IsEnumerable);
         }
     }
 }
