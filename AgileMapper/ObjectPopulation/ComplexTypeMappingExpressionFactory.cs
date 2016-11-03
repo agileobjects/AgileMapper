@@ -22,10 +22,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
         {
-            var strategyShortCircuitReturns = GetStrategyShortCircuitReturnsOrNull(returnNull, mapperData);
-            if (strategyShortCircuitReturns != null)
+            if (mapperData.TargetMember.LeafMember.MemberType == MemberType.EnumerableElement)
             {
-                yield return strategyShortCircuitReturns;
+                yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
             }
 
             var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(returnNull.Target, mapperData);
@@ -33,31 +32,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 yield return alreadyMappedShortCircuit;
             }
-        }
-
-        private static Expression GetStrategyShortCircuitReturnsOrNull(Expression returnNull, ObjectMapperData mapperData)
-        {
-            if (mapperData.IsPartOfDerivedTypeMapping || mapperData.HasSameSourceAsParent())
-            {
-                return null;
-            }
-
-            var shortCircuitConditions = mapperData
-                .RuleSet
-                .ComplexTypeMappingShortCircuitStrategy
-                .GetConditions(mapperData)
-                .WhereNotNull()
-                .Select(condition => (Expression)Expression.IfThen(condition, returnNull))
-                .ToArray();
-
-            if (shortCircuitConditions.None())
-            {
-                return null;
-            }
-
-            var shortCircuitBlock = Expression.Block(shortCircuitConditions);
-
-            return shortCircuitBlock;
         }
 
         private static readonly MethodInfo _tryGetMethod = typeof(IObjectMappingData).GetMethod("TryGet");

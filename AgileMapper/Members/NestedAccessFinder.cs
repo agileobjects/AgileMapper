@@ -15,8 +15,6 @@ namespace AgileObjects.AgileMapper.Members
         private readonly ICollection<string> _nullCheckSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
-        private bool _includeSourceObjectAccesses;
-
         public NestedAccessFinder(Expression dataParameter)
         {
             _dataParameter = dataParameter;
@@ -25,14 +23,12 @@ namespace AgileObjects.AgileMapper.Members
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
 
-        public Expression[] FindIn(Expression expression, bool includeSourceObjectAccesses)
+        public Expression[] FindIn(Expression expression)
         {
             Expression[] memberAccesses;
 
             lock (_syncLock)
             {
-                _includeSourceObjectAccesses = includeSourceObjectAccesses;
-
                 Visit(expression);
 
                 memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
@@ -104,7 +100,7 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            return _includeSourceObjectAccesses || (memberAccess.Member.Name != "Source");
+            return memberAccess.Member.Name != "Source";
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)

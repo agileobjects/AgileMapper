@@ -15,11 +15,7 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
 
         public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value)
-        {
-            return mapperData.NestedAccessFinder.FindIn(
-                value,
-                mapperData.RuleSet.ComplexTypeMappingShortCircuitStrategy.SourceCanBeNull);
-        }
+            => mapperData.NestedAccessFinder.FindIn(value);
 
         public static bool IsForInlineMapping(this IMemberMapperData mapperData)
             => !(mapperData.SourceType.RuntimeSourceTypeNeeded() || mapperData.TargetType.RuntimeTargetTypeNeeded());
