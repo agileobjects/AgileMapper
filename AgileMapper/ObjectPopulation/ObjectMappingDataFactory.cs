@@ -154,11 +154,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int? enumerableIndex,
             IObjectMappingData parent)
         {
+            var membersSource = new ElementMembersSource(parent);
+
             return ForElement(
                 source,
                 target,
                 enumerableIndex,
-                parent.ElementMembersSource,
+                membersSource,
                 parent);
         }
 

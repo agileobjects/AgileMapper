@@ -24,7 +24,9 @@
 
             shortVariableName = shortVariableName.ToLowerInvariant();
 
-            return type.IsEnumerable() ? Pluralise(shortVariableName) : shortVariableName;
+            return (!type.IsArray && type.IsEnumerable())
+                ? Pluralise(shortVariableName)
+                : shortVariableName;
         }
 
         public static string GetVariableNameInCamelCase(this Type type) => type.GetVariableName(f => f.ToCamelCase());
@@ -60,7 +62,9 @@
                 variableName = formatter.Invoke(variableName);
             }
 
-            return typeIsEnumerable ? Pluralise(variableName) : variableName;
+            return typeIsEnumerable
+                ? type.IsArray ? variableName + "Array" : Pluralise(variableName)
+                : variableName;
         }
 
         private static string RemoveNonAlphaNumerics(string value)

@@ -20,6 +20,12 @@
         }
 
         [Fact]
+        public void ShouldNameAVariableForAnArrayType()
+        {
+            typeof(Box[]).GetVariableNameInCamelCase().ShouldBe("boxArray");
+        }
+
+        [Fact]
         public void ShouldNameAVariableForACollectionTypeEndingInX()
         {
             typeof(ICollection<Box>).GetVariableNameInCamelCase().ShouldBe("boxes");

@@ -29,6 +29,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             var otherKey = (TypeKey)obj;
 
+            // ReSharper disable once PossibleNullReferenceException
             return (_keyType == otherKey._keyType) && (Type == otherKey.Type);
         }
 

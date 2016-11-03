@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using Members;
-    using Members.Sources;
 
     internal interface IObjectMappingData : IMappingData
     {
@@ -21,8 +20,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         Type SourceType { get; }
 
         Type TargetType { get; }
-
-        ElementMembersSource ElementMembersSource { get; }
 
         ObjectMapperKeyBase MapperKey { get; }
 

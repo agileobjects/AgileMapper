@@ -19,23 +19,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private IObjectMapper _mapper;
         private ObjectMapperData _mapperData;
 
-        private ObjectMappingData(
-            TSource source,
-            TTarget target,
-            IMembersSource membersSource,
-            IObjectMappingData declaredTypeMappingData)
-            : this(
-                  source,
-                  target,
-                  declaredTypeMappingData.GetEnumerableIndex(),
-                  declaredTypeMappingData.MapperKey.WithTypes<TSource, TTarget>(),
-                  membersSource,
-                  declaredTypeMappingData.MappingContext,
-                  declaredTypeMappingData.Parent)
-        {
-            DeclaredTypeMappingData = declaredTypeMappingData;
-        }
-
         public ObjectMappingData(
             TSource source,
             TTarget target,
@@ -43,7 +26,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ObjectMapperKeyBase mapperKey,
             IMembersSource membersSource,
             IMappingContext mappingContext,
-            IObjectMappingData parent = null)
+            IObjectMappingData parent)
+            : this(
+                  source,
+                  target,
+                  enumerableIndex,
+                  mapperKey,
+                  membersSource,
+                  mappingContext,
+                  null,
+                  parent)
+        {
+        }
+
+        private ObjectMappingData(
+            TSource source,
+            TTarget target,
+            int? enumerableIndex,
+            ObjectMapperKeyBase mapperKey,
+            IMembersSource membersSource,
+            IMappingContext mappingContext,
+            IObjectMappingData declaredTypeMappingData,
+            IObjectMappingData parent)
             : base(source, target, enumerableIndex, parent)
         {
             _membersSource = membersSource;
@@ -53,11 +57,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             RuleSet = mappingContext.RuleSet;
             SourceType = mapperKey.MappingTypes.SourceType;
             TargetType = mapperKey.MappingTypes.TargetType;
-
-            if (mapperKey.MappingTypes.IsEnumerable)
-            {
-                ElementMembersSource = new ElementMembersSource(this);
-            }
+            DeclaredTypeMappingData = declaredTypeMappingData;
 
             if (parent != null)
             {
@@ -68,7 +68,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappedObjectsByTypes = new Dictionary<object, Dictionary<object, object>>();
             IsRoot = true;
 
-            if (source != null && !IsPartOfDerivedTypeMapping)
+            if (!IsPartOfDerivedTypeMapping)
             {
                 Mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
             }
@@ -98,8 +98,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return mapper;
         }
-
-        public ElementMembersSource ElementMembersSource { get; }
 
         public TTarget CreatedObject { get; set; }
 
@@ -261,8 +259,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return new ObjectMappingData<TNewSource, TNewTarget>(
                 Source as TNewSource,
                 Target as TNewTarget,
+                GetEnumerableIndex(),
+                MapperKey.WithTypes<TNewSource, TNewTarget>(),
                 _membersSource,
-                this);
+                MappingContext,
+                this,
+                _parent);
         }
     }
 }

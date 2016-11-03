@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Caching;
-    using Members;
 
     internal class ObjectMapperFactory
     {
@@ -28,24 +27,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mapperData = mappingData.MapperData;
 
-            Expression<MapperFunc<TSource, TTarget>> mappingLambda = null;
-
-            if (mapperData.HasRequiredMapperFunc)
-            {
-                mappingLambda = CreateMappingLambda<TSource, TTarget>(mappingExpression, mapperData);
-                mapperData.AddMapperFuncBody(mappingLambda);
-            }
-
             if (mapperData.HasMapperFuncs)
             {
                 mappingExpression = PrependMapperFuncsTo(mappingExpression, mapperData);
-                mappingLambda = null;
             }
 
-            if (mappingLambda == null)
-            {
-                mappingLambda = CreateMappingLambda<TSource, TTarget>(mappingExpression, mapperData);
-            }
+            var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
+                mappingExpression,
+                mapperData.MappingDataObject);
 
             var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mapperData);
 
@@ -66,13 +55,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 allMappingExpressions);
 
             return updatedMappingExpression;
-        }
-
-        private static Expression<MapperFunc<TSource, TTarget>> CreateMappingLambda<TSource, TTarget>(
-            Expression mappingExpression,
-            IMemberMapperData mapperData)
-        {
-            return Expression.Lambda<MapperFunc<TSource, TTarget>>(mappingExpression, mapperData.MappingDataObject);
         }
 
         public void Reset()

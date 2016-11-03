@@ -154,9 +154,16 @@
                 declaredTypeMapperData.MappingDataObject
             };
 
-            if (childMapperData.TargetMemberReferencesRecursionRoot())
+            if (childMapperData.TargetMember.IsRecursive)
             {
                 var mapperFuncCall = GetMapperFuncCallFor(childMappingData.MapperData, createMethodCallArguments);
+
+                if (TargetMemberIsRecursionRoot(childMapperData))
+                {
+                    var mappingLambda = childMappingData.Mapper.MappingLambda;
+
+                    childMapperData.Parent.AddMapperFuncBody(mappingLambda);
+                }
 
                 return mapperFuncCall;
             }
@@ -176,7 +183,7 @@
             ObjectMapperData childMapperData,
             Expression[] createMethodCallArguments)
         {
-            var mapperFuncVariable = childMapperData.FindRequiredMapperFuncVariable();
+            var mapperFuncVariable = childMapperData.GetMapperFuncVariable();
 
             var createInlineMappingDataCall = GetCreateMappingDataCall(
                 MappingDataFactory.ForChildMethod,
@@ -186,6 +193,24 @@
             var mapperFuncCall = Expression.Invoke(mapperFuncVariable, createInlineMappingDataCall);
 
             return mapperFuncCall;
+        }
+
+        private static bool TargetMemberIsRecursionRoot(IMemberMapperData mapperData)
+        {
+            var parentMapperData = mapperData.Parent;
+
+            while (!parentMapperData.IsForStandaloneMapping)
+            {
+                if (parentMapperData.TargetMember.IsRecursive &&
+                   (parentMapperData.TargetMember.LeafMember == mapperData.TargetMember.LeafMember))
+                {
+                    return false;
+                }
+
+                parentMapperData = parentMapperData.Parent;
+            }
+
+            return true;
         }
 
         public static Expression GetElementMapping(

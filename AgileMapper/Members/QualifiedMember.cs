@@ -99,18 +99,18 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            for (var i = _memberChain.Length - 1; i > 0; i--)
+            if (LeafMember.MemberType == MemberType.EnumerableElement)
             {
-                var currentMember = _memberChain[i];
+                // Recurse on enumerable and complex type members, 
+                // not enumerable elements:
+                return false;
+            }
 
-                for (var j = i - 1; j > 0; j--)
+            for (var i = _memberChain.Length - 2; i > 0; --i)
+            {
+                if (LeafMember == _memberChain[i])
                 {
-                    var parentMember = _memberChain[j];
-
-                    if (currentMember == parentMember)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 

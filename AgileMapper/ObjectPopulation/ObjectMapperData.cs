@@ -17,7 +17,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapObjectMethod;
         private readonly MethodInfo _mapEnumerableElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
-        private ParameterExpression _mapperFuncVariable;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -289,52 +288,49 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression CreatedObject { get; }
 
-        public ParameterExpression FindRequiredMapperFuncVariable()
-            => Parent.GetMapperFuncVariableFor(TargetMember);
-
-        private ParameterExpression GetMapperFuncVariableFor(QualifiedMember targetMember)
+        public ParameterExpression GetMapperFuncVariable()
         {
-            if (targetMember.LeafMember != TargetMember.LeafMember)
-            {
-                return Parent.GetMapperFuncVariableFor(targetMember);
-            }
-
-            if (_mapperFuncVariable != null)
-            {
-                return _mapperFuncVariable;
-            }
-
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
             var mapperFuncType = typeof(MapperFunc<,>).MakeGenericType(SourceType, TargetType);
+            var mapperFuncVariable = GetMapperFuncVariableFrom(nearestStandaloneMapperData, mapperFuncType);
 
-            _mapperFuncVariable = nearestStandaloneMapperData
-                .RequiredMapperFuncsByVariable
-                .FirstOrDefault(fbv => fbv.Key.Type == mapperFuncType)
-                .Key;
-
-            if (_mapperFuncVariable != null)
+            if (mapperFuncVariable != null)
             {
-                return _mapperFuncVariable;
+                return mapperFuncVariable;
             }
 
-            var mapperFuncVariableName = string.Format(
+            var mapperFuncName = string.Format(
                 CultureInfo.InvariantCulture,
                 "map{0}To{1}",
                 SourceMember.Name.ToPascalCase(),
                 TargetType.GetVariableNameInPascalCase());
 
-            _mapperFuncVariable = Parameters.Create(mapperFuncType, mapperFuncVariableName);
+            mapperFuncVariable = Parameters.Create(mapperFuncType, mapperFuncName);
 
-            return _mapperFuncVariable;
+            nearestStandaloneMapperData.RequiredMapperFuncsByVariable.Add(mapperFuncVariable, null);
+
+            return mapperFuncVariable;
         }
 
-        public bool HasRequiredMapperFunc => _mapperFuncVariable != null;
+        private static ParameterExpression GetMapperFuncVariableFrom(
+            ObjectMapperData standaloneMapperData,
+            Type mapperFuncType)
+        {
+            var mapperFuncVariable = standaloneMapperData
+                .RequiredMapperFuncsByVariable
+                .FirstOrDefault(fbv => fbv.Key.Type == mapperFuncType)
+                .Key;
 
-        public void AddMapperFuncBody(Expression mappingLambda)
+            return mapperFuncVariable;
+        }
+
+        public void AddMapperFuncBody(LambdaExpression mappingLambda)
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
+            var mapperFuncType = mappingLambda.Type;
+            var mapperFuncVariable = GetMapperFuncVariableFrom(nearestStandaloneMapperData, mapperFuncType);
 
-            nearestStandaloneMapperData.RequiredMapperFuncsByVariable[_mapperFuncVariable] = mappingLambda;
+            nearestStandaloneMapperData.RequiredMapperFuncsByVariable[mapperFuncVariable] = mappingLambda;
         }
 
         private ObjectMapperData GetNearestStandaloneMapperData()

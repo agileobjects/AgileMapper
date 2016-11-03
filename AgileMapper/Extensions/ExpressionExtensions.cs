@@ -84,9 +84,6 @@
             return Expression.Call(instance, methodInfo, valueParameter);
         }
 
-        public static Expression And(this Expression firstExpression, Expression secondExpression)
-            => AndTogether(new[] { firstExpression, secondExpression }.WhereNotNull().ToArray());
-
         public static Expression AndTogether(this ICollection<Expression> expressions)
         {
             if (expressions.Count == 0)
