@@ -83,7 +83,17 @@
             var otherMembersLeafMember = otherMemberChain.Last();
             Member[] relativeMemberChain = null;
 
-            for (var i = memberChain.Length - 1; i >= 0; --i)
+            var startIndex = memberChain.Length - 1;
+
+            if ((memberChain.Length > 2) &&
+                memberChain[startIndex] == memberChain[startIndex - 1])
+            {
+                // The member chain ends in a 1-to-1, immediately recursive
+                // relationship; skip the last element:
+                --startIndex;
+            }
+
+            for (var i = startIndex; i >= 0; --i)
             {
                 var member = memberChain[i];
 

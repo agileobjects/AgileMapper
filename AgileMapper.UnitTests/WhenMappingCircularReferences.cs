@@ -137,6 +137,90 @@
         }
 
         [Fact]
+        public void ShouldMapMultiplyRecursiveRelationships()
+        {
+            var recursorOne = new MultipleRecursor { Name = "One" };
+            var recursorTwo = new MultipleRecursor { Name = "Two" };
+
+            var recursorThree = new MultipleRecursor
+            {
+                Name = "Three",
+                ChildRecursor = new MultipleRecursor
+                {
+                    Name = "Three.ChildRecursor",
+                    ChildRecursorArray = new[] { recursorTwo }
+                }
+            };
+
+            var source = new MultipleRecursor
+            {
+                Name = "Root",
+                ChildRecursor = new MultipleRecursor
+                {
+                    Name = "Root.ChildRecursor",
+                    ChildRecursor = recursorOne
+                },
+                ChildRecursorArray = new[]
+                {
+                    new MultipleRecursor { Name = "Root.ChildRecursorArray[0]" },
+                    recursorOne,
+                    new MultipleRecursor
+                    {
+                        Name = "Root.ChildRecursorArray[2]",
+                        ChildRecursor = recursorThree
+                    }
+                },
+                ChildRecursors = new List<MultipleRecursor>
+                {
+                    recursorTwo,
+                    new MultipleRecursor { Name = "Root.ChildRecursors[1]" },
+                    recursorThree
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<MultipleRecursor>();
+
+            result.ShouldNotBeNull();
+            result.ShouldNotBeSameAs(source);
+
+            result.Name.ShouldBe("Root");
+
+            result.ChildRecursor.ShouldNotBeNull();
+            result.ChildRecursor.Name.ShouldBe("Root.ChildRecursor");
+
+            var clonedRecursorOne = result.ChildRecursor.ChildRecursor;
+            clonedRecursorOne.ShouldNotBeNull();
+            clonedRecursorOne.ShouldNotBeSameAs(recursorOne);
+            clonedRecursorOne.Name.ShouldBe("One");
+
+            result.ChildRecursorArray.ShouldNotBeNull();
+            result.ChildRecursorArray.Length.ShouldBe(3);
+            result.ChildRecursorArray.First().Name.ShouldBe("Root.ChildRecursorArray[0]");
+            result.ChildRecursorArray.Second().ShouldBeSameAs(clonedRecursorOne);
+            result.ChildRecursorArray.Third().Name.ShouldBe("Root.ChildRecursorArray[2]");
+
+            var clonedRecursorThree = result.ChildRecursorArray.Third().ChildRecursor;
+            clonedRecursorThree.ShouldNotBeNull();
+            clonedRecursorThree.ShouldNotBeSameAs(recursorThree);
+            clonedRecursorThree.Name.ShouldBe("Three");
+            clonedRecursorThree.ChildRecursor.ShouldNotBeNull();
+            clonedRecursorThree.ChildRecursor.Name.ShouldBe("Three.ChildRecursor");
+            clonedRecursorThree.ChildRecursor.ChildRecursorArray.ShouldNotBeNull();
+            clonedRecursorThree.ChildRecursor.ChildRecursorArray.Length.ShouldBe(1);
+
+            var clonedRecursorTwo = clonedRecursorThree.ChildRecursor.ChildRecursorArray.First();
+            clonedRecursorTwo.ShouldNotBeNull();
+            clonedRecursorTwo.ShouldNotBeSameAs(recursorTwo);
+            clonedRecursorTwo.Name.ShouldBe("Two");
+
+            result.ChildRecursors.ShouldNotBeNull();
+            result.ChildRecursors.Count.ShouldBe(3);
+            result.ChildRecursors.First().ShouldBeSameAs(clonedRecursorTwo);
+            result.ChildRecursors.Second().Name.ShouldBe("Root.ChildRecursors[1]");
+            result.ChildRecursors.Third().ShouldBeSameAs(clonedRecursorThree);
+        }
+
+        [Fact]
         public void ShouldGenerateAMappingPlanForAOneToOneRelationship()
         {
             var plan = Mapper
@@ -166,6 +250,17 @@
         internal class PilotQualifications
         {
             public IList<Aeroplane> TrainedAeroplanes { get; set; }
+        }
+
+        internal class MultipleRecursor
+        {
+            public string Name { get; set; }
+
+            public MultipleRecursor ChildRecursor { get; set; }
+
+            public MultipleRecursor[] ChildRecursorArray { get; set; }
+
+            public List<MultipleRecursor> ChildRecursors { get; set; }
         }
 
         #endregion

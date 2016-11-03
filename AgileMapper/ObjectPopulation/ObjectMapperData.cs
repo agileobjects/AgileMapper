@@ -97,7 +97,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 SourceType.GetShortVariableName(),
                 TargetType.GetShortVariableName().ToPascalCase());
 
-            var parameter = mdType.GetOrCreateParameter(mappingDataVariableName);
+            var parameter = Parameters.Create(mdType, mappingDataVariableName);
 
             return parameter;
         }
@@ -288,7 +288,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression CreatedObject { get; }
 
-        public ParameterExpression GetMapperFuncVariable()
+        public ParameterExpression GetMapperFuncVariable(IObjectMappingData mappingData)
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
             var mapperFuncType = typeof(MapperFunc<,>).MakeGenericType(SourceType, TargetType);
@@ -306,8 +306,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 TargetType.GetVariableNameInPascalCase());
 
             mapperFuncVariable = Parameters.Create(mapperFuncType, mapperFuncName);
-
             nearestStandaloneMapperData.RequiredMapperFuncsByVariable.Add(mapperFuncVariable, null);
+
+            var mappingLambda = mappingData.Mapper.MappingLambda;
+            nearestStandaloneMapperData.RequiredMapperFuncsByVariable[mapperFuncVariable] = mappingLambda;
 
             return mapperFuncVariable;
         }
@@ -374,7 +376,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapEnumerableElementMethod.MakeGenericMethod(sourceElement.Type, targetElement.Type),
                 sourceElement,
                 targetElement,
-                Parameters.EnumerableIndex);
+                EnumerablePopulationBuilder.Counter);
 
             return mapCall;
         }

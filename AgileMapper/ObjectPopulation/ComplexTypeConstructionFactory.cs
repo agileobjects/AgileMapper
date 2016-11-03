@@ -12,16 +12,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ComplexTypeConstructionFactory
     {
-        private readonly ICache<ConstructionKey, Expression> _constructorsCache;
+        private readonly ICache<ConstructionKey, Construction> _constructorsCache;
 
         public ComplexTypeConstructionFactory(MapperContext mapperContext)
         {
-            _constructorsCache = mapperContext.Cache.CreateScoped<ConstructionKey, Expression>();
+            _constructorsCache = mapperContext.Cache.CreateScoped<ConstructionKey, Construction>();
         }
 
         public Expression GetNewObjectCreation(IObjectMappingData mappingData)
         {
-            return _constructorsCache.GetOrAdd(new ConstructionKey(mappingData), key =>
+            var objectCreation = _constructorsCache.GetOrAdd(new ConstructionKey(mappingData), key =>
             {
                 var mapperData = key.MappingData.MapperData;
 
@@ -90,20 +90,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     }
                 }
 
-                key.MappingData = null;
-
                 if (constructions.None())
                 {
+                    key.MappingData = null;
                     return null;
                 }
 
-                return constructions
+                var constructionExpression = constructions
                     .Skip(1)
                     .Aggregate(
                         constructions.First().Expression,
                         (constructionSoFar, construction) =>
                             Expression.Condition(construction.Condition, construction.Expression, constructionSoFar));
+
+                var compositeConstruction = new Construction(constructionExpression, key);
+
+                key.MappingData = null;
+
+                return compositeConstruction;
             });
+
+            var creationExpression = objectCreation?.GetConstruction(mappingData);
+
+            return creationExpression;
         }
 
         public void Reset() => _constructorsCache.Empty();
@@ -182,6 +191,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private class Construction
         {
+            private readonly ParameterExpression _mappingDataObject;
+
+            public Construction(Expression construction, ConstructionKey key)
+                : this(construction)
+            {
+                _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
+            }
+
             public Construction(Expression construction, Expression condition = null)
             {
                 Expression = construction;
@@ -191,6 +208,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             public Expression Expression { get; }
 
             public Expression Condition { get; }
+
+            public Expression GetConstruction(IObjectMappingData mappingData)
+                => Expression.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);
         }
 
         #endregion

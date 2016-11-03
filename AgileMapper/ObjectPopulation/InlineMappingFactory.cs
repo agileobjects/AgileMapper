@@ -154,16 +154,9 @@
                 declaredTypeMapperData.MappingDataObject
             };
 
-            if (childMapperData.TargetMember.IsRecursive)
+            if (TargetMemberIsRecursive(childMapperData))
             {
-                var mapperFuncCall = GetMapperFuncCallFor(childMappingData.MapperData, createMethodCallArguments);
-
-                if (TargetMemberIsRecursionRoot(childMapperData))
-                {
-                    var mappingLambda = childMappingData.Mapper.MappingLambda;
-
-                    childMapperData.Parent.AddMapperFuncBody(mappingLambda);
-                }
+                var mapperFuncCall = GetMapperFuncCallFor(childMappingData, createMethodCallArguments);
 
                 return mapperFuncCall;
             }
@@ -179,11 +172,55 @@
             return inlineMappingBlock;
         }
 
+        private static bool TargetMemberIsRecursive(IMemberMapperData mapperData)
+        {
+            if (mapperData.TargetMember.IsRecursive)
+            {
+                return true;
+            }
+
+            var parentMapperData = mapperData.Parent;
+
+            while (!parentMapperData.IsForStandaloneMapping)
+            {
+                if (parentMapperData.TargetMember.IsRecursive)
+                {
+                    // The target member we're mapping right now isn't recursive,
+                    // but it's being mapped as part of the mapping of a recursive
+                    // member. We therefore want to check if this member recurses
+                    // later, and if so we'll map it by calling a mapping function:
+                    var parentMember = parentMapperData.TargetMember.LeafMember;
+
+                    if (TargetMemberRecursesWithin(parentMember, mapperData.TargetMember.LeafMember))
+                    {
+                        return true;
+                    }
+                }
+
+                parentMapperData = parentMapperData.Parent;
+            }
+
+            return false;
+        }
+
+        private static bool TargetMemberRecursesWithin(Member parentMember, Member member)
+        {
+            var nonSimpleChildMembers = GlobalContext.Instance
+                .MemberFinder
+                .GetWriteableMembers(parentMember.Type)
+                .Where(m => !m.IsSimple)
+                .ToArray();
+
+            return nonSimpleChildMembers.Contains(member) ||
+                   nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(m, member));
+        }
+
         private static Expression GetMapperFuncCallFor(
-            ObjectMapperData childMapperData,
+            IObjectMappingData childMappingData,
             Expression[] createMethodCallArguments)
         {
-            var mapperFuncVariable = childMapperData.GetMapperFuncVariable();
+            var childMapperData = childMappingData.MapperData;
+            var mapperFuncVariable = childMapperData.GetMapperFuncVariable(childMappingData);
 
             var createInlineMappingDataCall = GetCreateMappingDataCall(
                 MappingDataFactory.ForChildMethod,
@@ -193,24 +230,6 @@
             var mapperFuncCall = Expression.Invoke(mapperFuncVariable, createInlineMappingDataCall);
 
             return mapperFuncCall;
-        }
-
-        private static bool TargetMemberIsRecursionRoot(IMemberMapperData mapperData)
-        {
-            var parentMapperData = mapperData.Parent;
-
-            while (!parentMapperData.IsForStandaloneMapping)
-            {
-                if (parentMapperData.TargetMember.IsRecursive &&
-                   (parentMapperData.TargetMember.LeafMember == mapperData.TargetMember.LeafMember))
-                {
-                    return false;
-                }
-
-                parentMapperData = parentMapperData.Parent;
-            }
-
-            return true;
         }
 
         public static Expression GetElementMapping(
@@ -238,7 +257,7 @@
             return GetElementMapping(
                 sourceElementValue,
                 targetElementValue,
-                Parameters.EnumerableIndex,
+                declaredTypeEnumerableMapperData.EnumerablePopulationBuilder.Counter,
                 elementMappingData,
                 declaredTypeEnumerableMapperData);
         }

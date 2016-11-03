@@ -43,6 +43,7 @@
         private readonly bool _discardExistingValues;
         private readonly ICollection<Expression> _populationExpressions;
         private ParameterExpression _collectionDataVariable;
+        private ParameterExpression _counterVariable;
 
         public EnumerablePopulationBuilder(ObjectMapperData omd)
         {
@@ -191,6 +192,32 @@
 
         #endregion
 
+        public ParameterExpression Counter => _counterVariable ?? (_counterVariable = GetCounterVariable());
+
+        private ParameterExpression GetCounterVariable()
+        {
+            if (_omd.IsRoot)
+            {
+                return Parameters.Create<int>("i");
+            }
+
+            var counterName = 'i';
+
+            var parentMapperData = _omd.Parent;
+
+            while (!parentMapperData.IsForStandaloneMapping)
+            {
+                if (parentMapperData.TargetMember.IsEnumerable)
+                {
+                    ++counterName;
+                }
+
+                parentMapperData = parentMapperData.Parent;
+            }
+
+            return Parameters.Create<int>(counterName.ToString());
+        }
+
         public bool ElementTypesAreTheSame { get; }
 
         public bool ElementTypesAreIdentifiable => (_sourceElementIdLambda != null) && (_targetElementIdLambda != null);
@@ -284,7 +311,6 @@
                 _omd.TargetObject);
         }
 
-
         public void RemoveAllTargetItems()
         {
             _populationExpressions.Add(GetTargetMethodCall("Clear"));
@@ -298,16 +324,14 @@
                 return;
             }
 
-            var counter = Parameters.EnumerableIndex;
-
             Func<Expression, Expression> populationLoopAdapter;
             Expression loopExitCheck, sourceElement;
 
             if (_sourceTypeHelper.HasListInterface)
             {
                 populationLoopAdapter = exp => exp;
-                loopExitCheck = GetCounterEqualsCountCheck(counter);
-                sourceElement = GetIndexedElementAccess(counter);
+                loopExitCheck = Expression.Equal(Counter, GetCountPropertyAccess());
+                sourceElement = GetIndexedElementAccess();
             }
             else
             {
@@ -330,15 +354,12 @@
                 enumerableMappingData);
 
             var population = Expression.Block(
-                new[] { counter },
-                Expression.Assign(counter, Expression.Constant(0)),
+                new[] { Counter },
+                Expression.Assign(Counter, Expression.Constant(0)),
                 populationLoop);
 
             _populationExpressions.Add(population);
         }
-
-        private Expression GetCounterEqualsCountCheck(Expression counter)
-            => Expression.Equal(counter, GetCountPropertyAccess());
 
         private Expression GetCountPropertyAccess()
         {
@@ -352,11 +373,11 @@
             return Expression.Property(_sourceVariable, countPropertyInfo);
         }
 
-        private Expression GetIndexedElementAccess(Expression counter)
+        private Expression GetIndexedElementAccess()
         {
             if (_sourceTypeHelper.IsArray)
             {
-                return Expression.ArrayIndex(_sourceVariable, counter);
+                return Expression.ArrayIndex(_sourceVariable, Counter);
             }
 
             var indexer = _sourceVariable.Type
@@ -365,7 +386,7 @@
                     (p.GetIndexParameters().Length == 1) &&
                     (p.GetIndexParameters()[0].ParameterType == typeof(int)));
 
-            return Expression.MakeIndex(_sourceVariable, indexer, new[] { counter });
+            return Expression.MakeIndex(_sourceVariable, indexer, new[] { Counter });
         }
 
         private Expression GetEnumeratorAssignment(out ParameterExpression enumerator)
@@ -392,7 +413,7 @@
             var loopBody = Expression.Block(
                 Expression.IfThen(loopExitCheck, breakLoop),
                 addMappedElement,
-                Expression.PreIncrementAssign(Parameters.EnumerableIndex));
+                Expression.PreIncrementAssign(Counter));
 
             var populationLoop = Expression.Loop(loopBody, breakLoop.Target);
             var adaptedLoop = populationLoopAdapter.Invoke(populationLoop);
@@ -473,7 +494,7 @@
                 forEachAction,
                 sourceElementParameter,
                 targetElementParameter,
-                Parameters.EnumerableIndex);
+                Counter);
 
             var forEachCall = Expression.Call(
                 _forEachTupleMethod.MakeGenericMethod(_sourceElementType, _targetElementType),
