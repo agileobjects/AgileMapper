@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly IMembersSource _membersSource;
         private readonly IObjectMappingData _parent;
-        private readonly Dictionary<object, Dictionary<object, object>> _mappedObjectsByTypes;
+        private readonly Dictionary<int, Dictionary<object, object>> _mappedObjectsByTypes;
         private IObjectMapper _mapper;
         private ObjectMapperData _mapperData;
 
@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            _mappedObjectsByTypes = new Dictionary<object, Dictionary<object, object>>();
+            _mappedObjectsByTypes = new Dictionary<int, Dictionary<object, object>>();
             IsRoot = true;
 
             if (IsPartOfDerivedTypeMapping)
@@ -161,7 +161,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (key != null)
             {
-                var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance;
+                var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance.GetHashCode();
                 Dictionary<object, object> mappedTargetsBySource;
 
                 if (_mappedObjectsByTypes.TryGetValue(typesKey, out mappedTargetsBySource))
@@ -188,7 +188,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance;
+            var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance.GetHashCode();
             Dictionary<object, object> mappedTargetsBySource;
 
             if (_mappedObjectsByTypes.TryGetValue(typesKey, out mappedTargetsBySource))
