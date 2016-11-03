@@ -27,6 +27,33 @@
 #endif
         }
 
+        public static bool IsAbstract(this Type type)
+        {
+#if NET_STANDARD
+            return type.GetTypeInfo().IsAbstract;
+#else
+            return type.IsAbstract;
+#endif
+        }
+
+        public static bool IsPublic(this Type type)
+        {
+#if NET_STANDARD
+            return type.GetTypeInfo().IsPublic;
+#else
+            return type.IsPublic;
+#endif
+        }
+
+        public static bool IsDerivedFrom(this Type childType, Type parentType)
+        {
+#if NET_STANDARD
+            return childType.GetTypeInfo().IsSubclassOf(parentType);
+#else
+            return childType.IsSubclassOf(parentType);
+#endif
+        }
+
         public static IEnumerable<ConstructorInfo> GetPublicInstanceConstructors(this Type type)
         {
 #if NET_STANDARD

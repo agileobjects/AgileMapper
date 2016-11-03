@@ -6,6 +6,8 @@
 
     internal static class EnumerableExtensions
     {
+        public static bool Any<T>(this ICollection<T> items) => items.Count > 0;
+
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;

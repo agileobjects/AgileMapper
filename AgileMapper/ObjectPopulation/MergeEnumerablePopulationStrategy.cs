@@ -6,13 +6,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly IEnumerablePopulationStrategy Instance = new MergeEnumerablePopulationStrategy();
 
-        protected override Expression GetEnumerablePopulation(EnumerablePopulationBuilder builder)
+        protected override Expression GetEnumerablePopulation(
+            EnumerablePopulationBuilder builder,
+            IObjectMappingData mappingData)
         {
             if (builder.ElementTypesAreSimple)
             {
                 builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType().ExcludingTargetItems());
                 builder.AssignTargetVariable();
-                builder.AddNewItemsToTargetVariable();
+                builder.AddNewItemsToTargetVariable(mappingData);
 
                 return builder;
             }
@@ -20,17 +22,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (builder.ElementTypesAreIdentifiable)
             {
                 builder.CreateCollectionData();
-                builder.MapIntersection();
+                builder.MapIntersection(mappingData);
                 builder.AssignSourceVariableFrom(s => s.CollectionDataNewSourceItems());
                 builder.AssignTargetVariable();
-                builder.AddNewItemsToTargetVariable();
+                builder.AddNewItemsToTargetVariable(mappingData);
 
                 return builder;
             }
 
             builder.AssignSourceVariableFromSourceObject();
             builder.AssignTargetVariable();
-            builder.AddNewItemsToTargetVariable();
+            builder.AddNewItemsToTargetVariable(mappingData);
 
             return builder;
         }

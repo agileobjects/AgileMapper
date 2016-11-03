@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return typedForChildLambda.Compile();
             });
 
-            var membersSource = new TargetMemberChildMembersSource(sourceMember, targetMember, dataSourceIndex);
+            var membersSource = new FixedMembersMembersSource(sourceMember, targetMember, dataSourceIndex);
 
             return typedForChildCaller.Invoke(membersSource, parent);
         }
@@ -77,7 +77,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex,
             IObjectMappingData parent)
         {
-            var membersSource = new TargetMemberNameChildMembersSource(parent, targetMemberRegistrationName, dataSourceIndex);
+            var membersSource = new MemberLookupsChildMembersSource(parent, targetMemberRegistrationName, dataSourceIndex);
 
             return ForChild(
                 source,
@@ -106,15 +106,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public static IObjectMappingData ForElement(IObjectMappingData parent)
         {
-            var sourceType = parent.MapperData.SourceElementMember.Type;
-            var targetType = parent.MapperData.TargetElementMember.Type;
+            var sourceElementMember = parent.MapperData.SourceMember.GetElementMember();
+            var targetElementMember = parent.MapperData.TargetMember.GetElementMember();
+
+            return ForElement(sourceElementMember, targetElementMember, parent);
+        }
+
+        public static IObjectMappingData ForElement(
+            IQualifiedMember sourceElementMember,
+            QualifiedMember targetElementMember,
+            IObjectMappingData parent)
+        {
+            var sourceType = sourceElementMember.Type;
+            var targetType = targetElementMember.Type;
             var key = new SourceAndTargetTypesKey(sourceType, targetType);
 
             var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
                 var typedForElementMethod = typeof(ObjectMappingDataFactory)
-                    .GetPublicStaticMethods()
-                    .Last(m => m.Name == "ForElement")
+                    .GetNonPublicStaticMethod("ForElement")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
                 var typedForElementCall = Expression.Call(
@@ -122,16 +132,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     Expression.Default(k.SourceType),
                     Expression.Default(k.TargetType),
                     Expression.Constant(0, typeof(int?)),
+                    Parameters.MembersSource,
                     Parameters.ObjectMappingData);
 
-                var typedForElementLambda = Expression.Lambda<Func<IObjectMappingData, IObjectMappingData>>(
+                var typedForElementLambda = Expression.Lambda<Func<IMembersSource, IObjectMappingData, IObjectMappingData>>(
                     typedForElementCall,
+                    Parameters.MembersSource,
                     Parameters.ObjectMappingData);
 
                 return typedForElementLambda.Compile();
             });
 
-            return typedForElementCaller.Invoke(parent);
+            var membersSource = new FixedMembersMembersSource(sourceElementMember, targetElementMember);
+
+            return typedForElementCaller.Invoke(membersSource, parent);
         }
 
         public static IObjectMappingData ForElement<TSource, TTarget>(
@@ -140,12 +154,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int? enumerableIndex,
             IObjectMappingData parent)
         {
+            var membersSource = new ElementMembersSource(parent);
+
+            return ForElement(
+                source,
+                target,
+                enumerableIndex,
+                membersSource,
+                parent);
+        }
+
+        private static IObjectMappingData ForElement<TSource, TTarget>(
+            TSource source,
+            TTarget target,
+            int? enumerableIndex,
+            IMembersSource membersSource,
+            IObjectMappingData parent)
+        {
             return Create(
                 source,
                 target,
                 enumerableIndex,
                 (mt, ms, mc) => new ElementObjectMapperKey(mt),
-                parent.ElementMembersSource,
+                membersSource,
                 parent.MappingContext,
                 parent);
         }
@@ -160,7 +191,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IObjectMappingData parent = null)
             where TMemberSource : IMembersSource
         {
-            var mappingTypes = MappingTypes.For(source, target, enumerableIndex, mappingContext, parent);
+            var mappingTypes = MappingTypes.For(source, target);
             var mapperKey = mapperKeyFactory.Invoke(mappingTypes, membersSource, mappingContext);
 
             if (mappingTypes.RuntimeTypesAreTheSame)
@@ -235,33 +266,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return constructionFunc;
         }
-
-        #region Key Class
-
-        private class SourceAndTargetTypesKey
-        {
-            public SourceAndTargetTypesKey(Type sourceType, Type targetType)
-            {
-                SourceType = sourceType;
-                TargetType = targetType;
-            }
-
-            public Type SourceType { get; }
-
-            public Type TargetType { get; }
-
-            public override bool Equals(object obj)
-            {
-                var otherKey = (SourceAndTargetTypesKey)obj;
-
-                // ReSharper disable once PossibleNullReferenceException
-                return (otherKey.SourceType == SourceType) &&
-                       (otherKey.TargetType == TargetType);
-            }
-
-            public override int GetHashCode() => 0;
-        }
-
-        #endregion
     }
 }

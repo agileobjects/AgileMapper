@@ -6,6 +6,9 @@
     {
         public static readonly bool IsEnumerable = typeof(T).IsEnumerable();
         public static readonly bool IsSimple = typeof(T).IsSimple();
+        public static readonly bool RuntimeSourceTypeNeeded = typeof(T).RuntimeSourceTypeNeeded();
+        public static readonly bool RuntimeTargetTypeNeeded = typeof(T).RuntimeTargetTypeNeeded();
+
         // ReSharper disable StaticMemberInGenericType
         public static readonly bool CheckSourceType = IsSourceTypeCheckRequired();
         public static readonly bool CheckTargetType = IsTargetTypeCheckRequired();

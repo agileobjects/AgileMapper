@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
-    using Extensions;
     using Members;
     using ReadableExpressions.Extensions;
 
@@ -36,8 +35,6 @@
 
             if (configuredCondition != null)
             {
-                configuredCondition = Process(configuredCondition, mapperData);
-
                 condition = (base.Condition != null)
                     ? Expression.AndAlso(base.Condition, configuredCondition)
                     : configuredCondition;
@@ -62,28 +59,13 @@
         {
             if (mapperData.TargetMember.IsComplex && (mapperData.TargetMember.Type.GetAssembly() != typeof(string).GetAssembly()))
             {
-                return mapperData.GetMapCall(value, dataSourceIndex);
+                return value;
+                //return mapperData.GetMapCall(value, dataSourceIndex);
             }
 
             var convertedValue = mapperData.MapperContext.ValueConverters.GetConversion(value, mapperData.TargetMember.Type);
 
             return convertedValue;
-        }
-
-        private static Expression Process(Expression configuredCondition, IMemberMapperData mapperData)
-        {
-            var conditionNestedAccessesChecks = mapperData
-                .GetNestedAccessesIn(configuredCondition)
-                .GetIsNotDefaultComparisonsOrNull();
-
-            if (conditionNestedAccessesChecks == null)
-            {
-                return configuredCondition;
-            }
-
-            var checkedConfiguredCondition = Expression.AndAlso(conditionNestedAccessesChecks, configuredCondition);
-
-            return checkedConfiguredCondition;
         }
 
         #endregion

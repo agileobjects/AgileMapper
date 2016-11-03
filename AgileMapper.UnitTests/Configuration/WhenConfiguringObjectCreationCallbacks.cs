@@ -190,7 +190,7 @@
                     .ToANew<Person>()
                     .After
                     .CreatingInstances
-                    .If(ctx => ctx.CreatedObject is Address)
+                    .If(ctx => ctx.Parent != null)
                     .Call(ctx => createdInstanceTypes.Add(ctx.CreatedObject.GetType()));
 
                 var source = new { Name = "Homer", AddressLine1 = "Springfield" };
@@ -328,16 +328,17 @@
                     .From<Person>()
                     .Over<Customer>()
                     .After
-                    .CreatingInstances
-                    .If((p, c, o, i) => (o is Address) && (i >= 1))
-                    .Call((p, c, o, i) => sourceAddressesByIndex[i.GetValueOrDefault()] = (Address)o);
+                    .CreatingInstancesOf<Address>()
+                    .If((p, c, o, i) => i >= 1)
+                    .Call((p, c, o, i) => sourceAddressesByIndex[i.GetValueOrDefault()] = o);
 
                 var source = new PublicField<Collection<Person>>
                 {
                     Value = new Collection<Person>
                     {
                         new Person { Id = Guid.NewGuid(), Name = "Person 0" },
-                        new Person { Id = Guid.NewGuid(), Name = "Person 1", Address = new Address { Line1 = "My house" } }
+                        new Person { Id = Guid.NewGuid(), Name = "Person 1", Address = new Address { Line1 = "My house" } },
+                        new Person { Id = Guid.NewGuid(), Name = "Person 1", Address = new Address { Line1 = "Your house" } }
                     }
                 };
                 var target = new PublicProperty<IEnumerable>
@@ -345,13 +346,14 @@
                     Value = new[]
                     {
                         new Person { Id = source.Value.First().Id },
-                        new Customer { Id = source.Value.Second().Id }
+                        new Customer { Id = source.Value.Second().Id },
+                        new Person { Id = source.Value.Third().Id }
                     }
                 };
                 var result = mapper.Map(source).Over(target);
                 var resultItems = result.Value.Cast<Person>().ToArray();
 
-                resultItems.Length.ShouldBe(2);
+                resultItems.Length.ShouldBe(3);
                 sourceAddressesByIndex.Count.ShouldBe(1);
                 sourceAddressesByIndex.ShouldContainKeyAndValue(1, resultItems.Second().Address);
             }
@@ -398,13 +400,13 @@
                 mapper
                     .Before
                     .CreatingInstancesOf<Address>()
-                    .If(ctx => ctx.Source is PersonViewModel)
+                    .If(ctx => ctx.Source.GetType().Name == "PersonViewModel")
                     .Call((s, p) => preCallbackObjects.AddRange(new[] { s, p }));
 
                 mapper
                     .After
                     .CreatingInstancesOf<Address>()
-                    .If((s, t) => s is PersonViewModel)
+                    .If((s, t) => s.GetType().Name == "PersonViewModel")
                     .Call((s, t, a) => postCallbackObjects.AddRange(new[] { s, a }));
 
                 var source = new PersonViewModel { AddressLine1 = "Housetown" };

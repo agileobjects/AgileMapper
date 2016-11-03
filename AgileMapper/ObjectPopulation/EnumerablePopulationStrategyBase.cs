@@ -6,16 +6,20 @@
     {
         public virtual bool DiscardExistingValues => false;
 
-        public Expression GetPopulation(ObjectMapperData mapperData)
+        public Expression GetPopulation(IObjectMappingData enumerableMappingData)
         {
-            if (mapperData.SourceMember.IsEnumerable)
+            if (enumerableMappingData.MapperData.SourceMember.IsEnumerable)
             {
-                return GetEnumerablePopulation(mapperData.EnumerablePopulationBuilder);
+                var builder = enumerableMappingData.MapperData.EnumerablePopulationBuilder;
+
+                return GetEnumerablePopulation(builder, enumerableMappingData);
             }
 
             return Constants.EmptyExpression;
         }
 
-        protected abstract Expression GetEnumerablePopulation(EnumerablePopulationBuilder builder);
+        protected abstract Expression GetEnumerablePopulation(
+            EnumerablePopulationBuilder builder,
+            IObjectMappingData mappingData);
     }
 }

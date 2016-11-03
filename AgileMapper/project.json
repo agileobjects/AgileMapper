@@ -26,7 +26,7 @@
   },
 
   "dependencies": {
-    "AgileObjects.ReadableExpressions": "1.7.1"
+    "AgileObjects.ReadableExpressions": "1.7.2"
   },
 
   "frameworks": {

@@ -6,9 +6,10 @@ namespace AgileObjects.AgileMapper.Members
     {
         private readonly KeyType _keyType;
 
-        private TypeKey(Type type, KeyType keyType)
+        private TypeKey(Type type, KeyType keyType, string name = null)
         {
             Type = type;
+            Name = name;
             _keyType = keyType;
         }
 
@@ -18,14 +19,17 @@ namespace AgileObjects.AgileMapper.Members
 
         public static TypeKey ForTypeId(Type type) => new TypeKey(type, KeyType.TypeId);
 
-        public static TypeKey ForParameter(Type type) => new TypeKey(type, KeyType.Parameter);
+        public static TypeKey ForParameter(Type type, string name) => new TypeKey(type, KeyType.Parameter, name);
 
         public Type Type { get; }
+
+        public string Name { get; }
 
         public override bool Equals(object obj)
         {
             var otherKey = (TypeKey)obj;
 
+            // ReSharper disable once PossibleNullReferenceException
             return (_keyType == otherKey._keyType) && (Type == otherKey.Type);
         }
 

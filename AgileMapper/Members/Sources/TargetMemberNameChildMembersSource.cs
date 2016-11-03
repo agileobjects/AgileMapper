@@ -2,11 +2,11 @@ namespace AgileObjects.AgileMapper.Members.Sources
 {
     using ObjectPopulation;
 
-    internal class TargetMemberNameChildMembersSource : IChildMembersSource
+    internal class MemberLookupsChildMembersSource : IChildMembersSource
     {
         private readonly IObjectMappingData _parent;
 
-        public TargetMemberNameChildMembersSource(
+        public MemberLookupsChildMembersSource(
             IObjectMappingData parent,
             string targetMemberRegistrationName,
             int dataSourceIndex)

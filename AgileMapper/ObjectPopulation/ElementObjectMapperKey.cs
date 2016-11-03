@@ -17,5 +17,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public override int GetHashCode() => 0;
+
+        protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
+            => new ElementObjectMapperKey(newMappingTypes);
     }
 }

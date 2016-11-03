@@ -24,16 +24,18 @@
 
             shortVariableName = shortVariableName.ToLowerInvariant();
 
-            return type.IsEnumerable() ? Pluralise(shortVariableName) : shortVariableName;
+            return (!type.IsArray && type.IsEnumerable())
+                ? Pluralise(shortVariableName)
+                : shortVariableName;
         }
 
-        public static string GetVariableNameInCamelCase(this Type type) => type.GetVariableName(f => f.InCamelCase);
+        public static string GetVariableNameInCamelCase(this Type type) => type.GetVariableName(f => f.ToCamelCase());
 
-        public static string GetVariableNameInPascalCase(this Type type) => type.GetVariableName(f => f.InPascalCase);
+        public static string GetVariableNameInPascalCase(this Type type) => type.GetVariableName(f => f.ToPascalCase());
 
         private static string GetVariableName(
             this Type type,
-            Func<VariableFormatterSelector, Func<string, string>> formatter)
+            Func<string, string> formatter)
         {
             var typeIsEnumerable = type.IsEnumerable();
             var namingType = typeIsEnumerable ? type.GetEnumerableElementType() : type;
@@ -53,12 +55,27 @@
                     namingType.GetGenericArguments().Select(arg => "_" + arg.GetVariableNameInPascalCase()));
             }
 
+            variableName = RemoveNonAlphaNumerics(variableName);
+
             if (formatter != null)
             {
-                variableName = formatter.Invoke(VariableFormatterSelector.Instance).Invoke(variableName);
+                variableName = formatter.Invoke(variableName);
             }
 
-            return typeIsEnumerable ? Pluralise(variableName) : variableName;
+            return typeIsEnumerable
+                ? type.IsArray ? variableName + "Array" : Pluralise(variableName)
+                : variableName;
+        }
+
+        private static string RemoveNonAlphaNumerics(string value)
+        {
+            // Anonymous types start with non-alphanumeric characters
+            while (!char.IsLetterOrDigit(value, 0))
+            {
+                value = value.Substring(1);
+            }
+
+            return value;
         }
 
         private static string Pluralise(string value)
@@ -109,29 +126,6 @@
             return true;
         }
 
-        #region VariableFormatterSelector
-
-        public class VariableFormatterSelector
-        {
-            internal static readonly VariableFormatterSelector Instance = new VariableFormatterSelector();
-
-            private VariableFormatterSelector()
-            {
-            }
-
-            public string InCamelCase(string variableName)
-            {
-                return variableName.ToCamelCase();
-            }
-
-            public string InPascalCase(string variableName)
-            {
-                return variableName.ToPascalCase();
-            }
-        }
-
-        #endregion
-
         public static Type GetEnumerableElementType(this Type enumerableType)
         {
             return enumerableType.IsArray
@@ -139,6 +133,20 @@
                 : enumerableType.IsGenericType()
                     ? enumerableType.GetGenericArguments().First()
                     : typeof(object);
+        }
+
+        public static bool RuntimeSourceTypeNeeded(this Type sourceType)
+        {
+            return (sourceType == typeof(object)) ||
+                   (sourceType == typeof(IEnumerable)) ||
+                   (sourceType == typeof(ICollection));
+        }
+
+        public static bool RuntimeTargetTypeNeeded(this Type targetType)
+        {
+            return RuntimeSourceTypeNeeded(targetType) ||
+                (IsEnumerable(targetType) && targetType.IsGenericType() &&
+                (targetType.GetGenericTypeDefinition() == typeof(IEnumerable<>)));
         }
 
         public static bool IsEnumerable(this Type type)

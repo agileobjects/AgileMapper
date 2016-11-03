@@ -9,7 +9,5 @@ namespace AgileObjects.AgileMapper.Members
         Type SourceType { get; }
 
         Type TargetType { get; }
-
-        IBasicMapperData MapperData { get; }
     }
 }

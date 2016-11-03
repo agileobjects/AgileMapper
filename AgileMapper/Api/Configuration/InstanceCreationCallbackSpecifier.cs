@@ -41,7 +41,7 @@
         private InstanceCreationCallbackSpecifier<TSource, TTarget, TObject> SetCondition(
             LambdaExpression conditionLambda)
         {
-            ConfigInfo.AddCondition(conditionLambda);
+            ConfigInfo.AddConditionOrThrow(conditionLambda);
             return this;
         }
 

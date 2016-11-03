@@ -27,7 +27,7 @@
             _mappingCallbackFactories = new List<MappingCallbackFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
             _exceptionCallbackFactories = new List<ExceptionCallback>();
-            DerivedTypes = new DerivedTypeSettings();
+            DerivedTypes = new DerivedTypePairSet();
         }
 
         #region ObjectFactories
@@ -122,7 +122,7 @@
 
         #endregion
 
-        public DerivedTypeSettings DerivedTypes { get; }
+        public DerivedTypePairSet DerivedTypes { get; }
 
         private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
             where TItem : UserConfiguredItemBase

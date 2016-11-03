@@ -13,6 +13,7 @@ namespace AgileObjects.AgileMapper.Members
             QualifiedMember targetMember,
             IBasicMapperData parent = null)
         {
+            IsRoot = parent == null;
             _parent = parent;
             SourceType = sourceType;
             TargetType = targetType;
@@ -31,6 +32,8 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         IBasicMapperData IBasicMapperData.Parent => _parent;
+
+        public bool IsRoot { get; }
 
         public MappingRuleSet RuleSet { get; }
 

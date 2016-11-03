@@ -33,5 +33,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public override int GetHashCode() => 0;
+
+        protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
+            => new ChildObjectMapperKey(_targetMemberRegistrationName, _dataSourceIndex, newMappingTypes);
     }
 }

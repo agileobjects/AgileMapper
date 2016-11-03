@@ -46,7 +46,7 @@
 
                 if (IsObjectMemberMapping(mapCall))
                 {
-                    mappingLambdaFactory = planData.GetObjectMappingPlanData;
+                    mappingLambdaFactory = planData.GetChildMappingPlanData;
                 }
                 else
                 {

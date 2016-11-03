@@ -9,9 +9,11 @@
 
         new ObjectMapperData Parent { get; }
 
+        bool IsForInlineMapping { get; }
+
         Expression ParentObject { get; }
 
-        ParameterExpression Parameter { get; }
+        ParameterExpression MappingDataObject { get; }
 
         IQualifiedMember SourceMember { get; }
 

@@ -11,46 +11,61 @@ namespace AgileObjects.AgileMapper.Members
         private static readonly object _syncLock = new object();
 
         private readonly Expression _dataParameter;
-        private readonly ICollection<Expression> _memberAccessSubjects;
+        private readonly ICollection<Expression> _stringMemberAccessSubjects;
+        private readonly ICollection<string> _nullCheckSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
-
-        private bool _includeSourceObjectAccesses;
 
         public NestedAccessFinder(Expression dataParameter)
         {
             _dataParameter = dataParameter;
-            _memberAccessSubjects = new List<Expression>();
+            _stringMemberAccessSubjects = new List<Expression>();
+            _nullCheckSubjects = new List<string>();
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
 
-        public Expression[] FindIn(Expression expression, bool includeSourceObjectAccesses)
+        public Expression[] FindIn(Expression expression)
         {
             Expression[] memberAccesses;
 
             lock (_syncLock)
             {
-                _includeSourceObjectAccesses = includeSourceObjectAccesses;
-
                 Visit(expression);
 
                 memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
 
-                _memberAccessSubjects.Clear();
+                _stringMemberAccessSubjects.Clear();
+                _nullCheckSubjects.Clear();
                 _memberAccessesByPath.Clear();
             }
 
             return memberAccesses;
         }
 
+        protected override Expression VisitBinary(BinaryExpression binary)
+        {
+            if ((binary.NodeType == ExpressionType.NotEqual) &&
+                (binary.Right.NodeType == ExpressionType.Constant) &&
+                (((ConstantExpression)binary.Right).Value == null) &&
+                ShouldAddNullCheck(binary.Left))
+            {
+                _nullCheckSubjects.Add(binary.Left.ToString());
+            }
+
+            return base.VisitBinary(binary);
+        }
+
         protected override Expression VisitMember(MemberExpression memberAccess)
         {
             if (IsNotRootObject(memberAccess))
             {
-                if ((memberAccess.Expression != null) && IsNotRootObject(memberAccess.Expression))
+                if ((memberAccess.Expression != null) &&
+                    (memberAccess.Member.Name == "HasValue") &&
+                    (memberAccess.Expression.Type.IsNullableType()))
                 {
-                    _memberAccessSubjects.Add(memberAccess.Expression);
+                    _nullCheckSubjects.Add(memberAccess.Expression.ToString());
                 }
 
+                AddStringMemberAccessSubjectIfAppropriate(memberAccess.Expression);
                 AddMemberAccessIfAppropriate(memberAccess);
             }
 
@@ -85,37 +100,44 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            return _includeSourceObjectAccesses || (memberAccess.Member.Name != "Source");
+            return memberAccess.Member.Name != "Source";
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if ((methodCall.Object != null) && IsNotRootObject(methodCall.Object))
-            {
-                _memberAccessSubjects.Add(methodCall.Object);
-            }
-
             if ((methodCall.Object != _dataParameter) &&
                 (methodCall.Method.DeclaringType != typeof(IMappingData)))
             {
+                AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
                 AddMemberAccessIfAppropriate(methodCall);
             }
 
             return base.VisitMethodCall(methodCall);
         }
 
+        private void AddStringMemberAccessSubjectIfAppropriate(Expression member)
+        {
+            if ((member != null) && (member.Type == typeof(string)) && IsNotRootObject(member))
+            {
+                _stringMemberAccessSubjects.Add(member);
+            }
+        }
+
         private void AddMemberAccessIfAppropriate(Expression memberAccess)
         {
-            if (Add(memberAccess))
+            if (ShouldAddNullCheck(memberAccess))
             {
                 _memberAccessesByPath.Add(memberAccess.ToString(), memberAccess);
             }
         }
 
-        private bool Add(Expression memberAccess)
+        private bool ShouldAddNullCheck(Expression memberAccess)
         {
-            return ((memberAccess.Type != typeof(string)) || _memberAccessSubjects.Contains(memberAccess)) &&
-                   !_memberAccessesByPath.ContainsKey(memberAccess.ToString()) &&
+            var memberAccessString = memberAccess.ToString();
+
+            return !_nullCheckSubjects.Contains(memberAccessString) &&
+                   ((memberAccess.Type != typeof(string)) || _stringMemberAccessSubjects.Contains(memberAccess)) &&
+                   !_memberAccessesByPath.ContainsKey(memberAccessString) &&
                    memberAccess.Type.CanBeNull() &&
                    memberAccess.IsRootedIn(_dataParameter);
         }

@@ -36,8 +36,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.7.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.7.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.7.2\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Shouldly, Version=2.8.2.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
@@ -77,6 +77,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringDataSourcesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypePairs.cs" />
     <Compile Include="Configuration\WhenConfiguringExceptionHandling.cs" />
     <Compile Include="Configuration\WhenConfiguringMappingCallbacks.cs" />
@@ -88,9 +89,10 @@
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Extensions\WhenGeneratingVariableNames.cs" />
     <Compile Include="Extensions\WhenGettingAParentExpressionNode.cs" />
-    <Compile Include="Members\MemberFinderTestsBase.cs" />
+    <Compile Include="Members\MemberTestsBase.cs" />
     <Compile Include="Members\WhenCreatingTargetMembersFromExpressions.cs" />
     <Compile Include="Members\WhenDeterminingATypeIdentifier.cs" />
+    <Compile Include="Members\WhenDeterminingRecursion.cs" />
     <Compile Include="Members\WhenFindingDataSources.cs" />
     <Compile Include="Members\WhenFindingSourceMembers.cs" />
     <Compile Include="Members\WhenFindingTargetMembers.cs" />

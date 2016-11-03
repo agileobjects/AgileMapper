@@ -39,7 +39,7 @@
                 Mapper
                     .After
                     .MappingEnds
-                    .If((s, t) => s is PersonViewModel)
+                    .If((s, t) => SourceIsPersonViewModel(s, t))
                     .Call((s, t) => mappedTypes.AddRange(new[] { s.GetType(), t.GetType() }));
 
                 var source = new PersonViewModel { Name = "Hillary" };
@@ -48,6 +48,12 @@
 
                 mappedTypes.ShouldBe(typeof(PersonViewModel), typeof(Address), typeof(PersonViewModel), typeof(Person));
             });
+        }
+
+        // ReSharper disable once UnusedParameter.Local
+        private static bool SourceIsPersonViewModel(object source, object target)
+        {
+            return source is PersonViewModel;
         }
 
         [Fact]

@@ -1,17 +1,19 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Globalization;
     using System.Linq.Expressions;
+    using Extensions;
 #if NET_STANDARD
     using System.Reflection;
 #endif
     using Members;
+    using ReadableExpressions;
 
     internal class MappingConfigInfo
     {
-        private static readonly object _configurationSync = new object();
         private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
-        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null);
+        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null);
 
         private Type _sourceType;
         private Type _targetType;
@@ -68,7 +70,10 @@
             => HasCompatibleTypes(mapperData.SourceType, mapperData.TargetType);
 
         private bool HasCompatibleTypes(Type sourceType, Type targetType)
-            => IsForSourceType(sourceType) && _targetType.IsAssignableFrom(targetType);
+        {
+            return IsForSourceType(sourceType) &&
+                (_targetType.IsAssignableFrom(targetType) || targetType.IsAssignableFrom(_targetType));
+        }
 
         public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo._sourceType);
 
@@ -107,9 +112,26 @@
 
         public bool HasCondition => _conditionLambda != null;
 
-        public void AddCondition(LambdaExpression conditionLambda)
+        public void AddConditionOrThrow(LambdaExpression conditionLambda)
         {
+            ErrorIfConditionHasTypeTest(conditionLambda);
+
             _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda);
+        }
+
+        private static void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
+        {
+            if (TypeTestFinder.HasNoTypeTest(conditionLambda))
+            {
+                return;
+            }
+
+            var condition = conditionLambda.Body.ToReadableString();
+
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "Instead of type testing in condition '{0}', configure for a more specific source or target type.",
+                condition));
         }
 
         public void NegateCondition()
@@ -120,49 +142,55 @@
             }
         }
 
-        public Expression GetConditionOrNull<TSource, TTarget>()
-        {
-            if (!HasCondition)
-            {
-                return null;
-            }
-
-            var stubMappingContext = new MappingExecutor<TSource>(_mappingRuleSet, MapperContext);
-
-            IMemberMapperData mapperData;
-
-            lock (_configurationSync)
-            {
-                MapperContext.UserConfigurations.DerivedTypes.Configuring = true;
-
-                mapperData = stubMappingContext
-                    .CreateRootMappingData(default(TSource), default(TTarget))
-                    .MapperData;
-
-                MapperContext.UserConfigurations.DerivedTypes.Configuring = false;
-            }
-
-            var condition = GetConditionOrNull(mapperData);
-            condition = mapperData.ReplaceTypedParameterWithUntyped(condition);
-
-            return condition;
-        }
-
         public Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
             if (!HasCondition)
             {
-                return null;
+                return GetTypeCheckConditionOrNull(mapperData);
             }
 
-            var contextualisedCondition = _conditionLambda.GetBody(mapperData);
+            var condition = _conditionLambda.GetBody(mapperData);
 
             if (_negateCondition)
             {
-                contextualisedCondition = Expression.Not(contextualisedCondition);
+                condition = Expression.Not(condition);
             }
 
-            return contextualisedCondition;
+            var conditionNestedAccessesChecks = mapperData
+                .GetNestedAccessesIn(condition)
+                .GetIsNotDefaultComparisonsOrNull();
+
+            if (conditionNestedAccessesChecks != null)
+            {
+                condition = Expression.AndAlso(conditionNestedAccessesChecks, condition);
+            }
+
+            var typeCheck = GetTypeCheckConditionOrNull(mapperData);
+
+            if (typeCheck != null)
+            {
+                condition = Expression.AndAlso(typeCheck, condition);
+            }
+
+            return condition;
+        }
+
+        private Expression GetTypeCheckConditionOrNull(IMemberMapperData mapperData)
+        {
+            var sourceType = (_sourceType == _allSourceTypes) ? typeof(object) : _sourceType;
+            var contextTypes = new[] { sourceType, _targetType };
+            var context = mapperData.GetAppropriateMappingContext(contextTypes);
+
+            if (!_targetType.IsDerivedFrom(context.TargetType))
+            {
+                return null;
+            }
+
+            var contextAccess = mapperData.GetAppropriateMappingContextAccess(contextTypes);
+            var targetAccess = mapperData.GetTargetAccess(contextAccess, _targetType);
+            var targetAccessNotNull = targetAccess.GetIsNotDefaultComparison();
+
+            return targetAccessNotNull;
         }
 
         #endregion
@@ -176,6 +204,37 @@
                 _sourceValueType = _sourceValueType,
                 _mappingRuleSet = _mappingRuleSet
             };
+        }
+
+        private class TypeTestFinder : ExpressionVisitor
+        {
+            private bool TypeTestExists { get; set; }
+
+            public static bool HasNoTypeTest(LambdaExpression lambda)
+            {
+                var typesFinder = new TypeTestFinder();
+
+                typesFinder.Visit(lambda.Body);
+
+                return !typesFinder.TypeTestExists;
+            }
+
+            protected override Expression VisitUnary(UnaryExpression unary)
+            {
+                if (unary.NodeType == ExpressionType.TypeAs)
+                {
+                    TypeTestExists = true;
+                    return unary;
+                }
+
+                return base.VisitUnary(unary);
+            }
+
+            protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinary)
+            {
+                TypeTestExists = true;
+                return typeBinary;
+            }
         }
     }
 }

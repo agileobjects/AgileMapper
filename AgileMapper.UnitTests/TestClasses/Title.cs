@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
 {
-    internal enum Title
+    public enum Title
     {
         Unknown,
         Mr,

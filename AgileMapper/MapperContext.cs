@@ -22,6 +22,7 @@
             RootMembersSource = new RootMembersSource(new RootQualifiedMemberFactory(this));
             ObjectMapperFactory = new ObjectMapperFactory(this);
             ObjectFlattener = new ObjectFlattener();
+            DerivedTypes = new DerivedTypesCache();
             UserConfigurations = new UserConfigurationSet();
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
@@ -38,6 +39,8 @@
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
         public ObjectFlattener ObjectFlattener { get; }
+
+        public DerivedTypesCache DerivedTypes { get; }
 
         public UserConfigurationSet UserConfigurations { get; }
 

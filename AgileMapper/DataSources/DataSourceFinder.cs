@@ -4,6 +4,7 @@
     using System.Linq;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class DataSourceFinder
     {
@@ -28,7 +29,7 @@
                 var initialDataSource = mappingData
                     .RuleSet
                     .InitialDataSourceFactory
-                    .Create(mappingData.MapperData);
+                    .Create(mappingData);
 
                 if (initialDataSource.IsValid)
                 {
@@ -41,9 +42,7 @@
 
         private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingData mappingData)
         {
-            var mapperData = mappingData.MapperData;
-
-            var maptimeDataSource = GetMaptimeDataSourceOrNull(mapperData);
+            var maptimeDataSource = GetMaptimeDataSourceOrNull(mappingData);
 
             if (maptimeDataSource != null)
             {
@@ -55,11 +54,11 @@
 
             IEnumerable<IConfiguredDataSource> configuredDataSources;
 
-            if (DataSourcesAreConfigured(mapperData, out configuredDataSources))
+            if (DataSourcesAreConfigured(mappingData.MapperData, out configuredDataSources))
             {
                 foreach (var configuredDataSource in configuredDataSources)
                 {
-                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, mapperData);
+                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, mappingData);
 
                     if (!configuredDataSource.IsConditional)
                     {
@@ -70,19 +69,8 @@
                 }
             }
 
-            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData);
-
-            if (mapperData.TargetMember.IsComplex)
-            {
-                yield return new ComplexTypeMappingDataSource(bestMatchingSourceMember, dataSourceIndex, mapperData);
-                yield break;
-            }
-
-            var sourceMemberDataSources = GetSourceMemberDataSources(
-                bestMatchingSourceMember,
-                configuredDataSources,
-                dataSourceIndex,
-                mappingData);
+            var sourceMemberDataSources =
+                GetSourceMemberDataSources(configuredDataSources, dataSourceIndex, mappingData);
 
             foreach (var dataSource in sourceMemberDataSources)
             {
@@ -90,8 +78,10 @@
             }
         }
 
-        private IDataSource GetMaptimeDataSourceOrNull(IMemberMapperData mapperData)
+        private IDataSource GetMaptimeDataSourceOrNull(IMemberMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
+
             if (mapperData.TargetMember.IsComplex)
             {
                 return null;
@@ -99,7 +89,7 @@
 
             return _mapTimeDataSourceFactories
                 .FirstOrDefault(factory => factory.IsFor(mapperData))?
-                .Create(mapperData);
+                .Create(mappingData);
         }
 
         private static bool DataSourcesAreConfigured(
@@ -114,23 +104,30 @@
             return configuredDataSources.Any();
         }
 
-        private static IDataSource FallbackDataSourceFor(IMemberMapperData mapperData)
-            => mapperData.RuleSet.FallbackDataSourceFactory.Create(mapperData);
+        private static IDataSource FallbackDataSourceFor(IMemberMappingData mappingData)
+            => mappingData.RuleSet.FallbackDataSourceFactory.Create(mappingData);
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
-            IQualifiedMember bestMatchingSourceMember,
             IEnumerable<IConfiguredDataSource> configuredDataSources,
             int dataSourceIndex,
             IMemberMappingData mappingData)
         {
+            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData);
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, mappingData);
 
             if ((matchingSourceMemberDataSource == null) ||
                 configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
-                if (dataSourceIndex > 0)
+                if (dataSourceIndex == 0)
                 {
-                    yield return FallbackDataSourceFor(mappingData.MapperData);
+                    if (mappingData.MapperData.TargetMember.IsComplex)
+                    {
+                        yield return new ComplexTypeMappingDataSource(dataSourceIndex, mappingData);
+                    }
+                }
+                else
+                {
+                    yield return FallbackDataSourceFor(mappingData);
                 }
 
                 yield break;
@@ -140,7 +137,7 @@
 
             if (matchingSourceMemberDataSource.IsConditional)
             {
-                yield return FallbackDataSourceFor(mappingData.MapperData);
+                yield return FallbackDataSourceFor(mappingData);
             }
         }
 
@@ -156,20 +153,42 @@
             bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(mappingData.MapperData.SourceMember);
             var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, mappingData.MapperData);
 
-            return GetFinalDataSource(sourceMemberDataSource, 0, mappingData.MapperData);
+            return GetFinalDataSource(sourceMemberDataSource, 0, mappingData);
         }
 
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
             int dataSourceIndex,
-            IMemberMapperData mapperData)
+            IMemberMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
+
+            if (UseComplexTypeDataSource(mapperData.TargetMember))
+            {
+                return new ComplexTypeMappingDataSource(foundDataSource, dataSourceIndex, mappingData);
+            }
+
             if (mapperData.TargetMember.IsEnumerable)
             {
-                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, mapperData);
+                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, mappingData);
             }
 
             return foundDataSource;
+        }
+
+        private static bool UseComplexTypeDataSource(QualifiedMember targetMember)
+        {
+            if (!targetMember.IsComplex)
+            {
+                return false;
+            }
+
+            if (targetMember.Type == typeof(object))
+            {
+                return true;
+            }
+
+            return targetMember.Type.GetAssembly() != typeof(string).GetAssembly();
         }
     }
 }

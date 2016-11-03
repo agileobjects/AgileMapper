@@ -10,30 +10,14 @@
     using Members;
     using ReadableExpressions.Extensions;
 
-    internal class DerivedTypeSettings
+    internal class DerivedTypePairSet
     {
+        private static readonly DerivedTypePair[] _noPairs = { };
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
 
-        public DerivedTypeSettings()
+        public DerivedTypePairSet()
         {
             _typePairsByTargetType = new Dictionary<Type, List<DerivedTypePair>>();
-        }
-
-        internal bool Configuring { get; set; }
-
-        public bool CanInlineMappingFor(QualifiedMember targetMember)
-        {
-            if (targetMember.Type.IsSealed())
-            {
-                return true;
-            }
-
-            if (targetMember.IsEnumerable)
-            {
-                return !targetMember.Type.IsInterface();
-            }
-
-            return false;
         }
 
         public void Add(DerivedTypePair typePair)
@@ -59,36 +43,21 @@
             }
         }
 
-        public Type GetDerivedTypeOrNull<TSource, TTarget>(
-            TSource source,
-            TTarget target,
-            int? enumerableIndex,
-            Type runtimeSourceType,
-            IMappingContext mappingContext,
-            IBasicMappingData parent)
+        public ICollection<DerivedTypePair> GetDerivedTypePairsFor(IBasicMapperData mapperData)
         {
-            if (Configuring || _typePairsByTargetType.None())
+            if (_typePairsByTargetType.None())
             {
-                return null;
+                return _noPairs;
             }
 
             List<DerivedTypePair> typePairs;
 
-            if (_typePairsByTargetType.TryGetValue(typeof(TTarget), out typePairs))
+            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out typePairs))
             {
-                var mappingData = new BasicMappingData<TSource, TTarget>(
-                    source,
-                    target,
-                    enumerableIndex,
-                    runtimeSourceType,
-                    typeof(TTarget),
-                    mappingContext.RuleSet,
-                    parent);
-
-                return typePairs.FirstOrDefault(tp => tp.AppliesTo(mappingData))?.DerivedTargetType;
+                return typePairs.Where(tp => tp.AppliesTo(mapperData)).ToArray();
             }
 
-            return null;
+            return _noPairs;
         }
 
         public void Reset()

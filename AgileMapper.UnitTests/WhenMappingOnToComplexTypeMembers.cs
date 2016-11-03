@@ -50,16 +50,16 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .From<Person>()
+                    .From<PersonViewModel>()
                     .OnTo<Person>()
                     .Map("Hello there!")
                     .To(x => x.Address.Line2);
 
-                var source = new Person { Name = "Alice" };
+                var source = new PersonViewModel { Name = "Alice" };
                 var target = new Person { Address = new Address() };
                 var result = mapper.Map(source).OnTo(target);
 
-                result.Name.ShouldBe(source.Name);
+                result.Name.ShouldBe("Alice");
                 result.Address.ShouldNotBeNull();
                 result.Address.Line2.ShouldBe("Hello there!");
             }

@@ -39,7 +39,7 @@
                 mapper
                     .After
                     .MappingEnds
-                    .If((s, t) => !(t is Address))
+                    .If((s, t) => t.GetType() != typeof(Address))
                     .Call(ctx => mappedNames.AddRange(new[] { ((PersonViewModel)ctx.Source).Name, ((Person)ctx.Target).Name }));
 
                 var source = new PersonViewModel { Name = "Bernie" };

@@ -26,11 +26,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsList => ListType.IsAssignableFrom(_enumerableType);
 
-        public bool IsListInterface => ListInterfaceType.IsAssignableFrom(_enumerableType);
+        public bool HasListInterface => ListInterfaceType.IsAssignableFrom(_enumerableType);
 
         public bool IsCollection => CollectionType.IsAssignableFrom(_enumerableType);
 
         public bool IsEnumerableInterface => _enumerableType == EnumerableInterfaceType;
+
+        public bool HasCollectionInterface => CollectionInterfaceType.IsAssignableFrom(_enumerableType);
 
         public Type ElementType { get; }
 

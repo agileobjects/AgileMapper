@@ -44,7 +44,7 @@
 
         private CallbackSpecifier<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
         {
-            ConfigInfo.AddCondition(conditionLambda);
+            ConfigInfo.AddConditionOrThrow(conditionLambda);
             return this;
         }
 

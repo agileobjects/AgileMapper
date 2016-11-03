@@ -5,7 +5,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenMatchingSourceToTargetMembers : MemberFinderTestsBase
+    public class WhenMatchingSourceToTargetMembers : MemberTestsBase
     {
         [Fact]
         public void ShouldMatchASameNameSameTypeFieldToAProperty()

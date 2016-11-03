@@ -3,7 +3,9 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using Members;
     using ReadableExpressions.Extensions;
 

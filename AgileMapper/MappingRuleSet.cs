@@ -7,21 +7,17 @@ namespace AgileObjects.AgileMapper
     {
         public MappingRuleSet(
             string name,
-            IComplexTypeMappingShortCircuitStrategy complexTypeMappingShortCircuitStrategy,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
             IDataSourceFactory initialDataSourceFactory,
             IDataSourceFactory fallbackDataSourceFactory)
         {
             Name = name;
-            ComplexTypeMappingShortCircuitStrategy = complexTypeMappingShortCircuitStrategy;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             InitialDataSourceFactory = initialDataSourceFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
         }
 
         public string Name { get; }
-
-        public IComplexTypeMappingShortCircuitStrategy ComplexTypeMappingShortCircuitStrategy { get; }
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 

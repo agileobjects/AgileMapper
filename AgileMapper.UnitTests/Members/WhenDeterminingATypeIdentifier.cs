@@ -4,7 +4,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenDeterminingATypeIdentifier : MemberFinderTestsBase
+    public class WhenDeterminingATypeIdentifier : MemberTestsBase
     {
         [Fact]
         public void ShouldUseAnIdProperty()

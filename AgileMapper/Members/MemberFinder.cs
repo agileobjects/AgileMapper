@@ -36,7 +36,7 @@
             {
                 if (key.Type.IsEnumerable())
                 {
-                    return new[] { key.Type.CreateElementMember() };
+                    return new[] { CreateElementMember(key.Type) };
                 }
 
                 var fields = GetFields(key.Type, All);
@@ -127,6 +127,19 @@
                 method.Name.StartsWith("Set", StringComparison.OrdinalIgnoreCase) &&
                 !method.Name.StartsWith("set_", StringComparison.Ordinal) &&
                 method.GetParameters().HasOne();
+        }
+
+        #endregion
+
+        #region Enumerable Elements
+
+        private static Member CreateElementMember(Type enumerableType)
+        {
+            return new Member(
+                MemberType.EnumerableElement,
+                "[i]",
+                enumerableType,
+                enumerableType.GetEnumerableElementType());
         }
 
         #endregion

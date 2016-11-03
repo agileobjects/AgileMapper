@@ -8,7 +8,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenCreatingTargetMembersFromExpressions : MemberFinderTestsBase
+    public class WhenCreatingTargetMembersFromExpressions : MemberTestsBase
     {
         [Fact]
         public void ShouldCreateAFieldMember()

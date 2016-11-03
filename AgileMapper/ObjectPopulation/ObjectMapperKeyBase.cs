@@ -21,18 +21,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public void AddSourceMemberTypeTester(Func<IMappingData, bool> tester)
             => _sourceMemberTypeTester = tester;
 
-        public bool SourceHasRequiredTypes(ObjectMapperKeyBase otherKey)
+        protected bool SourceHasRequiredTypes(ObjectMapperKeyBase otherKey)
             => (_sourceMemberTypeTester == null) || _sourceMemberTypeTester.Invoke(otherKey.MappingData);
 
-        public IObjectMapper CreateMapper<TSource, TTarget>()
-        {
-            var mapper = MappingTypes.MapperContext
-                .ObjectMapperFactory
-                .Create<TSource, TTarget>(MappingData);
+        public ObjectMapperKeyBase WithTypes<TNewSource, TNewTarget>()
+            => CreateInstance(MappingTypes.WithTypes<TNewSource, TNewTarget>());
 
-            MappingData = mapper.MapperData.MappingData = null;
-
-            return mapper;
-        }
+        protected abstract ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes);
     }
 }

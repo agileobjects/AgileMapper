@@ -6,7 +6,7 @@
     using AgileMapper.Extensions;
     using AgileMapper.Members;
 
-    public abstract class MemberFinderTestsBase
+    public abstract class MemberTestsBase
     {
         internal static readonly MemberFinder MemberFinder = GlobalContext.Instance.MemberFinder;
 

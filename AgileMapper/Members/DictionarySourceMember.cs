@@ -3,6 +3,9 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Diagnostics;
     using System.Linq.Expressions;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
 
     [DebuggerDisplay("{GetPath()}")]
     internal class DictionarySourceMember : IQualifiedMember
@@ -15,9 +18,12 @@ namespace AgileObjects.AgileMapper.Members
             _wrappedSourceMember = mapperData.SourceMember;
             _targetMember = mapperData.TargetMember;
             Type = mapperData.SourceType;
+            EntryType = Type.GetGenericArguments()[1];
         }
 
         public Type Type { get; }
+
+        public Type EntryType { get; }
 
         public bool IsEnumerable => false;
 
@@ -43,7 +49,7 @@ namespace AgileObjects.AgileMapper.Members
             throw new NotImplementedException();
         }
 
-        public bool Matches(QualifiedMember otherMember) => _targetMember.Matches(otherMember);
+        public bool Matches(IQualifiedMember otherMember) => _targetMember.Matches(otherMember);
 
         public Expression GetQualifiedAccess(Expression instance)
         {

@@ -36,7 +36,13 @@ namespace AgileObjects.AgileMapper.Members
             _memberChain = memberChain;
             _memberMatchingNames = memberMatchingNames;
             JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(memberMatchingNames);
+
             _pathFactory = () => _memberChain.GetFullName();
+
+            if (LeafMember != null)
+            {
+                IsRecursive = DetermineRecursion();
+            }
         }
 
         private QualifiedMember(Member member, QualifiedMember parent, MapperContext mapperContext)
@@ -58,6 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(_memberMatchingNames);
 
             _pathFactory = () => parent.GetPath() + member.JoiningName;
+            IsRecursive = DetermineRecursion();
         }
 
         private QualifiedMember(Member leafMember, MapperContext mapperContext)
@@ -75,6 +82,42 @@ namespace AgileObjects.AgileMapper.Members
             RegistrationName = (LeafMember.MemberType != MemberType.ConstructorParameter)
                 ? Name : "ctor:" + Name;
         }
+
+        #region Setup
+
+        private bool DetermineRecursion()
+        {
+            if (IsSimple)
+            {
+                return false;
+            }
+
+            if (_memberChain.Length < 3)
+            {
+                // Need at least 3 members for recursion: 
+                // Foo -> Foo.ChildFoo -> Foo.ChildFoo.ChildFoo
+                return false;
+            }
+
+            if (LeafMember.MemberType == MemberType.EnumerableElement)
+            {
+                // Recurse on enumerable and complex type members, 
+                // not enumerable elements:
+                return false;
+            }
+
+            for (var i = _memberChain.Length - 2; i > 0; --i)
+            {
+                if (LeafMember == _memberChain[i])
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        #endregion
 
         #region Factory Method
 
@@ -114,6 +157,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsReadable => LeafMember.IsReadable;
 
+        public bool IsRecursive { get; }
+
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
         public QualifiedMember Append(Member childMember)
@@ -126,7 +171,9 @@ namespace AgileObjects.AgileMapper.Members
         {
             var otherQualifiedMember = (QualifiedMember)otherMember;
 
-            if (otherQualifiedMember.LeafMember == _memberChain[0])
+            if ((otherQualifiedMember.LeafMember == _memberChain[0]) &&
+                otherQualifiedMember._memberChain[0].IsRoot &&
+                ((otherQualifiedMember._memberChain.Length + 1) == _memberChain.Length))
             {
                 return this;
             }
@@ -164,7 +211,21 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);
 
-        public bool Matches(QualifiedMember otherMember) => JoinedNames.Match(otherMember.JoinedNames);
+        public bool Matches(IQualifiedMember otherMember)
+        {
+            if (otherMember == this)
+            {
+                return true;
+            }
+
+            var otherQualifiedMember = otherMember as QualifiedMember;
+            if (otherQualifiedMember != null)
+            {
+                return JoinedNames.Match(otherQualifiedMember.JoinedNames);
+            }
+
+            return otherMember.Matches(this);
+        }
 
         public Expression GetAccess(Expression instance) => LeafMember.GetAccess(instance);
 
