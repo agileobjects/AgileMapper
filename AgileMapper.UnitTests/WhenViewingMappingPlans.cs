@@ -150,7 +150,7 @@
         }
 
         [Fact]
-        public void ShouldUseNestedInlineMappers()
+        public void ShouldShowInlineMappers()
         {
             var plan = Mapper
                 .GetPlanFor<PublicField<PublicField<PublicField<int>>>>()
@@ -159,6 +159,44 @@
             var numberOfHeaders = Regex.Matches(plan, "// Map ").Count;
 
             numberOfHeaders.ShouldBe(1);
+        }
+
+        [Fact]
+        public void ShouldShowMapChildCalls()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicProperty<object>>()
+                .ToANew<PublicSetMethod<Customer>>();
+
+            plan.ShouldContain("// Map PublicProperty<object> -> PublicSetMethod<Customer>");
+            plan.ShouldContain("// Map object -> Customer");
+            plan.ShouldContain("// Map object -> Address");
+            plan.ShouldContain("ppoToPsmcData.Map(");
+        }
+
+        [Fact]
+        public void ShouldShowNestedMapChildCalls()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicProperty<PublicField<object>>>()
+                .ToANew<PublicSetMethod<PublicProperty<Order>>>();
+
+            plan.ShouldContain("// Map PublicProperty<PublicField<object>> -> PublicSetMethod<PublicProperty<Order>>");
+            plan.ShouldNotContain("// Map PublicField<object> -> PublicProperty<Order>");
+            plan.ShouldContain("// Map object -> Order");
+            plan.ShouldContain("pfoToPpoData.Map(");
+        }
+
+        [Fact]
+        public void ShouldShowMapElementCalls()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicProperty<object[]>>()
+                .ToANew<PublicSetMethod<ICollection<Product>>>();
+
+            plan.ShouldContain("// Map PublicProperty<object[]> -> PublicSetMethod<ICollection<Product>>");
+            plan.ShouldContain("// Map object -> Product");
+            plan.ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
         }
     }
 }

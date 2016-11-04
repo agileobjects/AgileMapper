@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
+    using Extensions;
     using Members;
     using ReadableExpressions.Extensions;
 
@@ -17,7 +18,7 @@
             : this(
                   new ConfiguredSourceMember(value, mapperData),
                   configuredCondition,
-                  GetConvertedValue(dataSourceIndex, value, mapperData),
+                  GetConvertedValue(value, mapperData),
                   mapperData)
         {
         }
@@ -55,12 +56,11 @@
 
         #region Setup
 
-        private static Expression GetConvertedValue(int dataSourceIndex, Expression value, IMemberMapperData mapperData)
+        private static Expression GetConvertedValue(Expression value, IMemberMapperData mapperData)
         {
-            if (mapperData.TargetMember.IsComplex && (mapperData.TargetMember.Type.GetAssembly() != typeof(string).GetAssembly()))
+            if (mapperData.TargetMember.IsComplex && !mapperData.TargetMember.Type.IsFromBcl())
             {
                 return value;
-                //return mapperData.GetMapCall(value, dataSourceIndex);
             }
 
             var convertedValue = mapperData.MapperContext.ValueConverters.GetConversion(value, mapperData.TargetMember.Type);

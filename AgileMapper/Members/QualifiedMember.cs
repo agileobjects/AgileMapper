@@ -99,7 +99,7 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            if (LeafMember.MemberType == MemberType.EnumerableElement)
+            if (LeafMember.IsEnumerableElement())
             {
                 // Recurse on enumerable and complex type members, 
                 // not enumerable elements:

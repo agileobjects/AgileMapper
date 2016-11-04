@@ -154,10 +154,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private bool IsTargetTypeLastMapping() => !TypeHasACompatibleChildMember(TargetType, TargetType);
-
-        private static bool TypeHasACompatibleChildMember(Type targetType, Type parentType)
+        private bool IsTargetTypeLastMapping()
         {
+            return !TypeHasACompatibleChildMember(TargetType, TargetType, new List<Type>());
+        }
+
+        private static bool TypeHasACompatibleChildMember(
+            Type targetType,
+            Type parentType,
+            ICollection<Type> checkedTypes)
+        {
+            if (checkedTypes.Contains(parentType))
+            {
+                return true;
+            }
+
+            checkedTypes.Add(parentType);
+
             var childTargetMembers = GlobalContext.Instance.MemberFinder.GetWriteableMembers(parentType);
 
             foreach (var childMember in childTargetMembers)
@@ -174,7 +187,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         return true;
                     }
 
-                    return TypeHasACompatibleChildMember(targetType, childMember.Type);
+                    return TypeHasACompatibleChildMember(targetType, childMember.Type, checkedTypes);
                 }
 
                 if (childMember.ElementType.IsComplex() && childMember.ElementType.IsAssignableFrom(targetType))
@@ -182,7 +195,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return true;
                 }
 
-                return TypeHasACompatibleChildMember(targetType, childMember.ElementType);
+                return TypeHasACompatibleChildMember(targetType, childMember.ElementType, checkedTypes);
             }
 
             return false;

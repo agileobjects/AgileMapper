@@ -28,7 +28,7 @@
                 return GetDerivedTypeRootMapping(derivedTypeMappingData, sourceValue, targetValue);
             }
 
-            if (declaredTypeMapperData.TargetMember.LeafMember.MemberType == MemberType.EnumerableElement)
+            if (declaredTypeMapperData.TargetMemberIsEnumerableElement())
             {
                 return GetDerivedTypeElementMapping(derivedTypeMappingData, sourceValue, targetValue);
             }

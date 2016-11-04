@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
         {
-            if (mapperData.TargetMember.LeafMember.MemberType == MemberType.EnumerableElement)
+            if (mapperData.TargetMemberIsEnumerableElement())
             {
                 yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
             }

@@ -22,7 +22,7 @@
 
         public ICollection<Type> GetTypesDerivedFrom(Type type)
         {
-            if (type.IsSealed())
+            if (type.IsSealed() || type.IsFromBcl())
             {
                 return _noTypes;
             }

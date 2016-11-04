@@ -52,6 +52,10 @@
             return memberChain.Skip(1).Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
+        public static bool IsEnumerableElement(this QualifiedMember member) => member.LeafMember.IsEnumerableElement();
+
+        public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;
+
         public static bool CouldMatch(this IEnumerable<string> memberNames, IEnumerable<string> otherMemberNames)
         {
             return otherMemberNames

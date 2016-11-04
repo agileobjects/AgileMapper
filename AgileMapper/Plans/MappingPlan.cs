@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using ObjectPopulation;
 #if NET_STANDARD
     using System.Reflection;
 #endif
@@ -85,18 +86,16 @@
 
         private class MapCallFinder : ExpressionVisitor
         {
-            private readonly ParameterExpression _omcParameter;
             private readonly ICollection<MethodCallExpression> _mapCalls;
 
-            private MapCallFinder(ParameterExpression omcParameter)
+            private MapCallFinder()
             {
-                _omcParameter = omcParameter;
                 _mapCalls = new List<MethodCallExpression>();
             }
 
-            public static IEnumerable<MethodCallExpression> FindIn(LambdaExpression mappingLambda)
+            public static IEnumerable<MethodCallExpression> FindIn(Expression mappingLambda)
             {
-                var finder = new MapCallFinder(mappingLambda.Parameters.First());
+                var finder = new MapCallFinder();
 
                 finder.Visit(mappingLambda);
 
@@ -113,8 +112,13 @@
                 return base.VisitMethodCall(methodCall);
             }
 
-            private bool IsMapCall(MethodCallExpression methodCall)
-                => (methodCall.Object == _omcParameter) && (methodCall.Method.Name == "Map");
+            private static bool IsMapCall(MethodCallExpression methodCall)
+            {
+                return (methodCall.Method.Name == "Map") &&
+                       (methodCall.Object != null) &&
+                        methodCall.Object.Type.IsGenericType() &&
+                       (methodCall.Object.Type.GetGenericTypeDefinition() == typeof(ObjectMappingData<,>));
+            }
         }
     }
 }

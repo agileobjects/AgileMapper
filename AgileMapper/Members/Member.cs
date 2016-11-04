@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             MemberType = memberType;
             Name = name;
-            JoiningName = (isRoot || (memberType == MemberType.EnumerableElement)) ? name : "." + name;
+            JoiningName = (isRoot || this.IsEnumerableElement()) ? name : "." + name;
             IsRoot = isRoot;
             IsIdentifier = IsIdMember(name, declaringType);
             DeclaringType = declaringType;

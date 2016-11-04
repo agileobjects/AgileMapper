@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
 #if NET_STANDARD
     using System.Reflection;
 #endif
@@ -12,6 +13,8 @@
 
     internal static class TypeExtensions
     {
+        private static readonly Assembly _msCorLib = typeof(string).GetAssembly();
+
         public static string GetShortVariableName(this Type type)
         {
             var variableName = type.GetVariableNameInPascalCase();
@@ -141,6 +144,8 @@
                    (sourceType == typeof(IEnumerable)) ||
                    (sourceType == typeof(ICollection));
         }
+
+        public static bool IsFromBcl(this Type type) => type.GetAssembly() == _msCorLib;
 
         public static bool IsEnumerable(this Type type)
         {

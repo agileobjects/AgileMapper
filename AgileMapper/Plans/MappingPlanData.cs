@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
     using System.Linq.Expressions;
+    using Members;
     using ObjectPopulation;
 
     internal class MappingPlanData
@@ -35,15 +36,68 @@
         {
             var targetMemberName = (string)((ConstantExpression)mapCall.Arguments[2]).Value;
             var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments[3]).Value;
+            var parentMappingData = GetMappingDataFor((ParameterExpression)mapCall.Object, MappingData);
 
-            var childMappingData = ObjectMappingDataFactory
-                .ForChild(targetMemberName, dataSourceIndex, MappingData);
+            if (!parentMappingData.MapperData.IsForStandaloneMapping)
+            {
+                EnsureMapperCreation(parentMappingData.Mapper);
+            }
+
+            var childMappingData = ObjectMappingDataFactory.ForChild(
+                targetMemberName,
+                dataSourceIndex,
+                parentMappingData);
 
             return GetMappingPlanDataFor(childMappingData);
         }
 
+        // ReSharper disable once UnusedParameter.Local
+        private static void EnsureMapperCreation(IObjectMapper mapper)
+        {
+            // Bit ugly: force the lazy-load the parent mapping data's Mapper 
+            // to populate its MapperData with required information
+        }
+
         public MappingPlanData GetElementMappingPlanData(MethodCallExpression mapCall)
-            => GetMappingPlanDataFor(ObjectMappingDataFactory.ForElement(MappingData));
+        {
+            var enumerableMappingData = GetMappingDataFor((ParameterExpression)mapCall.Object, MappingData);
+            var elementMappingData = ObjectMappingDataFactory.ForElement(enumerableMappingData);
+
+            return GetMappingPlanDataFor(elementMappingData);
+        }
+
+        private static IObjectMappingData GetMappingDataFor(ParameterExpression mapCallSubject, IObjectMappingData mappingData)
+        {
+            if (MappingDataObjectMatches(mapCallSubject, mappingData))
+            {
+                return mappingData;
+            }
+
+            foreach (var childMapperData in mappingData.MapperData.ChildMapperDatas)
+            {
+                var childMappingData = childMapperData.TargetMemberIsEnumerableElement()
+                    ? ObjectMappingDataFactory.ForElement(mappingData)
+                    : ObjectMappingDataFactory.ForChild(
+                        childMapperData.TargetMember.RegistrationName,
+                        childMapperData.DataSourceIndex,
+                        mappingData);
+
+                var matchingMappingData = GetMappingDataFor(mapCallSubject, childMappingData);
+
+                if (matchingMappingData != null)
+                {
+                    return matchingMappingData;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool MappingDataObjectMatches(ParameterExpression mapCallSubject, IObjectMappingData mappingData)
+        {
+            return (mapCallSubject.Type == mappingData.MapperData.MappingDataObject.Type) &&
+                   (mapCallSubject.Name == mappingData.MapperData.MappingDataObject.Name);
+        }
 
         private MappingPlanData GetMappingPlanDataFor(IObjectMappingData mappingData)
         {
