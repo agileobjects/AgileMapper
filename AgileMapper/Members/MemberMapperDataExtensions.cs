@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.NestedAccessFinder.FindIn(value);
 
         public static bool IsForInlineMapping(this IMemberMapperData mapperData)
-            => !(mapperData.SourceType.RuntimeSourceTypeNeeded() || mapperData.TargetType.RuntimeTargetTypeNeeded());
+            => !(mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded());
 
         private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As");
 

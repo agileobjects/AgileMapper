@@ -9,12 +9,12 @@
         public override bool DiscardExistingValues => true;
 
         protected override Expression GetEnumerablePopulation(
-            EnumerablePopulationBuilder builder, 
+            EnumerablePopulationBuilder builder,
             IObjectMappingData mappingData)
         {
             if (builder.ElementTypesAreSimple)
             {
-                if (builder.TargetIsReadOnly)
+                if (mappingData.MapperData.TargetType.IsArray)
                 {
                     builder.PopulateTargetVariableFromSourceObjectOnly();
                     return builder;

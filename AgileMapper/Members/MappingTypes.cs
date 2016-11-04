@@ -25,8 +25,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public static MappingTypes For<TSource, TTarget>(TSource source, TTarget target)
         {
-            var runtimeSourceTypeNeeded = TypeInfo<TSource>.RuntimeSourceTypeNeeded;
-            var runtimeTargetTypeNeeded = TypeInfo<TTarget>.RuntimeTargetTypeNeeded;
+            var runtimeSourceTypeNeeded = TypeInfo<TSource>.RuntimeTypeNeeded;
+            var runtimeTargetTypeNeeded = TypeInfo<TTarget>.RuntimeTypeNeeded;
 
             Type sourceType, targetType;
             bool runtimeTypesAreTheSame;

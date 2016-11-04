@@ -135,18 +135,11 @@
                     : typeof(object);
         }
 
-        public static bool RuntimeSourceTypeNeeded(this Type sourceType)
+        public static bool RuntimeTypeNeeded(this Type sourceType)
         {
             return (sourceType == typeof(object)) ||
                    (sourceType == typeof(IEnumerable)) ||
                    (sourceType == typeof(ICollection));
-        }
-
-        public static bool RuntimeTargetTypeNeeded(this Type targetType)
-        {
-            return RuntimeSourceTypeNeeded(targetType) ||
-                (IsEnumerable(targetType) && targetType.IsGenericType() &&
-                (targetType.GetGenericTypeDefinition() == typeof(IEnumerable<>)));
         }
 
         public static bool IsEnumerable(this Type type)

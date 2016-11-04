@@ -68,7 +68,7 @@
                     _targetElementIdLambda =
                         GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
 
-                _sourceVariableName = "source" + _omd.TargetType.GetVariableNameInPascalCase();
+                _sourceVariableName = "source" + _omd.SourceType.GetVariableNameInPascalCase();
                 targetVariableName = "target" + _targetTypeHelper.ListType.GetVariableNameInPascalCase();
             }
             else
@@ -153,9 +153,11 @@
 
             if (TargetIsReadOnly)
             {
-                targetVariableType = ElementTypesAreSimple && _discardExistingValues
-                    ? _omd.TargetType
-                    : _targetTypeHelper.ListType;
+                targetVariableType = _targetTypeHelper.IsEnumerableInterface
+                    ? _targetTypeHelper.CollectionInterfaceType
+                    : (ElementTypesAreSimple && _discardExistingValues)
+                        ? _omd.TargetType
+                        : _targetTypeHelper.ListType;
             }
             else
             {
@@ -233,6 +235,14 @@
             _populationExpressions.Add(Expression.Assign(TargetVariable, GetSourceOnlyReturnValue()));
         }
 
+        private Expression GetSourceOnlyReturnValue()
+        {
+            var convertedSourceItems = _sourceItemsSelector.SourceItemsProjectedToTargetType().GetResult();
+            var returnValue = ConvertForReturnValue(convertedSourceItems);
+
+            return returnValue;
+        }
+
         public void AssignSourceVariableFromSourceObject() => AssignSourceVariableFrom(_omd.SourceObject);
 
         public void AssignSourceVariableFrom(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)
@@ -263,7 +273,7 @@
 
             if (TargetIsReadOnly)
             {
-                nonNullTargetVariableValue = GetCopyIntoNewListConstruction();
+                nonNullTargetVariableValue = GetNonNullReadonlyTargetVariableValue();
             }
             else if (_targetTypeHelper.HasCollectionInterface &&
                    !(_targetTypeHelper.IsList || _targetTypeHelper.IsCollection))
@@ -303,7 +313,26 @@
             return targetVariableValue;
         }
 
-        private NewExpression GetCopyIntoNewListConstruction()
+        private Expression GetNonNullReadonlyTargetVariableValue()
+        {
+            var nonNullTargetVariableValue = GetCopyIntoNewListConstruction();
+
+            if (!_targetTypeHelper.IsEnumerableInterface)
+            {
+                return nonNullTargetVariableValue;
+            }
+
+            var targetIsCollection = Expression
+                .TypeIs(_omd.TargetObject, _targetTypeHelper.CollectionInterfaceType);
+
+            return Expression.Condition(
+                targetIsCollection,
+                _omd.TargetObject.GetConversionTo(_targetTypeHelper.CollectionInterfaceType),
+                nonNullTargetVariableValue,
+                _targetTypeHelper.CollectionInterfaceType);
+        }
+
+        private Expression GetCopyIntoNewListConstruction()
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
@@ -446,14 +475,6 @@
                 sourceElement,
                 targetElement,
                 enumerableMappingData);
-        }
-
-        private Expression GetSourceOnlyReturnValue()
-        {
-            var convertedSourceItems = _sourceItemsSelector.SourceItemsProjectedToTargetType().GetResult();
-            var returnValue = ConvertForReturnValue(convertedSourceItems);
-
-            return returnValue;
         }
 
         public void CreateCollectionData()

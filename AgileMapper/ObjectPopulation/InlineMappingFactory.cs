@@ -146,13 +146,13 @@
 
             if (TargetMemberIsRecursive(childMapperData))
             {
-                var mapperFuncCall = GetMapRecursionCallFor(
+                var mapRecursionCall = GetMapRecursionCallFor(
                     childMappingData,
                     sourceValue,
                     dataSourceIndex,
                     declaredTypeMapperData);
 
-                return mapperFuncCall;
+                return mapRecursionCall;
             }
 
             var childMapper = childMappingData.Mapper;

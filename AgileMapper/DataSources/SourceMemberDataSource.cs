@@ -9,7 +9,10 @@
     internal class SourceMemberDataSource : DataSourceBase
     {
         public SourceMemberDataSource(IQualifiedMember sourceMember, IMemberMapperData mapperData)
-            : this(sourceMember, sourceMember.GetQualifiedAccess(mapperData.SourceObject), mapperData)
+            : this(
+                  sourceMember,
+                  sourceMember.GetQualifiedAccess(mapperData.SourceObject).GetConversionTo(sourceMember.Type),
+                  mapperData)
         {
         }
 
@@ -24,7 +27,7 @@
 
         private static Expression CreateSourceMemberTypeTest(Expression value, IMemberMapperData mapperData)
         {
-            var parent = value.GetParentOrNull();
+            var parent = value;
             var typeTests = new List<Expression>();
 
             while (parent != mapperData.SourceObject)

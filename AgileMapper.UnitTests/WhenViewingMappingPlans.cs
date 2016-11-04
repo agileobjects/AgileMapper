@@ -38,8 +38,8 @@
                 .ToANew<PublicField<IEnumerable<int>>>();
 
             plan.ShouldContain("sourceInt32Array = ");
-            plan.ShouldContain("targetInt32s = ");
-            plan.ShouldContain("new List<int>(iaToIaData.Target)");
+            plan.ShouldContain("ICollection<int> targetInt32s = ");
+            plan.ShouldContain("new List<int>(iaToIsData.Target)");
             plan.ShouldContain("targetInt32s.Add(sourceInt32Array[i])");
         }
 
