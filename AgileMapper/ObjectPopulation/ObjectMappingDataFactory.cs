@@ -18,8 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 null,
-                (mt, ms, mc) => new RootObjectMapperKey(mc.RuleSet, mt),
-                mappingContext.MapperContext.RootMembersSource,
+                (mt, mc) => new RootObjectMapperKey(mt, mc),
                 mappingContext);
         }
 
@@ -98,8 +97,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 enumerableIndex,
-                (mt, ms, mc) => new ChildObjectMapperKey(ms.TargetMemberRegistrationName, ms.DataSourceIndex, mt),
-                membersSource,
+                (mt, mc) => new ChildObjectMapperKey(mt, membersSource),
                 parent.MappingContext,
                 parent);
         }
@@ -175,24 +173,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 enumerableIndex,
-                (mt, ms, mc) => new ElementObjectMapperKey(mt),
-                membersSource,
+                (mt, mc) => new ElementObjectMapperKey(mt, membersSource),
                 parent.MappingContext,
                 parent);
         }
 
-        private static IObjectMappingData Create<TDeclaredSource, TDeclaredTarget, TMemberSource>(
+        private static IObjectMappingData Create<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource source,
             TDeclaredTarget target,
             int? enumerableIndex,
-            Func<MappingTypes, TMemberSource, IMappingContext, ObjectMapperKeyBase> mapperKeyFactory,
-            TMemberSource membersSource,
+            Func<MappingTypes, IMappingContext, ObjectMapperKeyBase> mapperKeyFactory,
             IMappingContext mappingContext,
             IObjectMappingData parent = null)
-            where TMemberSource : IMembersSource
         {
             var mappingTypes = MappingTypes.For(source, target);
-            var mapperKey = mapperKeyFactory.Invoke(mappingTypes, membersSource, mappingContext);
+            var mapperKey = mapperKeyFactory.Invoke(mappingTypes, mappingContext);
 
             if (mappingTypes.RuntimeTypesAreTheSame)
             {
@@ -201,7 +196,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     target,
                     enumerableIndex,
                     mapperKey,
-                    membersSource,
                     mappingContext,
                     parent);
             }
@@ -213,7 +207,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 target,
                 enumerableIndex,
                 mapperKey,
-                membersSource,
                 mappingContext,
                 parent);
         }
@@ -223,7 +216,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTarget target,
             int? enumerableIndex,
             ObjectMapperKeyBase mapperKey,
-            IMembersSource membersSource,
             IMappingContext mappingContext,
             IObjectMappingData parent);
 
@@ -247,7 +239,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     targetParameter.GetConversionTo(k.RuntimeTargetType),
                     Parameters.EnumerableIndexNullable,
                     Parameters.MapperKey,
-                    Parameters.MembersSource,
                     Parameters.MappingContext,
                     Parameters.ObjectMappingData);
 
@@ -257,7 +248,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     targetParameter,
                     Parameters.EnumerableIndexNullable,
                     Parameters.MapperKey,
-                    Parameters.MembersSource,
                     Parameters.MappingContext,
                     Parameters.ObjectMappingData);
 

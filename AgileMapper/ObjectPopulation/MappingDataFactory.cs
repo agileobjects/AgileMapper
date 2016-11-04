@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
     using Extensions;
     using Members;
-    using Members.Sources;
 
     internal static class MappingDataFactory
     {
@@ -21,14 +20,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTarget target,
             IMappingContext mappingContext)
         {
-            var mapperKey = new RootObjectMapperKey(mappingContext.RuleSet, MappingTypes.Fixed<TSource, TTarget>());
+            var mapperKey = new RootObjectMapperKey(MappingTypes.Fixed<TSource, TTarget>(), mappingContext);
 
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
                 null,
                 mapperKey,
-                mappingContext.MapperContext.RootMembersSource,
                 mappingContext,
                 parent: null);
         }
@@ -46,14 +44,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 dataSourceIndex,
                 MappingTypes.Fixed<TSource, TTarget>());
 
-            var membersSource = new MemberLookupsChildMembersSource(parent, targetMemberRegistrationName, dataSourceIndex);
-
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
                 enumerableIndex,
                 mapperKey,
-                membersSource,
                 parent.MappingContext,
                 parent);
         }
@@ -64,12 +59,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int enumerableIndex,
             IObjectMappingData parent)
         {
+            var mapperKey = new ElementObjectMapperKey(MappingTypes.Fixed<TSourceElement, TTargetElement>());
+
             return new ObjectMappingData<TSourceElement, TTargetElement>(
                 sourceElement,
                 targetElement,
                 enumerableIndex,
-                new ElementObjectMapperKey(MappingTypes.Fixed<TSourceElement, TTargetElement>()),
-                new ElementMembersSource(parent),
+                mapperKey,
                 parent.MappingContext,
                 parent);
         }

@@ -1,11 +1,22 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using Members;
+    using Members.Sources;
 
     internal class ChildObjectMapperKey : ObjectMapperKeyBase
     {
         private readonly string _targetMemberRegistrationName;
         private readonly int _dataSourceIndex;
+        private IChildMembersSource _childMemberSource;
+
+        public ChildObjectMapperKey(MappingTypes mappingTypes, IChildMembersSource childMembersSource)
+            : this(
+                  childMembersSource.TargetMemberRegistrationName,
+                  childMembersSource.DataSourceIndex,
+                  mappingTypes)
+        {
+            _childMemberSource = childMembersSource;
+        }
 
         public ChildObjectMapperKey(
             string targetMemberRegistrationName,
@@ -16,6 +27,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _targetMemberRegistrationName = targetMemberRegistrationName;
             _dataSourceIndex = dataSourceIndex;
         }
+
+        public override IMembersSource GetMembersSource(IObjectMappingData parentMappingData)
+        {
+            return _childMemberSource ?? (_childMemberSource = 
+                new MemberLookupsChildMembersSource(
+                    parentMappingData,
+                    _targetMemberRegistrationName,
+                    _dataSourceIndex));
+        }
+
+        protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
+            => new ChildObjectMapperKey(newMappingTypes, _childMemberSource);
 
         public override bool Equals(object obj)
         {
@@ -33,8 +56,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public override int GetHashCode() => 0;
-
-        protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
-            => new ChildObjectMapperKey(_targetMemberRegistrationName, _dataSourceIndex, newMappingTypes);
     }
 }

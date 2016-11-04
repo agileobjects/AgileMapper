@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using Members;
+    using Members.Sources;
 
     internal abstract class ObjectMapperKeyBase
     {
@@ -23,6 +24,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected bool SourceHasRequiredTypes(ObjectMapperKeyBase otherKey)
             => (_sourceMemberTypeTester == null) || _sourceMemberTypeTester.Invoke(otherKey.MappingData);
+
+        public abstract IMembersSource GetMembersSource(IObjectMappingData parentMappingData);
 
         public ObjectMapperKeyBase WithTypes<TNewSource, TNewTarget>()
             => CreateInstance(MappingTypes.WithTypes<TNewSource, TNewTarget>());

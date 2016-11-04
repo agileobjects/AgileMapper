@@ -199,10 +199,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Factory Method
 
-        public static ObjectMapperData For<TSource, TTarget>(
-            IMembersSource membersSource,
-            IObjectMappingData mappingData)
+        public static ObjectMapperData For<TSource, TTarget>(IObjectMappingData mappingData)
         {
+            var membersSource = mappingData.MapperKey.GetMembersSource(mappingData.Parent);
             var sourceMember = membersSource.GetSourceMember<TSource>();
             var targetMember = membersSource.GetTargetMember<TTarget>();
             int? dataSourceIndex;

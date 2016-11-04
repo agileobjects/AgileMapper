@@ -6,14 +6,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Extensions;
     using Members;
-    using Members.Sources;
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceDataBase<TSource, TTarget>,
         IObjectMappingData,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {
-        private readonly IMembersSource _membersSource;
         private readonly IObjectMappingData _parent;
         private readonly Dictionary<int, Dictionary<object, object>> _mappedObjectsByTypes;
         private IObjectMapper _mapper;
@@ -24,7 +22,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTarget target,
             int? enumerableIndex,
             ObjectMapperKeyBase mapperKey,
-            IMembersSource membersSource,
             IMappingContext mappingContext,
             IObjectMappingData parent)
             : this(
@@ -32,7 +29,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   target,
                   enumerableIndex,
                   mapperKey,
-                  membersSource,
                   mappingContext,
                   null,
                   parent)
@@ -44,13 +40,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTarget target,
             int? enumerableIndex,
             ObjectMapperKeyBase mapperKey,
-            IMembersSource membersSource,
             IMappingContext mappingContext,
             IObjectMappingData declaredTypeMappingData,
             IObjectMappingData parent)
             : base(source, target, enumerableIndex, parent)
         {
-            _membersSource = membersSource;
             MapperKey = mapperKey;
             MappingContext = mappingContext;
             DeclaredTypeMappingData = declaredTypeMappingData;
@@ -101,7 +95,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingData DeclaredTypeMappingData { get; }
 
         public ObjectMapperData MapperData
-            => _mapperData ?? (_mapperData = ObjectMapperData.For<TSource, TTarget>(_membersSource, this));
+            => _mapperData ?? (_mapperData = ObjectMapperData.For<TSource, TTarget>(this));
 
         private ChildMemberMappingData<TSource, TTarget> _childMappingData;
 
@@ -265,7 +259,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 Target as TNewTarget,
                 GetEnumerableIndex(),
                 MapperKey.WithTypes<TNewSource, TNewTarget>(),
-                _membersSource,
                 MappingContext,
                 this,
                 _parent);
