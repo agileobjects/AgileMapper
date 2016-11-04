@@ -1,11 +1,10 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
 
-    internal class DataSourceSet : IEnumerable<IDataSource>
+    internal class DataSourceSet
     {
         private readonly IList<IDataSource> _dataSources;
         private readonly List<ParameterExpression> _variables;
@@ -65,9 +64,5 @@ namespace AgileObjects.AgileMapper.DataSources
         public IEnumerable<ParameterExpression> Variables => _variables;
 
         public IDataSource this[int index] => _dataSources[index];
-
-        public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => _dataSources.GetEnumerator();
     }
 }

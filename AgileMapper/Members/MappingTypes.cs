@@ -85,12 +85,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsEnumerable { get; }
 
-        public override bool Equals(object obj) => Equals((MappingTypes)obj);
-
         public bool Equals(MappingTypes otherTypes)
             => (otherTypes.SourceType == SourceType) && (otherTypes.TargetType == TargetType);
-
-        public override int GetHashCode() => 0;
 
         public MappingTypes WithTypes<TNewSource, TNewTarget>()
         {

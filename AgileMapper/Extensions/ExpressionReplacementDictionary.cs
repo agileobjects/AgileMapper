@@ -19,17 +19,7 @@ namespace AgileObjects.AgileMapper.Extensions
 
             public bool Equals(Expression x, Expression y)
             {
-                if (x == y)
-                {
-                    return true;
-                }
-
                 if (x.NodeType != y.NodeType)
-                {
-                    return false;
-                }
-
-                if (x.NodeType != ExpressionType.MemberAccess)
                 {
                     return false;
                 }
@@ -37,8 +27,7 @@ namespace AgileObjects.AgileMapper.Extensions
                 var memberAccessX = (MemberExpression)x;
                 var memberAccessY = (MemberExpression)y;
 
-                // ReSharper disable once PossibleUnintendedReferenceComparison
-                if (memberAccessX.Member == memberAccessY.Member)
+                if (ReferenceEquals(memberAccessX.Member, memberAccessY.Member))
                 {
                     return true;
                 }

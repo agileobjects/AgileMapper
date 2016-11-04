@@ -186,14 +186,11 @@
                 {
                     // The target member we're mapping right now isn't recursive,
                     // but it's being mapped as part of the mapping of a recursive
-                    // member. We therefore want to check if this member recurses
-                    // later, and if so we'll map it by calling a mapping function:
-                    var parentMember = parentMapperData.TargetMember.LeafMember;
-
-                    if (TargetMemberRecursesWithin(parentMember, mapperData.TargetMember.LeafMember))
-                    {
-                        return true;
-                    }
+                    // member. We therefore check if this member recurses later;
+                    // if so we'll map it by calling MapRecursion:
+                    return TargetMemberRecursesWithin(
+                        parentMapperData.TargetMember.LeafMember,
+                        mapperData.TargetMember.LeafMember);
                 }
 
                 parentMapperData = parentMapperData.Parent;
@@ -289,9 +286,7 @@
             MethodInfo createMethod,
             params Expression[] createMethodCallArguments)
         {
-            var mappingExpression = MappingExpression.For(childMapper);
-
-            if (!mappingExpression.IsSuccessful)
+            if (childMapper.MappingExpression.NodeType != ExpressionType.Try)
             {
                 return childMapper.MappingExpression;
             }
@@ -306,9 +301,17 @@
             var inlineMappingDataAssignment = Expression
                 .Assign(inlineMappingDataVariable, createInlineMappingDataCall);
 
-            var updatedMappingExpression = mappingExpression.GetUpdatedMappingExpression(inlineMappingDataAssignment);
+            var mappingTryCatch = (TryExpression)childMapper.MappingExpression;
 
-            return updatedMappingExpression;
+            var updatedTryCatch = mappingTryCatch.Update(
+                Expression.Block(inlineMappingDataAssignment, mappingTryCatch.Body),
+                mappingTryCatch.Handlers,
+                mappingTryCatch.Finally,
+                mappingTryCatch.Fault);
+
+            var mappingBlock = Expression.Block(new[] { inlineMappingDataVariable }, updatedTryCatch);
+
+            return mappingBlock;
         }
 
         private static Expression GetCreateMappingDataCall(
@@ -322,82 +325,5 @@
                 createMethod.MakeGenericMethod(inlineMappingTypes),
                 createMethodCallArguments);
         }
-
-        #region Helper Class
-
-        private class MappingExpression
-        {
-            private static readonly MappingExpression _unableToMap = new MappingExpression();
-
-            private readonly TryExpression _mappingTryCatch;
-            private readonly Func<BlockExpression, Expression> _finalMappingBlockFactory;
-
-            private MappingExpression()
-            {
-            }
-
-            private MappingExpression(
-                TryExpression mappingTryCatch,
-                Func<BlockExpression, Expression> finalMappingBlockFactory)
-            {
-                _mappingTryCatch = mappingTryCatch;
-                _finalMappingBlockFactory = finalMappingBlockFactory;
-                IsSuccessful = true;
-            }
-
-            #region Factory Method
-
-            public static MappingExpression For(IObjectMapper mapper)
-            {
-                if (mapper.MappingExpression.NodeType == ExpressionType.Try)
-                {
-                    return new MappingExpression((TryExpression)mapper.MappingExpression, b => b);
-                }
-
-                var blockExpression = (BlockExpression)mapper.MappingExpression;
-
-                var mappingTryCatch = blockExpression.Expressions.Last() as TryExpression;
-
-                if (mappingTryCatch == null)
-                {
-                    return _unableToMap;
-                }
-
-                return new MappingExpression(
-                    mappingTryCatch,
-                    updatedTryCatch =>
-                    {
-                        var blockExpressions = blockExpression
-                            .Expressions
-                            .Take(blockExpression.Expressions.Count - 1)
-                            .ToList();
-
-                        blockExpressions.Add(updatedTryCatch);
-
-                        return Expression.Block(blockExpression.Variables, blockExpressions);
-                    });
-            }
-
-            #endregion
-
-            public bool IsSuccessful { get; }
-
-            public Expression GetUpdatedMappingExpression(BinaryExpression mappingDataAssignment)
-            {
-                var updatedTryCatch = _mappingTryCatch.Update(
-                    Expression.Block(mappingDataAssignment, _mappingTryCatch.Body),
-                    _mappingTryCatch.Handlers,
-                    _mappingTryCatch.Finally,
-                    _mappingTryCatch.Fault);
-
-                var mappingDataVariable = (ParameterExpression)mappingDataAssignment.Left;
-                var mappingBlock = Expression.Block(new[] { mappingDataVariable }, updatedTryCatch);
-                var finalMappingBlock = _finalMappingBlockFactory.Invoke(mappingBlock);
-
-                return finalMappingBlock;
-            }
-        }
-
-        #endregion
     }
 }

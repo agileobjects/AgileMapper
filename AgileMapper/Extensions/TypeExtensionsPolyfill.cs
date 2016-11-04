@@ -36,15 +36,6 @@
 #endif
         }
 
-        public static bool IsPublic(this Type type)
-        {
-#if NET_STANDARD
-            return type.GetTypeInfo().IsPublic;
-#else
-            return type.IsPublic;
-#endif
-        }
-
         public static bool IsDerivedFrom(this Type childType, Type parentType)
         {
 #if NET_STANDARD

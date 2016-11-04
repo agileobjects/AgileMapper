@@ -10,14 +10,14 @@ namespace AgileObjects.AgileMapper.Members
     {
         private static readonly object _syncLock = new object();
 
-        private readonly Expression _dataParameter;
+        private readonly Expression _mappingDataObject;
         private readonly ICollection<Expression> _stringMemberAccessSubjects;
         private readonly ICollection<string> _nullCheckSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
 
-        public NestedAccessFinder(Expression dataParameter)
+        public NestedAccessFinder(Expression mappingDataObject)
         {
-            _dataParameter = dataParameter;
+            _mappingDataObject = mappingDataObject;
             _stringMemberAccessSubjects = new List<Expression>();
             _nullCheckSubjects = new List<string>();
             _memberAccessesByPath = new Dictionary<string, Expression>();
@@ -72,25 +72,14 @@ namespace AgileObjects.AgileMapper.Members
             return base.VisitMember(memberAccess);
         }
 
-        private bool IsNotRootObject(Expression expression)
-        {
-            if (expression == _dataParameter)
-            {
-                return false;
-            }
-
-            return (expression.NodeType != ExpressionType.MemberAccess) ||
-                   IsNotRootObject((MemberExpression)expression);
-        }
-
         private bool IsNotRootObject(MemberExpression memberAccess)
         {
             if (memberAccess.Member.Name == "Parent")
             {
-                return !memberAccess.IsRootedIn(_dataParameter);
+                return !memberAccess.IsRootedIn(_mappingDataObject);
             }
 
-            if (memberAccess.Expression != _dataParameter)
+            if (memberAccess.Expression != _mappingDataObject)
             {
                 return true;
             }
@@ -105,7 +94,7 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if ((methodCall.Object != _dataParameter) &&
+            if ((methodCall.Object != _mappingDataObject) &&
                 (methodCall.Method.DeclaringType != typeof(IMappingData)))
             {
                 AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
@@ -121,6 +110,12 @@ namespace AgileObjects.AgileMapper.Members
             {
                 _stringMemberAccessSubjects.Add(member);
             }
+        }
+
+        private bool IsNotRootObject(Expression expression)
+        {
+            return (expression.NodeType != ExpressionType.MemberAccess) ||
+                   IsNotRootObject((MemberExpression)expression);
         }
 
         private void AddMemberAccessIfAppropriate(Expression memberAccess)
@@ -139,7 +134,7 @@ namespace AgileObjects.AgileMapper.Members
                    ((memberAccess.Type != typeof(string)) || _stringMemberAccessSubjects.Contains(memberAccess)) &&
                    !_memberAccessesByPath.ContainsKey(memberAccessString) &&
                    memberAccess.Type.CanBeNull() &&
-                   memberAccess.IsRootedIn(_dataParameter);
+                   memberAccess.IsRootedIn(_mappingDataObject);
         }
     }
 }
