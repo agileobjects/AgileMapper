@@ -88,9 +88,6 @@
                     case ExpressionType.Invoke:
                         return ReplaceIn((InvocationExpression)expression);
 
-                    case ExpressionType.Label:
-                        return ReplaceIn((LabelExpression)expression);
-
                     case ExpressionType.ListInit:
                         return ReplaceIn((ListInitExpression)expression);
 
@@ -108,10 +105,6 @@
 
                     case ExpressionType.Parameter:
                         return ReplaceIn((ParameterExpression)expression);
-
-
-                    case ExpressionType.Try:
-                        return ReplaceIn((TryExpression)expression);
                 }
 
                 return expression;
@@ -126,8 +119,6 @@
                     conditional,
                     cnd => cnd.Update(Replace(cnd.Test), Replace(cnd.IfTrue), Replace(cnd.IfFalse)));
             }
-
-            private Expression ReplaceIn(LabelExpression label) => ReplaceIn(label, l => l.Update(l.Target, Replace(l.DefaultValue)));
 
             private Expression ReplaceIn(BlockExpression block)
             {
@@ -188,16 +179,6 @@
             private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, na => na.Update(na.Expressions.Select(Replace)));
 
             private ParameterExpression ReplaceIn(ParameterExpression parameter) => (ParameterExpression)ReplaceIn(parameter, p => p);
-
-            private Expression ReplaceIn(TryExpression @try)
-            {
-                return ReplaceIn(
-                    @try,
-                    t => t.Update(Replace(t.Body), t.Handlers.Select(ReplaceIn), Replace(t.Finally), Replace(t.Fault)));
-            }
-
-            private CatchBlock ReplaceIn(CatchBlock @catch)
-                => @catch.Update(ReplaceIn(@catch.Variable), Replace(@catch.Filter), Replace(@catch.Body));
 
             private Expression Replace(Expression expression) => ReplaceIn(expression, ReplaceIn);
 

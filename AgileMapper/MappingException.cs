@@ -37,8 +37,8 @@
 
             var rootData = GetRootMapperData(mapperData);
 
-            var sourcePath = GetMemberPath(rootData.SourceType, mapperData.SourceMember, rootData.SourceMember.Name);
-            var targetPath = GetMemberPath(rootData.TargetType, mapperData.TargetMember, rootData.TargetMember.Name);
+            var sourcePath = GetMemberPath(mapperData.SourceMember, rootData.SourceMember);
+            var targetPath = GetMemberPath(mapperData.TargetMember, rootData.TargetMember);
 
             return $"An exception occurred mapping {sourcePath} -> {targetPath} with rule set {mapperData.RuleSet.Name}.";
         }
@@ -53,23 +53,23 @@
             return mapperData;
         }
 
-        private static string GetMemberPath(Type rootType, IQualifiedMember member, string rootMemberName)
+        private static string GetMemberPath(IQualifiedMember member, IQualifiedMember rootMember)
         {
-            var rootTypeName = rootType.GetFriendlyName();
+            var rootTypeName = rootMember.Type.GetFriendlyName();
             var memberPath = member.GetPath();
 
-            if (memberPath == rootMemberName)
+            if (memberPath == rootMember.Name)
             {
                 return rootTypeName;
             }
 
-            if (memberPath.StartsWith(rootMemberName, StringComparison.Ordinal))
+            if (memberPath.StartsWith(rootMember.Name, StringComparison.Ordinal))
             {
-                return rootTypeName + memberPath.Substring(rootMemberName.Length);
+                return rootTypeName + memberPath.Substring(rootMember.Name.Length);
             }
 
-            var rootMemberNameIndex = memberPath.IndexOf("." + rootMemberName + ".", StringComparison.Ordinal);
-            var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMemberName.Length + 2);
+            var rootMemberNameIndex = memberPath.IndexOf("." + rootMember.Name + ".", StringComparison.Ordinal);
+            var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMember.Name.Length + 2);
             var path = rootTypeName + "." + rootMemberString;
 
             return path;

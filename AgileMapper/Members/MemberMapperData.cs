@@ -9,14 +9,14 @@
             : base(parent.RuleSet, parent.SourceType, parent.TargetType, targetMember, parent)
         {
             Parent = parent;
-            IsForInlineMapping = this.IsForInlineMapping();
+            IsForStandaloneMapping = this.IsForStandaloneMapping();
         }
 
         public MapperContext MapperContext => Parent.MapperContext;
 
         public ObjectMapperData Parent { get; }
 
-        public bool IsForInlineMapping { get; }
+        public bool IsForStandaloneMapping { get; }
 
         public Expression ParentObject => Parent.ParentObject;
 

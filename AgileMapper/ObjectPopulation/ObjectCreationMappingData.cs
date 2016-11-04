@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     }
 
     internal class ObjectCreationMappingData<TSource, TTarget, TObject> :
-        MappingInstanceDataBase<TSource, TTarget>,
+        MappingInstanceData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TObject>
     {
         private readonly TObject _createdObject;

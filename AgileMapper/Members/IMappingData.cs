@@ -43,7 +43,7 @@
         /// <typeparam name="TSource">The type of source object being mapped in the current context.</typeparam>
         /// <typeparam name="TTarget">The type of target object being mapped in the current context.</typeparam>
         /// <returns>The <see cref="IMappingData"/> as a typed <see cref="IMappingData{TSource, TTarget}"/>.</returns>
-        IMappingData<TSource, TTarget> As<TSource, TTarget>();
+        IMappingData<TSource, TTarget> As<TSource, TTarget>() where TSource : class where TTarget : class;
     }
 
     /// <summary>

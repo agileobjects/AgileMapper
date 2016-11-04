@@ -17,7 +17,7 @@
     }
 
     internal class ObjectMappingExceptionData<TSource, TTarget> :
-        MappingInstanceDataBase<TSource, TTarget>,
+        MappingInstanceData<TSource, TTarget>,
         IMappingExceptionData,
         IMappingExceptionData<TSource, TTarget>
     {

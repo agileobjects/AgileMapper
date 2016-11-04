@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
 
     internal class ObjectMappingData<TSource, TTarget> :
-        MappingInstanceDataBase<TSource, TTarget>,
+        MappingInstanceData<TSource, TTarget>,
         IObjectMappingData,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {

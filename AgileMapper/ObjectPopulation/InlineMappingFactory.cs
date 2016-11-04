@@ -189,7 +189,7 @@
                     // member. We therefore check if this member recurses later;
                     // if so we'll map it by calling MapRecursion:
                     return TargetMemberRecursesWithin(
-                        parentMapperData.TargetMember.LeafMember,
+                        parentMapperData.TargetMember,
                         mapperData.TargetMember.LeafMember);
                 }
 
@@ -199,7 +199,7 @@
             return false;
         }
 
-        private static bool TargetMemberRecursesWithin(Member parentMember, Member member)
+        private static bool TargetMemberRecursesWithin(QualifiedMember parentMember, Member member)
         {
             var nonSimpleChildMembers = GlobalContext.Instance
                 .MemberFinder
@@ -207,8 +207,14 @@
                 .Where(m => !m.IsSimple)
                 .ToArray();
 
-            return nonSimpleChildMembers.Contains(member) ||
-                   nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(m, member));
+            if (nonSimpleChildMembers.Contains(member))
+            {
+                var childMember = parentMember.Append(member);
+
+                return childMember.IsRecursive;
+            }
+
+            return nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(parentMember.Append(m), member));
         }
 
         private static Expression GetMapRecursionCallFor(

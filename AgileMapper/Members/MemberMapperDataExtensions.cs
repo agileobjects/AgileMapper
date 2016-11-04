@@ -20,10 +20,8 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetMemberIsEnumerableElement(this IMemberMapperData mapperData)
             => mapperData.TargetMember.IsEnumerableElement();
 
-        public static bool IsForInlineMapping(this IMemberMapperData mapperData)
-            => !(mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded());
-
-        private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As");
+        public static bool IsForStandaloneMapping(this IMemberMapperData mapperData)
+            => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();
 
         public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
         {
@@ -40,7 +38,6 @@ namespace AgileObjects.AgileMapper.Members
                 return mapperData.MappingDataObject;
             }
 
-            // TODO: Use IsForInlineMapping and access parent data objects directly
             Expression dataAccess = mapperData.MappingDataObject;
 
             if (mapperData.TargetMember.IsSimple)
@@ -50,7 +47,10 @@ namespace AgileObjects.AgileMapper.Members
 
             while (!mapperData.TypesMatch(contextTypes))
             {
-                dataAccess = Expression.Property(dataAccess, "Parent");
+                dataAccess = mapperData.IsForStandaloneMapping
+                    ? Expression.Property(dataAccess, "Parent")
+                    : (Expression)mapperData.Parent.MappingDataObject;
+
                 mapperData = mapperData.Parent;
             }
 
@@ -86,11 +86,21 @@ namespace AgileObjects.AgileMapper.Members
                 (targetType.IsAssignableFrom(mapperData.TargetType) || mapperData.TargetType.IsAssignableFrom(targetType));
         }
 
+        private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As");
+
         public static Expression GetTypedContextAccess(this IMemberMapperData mapperData, Expression contextAccess, Type[] contextTypes)
         {
             if (contextAccess == mapperData.MappingDataObject)
             {
                 return mapperData.MappingDataObject;
+            }
+
+            var contextAccessTypes = contextAccess.Type.GetGenericArguments();
+
+            if (contextTypes[0].IsAssignableFrom(contextAccessTypes[0]) &&
+                contextTypes[1].IsAssignableFrom(contextAccessTypes[1]))
+            {
+                return contextAccess;
             }
 
             return Expression.Call(

@@ -102,6 +102,17 @@
 
                 var matchingResult = mapper.Map(matchingSource).ToANew<Customer>();
                 matchingResult.Address.Line2.ShouldBe("Frankie House");
+
+                var nestedSource = new PublicProperty<CustomerViewModel>
+                {
+                    Value = new CustomerViewModel { Name = "Johnny" }
+                };
+                var nestedTarget = new PublicField<Person>
+                {
+                    Value = new Customer()
+                };
+                var nestedResult = mapper.Map(nestedSource).OnTo(nestedTarget);
+                nestedResult.Value.Address.Line2.ShouldBe("Johnny House");
             }
         }
 

@@ -9,7 +9,7 @@
 
         new ObjectMapperData Parent { get; }
 
-        bool IsForInlineMapping { get; }
+        bool IsForStandaloneMapping { get; }
 
         Expression ParentObject { get; }
 

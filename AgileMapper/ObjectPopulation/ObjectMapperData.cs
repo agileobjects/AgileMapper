@@ -262,8 +262,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsForStandaloneMapping { get; }
 
-        public bool IsForInlineMapping => !IsForStandaloneMapping;
-
         public bool IsPartOfDerivedTypeMapping { get; }
 
         public int DataSourceIndex { get; set; }
