@@ -1,0 +1,31 @@
+ManualCtorMapper                        0.0090873
+AgileMapperCtorMapper                   0.2286403
+AutoMapperCtorMapper                    0.1549024
+ExpressMapperCtorMapper                 0.211427
+MapsterCtorMapper                       0.1179287
+ValueInjecterCtorMapper                 0.4715009
+
+ManualComplexTypeMapper                 1.7719689
+AgileMapperComplexTypeMapper            9.9206116
+AutoMapperComplexTypeMapper             6.1208626
+ExpressMapperComplexTypeMapper          5.2459078
+MapsterComplexTypeMapper                2.1026762
+ValueInjecterComplexTypeMapper          9.0831693
+
+ManualFlatteningMapper                  0.0550231
+AgileMapperFlatteningMapper             0.5130328
+AutoMapperFlatteningMapper              0.37137
+ExpressMapperFlatteningMapper           0.5269247
+MapsterFlatteningMapper                 0.297619
+ValueInjecterFlatteningMapper           12.8797989
+
+ManualUnflatteningMapper                0.0514015
+AgileMapperUnflatteningMapper           1.3538302
+ValueInjecterUnflatteningMapper         13.6845895
+
+ManualDeepMapper                        0.5077576
+AgileMapperDeepMapper                   2.3058992
+AutoMapperDeepMapper                    0.9650676
+ExpressMapperDeepMapper                 1.534861
+MapsterDeepMapper                       0.8824117
+ValueInjecterDeepMapper                 28.5433128
