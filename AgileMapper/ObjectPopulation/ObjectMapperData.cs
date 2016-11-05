@@ -364,17 +364,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
-            return GetMapChildCall(_mapChildMethod, sourceObject, targetMember, dataSourceIndex);
+            return GetMapChildCall(
+                MappingDataObject,
+                _mapChildMethod,
+                sourceObject,
+                targetMember,
+                dataSourceIndex);
         }
 
         private MethodCallExpression GetMapChildCall(
+            Expression subject,
             MethodInfo method,
             Expression sourceObject,
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
             var mapCall = Expression.Call(
-                MappingDataObject,
+                subject,
                 method.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
@@ -401,7 +407,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
-            return GetMapChildCall(_mapRecursionMethod, sourceObject, targetMember, dataSourceIndex);
+            return GetMapChildCall(
+                EntryPointMapperData.MappingDataObject,
+                EntryPointMapperData._mapRecursionMethod,
+                sourceObject,
+                targetMember,
+                dataSourceIndex);
         }
 
         public void RegisterTargetMemberDataSourcesIfRequired(QualifiedMember targetMember, DataSourceSet dataSources)
