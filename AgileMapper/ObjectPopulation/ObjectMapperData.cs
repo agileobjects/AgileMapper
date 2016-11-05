@@ -437,5 +437,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             _dataSourcesByTargetMemberName.Add(targetMember.RegistrationName, dataSources);
         }
+
+        public IBasicMapperData WithNoTargetMember()
+            => new BasicMapperData(RuleSet, SourceType, TargetType, QualifiedMember.None, Parent);
     }
 }

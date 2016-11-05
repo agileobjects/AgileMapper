@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var mappingExpressions = new List<Expression>();
-            var basicMapperData = BasicMapperData.WithNoTargetMember(mapperData);
+            var basicMapperData = mapperData.WithNoTargetMember();
 
             mappingExpressions.AddRange(GetShortCircuitReturns(returnNull, mapperData));
             mappingExpressions.Add(GetTypeTests(mappingData));
