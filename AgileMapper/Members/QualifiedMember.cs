@@ -159,6 +159,35 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsRecursive { get; }
 
+        public bool IsRecursionRoot()
+        {
+            if (!IsRecursive)
+            {
+                return false;
+            }
+
+            var recursedMember = default(Member);
+
+            for (var i = _memberChain.Length - 2; i > 0; --i)
+            {
+                var member = _memberChain[i];
+
+                if (member != LeafMember)
+                {
+                    continue;
+                }
+
+                if (recursedMember != null)
+                {
+                    return false;
+                }
+
+                recursedMember = member;
+            }
+
+            return true;
+        }
+
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
         public QualifiedMember Append(Member childMember)

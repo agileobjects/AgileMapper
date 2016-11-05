@@ -177,20 +177,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return _parent.TryGet(key, out complexType);
             }
 
-            if (key != null)
+            var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance.GetHashCode();
+            Dictionary<object, object> mappedTargetsBySource;
+
+            if (_mappedObjectsByTypes.TryGetValue(typesKey, out mappedTargetsBySource))
             {
-                var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance.GetHashCode();
-                Dictionary<object, object> mappedTargetsBySource;
+                object mappedObject;
 
-                if (_mappedObjectsByTypes.TryGetValue(typesKey, out mappedTargetsBySource))
+                if (mappedTargetsBySource.TryGetValue(key, out mappedObject))
                 {
-                    object mappedObject;
-
-                    if (mappedTargetsBySource.TryGetValue(key, out mappedObject))
-                    {
-                        complexType = (TComplex)mappedObject;
-                        return true;
-                    }
+                    complexType = (TComplex)mappedObject;
+                    return true;
                 }
             }
 

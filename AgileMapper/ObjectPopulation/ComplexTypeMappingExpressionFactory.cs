@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
@@ -44,7 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var tryGetCall = Expression.Call(
-                mapperData.MappingDataObject,
+                mapperData.EntryPointMapperData.MappingDataObject,
                 _tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
                 mapperData.SourceObject,
                 mapperData.InstanceVariable);
@@ -113,7 +112,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             return Expression.Call(
-                mapperData.MappingDataObject,
+                mapperData.EntryPointMapperData.MappingDataObject,
                 _registerMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
                 mapperData.SourceObject,
                 mapperData.InstanceVariable);

@@ -18,6 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapElementMethod;
         private readonly MethodInfo _mapRecursionMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
+        private ObjectMapperData _entryPointMapperData;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -301,6 +302,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression CreatedObject { get; }
 
         public LabelTarget ReturnLabelTarget { get; }
+
+        public ObjectMapperData EntryPointMapperData
+            => _entryPointMapperData ?? (_entryPointMapperData = GetNearestEntryPointObjectMapperData());
+
+        private ObjectMapperData GetNearestEntryPointObjectMapperData()
+        {
+            var mapperData = this;
+
+            while (!mapperData.IsEntryPoint())
+            {
+                mapperData = mapperData.Parent;
+            }
+
+            return mapperData;
+        }
+
+        private bool IsEntryPoint()
+        {
+            if (IsRoot || IsForStandaloneMapping)
+            {
+                return true;
+            }
+
+            return TargetMember.IsRecursionRoot();
+        }
 
         public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)
         {
