@@ -39,7 +39,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _childMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
-            MappingDataObject = GetMappingDataObject();
+            MappingDataObject = GetMappingDataObject(parent);
             SourceMember = sourceMember;
             ParentObject = Expression.Property(MappingDataObject, "Parent");
             SourceObject = Expression.Property(MappingDataObject, "Source");
@@ -90,15 +90,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Setup
 
-        private ParameterExpression GetMappingDataObject()
+        private ParameterExpression GetMappingDataObject(ObjectMapperData parent)
         {
             var mdType = typeof(ObjectMappingData<,>).MakeGenericType(SourceType, TargetType);
 
+            var variableNameIndex = default(int?);
+
+            while (parent != null)
+            {
+                if (parent.MappingDataObject.Type == mdType)
+                {
+                    variableNameIndex = variableNameIndex.HasValue ? (variableNameIndex + 1) : 2;
+                }
+
+                parent = parent.Parent;
+            }
+
             var mappingDataVariableName = string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}To{1}Data",
+                "{0}To{1}Data{2}",
                 SourceType.GetShortVariableName(),
-                TargetType.GetShortVariableName().ToPascalCase());
+                TargetType.GetShortVariableName().ToPascalCase(),
+                variableNameIndex);
 
             var parameter = Parameters.Create(mdType, mappingDataVariableName);
 
