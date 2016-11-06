@@ -3,6 +3,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
     using Caching;
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
