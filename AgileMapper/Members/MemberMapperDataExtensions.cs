@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
@@ -19,6 +20,52 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool TargetMemberIsEnumerableElement(this IMemberMapperData mapperData)
             => mapperData.TargetMember.IsEnumerableElement();
+
+        public static bool TargetMemberEverRecurses(this IMemberMapperData mapperData)
+        {
+            if (mapperData.TargetMember.IsRecursive)
+            {
+                return true;
+            }
+
+            var parentMapperData = mapperData.Parent;
+
+            while (!parentMapperData.IsForStandaloneMapping)
+            {
+                if (parentMapperData.TargetMember.IsRecursive)
+                {
+                    // The target member we're mapping right now isn't recursive,
+                    // but it's being mapped as part of the mapping of a recursive
+                    // member. We therefore check if this member recurses later;
+                    // if so we'll map it by calling MapRecursion:
+                    return TargetMemberRecursesWithin(
+                        parentMapperData.TargetMember,
+                        mapperData.TargetMember.LeafMember);
+                }
+
+                parentMapperData = parentMapperData.Parent;
+            }
+
+            return false;
+        }
+
+        private static bool TargetMemberRecursesWithin(QualifiedMember parentMember, Member member)
+        {
+            var nonSimpleChildMembers = GlobalContext.Instance
+                .MemberFinder
+                .GetWriteableMembers(parentMember.Type)
+                .Where(m => !m.IsSimple)
+                .ToArray();
+
+            if (nonSimpleChildMembers.Contains(member))
+            {
+                var childMember = parentMember.Append(member);
+
+                return childMember.IsRecursive;
+            }
+
+            return nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(parentMember.Append(m), member));
+        }
 
         public static bool IsForStandaloneMapping(this IMemberMapperData mapperData)
             => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();

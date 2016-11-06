@@ -131,7 +131,7 @@
                 return declaredTypeMapperData.GetMapCall(sourceValue, childMapperData.TargetMember, dataSourceIndex);
             }
 
-            if (TargetMemberIsRecursive(childMapperData))
+            if (childMapperData.TargetMemberEverRecurses())
             {
                 var mapRecursionCall = GetMapRecursionCallFor(
                     childMappingData,
@@ -153,52 +153,6 @@
                 declaredTypeMapperData.MappingDataObject);
 
             return inlineMappingBlock;
-        }
-
-        private static bool TargetMemberIsRecursive(IMemberMapperData mapperData)
-        {
-            if (mapperData.TargetMember.IsRecursive)
-            {
-                return true;
-            }
-
-            var parentMapperData = mapperData.Parent;
-
-            while (!parentMapperData.IsForStandaloneMapping)
-            {
-                if (parentMapperData.TargetMember.IsRecursive)
-                {
-                    // The target member we're mapping right now isn't recursive,
-                    // but it's being mapped as part of the mapping of a recursive
-                    // member. We therefore check if this member recurses later;
-                    // if so we'll map it by calling MapRecursion:
-                    return TargetMemberRecursesWithin(
-                        parentMapperData.TargetMember,
-                        mapperData.TargetMember.LeafMember);
-                }
-
-                parentMapperData = parentMapperData.Parent;
-            }
-
-            return false;
-        }
-
-        private static bool TargetMemberRecursesWithin(QualifiedMember parentMember, Member member)
-        {
-            var nonSimpleChildMembers = GlobalContext.Instance
-                .MemberFinder
-                .GetWriteableMembers(parentMember.Type)
-                .Where(m => !m.IsSimple)
-                .ToArray();
-
-            if (nonSimpleChildMembers.Contains(member))
-            {
-                var childMember = parentMember.Append(member);
-
-                return childMember.IsRecursive;
-            }
-
-            return nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(parentMember.Append(m), member));
         }
 
         private static Expression GetMapRecursionCallFor(
