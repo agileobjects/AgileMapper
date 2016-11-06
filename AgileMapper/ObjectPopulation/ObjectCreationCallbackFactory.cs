@@ -37,7 +37,7 @@
                 return condition;
             }
 
-            var newObjectHasBeenCreated = ((ObjectMapperData)mapperData).CreatedObject.GetIsNotDefaultComparison();
+            var newObjectHasBeenCreated = mapperData.CreatedObject.GetIsNotDefaultComparison();
 
             if (condition == null)
             {

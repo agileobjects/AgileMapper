@@ -28,6 +28,8 @@
 
         public Expression TargetObject => Parent.TargetObject;
 
+        public Expression CreatedObject => Parent.CreatedObject;
+
         public Expression EnumerableIndex => Parent.EnumerableIndex;
 
         public ParameterExpression InstanceVariable => Parent.InstanceVariable;

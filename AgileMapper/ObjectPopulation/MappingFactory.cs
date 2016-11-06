@@ -180,15 +180,7 @@
         {
             var declaredTypeEnumerableMapperData = enumerableMappingData.MapperData;
 
-            var elementMapperData = new ElementMapperData(
-                sourceElementValue,
-                targetElementValue,
-                declaredTypeEnumerableMapperData);
-
-            var elementMappingData = ObjectMappingDataFactory.ForElement(
-                elementMapperData.SourceMember,
-                elementMapperData.TargetMember,
-                enumerableMappingData);
+            var elementMappingData = ObjectMappingDataFactory.ForElement(enumerableMappingData);
 
             if (elementMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
