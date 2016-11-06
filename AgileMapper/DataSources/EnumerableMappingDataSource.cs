@@ -2,6 +2,7 @@
 {
     using System.Linq.Expressions;
     using Members;
+    using ObjectPopulation;
 
     internal class EnumerableMappingDataSource : DataSourceBase
     {
@@ -22,7 +23,7 @@
             int dataSourceIndex,
             IMemberMappingData mappingData)
         {
-            var mapping = InlineMappingFactory.GetChildMapping(
+            var mapping = MappingFactory.GetChildMapping(
                 sourceEnumerableDataSource.SourceMember,
                 sourceEnumerableDataSource.Value,
                 dataSourceIndex,

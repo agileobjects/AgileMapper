@@ -3,7 +3,6 @@
     using System.Linq.Expressions;
     using Extensions;
     using Members;
-    using ReadableExpressions.Extensions;
 
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {
@@ -11,7 +10,6 @@
         private readonly string _originalValueString;
 
         public ConfiguredDataSource(
-            int dataSourceIndex,
             Expression configuredCondition,
             Expression value,
             IMemberMapperData mapperData)

@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Reflection;
     using Extensions;
     using Members;
+    using ObjectPopulation;
 
     internal class DictionaryDataSource : DataSourceBase
     {
@@ -122,7 +123,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var entrySourceMember = sourceMember.WithType(variable.Type);
 
-            var mapping = InlineMappingFactory.GetChildMapping(
+            var mapping = MappingFactory.GetChildMapping(
                 entrySourceMember,
                 variable,
                 0,
@@ -202,7 +203,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var entrySourceMember = sourceMember.WithType(sourceList.Type);
 
-            var mapping = InlineMappingFactory.GetChildMapping(
+            var mapping = MappingFactory.GetChildMapping(
                 entrySourceMember,
                 sourceList,
                 0,

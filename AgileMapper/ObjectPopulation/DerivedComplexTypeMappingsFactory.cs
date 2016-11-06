@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Configuration;
-    using DataSources;
     using Extensions;
     using Members;
 
@@ -74,7 +73,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var condition = GetTypePairCondition(derivedTypePair, declaredTypeMapperData);
 
-                var derivedTypeMapping = InlineMappingFactory.GetDerivedTypeMapping(
+                var derivedTypeMapping = MappingFactory.GetDerivedTypeMapping(
                     declaredTypeMappingData,
                     declaredTypeMapperData.SourceObject,
                     derivedTypePair.DerivedTargetType);
@@ -134,7 +133,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var condition = GetTypePairCondition(typedVariable, derivedSourceType, ref targetType, declaredTypeMapperData);
 
-                var mapping = InlineMappingFactory
+                var mapping = MappingFactory
                     .GetDerivedTypeMapping(declaredTypeMappingData, typedVariable, targetType);
 
                 var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, mapping);

@@ -7,7 +7,6 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Caching;
-    using DataSources;
     using Extensions;
     using Members;
     using ReadableExpressions.Extensions;
@@ -471,7 +470,7 @@
             Expression targetElement,
             IObjectMappingData enumerableMappingData)
         {
-            return InlineMappingFactory.GetElementMapping(
+            return MappingFactory.GetElementMapping(
                 sourceElement,
                 targetElement,
                 enumerableMappingData);

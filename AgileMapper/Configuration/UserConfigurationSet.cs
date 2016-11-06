@@ -77,7 +77,7 @@
         }
 
         public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
-            => FindMatches(_dataSourceFactories, mapperData).Select((dsf, i) => dsf.Create(i, mapperData)).ToArray();
+            => FindMatches(_dataSourceFactories, mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
 
         #endregion
 

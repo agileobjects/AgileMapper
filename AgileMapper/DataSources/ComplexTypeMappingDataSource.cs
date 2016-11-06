@@ -2,6 +2,7 @@
 {
     using System.Linq.Expressions;
     using Members;
+    using ObjectPopulation;
 
     internal class ComplexTypeMappingDataSource : DataSourceBase
     {
@@ -22,7 +23,7 @@
             int dataSourceIndex,
             IMemberMappingData mappingData)
         {
-            var mapping = InlineMappingFactory.GetChildMapping(
+            var mapping = MappingFactory.GetChildMapping(
                 complexTypeDataSource.SourceMember,
                 complexTypeDataSource.Value,
                 dataSourceIndex,
@@ -37,6 +38,6 @@
         }
 
         private static Expression GetMapping(int dataSourceIndex, IMemberMappingData mappingData)
-            => InlineMappingFactory.GetChildMapping(dataSourceIndex, mappingData);
+            => MappingFactory.GetChildMapping(dataSourceIndex, mappingData);
     }
 }
