@@ -24,11 +24,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapperFunc = mappingLambda.Compile();
             }
 
-            if (mapperData.RequiresChildMapping)
+            if (mapperData.IsChildMappingNeeded)
             {
                 _childMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
-            else if (mapperData.RequiresElementMapping)
+            else if (mapperData.IsElementMappingNeeded)
             {
                 _elementMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }

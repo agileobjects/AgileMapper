@@ -56,7 +56,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (targetMember.IsEnumerable)
             {
-                RequiresElementMapping = !targetMember.ElementType.IsSimple();
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
                 InstanceVariable = EnumerablePopulationBuilder.TargetVariable;
             }
@@ -280,9 +279,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public int DataSourceIndex { get; set; }
 
-        public bool RequiresChildMapping => _dataSourcesByTargetMemberName.Any();
+        public bool IsChildMappingNeeded { get; private set; }
 
-        public bool RequiresElementMapping { get; }
+        public bool IsElementMappingNeeded { get; private set; }
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
             => _dataSourcesByTargetMemberName[targetMemberRegistrationName][dataSourceIndex].SourceMember;
@@ -377,6 +376,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
+            IsChildMappingNeeded = true;
+
             return GetMapChildCall(
                 MappingDataObject,
                 _mapChildMethod,
@@ -405,6 +406,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
         {
+            IsElementMappingNeeded = true;
+
             var mapCall = Expression.Call(
                 MappingDataObject,
                 _mapElementMethod.MakeGenericMethod(sourceElement.Type, targetElement.Type),
