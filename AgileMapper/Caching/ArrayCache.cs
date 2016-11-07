@@ -50,9 +50,9 @@
                     return value;
                 }
 
-                EnsureCapacity();
-
                 value = valueFactory.Invoke(key);
+
+                EnsureCapacity();
 
                 _keys[_length] = key;
                 _values[_length] = value;
