@@ -19,6 +19,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapRecursionMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private ObjectMapperData _entryPointMapperData;
+        private bool _isMappingDataObjectUsedAsParameter;
+        private bool? _isMappingDataObjectNeeded;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -282,6 +284,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool IsChildMappingNeeded { get; private set; }
 
         public bool IsElementMappingNeeded { get; private set; }
+
+        public bool IsMappingDataObjectUsedAsParameter
+        {
+            get { return _isMappingDataObjectUsedAsParameter; }
+            set { _isMappingDataObjectUsedAsParameter = _isMappingDataObjectUsedAsParameter || value; }
+        }
+
+        public bool IsMappingDataObjectNeeded
+        {
+            get
+            {
+                return (_isMappingDataObjectNeeded ??
+                       (_isMappingDataObjectNeeded =
+                           IsChildMappingNeeded || IsElementMappingNeeded || IsMappingDataObjectUsedAsParameter ||
+                           _childMapperDatas.Any(cmd => cmd.IsMappingDataObjectNeeded) || IsEntryPoint())).Value;
+            }
+        }
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
             => _dataSourcesByTargetMemberName[targetMemberRegistrationName][dataSourceIndex].SourceMember;

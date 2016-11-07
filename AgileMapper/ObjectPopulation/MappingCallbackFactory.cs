@@ -26,6 +26,8 @@
 
         public Expression Create(IMemberMapperData mapperData)
         {
+            mapperData.IsMappingDataObjectUsedAsParameter = _callbackLambda.UsesMappingDataObjectParameter;
+
             var callback = _callbackLambda.GetBody(mapperData);
             var condition = GetConditionOrNull(mapperData);
 

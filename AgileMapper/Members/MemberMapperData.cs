@@ -16,6 +16,12 @@
 
         public ObjectMapperData Parent { get; }
 
+        public bool IsMappingDataObjectUsedAsParameter
+        {
+            get { return Parent.IsMappingDataObjectUsedAsParameter; }
+            set { Parent.IsMappingDataObjectUsedAsParameter = value; }
+        }
+
         public bool IsForStandaloneMapping { get; }
 
         public Expression ParentObject => Parent.ParentObject;

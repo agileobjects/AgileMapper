@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
@@ -206,6 +205,11 @@
             if (childMapper.MappingExpression.NodeType != ExpressionType.Try)
             {
                 return childMapper.MappingExpression;
+            }
+
+            if (!childMapper.MapperData.IsMappingDataObjectNeeded)
+            {
+
             }
 
             var createInlineMappingDataCall = GetCreateMappingDataCall(

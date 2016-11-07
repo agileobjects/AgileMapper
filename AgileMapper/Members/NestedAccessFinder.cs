@@ -14,6 +14,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly ICollection<Expression> _stringMemberAccessSubjects;
         private readonly ICollection<string> _nullCheckSubjects;
         private readonly Dictionary<string, Expression> _memberAccessesByPath;
+        private bool _includeTargetNullChecking;
 
         public NestedAccessFinder(Expression mappingDataObject)
         {
@@ -23,12 +24,14 @@ namespace AgileObjects.AgileMapper.Members
             _memberAccessesByPath = new Dictionary<string, Expression>();
         }
 
-        public Expression[] FindIn(Expression expression)
+        public Expression[] FindIn(Expression expression, bool targetCanBeNull)
         {
             Expression[] memberAccesses;
 
             lock (_syncLock)
             {
+                _includeTargetNullChecking = targetCanBeNull;
+
                 Visit(expression);
 
                 memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
@@ -89,7 +92,12 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            return memberAccess.Member.Name != "Source";
+            if (memberAccess.Member.Name == "Source")
+            {
+                return false;
+            }
+
+            return _includeTargetNullChecking || (memberAccess.Member.Name != "Target");
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)

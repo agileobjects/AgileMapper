@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
@@ -63,6 +64,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperData = mappingData.MapperData;
             var preCreationCallback = GetCreationCallbackOrEmpty(CallbackPosition.Before, mapperData);
             var postCreationCallback = GetCreationCallbackOrEmpty(CallbackPosition.After, mapperData);
+            var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToArray();
 
             yield return preCreationCallback;
 
@@ -78,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield return registrationCall;
             }
 
-            foreach (var population in GetPopulationsAndCallbacks(mappingData))
+            foreach (var population in populationsAndCallbacks)
             {
                 yield return population;
             }
@@ -93,11 +95,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (postCreationCallbackExists)
             {
+                mappingData.MapperData.IsMappingDataObjectUsedAsParameter = true;
                 objectCreationValue = Expression.Assign(mappingData.MapperData.CreatedObject, objectCreationValue);
             }
 
-            var instanceDataTargetAssignment = Expression.Assign(mappingData.MapperData.TargetObject, objectCreationValue);
-            var existingOrCreatedObject = Expression.Coalesce(mappingData.MapperData.TargetObject, instanceDataTargetAssignment);
+            if (mappingData.MapperData.IsMappingDataObjectNeeded)
+            {
+                objectCreationValue = Expression.Assign(mappingData.MapperData.TargetObject, objectCreationValue);
+            }
+
+            var existingOrCreatedObject = Expression.Coalesce(mappingData.MapperData.TargetObject, objectCreationValue);
 
             return existingOrCreatedObject;
         }

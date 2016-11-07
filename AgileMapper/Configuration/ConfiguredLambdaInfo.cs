@@ -104,6 +104,8 @@
 
         #endregion
 
+        public bool UsesMappingDataObjectParameter => _parametersSwapper.NumberOfParameters == 1;
+
         public Type ReturnType { get; }
 
         public bool IsSameAs(ConfiguredLambdaInfo otherLambdaInfo)

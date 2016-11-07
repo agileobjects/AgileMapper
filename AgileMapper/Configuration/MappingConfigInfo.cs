@@ -157,7 +157,7 @@
             }
 
             var conditionNestedAccessesChecks = mapperData
-                .GetNestedAccessesIn(condition)
+                .GetNestedAccessesIn(condition, targetCanBeNull: true)
                 .GetIsNotDefaultComparisonsOrNull();
 
             if (conditionNestedAccessesChecks != null)

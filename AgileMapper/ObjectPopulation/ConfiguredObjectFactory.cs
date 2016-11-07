@@ -36,6 +36,8 @@
 
         #endregion
 
+        public bool UsesMappingDataObjectParameter => _factoryInfo.UsesMappingDataObjectParameter;
+
         public override bool AppliesTo(IBasicMapperData mapperData)
             => _objectType.IsAssignableFrom(mapperData.TargetType) && base.AppliesTo(mapperData);
 

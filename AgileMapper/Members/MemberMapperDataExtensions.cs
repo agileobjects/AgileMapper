@@ -15,8 +15,8 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
             => mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
 
-        public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value)
-            => mapperData.NestedAccessFinder.FindIn(value);
+        public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)
+            => mapperData.NestedAccessFinder.FindIn(value, targetCanBeNull);
 
         public static bool TargetMemberIsEnumerableElement(this IMemberMapperData mapperData)
             => mapperData.TargetMember.IsEnumerableElement();

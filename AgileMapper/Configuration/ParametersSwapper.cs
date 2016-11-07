@@ -171,7 +171,6 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #endregion
 
-        private readonly int _numberOfParameters;
         private readonly Func<Type[], Type[], bool> _applicabilityPredicate;
         private readonly Func<LambdaExpression, IMemberMapperData, Expression> _parametersSwapper;
 
@@ -180,7 +179,7 @@ namespace AgileObjects.AgileMapper.Configuration
             Func<Type[], Type[], bool> applicabilityPredicate,
             Func<LambdaExpression, IMemberMapperData, Expression> parametersSwapper)
         {
-            _numberOfParameters = numberOfParameters;
+            NumberOfParameters = numberOfParameters;
             _applicabilityPredicate = applicabilityPredicate;
             _parametersSwapper = parametersSwapper;
         }
@@ -188,8 +187,10 @@ namespace AgileObjects.AgileMapper.Configuration
         public static ParametersSwapper For(Type[] contextTypes, Type[] funcArguments)
             => _implementations.FirstOrDefault(pso => pso.AppliesTo(contextTypes, funcArguments));
 
+        public int NumberOfParameters { get; }
+
         public bool AppliesTo(Type[] contextTypes, Type[] funcArguments)
-            => (funcArguments.Length == _numberOfParameters) && _applicabilityPredicate.Invoke(contextTypes, funcArguments);
+            => (funcArguments.Length == NumberOfParameters) && _applicabilityPredicate.Invoke(contextTypes, funcArguments);
 
         public Expression Swap(LambdaExpression lambda, IMemberMapperData mapperData)
             => _parametersSwapper.Invoke(lambda, mapperData);

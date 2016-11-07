@@ -35,13 +35,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 foreach (var configuredFactory in configuredFactories)
                 {
-                    var configuredConstruction = new Construction(
-                        configuredFactory.Create(mapperData),
-                        configuredFactory.GetConditionOrNull(mapperData));
+                    var configuredConstruction = new Construction(configuredFactory, mapperData);
 
                     constructions.Insert(0, configuredConstruction);
 
-                    if (configuredConstruction.Condition == null)
+                    if (configuredConstruction.IsUnconditional)
                     {
                         newingConstructorRequired = false;
                         break;
@@ -96,21 +94,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return null;
                 }
 
-                var constructionExpression = constructions
-                    .Skip(1)
-                    .Aggregate(
-                        constructions.First().Expression,
-                        (constructionSoFar, construction) =>
-                            Expression.Condition(construction.Condition, construction.Expression, constructionSoFar));
-
-                var compositeConstruction = new Construction(constructionExpression, key);
+                var compositeConstruction = new Construction(constructions, key);
 
                 key.MappingData = null;
 
                 return compositeConstruction;
             });
 
-            var creationExpression = objectCreation?.GetConstruction(mappingData);
+            if (objectCreation == null)
+            {
+                return null;
+            }
+
+            mappingData.MapperData.IsMappingDataObjectUsedAsParameter = objectCreation.UsesMappingDataObjectParameter;
+
+            var creationExpression = objectCreation.GetConstruction(mappingData);
 
             return creationExpression;
         }
@@ -191,26 +189,49 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private class Construction
         {
+            private readonly Expression _expression;
+            private readonly Expression _condition;
             private readonly ParameterExpression _mappingDataObject;
 
-            public Construction(Expression construction, ConstructionKey key)
-                : this(construction)
+            public Construction(List<Construction> constructions, ConstructionKey key)
+                : this(GetConstruction(constructions))
             {
+                UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);
                 _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
+            }
+
+            #region Setup
+
+            private static Expression GetConstruction(List<Construction> constructions)
+            {
+                return constructions
+                    .Skip(1)
+                    .Aggregate(
+                        constructions.First()._expression,
+                        (constructionSoFar, construction) =>
+                                Expression.Condition(construction._condition, construction._expression, constructionSoFar));
+            }
+
+            #endregion
+
+            public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
+                : this(configuredFactory.Create(mapperData), configuredFactory.GetConditionOrNull(mapperData))
+            {
+                UsesMappingDataObjectParameter = configuredFactory.UsesMappingDataObjectParameter;
             }
 
             public Construction(Expression construction, Expression condition = null)
             {
-                Expression = construction;
-                Condition = condition;
+                _expression = construction;
+                _condition = condition;
             }
 
-            public Expression Expression { get; }
+            public bool IsUnconditional => _condition == null;
 
-            public Expression Condition { get; }
+            public bool UsesMappingDataObjectParameter { get; }
 
             public Expression GetConstruction(IObjectMappingData mappingData)
-                => Expression.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);
+                => _expression.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);
         }
 
         #endregion

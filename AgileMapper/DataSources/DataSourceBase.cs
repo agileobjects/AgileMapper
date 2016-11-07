@@ -54,7 +54,7 @@
             out Expression[] nestedAccesses,
             out ICollection<ParameterExpression> variables)
         {
-            nestedAccesses = mapperData.GetNestedAccessesIn(value);
+            nestedAccesses = mapperData.GetNestedAccessesIn(value, targetCanBeNull: false);
             variables = new List<ParameterExpression>();
 
             if (nestedAccesses.None())

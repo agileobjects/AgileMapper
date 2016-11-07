@@ -11,6 +11,8 @@
 
         bool IsForStandaloneMapping { get; }
 
+        bool IsMappingDataObjectUsedAsParameter { get; set; }
+
         Expression ParentObject { get; }
 
         ParameterExpression MappingDataObject { get; }
