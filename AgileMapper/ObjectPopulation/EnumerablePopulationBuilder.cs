@@ -351,14 +351,29 @@
                 return;
             }
 
-            Func<Expression, Expression> populationLoopAdapter;
+            Func<LoopExpression, Expression> populationLoopAdapter;
             Expression loopExitCheck, sourceElement;
 
             if (_sourceTypeHelper.HasListInterface)
             {
-                populationLoopAdapter = exp => exp;
                 loopExitCheck = Expression.Equal(Counter, GetCountPropertyAccess());
-                sourceElement = GetIndexedElementAccess();
+
+                if (ElementTypesAreSimple || 
+                    _sourceTypeHelper.ElementType.RuntimeTypeNeeded() || 
+                    _targetElementType.RuntimeTypeNeeded())
+                {
+                    populationLoopAdapter = exp => exp;
+                    sourceElement = GetIndexedElementAccess();
+                }
+                else
+                {
+                    var sourceElementName = ElementTypesAreTheSame
+                        ? "source" + _sourceTypeHelper.ElementType.GetVariableNameInPascalCase()
+                        : _sourceTypeHelper.ElementType.GetVariableNameInCamelCase();
+
+                    sourceElement = Expression.Parameter(_sourceTypeHelper.ElementType, sourceElementName);
+                    populationLoopAdapter = loop => UpdateIndexAccessLoop(loop, (ParameterExpression)sourceElement);
+                }
             }
             else
             {
@@ -386,6 +401,22 @@
                 populationLoop);
 
             _populationExpressions.Add(population);
+        }
+
+        private Expression UpdateIndexAccessLoop(
+            LoopExpression loop,
+            ParameterExpression sourceElement)
+        {
+            var loopBody = (BlockExpression)loop.Body;
+            var loopBodyExpressions = new List<Expression>(loopBody.Expressions);
+
+            const int LOOP_EXIT_CHECK_INDEX = 0;
+            var sourceElementAssignment = Expression.Assign(sourceElement, GetIndexedElementAccess());
+            loopBodyExpressions.Insert(LOOP_EXIT_CHECK_INDEX + 1, sourceElementAssignment);
+
+            loopBody = loopBody.Update(loopBody.Variables.Concat(sourceElement), loopBodyExpressions);
+
+            return loop.Update(loop.BreakLabel, loop.ContinueLabel, loopBody);
         }
 
         private Expression GetCountPropertyAccess()
@@ -429,7 +460,7 @@
         private Expression GetPopulationLoop(
             Expression sourceElement,
             Expression loopExitCheck,
-            Func<Expression, Expression> populationLoopAdapter,
+            Func<LoopExpression, Expression> populationLoopAdapter,
             IObjectMappingData enumerableMappingData)
         {
             var breakLoop = Expression.Break(Expression.Label(typeof(void), "Break"));
