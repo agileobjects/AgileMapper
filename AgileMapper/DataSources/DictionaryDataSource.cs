@@ -52,6 +52,13 @@ namespace AgileObjects.AgileMapper.DataSources
         {
             var mapperData = mappingData.MapperData;
             var potentialNames = GetPotentialNames(mapperData);
+            var fallbackValue = GetFallbackValue(sourceMember, variable, potentialNames, mappingData);
+
+            if ((mapperData.TargetMember.IsEnumerable != variable.Type.IsEnumerable()) &&
+                (variable.Type != typeof(object)))
+            {
+                return fallbackValue;
+            }
 
             var tryGetValueCall = GetTryGetValueCall(
                 variable,
@@ -61,7 +68,7 @@ namespace AgileObjects.AgileMapper.DataSources
             var dictionaryValueOrFallback = Expression.Condition(
                 tryGetValueCall,
                 GetValue(sourceMember, variable, mappingData),
-                GetFallbackValue(sourceMember, variable, potentialNames, mappingData));
+                fallbackValue);
 
             return dictionaryValueOrFallback;
         }

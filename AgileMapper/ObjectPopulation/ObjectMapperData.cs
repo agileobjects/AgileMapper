@@ -19,17 +19,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapRecursionMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private ObjectMapperData _entryPointMapperData;
-        private bool _isMappingDataObjectUsedAsParameter;
-        private bool? _isMappingDataObjectNeeded;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             int? dataSourceIndex,
+            ObjectMapperData declaredTypeMapperData,
             ObjectMapperData parent,
-            bool isForStandaloneMapping,
-            bool isPartOfDerivedTypeMapping)
+            bool isForStandaloneMapping)
             : base(
                   mappingData.MappingContext.RuleSet,
                   sourceMember.Type,
@@ -38,16 +36,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   parent)
         {
             MapperContext = mappingData.MappingContext.MapperContext;
+            DeclaredTypeMapperData = declaredTypeMapperData;
             _childMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
             MappingDataObject = GetMappingDataObject(parent);
             SourceMember = sourceMember;
-            ParentObject = Expression.Property(MappingDataObject, "Parent");
             SourceObject = Expression.Property(MappingDataObject, "Source");
             TargetObject = Expression.Property(MappingDataObject, "Target");
             CreatedObject = Expression.Property(MappingDataObject, "CreatedObject");
-            EnumerableIndex = Expression.Property(MappingDataObject, "EnumerableIndex");
+
+            var isPartOfDerivedTypeMapping = declaredTypeMapperData != null;
+
+            if (isPartOfDerivedTypeMapping)
+            {
+                EnumerableIndex = declaredTypeMapperData.EnumerableIndex;
+                ParentObject = declaredTypeMapperData.ParentObject;
+            }
+            else
+            {
+                EnumerableIndex = Expression.Property(MappingDataObject, "EnumerableIndex");
+                ParentObject = Expression.Property(MappingDataObject, "Parent");
+            }
+
             NestedAccessFinder = new NestedAccessFinder(MappingDataObject);
 
             _mapChildMethod = GetMapMethod(MappingDataObject.Type, 4);
@@ -71,20 +82,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
-            IsForStandaloneMapping = isForStandaloneMapping;
 
-            if (IsForStandaloneMapping)
+            if (isForStandaloneMapping)
             {
                 RequiredMapperFuncsByKey = new Dictionary<ObjectMapperKeyBase, LambdaExpression>();
             }
 
             if (IsRoot)
             {
-                IsPartOfDerivedTypeMapping = isPartOfDerivedTypeMapping;
+                Context = new MapperDataContext(this, isForStandaloneMapping, isPartOfDerivedTypeMapping);
                 return;
             }
 
-            IsPartOfDerivedTypeMapping = isPartOfDerivedTypeMapping || parent.IsPartOfDerivedTypeMapping;
+            Context = new MapperDataContext(
+                this,
+                isForStandaloneMapping,
+                isPartOfDerivedTypeMapping || parent.Context.IsForDerivedType);
+
             parent._childMapperDatas.Add(this);
             Parent = parent;
         }
@@ -230,28 +244,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static ObjectMapperData For<TSource, TTarget>(IObjectMappingData mappingData)
         {
             var membersSource = mappingData.MapperKey.GetMembersSource(mappingData.Parent);
-            var sourceMember = membersSource.GetSourceMember<TSource>();
-            var targetMember = membersSource.GetTargetMember<TTarget>();
+            var sourceMember = membersSource.GetSourceMember<TSource>().WithType(typeof(TSource));
+            var targetMember = membersSource.GetTargetMember<TTarget>().WithType(typeof(TTarget));
             int? dataSourceIndex;
             ObjectMapperData parentMapperData;
             bool isForStandaloneMapping;
 
             if (mappingData.IsRoot)
             {
-                if (mappingData.IsPartOfDerivedTypeMapping)
-                {
-                    sourceMember = sourceMember.WithType(typeof(TSource));
-                    targetMember = targetMember.WithType(typeof(TTarget));
-                }
-
                 dataSourceIndex = null;
                 parentMapperData = null;
                 isForStandaloneMapping = true;
             }
             else
             {
-                sourceMember = sourceMember.WithType(typeof(TSource));
-                targetMember = targetMember.WithType(typeof(TTarget));
                 dataSourceIndex = (membersSource as IChildMembersSource)?.DataSourceIndex;
                 parentMapperData = mappingData.Parent.MapperData;
                 isForStandaloneMapping = mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
@@ -262,9 +268,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceMember,
                 targetMember,
                 dataSourceIndex,
+                mappingData.DeclaredTypeMappingData?.MapperData,
                 parentMapperData,
-                isForStandaloneMapping,
-                mappingData.IsPartOfDerivedTypeMapping);
+                isForStandaloneMapping);
         }
 
         #endregion
@@ -273,34 +279,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData Parent { get; }
 
+        public ObjectMapperData DeclaredTypeMapperData { get; }
+
         public IEnumerable<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
-
-        public bool IsForStandaloneMapping { get; }
-
-        public bool IsPartOfDerivedTypeMapping { get; }
 
         public int DataSourceIndex { get; set; }
 
-        public bool IsChildMappingNeeded { get; private set; }
-
-        public bool IsElementMappingNeeded { get; private set; }
-
-        public bool IsMappingDataObjectUsedAsParameter
-        {
-            get { return _isMappingDataObjectUsedAsParameter; }
-            set { _isMappingDataObjectUsedAsParameter = _isMappingDataObjectUsedAsParameter || value; }
-        }
-
-        public bool IsMappingDataObjectNeeded
-        {
-            get
-            {
-                return (_isMappingDataObjectNeeded ??
-                       (_isMappingDataObjectNeeded =
-                           IsChildMappingNeeded || IsElementMappingNeeded || IsMappingDataObjectUsedAsParameter ||
-                           _childMapperDatas.Any(cmd => cmd.IsMappingDataObjectNeeded) || IsEntryPoint())).Value;
-            }
-        }
+        public MapperDataContext Context { get; }
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
             => _dataSourcesByTargetMemberName[targetMemberRegistrationName][dataSourceIndex].SourceMember;
@@ -339,11 +324,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ObjectMapperData GetNearestEntryPointObjectMapperData()
         {
-            var mapperData = this;
+            var mapperData = DeclaredTypeMapperData ?? this;
 
             while (!mapperData.IsEntryPoint())
             {
-                mapperData = mapperData.Parent;
+                mapperData = mapperData.Parent.DeclaredTypeMapperData ?? mapperData.Parent;
             }
 
             return mapperData;
@@ -351,7 +336,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private bool IsEntryPoint()
         {
-            if (IsRoot || IsForStandaloneMapping)
+            if (IsRoot || Context.IsStandalone)
             {
                 return true;
             }
@@ -378,7 +363,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = this;
 
-            while (!mapperData.IsForStandaloneMapping)
+            while (!mapperData.Context.IsStandalone)
             {
                 mapperData = mapperData.Parent;
             }
@@ -395,7 +380,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
-            IsChildMappingNeeded = true;
+            Context.NeedsChildMapping = true;
 
             return GetMapChildCall(
                 MappingDataObject,
@@ -425,7 +410,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
         {
-            IsElementMappingNeeded = true;
+            Context.NeedsElementMapping = true;
 
             var mapCall = Expression.Call(
                 MappingDataObject,
@@ -462,5 +447,65 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IBasicMapperData WithNoTargetMember()
             => new BasicMapperData(RuleSet, SourceType, TargetType, QualifiedMember.None, Parent);
+    }
+
+    internal class MapperDataContext
+    {
+        private readonly ObjectMapperData _mapperData;
+        private bool _usesMappingDataObjectAsParameter;
+        private bool? _isMappingDataObjectNeeded;
+
+        public MapperDataContext(IMemberMapperData childMapperData)
+            : this(
+                  childMapperData.Parent,
+                  childMapperData.IsForStandaloneMapping(),
+                  childMapperData.Parent.Context.IsForDerivedType)
+        {
+        }
+
+        public MapperDataContext(
+            ObjectMapperData mapperData,
+            bool isStandalone,
+            bool isForDerivedType)
+        {
+            _mapperData = mapperData;
+            IsStandalone = isStandalone;
+            IsForDerivedType = isForDerivedType;
+        }
+
+        public bool IsStandalone { get; }
+
+        public bool IsForDerivedType { get; }
+
+        public bool NeedsChildMapping { get; set; }
+
+        public bool NeedsElementMapping { get; set; }
+
+        public bool UsesMappingDataObjectAsParameter
+        {
+            get
+            {
+                return _mapperData.Context._usesMappingDataObjectAsParameter ||
+                       _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObjectAsParameter);
+            }
+            set
+            {
+                _mapperData.Context._usesMappingDataObjectAsParameter =
+                    _mapperData.Context._usesMappingDataObjectAsParameter || value;
+            }
+        }
+
+        public bool UsesMappingDataObject
+        {
+            get
+            {
+                return (_isMappingDataObjectNeeded ??
+                       (_isMappingDataObjectNeeded =
+                           NeedsChildMapping || NeedsElementMapping || UsesMappingDataObjectAsParameter ||
+                           _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObject))).Value;
+            }
+        }
+
+        public bool Compile => IsStandalone && !IsForDerivedType;
     }
 }

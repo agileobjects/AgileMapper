@@ -27,7 +27,7 @@
                 .ToANew<Person>();
 
             plan.ShouldContain("person.Name = pvmToPData.Source.Name;");
-            plan.ShouldContain("address.Line1 = pvmToAData.Source.AddressLine1;");
+            plan.ShouldContain("address.Line1 = pvmToPData.Source.AddressLine1;");
         }
 
         [Fact]
@@ -39,7 +39,8 @@
 
             plan.ShouldContain("sourceInt32Array = ");
             plan.ShouldContain("ICollection<int> targetInt32s = ");
-            plan.ShouldContain("new List<int>(iaToIsData.Target)");
+            plan.ShouldContain("publicField_Int32s.Value is ICollection<int>");
+            plan.ShouldContain("new List<int>(publicField_Int32s.Value)");
             plan.ShouldContain("targetInt32s.Add(sourceInt32Array[i])");
         }
 
@@ -80,7 +81,7 @@
                 .GetPlanFor<IEnumerable<Person>>()
                 .OnTo<IEnumerable<PersonViewModel>>();
 
-            plan.ShouldContain("collectionData.Intersection.ForEach((p, pvm, i) =>");
+            plan.ShouldContain("collectionData.Intersection.ForEach((person, personViewModel, i) =>");
             plan.ShouldContain("persons = collectionData.NewSourceItems");
         }
 
@@ -92,7 +93,7 @@
                 .Over<IEnumerable<Person>>();
 
             plan.ShouldContain("personViewModels = collectionData.NewSourceItems");
-            plan.ShouldContain("collectionData.Intersection.ForEach((pvm, p, i) =>");
+            plan.ShouldContain("collectionData.Intersection.ForEach((personViewModel, person, i) =>");
             plan.ShouldContain("collectionData.AbsentTargetItems.ForEach(persons.Remove)");
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");

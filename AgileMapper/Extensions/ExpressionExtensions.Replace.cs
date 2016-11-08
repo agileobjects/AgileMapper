@@ -4,6 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
 
     internal static partial class ExpressionExtensions
     {
@@ -85,11 +88,20 @@
                     case ExpressionType.TypeAs:
                         return ReplaceIn((UnaryExpression)expression);
 
+                    case ExpressionType.Goto:
+                        return ReplaceIn((GotoExpression)expression);
+
                     case ExpressionType.Invoke:
                         return ReplaceIn((InvocationExpression)expression);
 
+                    case ExpressionType.Lambda:
+                        return ReplaceIn((LambdaExpression)expression);
+
                     case ExpressionType.ListInit:
                         return ReplaceIn((ListInitExpression)expression);
+
+                    case ExpressionType.Loop:
+                        return ReplaceIn((LoopExpression)expression);
 
                     case ExpressionType.MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
@@ -105,6 +117,12 @@
 
                     case ExpressionType.Parameter:
                         return ReplaceIn((ParameterExpression)expression);
+
+                    case ExpressionType.TypeIs:
+                        return ReplaceIn((TypeBinaryExpression)expression);
+
+                    case ExpressionType.Try:
+                        return ReplaceIn((TryExpression)expression);
                 }
 
                 return expression;
@@ -132,6 +150,8 @@
 
             private Expression ReplaceIn(UnaryExpression unary) => ReplaceIn(unary, un => un.Update(Replace(un.Operand)));
 
+            private Expression ReplaceIn(GotoExpression @goto) => ReplaceIn(@goto, gt => gt.Update(gt.Target, Replace(gt.Value)));
+
             private Expression ReplaceIn(InvocationExpression invocation)
                 => ReplaceIn(invocation, inv => ReplaceInCall(inv.Expression, inv.Arguments, inv.Update));
 
@@ -143,6 +163,9 @@
                 return replacer.Invoke(Replace(subject), arguments.Select(Replace).ToArray());
             }
 
+            private Expression ReplaceIn(LambdaExpression lambda)
+                => ReplaceIn(lambda, l => Expression.Lambda(l.Type, Replace(l.Body), l.Parameters.Select(ReplaceIn)));
+
             private Expression ReplaceIn(MemberExpression memberAccess) => ReplaceIn(memberAccess, ma => ma.Update(Replace(ma.Expression)));
 
             private Expression ReplaceIn(MemberInitExpression memberInit)
@@ -150,6 +173,8 @@
 
             private Expression ReplaceIn(ListInitExpression listInit)
                 => ReplaceIn(listInit, li => li.Update(ReplaceIn(li.NewExpression), ReplaceIn(li.Initializers)));
+
+            private Expression ReplaceIn(LoopExpression loop) => ReplaceIn(loop, l => l.Update(l.BreakLabel, l.ContinueLabel, Replace(l.Body)));
 
             private MemberBinding ReplaceIn(MemberBinding binding)
             {
@@ -181,6 +206,18 @@
             private ParameterExpression ReplaceIn(ParameterExpression parameter) => (ParameterExpression)ReplaceIn(parameter, p => p);
 
             private Expression Replace(Expression expression) => ReplaceIn(expression, ReplaceIn);
+
+            private Expression ReplaceIn(TypeBinaryExpression typeBinary) => ReplaceIn(typeBinary, tb => tb.Update(Replace(typeBinary.Expression)));
+
+            private Expression ReplaceIn(TryExpression @try)
+            {
+                return ReplaceIn(
+                    @try,
+                    t => t.Update(Replace(t.Body), t.Handlers.Select(ReplaceIn), Replace(t.Finally), Replace(t.Fault)));
+            }
+
+            private CatchBlock ReplaceIn(CatchBlock @catch)
+                => @catch.Update(ReplaceIn(@catch.Variable), Replace(@catch.Filter), Replace(@catch.Body));
 
             private Expression ReplaceIn<TExpression>(TExpression expression, Func<TExpression, Expression> replacer)
                 where TExpression : Expression

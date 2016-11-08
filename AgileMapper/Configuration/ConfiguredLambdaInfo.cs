@@ -7,6 +7,7 @@
     using System.Reflection;
 #endif
     using Members;
+    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal class ConfiguredLambdaInfo
@@ -111,6 +112,14 @@
         public bool IsSameAs(ConfiguredLambdaInfo otherLambdaInfo)
             => _lambda.ToString() == otherLambdaInfo._lambda.ToString();
 
-        public Expression GetBody(IMemberMapperData mapperData) => _parametersSwapper.Swap(_lambda, mapperData);
+        public Expression GetBody(
+            IMemberMapperData mapperData, 
+            CallbackPosition? position = null,
+            QualifiedMember targetMember = null)
+        {
+            return position.IsPriorToObjectCreation(targetMember)
+                ? _parametersSwapper.Swap(_lambda, mapperData, ParametersSwapper.UseTargetMember)
+                : _parametersSwapper.Swap(_lambda, mapperData, ParametersSwapper.UseInstanceVariable);
+        }
     }
 }

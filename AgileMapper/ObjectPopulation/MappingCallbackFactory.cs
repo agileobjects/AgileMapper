@@ -12,7 +12,7 @@
             MappingConfigInfo configInfo,
             CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda,
-            QualifiedMember targetMember = null)
+            QualifiedMember targetMember)
             : base(configInfo, targetMember)
         {
             CallbackPosition = callbackPosition;
@@ -26,10 +26,12 @@
 
         public Expression Create(IMemberMapperData mapperData)
         {
-            mapperData.IsMappingDataObjectUsedAsParameter = _callbackLambda.UsesMappingDataObjectParameter;
+            mapperData.Context.UsesMappingDataObjectAsParameter =
+                _callbackLambda.UsesMappingDataObjectParameter ||
+                ConfigInfo.ConditionUsesMappingDataObjectParameter;
 
-            var callback = _callbackLambda.GetBody(mapperData);
-            var condition = GetConditionOrNull(mapperData);
+            var callback = _callbackLambda.GetBody(mapperData, CallbackPosition, TargetMember);
+            var condition = GetConditionOrNull(mapperData, CallbackPosition);
 
             if (condition != null)
             {

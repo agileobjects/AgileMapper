@@ -6,12 +6,11 @@
     using System.Reflection;
 #endif
     using Members;
+    using ObjectPopulation;
     using ReadableExpressions;
 
     internal abstract class UserConfiguredItemBase
     {
-        private readonly MappingConfigInfo _configInfo;
-
         protected UserConfiguredItemBase(MappingConfigInfo configInfo)
             : this(configInfo, QualifiedMember.All)
         {
@@ -37,13 +36,15 @@
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)
         {
-            _configInfo = configInfo;
+            ConfigInfo = configInfo;
             TargetMember = targetMember;
         }
 
+        protected MappingConfigInfo ConfigInfo { get; }
+
         public QualifiedMember TargetMember { get; }
 
-        public bool HasConfiguredCondition => _configInfo.HasCondition;
+        public bool HasConfiguredCondition => ConfigInfo.HasCondition;
 
         public virtual bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {
@@ -52,7 +53,7 @@
                 return false;
             }
 
-            if (_configInfo.HasCompatibleTypes(otherConfiguredItem._configInfo))
+            if (ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo))
             {
                 return TargetMember.Matches(otherConfiguredItem.TargetMember);
             }
@@ -62,16 +63,19 @@
 
         protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherConfiguredItem)
         {
-            return _configInfo.HasSameSourceTypeAs(otherConfiguredItem._configInfo) &&
-                   _configInfo.HasSameTargetTypeAs(otherConfiguredItem._configInfo);
+            return ConfigInfo.HasSameSourceTypeAs(otherConfiguredItem.ConfigInfo) &&
+                   ConfigInfo.HasSameTargetTypeAs(otherConfiguredItem.ConfigInfo);
         }
 
         public virtual Expression GetConditionOrNull(IMemberMapperData mapperData)
-            => _configInfo.GetConditionOrNull(mapperData);
+            => GetConditionOrNull(mapperData, CallbackPosition.After);
+
+        protected Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
+            => ConfigInfo.GetConditionOrNull(mapperData, position, TargetMember);
 
         public virtual bool AppliesTo(IBasicMapperData mapperData)
         {
-            return _configInfo.IsFor(mapperData.RuleSet) &&
+            return ConfigInfo.IsFor(mapperData.RuleSet) &&
                 TargetMembersMatch(mapperData) &&
                 ObjectHeirarchyHasMatchingSourceAndTargetTypes(mapperData);
         }
@@ -103,7 +107,7 @@
         {
             while (mapperData != null)
             {
-                if (_configInfo.HasCompatibleTypes(mapperData))
+                if (ConfigInfo.HasCompatibleTypes(mapperData))
                 {
                     return true;
                 }
@@ -125,12 +129,12 @@
                     return 1;
                 }
 
-                if (x._configInfo.HasSameSourceTypeAs(y._configInfo))
+                if (x.ConfigInfo.HasSameSourceTypeAs(y.ConfigInfo))
                 {
                     return 0;
                 }
 
-                if (x._configInfo.IsForSourceType(y._configInfo))
+                if (x.ConfigInfo.IsForSourceType(y.ConfigInfo))
                 {
                     return 1;
                 }

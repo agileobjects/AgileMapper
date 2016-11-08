@@ -18,7 +18,7 @@
             Type creationTargetType,
             CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo, callbackPosition, callbackLambda)
+            : base(configInfo, callbackPosition, callbackLambda, QualifiedMember.All)
         {
             _creationTargetType = creationTargetType;
         }
@@ -30,7 +30,7 @@
 
         public override Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
-            var condition = base.GetConditionOrNull(mapperData);
+            var condition = GetConditionOrNull(mapperData, CallbackPosition);
 
             if (CallbackPosition != CallbackPosition.After)
             {

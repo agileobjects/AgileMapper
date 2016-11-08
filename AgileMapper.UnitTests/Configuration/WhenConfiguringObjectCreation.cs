@@ -83,7 +83,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 Func<IMappingData<CustomerViewModel, Customer>, Address> addressFactory =
-                    ctx => new Address { Line2 = ctx.Source.Name + " House" };
+                    ctx => new Address { Line2 = ctx.Target.Name + " House" };
 
                 mapper.WhenMapping
                     .From<CustomerViewModel>()

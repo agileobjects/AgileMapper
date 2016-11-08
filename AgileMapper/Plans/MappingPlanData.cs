@@ -38,7 +38,7 @@
             var dataSourceIndex = (int)((ConstantExpression)mapCall.Arguments[3]).Value;
             var parentMappingData = GetMappingDataFor((ParameterExpression)mapCall.Object, MappingData);
 
-            if (!parentMappingData.MapperData.IsForStandaloneMapping)
+            if (!parentMappingData.MapperData.Context.IsStandalone)
             {
                 EnsureMapperCreation(parentMappingData.Mapper);
             }

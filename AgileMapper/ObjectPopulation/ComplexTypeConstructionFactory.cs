@@ -106,7 +106,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return null;
             }
 
-            mappingData.MapperData.IsMappingDataObjectUsedAsParameter = objectCreation.UsesMappingDataObjectParameter;
+            mappingData.MapperData.Context.UsesMappingDataObjectAsParameter = objectCreation.UsesMappingDataObjectParameter;
 
             var creationExpression = objectCreation.GetConstruction(mappingData);
 

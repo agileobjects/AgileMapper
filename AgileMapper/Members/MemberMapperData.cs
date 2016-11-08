@@ -9,20 +9,14 @@
             : base(parent.RuleSet, parent.SourceType, parent.TargetType, targetMember, parent)
         {
             Parent = parent;
-            IsForStandaloneMapping = this.IsForStandaloneMapping();
+            Context = new MapperDataContext(this);
         }
 
         public MapperContext MapperContext => Parent.MapperContext;
 
         public ObjectMapperData Parent { get; }
 
-        public bool IsMappingDataObjectUsedAsParameter
-        {
-            get { return Parent.IsMappingDataObjectUsedAsParameter; }
-            set { Parent.IsMappingDataObjectUsedAsParameter = value; }
-        }
-
-        public bool IsForStandaloneMapping { get; }
+        public MapperDataContext Context { get; }
 
         public Expression ParentObject => Parent.ParentObject;
 

@@ -2,9 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
     using Members;
 
     internal class ObjectMappingData<TSource, TTarget> :
@@ -227,13 +225,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var typedWithTypesCaller = GlobalContext.Instance.Cache.GetOrAdd(typesKey, k =>
             {
                 var mappingDataParameter = Parameters.Create<ObjectMappingData<TSource, TTarget>>("mappingData");
-
-                var withTypesMethod = mappingDataParameter.Type
-                    .GetNonPublicInstanceMethods()
-                    .First(m => (m.Name == "WithTypes") && m.IsGenericMethod)
-                    .MakeGenericMethod(k.SourceType, k.TargetType);
-
-                var withTypesCall = Expression.Call(mappingDataParameter, withTypesMethod);
+                var withTypesCall = mappingDataParameter.GetAsCall(k.SourceType, k.TargetType);
 
                 var withTypesLambda = Expression
                     .Lambda<Func<ObjectMappingData<TSource, TTarget>, IObjectMappingData>>(
@@ -247,7 +239,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         // ReSharper disable once UnusedMember.Local
-        private IObjectMappingData WithTypes<TNewSource, TNewTarget>()
+        public ObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>()
             where TNewSource : class
             where TNewTarget : class
         {

@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.Members
         private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(
                   childMember.Type,
-                  parent.IsEnumerable,
+                  childMember.IsEnumerable,
                   parent.Name + childMember.JoiningName,
                   parent._matchedTargetMemberNames.Append(
                       parent._mapperContext.NamingSettings.GetMatchingNameFor(childMember)),

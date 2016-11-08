@@ -22,16 +22,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingLambda = mappingLambda;
             MapperData = mapperData;
 
-            if (mapperData.IsForStandaloneMapping && !mapperData.IsPartOfDerivedTypeMapping)
+            if (mapperData.Context.Compile)
             {
                 _mapperFunc = mappingLambda.Compile();
             }
 
-            if (mapperData.IsChildMappingNeeded)
+            if (mapperData.Context.NeedsChildMapping)
             {
                 _childMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
-            else if (mapperData.IsElementMappingNeeded)
+            else if (mapperData.Context.NeedsElementMapping)
             {
                 _elementMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }

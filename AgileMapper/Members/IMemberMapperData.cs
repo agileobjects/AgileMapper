@@ -9,9 +9,7 @@
 
         new ObjectMapperData Parent { get; }
 
-        bool IsForStandaloneMapping { get; }
-
-        bool IsMappingDataObjectUsedAsParameter { get; set; }
+        MapperDataContext Context { get; }
 
         Expression ParentObject { get; }
 

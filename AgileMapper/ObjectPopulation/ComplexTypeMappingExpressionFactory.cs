@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
         {
-            if (mapperData.TargetMemberIsEnumerableElement())
+            if (!mapperData.Context.IsForDerivedType && mapperData.TargetMemberIsEnumerableElement())
             {
                 yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
             }
@@ -95,11 +95,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (postCreationCallbackExists)
             {
-                mappingData.MapperData.IsMappingDataObjectUsedAsParameter = true;
+                mappingData.MapperData.Context.UsesMappingDataObjectAsParameter = true;
                 objectCreationValue = Expression.Assign(mappingData.MapperData.CreatedObject, objectCreationValue);
             }
 
-            if (mappingData.MapperData.IsMappingDataObjectNeeded)
+            if (mappingData.MapperData.Context.UsesMappingDataObjectAsParameter)
             {
                 objectCreationValue = Expression.Assign(mappingData.MapperData.TargetObject, objectCreationValue);
             }

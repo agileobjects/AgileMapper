@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.Members
 
             var parentMapperData = mapperData.Parent;
 
-            while (!parentMapperData.IsForStandaloneMapping)
+            while (!parentMapperData.Context.IsStandalone)
             {
                 if (parentMapperData.TargetMember.IsRecursive)
                 {
@@ -94,7 +94,7 @@ namespace AgileObjects.AgileMapper.Members
 
             while (!mapperData.TypesMatch(contextTypes))
             {
-                dataAccess = mapperData.IsForStandaloneMapping
+                dataAccess = mapperData.Context.IsStandalone
                     ? Expression.Property(dataAccess, "Parent")
                     : (Expression)mapperData.Parent.MappingDataObject;
 
@@ -133,9 +133,10 @@ namespace AgileObjects.AgileMapper.Members
                 (targetType.IsAssignableFrom(mapperData.TargetType) || mapperData.TargetType.IsAssignableFrom(targetType));
         }
 
-        private static readonly MethodInfo _asMethod = typeof(IMappingData).GetMethod("As");
-
-        public static Expression GetTypedContextAccess(this IMemberMapperData mapperData, Expression contextAccess, Type[] contextTypes)
+        public static Expression GetTypedContextAccess(
+            this IMemberMapperData mapperData,
+            Expression contextAccess,
+            Type[] contextTypes)
         {
             if (contextAccess == mapperData.MappingDataObject)
             {
@@ -150,34 +151,58 @@ namespace AgileObjects.AgileMapper.Members
                 return contextAccess;
             }
 
-            return Expression.Call(
-                contextAccess,
-                _asMethod.MakeGenericMethod(contextTypes[0], contextTypes[1]));
+            return GetAsCall(contextAccess, contextTypes);
         }
 
-        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
-        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget");
+        public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
+            => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
+
+        private static readonly MethodInfo _mappingDataAsMethod = typeof(IMappingData).GetMethod("As");
+
+        public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
+        {
+            var method = (subject.Type == typeof(IMappingData))
+                ? _mappingDataAsMethod
+                : subject.Type.GetMethod("As");
+
+            return Expression.Call(subject, method.MakeGenericMethod(contextTypes));
+        }
 
         public static Expression GetSourceAccess(this IMemberMapperData mapperData, Expression contextAccess, Type sourceType)
-            => GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject);
+            => GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
 
         public static Expression GetTargetAccess(this IMemberMapperData mapperData, Expression contextAccess, Type targetType)
-            => GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject);
+            => GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
 
         private static Expression GetAccess(
             IMemberMapperData mapperData,
             Expression contextAccess,
             Func<Expression, Type, Expression> accessMethodFactory,
             Type type,
-            Expression directAccessExpression)
+            Expression directAccessExpression,
+            int contextTypesIndex)
         {
-            return (contextAccess == mapperData.MappingDataObject)
-                ? directAccessExpression
-                : accessMethodFactory.Invoke(contextAccess, type);
+            if (contextAccess == mapperData.MappingDataObject)
+            {
+                return directAccessExpression;
+            }
+
+            var contextTypes = contextAccess.Type.GetGenericArguments();
+
+            if (type.IsAssignableFrom(contextTypes[contextTypesIndex]))
+            {
+                return Expression.Property(contextAccess, new[] { "Source", "Target" }[contextTypesIndex]);
+            }
+
+            return accessMethodFactory.Invoke(contextAccess, type);
         }
+
+        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
 
         private static Expression GetSourceAccess(Expression dataAccess, Type sourceType)
             => GetAccess(dataAccess, _getSourceMethod, sourceType);
+
+        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget");
 
         private static Expression GetTargetAccess(Expression dataAccess, Type targetType)
             => GetAccess(dataAccess, _getTargetMethod, targetType);

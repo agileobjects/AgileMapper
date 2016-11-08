@@ -8,6 +8,7 @@
     using System.Reflection;
 #endif
     using Members;
+    using ObjectPopulation;
     using ReadableExpressions;
 
     internal class MappingConfigInfo
@@ -15,10 +16,10 @@
         private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null);
 
+        private MappingRuleSet _mappingRuleSet;
         private Type _sourceType;
         private Type _targetType;
         private Type _sourceValueType;
-        private MappingRuleSet _mappingRuleSet;
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
 
@@ -110,6 +111,9 @@
 
         #region Conditions
 
+        public bool ConditionUsesMappingDataObjectParameter
+            => HasCondition && _conditionLambda.UsesMappingDataObjectParameter;
+
         public bool HasCondition => _conditionLambda != null;
 
         public void AddConditionOrThrow(LambdaExpression conditionLambda)
@@ -142,14 +146,17 @@
             }
         }
 
-        public Expression GetConditionOrNull(IMemberMapperData mapperData)
+        public Expression GetConditionOrNull(
+            IMemberMapperData mapperData,
+            CallbackPosition position,
+            QualifiedMember targetMember)
         {
             if (!HasCondition)
             {
                 return GetTypeCheckConditionOrNull(mapperData);
             }
 
-            var condition = _conditionLambda.GetBody(mapperData);
+            var condition = _conditionLambda.GetBody(mapperData, position, targetMember);
 
             if (_negateCondition)
             {
@@ -157,7 +164,7 @@
             }
 
             var conditionNestedAccessesChecks = mapperData
-                .GetNestedAccessesIn(condition, targetCanBeNull: true)
+                .GetNestedAccessesIn(condition, targetCanBeNull: true) // TODO: Use position.IsPriorToObjectCreation(targetMember)
                 .GetIsNotDefaultComparisonsOrNull();
 
             if (conditionNestedAccessesChecks != null)

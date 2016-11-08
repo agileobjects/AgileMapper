@@ -67,8 +67,8 @@
                     _targetElementIdLambda =
                         GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
 
-                _sourceVariableName = "source" + _omd.SourceType.GetVariableNameInPascalCase();
-                targetVariableName = "target" + _targetTypeHelper.ListType.GetVariableNameInPascalCase();
+                _sourceVariableName = "source" + omd.SourceType.GetVariableNameInPascalCase();
+                targetVariableName = "target" + omd.TargetType.GetVariableNameInPascalCase();
             }
             else
             {
@@ -77,12 +77,11 @@
                 _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
                 _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
 
-                _sourceVariableName = _omd.SourceType.GetVariableNameInCamelCase();
-                targetVariableName = _targetTypeHelper.ListType.GetVariableNameInCamelCase();
+                _sourceVariableName = omd.SourceType.GetVariableNameInCamelCase();
+                targetVariableName = omd.TargetType.GetVariableNameInCamelCase();
             }
 
             _discardExistingValues = omd.RuleSet.EnumerablePopulationStrategy.DiscardExistingValues;
-            TargetIsReadOnly = _targetTypeHelper.IsArray || _targetTypeHelper.IsEnumerableInterface;
             TargetVariable = GetTargetVariable(targetVariableName);
 
             _populationExpressions = new List<Expression>();
@@ -150,13 +149,15 @@
         {
             Type targetVariableType;
 
-            if (TargetIsReadOnly)
+            if (_targetTypeHelper.IsEnumerableInterface)
             {
-                targetVariableType = _targetTypeHelper.IsEnumerableInterface
-                    ? _targetTypeHelper.CollectionInterfaceType
-                    : (ElementTypesAreSimple && _discardExistingValues)
-                        ? _omd.TargetType
-                        : _targetTypeHelper.ListType;
+                targetVariableType = _targetTypeHelper.CollectionInterfaceType;
+            }
+            else if (_targetTypeHelper.IsArray)
+            {
+                targetVariableType = (ElementTypesAreSimple && _discardExistingValues)
+                    ? _omd.TargetType
+                    : _targetTypeHelper.ListType;
             }
             else
             {
@@ -206,7 +207,7 @@
 
             var parentMapperData = _omd.Parent;
 
-            while (!parentMapperData.IsForStandaloneMapping)
+            while (!parentMapperData.Context.IsStandalone)
             {
                 if (parentMapperData.TargetMember.IsEnumerable)
                 {
@@ -224,8 +225,6 @@
         public bool ElementTypesAreIdentifiable => (_sourceElementIdLambda != null) && (_targetElementIdLambda != null);
 
         public bool ElementTypesAreSimple { get; }
-
-        public bool TargetIsReadOnly { get; }
 
         public ParameterExpression TargetVariable { get; }
 
@@ -270,7 +269,7 @@
         {
             Expression nonNullTargetVariableValue;
 
-            if (TargetIsReadOnly)
+            if (_targetTypeHelper.IsArray || _targetTypeHelper.IsEnumerableInterface)
             {
                 nonNullTargetVariableValue = GetNonNullReadonlyTargetVariableValue();
             }
@@ -504,9 +503,23 @@
 
         public void MapIntersection(IObjectMappingData enumerableMappingData)
         {
+            string sourceElementName, targetElementName;
+
+            if (ElementTypesAreTheSame)
+            {
+                sourceElementName = "source" + _sourceElementType.GetVariableNameInPascalCase();
+                targetElementName = "target" + _targetElementType.GetVariableNameInPascalCase();
+            }
+            else
+            {
+                sourceElementName = _sourceElementType.GetVariableNameInCamelCase();
+                targetElementName = _targetElementType.GetVariableNameInCamelCase();
+            }
+
+            var sourceElementParameter = Parameters.Create(_sourceElementType, sourceElementName);
+            var targetElementParameter = Parameters.Create(_targetElementType, targetElementName);
+
             var forEachActionType = Expression.GetActionType(_sourceElementType, _targetElementType, typeof(int));
-            var sourceElementParameter = Parameters.Create(_sourceElementType);
-            var targetElementParameter = Parameters.Create(_targetElementType);
             var forEachAction = GetElementMapping(sourceElementParameter, targetElementParameter, enumerableMappingData);
 
             var forEachLambda = Expression.Lambda(

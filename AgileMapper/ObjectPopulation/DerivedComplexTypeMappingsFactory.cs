@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 
-            if (declaredTypeMapperData.IsPartOfDerivedTypeMapping || declaredTypeMapperData.HasSameSourceAsParent())
+            if (declaredTypeMapperData.Context.IsForDerivedType || declaredTypeMapperData.HasSameSourceAsParent())
             {
                 return Constants.EmptyExpression;
             }

@@ -28,13 +28,7 @@
 
             if (declaredTypeMapperData.TargetMemberIsEnumerableElement())
             {
-                return GetInlineMappingBlock(
-                    derivedTypeMappingData,
-                    MappingDataFactory.ForElementMethod,
-                    sourceValue,
-                    targetValue,
-                    Expression.Property(declaredTypeMapperData.EnumerableIndex, "Value"),
-                    declaredTypeMapperData.MappingDataObject);
+                return GetInlineElementMappingBlock(derivedTypeMappingData, sourceValue, targetValue);
             }
 
             return GetDerivedTypeChildMapping(derivedTypeMappingData, sourceValue, targetValue);
@@ -47,12 +41,21 @@
         {
             var declaredTypeMapperData = derivedTypeMappingData.DeclaredTypeMappingData.MapperData;
 
+            var mappingValues = new MappingValues(
+                sourceValue,
+                targetValue,
+                Expression.Default(typeof(int?)));
+
             var inlineMappingBlock = GetInlineMappingBlock(
                 derivedTypeMappingData,
                 MappingDataFactory.ForRootMethod,
-                sourceValue,
-                targetValue,
-                Expression.Property(declaredTypeMapperData.MappingDataObject, "MappingContext"));
+                mappingValues,
+                new[]
+                {
+                    mappingValues.SourceValue,
+                    mappingValues.TargetValue,
+                    Expression.Property(declaredTypeMapperData.MappingDataObject, "MappingContext")
+                });
 
             return inlineMappingBlock;
         }
@@ -62,14 +65,17 @@
             Expression sourceValue,
             Expression targetValue)
         {
-            var declaredTypeMapperData = derivedTypeMappingData.DeclaredTypeMappingData.MapperData;
             var derivedTypeMapperData = derivedTypeMappingData.MapperData;
+            var declaredTypeMapperData = derivedTypeMappingData.DeclaredTypeMappingData.MapperData;
+
+            var mappingValues = new MappingValues(
+                sourceValue,
+                targetValue,
+                derivedTypeMapperData.Parent.EnumerableIndex);
 
             return GetChildMapping(
                 derivedTypeMapperData.SourceMember,
-                sourceValue,
-                targetValue,
-                declaredTypeMapperData.EnumerableIndex,
+                mappingValues,
                 declaredTypeMapperData.DataSourceIndex,
                 derivedTypeMappingData,
                 derivedTypeMapperData,
@@ -98,11 +104,14 @@
             var childMapperData = childMappingData.MapperData;
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
 
-            return GetChildMapping(
-                sourceMember,
+            var mappingValues = new MappingValues(
                 sourceMemberAccess,
                 targetMemberAccess,
-                childMapperData.Parent.EnumerableIndex,
+                childMapperData.Parent.EnumerableIndex);
+
+            return GetChildMapping(
+                sourceMember,
+                mappingValues,
                 dataSourceIndex,
                 childMappingData.Parent,
                 childMapperData,
@@ -111,9 +120,7 @@
 
         private static Expression GetChildMapping(
             IQualifiedMember sourceMember,
-            Expression sourceValue,
-            Expression targetValue,
-            Expression enumerableIndex,
+            MappingValues mappingValues,
             int dataSourceIndex,
             IObjectMappingData parentMappingData,
             IMemberMapperData childMapperData,
@@ -127,14 +134,14 @@
 
             if (childMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
-                return declaredTypeMapperData.GetMapCall(sourceValue, childMapperData.TargetMember, dataSourceIndex);
+                return declaredTypeMapperData.GetMapCall(mappingValues.SourceValue, childMapperData.TargetMember, dataSourceIndex);
             }
 
             if (childMapperData.TargetMemberEverRecurses())
             {
                 var mapRecursionCall = GetMapRecursionCallFor(
                     childMappingData,
-                    sourceValue,
+                    mappingValues.SourceValue,
                     dataSourceIndex,
                     declaredTypeMapperData);
 
@@ -144,12 +151,16 @@
             var inlineMappingBlock = GetInlineMappingBlock(
                 childMappingData,
                 MappingDataFactory.ForChildMethod,
-                sourceValue,
-                targetValue,
-                enumerableIndex,
-                Expression.Constant(childMapperData.TargetMember.RegistrationName),
-                Expression.Constant(dataSourceIndex),
-                declaredTypeMapperData.MappingDataObject);
+                mappingValues,
+                new[]
+                {
+                    mappingValues.SourceValue,
+                    mappingValues.TargetValue,
+                    mappingValues.EnumerableIndex,
+                    Expression.Constant(childMapperData.TargetMember.RegistrationName),
+                    Expression.Constant(dataSourceIndex),
+                    childMapperData.Parent.MappingDataObject
+                });
 
             return inlineMappingBlock;
         }
@@ -177,28 +188,62 @@
             Expression targetElementValue,
             IObjectMappingData enumerableMappingData)
         {
-            var declaredTypeEnumerableMapperData = enumerableMappingData.MapperData;
+            var enumerableMapperData = enumerableMappingData.MapperData;
 
             var elementMappingData = ObjectMappingDataFactory.ForElement(enumerableMappingData);
 
             if (elementMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
-                return declaredTypeEnumerableMapperData.GetMapCall(sourceElementValue, targetElementValue);
+                return enumerableMapperData.GetMapCall(sourceElementValue, targetElementValue);
             }
+
+            return GetInlineElementMappingBlock(elementMappingData, sourceElementValue, targetElementValue);
+        }
+
+        private static Expression GetInlineElementMappingBlock(
+            IObjectMappingData elementMappingData,
+            Expression sourceElementValue,
+            Expression targetElementValue)
+        {
+            var enumerableMapperData = elementMappingData.Parent.MapperData;
+            var elementMapperData = elementMappingData.MapperData;
+
+            Expression enumerableIndex, parentMappingDataObject;
+
+            if (elementMapperData.Context.IsStandalone)
+            {
+                enumerableIndex = Expression.Property(elementMapperData.EnumerableIndex, "Value");
+                parentMappingDataObject = Expression.Default(typeof(IObjectMappingData));
+            }
+            else
+            {
+                enumerableIndex = enumerableMapperData.EnumerablePopulationBuilder.Counter;
+                parentMappingDataObject = enumerableMapperData.MappingDataObject;
+            }
+
+            var mappingValues = new MappingValues(
+                sourceElementValue,
+                targetElementValue,
+                enumerableIndex);
 
             return GetInlineMappingBlock(
                 elementMappingData,
                 MappingDataFactory.ForElementMethod,
-                sourceElementValue,
-                targetElementValue,
-                declaredTypeEnumerableMapperData.EnumerablePopulationBuilder.Counter,
-                declaredTypeEnumerableMapperData.MappingDataObject);
+                mappingValues,
+                new[]
+                {
+                    mappingValues.SourceValue,
+                    mappingValues.TargetValue,
+                    mappingValues.EnumerableIndex,
+                    parentMappingDataObject
+                });
         }
 
         private static Expression GetInlineMappingBlock(
             IObjectMappingData childMappingData,
             MethodInfo createMethod,
-            params Expression[] createMethodCallArguments)
+            MappingValues mappingValues,
+            Expression[] createMethodCallArguments)
         {
             var childMapper = childMappingData.Mapper;
 
@@ -207,9 +252,13 @@
                 return childMapper.MappingExpression;
             }
 
-            if (!childMapper.MapperData.IsMappingDataObjectNeeded)
+            if (!childMapper.MapperData.Context.UsesMappingDataObject)
             {
-
+                return GetDirectAccessMapping(
+                    childMappingData,
+                    mappingValues,
+                    createMethod,
+                    createMethodCallArguments);
             }
 
             var createInlineMappingDataCall = GetCreateMappingDataCall(
@@ -235,16 +284,66 @@
             return mappingBlock;
         }
 
-        private static Expression GetCreateMappingDataCall(
+        private static Expression GetDirectAccessMapping(
+            IObjectMappingData mappingData,
+            MappingValues mappingValues,
             MethodInfo createMethod,
-            IBasicMapperData childMapperData,
             Expression[] createMethodCallArguments)
         {
-            var inlineMappingTypes = new[] { childMapperData.SourceType, childMapperData.TargetType };
+            var mapper = mappingData.Mapper;
+            var mapperData = mappingData.MapperData;
+
+            var replacementsByTarget = new ExpressionReplacementDictionary
+            {
+                [mapperData.SourceObject] = mappingValues.SourceValue,
+                [mapperData.TargetObject] = mappingValues.TargetValue,
+                [mapperData.EnumerableIndex] = mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type)
+            };
+
+            var directAccessMapping = mapper.MappingLambda.Body.Replace(replacementsByTarget);
+
+            var createInlineMappingDataCall = GetCreateMappingDataCall(
+                createMethod,
+                mapperData,
+                createMethodCallArguments);
+
+            directAccessMapping = directAccessMapping.Replace(
+                mapperData.MappingDataObject,
+                createInlineMappingDataCall);
+
+            return directAccessMapping;
+        }
+
+        private static Expression GetCreateMappingDataCall(
+            MethodInfo createMethod,
+            ObjectMapperData childMapperData,
+            Expression[] createMethodCallArguments)
+        {
+            if (childMapperData.Context.IsStandalone)
+            {
+                return childMapperData.DeclaredTypeMapperData
+                    .GetAsCall(childMapperData.SourceType, childMapperData.TargetType);
+            }
 
             return Expression.Call(
-                createMethod.MakeGenericMethod(inlineMappingTypes),
+                createMethod.MakeGenericMethod(childMapperData.SourceType, childMapperData.TargetType),
                 createMethodCallArguments);
         }
+    }
+
+    internal class MappingValues
+    {
+        public MappingValues(Expression sourceValue, Expression targetValue, Expression enumerableIndex)
+        {
+            SourceValue = sourceValue;
+            TargetValue = targetValue;
+            EnumerableIndex = enumerableIndex;
+        }
+
+        public Expression SourceValue { get; }
+
+        public Expression TargetValue { get; }
+
+        public Expression EnumerableIndex { get; }
     }
 }
