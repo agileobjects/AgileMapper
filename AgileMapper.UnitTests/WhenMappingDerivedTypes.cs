@@ -101,26 +101,20 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                var sourceData = new { Discount = default(string), Report = default(string) };
-
                 mapper.WhenMapping
-                    .From(sourceData)
-                    .To<PersonViewModel>()
-                    .If((d, p) => d.Report != default(string))
-                    .MapTo<MysteryCustomerViewModel>()
-                    .And
-                    .If((d, p) => d.Discount != default(string))
-                    .MapTo<CustomerViewModel>();
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .Map<CustomerViewModel>()
+                    .To<Customer>();
 
-                var customerSource = new { Value = new { Discount = "0.2", Report = default(string) } };
-                var result = mapper.Map(customerSource).ToANew<PublicSetMethod<PersonViewModel>>();
+                var personSource = new PublicField<CustomerViewModel>
+                {
+                    Value = new MysteryCustomerViewModel { Discount = 0.2 }
+                };
+                var result = mapper.Map(personSource).ToANew<PublicSetMethod<Person>>();
 
-                result.Value.ShouldBeOfType<CustomerViewModel>();
-
-                var mysteryCustomerSource = new { Value = new { Discount = default(string), Report = "Lovely!" } };
-                result = mapper.Map(mysteryCustomerSource).ToANew<PublicSetMethod<PersonViewModel>>();
-
-                result.Value.ShouldBeOfType<MysteryCustomerViewModel>();
+                result.Value.ShouldBeOfType<Customer>();
+                ((Customer)result.Value).Discount.ShouldBe(0.2);
             }
         }
     }
