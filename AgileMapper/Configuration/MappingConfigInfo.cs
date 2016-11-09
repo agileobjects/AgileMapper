@@ -194,6 +194,12 @@
             }
 
             var contextAccess = mapperData.GetAppropriateMappingContextAccess(contextTypes);
+
+            if (contextAccess == mapperData.MappingDataObject)
+            {
+                return null;
+            }
+
             var targetAccess = mapperData.GetTargetAccess(contextAccess, _targetType);
             var targetAccessNotNull = targetAccess.GetIsNotDefaultComparison();
 

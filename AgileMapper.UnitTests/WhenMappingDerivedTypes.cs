@@ -97,7 +97,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyMapDerivedTypesFromNestedMembers()
+        public void ShouldMapDerivedTypesFromNestedMembers()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -115,6 +115,31 @@
 
                 result.Value.ShouldBeOfType<Customer>();
                 ((Customer)result.Value).Discount.ShouldBe(0.2);
+            }
+        }
+
+        [Fact]
+        public void ShouldConditionallyMapDerivedTypesFromNestedMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<CustomerViewModel>()
+                    .If((s, t) => s.Name == "Mystery Customer")
+                    .MapTo<MysteryCustomerViewModel>()
+                    .And
+                    .If((s, t) => s.Name == "Customer Mystery!")
+                    .MapTo<MysteryCustomerViewModel>();
+
+                var personSource = new PublicField<PersonViewModel>
+                {
+                    Value = new CustomerViewModel { Name = "Mystery Customer", Discount = 0.5 }
+                };
+                var result = mapper.Map(personSource).ToANew<PublicProperty<PersonViewModel>>();
+
+                result.Value.ShouldBeOfType<MysteryCustomerViewModel>();
+                ((MysteryCustomerViewModel)result.Value).Discount.ShouldBe(0.5);
             }
         }
     }

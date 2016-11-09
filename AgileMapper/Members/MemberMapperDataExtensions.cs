@@ -146,9 +146,9 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TypesMatch(this IBasicMapperData mapperData, IList<Type> contextTypes)
             => TypesMatch(mapperData, contextTypes[0], contextTypes[1]);
 
-        public static bool TypesMatch(this IBasicMapperData mapperData, Type sourceType, Type targetType)
+        private static bool TypesMatch(IBasicMapperData mapperData, Type sourceType, Type targetType)
         {
-            return sourceType.IsAssignableFrom(mapperData.SourceType) &&
+            return (sourceType.IsAssignableFrom(mapperData.SourceType) || mapperData.SourceType.IsAssignableFrom(sourceType)) &&
                 (targetType.IsAssignableFrom(mapperData.TargetType) || mapperData.TargetType.IsAssignableFrom(targetType));
         }
 
