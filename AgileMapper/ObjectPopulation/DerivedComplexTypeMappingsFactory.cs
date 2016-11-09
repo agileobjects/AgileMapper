@@ -37,18 +37,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var derivedTypeMappings = new List<Expression>();
 
-            bool declaredTypeHasUnconditionalTypePair;
-
             AddDeclaredSourceTypeMappings(
                 derivedTypePairs,
                 declaredTypeMappingData,
-                derivedTypeMappings,
-                out declaredTypeHasUnconditionalTypePair);
-
-            if (declaredTypeHasUnconditionalTypePair)
-            {
-                return derivedTypeMappings.First();
-            }
+                derivedTypeMappings);
 
             var typedObjectVariables = new List<ParameterExpression>();
 
@@ -64,8 +56,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static void AddDeclaredSourceTypeMappings(
             IEnumerable<DerivedTypePair> derivedTypePairs,
             IObjectMappingData declaredTypeMappingData,
-            ICollection<Expression> derivedTypeMappings,
-            out bool declaredTypeHasUnconditionalTypePair)
+            ICollection<Expression> derivedTypeMappings)
         {
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 
@@ -79,20 +70,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     derivedTypePair.DerivedTargetType);
 
                 var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
-                declaredTypeHasUnconditionalTypePair = (condition == null);
-
-                if (declaredTypeHasUnconditionalTypePair)
-                {
-                    derivedTypeMappings.Add(returnMappingResult);
-                    return;
-                }
 
                 var ifConditionThenMap = Expression.IfThen(condition, returnMappingResult);
 
                 derivedTypeMappings.Add(ifConditionThenMap);
             }
-
-            declaredTypeHasUnconditionalTypePair = false;
         }
 
         private static Expression GetTypePairCondition(DerivedTypePair derivedTypePair, IMemberMapperData mapperData)
