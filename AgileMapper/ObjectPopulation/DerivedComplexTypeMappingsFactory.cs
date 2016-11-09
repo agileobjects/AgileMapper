@@ -88,12 +88,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var pairCondition = derivedTypePair.GetConditionOrNull(mapperData);
 
-            if (condition == null)
-            {
-                return pairCondition;
-            }
-
-            return Expression.AndAlso(pairCondition, condition);
+            return (condition != null) ? Expression.AndAlso(pairCondition, condition) : pairCondition;
         }
 
         private static void AddDerivedSourceTypeMappings(

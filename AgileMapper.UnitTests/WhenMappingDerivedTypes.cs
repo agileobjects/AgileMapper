@@ -95,5 +95,33 @@
             resultValues.First().ShouldBeOfType<Customer>();
             resultValues.Second().ShouldBeOfType<Person>();
         }
+
+        [Fact]
+        public void ShouldConditionallyMapDerivedTypesFromNestedMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var sourceData = new { Discount = default(string), Report = default(string) };
+
+                mapper.WhenMapping
+                    .From(sourceData)
+                    .To<PersonViewModel>()
+                    .If((d, p) => d.Report != default(string))
+                    .MapTo<MysteryCustomerViewModel>()
+                    .And
+                    .If((d, p) => d.Discount != default(string))
+                    .MapTo<CustomerViewModel>();
+
+                var customerSource = new { Value = new { Discount = "0.2", Report = default(string) } };
+                var result = mapper.Map(customerSource).ToANew<PublicSetMethod<PersonViewModel>>();
+
+                result.Value.ShouldBeOfType<CustomerViewModel>();
+
+                var mysteryCustomerSource = new { Value = new { Discount = default(string), Report = "Lovely!" } };
+                result = mapper.Map(mysteryCustomerSource).ToANew<PublicSetMethod<PersonViewModel>>();
+
+                result.Value.ShouldBeOfType<MysteryCustomerViewModel>();
+            }
+        }
     }
 }
