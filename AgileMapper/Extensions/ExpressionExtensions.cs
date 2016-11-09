@@ -30,60 +30,6 @@
             return null;
         }
 
-        public static string GetMemberName(this Expression expression)
-        {
-            switch (expression.NodeType)
-            {
-                case ExpressionType.Call:
-                    return ((MethodCallExpression)expression).Method.Name;
-
-                case ExpressionType.MemberAccess:
-                    return ((MemberExpression)expression).Member.Name;
-            }
-
-            throw new NotSupportedException("Unable to get member name of " + expression.NodeType + " Expression");
-        }
-
-        public static Expression GetMemberAccess(this Expression expression)
-        {
-            while (true)
-            {
-                switch (expression.NodeType)
-                {
-                    case ExpressionType.Convert:
-                        expression = ((UnaryExpression)expression).Operand;
-                        continue;
-
-                    case ExpressionType.Call:
-                        return GetMethodCallMemberAccess((MethodCallExpression)expression);
-
-                    case ExpressionType.Lambda:
-                        expression = ((LambdaExpression)expression).Body;
-                        continue;
-
-                    case ExpressionType.MemberAccess:
-                        return expression;
-                }
-
-                throw new NotSupportedException("Unable to get member access from " + expression.NodeType + " Expression");
-            }
-        }
-
-        private static Expression GetMethodCallMemberAccess(MethodCallExpression methodCall)
-        {
-            if ((methodCall.Type != typeof(Delegate)) || (methodCall.Method.Name != "CreateDelegate"))
-            {
-                return methodCall;
-            }
-
-            // ReSharper disable once PossibleNullReferenceException
-            var methodInfo = (MethodInfo)((ConstantExpression)methodCall.Object).Value;
-            var instance = methodCall.Arguments.Last();
-            var valueParameter = Parameters.Create(methodInfo.GetParameters().First().ParameterType, "value");
-
-            return Expression.Call(instance, methodInfo, valueParameter);
-        }
-
         public static Expression AndTogether(this ICollection<Expression> expressions)
         {
             if (expressions.Count == 0)

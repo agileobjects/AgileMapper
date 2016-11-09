@@ -168,7 +168,7 @@
 
             while (expression.NodeType != ExpressionType.Parameter)
             {
-                var memberExpression = expression.GetMemberAccess();
+                var memberExpression = GetMemberAccess(expression);
                 memberAccesses.Insert(0, memberExpression);
                 expression = memberExpression.GetParentOrNull();
             }
@@ -182,7 +182,7 @@
             for (var i = 0; i < memberAccesses.Count; i++)
             {
                 var memberAccess = memberAccesses[i];
-                var memberName = memberAccess.GetMemberName();
+                var memberName = GetMemberName(memberAccess);
                 var members = membersFactory.Invoke(parentMember.Type);
                 var member = members.FirstOrDefault(m => m.Name == memberName);
 
@@ -196,6 +196,60 @@
             }
 
             return QualifiedMember.From(memberChain, mapperContext);
+        }
+
+        private static Expression GetMemberAccess(Expression expression)
+        {
+            while (true)
+            {
+                switch (expression.NodeType)
+                {
+                    case ExpressionType.Convert:
+                        expression = ((UnaryExpression)expression).Operand;
+                        continue;
+
+                    case ExpressionType.Call:
+                        return GetMethodCallMemberAccess((MethodCallExpression)expression);
+
+                    case ExpressionType.Lambda:
+                        expression = ((LambdaExpression)expression).Body;
+                        continue;
+
+                    case ExpressionType.MemberAccess:
+                        return expression;
+                }
+
+                throw new NotSupportedException("Unable to get member access from " + expression.NodeType + " Expression");
+            }
+        }
+
+        private static Expression GetMethodCallMemberAccess(MethodCallExpression methodCall)
+        {
+            if ((methodCall.Type != typeof(Delegate)) || (methodCall.Method.Name != "CreateDelegate"))
+            {
+                return methodCall;
+            }
+
+            // ReSharper disable once PossibleNullReferenceException
+            var methodInfo = (MethodInfo)((ConstantExpression)methodCall.Object).Value;
+            var instance = methodCall.Arguments.Last();
+            var valueParameter = Parameters.Create(methodInfo.GetParameters().First().ParameterType, "value");
+
+            return Expression.Call(instance, methodInfo, valueParameter);
+        }
+
+        private static string GetMemberName(Expression expression)
+        {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Call:
+                    return ((MethodCallExpression)expression).Method.Name;
+
+                case ExpressionType.MemberAccess:
+                    return ((MemberExpression)expression).Member.Name;
+            }
+
+            throw new NotSupportedException("Unable to get member name of " + expression.NodeType + " Expression");
         }
     }
 }
