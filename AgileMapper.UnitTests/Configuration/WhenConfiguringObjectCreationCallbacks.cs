@@ -64,8 +64,10 @@
 
             exception.InnerException.ShouldNotBeNull();
             exception.InnerException.ShouldBeOfType<MappingException>();
+            // ReSharper disable once PossibleNullReferenceException
             exception.InnerException.InnerException.ShouldNotBeNull();
             exception.InnerException.InnerException.ShouldBeOfType<InvalidOperationException>();
+            // ReSharper disable once PossibleNullReferenceException
             exception.InnerException.InnerException.Message.ShouldBe("OH NO");
         }
 
@@ -419,6 +421,29 @@
 
                 postCallbackObjects.ShouldNotBeEmpty();
                 postCallbackObjects.ShouldBe(source, target.Address);
+            }
+        }
+
+        [Fact]
+        public void ShouldUseATypedParentContextAccessForACallbackArgument()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .WhenMapping
+                    .From<PublicField<object>>()
+                    .To<PublicProperty<Product>>()
+                    .After
+                    .CreatingInstancesOf<Product>()
+                    .Call(Console.WriteLine);
+
+                var source = new PublicField<object>
+                {
+                    Value = new Product { ProductId = "UBER-WIDGET" }
+                };
+                var target = new PublicProperty<Product>();
+
+                mapper.Map(source).OnTo(target);
             }
         }
     }

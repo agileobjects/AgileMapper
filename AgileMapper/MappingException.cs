@@ -16,7 +16,7 @@
         internal static readonly ConstructorInfo ConstructorInfo =
             typeof(MappingException).GetNonPublicInstanceConstructors().First();
 
-        internal const string NO_MAPPING_DATA = "An exception occurred creating a mapping data instance";
+        internal const string NoMappingData = "An exception occurred creating a mapping data instance";
 
         /// <summary>
         /// Initializes a new instance of the MappingException class.
@@ -34,7 +34,7 @@
         {
             if (mapperData == null)
             {
-                return NO_MAPPING_DATA;
+                return NoMappingData;
             }
 
             var rootData = GetRootMapperData(mapperData);

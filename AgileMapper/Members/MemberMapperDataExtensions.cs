@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Reflection;
     using Extensions;
     using ObjectPopulation;
+    using ReadableExpressions.Extensions;
 
     internal static class MemberMapperDataExtensions
     {
@@ -161,15 +162,18 @@ namespace AgileObjects.AgileMapper.Members
                 return mapperData.MappingDataObject;
             }
 
-            var contextAccessTypes = contextAccess.Type.GetGenericArguments();
-
-            if (contextTypes[0].IsAssignableFrom(contextAccessTypes[0]) &&
-                contextTypes[1].IsAssignableFrom(contextAccessTypes[1]))
+            if (contextAccess.Type.IsGenericType())
             {
-                return contextAccess;
+                var contextAccessTypes = contextAccess.Type.GetGenericArguments();
+
+                if (contextTypes[0].IsAssignableFrom(contextAccessTypes[0]) &&
+                    contextTypes[1].IsAssignableFrom(contextAccessTypes[1]))
+                {
+                    return contextAccess;
+                }
             }
 
-            return GetAsCall(contextAccess, contextTypes);
+            return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
         }
 
         public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
@@ -203,6 +207,11 @@ namespace AgileObjects.AgileMapper.Members
             if (contextAccess == mapperData.MappingDataObject)
             {
                 return directAccessExpression;
+            }
+
+            if (!contextAccess.Type.IsGenericType())
+            {
+                return accessMethodFactory.Invoke(contextAccess, type);
             }
 
             var contextTypes = contextAccess.Type.GetGenericArguments();

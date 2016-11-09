@@ -305,10 +305,12 @@
             mappingEx.Message.ShouldContain(Constants.CreateNew);
 
             mappingEx.InnerException.ShouldNotBeNull();
+            // ReSharper disable once PossibleNullReferenceException
             mappingEx.InnerException.Message.ShouldContain("PersonViewModel -> Person.Address");
             mappingEx.InnerException.Message.ShouldContain(Constants.CreateNew);
 
             mappingEx.InnerException.InnerException.ShouldNotBeNull();
+            // ReSharper disable once PossibleNullReferenceException
             mappingEx.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
         }
 
@@ -376,7 +378,7 @@
 
                 thrownException.InnerException.ShouldNotBeNull();
                 // ReSharper disable once PossibleNullReferenceException
-                thrownException.InnerException.Message.ShouldBe(MappingException.NO_MAPPING_DATA);
+                thrownException.InnerException.Message.ShouldBe(MappingException.NoMappingData);
             }
         }
 

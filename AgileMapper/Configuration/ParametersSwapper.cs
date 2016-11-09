@@ -199,6 +199,11 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public static Expression UseInstanceVariable(IMemberMapperData mapperData, Expression contextAccess, Type targetType)
         {
+            if (!contextAccess.Type.IsGenericType())
+            {
+                return UseTargetMember(mapperData, contextAccess, targetType);
+            }
+
             var instanceVariableAccess = mapperData
                 .GetAppropriateMappingContext(contextAccess.Type.GetGenericArguments())
                 .InstanceVariable;
