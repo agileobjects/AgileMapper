@@ -67,10 +67,10 @@
                    ConfigInfo.HasSameTargetTypeAs(otherConfiguredItem.ConfigInfo);
         }
 
-        public virtual Expression GetConditionOrNull(IMemberMapperData mapperData)
+        public Expression GetConditionOrNull(IMemberMapperData mapperData)
             => GetConditionOrNull(mapperData, CallbackPosition.After);
 
-        protected Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
+        protected virtual Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
             => ConfigInfo.GetConditionOrNull(mapperData, position, TargetMember);
 
         public virtual bool AppliesTo(IBasicMapperData mapperData)

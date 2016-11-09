@@ -446,5 +446,29 @@
                 mapper.Map(source).OnTo(target);
             }
         }
+
+        [Fact]
+        public void ShouldOnlyInvokeACallbackWhenAnObjectIsCreated()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var createdInstance = default(object);
+
+                mapper.After
+                    .CreatingInstances
+                    .Call(ctx => createdInstance = ctx.CreatedObject);
+
+                var source = new PublicField<Product> { Value = new Product { ProductId = "YEAH" } };
+                var target = new PublicField<Product> { Value = new Product() };
+                mapper.Map(source).OnTo(target);
+
+                createdInstance.ShouldBeNull();
+
+                target.Value = null;
+                var result = mapper.Map(source).OnTo(target);
+
+                createdInstance.ShouldBe(result.Value);
+            }
+        }
     }
 }

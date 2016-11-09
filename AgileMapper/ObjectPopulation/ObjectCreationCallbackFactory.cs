@@ -28,9 +28,9 @@
 
         protected override bool TargetMembersMatch(IBasicMapperData mapperData) => true;
 
-        public override Expression GetConditionOrNull(IMemberMapperData mapperData)
+        protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {
-            var condition = GetConditionOrNull(mapperData, CallbackPosition);
+            var condition = base.GetConditionOrNull(mapperData, position);
 
             if (CallbackPosition != CallbackPosition.After)
             {
