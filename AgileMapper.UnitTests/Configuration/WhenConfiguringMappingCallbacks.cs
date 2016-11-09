@@ -318,5 +318,25 @@
                 matchingResult.Value.ShouldBe("SetByCallback");
             }
         }
+
+        [Fact]
+        public void ShouldExecuteAPostMappingCallbackForADerivedType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var derivedSource = default(object);
+
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<Person>()
+                    .After.MappingEnds
+                    .Call(ctx => derivedSource = ctx.Source);
+
+                PersonViewModel source = new CustomerViewModel { Name = "?!?!?" };
+                mapper.Map(source).ToANew<Person>();
+
+                derivedSource.ShouldBeSameAs(source);
+            }
+        }
     }
 }

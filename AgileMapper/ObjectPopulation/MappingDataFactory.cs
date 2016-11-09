@@ -15,22 +15,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly MethodInfo ForElementMethod = typeof(MappingDataFactory)
             .GetPublicStaticMethod("ForElement");
 
-        public static ObjectMappingData<TSource, TTarget> ForRoot<TSource, TTarget>(
-            TSource source,
-            TTarget target,
-            IMappingContext mappingContext)
-        {
-            var mapperKey = new RootObjectMapperKey(MappingTypes.Fixed<TSource, TTarget>(), mappingContext);
-
-            return new ObjectMappingData<TSource, TTarget>(
-                source,
-                target,
-                null,
-                mapperKey,
-                mappingContext,
-                parent: null);
-        }
-
         public static ObjectMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
             TSource source,
             TTarget target,
