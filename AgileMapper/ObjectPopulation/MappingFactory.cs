@@ -71,7 +71,7 @@
             var mappingValues = new MappingValues(
                 sourceValue,
                 targetValue,
-                derivedTypeMapperData.Parent.EnumerableIndex);
+                derivedTypeMapperData.EnumerableIndex);
 
             return GetChildMapping(
                 derivedTypeMapperData.SourceMember,
@@ -107,7 +107,7 @@
             var mappingValues = new MappingValues(
                 sourceMemberAccess,
                 targetMemberAccess,
-                childMapperData.Parent.EnumerableIndex);
+                childMapperData.EnumerableIndex);
 
             return GetChildMapping(
                 sourceMember,
@@ -159,7 +159,7 @@
                     mappingValues.EnumerableIndex,
                     Expression.Constant(childMapperData.TargetMember.RegistrationName),
                     Expression.Constant(dataSourceIndex),
-                    childMapperData.Parent.MappingDataObject
+                    declaredTypeMapperData.GetParentMappingDataObjectAccess()
                 });
 
             return inlineMappingBlock;

@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using ObjectPopulation;
 
     internal static class MemberMapperDataExtensions
     {
@@ -78,7 +79,24 @@ namespace AgileObjects.AgileMapper.Members
             return typedAccess;
         }
 
-        public static Expression GetAppropriateMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
+        public static Expression GetParentMappingDataObjectAccess(this IMemberMapperData mapperData)
+        {
+            if (mapperData.IsRoot)
+            {
+                return mapperData.MappingDataObject;
+            }
+
+            var parentAccess = GetAppropriateMappingContextAccess(
+                mapperData,
+                mapperData.Parent.SourceType,
+                mapperData.Parent.TargetType);
+
+            return (parentAccess.NodeType == ExpressionType.MemberAccess)
+                ? Expression.Convert(parentAccess, typeof(IObjectMappingData))
+                : parentAccess;
+        }
+
+        public static Expression GetAppropriateMappingContextAccess(this IMemberMapperData mapperData, params Type[] contextTypes)
         {
             if (mapperData.TypesMatch(contextTypes))
             {

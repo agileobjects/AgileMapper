@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
+    using System.Linq;
     using System.Linq.Expressions;
     using Members;
     using ObjectPopulation;
@@ -54,8 +55,8 @@
         // ReSharper disable once UnusedParameter.Local
         private static void EnsureMapperCreation(IObjectMapper mapper)
         {
-            // Bit ugly: force the lazy-load the parent mapping data's Mapper 
-            // to populate its MapperData with required information
+            // Bit ugly: force the lazy-load of the parent mapping data's 
+            // Mapper to populate its MapperData with required information
         }
 
         public MappingPlanData GetElementMappingPlanData(MethodCallExpression mapCall)
@@ -73,24 +74,16 @@
                 return mappingData;
             }
 
-            foreach (var childMapperData in mappingData.MapperData.ChildMapperDatas)
-            {
-                var childMappingData = childMapperData.TargetMemberIsEnumerableElement()
-                    ? ObjectMappingDataFactory.ForElement(mappingData)
+            return mappingData.MapperData
+                .ChildMapperDatas
+                .Select(childMapperData => childMapperData.TargetMemberIsEnumerableElement() 
+                    ? ObjectMappingDataFactory.ForElement(mappingData) 
                     : ObjectMappingDataFactory.ForChild(
-                        childMapperData.TargetMember.RegistrationName,
-                        childMapperData.DataSourceIndex,
-                        mappingData);
-
-                var matchingMappingData = GetMappingDataFor(mapCallSubject, childMappingData);
-
-                if (matchingMappingData != null)
-                {
-                    return matchingMappingData;
-                }
-            }
-
-            return null;
+                        childMapperData.TargetMember.RegistrationName, 
+                        childMapperData.DataSourceIndex, 
+                        mappingData))
+                .Select(childMappingData => GetMappingDataFor(mapCallSubject, childMappingData))
+                .First(matchingMappingData => matchingMappingData != null);
         }
 
         private static bool MappingDataObjectMatches(ParameterExpression mapCallSubject, IObjectMappingData mappingData)

@@ -8,7 +8,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenConfiguringDerivedTypePairs
+    public class WhenConfiguringDerivedTypes
     {
         [Fact]
         public void ShouldCreateARootDerivedTargetFromADerivedSource()
@@ -225,6 +225,18 @@
                 personResult.ShouldBeOfType<PersonViewModel>();
                 personResult.Name.ShouldBe("Datey");
             }
+        }
+
+        [Fact]
+        public void ShouldAccessAParentContextInAStandaloneMapper()
+        {
+            var source = new PublicProperty<object>
+            {
+                Value = new PersonViewModel { Name = "Fred" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<Person>>();
+
+            result.Value.Name.ShouldBe("Fred");
         }
     }
 }

@@ -70,7 +70,7 @@
         public bool HasCompatibleTypes(IBasicMapperData mapperData)
             => HasCompatibleTypes(mapperData.SourceType, mapperData.TargetType);
 
-        private bool HasCompatibleTypes(Type sourceType, Type targetType)
+        public bool HasCompatibleTypes(Type sourceType, Type targetType)
         {
             return IsForSourceType(sourceType) &&
                 (_targetType.IsAssignableFrom(targetType) || targetType.IsAssignableFrom(_targetType));

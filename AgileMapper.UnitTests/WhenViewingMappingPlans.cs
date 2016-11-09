@@ -199,5 +199,17 @@
             plan.ShouldContain("// Map object -> Product");
             plan.ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
         }
+
+        [Fact]
+        public void ShouldNotDuplicateChildMappingPlans()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicTwoFields<object, object>>()
+                .ToANew<PublicTwoParamCtor<Product, Product>>();
+
+            var numberOfObjectToProductPlans = Regex.Matches(plan, "// Map object -> Product").Count;
+
+            numberOfObjectToProductPlans.ShouldBe(1);
+        }
     }
 }

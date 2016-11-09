@@ -78,7 +78,7 @@
     </Compile>
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSourcesIncorrectly.cs" />
-    <Compile Include="Configuration\WhenConfiguringDerivedTypePairs.cs" />
+    <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
     <Compile Include="Configuration\WhenConfiguringExceptionHandling.cs" />
     <Compile Include="Configuration\WhenConfiguringMappingCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringNameMatching.cs" />
@@ -102,6 +102,7 @@
     <Compile Include="TestClasses\Order.cs" />
     <Compile Include="TestClasses\OrderItem.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
+    <Compile Include="TestClasses\PublicTwoFields.cs" />
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
