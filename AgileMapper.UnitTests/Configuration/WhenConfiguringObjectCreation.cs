@@ -32,6 +32,25 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredFactoryWithAComplexTypeMemberBinding()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .InstancesOf<PublicCtor<Address>>()
+                    .CreateUsing(ctx => new PublicCtor<Address>(new Address()) { Value = { Line2 = "Some Street" } });
+
+                var source = new PublicField<PersonViewModel> { Value = new PersonViewModel() };
+                var target = new PublicSetMethod<PublicCtor<Address>>();
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldNotBeNull();
+                result.Value.Value.Line2.ShouldBe("Some Street");
+            }
+        }
+
+        [Fact]
         public void ShouldUseAConfiguredFactoryForASpecifiedSourceAndTargetType()
         {
             using (var mapper = Mapper.CreateNew())
