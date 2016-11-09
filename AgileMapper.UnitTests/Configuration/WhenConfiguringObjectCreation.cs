@@ -363,6 +363,25 @@
             });
         }
 
+        [Fact]
+        public void ShouldHandleAnObjectMappingDataCreationException()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.After.MappingEnds.Call(Console.WriteLine);
+
+                var source = new PublicField<Product> { Value = new Product() };
+
+                var thrownException = Should.Throw<MappingException>(() => mapper.Map(source).ToANew<ExceptionThrower<Product>>());
+
+                thrownException.InnerException.ShouldNotBeNull();
+                // ReSharper disable once PossibleNullReferenceException
+                thrownException.InnerException.Message.ShouldBe(MappingException.NO_MAPPING_DATA);
+            }
+        }
+
+        #region Helper Classes
+
         private class CustomerCtor : Person
         {
             // ReSharper disable once UnusedMember.Local
@@ -379,5 +398,21 @@
 
             public int? Number { get; set; }
         }
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class ExceptionThrower<T>
+        {
+            // ReSharper disable once NotAccessedField.Local
+            private T _value;
+
+            // ReSharper disable once UnusedMember.Local
+            public T Value
+            {
+                get { throw new NotSupportedException("NO, JUST NO"); }
+                set { _value = value; }
+            }
+        }
+
+        #endregion
     }
 }
