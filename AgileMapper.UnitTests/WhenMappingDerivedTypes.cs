@@ -132,14 +132,22 @@
                     .If((s, t) => s.Name == "Customer Mystery!")
                     .MapTo<MysteryCustomerViewModel>();
 
-                var personSource = new PublicField<PersonViewModel>
+                var mysteryCustomerSource = new PublicField<PersonViewModel>
                 {
                     Value = new CustomerViewModel { Name = "Mystery Customer", Discount = 0.5 }
                 };
-                var result = mapper.Map(personSource).ToANew<PublicProperty<PersonViewModel>>();
+                var result = mapper.Map(mysteryCustomerSource).ToANew<PublicProperty<PersonViewModel>>();
 
                 result.Value.ShouldBeOfType<MysteryCustomerViewModel>();
                 ((MysteryCustomerViewModel)result.Value).Discount.ShouldBe(0.5);
+
+                var customerSource = new PublicField<PersonViewModel>
+                {
+                    Value = new CustomerViewModel { Name = "Banksy" }
+                };
+                result = mapper.Map(customerSource).ToANew<PublicProperty<PersonViewModel>>();
+
+                result.Value.ShouldBeOfType<CustomerViewModel>();
             }
         }
     }

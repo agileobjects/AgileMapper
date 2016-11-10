@@ -65,10 +65,10 @@
             return allNotNullCheck;
         }
 
-        public static BinaryExpression GetIsDefaultComparison(this Expression expression)
+        public static Expression GetIsDefaultComparison(this Expression expression)
             => Expression.Equal(expression, Expression.Default(expression.Type));
 
-        public static BinaryExpression GetIsNotDefaultComparison(this Expression expression)
+        public static Expression GetIsNotDefaultComparison(this Expression expression)
             => Expression.NotEqual(expression, Expression.Default(expression.Type));
 
         public static Expression GetToValueOrDefaultCall(this Expression nullableExpression)
