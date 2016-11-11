@@ -59,7 +59,6 @@
 
             _sourceElementParameter = _sourceElementType.GetOrCreateParameter();
             var sourceElementId = GetIdentifierOrNull(_sourceElementType, _sourceElementParameter, omd, typeIdsCache);
-            string targetVariableName;
 
             if (ElementTypesAreTheSame)
             {
@@ -68,7 +67,6 @@
                         GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
 
                 _sourceVariableName = "source" + omd.SourceType.GetVariableNameInPascalCase();
-                targetVariableName = "target" + omd.TargetType.GetVariableNameInPascalCase();
             }
             else
             {
@@ -78,11 +76,10 @@
                 _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
 
                 _sourceVariableName = omd.SourceType.GetVariableNameInCamelCase();
-                targetVariableName = omd.TargetType.GetVariableNameInCamelCase();
             }
 
             _discardExistingValues = omd.RuleSet.EnumerablePopulationStrategy.DiscardExistingValues;
-            TargetVariable = GetTargetVariable(targetVariableName);
+            TargetVariable = GetTargetVariable();
 
             _populationExpressions = new List<Expression>();
         }
@@ -145,7 +142,7 @@
                 targetElement);
         }
 
-        private ParameterExpression GetTargetVariable(string name)
+        private ParameterExpression GetTargetVariable()
         {
             Type targetVariableType;
 
@@ -163,6 +160,10 @@
             {
                 targetVariableType = _omd.TargetType;
             }
+
+            var name = ElementTypesAreTheSame
+                ? "target" + targetVariableType.GetVariableNameInPascalCase()
+                : targetVariableType.GetVariableNameInCamelCase();
 
             return Expression.Variable(targetVariableType, name);
         }
@@ -358,8 +359,8 @@
             {
                 loopExitCheck = Expression.Equal(Counter, GetCountPropertyAccess());
 
-                if (ElementTypesAreSimple || 
-                    _sourceTypeHelper.ElementType.RuntimeTypeNeeded() || 
+                if (ElementTypesAreSimple ||
+                    _sourceTypeHelper.ElementType.RuntimeTypeNeeded() ||
                     _targetElementType.RuntimeTypeNeeded())
                 {
                     populationLoopAdapter = exp => exp;
