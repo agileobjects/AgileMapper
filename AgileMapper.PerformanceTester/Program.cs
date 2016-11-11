@@ -1,4 +1,8 @@
-﻿namespace AgileObjects.AgileMapper.PerformanceTester
+﻿// Largely based on the AutoMapper benchmark project:
+// Project: https://github.com/AutoMapper/AutoMapper/tree/master/src/Benchmark
+// Licence: https://github.com/AutoMapper/AutoMapper/blob/master/LICENSE.txt
+
+namespace AgileObjects.AgileMapper.PerformanceTester
 {
     using System;
     using AbstractMappers;
