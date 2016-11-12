@@ -2,6 +2,7 @@
 {
     using System;
     using System.Reflection;
+    using NetStandardPolyfills;
 
     internal static class ObjectExtensions
     {

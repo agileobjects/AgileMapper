@@ -6,6 +6,7 @@
     using System.Reflection;
     using Caching;
     using Extensions;
+    using NetStandardPolyfills;
 
     internal class MemberFinder
     {

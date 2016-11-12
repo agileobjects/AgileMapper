@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using NetStandardPolyfills;
 
     internal abstract class TryParseConverterBase : IValueConverter
     {

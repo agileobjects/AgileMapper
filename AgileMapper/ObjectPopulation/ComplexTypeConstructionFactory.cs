@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using DataSources;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal class ComplexTypeConstructionFactory
     {

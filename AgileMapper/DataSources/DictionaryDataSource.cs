@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Reflection;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
 
     internal class DictionaryDataSource : DataSourceBase

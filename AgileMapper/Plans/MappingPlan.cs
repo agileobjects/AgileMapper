@@ -8,6 +8,7 @@
 #if NET_STANDARD
     using System.Reflection;
 #endif
+    using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 

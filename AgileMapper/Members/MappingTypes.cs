@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using Extensions;
+    using NetStandardPolyfills;
 
     internal class MappingTypes
     {

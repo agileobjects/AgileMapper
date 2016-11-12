@@ -8,7 +8,7 @@
 #endif
     using Extensions;
     using Members;
-    using ReadableExpressions.Extensions;
+    using NetStandardPolyfills;
 
     internal class DerivedTypePairSet
     {

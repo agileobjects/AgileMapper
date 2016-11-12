@@ -7,8 +7,8 @@
     using System.Reflection;
 #endif
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 
     internal class ConfiguredLambdaInfo
     {
@@ -113,7 +113,7 @@
             => _lambda.ToString() == otherLambdaInfo._lambda.ToString();
 
         public Expression GetBody(
-            IMemberMapperData mapperData, 
+            IMemberMapperData mapperData,
             CallbackPosition? position = null,
             QualifiedMember targetMember = null)
         {

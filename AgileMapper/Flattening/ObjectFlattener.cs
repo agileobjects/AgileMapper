@@ -8,6 +8,7 @@
     using System.Reflection;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal class ObjectFlattener
     {

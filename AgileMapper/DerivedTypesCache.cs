@@ -6,7 +6,7 @@
     using System.Reflection;
     using Caching;
     using Extensions;
-    using ReadableExpressions.Extensions;
+    using NetStandardPolyfills;
 
     internal class DerivedTypesCache
     {

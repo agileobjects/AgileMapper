@@ -4,7 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
-    using ReadableExpressions.Extensions;
+    using NetStandardPolyfills;
 
     internal class ToEnumConverter : IValueConverter
     {
@@ -15,10 +15,7 @@
             _toStringConverter = toStringConverter;
         }
 
-        public bool IsFor(Type nonNullableTargetType)
-        {
-            return nonNullableTargetType.IsEnum();
-        }
+        public bool IsFor(Type nonNullableTargetType) => nonNullableTargetType.IsEnum();
 
         public bool CanConvert(Type nonNullableSourceType)
         {

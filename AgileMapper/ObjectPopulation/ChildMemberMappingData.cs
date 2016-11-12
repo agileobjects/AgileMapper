@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Caching;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal class ChildMemberMappingData<TSource, TTarget> : IMemberMappingData
     {

@@ -5,8 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
+    using NetStandardPolyfills;
 
     internal static class TypeExtensions
     {
@@ -216,5 +215,9 @@
 
         private static IEnumerable<long> GetEnumValues(Type enumType)
             => Enum.GetValues(enumType).Cast<object>().Select(Convert.ToInt64);
+
+        public static bool StartsWith(this string value, char character) => value[0] == character;
+
+        public static bool EndsWith(this string value, char character) => value[value.Length - 1] == character;
     }
 }

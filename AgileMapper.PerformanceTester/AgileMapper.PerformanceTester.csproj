@@ -33,8 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=1.7.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.7.2\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+    <Reference Include="AgileObjects.NetStandardPolyfills, Version=0.1.2.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.NetStandardPolyfills.0.1.2\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.8.0.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.8.0\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="AutoMapper, Version=5.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">

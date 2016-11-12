@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
     using Members.Sources;
+    using NetStandardPolyfills;
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {

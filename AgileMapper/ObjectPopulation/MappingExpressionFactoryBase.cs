@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using Configuration;
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 

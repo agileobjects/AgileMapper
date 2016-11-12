@@ -6,8 +6,8 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using NetStandardPolyfills;
     using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 
     internal static class MemberMapperDataExtensions
     {

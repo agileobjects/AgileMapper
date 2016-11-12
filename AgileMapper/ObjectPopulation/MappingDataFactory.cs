@@ -1,8 +1,8 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Reflection;
-    using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal static class MappingDataFactory
     {

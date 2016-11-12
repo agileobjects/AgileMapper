@@ -10,6 +10,7 @@
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
+    using NetStandardPolyfills;
 
     internal class MappingConfigInfo
     {

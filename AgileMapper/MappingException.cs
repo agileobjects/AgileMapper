@@ -3,8 +3,8 @@
     using System;
     using System.Linq;
     using System.Reflection;
-    using Extensions;
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
 

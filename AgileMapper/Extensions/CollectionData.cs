@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Extensions
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using NetStandardPolyfills;
 
     internal static class CollectionData
     {
