@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Members;
 
@@ -12,7 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {
         private readonly IObjectMappingData _parent;
-        private readonly Dictionary<int, Dictionary<object, object>> _mappedObjectsByTypes;
+        private readonly Dictionary<object, List<object>> _mappedObjectsBySource;
         private IObjectMapper _mapper;
         private ObjectMapperData _mapperData;
 
@@ -54,7 +55,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            _mappedObjectsByTypes = new Dictionary<int, Dictionary<object, object>>();
+            _mappedObjectsBySource = new Dictionary<object, List<object>>();
             IsRoot = true;
 
             if (IsPartOfDerivedTypeMapping)
@@ -172,24 +173,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #endregion
 
         public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
+            where TComplex : class
         {
             if (!IsRoot)
             {
                 return _parent.TryGet(key, out complexType);
             }
 
-            var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance.GetHashCode();
-            Dictionary<object, object> mappedTargetsBySource;
+            List<object> mappedTargets;
 
-            if (_mappedObjectsByTypes.TryGetValue(typesKey, out mappedTargetsBySource))
+            if (_mappedObjectsBySource.TryGetValue(key, out mappedTargets))
             {
-                object mappedObject;
-
-                if (mappedTargetsBySource.TryGetValue(key, out mappedObject))
-                {
-                    complexType = (TComplex)mappedObject;
-                    return true;
-                }
+                complexType = (TComplex)mappedTargets.FirstOrDefault(t => t is TComplex);
+                return complexType != null;
             }
 
             complexType = default(TComplex);
@@ -204,21 +200,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            var typesKey = SourceAndTargetTypeKey<TKey, TComplex>.Instance.GetHashCode();
-            Dictionary<object, object> mappedTargetsBySource;
+            List<object> mappedTargets;
 
-            if (_mappedObjectsByTypes.TryGetValue(typesKey, out mappedTargetsBySource))
+            if (_mappedObjectsBySource.TryGetValue(key, out mappedTargets))
             {
-                mappedTargetsBySource[key] = complexType;
+                mappedTargets.Add(complexType);
                 return;
             }
 
-            _mappedObjectsByTypes[typesKey] = new Dictionary<object, object> { [key] = complexType };
-        }
-
-        private class SourceAndTargetTypeKey<TKey, TComplex>
-        {
-            public static readonly object Instance = new SourceAndTargetTypeKey<TKey, TComplex>();
+            _mappedObjectsBySource[key] = new List<object> { complexType };
         }
 
         public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType)

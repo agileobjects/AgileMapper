@@ -27,7 +27,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// to a target object of the given <typeparamref name="TComplex">target type</typeparamref>,
         /// otherwise false.
         /// </returns>
-        bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType);
+        bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
+            where TComplex : class;
 
         /// <summary>
         /// Registers the given <paramref name="complexType">target object</paramref> as the result of
