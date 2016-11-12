@@ -118,7 +118,7 @@
                 return (methodCall.Method.Name == "Map") &&
                        (methodCall.Object != null) &&
                         methodCall.Object.Type.IsGenericType() &&
-                       (methodCall.Object.Type.GetGenericTypeDefinition() == typeof(ObjectMappingData<,>));
+                       (methodCall.Object.Type.GetGenericTypeDefinition() == typeof(IObjectMappingData<,>));
             }
         }
     }

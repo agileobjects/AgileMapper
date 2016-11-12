@@ -20,6 +20,7 @@
   },
 
   "buildOptions": {
+    "keyFile": "..\\AgileMapper.snk",
     "warningsAsErrors": true,
     "xmlDoc": true,
     "outputName": "AgileObjects.AgileMapper"

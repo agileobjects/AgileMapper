@@ -141,6 +141,15 @@
                    (sourceType == typeof(ICollection));
         }
 
+        public static bool IsPublic(this Type type)
+        {
+#if NET_STANDARD
+            return type.GetTypeInfo().IsPublic;
+#else
+            return type.IsPublic;
+#endif
+        }
+
         public static bool IsFromBcl(this Type type) => type.GetAssembly() == _msCorLib;
 
         public static bool IsEnumerable(this Type type)

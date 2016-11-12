@@ -14,10 +14,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
+        private static readonly MethodInfo _mapRecursionMethod =
+            typeof(IObjectMappingDataUntyped).GetMethod("MapRecursion");
+
         private readonly List<ObjectMapperData> _childMapperDatas;
         private readonly MethodInfo _mapChildMethod;
         private readonly MethodInfo _mapElementMethod;
-        private readonly MethodInfo _mapRecursionMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private ObjectMapperData _entryPointMapperData;
 
@@ -43,7 +45,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             MappingDataObject = GetMappingDataObject(parent);
             SourceMember = sourceMember;
-            SourceObject = Expression.Property(MappingDataObject, "Source");
+
+            var mappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
+            SourceObject = GetMappingDataProperty(mappingDataType, "Source");
             TargetObject = Expression.Property(MappingDataObject, "Target");
             CreatedObject = Expression.Property(MappingDataObject, "CreatedObject");
 
@@ -56,7 +60,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                EnumerableIndex = Expression.Property(MappingDataObject, "EnumerableIndex");
+                EnumerableIndex = GetMappingDataProperty(mappingDataType, "EnumerableIndex");
                 ParentObject = Expression.Property(MappingDataObject, "Parent");
             }
 
@@ -64,7 +68,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             _mapChildMethod = GetMapMethod(MappingDataObject.Type, 4);
             _mapElementMethod = GetMapMethod(MappingDataObject.Type, 3);
-            _mapRecursionMethod = MappingDataObject.Type.GetMethod("MapRecursion");
 
             _dataSourcesByTargetMemberName = new Dictionary<string, DataSourceSet>();
 
@@ -108,7 +111,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ParameterExpression GetMappingDataObject(ObjectMapperData parent)
         {
-            var mdType = typeof(ObjectMappingData<,>).MakeGenericType(SourceType, TargetType);
+            var mdType = typeof(IObjectMappingData<,>).MakeGenericType(SourceType, TargetType);
 
             var variableNameIndex = default(int?);
 
@@ -132,6 +135,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var parameter = Parameters.Create(mdType, mappingDataVariableName);
 
             return parameter;
+        }
+
+        private Expression GetMappingDataProperty(Type mappingDataType, string propertyName)
+        {
+            var property = mappingDataType.GetProperty(propertyName);
+            var propertyAccess = Expression.Property(MappingDataObject, property);
+
+            return propertyAccess;
         }
 
         private bool IsTargetTypeFirstMapping(ObjectMapperData parent)
@@ -430,7 +441,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return GetMapChildCall(
                 EntryPointMapperData.MappingDataObject,
-                EntryPointMapperData._mapRecursionMethod,
+                _mapRecursionMethod,
                 sourceObject,
                 targetMember,
                 dataSourceIndex);

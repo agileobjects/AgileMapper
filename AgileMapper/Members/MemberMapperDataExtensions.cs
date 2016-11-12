@@ -180,12 +180,13 @@ namespace AgileObjects.AgileMapper.Members
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 
         private static readonly MethodInfo _mappingDataAsMethod = typeof(IMappingData).GetMethod("As");
+        private static readonly MethodInfo _objectMappingDataAsMethod = typeof(IObjectMappingDataUntyped).GetMethod("As");
 
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
         {
             var method = (subject.Type == typeof(IMappingData))
                 ? _mappingDataAsMethod
-                : subject.Type.GetMethod("As");
+                : _objectMappingDataAsMethod;
 
             return Expression.Call(subject, method.MakeGenericMethod(contextTypes));
         }
@@ -216,12 +217,19 @@ namespace AgileObjects.AgileMapper.Members
 
             var contextTypes = contextAccess.Type.GetGenericArguments();
 
-            if (type.IsAssignableFrom(contextTypes[contextTypesIndex]))
+            if (!type.IsAssignableFrom(contextTypes[contextTypesIndex]))
             {
-                return Expression.Property(contextAccess, new[] { "Source", "Target" }[contextTypesIndex]);
+                return accessMethodFactory.Invoke(contextAccess, type);
             }
 
-            return accessMethodFactory.Invoke(contextAccess, type);
+            var propertyName = new[] { "Source", "Target" }[contextTypesIndex];
+
+            var property = contextAccess.Type.GetProperty(propertyName)
+                ?? typeof(IMappingData<,>)
+                    .MakeGenericType(contextTypes[0], contextTypes[1])
+                    .GetProperty(propertyName);
+
+            return Expression.Property(contextAccess, property);
         }
 
         private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");

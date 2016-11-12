@@ -6,9 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class MappingDataFactory
     {
-        public static readonly MethodInfo ForRootMethod = typeof(MappingDataFactory)
-            .GetPublicStaticMethod("ForRoot");
-
         public static readonly MethodInfo ForChildMethod = typeof(MappingDataFactory)
             .GetPublicStaticMethod("ForChild");
 
@@ -21,37 +18,41 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int? enumerableIndex,
             string targetMemberRegistrationName,
             int dataSourceIndex,
-            IObjectMappingData parent)
+            IObjectMappingDataUntyped parent)
         {
             var mapperKey = new ChildObjectMapperKey(
                 targetMemberRegistrationName,
                 dataSourceIndex,
                 MappingTypes.Fixed<TSource, TTarget>());
 
+            var mappingDataParent = (IObjectMappingData)parent;
+
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
                 enumerableIndex,
                 mapperKey,
-                parent.MappingContext,
-                parent);
+                mappingDataParent.MappingContext,
+                mappingDataParent);
         }
 
         public static ObjectMappingData<TSourceElement, TTargetElement> ForElement<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
             int enumerableIndex,
-            IObjectMappingData parent)
+            IObjectMappingDataUntyped parent)
         {
             var mapperKey = new ElementObjectMapperKey(MappingTypes.Fixed<TSourceElement, TTargetElement>());
+
+            var mappingDataParent = (IObjectMappingData)parent;
 
             return new ObjectMappingData<TSourceElement, TTargetElement>(
                 sourceElement,
                 targetElement,
                 enumerableIndex,
                 mapperKey,
-                parent.MappingContext,
-                parent);
+                mappingDataParent.MappingContext,
+                mappingDataParent);
         }
     }
 }

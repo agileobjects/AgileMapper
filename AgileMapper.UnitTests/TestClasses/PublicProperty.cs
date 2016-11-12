@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
 {
-    internal class PublicProperty<T>
+    public class PublicProperty<T>
     {
         public T Value
         {

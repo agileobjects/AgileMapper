@@ -115,8 +115,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                var mappingExceptionCreation = Expression.New(
-                    MappingException.ConstructorInfo,
+                var exceptionFactoryMethod = MappingException.FactoryMethod
+                    .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
+
+                var mappingExceptionCreation = Expression.Call(
+                    exceptionFactoryMethod,
                     mapperData.MappingDataObject,
                     exceptionVariable);
 

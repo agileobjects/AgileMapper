@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
         IObjectMappingData,
+        IObjectMappingData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {
         private readonly IObjectMappingData _parent;
@@ -87,6 +88,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool IsRoot { get; }
 
         IObjectMappingData IObjectMappingData.Parent => _parent;
+
+        IObjectMappingDataUntyped IObjectMappingData<TSource, TTarget>.Parent => _parent;
 
         public bool IsPartOfDerivedTypeMapping => DeclaredTypeMappingData != null;
 
@@ -224,22 +227,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var typedWithTypesCaller = GlobalContext.Instance.Cache.GetOrAdd(typesKey, k =>
             {
-                var mappingDataParameter = Parameters.Create<ObjectMappingData<TSource, TTarget>>("mappingData");
+                var mappingDataParameter = Parameters.Create<IObjectMappingData<TSource, TTarget>>("mappingData");
                 var withTypesCall = mappingDataParameter.GetAsCall(k.SourceType, k.TargetType);
 
                 var withTypesLambda = Expression
-                    .Lambda<Func<ObjectMappingData<TSource, TTarget>, IObjectMappingData>>(
+                    .Lambda<Func<IObjectMappingData<TSource, TTarget>, IObjectMappingDataUntyped>>(
                         withTypesCall,
                         mappingDataParameter);
 
                 return withTypesLambda.Compile();
             });
 
-            return typedWithTypesCaller.Invoke(this);
+            return (IObjectMappingData)typedWithTypesCaller.Invoke(this);
         }
 
-        // ReSharper disable once UnusedMember.Local
-        public ObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>()
+        public IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>()
             where TNewSource : class
             where TNewTarget : class
         {

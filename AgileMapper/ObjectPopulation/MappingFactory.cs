@@ -39,23 +39,18 @@
             Expression sourceValue,
             Expression targetValue)
         {
-            var declaredTypeMapperData = derivedTypeMappingData.DeclaredTypeMappingData.MapperData;
-
             var mappingValues = new MappingValues(
                 sourceValue,
                 targetValue,
                 Expression.Default(typeof(int?)));
 
+            // Derived type conversions are performed with ObjectMappingData.As<TDerivedSource, TDerivedTarget>()
+            // so no need for createMethod or createMethodCallArguments arguments:
             var inlineMappingBlock = GetInlineMappingBlock(
                 derivedTypeMappingData,
-                MappingDataFactory.ForRootMethod,
+                null,
                 mappingValues,
-                new[]
-                {
-                    mappingValues.SourceValue,
-                    mappingValues.TargetValue,
-                    Expression.Property(declaredTypeMapperData.MappingDataObject, "MappingContext")
-                });
+                null);
 
             return inlineMappingBlock;
         }

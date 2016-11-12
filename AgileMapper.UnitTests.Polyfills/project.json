@@ -1,10 +1,13 @@
 {
   "version": "0.5.0-*",
+
   "buildOptions": {
     "warningsAsErrors": true,
     "outputName": "AgileObjects.AgileMapper.UnitTests.Polyfills"
   },
+
   "testRunner": "xunit",
+
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {
