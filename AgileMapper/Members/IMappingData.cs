@@ -49,8 +49,8 @@
     /// <summary>
     /// Provides the data being used at a particular point during a mapping.
     /// </summary>
-    /// <typeparam name="TSource">The type of source object being mapped to in the current context.</typeparam>
-    /// <typeparam name="TTarget">The type of target object being mapped from in the current context.</typeparam>
+    /// <typeparam name="TSource">The type of source object being mapped from in the current context.</typeparam>
+    /// <typeparam name="TTarget">The type of target object being mapped to in the current context.</typeparam>
     public interface IMappingData<out TSource, out TTarget>
     {
         /// <summary>

@@ -40,7 +40,7 @@
                 return builder;
             }
 
-            builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType());
+            builder.AssignSourceVariableFromSourceObject();
             builder.AssignTargetVariable();
             builder.RemoveAllTargetItems();
             builder.AddNewItemsToTargetVariable(mappingData);

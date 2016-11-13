@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper
     using System.Linq.Expressions;
     using Extensions;
     using Members;
-    using Members.Sources;
     using ObjectPopulation;
 
     internal static class Parameters
@@ -12,14 +11,6 @@ namespace AgileObjects.AgileMapper
         public static readonly ParameterExpression MappingContext = Create<IMappingContext>();
         public static readonly ParameterExpression MappingData = Create<IMappingData>();
         public static readonly ParameterExpression ObjectMappingData = Create<IObjectMappingData>();
-        public static readonly ParameterExpression MapperKey = Create<ObjectMapperKeyBase>("mapperKey");
-
-        public static readonly ParameterExpression EnumerableIndex = Create<int>("i");
-        public static readonly ParameterExpression EnumerableIndexNullable = Create<int?>("i");
-        public static readonly ParameterExpression TargetMemberRegistrationName = Create<string>("targetMemberRegistrationName");
-        public static readonly ParameterExpression DataSourceIndex = Create<int>("dataSourceIndex");
-        public static readonly ParameterExpression MembersSource = Create<IMembersSource>("membersSource");
-        public static readonly ParameterExpression ChildMembersSource = Create<IChildMembersSource>("childMembersSource");
 
         public static ParameterExpression Create<T>(string name = null) => Create(typeof(T), name);
 

@@ -31,8 +31,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     /// <summary>
     /// Provides the data being used and services available at a particular point during a mapping.
     /// </summary>
-    /// <typeparam name="TSource">The type of source object being mapped to in the current context.</typeparam>
-    /// <typeparam name="TTarget">The type of target object being mapped from in the current context.</typeparam>
+    /// <typeparam name="TSource">The type of source object being mapped from in the current context.</typeparam>
+    /// <typeparam name="TTarget">The type of target object being mapped to in the current context.</typeparam>
     public interface IObjectMappingData<out TSource, TTarget> : IObjectMappingDataUntyped, IMappingData<TSource, TTarget>
     {
         /// <summary>

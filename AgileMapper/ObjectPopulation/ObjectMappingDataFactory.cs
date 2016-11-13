@@ -3,13 +3,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
     using Extensions;
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
 
-    internal static class ObjectMappingDataFactory
+    internal class ObjectMappingDataFactory : IObjectMappingDataFactoryBridge
     {
+        private static readonly IObjectMappingDataFactoryBridge _bridge = new ObjectMappingDataFactory();
+
         public static IObjectMappingData ForRoot<TSource, TTarget>(
             TSource source,
             TTarget target,
@@ -44,29 +49,42 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var typedForChildCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
-                var typedForChildMethod = typeof(ObjectMappingDataFactory)
-                    .GetNonPublicStaticMethod("ForChild")
+                var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
+                var childMembersSourceParameter = Expression.Parameter(typeof(object), "childMembersSource");
+                var parentParameter = Expression.Parameter(typeof(object), "parent");
+
+                var typedForChildMethod = bridgeParameter.Type
+                    .GetMethod("ForChild")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
                 var typedForChildCall = Expression.Call(
+                    bridgeParameter,
                     typedForChildMethod,
-                    Expression.Default(k.SourceType),
-                    Expression.Default(k.TargetType),
-                    Expression.Default(typeof(int?)),
-                    Parameters.ChildMembersSource,
-                    Parameters.ObjectMappingData);
+                    childMembersSourceParameter,
+                    parentParameter);
 
-                var typedForChildLambda = Expression.Lambda<Func<IChildMembersSource, IObjectMappingData, IObjectMappingData>>(
+                var typedForChildLambda = Expression.Lambda<Func<IObjectMappingDataFactoryBridge, object, object, object>>(
                     typedForChildCall,
-                    Parameters.ChildMembersSource,
-                    Parameters.ObjectMappingData);
+                    bridgeParameter,
+                    childMembersSourceParameter,
+                    parentParameter);
 
                 return typedForChildLambda.Compile();
             });
 
             var membersSource = new FixedMembersMembersSource(sourceMember, targetMember, dataSourceIndex);
 
-            return typedForChildCaller.Invoke(membersSource, parent);
+            return (IObjectMappingData)typedForChildCaller.Invoke(_bridge, membersSource, parent);
+        }
+
+        object IObjectMappingDataFactoryBridge.ForChild<TSource, TTarget>(object childMembersSource, object parent)
+        {
+            return ForChild(
+                default(TSource),
+                default(TTarget),
+                default(int?),
+                (IChildMembersSource)childMembersSource,
+                (IObjectMappingData)parent);
         }
 
         public static IObjectMappingData ForChild<TSource, TTarget>(
@@ -122,29 +140,42 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
-                var typedForElementMethod = typeof(ObjectMappingDataFactory)
-                    .GetNonPublicStaticMethod("ForElement")
+                var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
+                var membersSourceParameter = Expression.Parameter(typeof(object), "membersSource");
+                var parentParameter = Expression.Parameter(typeof(object), "parent");
+
+                var typedForElementMethod = bridgeParameter.Type
+                    .GetMethod("ForElement")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
                 var typedForElementCall = Expression.Call(
+                    bridgeParameter,
                     typedForElementMethod,
-                    Expression.Default(k.SourceType),
-                    Expression.Default(k.TargetType),
-                    Expression.Constant(0, typeof(int?)),
-                    Parameters.MembersSource,
-                    Parameters.ObjectMappingData);
+                    membersSourceParameter,
+                    parentParameter);
 
-                var typedForElementLambda = Expression.Lambda<Func<IMembersSource, IObjectMappingData, IObjectMappingData>>(
+                var typedForElementLambda = Expression.Lambda<Func<IObjectMappingDataFactoryBridge, object, object, object>>(
                     typedForElementCall,
-                    Parameters.MembersSource,
-                    Parameters.ObjectMappingData);
+                    bridgeParameter,
+                    membersSourceParameter,
+                    parentParameter);
 
                 return typedForElementLambda.Compile();
             });
 
             var membersSource = new FixedMembersMembersSource(sourceElementMember, targetElementMember);
 
-            return typedForElementCaller.Invoke(membersSource, parent);
+            return (IObjectMappingData)typedForElementCaller.Invoke(_bridge, membersSource, parent);
+        }
+
+        object IObjectMappingDataFactoryBridge.ForElement<TSource, TTarget>(object membersSource, object parent)
+        {
+            return ForElement(
+                default(TSource),
+                default(TTarget),
+                0,
+                (IMembersSource)membersSource,
+                (IObjectMappingData)parent);
         }
 
         public static IObjectMappingData ForElement<TSource, TTarget>(
@@ -228,6 +259,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             // TODO: Local cache
             var constructionFunc = GlobalContext.Instance.Cache.GetOrAdd(constructorKey, k =>
             {
+                var mapperKeyParameter = Expression.Parameter(typeof(ObjectMapperKeyBase), "mapperKey");
+                var enumerableIndexParameter = Expression.Parameter(typeof(int?), "i");
+
                 var dataType = typeof(ObjectMappingData<,>)
                     .MakeGenericType(k.RuntimeSourceType, k.RuntimeTargetType);
 
@@ -238,8 +272,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     dataType.GetPublicInstanceConstructors().First(),
                     sourceParameter.GetConversionTo(k.RuntimeSourceType),
                     targetParameter.GetConversionTo(k.RuntimeTargetType),
-                    Parameters.EnumerableIndexNullable,
-                    Parameters.MapperKey,
+                    enumerableIndexParameter,
+                    mapperKeyParameter,
                     Parameters.MappingContext,
                     Parameters.ObjectMappingData);
 
@@ -247,8 +281,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     constructorCall,
                     sourceParameter,
                     targetParameter,
-                    Parameters.EnumerableIndexNullable,
-                    Parameters.MapperKey,
+                    enumerableIndexParameter,
+                    mapperKeyParameter,
                     Parameters.MappingContext,
                     Parameters.ObjectMappingData);
 

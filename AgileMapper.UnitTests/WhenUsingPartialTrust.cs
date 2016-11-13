@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
+    using System.Collections.Generic;
     using System.Security;
     using System.Security.Policy;
     using TestClasses;
@@ -32,6 +33,15 @@
             ExecuteInPartialTrust(helper =>
             {
                 helper.TestDerivedMapping();
+            });
+        }
+
+        [Fact]
+        public void ShouldCreateAMappingPlan()
+        {
+            ExecuteInPartialTrust(helper =>
+            {
+                helper.TestMappingPlan();
             });
         }
 
@@ -97,6 +107,13 @@
 
             Assert.Equal("Untrusted Person :(", result.Name);
             Assert.Equal(0.1, result.Discount);
+        }
+
+        public void TestMappingPlan()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicTwoFields<object, object[]>>()
+                .Over<PublicTwoFields<Customer, IEnumerable<Customer>>>();
         }
     }
 }
