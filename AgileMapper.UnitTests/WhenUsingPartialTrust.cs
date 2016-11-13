@@ -37,6 +37,15 @@
         }
 
         [Fact]
+        public void ShouldPerformARuntimeTypedMapping()
+        {
+            ExecuteInPartialTrust(helper =>
+            {
+                helper.TestRuntimeTypedMapping();
+            });
+        }
+
+        [Fact]
         public void ShouldCreateAMappingPlan()
         {
             ExecuteInPartialTrust(helper =>
@@ -109,11 +118,30 @@
             Assert.Equal(0.1, result.Discount);
         }
 
+        public void TestRuntimeTypedMapping()
+        {
+            var source = new PublicProperty<object>
+            {
+                Value = new PersonViewModel { Name = "Bob" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<Person>>();
+
+            Assert.Equal("Bob", result.Value.Name);
+        }
+
         public void TestMappingPlan()
         {
             var plan = Mapper
                 .GetPlanFor<PublicTwoFields<object, object[]>>()
                 .Over<PublicTwoFields<Customer, IEnumerable<Customer>>>();
+
+            Assert.Contains(
+                "// Map PublicTwoFields<object, object[]> -> PublicTwoFields<Customer, IEnumerable<Customer>>",
+                plan);
+
+            Assert.Contains("// Map object -> Customer", plan);
+            Assert.Contains("// Map object -> Address", plan);
+            Assert.Contains("// Rule Set: Overwrite", plan);
         }
     }
 }

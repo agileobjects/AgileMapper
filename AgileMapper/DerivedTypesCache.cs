@@ -8,15 +8,8 @@
     using Extensions;
     using NetStandardPolyfills;
 
-    internal class TrustTester
-    {
-        // ReSharper disable once UnusedMember.Local
-        private static void IsPartialTrust() { }
-    }
-
     internal class DerivedTypesCache
     {
-        private static readonly bool _isPartialTrust;
         private static readonly Type[] _noTypes = { };
 
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
@@ -26,20 +19,6 @@
         {
             _typesByAssembly = GlobalContext.Instance.Cache.CreateScoped<Assembly, IEnumerable<Type>>();
             _derivedTypesByType = GlobalContext.Instance.Cache.CreateScoped<Type, ICollection<Type>>();
-        }
-
-        static DerivedTypesCache()
-        {
-            try
-            {
-                typeof(TrustTester)
-                    .GetNonPublicStaticMethod("IsPartialTrust")
-                    .Invoke(null, null);
-            }
-            catch
-            {
-                _isPartialTrust = true;
-            }
         }
 
         public ICollection<Type> GetTypesDerivedFrom(Type type)
@@ -78,7 +57,7 @@
             {
                 IEnumerable<Type> types = assembly.GetTypes();
 
-                if (_isPartialTrust)
+                if (Constants.IsPartialTrust)
                 {
                     types = types.Where(t => t.IsPublic());
                 }

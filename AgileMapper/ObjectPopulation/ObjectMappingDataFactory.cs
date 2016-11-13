@@ -232,6 +232,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     parent);
             }
 
+            if (Constants.IsPartialTrust)
+            {
+                var createCaller = GetPartialTrustMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mappingTypes);
+
+                return (IObjectMappingData)createCaller.Invoke(
+                    _bridge,
+                    source,
+                    target,
+                    enumerableIndex,
+                    mapperKey,
+                    mappingContext,
+                    parent);
+            }
+
             var constructionFunc = GetMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mappingTypes);
 
             return constructionFunc.Invoke(
@@ -241,6 +255,73 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperKey,
                 mappingContext,
                 parent);
+        }
+
+        private static Func<IObjectMappingDataFactoryBridge, TSource, TTarget, int?, object, object, object, object> GetPartialTrustMappingDataCreator<TSource, TTarget>(
+            MappingTypes mappingTypes)
+        {
+            var createCallerKey = DeclaredAndRuntimeTypesKey.For<TSource, TTarget>(mappingTypes);
+
+            var createCallerFunc = GlobalContext.Instance.Cache.GetOrAdd(createCallerKey, k =>
+            {
+                var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
+                var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
+                var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
+                var enumerableIndexParameter = Expression.Parameter(typeof(int?), "i");
+                var mapperKeyParameter = Expression.Parameter(typeof(object), "mapperKey");
+                var mappingContextParameter = Expression.Parameter(typeof(object), "mappingContext");
+                var parentParameter = Expression.Parameter(typeof(object), "parent");
+
+                var createMethod = bridgeParameter.Type
+                    .GetMethod("CreateMappingData")
+                    .MakeGenericMethod(
+                        k.DeclaredSourceType,
+                        k.DeclaredTargetType,
+                        k.RuntimeSourceType,
+                        k.RuntimeTargetType);
+
+                var createCall = Expression.Call(
+                    bridgeParameter,
+                    createMethod,
+                    sourceParameter,
+                    targetParameter,
+                    enumerableIndexParameter,
+                    mapperKeyParameter,
+                    mappingContextParameter,
+                    parentParameter);
+
+                var createLambda = Expression
+                    .Lambda<Func<IObjectMappingDataFactoryBridge, TSource, TTarget, int?, object, object, object, object>>(
+                        createCall,
+                        bridgeParameter,
+                        sourceParameter,
+                        targetParameter,
+                        enumerableIndexParameter,
+                        mapperKeyParameter,
+                        mappingContextParameter,
+                        parentParameter);
+
+                return createLambda.Compile();
+            });
+
+            return createCallerFunc;
+        }
+
+        object IObjectMappingDataFactoryBridge.CreateMappingData<TDeclaredSource, TDeclaredTarget, TSource, TTarget>(
+            TDeclaredSource source,
+            TDeclaredTarget target,
+            int? enumerableIndex,
+            object mapperKey,
+            object mappingContext,
+            object parent)
+        {
+            return new ObjectMappingData<TSource, TTarget>(
+                (TSource)source,
+                (TTarget)target,
+                enumerableIndex,
+                (ObjectMapperKeyBase)mapperKey,
+                (IMappingContext)mappingContext,
+                (IObjectMappingData)parent);
         }
 
         private delegate IObjectMappingData MappingDataCreator<in TSource, in TTarget>(

@@ -6,9 +6,12 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using NetStandardPolyfills;
 
     internal static class Constants
     {
+        public static readonly bool IsPartialTrust;
+
         public static readonly Type[] NoTypeArguments = { };
 
         public static readonly Expression EmptyExpression = Expression.Empty();
@@ -30,7 +33,7 @@
 
         #region Numeric Types
 
-        public static readonly IEnumerable<Type> WholeNumberNumericTypes = new[]
+        public static readonly Type[] WholeNumberNumericTypes =
         {
             typeof(byte),
             typeof(sbyte),
@@ -42,10 +45,9 @@
             typeof(ulong)
         };
 
-        public static readonly IEnumerable<Type> NumericTypes =
-            WholeNumberNumericTypes
-                .Concat(typeof(float), typeof(decimal), typeof(double))
-                .ToArray();
+        public static readonly Type[] NumericTypes = WholeNumberNumericTypes
+            .Concat(typeof(float), typeof(decimal), typeof(double))
+            .ToArray();
 
         public static readonly IDictionary<Type, double> NumericTypeMaxValuesByType = GetValuesByType("MaxValue");
         public static readonly IDictionary<Type, double> NumericTypeMinValuesByType = GetValuesByType("MinValue");
@@ -57,5 +59,25 @@
         }
 
         #endregion
+
+        static Constants()
+        {
+            try
+            {
+                typeof(TrustTester)
+                    .GetNonPublicStaticMethod("IsPartialTrust")
+                    .Invoke(null, null);
+            }
+            catch
+            {
+                IsPartialTrust = true;
+            }
+        }
+    }
+
+    internal class TrustTester
+    {
+        // ReSharper disable once UnusedMember.Local
+        private static void IsPartialTrust() { }
     }
 }
