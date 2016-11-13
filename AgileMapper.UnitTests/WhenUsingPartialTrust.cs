@@ -46,6 +46,14 @@
         }
 
         [Fact]
+        public void ShouldHandleAMaptimeException()
+        {
+            var mappingException = ExecuteInPartialTrust(helper => helper.TestMappingException());
+
+            Assert.NotNull(mappingException);
+        }
+
+        [Fact]
         public void ShouldCreateAMappingPlan()
         {
             ExecuteInPartialTrust(helper =>
@@ -55,6 +63,15 @@
         }
 
         private static void ExecuteInPartialTrust(Action<MappingHelper> testAction)
+        {
+            ExecuteInPartialTrust(helper =>
+            {
+                testAction.Invoke(helper);
+                return default(object);
+            });
+        }
+
+        private static TResult ExecuteInPartialTrust<TResult>(Func<MappingHelper, TResult> testFunc)
         {
             AppDomain partialTrustDomain = null;
 
@@ -78,7 +95,7 @@
                 var helper = (MappingHelper)partialTrustDomain
                     .CreateInstanceAndUnwrap(helperType.Assembly.FullName, helperType.FullName);
 
-                testAction.Invoke(helper);
+                return testFunc.Invoke(helper);
             }
             finally
             {
@@ -127,6 +144,26 @@
             var result = Mapper.Map(source).ToANew<PublicField<Person>>();
 
             Assert.Equal("Bob", result.Value.Name);
+        }
+
+        public MappingException TestMappingException()
+        {
+            return Assert.Throws<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicProperty<string>>()
+                        .To<PublicField<int>>()
+                        .If((s, t) => int.Parse(s.Value) > 0)
+                        .Map(ctx => ctx.Source.Value)
+                        .To(x => x.Value);
+
+                    var source = new PublicProperty<string> { Value = "CantParseThis" };
+
+                    mapper.Map(source).ToANew<PublicField<int>>();
+                }
+            });
         }
 
         public void TestMappingPlan()

@@ -1,8 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
-    using System.Linq;
     using System.Reflection;
+    using System.Runtime.Serialization;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -11,6 +11,7 @@
     /// <summary>
     /// Represents an error that occurred during a mapping.
     /// </summary>
+    [Serializable]
     public class MappingException : Exception
     {
         internal static readonly MethodInfo FactoryMethod =
@@ -19,11 +20,16 @@
         internal const string NoMappingData = "An exception occurred creating a mapping data instance";
 
         /// <summary>
-        /// Initializes a new instance of the MappingException class.
+        /// Initializes a new instance of the MappingException class. This constructor is provided
+        /// to support deserialization.
         /// </summary>
-        public MappingException()
+        /// <param name="info">The SerializationInfo containing serialization information.</param>
+        /// <param name="context">The StreamingContext in which the deserialization is being performed.</param>
+        // ReSharper disable UnusedParameter.Local
+        protected MappingException(SerializationInfo info, StreamingContext context)
         {
         }
+        // ReSharper restore UnusedParameter.Local
 
         private MappingException(IMemberMapperData mapperData, Exception innerException)
             : base(GetMessage(mapperData), innerException)
