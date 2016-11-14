@@ -63,13 +63,12 @@ namespace AgileObjects.AgileMapper.Members
                 targetType = typeof(TTarget);
             }
 
-            var runtimeTypesNeeded = runtimeSourceTypeNeeded || runtimeTargetTypeNeeded;
             var isEnumerable = TypeInfo<TTarget>.IsEnumerable || (!runtimeTypesAreTheSame && targetType.IsEnumerable());
 
             return new MappingTypes(
                 sourceType,
                 targetType,
-                runtimeTypesNeeded,
+                runtimeSourceTypeNeeded || runtimeTargetTypeNeeded,
                 runtimeTypesAreTheSame,
                 isEnumerable);
         }

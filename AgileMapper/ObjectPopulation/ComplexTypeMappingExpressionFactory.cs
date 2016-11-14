@@ -104,9 +104,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 objectCreationValue = Expression.Assign(mappingData.MapperData.TargetObject, objectCreationValue);
             }
 
-            var existingOrCreatedObject = Expression.Coalesce(mappingData.MapperData.TargetObject, objectCreationValue);
+            if (!mappingData.IsRoot || mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            {
+                objectCreationValue = Expression.Coalesce(mappingData.MapperData.TargetObject, objectCreationValue);
+            }
 
-            return existingOrCreatedObject;
+            return objectCreationValue;
         }
 
         private static readonly MethodInfo _registerMethod = typeof(IObjectMappingDataUntyped).GetMethod("Register");

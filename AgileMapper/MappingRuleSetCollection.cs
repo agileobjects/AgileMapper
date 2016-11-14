@@ -14,18 +14,21 @@ namespace AgileObjects.AgileMapper
         {
             CreateNew = new MappingRuleSet(
                 Constants.CreateNew,
+                false,
                 CopySourceEnumerablePopulationStrategy.Instance,
                 NullDataSourceFactory.Instance,
                 ExistingOrDefaultValueDataSourceFactory.Instance);
 
             Merge = new MappingRuleSet(
                 Constants.Merge,
+                true,
                 MergeEnumerablePopulationStrategy.Instance,
                 PreserveExistingValueDataSourceFactory.Instance,
                 ExistingOrDefaultValueDataSourceFactory.Instance);
 
             Overwrite = new MappingRuleSet(
                 Constants.Overwrite,
+                true,
                 OverwriteEnumerablePopulationStrategy.Instance,
                 NullDataSourceFactory.Instance,
                 DefaultValueDataSourceFactory.Instance);
