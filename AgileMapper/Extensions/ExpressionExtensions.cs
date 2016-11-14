@@ -73,7 +73,14 @@
             => Expression.Equal(expression, Expression.Default(expression.Type));
 
         public static Expression GetIsNotDefaultComparison(this Expression expression)
-            => Expression.NotEqual(expression, Expression.Default(expression.Type));
+        {
+            if (expression.Type.IsNullableType())
+            {
+                return Expression.Property(expression, "HasValue");
+            }
+
+            return Expression.NotEqual(expression, Expression.Default(expression.Type));
+        }
 
         public static Expression GetToValueOrDefaultCall(this Expression nullableExpression)
         {
