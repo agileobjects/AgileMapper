@@ -27,8 +27,7 @@
         public static Expression Replace(this Expression expression, Expression target, Expression replacement)
             => expression.Replace(new Dictionary<Expression, Expression> { [target] = replacement });
 
-        public static Expression Replace(this Expression expression,
-            Dictionary<Expression, Expression> replacementsByTarget)
+        public static Expression Replace(this Expression expression, Dictionary<Expression, Expression> replacementsByTarget)
         {
             if (replacementsByTarget.None())
             {

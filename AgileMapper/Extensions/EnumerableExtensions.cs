@@ -26,6 +26,15 @@
             return array;
         }
 
+        public static T[] ToArray<T>(this ICollection<T> items)
+        {
+            var array = new T[items.Count];
+
+            items.CopyTo(array, 0);
+
+            return array;
+        }
+
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, params T[] extraItems)
             => items.Concat(extraItems.AsEnumerable());
 

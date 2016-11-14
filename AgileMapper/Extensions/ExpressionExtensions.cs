@@ -12,7 +12,10 @@
     internal static partial class ExpressionExtensions
     {
         private static readonly MethodInfo _listToArrayMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethod("ToArray");
+            .GetPublicStaticMethods().First(m => m.Name == "ToArray");
+
+        private static readonly MethodInfo _collectionToArrayMethod = typeof(EnumerableExtensions)
+            .GetPublicStaticMethods().Where(m => m.Name == "ToArray").ElementAt(1);
 
         private static readonly MethodInfo _linqToArrayMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToArray");
@@ -96,11 +99,32 @@
 
         public static Expression WithToArrayCall(this Expression enumerable, Type elementType)
         {
-            var conversionMethod = typeof(IList<>).MakeGenericType(elementType).IsAssignableFrom(enumerable.Type)
-                ? _listToArrayMethod
-                : _linqToArrayMethod;
+            var conversionMethod = GetToArrayConversionMethod(enumerable, elementType);
 
             return GetToEnumerableCall(enumerable, conversionMethod, elementType);
+        }
+
+        private static MethodInfo GetToArrayConversionMethod(Expression enumerable, Type elementType)
+        {
+            var wrapperType = typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(elementType);
+
+            if (enumerable.Type == wrapperType)
+            {
+                return wrapperType.GetMethod("ToArray");
+            }
+
+            var listType = typeof(IList<>).MakeGenericType(elementType);
+
+            if (listType.IsAssignableFrom(enumerable.Type))
+            {
+                return _listToArrayMethod;
+            }
+
+            var collectionType = typeof(ICollection<>).MakeGenericType(elementType);
+
+            return collectionType.IsAssignableFrom(enumerable.Type)
+                ? _collectionToArrayMethod
+                : _linqToArrayMethod;
         }
 
         public static Expression WithToListCall(this Expression enumerable, Type elementType)
@@ -108,6 +132,11 @@
 
         private static Expression GetToEnumerableCall(Expression enumerable, MethodInfo method, Type elementType)
         {
+            if (!method.IsGenericMethod)
+            {
+                return Expression.Call(enumerable, method);
+            }
+
             var typedToEnumerableMethod = method.MakeGenericMethod(elementType);
 
             return Expression.Call(typedToEnumerableMethod, enumerable);

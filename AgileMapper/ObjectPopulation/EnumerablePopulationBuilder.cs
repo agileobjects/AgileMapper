@@ -242,11 +242,16 @@
 
         private Expression GetTargetVariableValue()
         {
+            if (_targetTypeHelper.IsArray && !_sourceTypeHelper.IsEnumerableInterface)
+            {
+                return GetCopyIntoWrapperConstruction(GetCountPropertyAccess());
+            }
+
             Expression nonNullTargetVariableValue;
 
             if (_targetTypeHelper.IsArray || _targetTypeHelper.IsEnumerableInterface)
             {
-                nonNullTargetVariableValue = GetNonNullReadonlyTargetVariableValue();
+                nonNullTargetVariableValue = GetNonNullEnumerableTargetVariableValue();
             }
             else if (_targetTypeHelper.HasCollectionInterface &&
                    !(_targetTypeHelper.IsList || _targetTypeHelper.IsCollection))
@@ -257,7 +262,7 @@
 
                 nonNullTargetVariableValue = Expression.Condition(
                     Expression.Property(_omd.TargetObject, isReadOnlyProperty),
-                    GetCopyIntoNewListConstruction(),
+                    GetCopyIntoListConstruction(),
                     _omd.TargetObject,
                     _omd.TargetObject.Type);
             }
@@ -286,11 +291,20 @@
             return targetVariableValue;
         }
 
-        private Expression GetNonNullReadonlyTargetVariableValue()
+        private Expression GetCopyIntoWrapperConstruction(Expression numberOfNewItems)
         {
-            var nonNullTargetVariableValue = GetCopyIntoNewListConstruction();
+            var constructor = _targetTypeHelper.WrapperType
+                .GetConstructor(new[] { _targetTypeHelper.EnumerableInterfaceType, typeof(int) });
 
-            if (!_targetTypeHelper.IsEnumerableInterface)
+            // ReSharper disable once AssignNullToNotNullAttribute
+            return Expression.New(constructor, _omd.TargetObject, numberOfNewItems);
+        }
+
+        private Expression GetNonNullEnumerableTargetVariableValue()
+        {
+            var nonNullTargetVariableValue = GetCopyIntoListConstruction();
+
+            if (_targetTypeHelper.IsArray)
             {
                 return nonNullTargetVariableValue;
             }
@@ -305,7 +319,7 @@
                 _targetTypeHelper.CollectionInterfaceType);
         }
 
-        private Expression GetCopyIntoNewListConstruction()
+        private Expression GetCopyIntoListConstruction()
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
@@ -458,7 +472,7 @@
         {
             return sourceElement.Type.IsSimple()
                 ? GetSimpleElementConversion(sourceElement)
-                : GetElementMapping(sourceElement, enumerableMappingData);
+                : GetElementMapping(sourceElement, Expression.Default(_targetElementType), enumerableMappingData);
         }
 
         private Expression GetSimpleElementConversion(Expression sourceElement)
@@ -466,9 +480,6 @@
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
             => _omd.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
-
-        private Expression GetElementMapping(Expression sourceElement, IObjectMappingData enumerableMappingData)
-            => GetElementMapping(sourceElement, Expression.Default(_targetElementType), enumerableMappingData);
 
         private static Expression GetElementMapping(
             Expression sourceElement,

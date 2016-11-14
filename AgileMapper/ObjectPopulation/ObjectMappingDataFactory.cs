@@ -126,17 +126,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceElementMember = parent.MapperData.SourceMember.GetElementMember();
             var targetElementMember = parent.MapperData.TargetMember.GetElementMember();
 
-            return ForElement(sourceElementMember, targetElementMember, parent);
-        }
-
-        public static IObjectMappingData ForElement(
-            IQualifiedMember sourceElementMember,
-            QualifiedMember targetElementMember,
-            IObjectMappingData parent)
-        {
-            var sourceType = sourceElementMember.Type;
-            var targetType = targetElementMember.Type;
-            var key = new SourceAndTargetTypesKey(sourceType, targetType);
+            var key = new SourceAndTargetTypesKey(sourceElementMember.Type, targetElementMember.Type);
 
             var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {

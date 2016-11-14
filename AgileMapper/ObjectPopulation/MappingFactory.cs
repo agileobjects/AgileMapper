@@ -271,7 +271,6 @@
             MethodInfo createMethod,
             Expression[] createMethodCallArguments)
         {
-            var mapper = mappingData.Mapper;
             var mapperData = mappingData.MapperData;
 
             var replacementsByTarget = new ExpressionReplacementDictionary
@@ -281,6 +280,7 @@
                 [mapperData.EnumerableIndex] = mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type)
             };
 
+            var mapper = mappingData.Mapper;
             var directAccessMapping = mapper.MappingLambda.Body.Replace(replacementsByTarget);
 
             var createInlineMappingDataCall = GetCreateMappingDataCall(

@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class EnumerableTypeHelper
     {
         private readonly Type _enumerableType;
+        private Type _wrapperType;
         private Type _listType;
         private Type _listInterfaceType;
         private Type _collectionType;
@@ -35,6 +36,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool HasCollectionInterface => CollectionInterfaceType.IsAssignableFrom(_enumerableType);
 
         public Type ElementType { get; }
+
+        public Type WrapperType => GetEnumerableType(ref _wrapperType, typeof(ReadOnlyCollectionWrapper<>));
 
         public Type ListType => GetEnumerableType(ref _listType, typeof(List<>));
 
