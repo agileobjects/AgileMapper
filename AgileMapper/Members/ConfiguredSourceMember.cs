@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Caching;
     using Extensions;
@@ -10,8 +9,7 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {
-        private readonly string[] _matchedTargetMemberNames;
-        private readonly IEnumerable<string> _matchedTargetMemberJoinedNames;
+        private readonly ICollection<string> _matchedTargetMemberJoinedNames;
         private readonly MapperContext _mapperContext;
         private readonly Member[] _childMembers;
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
@@ -21,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
                   value.Type,
                   value.Type.IsEnumerable(),
                   value.ToReadableString(),
-                  mapperData.TargetMember.MemberChain.Select(mapperData.MapperContext.NamingSettings.GetMatchingNameFor).ToArray(),
+                  mapperData.TargetMember.MemberChain.GetJoinedNames(mapperData.MapperContext),
                   mapperData.MapperContext)
         {
         }
@@ -31,8 +29,9 @@ namespace AgileObjects.AgileMapper.Members
                   childMember.Type,
                   childMember.IsEnumerable,
                   parent.Name + childMember.JoiningName,
-                  parent._matchedTargetMemberNames.Append(
-                      parent._mapperContext.NamingSettings.GetMatchingNameFor(childMember)),
+                  parent._matchedTargetMemberJoinedNames.ExtendWith(
+                      parent._mapperContext.NamingSettings.GetMatchingNamesFor(childMember),
+                      parent._mapperContext),
                   parent._mapperContext,
                   parent._childMembers.Append(childMember))
         {
@@ -42,33 +41,13 @@ namespace AgileObjects.AgileMapper.Members
             Type type,
             bool isEnumerable,
             string name,
-            string[] matchedTargetMemberNames,
-            MapperContext mapperContext,
-            Member[] childMembers = null)
-            : this(
-                  type,
-                  isEnumerable,
-                  name,
-                  matchedTargetMemberNames,
-                  mapperContext.NamingSettings.GetJoinedNamesFor(matchedTargetMemberNames),
-                  mapperContext,
-                  childMembers)
-        {
-        }
-
-        private ConfiguredSourceMember(
-            Type type,
-            bool isEnumerable,
-            string name,
-            string[] matchedTargetMemberNames,
-            IEnumerable<string> matchedTargetMemberJoinedNames,
+            ICollection<string> matchedTargetMemberJoinedNames,
             MapperContext mapperContext,
             Member[] childMembers = null)
         {
             Type = type;
             IsEnumerable = isEnumerable;
             Name = name;
-            _matchedTargetMemberNames = matchedTargetMemberNames;
             _matchedTargetMemberJoinedNames = matchedTargetMemberJoinedNames;
             _mapperContext = mapperContext;
             _childMembers = childMembers ?? new[] { Member.RootSource(name, type) };
@@ -95,7 +74,6 @@ namespace AgileObjects.AgileMapper.Members
                 Type,
                 IsEnumerable,
                 Name,
-                _matchedTargetMemberNames,
                 _matchedTargetMemberJoinedNames,
                 _mapperContext,
                 relativeMemberChain);
@@ -139,7 +117,6 @@ namespace AgileObjects.AgileMapper.Members
                 runtimeType,
                 IsEnumerable || runtimeType.IsEnumerable(),
                 Name,
-                _matchedTargetMemberNames,
                 _matchedTargetMemberJoinedNames,
                 _mapperContext,
                 _childMembers);

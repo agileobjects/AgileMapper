@@ -18,18 +18,18 @@
             };
         }
 
-        public DataSourceSet FindFor(IMemberMappingData mappingData)
+        public DataSourceSet FindFor(IMemberMappingData childMappingData)
         {
-            var validDataSources = EnumerateDataSources(mappingData)
+            var validDataSources = EnumerateDataSources(childMappingData)
                 .Where(ds => ds.IsValid)
                 .ToArray();
 
-            if (mappingData.MapperData.TargetMember.IsSimple && validDataSources.Any())
+            if (childMappingData.MapperData.TargetMember.IsSimple && validDataSources.Any())
             {
-                var initialDataSource = mappingData
+                var initialDataSource = childMappingData
                     .RuleSet
                     .InitialDataSourceFactory
-                    .Create(mappingData);
+                    .Create(childMappingData);
 
                 if (initialDataSource.IsValid)
                 {
@@ -40,9 +40,9 @@
             return new DataSourceSet(validDataSources);
         }
 
-        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingData mappingData)
+        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingData childMappingData)
         {
-            var maptimeDataSource = GetMaptimeDataSourceOrNull(mappingData);
+            var maptimeDataSource = GetMaptimeDataSourceOrNull(childMappingData);
 
             if (maptimeDataSource != null)
             {
@@ -54,11 +54,11 @@
 
             IEnumerable<IConfiguredDataSource> configuredDataSources;
 
-            if (DataSourcesAreConfigured(mappingData.MapperData, out configuredDataSources))
+            if (DataSourcesAreConfigured(childMappingData.MapperData, out configuredDataSources))
             {
                 foreach (var configuredDataSource in configuredDataSources)
                 {
-                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, mappingData);
+                    yield return GetFinalDataSource(configuredDataSource, dataSourceIndex, childMappingData);
 
                     if (!configuredDataSource.IsConditional)
                     {
@@ -70,7 +70,7 @@
             }
 
             var sourceMemberDataSources =
-                GetSourceMemberDataSources(configuredDataSources, dataSourceIndex, mappingData);
+                GetSourceMemberDataSources(configuredDataSources, dataSourceIndex, childMappingData);
 
             foreach (var dataSource in sourceMemberDataSources)
             {
@@ -78,18 +78,18 @@
             }
         }
 
-        private IDataSource GetMaptimeDataSourceOrNull(IMemberMappingData mappingData)
+        private IDataSource GetMaptimeDataSourceOrNull(IMemberMappingData childMappingData)
         {
-            var mapperData = mappingData.MapperData;
+            var childMapperData = childMappingData.MapperData;
 
-            if (mapperData.TargetMember.IsComplex)
+            if (childMapperData.TargetMember.IsComplex)
             {
                 return null;
             }
 
             return _mapTimeDataSourceFactories
-                .FirstOrDefault(factory => factory.IsFor(mapperData))?
-                .Create(mappingData);
+                .FirstOrDefault(factory => factory.IsFor(childMapperData))?
+                .Create(childMappingData);
         }
 
         private static bool DataSourcesAreConfigured(
@@ -159,18 +159,18 @@
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
             int dataSourceIndex,
-            IMemberMappingData mappingData)
+            IMemberMappingData childMappingData)
         {
-            var mapperData = mappingData.MapperData;
+            var childTargeMember = childMappingData.MapperData.TargetMember;
 
-            if (UseComplexTypeDataSource(mapperData.TargetMember))
+            if (UseComplexTypeDataSource(childTargeMember))
             {
-                return new ComplexTypeMappingDataSource(foundDataSource, dataSourceIndex, mappingData);
+                return new ComplexTypeMappingDataSource(foundDataSource, dataSourceIndex, childMappingData);
             }
 
-            if (mapperData.TargetMember.IsEnumerable)
+            if (childTargeMember.IsEnumerable)
             {
-                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, mappingData);
+                return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, childMappingData);
             }
 
             return foundDataSource;

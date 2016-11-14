@@ -12,6 +12,10 @@
     {
         public static readonly bool IsPartialTrust;
 
+        public static readonly string[] EmptyStringArray = { };
+
+        public static readonly string EnumerableElementName = "[i]";
+
         public static readonly Type[] NoTypeArguments = { };
 
         public static readonly Expression EmptyExpression = Expression.Empty();

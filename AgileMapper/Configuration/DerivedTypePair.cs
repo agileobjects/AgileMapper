@@ -10,7 +10,7 @@
     {
         private readonly Type _derivedSourceType;
 
-        private DerivedTypePair(
+        public DerivedTypePair(
             MappingConfigInfo configInfo,
             Type derivedSourceType,
             Type derivedTargetType)

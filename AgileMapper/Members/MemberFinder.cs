@@ -138,7 +138,7 @@
         {
             return new Member(
                 MemberType.EnumerableElement,
-                "[i]",
+                Constants.EnumerableElementName,
                 enumerableType,
                 enumerableType.GetEnumerableElementType());
         }

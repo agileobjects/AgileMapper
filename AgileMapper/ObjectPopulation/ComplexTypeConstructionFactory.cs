@@ -62,14 +62,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                                     return key.MappingData.GetChildMappingData(parameterMapperData);
                                 })
-                                .Select(memberData =>
+                                .Select(memberMappingData =>
                                 {
                                     var dataSources = mapperData
                                         .MapperContext
                                         .DataSources
-                                        .FindFor(memberData);
+                                        .FindFor(memberMappingData);
 
-                                    return Tuple.Create(memberData.MapperData.TargetMember, dataSources);
+                                    return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
                                 })
                                 .ToArray()))
                         .Where(ctor => ctor.CanBeConstructed)

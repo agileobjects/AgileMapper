@@ -25,37 +25,37 @@ namespace AgileObjects.AgileMapper.DataSources
 
         #endregion
 
-        public DictionaryDataSource(IMemberMappingData mappingData)
+        public DictionaryDataSource(IMemberMappingData childMappingData)
             : this(
-                new DictionarySourceMember(mappingData.MapperData),
+                new DictionarySourceMember(childMappingData.MapperData),
                 Expression.Variable(
-                    mappingData.MapperData.SourceType.GetGenericArguments().Last(),
-                    mappingData.MapperData.TargetMember.Name.ToCamelCase()),
-                mappingData)
+                    childMappingData.MapperData.SourceType.GetGenericArguments().Last(),
+                    childMappingData.MapperData.TargetMember.Name.ToCamelCase()),
+                childMappingData)
         {
         }
 
         private DictionaryDataSource(
             DictionarySourceMember sourceMember,
             ParameterExpression variable,
-            IMemberMappingData mappingData)
+            IMemberMappingData childMappingData)
             : base(
                   sourceMember,
                   new[] { variable },
-                  GetValueParsing(sourceMember, variable, mappingData))
+                  GetValueParsing(sourceMember, variable, childMappingData))
         {
         }
 
         private static Expression GetValueParsing(
             DictionarySourceMember sourceMember,
             Expression variable,
-            IMemberMappingData mappingData)
+            IMemberMappingData childMappingData)
         {
-            var mapperData = mappingData.MapperData;
-            var potentialNames = GetPotentialNames(mapperData);
-            var fallbackValue = GetFallbackValue(sourceMember, variable, potentialNames, mappingData);
+            var childMapperData = childMappingData.MapperData;
+            var potentialNames = GetPotentialNames(childMapperData);
+            var fallbackValue = GetFallbackValue(sourceMember, variable, potentialNames, childMappingData);
 
-            if ((mapperData.TargetMember.IsEnumerable != variable.Type.IsEnumerable()) &&
+            if ((childMapperData.TargetMember.IsEnumerable != variable.Type.IsEnumerable()) &&
                 (variable.Type != typeof(object)))
             {
                 return fallbackValue;
@@ -64,11 +64,11 @@ namespace AgileObjects.AgileMapper.DataSources
             var tryGetValueCall = GetTryGetValueCall(
                 variable,
                 potentialNames.Select(Expression.Constant),
-                mapperData);
+                childMapperData);
 
             var dictionaryValueOrFallback = Expression.Condition(
                 tryGetValueCall,
-                GetValue(sourceMember, variable, mappingData),
+                GetValue(sourceMember, variable, childMappingData),
                 fallbackValue);
 
             return dictionaryValueOrFallback;
@@ -93,11 +93,11 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetTryGetValueCall(
             Expression variable,
             IEnumerable<Expression> potentialNames,
-            IMemberMapperData mapperData)
+            IMemberMapperData childMapperData)
         {
             var linqIntersect = Expression.Call(
                 _linqIntersectMethod,
-                Expression.Property(mapperData.SourceObject, "Keys"),
+                Expression.Property(childMapperData.SourceObject, "Keys"),
                 Expression.NewArrayInit(typeof(string), potentialNames),
                 CaseInsensitiveStringComparer.InstanceMember);
 
@@ -106,8 +106,8 @@ namespace AgileObjects.AgileMapper.DataSources
             var matchingNameOrEmptyString = Expression.Coalesce(intersectionFirstOrDefault, emptyString);
 
             var tryGetValueCall = Expression.Call(
-                mapperData.SourceObject,
-                mapperData.SourceObject.Type.GetMethod("TryGetValue"),
+                childMapperData.SourceObject,
+                childMapperData.SourceObject.Type.GetMethod("TryGetValue"),
                 matchingNameOrEmptyString,
                 variable);
 
@@ -117,16 +117,16 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetValue(
             IQualifiedMember sourceMember,
             Expression variable,
-            IMemberMappingData mappingData)
+            IMemberMappingData childMappingData)
         {
-            var mapperData = mappingData.MapperData;
+            var childMapperData = childMappingData.MapperData;
 
-            if (mapperData.TargetMember.IsSimple)
+            if (childMapperData.TargetMember.IsSimple)
             {
-                return mapperData
+                return childMapperData
                     .MapperContext
                     .ValueConverters
-                    .GetConversion(variable, mapperData.TargetMember.Type);
+                    .GetConversion(variable, childMapperData.TargetMember.Type);
             }
 
             var entrySourceMember = sourceMember.WithType(variable.Type);
@@ -135,7 +135,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 entrySourceMember,
                 variable,
                 0,
-                mappingData);
+                childMappingData);
 
             return mapping;
         }
@@ -144,29 +144,29 @@ namespace AgileObjects.AgileMapper.DataSources
             DictionarySourceMember sourceMember,
             Expression variable,
             IEnumerable<string> potentialNames,
-            IMemberMappingData mappingData)
+            IMemberMappingData childMappingData)
         {
-            if (DictionaryEntriesCouldBeEnumerableElements(sourceMember, mappingData))
+            if (DictionaryEntriesCouldBeEnumerableElements(sourceMember, childMappingData))
             {
                 return GetEnumerablePopulation(
                     sourceMember,
                     variable,
                     potentialNames,
-                    mappingData);
+                    childMappingData);
             }
 
-            return mappingData
+            return childMappingData
                 .RuleSet
                 .FallbackDataSourceFactory
-                .Create(mappingData)
+                .Create(childMappingData)
                 .Value;
         }
 
         private static bool DictionaryEntriesCouldBeEnumerableElements(
             DictionarySourceMember sourceMember,
-            IMemberMappingData mappingData)
+            IMemberMappingData childMappingData)
         {
-            if (!mappingData.MapperData.TargetMember.IsEnumerable)
+            if (!childMappingData.MapperData.TargetMember.IsEnumerable)
             {
                 return false;
             }
@@ -176,7 +176,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 return true;
             }
 
-            var targetElementsAreCompatibleWithEntries = mappingData.MapperData
+            var targetElementsAreCompatibleWithEntries = childMappingData.MapperData
                 .TargetMember.ElementType
                 .IsAssignableFrom(sourceMember.EntryType);
 
@@ -187,15 +187,14 @@ namespace AgileObjects.AgileMapper.DataSources
             DictionarySourceMember sourceMember,
             Expression variable,
             IEnumerable<string> potentialNames,
-            IMemberMappingData mappingData)
+            IMemberMappingData childMappingData)
         {
-            var mapperData = mappingData.MapperData;
             var sourceList = Expression.Variable(typeof(List<>).MakeGenericType(sourceMember.EntryType), "sourceList");
             var counter = Expression.Variable(typeof(int), "i");
 
-            var potentialNameConstants = GetPotentialItemNames(potentialNames, counter, mapperData);
+            var potentialNameConstants = GetPotentialItemNames(potentialNames, counter, childMappingData.MapperData);
 
-            var tryGetValueCall = GetTryGetValueCall(variable, potentialNameConstants, mapperData);
+            var tryGetValueCall = GetTryGetValueCall(variable, potentialNameConstants, childMappingData.MapperData);
             var loopBreak = Expression.Break(Expression.Label());
             var ifNotTryGetValueBreak = Expression.IfThen(Expression.Not(tryGetValueCall), loopBreak);
 
@@ -215,7 +214,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 entrySourceMember,
                 sourceList,
                 0,
-                mappingData);
+                childMappingData);
 
             var enumerablePopulation = Expression.Block(
                 new[] { sourceList, counter },
@@ -230,13 +229,13 @@ namespace AgileObjects.AgileMapper.DataSources
         private static IEnumerable<MethodCallExpression> GetPotentialItemNames(
             IEnumerable<string> potentialNames,
             Expression counter,
-            IMemberMapperData mapperData)
+            IMemberMapperData childMapperData)
         {
             return potentialNames
                 .Select(name =>
                 {
                     var nameAndOpenBrace = Expression.Constant(name + "[");
-                    var counterString = mapperData.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
+                    var counterString = childMapperData.MapperContext.ValueConverters.GetConversion(counter, typeof(string));
                     var closeBrace = Expression.Constant("]");
 
                     var stringConcatMethod = typeof(string)

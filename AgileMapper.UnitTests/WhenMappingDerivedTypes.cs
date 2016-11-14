@@ -150,5 +150,124 @@
                 result.Value.ShouldBeOfType<CustomerViewModel>();
             }
         }
+
+        [Fact]
+        public void ShouldCreateARootDerivedTargetFromADerivedSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Person customer = new Customer();
+                var viewModelResult = mapper.Map(customer).ToANew<PersonViewModel>();
+
+                viewModelResult.ShouldBeOfType<CustomerViewModel>();
+            }
+        }
+
+        [Fact]
+        public void ShouldCreateAMemberDerivedTargetFromADerivedSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new PublicProperty<Person> { Value = new Customer() };
+                var target = new PublicSetMethod<PersonViewModel>();
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Value.ShouldBeOfType<CustomerViewModel>();
+            }
+        }
+
+        [Fact]
+        public void ShouldCreateAMemberGrandChildDerivedTargetFromADerivedSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var customerSource = new PublicProperty<PersonViewModel>
+                {
+                    Value = new CustomerViewModel { Discount = 0.5 }
+                };
+
+                var customerResult = mapper.Map(customerSource).ToANew<PublicField<Person>>();
+
+                customerResult.Value.ShouldBeOfType<Customer>();
+                ((Customer)customerResult.Value).Discount.ShouldBe(0.5);
+
+                var mysteryCustomerSource = new PublicProperty<PersonViewModel>
+                {
+                    Value = new MysteryCustomerViewModel { Report = "Great!" }
+                };
+
+                var mysteryCustomerResult = mapper.Map(mysteryCustomerSource).ToANew<PublicField<Customer>>();
+
+                mysteryCustomerResult.Value.ShouldBeOfType<MysteryCustomer>();
+                ((MysteryCustomer)mysteryCustomerResult.Value).Report.ShouldBe("Great!");
+            }
+        }
+
+        [Fact]
+        public void ShouldCreateARootEnumerableDerivedTargetElementFromADerivedSourceElement()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new[] { new PersonViewModel(), new CustomerViewModel() };
+                var result = mapper.Map(source).ToANew<ICollection<Person>>();
+
+                result.First().ShouldBeOfType<Person>();
+                result.Second().ShouldBeOfType<Customer>();
+            }
+        }
+
+        [Fact]
+        public void ShouldCreateADerivedTypeInAMemberEnumerableUsingRuntimeTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new PublicProperty<object>
+                {
+                    Value = new Collection<object>
+                    {
+                        new CustomerViewModel { Name = "Fred" },
+                        new PersonViewModel { Name = "Bob" }
+                    }
+                };
+                var target = new PublicSetMethod<IEnumerable<Person>>();
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Value.First().ShouldBeOfType<Customer>();
+                result.Value.Second().ShouldBeOfType<Person>();
+            }
+        }
+
+        [Fact]
+        public void ShouldCreateADerivedTypeInAnExistingMemberEnumerableUsingRuntimeTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var personId = Guid.NewGuid();
+
+                var source = new PublicGetMethod<object>(new List<PersonViewModel>
+                {
+                    new PersonViewModel { Id = personId, Name = "Bob" },
+                    new CustomerViewModel { Name = "Fred" }
+                });
+                var target = new PublicField<object>
+                {
+                    Value = new Collection<Person>
+                    {
+                        new Person { Id = personId }
+                    }
+                };
+                var result = mapper.Map(source).OnTo(target);
+
+                var resultValues = (Collection<Person>)result.Value;
+                resultValues.Count.ShouldBe(2);
+
+                resultValues.First().ShouldBeOfType<Person>();
+                resultValues.First().Id.ShouldBe(personId);
+                resultValues.First().Name.ShouldBe("Bob");
+
+                resultValues.Second().ShouldBeOfType<Customer>();
+                resultValues.Second().Name.ShouldBe("Fred");
+            }
+        }
     }
 }

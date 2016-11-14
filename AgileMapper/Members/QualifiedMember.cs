@@ -11,18 +11,17 @@ namespace AgileObjects.AgileMapper.Members
     [DebuggerDisplay("{GetPath()}")]
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], new string[0], MapperContext.WithDefaultNamingSettings);
-        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], new string[0], MapperContext.WithDefaultNamingSettings);
+        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], Constants.EmptyStringArray, MapperContext.WithDefaultNamingSettings);
+        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], Constants.EmptyStringArray, MapperContext.WithDefaultNamingSettings);
 
         private readonly Member[] _memberChain;
-        private readonly string[] _memberMatchingNames;
         private readonly MapperContext _mapperContext;
         private readonly Func<string> _pathFactory;
         private readonly ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
         private readonly ICache<Member, QualifiedMember> _childMemberCache;
 
         private QualifiedMember(Member[] memberChain, QualifiedMember adaptedMember)
-            : this(memberChain, adaptedMember._memberMatchingNames, adaptedMember._mapperContext)
+            : this(memberChain, adaptedMember.JoinedNames, adaptedMember._mapperContext)
         {
             foreach (var childMember in adaptedMember._childMemberCache.Values)
             {
@@ -30,12 +29,11 @@ namespace AgileObjects.AgileMapper.Members
             }
         }
 
-        private QualifiedMember(Member[] memberChain, string[] memberMatchingNames, MapperContext mapperContext)
+        private QualifiedMember(Member[] memberChain, ICollection<string> joinedNames, MapperContext mapperContext)
             : this(memberChain.LastOrDefault(), mapperContext)
         {
             _memberChain = memberChain;
-            _memberMatchingNames = memberMatchingNames;
-            JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(memberMatchingNames);
+            JoinedNames = joinedNames;
 
             _pathFactory = () => _memberChain.GetFullName();
 
@@ -48,20 +46,18 @@ namespace AgileObjects.AgileMapper.Members
         private QualifiedMember(Member member, QualifiedMember parent, MapperContext mapperContext)
             : this(member, mapperContext)
         {
-            var matchingName = mapperContext.NamingSettings.GetMatchingNameFor(member);
+            var memberMatchingNames = mapperContext.NamingSettings.GetMatchingNamesFor(member);
 
             if (parent == null)
             {
                 _memberChain = new[] { member };
-                _memberMatchingNames = new[] { matchingName };
-                JoinedNames = _memberMatchingNames;
+                JoinedNames = memberMatchingNames;
                 _pathFactory = () => _memberChain[0].JoiningName;
                 return;
             }
 
             _memberChain = parent._memberChain.Append(member);
-            _memberMatchingNames = parent._memberMatchingNames.Append(matchingName);
-            JoinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(_memberMatchingNames);
+            JoinedNames = parent.JoinedNames.ExtendWith(memberMatchingNames, mapperContext);
 
             _pathFactory = () => parent.GetPath() + member.JoiningName;
             IsRecursive = DetermineRecursion();
@@ -126,9 +122,9 @@ namespace AgileObjects.AgileMapper.Members
 
         public static QualifiedMember From(Member[] memberChain, MapperContext mapperContext)
         {
-            var matchingNames = memberChain.Select(mapperContext.NamingSettings.GetMatchingNameFor).ToArray();
+            var joinedNames = memberChain.GetJoinedNames(mapperContext);
 
-            return new QualifiedMember(memberChain, matchingNames, mapperContext);
+            return new QualifiedMember(memberChain, joinedNames, mapperContext);
         }
 
         #endregion
@@ -145,7 +141,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public string RegistrationName { get; }
 
-        public IEnumerable<string> JoinedNames { get; }
+        public ICollection<string> JoinedNames { get; }
 
         public string GetPath() => _pathFactory.Invoke();
 

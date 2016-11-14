@@ -110,5 +110,17 @@
 
             nonRuntimeTypedResult.AddressLine1.ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldAccessAParentContextInAStandaloneMapper()
+        {
+            var source = new PublicProperty<object>
+            {
+                Value = new PersonViewModel { Name = "Fred" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<Person>>();
+
+            result.Value.Name.ShouldBe("Fred");
+        }
     }
 }

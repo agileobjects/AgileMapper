@@ -9,11 +9,11 @@
         public ComplexTypeMappingDataSource(
             IDataSource complexTypeDataSource,
             int dataSourceIndex,
-            IMemberMappingData mappingData)
+            IMemberMappingData complexTypeMappingData)
             : base(
                   complexTypeDataSource.SourceMember,
                   complexTypeDataSource.Variables,
-                  GetMapping(complexTypeDataSource, dataSourceIndex, mappingData),
+                  GetMapping(complexTypeDataSource, dataSourceIndex, complexTypeMappingData),
                   complexTypeDataSource.Condition)
         {
         }
@@ -21,23 +21,33 @@
         private static Expression GetMapping(
             IDataSource complexTypeDataSource,
             int dataSourceIndex,
-            IMemberMappingData mappingData)
+            IMemberMappingData complexTypeMappingData)
         {
             var mapping = MappingFactory.GetChildMapping(
                 complexTypeDataSource.SourceMember,
                 complexTypeDataSource.Value,
                 dataSourceIndex,
-                mappingData);
+                complexTypeMappingData);
 
             return mapping;
         }
 
-        public ComplexTypeMappingDataSource(int dataSourceIndex, IMemberMappingData mappingData)
-            : base(mappingData.MapperData.SourceMember, GetMapping(dataSourceIndex, mappingData))
+        public ComplexTypeMappingDataSource(int dataSourceIndex, IMemberMappingData complexTypeMappingData)
+            : base(complexTypeMappingData.MapperData.SourceMember, GetMapping(dataSourceIndex, complexTypeMappingData))
         {
         }
 
-        private static Expression GetMapping(int dataSourceIndex, IMemberMappingData mappingData)
-            => MappingFactory.GetChildMapping(dataSourceIndex, mappingData);
+        private static Expression GetMapping(int dataSourceIndex, IMemberMappingData complexTypeMappingData)
+        {
+            var complexTypeMapperData = complexTypeMappingData.MapperData;
+            var relativeMember = complexTypeMapperData.SourceMember.RelativeTo(complexTypeMapperData.SourceMember);
+            var sourceMemberAccess = relativeMember.GetQualifiedAccess(complexTypeMapperData.SourceObject);
+
+            return MappingFactory.GetChildMapping(
+                relativeMember,
+                sourceMemberAccess,
+                dataSourceIndex,
+                complexTypeMappingData);
+        }
     }
 }

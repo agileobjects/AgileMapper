@@ -132,7 +132,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 TargetType.GetShortVariableName().ToPascalCase(),
                 variableNameIndex);
 
-            var parameter = Parameters.Create(mdType, mappingDataVariableName);
+            var parameter = Expression.Parameter(mdType, mappingDataVariableName);
 
             return parameter;
         }

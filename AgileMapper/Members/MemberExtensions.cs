@@ -57,6 +57,25 @@
 
         public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;
 
+        public static ICollection<string> GetJoinedNames(this IEnumerable<Member> members, MapperContext mapperContext)
+        {
+            var matchingNameSets = members
+                .Select(mapperContext.NamingSettings.GetMatchingNamesFor)
+                .ToArray();
+
+            var joinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(matchingNameSets);
+
+            return joinedNames;
+        }
+
+        public static ICollection<string> ExtendWith(
+            this ICollection<string> parentJoinedNames,
+            string[] memberMatchingNames,
+            MapperContext mapperContext)
+        {
+            return mapperContext.NamingSettings.ExtendJoinedNames(parentJoinedNames, memberMatchingNames);
+        }
+
         public static bool CouldMatch(this IEnumerable<string> memberNames, IEnumerable<string> otherMemberNames)
         {
             return otherMemberNames

@@ -9,11 +9,11 @@
         public EnumerableMappingDataSource(
             IDataSource sourceEnumerableDataSource,
             int dataSourceIndex,
-            IMemberMappingData mappingData)
+            IMemberMappingData enumerableMappingData)
             : base(
                   sourceEnumerableDataSource.SourceMember,
                   sourceEnumerableDataSource.Variables,
-                  GetMapping(sourceEnumerableDataSource, dataSourceIndex, mappingData),
+                  GetMapping(sourceEnumerableDataSource, dataSourceIndex, enumerableMappingData),
                   sourceEnumerableDataSource.Condition)
         {
         }
@@ -21,13 +21,13 @@
         private static Expression GetMapping(
             IDataSource sourceEnumerableDataSource,
             int dataSourceIndex,
-            IMemberMappingData mappingData)
+            IMemberMappingData enumerableMappingData)
         {
             var mapping = MappingFactory.GetChildMapping(
                 sourceEnumerableDataSource.SourceMember,
                 sourceEnumerableDataSource.Value,
                 dataSourceIndex,
-                mappingData);
+                enumerableMappingData);
 
             return mapping;
         }

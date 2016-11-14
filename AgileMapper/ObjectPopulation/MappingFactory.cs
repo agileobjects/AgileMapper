@@ -69,25 +69,10 @@
                 derivedTypeMapperData.EnumerableIndex);
 
             return GetChildMapping(
-                derivedTypeMapperData.SourceMember,
+                derivedTypeMappingData,
                 mappingValues,
                 declaredTypeMapperData.DataSourceIndex,
-                derivedTypeMappingData,
-                derivedTypeMapperData,
                 declaredTypeMapperData);
-        }
-
-        public static Expression GetChildMapping(int dataSourceIndex, IMemberMappingData childMappingData)
-        {
-            var childMapperData = childMappingData.MapperData;
-            var relativeMember = childMapperData.SourceMember.RelativeTo(childMapperData.SourceMember);
-            var sourceMemberAccess = relativeMember.GetQualifiedAccess(childMapperData.SourceObject);
-
-            return GetChildMapping(
-                relativeMember,
-                sourceMemberAccess,
-                dataSourceIndex,
-                childMappingData);
         }
 
         public static Expression GetChildMapping(
@@ -104,33 +89,34 @@
                 targetMemberAccess,
                 childMapperData.EnumerableIndex);
 
-            return GetChildMapping(
+            var childObjectMappingData = ObjectMappingDataFactory.ForChild(
                 sourceMember,
+                childMapperData.TargetMember,
+                dataSourceIndex,
+                childMappingData.Parent);
+
+            if (childObjectMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
+            {
+                return childMapperData.Parent.GetMapCall(
+                    mappingValues.SourceValue,
+                    childMapperData.TargetMember,
+                    dataSourceIndex);
+            }
+
+            return GetChildMapping(
+                childObjectMappingData,
                 mappingValues,
                 dataSourceIndex,
-                childMappingData.Parent,
-                childMapperData,
                 childMapperData.Parent);
         }
 
         private static Expression GetChildMapping(
-            IQualifiedMember sourceMember,
+            IObjectMappingData childMappingData,
             MappingValues mappingValues,
             int dataSourceIndex,
-            IObjectMappingData parentMappingData,
-            IMemberMapperData childMapperData,
             ObjectMapperData declaredTypeMapperData)
         {
-            var childMappingData = ObjectMappingDataFactory.ForChild(
-                sourceMember,
-                childMapperData.TargetMember,
-                dataSourceIndex,
-                parentMappingData);
-
-            if (childMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
-            {
-                return declaredTypeMapperData.GetMapCall(mappingValues.SourceValue, childMapperData.TargetMember, dataSourceIndex);
-            }
+            var childMapperData = childMappingData.MapperData;
 
             if (childMapperData.TargetMemberEverRecurses())
             {
