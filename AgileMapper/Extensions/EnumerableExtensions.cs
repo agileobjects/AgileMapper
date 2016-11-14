@@ -14,6 +14,18 @@
 
         public static bool DoesNotContain<T>(this ICollection<T> items, T item) => !items.Contains(item);
 
+        public static T[] ToArray<T>(this IList<T> items)
+        {
+            var array = new T[items.Count];
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] = items[i];
+            }
+
+            return array;
+        }
+
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, params T[] extraItems)
             => items.Concat(extraItems.AsEnumerable());
 

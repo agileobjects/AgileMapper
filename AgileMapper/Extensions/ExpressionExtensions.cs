@@ -11,7 +11,10 @@
 
     internal static partial class ExpressionExtensions
     {
-        private static readonly MethodInfo _toArrayMethod = typeof(Enumerable)
+        private static readonly MethodInfo _collectionToArrayMethod = typeof(Enumerable)
+            .GetPublicStaticMethod("ToArray");
+
+        private static readonly MethodInfo _linqToArrayMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToArray");
 
         private static readonly MethodInfo _toListMethod = typeof(Enumerable)
@@ -85,7 +88,13 @@
             => (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
 
         public static Expression WithToArrayCall(this Expression enumerable, Type elementType)
-            => GetToEnumerableCall(enumerable, _toArrayMethod, elementType);
+        {
+            var conversionMethod = typeof(IList<>).MakeGenericType(elementType).IsAssignableFrom(enumerable.Type)
+                ? _collectionToArrayMethod
+                : _linqToArrayMethod;
+
+            return GetToEnumerableCall(enumerable, conversionMethod, elementType);
+        }
 
         public static Expression WithToListCall(this Expression enumerable, Type elementType)
             => GetToEnumerableCall(enumerable, _toListMethod, elementType);
