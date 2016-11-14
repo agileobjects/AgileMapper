@@ -39,7 +39,6 @@
         private readonly LambdaExpression _sourceElementIdLambda;
         private readonly Type _targetElementType;
         private readonly LambdaExpression _targetElementIdLambda;
-        private readonly bool _discardExistingValues;
         private readonly ICollection<Expression> _populationExpressions;
         private ParameterExpression _collectionDataVariable;
         private ParameterExpression _counterVariable;
@@ -77,9 +76,6 @@
 
                 _sourceVariableName = omd.SourceType.GetVariableNameInCamelCase();
             }
-
-            _discardExistingValues = omd.RuleSet.EnumerablePopulationStrategy.DiscardExistingValues;
-            TargetVariable = GetTargetVariable();
 
             _populationExpressions = new List<Expression>();
         }
@@ -142,32 +138,6 @@
                 targetElement);
         }
 
-        private ParameterExpression GetTargetVariable()
-        {
-            Type targetVariableType;
-
-            if (_targetTypeHelper.IsEnumerableInterface)
-            {
-                targetVariableType = _targetTypeHelper.CollectionInterfaceType;
-            }
-            else if (_targetTypeHelper.IsArray)
-            {
-                targetVariableType = (ElementTypesAreSimple && _discardExistingValues)
-                    ? _omd.TargetType
-                    : _targetTypeHelper.ListType;
-            }
-            else
-            {
-                targetVariableType = _omd.TargetType;
-            }
-
-            var name = ElementTypesAreTheSame
-                ? "target" + targetVariableType.GetVariableNameInPascalCase()
-                : targetVariableType.GetVariableNameInCamelCase();
-
-            return Expression.Variable(targetVariableType, name);
-        }
-
         #endregion
 
         #region Operator
@@ -227,20 +197,7 @@
 
         public bool ElementTypesAreSimple { get; }
 
-        public ParameterExpression TargetVariable { get; }
-
-        public void PopulateTargetVariableFromSourceObjectOnly()
-        {
-            _populationExpressions.Add(Expression.Assign(TargetVariable, GetSourceOnlyReturnValue()));
-        }
-
-        private Expression GetSourceOnlyReturnValue()
-        {
-            var convertedSourceItems = _sourceItemsSelector.SourceItemsProjectedToTargetType().GetResult();
-            var returnValue = ConvertForReturnValue(convertedSourceItems);
-
-            return returnValue;
-        }
+        public ParameterExpression TargetVariable { get; private set; }
 
         public void AssignSourceVariableFromSourceObject() => AssignSourceVariableFrom(_omd.SourceObject);
 
@@ -259,12 +216,29 @@
             _populationExpressions.Add(sourceVariableAssignment);
         }
 
-        public void AssignTargetVariable()
-        {
-            var targetVariableValue = GetTargetVariableValue();
+        public void PopulateTargetVariableFromSourceObjectOnly()
+            => AssignTargetVariableTo(GetSourceOnlyReturnValue());
 
-            _populationExpressions.Add(Expression.Assign(TargetVariable, targetVariableValue));
+        private Expression GetSourceOnlyReturnValue()
+        {
+            var convertedSourceItems = _sourceItemsSelector.SourceItemsProjectedToTargetType().GetResult();
+            var returnValue = ConvertForReturnValue(convertedSourceItems);
+
+            return returnValue;
         }
+
+        private void AssignTargetVariableTo(Expression value)
+        {
+            var name = ElementTypesAreTheSame
+                ? "target" + value.Type.GetVariableNameInPascalCase()
+                : value.Type.GetVariableNameInCamelCase();
+
+            TargetVariable = Expression.Parameter(value.Type, name);
+
+            _populationExpressions.Add(Expression.Assign(TargetVariable, value));
+        }
+
+        public void AssignTargetVariable() => AssignTargetVariableTo(GetTargetVariableValue());
 
         private Expression GetTargetVariableValue()
         {

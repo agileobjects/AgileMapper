@@ -22,6 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private ObjectMapperData _entryPointMapperData;
+        private readonly ParameterExpression _instanceVariable;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -74,14 +75,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (targetMember.IsEnumerable)
             {
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
-                InstanceVariable = EnumerablePopulationBuilder.TargetVariable;
             }
             else
             {
                 TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
                 TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping();
 
-                InstanceVariable = Expression
+                _instanceVariable = Expression
                     .Variable(TargetType, TargetType.GetVariableNameInCamelCase());
             }
 
@@ -321,7 +321,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression EnumerableIndex { get; }
 
-        public ParameterExpression InstanceVariable { get; }
+        public ParameterExpression InstanceVariable => _instanceVariable ?? EnumerablePopulationBuilder.TargetVariable;
 
         public NestedAccessFinder NestedAccessFinder { get; }
 

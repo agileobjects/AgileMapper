@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
@@ -17,8 +18,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }
 
-        protected override bool TargetTypeIsNotConstructable(IObjectMappingData mappingData)
+        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData)
             => _constructionFactory.GetNewObjectCreation(mappingData) == null;
+
+        protected override string GetNullMappingComment(Type targetType)
+            => "Unable to construct object of Type " + targetType.GetFriendlyName();
+
+        protected override Expression GetNullMappingReturnValue(ObjectMapperData mapperData)
+            => Expression.Default(mapperData.TargetType);
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
         {

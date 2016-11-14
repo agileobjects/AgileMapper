@@ -10,7 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions;
-    using ReadableExpressions.Extensions;
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -18,14 +17,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
+            if (TargetCannotBeMapped(mappingData))
+            {
+                return Expression.Block(
+                    ReadableExpression.Comment(GetNullMappingComment(mapperData.TargetType)),
+                    GetNullMappingReturnValue(mapperData));
+            }
+
             var returnNull = Expression.Return(
                 mapperData.ReturnLabelTarget,
                 Expression.Default(mapperData.TargetType));
-
-            if (TargetTypeIsNotConstructable(mappingData))
-            {
-                return GetNullMappingBlock(returnNull);
-            }
 
             var mappingExpressions = new List<Expression>();
             var basicMapperData = mapperData.WithNoTargetMember();
@@ -43,14 +44,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mappingBlockWithTryCatch;
         }
 
-        private static Expression GetNullMappingBlock(GotoExpression returnNull)
-        {
-            return Expression.Block(
-                ReadableExpression.Comment("Unable to construct object of Type " + returnNull.Value.Type.GetFriendlyName()),
-                returnNull.Value);
-        }
+        protected abstract bool TargetCannotBeMapped(IObjectMappingData mappingData);
 
-        protected abstract bool TargetTypeIsNotConstructable(IObjectMappingData mappingData);
+        protected abstract string GetNullMappingComment(Type targetType);
+
+        protected abstract Expression GetNullMappingReturnValue(ObjectMapperData mapperData);
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(
             GotoExpression returnNull,

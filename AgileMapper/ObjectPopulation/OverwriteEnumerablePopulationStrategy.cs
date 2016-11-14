@@ -6,8 +6,6 @@
     {
         public static readonly IEnumerablePopulationStrategy Instance = new OverwriteEnumerablePopulationStrategy();
 
-        public override bool DiscardExistingValues => true;
-
         protected override Expression GetEnumerablePopulation(
             EnumerablePopulationBuilder builder,
             IObjectMappingData mappingData)
