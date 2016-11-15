@@ -23,6 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private ObjectMapperData _entryPointMapperData;
         private readonly ParameterExpression _instanceVariable;
+        private bool? _mappedObjectCachingNeeded;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -310,6 +311,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression ParentObject { get; }
 
         public IQualifiedMember SourceMember { get; }
+
+        public bool MappedObjectCachingNeeded
+            => _mappedObjectCachingNeeded ?? (_mappedObjectCachingNeeded = IsMappedObjectCachingNeeded()).Value;
+
+        private bool IsMappedObjectCachingNeeded()
+        {
+            if (!TargetTypeHasNotYetBeenMapped || !TargetTypeWillNotBeMappedAgain)
+            {
+                return true;
+            }
+
+            foreach (var childMapperData in _childMapperDatas)
+            {
+                if (childMapperData.MappedObjectCachingNeeded)
+                {
+                    return true;
+                }
+            }
+
+            return Context.NeedsChildMapping || Context.NeedsElementMapping;
+        }
 
         public bool TargetTypeHasNotYetBeenMapped { get; }
 

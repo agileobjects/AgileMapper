@@ -62,8 +62,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            _mappedObjectsBySource = new Dictionary<object, List<object>>();
             Mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
+
+            if (MapperData.MappedObjectCachingNeeded)
+            {
+                _mappedObjectsBySource = new Dictionary<object, List<object>>(13);
+            }
         }
 
         public IMappingContext MappingContext { get; }
