@@ -35,10 +35,11 @@
         private readonly ParameterExpression _sourceElementParameter;
         private ParameterExpression _sourceVariable;
         private readonly Type _sourceElementType;
-        private readonly LambdaExpression _sourceElementIdLambda;
         private readonly Type _targetElementType;
-        private readonly LambdaExpression _targetElementIdLambda;
         private readonly ICollection<Expression> _populationExpressions;
+        private LambdaExpression _sourceElementIdLambda;
+        private LambdaExpression _targetElementIdLambda;
+        private bool? _elementsAreIdentifiable;
         private ParameterExpression _collectionDataVariable;
         private ParameterExpression _counterVariable;
 
@@ -47,8 +48,6 @@
             _omd = omd;
             _sourceItemsSelector = new SourceItemsSelector(this);
 
-            var typeIdsCache = omd.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
-
             _sourceElementType = omd.SourceType.GetEnumerableElementType();
             _targetTypeHelper = new EnumerableTypeHelper(omd.TargetType, omd.TargetMember.ElementType);
             _targetElementType = _targetTypeHelper.ElementType;
@@ -56,84 +55,9 @@
             ElementTypesAreSimple = _targetElementType.IsSimple();
 
             _sourceElementParameter = _sourceElementType.GetOrCreateParameter();
-            var sourceElementId = GetIdentifierOrNull(_sourceElementType, _sourceElementParameter, omd, typeIdsCache);
-
-            if (ElementTypesAreTheSame)
-            {
-                _sourceElementIdLambda =
-                    _targetElementIdLambda =
-                        GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
-            }
-            else
-            {
-                var targetElementParameter = _targetElementType.GetOrCreateParameter();
-                var targetElementId = GetIdentifierOrNull(_targetElementType, targetElementParameter, omd, typeIdsCache);
-                _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
-                _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
-            }
 
             _populationExpressions = new List<Expression>();
         }
-
-        #region Setup
-
-        private Expression GetIdentifierOrNull(
-            Type type,
-            Expression parameter,
-            IMemberMapperData mapperData,
-            ICache<TypeKey, Expression> cache)
-        {
-            if (ElementTypesAreSimple)
-            {
-                return null;
-            }
-
-            return cache.GetOrAdd(TypeKey.ForTypeId(type), key =>
-            {
-                var configuredIdentifier =
-                    mapperData.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
-
-                if (configuredIdentifier != null)
-                {
-                    return configuredIdentifier.ReplaceParameterWith(parameter);
-                }
-
-                var identifier = GlobalContext.Instance.MemberFinder.GetIdentifierOrNull(key);
-
-                return identifier?.GetAccess(parameter);
-            });
-        }
-
-        private LambdaExpression GetSourceElementIdLambda(
-            ParameterExpression sourceElement,
-            Expression sourceElementId,
-            Expression targetElementId)
-        {
-            if ((sourceElementId == null) || (targetElementId == null))
-            {
-                return null;
-            }
-
-            return Expression.Lambda(
-                Expression.GetFuncType(sourceElement.Type, targetElementId.Type),
-                GetSimpleElementConversion(sourceElementId, targetElementId.Type),
-                sourceElement);
-        }
-
-        private static LambdaExpression GetTargetElementIdLambda(ParameterExpression targetElement, Expression targetElementId)
-        {
-            if (targetElementId == null)
-            {
-                return null;
-            }
-
-            return Expression.Lambda(
-                Expression.GetFuncType(targetElement.Type, targetElementId.Type),
-                targetElementId,
-                targetElement);
-        }
-
-        #endregion
 
         #region Operator
 
@@ -188,7 +112,86 @@
 
         public bool ElementTypesAreTheSame { get; }
 
-        public bool ElementTypesAreIdentifiable => (_sourceElementIdLambda != null) && (_targetElementIdLambda != null);
+        public bool ElementsAreIdentifiable
+            => _elementsAreIdentifiable ?? (_elementsAreIdentifiable = DetermineIfElementsAreIdentifiable()).Value;
+
+        #region Type Identification
+
+        private bool DetermineIfElementsAreIdentifiable()
+        {
+            var typeIdsCache = _omd.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
+            var sourceElementId = GetIdentifierOrNull(_sourceElementType, _sourceElementParameter, _omd, typeIdsCache);
+
+            if (sourceElementId == null)
+            {
+                return false;
+            }
+
+            if (ElementTypesAreTheSame)
+            {
+                _sourceElementIdLambda =
+                    _targetElementIdLambda =
+                        GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
+
+                return true;
+            }
+
+            var targetElementParameter = _targetElementType.GetOrCreateParameter();
+            var targetElementId = GetIdentifierOrNull(_targetElementType, targetElementParameter, _omd, typeIdsCache);
+
+            if (targetElementId == null)
+            {
+                return false;
+            }
+
+            _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
+            _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
+
+            return _targetElementIdLambda != null;
+        }
+
+        private static Expression GetIdentifierOrNull(
+            Type type,
+            Expression parameter,
+            IMemberMapperData mapperData,
+            ICache<TypeKey, Expression> cache)
+        {
+            return cache.GetOrAdd(TypeKey.ForTypeId(type), key =>
+            {
+                var configuredIdentifier =
+                    mapperData.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
+
+                if (configuredIdentifier != null)
+                {
+                    return configuredIdentifier.ReplaceParameterWith(parameter);
+                }
+
+                var identifier = GlobalContext.Instance.MemberFinder.GetIdentifierOrNull(key);
+
+                return identifier?.GetAccess(parameter);
+            });
+        }
+
+        private LambdaExpression GetSourceElementIdLambda(
+            ParameterExpression sourceElement,
+            Expression sourceElementId,
+            Expression targetElementId)
+        {
+            return Expression.Lambda(
+                Expression.GetFuncType(sourceElement.Type, targetElementId.Type),
+                GetSimpleElementConversion(sourceElementId, targetElementId.Type),
+                sourceElement);
+        }
+
+        private static LambdaExpression GetTargetElementIdLambda(ParameterExpression targetElement, Expression targetElementId)
+        {
+            return Expression.Lambda(
+                Expression.GetFuncType(targetElement.Type, targetElementId.Type),
+                targetElementId,
+                targetElement);
+        }
+
+        #endregion
 
         public bool ElementTypesAreSimple { get; }
 

@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return builder;
             }
 
-            if (builder.ElementTypesAreIdentifiable)
+            if (builder.ElementsAreIdentifiable)
             {
                 builder.CreateCollectionData();
                 builder.MapIntersection(mappingData);

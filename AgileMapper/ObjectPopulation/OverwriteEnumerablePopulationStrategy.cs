@@ -26,7 +26,7 @@
                 return builder;
             }
 
-            if (builder.ElementTypesAreIdentifiable)
+            if (builder.ElementsAreIdentifiable)
             {
                 builder.CreateCollectionData();
                 builder.MapIntersection(mappingData);
