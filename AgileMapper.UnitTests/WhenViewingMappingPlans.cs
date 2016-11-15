@@ -26,8 +26,8 @@
                 .GetPlanFor<PersonViewModel>()
                 .ToANew<Person>();
 
-            plan.ShouldContain("person.Name = pvmToPData.Source.Name;");
-            plan.ShouldContain("address.Line1 = pvmToPData.Source.AddressLine1;");
+            plan.ShouldContain("person.Name = sourcePersonViewModel.Name;");
+            plan.ShouldContain("address.Line1 = sourcePersonViewModel.AddressLine1;");
         }
 
         [Fact]
@@ -70,7 +70,7 @@
                     .GetPlanFor<Person>()
                     .Over<PersonViewModel>();
 
-                plan.ShouldContain("personViewModel.Name = pToPvmData.Source.Title + \" \" + pToPvmData.Source.Name");
+                plan.ShouldContain("personViewModel.Name = sourcePerson.Title + \" \" + sourcePerson.Name");
             }
         }
 

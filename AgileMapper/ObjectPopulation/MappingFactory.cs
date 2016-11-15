@@ -249,20 +249,10 @@
                 childMapper.MapperData,
                 createMethodCallArguments);
 
-            var inlineMappingDataVariable = childMapper.MapperData.MappingDataObject;
-
-            var inlineMappingDataAssignment = Expression
-                .Assign(inlineMappingDataVariable, createInlineMappingDataCall);
-
-            var mappingTryCatch = (TryExpression)childMapper.MappingExpression;
-
-            var updatedTryCatch = mappingTryCatch.Update(
-                Expression.Block(inlineMappingDataAssignment, mappingTryCatch.Body),
-                mappingTryCatch.Handlers,
-                mappingTryCatch.Finally,
-                mappingTryCatch.Fault);
-
-            var mappingBlock = Expression.Block(new[] { inlineMappingDataVariable }, updatedTryCatch);
+            var mappingBlock = UseLocalSourceValueVariable(
+                childMapper.MapperData.MappingDataObject,
+                createInlineMappingDataCall,
+                childMapper.MappingExpression);
 
             return mappingBlock;
         }
@@ -274,16 +264,31 @@
             Expression[] createMethodCallArguments)
         {
             var mapperData = mappingData.MapperData;
+            var mapping = mappingData.Mapper.MappingLambda.Body;
+
+            var useLocalSourceValueVariable = UseLocalSourceValueVariable(mappingValues.SourceValue, mapping, mapperData);
+
+            Expression sourceValue, sourceValueVariableValue = null;
+
+            if (useLocalSourceValueVariable)
+            {
+                var sourceValueVariableName = GetSourceValueVariableName(mapperData, mappingValues.SourceValue.Type);
+                sourceValue = Expression.Variable(mappingValues.SourceValue.Type, sourceValueVariableName);
+                sourceValueVariableValue = mappingValues.SourceValue;
+            }
+            else
+            {
+                sourceValue = mappingValues.SourceValue;
+            }
 
             var replacementsByTarget = new ExpressionReplacementDictionary
             {
-                [mapperData.SourceObject] = mappingValues.SourceValue,
+                [mapperData.SourceObject] = sourceValue,
                 [mapperData.TargetObject] = mappingValues.TargetValue,
                 [mapperData.EnumerableIndex] = mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type)
             };
 
-            var mapper = mappingData.Mapper;
-            var directAccessMapping = mapper.MappingLambda.Body.Replace(replacementsByTarget);
+            var directAccessMapping = mapping.Replace(replacementsByTarget);
 
             var createInlineMappingDataCall = GetCreateMappingDataCall(
                 createMethod,
@@ -294,7 +299,37 @@
                 mapperData.MappingDataObject,
                 createInlineMappingDataCall);
 
-            return directAccessMapping;
+            return useLocalSourceValueVariable
+                ? UseLocalSourceValueVariable((ParameterExpression)sourceValue, sourceValueVariableValue, directAccessMapping)
+                : directAccessMapping;
+        }
+
+        public static bool UseLocalSourceValueVariable(
+            Expression sourceValue,
+            Expression mapping,
+            ObjectMapperData mapperData)
+        {
+            return (sourceValue.NodeType != ExpressionType.Parameter) &&
+                   SourceAccessFinder.MultipleAccessesExist(mapperData, mapping);
+        }
+
+        private static string GetSourceValueVariableName(IMemberMapperData mapperData, Type sourceType = null)
+        {
+            var sourceValueVariableName = "source" + (sourceType ?? mapperData.SourceType).GetVariableNameInPascalCase();
+
+            var numericSuffix = default(string);
+
+            for (var i = mapperData.MappingDataObject.Name.Length - 1; i > 0; --i)
+            {
+                if (!char.IsDigit(mapperData.MappingDataObject.Name[i]))
+                {
+                    break;
+                }
+
+                numericSuffix = mapperData.MappingDataObject.Name[i] + numericSuffix;
+            }
+
+            return sourceValueVariableName + numericSuffix;
         }
 
         private static Expression GetCreateMappingDataCall(
@@ -312,21 +347,56 @@
                 createMethod.MakeGenericMethod(childMapperData.SourceType, childMapperData.TargetType),
                 createMethodCallArguments);
         }
-    }
 
-    internal class MappingValues
-    {
-        public MappingValues(Expression sourceValue, Expression targetValue, Expression enumerableIndex)
+        public static Expression UseLocalSourceValueVariableIfAppropriate(
+            Expression mappingExpression,
+            ObjectMapperData mapperData)
         {
-            SourceValue = sourceValue;
-            TargetValue = targetValue;
-            EnumerableIndex = enumerableIndex;
+            if (mapperData.Context.IsForDerivedType || !mapperData.Context.IsStandalone)
+            {
+                return mappingExpression;
+            }
+
+            if (!UseLocalSourceValueVariable(mapperData.SourceObject, mappingExpression, mapperData))
+            {
+                return mappingExpression;
+            }
+
+            var sourceValueVariableName = GetSourceValueVariableName(mapperData);
+            var sourceValueVariable = Expression.Variable(mapperData.SourceType, sourceValueVariableName);
+
+            return UseLocalSourceValueVariable(
+                sourceValueVariable,
+                mapperData.SourceObject,
+                mappingExpression,
+                performValueReplacement: true);
         }
 
-        public Expression SourceValue { get; }
+        private static Expression UseLocalSourceValueVariable(
+            ParameterExpression variable,
+            Expression variableValue,
+            Expression body,
+            bool performValueReplacement = false)
+        {
+            var variableAssignment = Expression.Assign(variable, variableValue);
+            var mappingTryCatch = (TryExpression)body;
 
-        public Expression TargetValue { get; }
+            var mappingBody = mappingTryCatch.Body;
 
-        public Expression EnumerableIndex { get; }
+            if (performValueReplacement)
+            {
+                mappingBody = mappingBody.Replace(variableValue, variable);
+            }
+
+            var updatedTryCatch = mappingTryCatch.Update(
+                Expression.Block(variableAssignment, mappingBody),
+                mappingTryCatch.Handlers,
+                mappingTryCatch.Finally,
+                mappingTryCatch.Fault);
+
+            var mappingBlock = Expression.Block(new[] { variable }, updatedTryCatch);
+
+            return mappingBlock;
+        }
     }
 }

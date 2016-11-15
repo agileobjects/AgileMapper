@@ -2,6 +2,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
     using Caching;
+    using Extensions;
+    using Members;
 
     internal class ObjectMapperFactory
     {
@@ -23,6 +25,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingExpression = mappingData.MapperKey.MappingTypes.IsEnumerable
                 ? _enumerableMappingExpressionFactory.Create(mappingData)
                 : _complexTypeMappingExpressionFactory.Create(mappingData);
+
+            mappingExpression = MappingFactory
+                .UseLocalSourceValueVariableIfAppropriate(mappingExpression, mappingData.MapperData);
 
             var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
                 mappingExpression,
