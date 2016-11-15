@@ -55,7 +55,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            _mappedObjectsBySource = new Dictionary<object, List<object>>();
             IsRoot = true;
 
             if (IsPartOfDerivedTypeMapping)
@@ -63,6 +62,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
+            _mappedObjectsBySource = new Dictionary<object, List<object>>();
             Mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
         }
 
