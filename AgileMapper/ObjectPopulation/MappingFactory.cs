@@ -207,6 +207,8 @@
                 targetElementValue,
                 enumerableIndex);
 
+            elementMapperData.Context.IsForNewElement = targetElementValue.NodeType == ExpressionType.Default;
+
             return GetInlineMappingBlock(
                 elementMappingData,
                 MappingDataFactory.ForElementMethod,

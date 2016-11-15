@@ -491,10 +491,7 @@
             Expression targetElement,
             IObjectMappingData enumerableMappingData)
         {
-            return MappingFactory.GetElementMapping(
-                sourceElement,
-                targetElement,
-                enumerableMappingData);
+            return MappingFactory.GetElementMapping(sourceElement, targetElement, enumerableMappingData);
         }
 
         public void CreateCollectionData()

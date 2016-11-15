@@ -31,6 +31,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsForDerivedType { get; }
 
+        public bool IsForNewElement { get; set; }
+
         public bool NeedsChildMapping { get; set; }
 
         public bool NeedsElementMapping { get; set; }

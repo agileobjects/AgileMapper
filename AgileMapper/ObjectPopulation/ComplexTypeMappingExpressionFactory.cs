@@ -111,12 +111,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 objectCreationValue = Expression.Assign(mappingData.MapperData.TargetObject, objectCreationValue);
             }
 
-            if (!mappingData.IsRoot || mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            if (IncludeExistingTargetCheck(mappingData))
             {
                 objectCreationValue = Expression.Coalesce(mappingData.MapperData.TargetObject, objectCreationValue);
             }
 
             return objectCreationValue;
+        }
+
+        private static bool IncludeExistingTargetCheck(IObjectMappingData mappingData)
+        {
+            if (mappingData.IsRoot)
+            {
+                return mappingData.MappingContext.RuleSet.RootHasPopulatedTarget;
+            }
+
+            if (mappingData.MapperData.TargetMemberIsEnumerableElement())
+            {
+                return !mappingData.MapperData.Context.IsForNewElement;
+            }
+
+            return true;
         }
 
         private static readonly MethodInfo _registerMethod = typeof(IObjectMappingDataUntyped).GetMethod("Register");

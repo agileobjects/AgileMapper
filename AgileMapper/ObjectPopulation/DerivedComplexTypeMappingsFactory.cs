@@ -301,7 +301,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetTargetValidCheckOrNull(Type targetType, IMemberMapperData mapperData)
         {
-            if (!mapperData.TargetMember.IsReadable)
+            if (mapperData.Context.IsForNewElement || !mapperData.TargetMember.IsReadable)
             {
                 return null;
             }
