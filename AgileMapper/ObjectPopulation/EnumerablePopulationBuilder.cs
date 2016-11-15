@@ -33,7 +33,6 @@
         private EnumerableTypeHelper _sourceTypeHelper;
         private readonly EnumerableTypeHelper _targetTypeHelper;
         private readonly ParameterExpression _sourceElementParameter;
-        private readonly string _sourceVariableName;
         private ParameterExpression _sourceVariable;
         private readonly Type _sourceElementType;
         private readonly LambdaExpression _sourceElementIdLambda;
@@ -64,8 +63,6 @@
                 _sourceElementIdLambda =
                     _targetElementIdLambda =
                         GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
-
-                _sourceVariableName = "source" + omd.SourceType.GetVariableNameInPascalCase();
             }
             else
             {
@@ -73,8 +70,6 @@
                 var targetElementId = GetIdentifierOrNull(_targetElementType, targetElementParameter, omd, typeIdsCache);
                 _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
                 _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
-
-                _sourceVariableName = omd.SourceType.GetVariableNameInCamelCase();
             }
 
             _populationExpressions = new List<Expression>();
@@ -210,10 +205,25 @@
                 sourceValue.Type,
                 ElementTypesAreTheSame ? _sourceElementType : sourceValue.Type.GetEnumerableElementType());
 
-            _sourceVariable = Expression.Variable(sourceValue.Type, _sourceVariableName);
+            _sourceVariable = GetSourceParameterFor(sourceValue.Type);
             var sourceVariableAssignment = Expression.Assign(_sourceVariable, sourceValue);
 
             _populationExpressions.Add(sourceVariableAssignment);
+        }
+
+        private ParameterExpression GetSourceParameterFor(Type type) => GetParameterFor(type, "source");
+
+        private ParameterExpression GetTargetParameterFor(Type type) => GetParameterFor(type, "target");
+
+        private ParameterExpression GetParameterFor(Type type, string sameTypesPrefix)
+        {
+            var parameterName = ElementTypesAreTheSame
+                ? sameTypesPrefix + type.GetVariableNameInPascalCase()
+                : type.GetVariableNameInCamelCase();
+
+            var parameter = Expression.Parameter(type, parameterName);
+
+            return parameter;
         }
 
         public void PopulateTargetVariableFromSourceObjectOnly()
@@ -229,11 +239,7 @@
 
         private void AssignTargetVariableTo(Expression value)
         {
-            var name = ElementTypesAreTheSame
-                ? "target" + value.Type.GetVariableNameInPascalCase()
-                : value.Type.GetVariableNameInCamelCase();
-
-            TargetVariable = Expression.Parameter(value.Type, name);
+            TargetVariable = GetTargetParameterFor(value.Type);
 
             _populationExpressions.Add(Expression.Assign(TargetVariable, value));
         }
@@ -356,11 +362,7 @@
                 }
                 else
                 {
-                    var sourceElementName = ElementTypesAreTheSame
-                        ? "source" + _sourceTypeHelper.ElementType.GetVariableNameInPascalCase()
-                        : _sourceTypeHelper.ElementType.GetVariableNameInCamelCase();
-
-                    sourceElement = Expression.Parameter(_sourceTypeHelper.ElementType, sourceElementName);
+                    sourceElement = GetSourceParameterFor(_sourceTypeHelper.ElementType);
                     populationLoopAdapter = loop => UpdateIndexAccessLoop(loop, (ParameterExpression)sourceElement);
                 }
             }
@@ -520,21 +522,8 @@
 
         public void MapIntersection(IObjectMappingData enumerableMappingData)
         {
-            string sourceElementName, targetElementName;
-
-            if (ElementTypesAreTheSame)
-            {
-                sourceElementName = "source" + _sourceElementType.GetVariableNameInPascalCase();
-                targetElementName = "target" + _targetElementType.GetVariableNameInPascalCase();
-            }
-            else
-            {
-                sourceElementName = _sourceElementType.GetVariableNameInCamelCase();
-                targetElementName = _targetElementType.GetVariableNameInCamelCase();
-            }
-
-            var sourceElementParameter = Parameters.Create(_sourceElementType, sourceElementName);
-            var targetElementParameter = Parameters.Create(_targetElementType, targetElementName);
+            var sourceElementParameter = GetSourceParameterFor(_sourceElementType);
+            var targetElementParameter = GetTargetParameterFor(_targetElementType);
 
             var forEachActionType = Expression.GetActionType(_sourceElementType, _targetElementType, typeof(int));
             var forEachAction = GetElementMapping(sourceElementParameter, targetElementParameter, enumerableMappingData);
