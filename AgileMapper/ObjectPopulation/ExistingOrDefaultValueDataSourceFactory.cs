@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions;
     using Members;
 
     internal class ExistingOrDefaultValueDataSourceFactory : IDataSourceFactory
@@ -30,14 +29,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return existingValue;
                 }
 
-                var existingValueNotNull = existingValue.GetIsNotDefaultComparison();
                 var emptyEnumerable = mapperData.TargetMember.GetEmptyInstanceCreation();
 
-                return Expression.Condition(
-                    existingValueNotNull,
-                    existingValue,
-                    emptyEnumerable,
-                    existingValue.Type);
+                return Expression.Coalesce(existingValue, emptyEnumerable);
             }
         }
     }
