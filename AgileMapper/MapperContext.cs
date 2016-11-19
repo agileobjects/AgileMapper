@@ -11,7 +11,6 @@
 
     internal class MapperContext
     {
-        public static readonly MapperContext Default = new MapperContext();
         internal static readonly MapperContext WithDefaultNamingSettings = new MapperContext(NamingSettings.Default);
 
         public MapperContext(NamingSettings namingSettings = null)

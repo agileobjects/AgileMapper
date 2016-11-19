@@ -11,6 +11,7 @@
 
     internal class UserConfigurationSet
     {
+        private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
         private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
         private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
@@ -20,6 +21,7 @@
 
         public UserConfigurationSet()
         {
+            _trackingModeSettings = new List<ObjectTrackingMode>();
             _objectFactories = new List<ConfiguredObjectFactory>();
             Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
@@ -29,6 +31,23 @@
             _exceptionCallbackFactories = new List<ExceptionCallback>();
             DerivedTypes = new DerivedTypePairSet();
         }
+
+        #region Tracking Modes
+
+        public void Add(ObjectTrackingMode trackingMode) => _trackingModeSettings.Add(trackingMode);
+
+        public bool DisableObjectTracking(IBasicMapperData basicData)
+        {
+            if (_trackingModeSettings.None())
+            {
+                // Object tracking switched off by default:
+                return true;
+            }
+
+            return _trackingModeSettings.All(tm => !tm.AppliesTo(basicData));
+        }
+
+        #endregion
 
         #region ObjectFactories
 

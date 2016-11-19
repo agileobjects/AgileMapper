@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var source = new TwoValues { Value = new int[5], value = string.Empty };
             var targetMember = TargetMemberFor<PublicProperty<byte>>(x => x.Value);
 
-            var mappingContext = new MappingExecutor<TwoValues>(new MappingRuleSetCollection().CreateNew, MapperContext.Default);
+            var mappingContext = new MappingExecutor<TwoValues>(new MappingRuleSetCollection().CreateNew, DefaultMapperContext);
             var rootMappingData = mappingContext.CreateRootMappingData(source, targetMember);
             var rootMapperData = rootMappingData.MapperData;
 

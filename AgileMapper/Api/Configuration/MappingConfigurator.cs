@@ -56,6 +56,15 @@
             _configInfo.MapperContext.UserConfigurations.Add(exceptionCallback);
         }
 
+        public MappingConfigContinuation<TSource, TTarget> TrackMappedObjects()
+        {
+            var trackingMode = new ObjectTrackingMode(_configInfo.ForTargetType<TTarget>());
+
+            _configInfo.MapperContext.UserConfigurations.Add(trackingMode);
+
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+        }
+
         public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
             var configInfo = _configInfo.ForTargetType<TTarget>();

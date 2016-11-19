@@ -50,6 +50,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return null;
             }
 
+            if (mapperData.MapperContext.UserConfigurations.DisableObjectTracking(mapperData))
+            {
+                return null;
+            }
+
             var tryGetCall = Expression.Call(
                 mapperData.EntryPointMapperData.MappingDataObject,
                 _tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
@@ -139,6 +144,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {
             if (mapperData.TargetTypeWillNotBeMappedAgain)
+            {
+                return null;
+            }
+
+            if (mapperData.MapperContext.UserConfigurations.DisableObjectTracking(mapperData))
             {
                 return null;
             }

@@ -9,6 +9,7 @@
 
     public abstract class MemberTestsBase
     {
+        internal static readonly MapperContext DefaultMapperContext = new MapperContext();
         internal static readonly MemberFinder MemberFinder = GlobalContext.Instance.MemberFinder;
 
         internal IQualifiedMember SourceMemberFor<T>(T sourceObject)

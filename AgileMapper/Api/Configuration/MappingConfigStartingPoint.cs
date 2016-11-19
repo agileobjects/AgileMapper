@@ -169,6 +169,17 @@
 
         #endregion
 
+        #region Object Equality
+
+        /// <summary>
+        /// Configure this mapper to keep track of objects during a mapping in order to short-circuit 
+        /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
+        /// </summary>
+        public void TrackMappedObjects()
+            => _mapperContext.UserConfigurations.Add(ObjectTrackingMode.TrackAll(_mapperContext));
+
+        #endregion
+
         /// <summary>
         /// Configure how this mapper maps objects of the type specified by the type argument.
         /// </summary>

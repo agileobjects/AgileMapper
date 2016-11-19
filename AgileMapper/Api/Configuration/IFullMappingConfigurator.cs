@@ -37,6 +37,16 @@
         void PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback);
 
         /// <summary>
+        /// Configure this mapper to keep track of objects during a mapping in order to short-circuit 
+        /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
+        /// </summary>
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        MappingConfigContinuation<TSource, TTarget> TrackMappedObjects();
+
+        /// <summary>
         /// Configure a derived target type to which to map instances of the given derived source type.
         /// </summary>
         /// <typeparam name="TDerivedSource">

@@ -201,6 +201,20 @@
         }
 
         [Fact]
+        public void ShouldShowObjectTracking()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.TrackMappedObjects();
+
+                var plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
+
+                plan.ShouldContain("pToPData.TryGet(sourceChild.EldestParent, out parent)");
+                plan.ShouldContain("pToPData.Register(sourceChild.EldestParent, parent)");
+            }
+        }
+
+        [Fact]
         public void ShouldNotDuplicateChildMappingPlans()
         {
             var plan = Mapper
