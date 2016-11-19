@@ -63,12 +63,19 @@ namespace AgileObjects.AgileMapper.Members
                 targetType = typeof(TTarget);
             }
 
+            var runtimeTypesNeeded = runtimeSourceTypeNeeded || runtimeTargetTypeNeeded;
+
+            if (!runtimeTypesNeeded)
+            {
+                return Fixed<TSource, TTarget>();
+            }
+
             var isEnumerable = TypeInfo<TTarget>.IsEnumerable || (!runtimeTypesAreTheSame && targetType.IsEnumerable());
 
             return new MappingTypes(
                 sourceType,
                 targetType,
-                runtimeSourceTypeNeeded || runtimeTargetTypeNeeded,
+                true, // <- runtimeTypesNeeded
                 runtimeTypesAreTheSame,
                 isEnumerable);
         }
@@ -86,7 +93,14 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsEnumerable { get; }
 
         public bool Equals(MappingTypes otherTypes)
-            => (otherTypes.SourceType == SourceType) && (otherTypes.TargetType == TargetType);
+        {
+            if (otherTypes == this)
+            {
+                return true;
+            }
+
+            return (otherTypes.SourceType == SourceType) && (otherTypes.TargetType == TargetType);
+        }
 
         public MappingTypes WithTypes<TNewSource, TNewTarget>()
         {

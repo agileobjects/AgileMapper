@@ -2,8 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
     using Caching;
-    using Extensions;
-    using Members;
 
     internal class ObjectMapperFactory
     {
