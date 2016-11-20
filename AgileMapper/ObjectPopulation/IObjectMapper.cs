@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         object MapElement<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceElement,
             TDeclaredTarget targetElement,
-            int? enumerableIndex,
+            int enumerableIndex,
             IObjectMappingData parentMappingData);
 
         object MapRecursion<TDeclaredSource, TDeclaredTarget>(

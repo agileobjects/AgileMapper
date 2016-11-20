@@ -115,7 +115,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public object MapElement<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceElement,
             TDeclaredTarget targetElement,
-            int? enumerableIndex,
+            int enumerableIndex,
             IObjectMappingData parentMappingData)
         {
             var elementMappingData = ObjectMappingDataFactory.ForElement(
