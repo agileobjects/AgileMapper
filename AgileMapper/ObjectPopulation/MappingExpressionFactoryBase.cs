@@ -2,11 +2,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
+    using Extensions;
 #if NET_STANDARD
     using System.Reflection;
 #endif
-    using Configuration;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions;
@@ -32,13 +33,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var basicMapperData = mapperData.WithNoTargetMember();
 
             mappingExpressions.AddRange(GetShortCircuitReturns(returnNull, mapperData));
-            mappingExpressions.Add(GetTypeTests(mappingData));
-            mappingExpressions.Add(GetMappingCallback(CallbackPosition.Before, basicMapperData, mapperData));
-            mappingExpressions.AddRange(GetObjectPopulation(mappingData));
-            mappingExpressions.Add(GetMappingCallback(CallbackPosition.After, basicMapperData, mapperData));
-            mappingExpressions.Add(Expression.Label(mapperData.ReturnLabelTarget, GetReturnValue(mapperData)));
+            mappingExpressions.AddUnlessNullOrEmpty(GetTypeTests(mappingData));
+            mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.Before, basicMapperData, mapperData));
+            mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
+            mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.After, basicMapperData, mapperData));
 
-            var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
+            var mappingBlock = GetMappingBlock(mappingExpressions.WhereNotNull().ToList(), mapperData);
             var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
 
             return mappingBlockWithTryCatch;
@@ -56,20 +56,49 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract Expression GetTypeTests(IObjectMappingData mappingData);
 
-        private static Expression GetMappingCallback(
+        protected static Expression GetMappingCallbackOrNull(
             CallbackPosition callbackPosition,
             IBasicMapperData basicData,
             IMemberMapperData mapperData)
         {
-            return GetCallbackOrEmpty(c => c.GetCallbackOrNull(callbackPosition, basicData, mapperData), mapperData);
+            return mapperData.MapperContext.UserConfigurations.GetCallbackOrNull(callbackPosition, basicData, mapperData);
         }
 
-        protected static Expression GetCallbackOrEmpty(
-            Func<UserConfigurationSet, Expression> callbackFactory,
-            IMemberMapperData mapperData)
-            => callbackFactory.Invoke(mapperData.MapperContext.UserConfigurations) ?? Constants.EmptyExpression;
-
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
+
+        private Expression GetMappingBlock(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
+        {
+            if (mappingExpressions[0].NodeType != ExpressionType.Block)
+            {
+                var objectAssignment = mappingExpressions.First(exp => exp.NodeType == ExpressionType.Assign);
+
+                if (mappingExpressions.Last() == objectAssignment)
+                {
+                    var assignment = (BinaryExpression)objectAssignment;
+                    var assignedValue = assignment.Right;
+
+                    if (assignedValue.NodeType == ExpressionType.Invoke)
+                    {
+                        assignedValue = assignedValue.Replace(mapperData.InstanceVariable, mapperData.TargetObject);
+                    }
+
+                    if (mappingExpressions.Count == 1)
+                    {
+                        return Expression.Block(assignedValue);
+                    }
+
+                    mappingExpressions[mappingExpressions.Count - 1] = assignedValue;
+
+                    return Expression.Block(mappingExpressions);
+                }
+            }
+
+            mappingExpressions.Add(Expression.Label(mapperData.ReturnLabelTarget, GetReturnValue(mapperData)));
+
+            var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
+
+            return mappingBlock;
+        }
 
         protected abstract Expression GetReturnValue(ObjectMapperData mapperData);
 

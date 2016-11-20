@@ -74,13 +74,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var preCreationCallback = GetCreationCallbackOrEmpty(CallbackPosition.Before, mapperData);
-            var postCreationCallback = GetCreationCallbackOrEmpty(CallbackPosition.After, mapperData);
+            var preCreationCallback = GetCreationCallbackOrNull(CallbackPosition.Before, mapperData);
+            var postCreationCallback = GetCreationCallbackOrNull(CallbackPosition.After, mapperData);
             var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToArray();
 
             yield return preCreationCallback;
 
-            var instanceVariableValue = GetObjectResolution(mappingData, postCreationCallback != Constants.EmptyExpression);
+            var instanceVariableValue = GetObjectResolution(mappingData, postCreationCallback != null);
             var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, instanceVariableValue);
             yield return instanceVariableAssignment;
 
@@ -98,8 +98,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static Expression GetCreationCallbackOrEmpty(CallbackPosition callbackPosition, IMemberMapperData mapperData)
-            => GetCallbackOrEmpty(c => c.GetCreationCallbackOrNull(callbackPosition, mapperData), mapperData);
+        private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)
+            => mapperData.MapperContext.UserConfigurations.GetCreationCallbackOrNull(callbackPosition, mapperData);
 
         private Expression GetObjectResolution(IObjectMappingData mappingData, bool postCreationCallbackExists)
         {
@@ -202,9 +202,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IMemberPopulation memberPopulation,
             IObjectMappingData mappingData)
         {
-            return GetCallbackOrEmpty(
-                c => c.GetCallbackOrNull(position, memberPopulation.MapperData, mappingData.MapperData),
-                mappingData.MapperData);
+            return GetMappingCallbackOrNull(position, memberPopulation.MapperData, mappingData.MapperData);
         }
 
         private static void CreateSourceMemberTypeTesterIfRequired(

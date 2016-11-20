@@ -3,9 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
 
     internal static class EnumerableExtensions
     {
+        public static void AddUnlessNullOrEmpty(this ICollection<Expression> items, Expression item)
+        {
+            if ((item != null) && (item != Constants.EmptyExpression))
+            {
+                items.Add(item);
+            }
+        }
+
         public static bool Any<T>(this ICollection<T> items) => items.Count > 0;
 
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
