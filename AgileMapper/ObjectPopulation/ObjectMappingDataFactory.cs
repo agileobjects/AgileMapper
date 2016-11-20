@@ -171,7 +171,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static IObjectMappingData ForElement<TSource, TTarget>(
             TSource source,
             TTarget target,
-            int? enumerableIndex,
+            int enumerableIndex,
             IObjectMappingData parent)
         {
             var membersSource = new ElementMembersSource(parent);
@@ -187,7 +187,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IObjectMappingData ForElement<TSource, TTarget>(
             TSource source,
             TTarget target,
-            int? enumerableIndex,
+            int enumerableIndex,
             IMembersSource membersSource,
             IObjectMappingData parent)
         {

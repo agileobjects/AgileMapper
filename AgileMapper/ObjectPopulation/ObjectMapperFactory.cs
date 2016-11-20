@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Caching;
 
@@ -7,18 +8,35 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly EnumerableMappingExpressionFactory _enumerableMappingExpressionFactory;
         private readonly ComplexTypeMappingExpressionFactory _complexTypeMappingExpressionFactory;
-        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _rootMappers;
+        private readonly List<ICacheEmptier> _rootCacheEmptiers;
 
         public ObjectMapperFactory(MapperContext mapperContext)
         {
             _enumerableMappingExpressionFactory = new EnumerableMappingExpressionFactory();
             _complexTypeMappingExpressionFactory = new ComplexTypeMappingExpressionFactory(mapperContext);
-            _rootMappers = mapperContext.Cache.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();
+            _rootCacheEmptiers = new List<ICacheEmptier>();
         }
 
-        public IObjectMapper GetOrCreateRoot(IObjectMappingData mappingData) => _rootMappers.GetOrAddMapper(mappingData);
+        public ObjectMapper<TSource, TTarget> GetOrCreateRoot<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
+        {
+            mappingData.MapperKey.MappingData = mappingData;
 
-        public IObjectMapper Create<TSource, TTarget>(IObjectMappingData mappingData)
+            var mapper = RootMapperCache<TSource, TTarget>.Mappers.GetOrAdd(
+                mappingData.MapperKey,
+                key =>
+                {
+                    var mapperToCache = (ObjectMapper<TSource, TTarget>)key.MappingData.Mapper;
+
+                    key.MappingData = null;
+                    _rootCacheEmptiers.Add(CacheEmptier<TSource, TTarget>.Instance);
+
+                    return mapperToCache;
+                });
+
+            return mapper;
+        }
+
+        public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
             var mappingExpression = mappingData.MapperKey.MappingTypes.IsEnumerable
                 ? _enumerableMappingExpressionFactory.Create(mappingData)
@@ -38,8 +56,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void Reset()
         {
-            _rootMappers.Empty();
             _complexTypeMappingExpressionFactory.Reset();
+
+            foreach (var rootCacheEmptier in _rootCacheEmptiers)
+            {
+                rootCacheEmptier.EmptyCache();
+            }
+
+            _rootCacheEmptiers.Clear();
         }
+
+        #region Root Mapper Caching
+
+        private static class RootMapperCache<TSource, TTarget>
+        {
+            public static readonly ICache<ObjectMapperKeyBase, ObjectMapper<TSource, TTarget>> Mappers;
+
+            static RootMapperCache()
+            {
+                Mappers = GlobalContext.Instance
+                    .Cache
+                    .CreateScoped<ObjectMapperKeyBase, ObjectMapper<TSource, TTarget>>();
+            }
+        }
+
+        private interface ICacheEmptier
+        {
+            void EmptyCache();
+        }
+
+        private class CacheEmptier<TSource, TTarget> : ICacheEmptier
+        {
+            public static readonly ICacheEmptier Instance = new CacheEmptier<TSource, TTarget>();
+
+            public void EmptyCache()
+            {
+                RootMapperCache<TSource, TTarget>.Mappers.Empty();
+            }
+        }
+
+        #endregion
     }
 }

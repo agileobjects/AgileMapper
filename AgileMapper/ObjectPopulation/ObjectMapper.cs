@@ -86,12 +86,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData MapperData { get; }
 
-        public object Map(IObjectMappingData mappingData)
-        {
-            var typedData = (ObjectMappingData<TSource, TTarget>)mappingData;
+        public object Map(IObjectMappingData mappingData) => Map((ObjectMappingData<TSource, TTarget>)mappingData);
 
-            return _mapperFunc.Invoke(typedData);
-        }
+        public TTarget Map(ObjectMappingData<TSource, TTarget> mappingData) => _mapperFunc.Invoke(mappingData);
 
         public object MapChild<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource source,

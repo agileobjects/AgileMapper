@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly IObjectMappingData _parent;
         private readonly Dictionary<object, List<object>> _mappedObjectsBySource;
-        private IObjectMapper _mapper;
+        private ObjectMapper<TSource, TTarget> _mapper;
         private ObjectMapperData _mapperData;
 
         public ObjectMappingData(
@@ -62,7 +62,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            Mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
+            _mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
 
             if (MapperData.MappedObjectCachingNeeded)
             {
@@ -76,15 +76,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperKeyBase MapperKey { get; }
 
-        public IObjectMapper Mapper
+        IObjectMapper IObjectMappingData.Mapper
         {
-            get { return _mapper ?? (Mapper = MapperContext.ObjectMapperFactory.Create<TSource, TTarget>(this)); }
-            set
-            {
-                _mapper = value;
-                _mapperData = _mapper.MapperData;
-            }
+            get { return Mapper; }
+            set { _mapper = (ObjectMapper<TSource, TTarget>)value; }
         }
+
+        private ObjectMapper<TSource, TTarget> Mapper
+            => _mapper ?? (_mapper = MapperContext.ObjectMapperFactory.Create(this));
 
         public TTarget CreatedObject { get; set; }
 
@@ -101,7 +100,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingData DeclaredTypeMappingData { get; }
 
         public ObjectMapperData MapperData
-            => _mapperData ?? (_mapperData = ObjectMapperData.For<TSource, TTarget>(this));
+            => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For<TSource, TTarget>(this));
 
         private ChildMemberMappingData<TSource, TTarget> _childMappingData;
 
@@ -121,7 +120,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Map Methods
 
-        public object MapStart() => Mapper.Map(this);
+        public object MapStart() => _mapper.Map(this);
 
         public TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
