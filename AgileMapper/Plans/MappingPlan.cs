@@ -9,8 +9,6 @@
     using System.Reflection;
 #endif
     using NetStandardPolyfills;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
 
     internal class MappingPlan<TSource, TTarget>
     {
@@ -23,10 +21,7 @@
             var rootMappingData = mappingContext
                 .CreateRootMappingData(default(TSource), default(TTarget));
 
-            var rootPlanData = new MappingPlanData(
-                mappingContext,
-                rootMappingData.Mapper.MappingLambda,
-                rootMappingData);
+            var rootPlanData = new MappingPlanData(rootMappingData);
 
             Expand(rootPlanData);
         }
@@ -61,28 +56,11 @@
 
         private static bool IsObjectMemberMapping(MethodCallExpression mapCall) => mapCall.Arguments.Count == 4;
 
-        private static string GetDescription(MappingPlanData mappingPlanData)
-        {
-            var mappingTypes = mappingPlanData.Lambda.Type.GetGenericArguments();
-            var sourceType = mappingTypes.ElementAt(0).GetFriendlyName();
-            var targetType = mappingTypes.ElementAt(1).GetFriendlyName();
-
-            return $@"
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// Map {sourceType} -> {targetType}
-// Rule Set: {mappingPlanData.MappingData.MappingContext.RuleSet.Name}
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-{mappingPlanData.Lambda.ToReadableString()}".TrimStart();
-        }
-
         public static implicit operator string(MappingPlan<TSource, TTarget> mappingPlan)
         {
             return string.Join(
                 Environment.NewLine + Environment.NewLine,
-                mappingPlan._generatedPlanData.Select(GetDescription));
+                mappingPlan._generatedPlanData.Select(pd => pd.GetDescription()));
         }
 
         private class MapCallFinder : ExpressionVisitor
