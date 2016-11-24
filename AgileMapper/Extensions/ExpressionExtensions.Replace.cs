@@ -24,10 +24,19 @@
             return lambda.Body.Replace(replacementsByParameter);
         }
 
-        public static Expression Replace(this Expression expression, Expression target, Expression replacement)
-            => expression.Replace(new Dictionary<Expression, Expression> { [target] = replacement });
+        public static TExpression Replace<TExpression>(
+            this TExpression expression,
+            Expression target,
+            Expression replacement)
+            where TExpression : Expression
+        {
+            return expression.Replace(new Dictionary<Expression, Expression> { [target] = replacement });
+        }
 
-        public static Expression Replace(this Expression expression, Dictionary<Expression, Expression> replacementsByTarget)
+        public static TExpression Replace<TExpression>(
+            this TExpression expression,
+            Dictionary<Expression, Expression> replacementsByTarget)
+            where TExpression : Expression
         {
             if (replacementsByTarget.None())
             {
@@ -37,7 +46,7 @@
             var replacer = new ExpressionReplacer(replacementsByTarget);
             var replaced = replacer.ReplaceIn(expression);
 
-            return replaced;
+            return (TExpression)replaced;
         }
 
         private class ExpressionReplacer

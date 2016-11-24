@@ -237,5 +237,31 @@
             plan.ShouldContain("//  - PaymentTypeUs.Check matches no PaymentTypeUk");
             plan.ShouldContain("//  - PaymentTypeUk.Cheque is matched by no PaymentTypeUs");
         }
+
+        [Fact]
+        public void ShouldShowMultipleEnumSourceMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<PaymentTypeUk, PaymentTypeUs>>()
+                    .To<OrderUs>()
+                    .Map((s, o) => s.Value1)
+                    .To(o => o.PaymentType)
+                    .And
+                    .If((s, o) => s.Value1 == PaymentTypeUk.Cheque)
+                    .Map((s, o) => s.Value2)
+                    .To(o => o.PaymentType);
+
+                var plan = mapper
+                    .GetPlanFor<PublicTwoFields<PaymentTypeUk, PaymentTypeUs>>()
+                    .ToANew<OrderUs>();
+
+                plan.ShouldContain("PublicTwoFields<PaymentTypeUk, PaymentTypeUs>.Value1 to OrderUs.PaymentType");
+                plan.ShouldContain("Value1 == PaymentTypeUk.Cheque");
+                plan.ShouldContain("PaymentTypeUk.Cheque matches no PaymentTypeUs");
+                plan.ShouldContain("PaymentTypeUs.Check is matched by no PaymentTypeUk");
+            }
+        }
     }
 }

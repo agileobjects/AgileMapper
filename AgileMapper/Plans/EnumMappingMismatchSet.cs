@@ -48,6 +48,7 @@
             var targetEnumNames = Enum.GetNames(targetEnumType);
 
             var mappingMismatches = sourceEnumData
+                .Where(d => d.EnumType != targetEnumType)
                 .Select(d => EnumMappingMismatch.For(
                     d.EnumType,
                     d.SourceMembers,
@@ -70,7 +71,7 @@
 
         private class EnumMappingMismatch
         {
-            private static readonly EnumMappingMismatch _emptyMismatch = new EnumMappingMismatch();
+            private static readonly EnumMappingMismatch _empty = new EnumMappingMismatch();
 
             private EnumMappingMismatch()
             {
@@ -110,7 +111,7 @@
 
                 if (mismatches.None())
                 {
-                    return _emptyMismatch;
+                    return _empty;
                 }
 
                 return new EnumMappingMismatch(targetMember, sourceMembers, mismatches, mapperData);

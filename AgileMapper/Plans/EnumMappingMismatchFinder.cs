@@ -99,7 +99,7 @@
             {
                 var mismatchWarnings = EnumMappingMismatchSet.For(
                     targetMemberAndDataSources.TargetMember,
-                    targetMemberAndDataSources.DataSources.Where(ds => IsEnum(ds.Value.Type)),
+                    targetMemberAndDataSources.DataSources.Where(ds => IsEnum(ds.SourceMember.Type)),
                     _mapperData);
 
                 if (mismatchWarnings.Any)
