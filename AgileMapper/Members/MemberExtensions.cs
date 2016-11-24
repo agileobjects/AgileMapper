@@ -7,6 +7,7 @@
     using System.Reflection;
     using Extensions;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal static class MemberExtensions
     {
@@ -46,6 +47,34 @@
 
         public static string GetFullName(this IEnumerable<Member> members)
             => string.Join(string.Empty, members.Select(m => m.JoiningName));
+
+        public static string GetFriendlySourcePath(this IQualifiedMember sourceMember, IMemberMapperData rootMapperData)
+            => GetMemberPath(sourceMember, rootMapperData.SourceMember);
+
+        public static string GetFriendlyTargetPath(this IQualifiedMember targetMember, IMemberMapperData rootMapperData)
+            => GetMemberPath(targetMember, rootMapperData.TargetMember);
+
+        private static string GetMemberPath(IQualifiedMember member, IQualifiedMember rootMember)
+        {
+            var rootTypeName = rootMember.Type.GetFriendlyName();
+            var memberPath = member.GetPath();
+
+            if (memberPath == rootMember.Name)
+            {
+                return rootTypeName;
+            }
+
+            if (memberPath.StartsWith(rootMember.Name, StringComparison.Ordinal))
+            {
+                return rootTypeName + memberPath.Substring(rootMember.Name.Length);
+            }
+
+            var rootMemberNameIndex = memberPath.IndexOf("." + rootMember.Name + ".", StringComparison.Ordinal);
+            var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMember.Name.Length + 2);
+            var path = rootTypeName + "." + rootMemberString;
+
+            return path;
+        }
 
         public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression instance)
         {

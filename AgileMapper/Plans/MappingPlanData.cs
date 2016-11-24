@@ -95,6 +95,8 @@
 
         public string GetDescription()
         {
+            var lambda = GetFinalMappingLambda();
+
             var sourceType = _mappingTypes.SourceType.GetFriendlyName();
             var targetType = _mappingTypes.TargetType.GetFriendlyName();
 
@@ -106,7 +108,14 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-{Lambda.ToReadableString()}".TrimStart();
+{lambda.ToReadableString()}".TrimStart();
+        }
+
+        private Expression GetFinalMappingLambda()
+        {
+            var lambdaWithEnumMismatches = EnumMappingMismatchFinder.Process(Lambda, _mappingData);
+
+            return lambdaWithEnumMismatches;
         }
     }
 }

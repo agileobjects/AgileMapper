@@ -92,7 +92,6 @@
     <Compile Include="Configuration\WhenConfiguringTypeIdentifiers.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Extensions\WhenGeneratingVariableNames.cs" />
-    <Compile Include="Extensions\WhenGettingAParentExpressionNode.cs" />
     <Compile Include="Members\MemberTestsBase.cs" />
     <Compile Include="Members\WhenCreatingTargetMembersFromExpressions.cs" />
     <Compile Include="Members\WhenDeterminingATypeIdentifier.cs" />
@@ -105,6 +104,10 @@
     <Compile Include="TestClasses\MysteryCustomerViewModel.cs" />
     <Compile Include="TestClasses\Order.cs" />
     <Compile Include="TestClasses\OrderItem.cs" />
+    <Compile Include="TestClasses\OrderUk.cs" />
+    <Compile Include="TestClasses\OrderUs.cs" />
+    <Compile Include="TestClasses\PaymentTypeUk.cs" />
+    <Compile Include="TestClasses\PaymentTypeUs.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
     <Compile Include="TestClasses\PublicTwoFields.cs" />
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />

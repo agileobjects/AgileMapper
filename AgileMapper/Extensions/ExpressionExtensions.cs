@@ -23,20 +23,6 @@
         private static readonly MethodInfo _toListMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToList");
 
-        public static Expression GetParentOrNull(this Expression expression)
-        {
-            switch (expression.NodeType)
-            {
-                case ExpressionType.Call:
-                    return ((MethodCallExpression)expression).GetSubject();
-
-                case ExpressionType.MemberAccess:
-                    return ((MemberExpression)expression).Expression;
-            }
-
-            return null;
-        }
-
         public static Expression AndTogether(this ICollection<Expression> expressions)
         {
             if (expressions.Count == 0)

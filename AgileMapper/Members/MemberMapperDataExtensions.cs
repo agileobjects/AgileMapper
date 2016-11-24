@@ -11,6 +11,16 @@ namespace AgileObjects.AgileMapper.Members
 
     internal static class MemberMapperDataExtensions
     {
+        public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
+        {
+            while (!mapperData.IsRoot)
+            {
+                mapperData = mapperData.Parent;
+            }
+
+            return mapperData;
+        }
+
         public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
             => !mapperData.IsRoot && mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
 

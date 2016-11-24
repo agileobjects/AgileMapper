@@ -225,5 +225,17 @@
 
             numberOfObjectToProductPlans.ShouldBe(1);
         }
+
+        [Fact]
+        public void ShouldShowEnumMismatches()
+        {
+            var plan = Mapper
+                .GetPlanFor<OrderUs>()
+                .ToANew<OrderUk>();
+
+            plan.ShouldContain("// WARNING - enum mismatches mapping OrderUs.PaymentType to OrderUk.PaymentType:");
+            plan.ShouldContain("//  - PaymentTypeUs.Check matches no PaymentTypeUk");
+            plan.ShouldContain("//  - PaymentTypeUk.Cheque is matched by no PaymentTypeUs");
+        }
     }
 }

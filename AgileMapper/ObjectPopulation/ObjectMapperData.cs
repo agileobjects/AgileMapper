@@ -72,6 +72,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapElementMethod = GetMapMethod(MappingDataObject.Type, 3);
 
             _dataSourcesByTargetMemberName = new Dictionary<string, DataSourceSet>();
+            DataSourcesByTargetMember = new Dictionary<QualifiedMember, DataSourceSet>();
 
             if (targetMember.IsEnumerable)
             {
@@ -409,6 +410,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Dictionary<ObjectMapperKeyBase, LambdaExpression> RequiredMapperFuncsByKey { get; }
 
+        public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
+
         public MethodCallExpression GetMapCall(
             Expression sourceObject,
             QualifiedMember targetMember,
@@ -471,6 +474,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void RegisterTargetMemberDataSourcesIfRequired(QualifiedMember targetMember, DataSourceSet dataSources)
         {
+            DataSourcesByTargetMember.Add(targetMember, dataSources);
+
             if (targetMember.IsSimple)
             {
                 return;
