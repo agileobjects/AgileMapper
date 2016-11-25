@@ -65,8 +65,8 @@
 
         private IValueConverter GetConverterFor(Type sourceType, Type targetType)
         {
-            sourceType = sourceType.GetNonNullableUnderlyingTypeIfAppropriate();
-            targetType = targetType.GetNonNullableUnderlyingTypeIfAppropriate();
+            sourceType = sourceType.GetNonNullableType();
+            targetType = targetType.GetNonNullableType();
 
             return _converters.FirstOrDefault(c =>
                 c.IsFor(targetType) && c.CanConvert(sourceType));

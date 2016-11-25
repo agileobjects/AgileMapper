@@ -32,7 +32,7 @@
                 sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
 
-            var nonNullableEnumType = targetType.GetNonNullableUnderlyingTypeIfAppropriate();
+            var nonNullableEnumType = targetType.GetNonNullableType();
 
             var tryParseMethod = typeof(Enum)
                 .GetPublicStaticMethods()

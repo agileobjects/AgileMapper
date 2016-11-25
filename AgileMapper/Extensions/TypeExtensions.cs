@@ -150,7 +150,7 @@
 #endif
         }
 
-        public static bool IsFromBcl(this Type type) => type.GetAssembly() == _msCorLib;
+        public static bool IsFromBcl(this Type type) => ReferenceEquals(type.GetAssembly(), _msCorLib);
 
         public static bool IsEnumerable(this Type type)
         {
@@ -169,10 +169,7 @@
             return type.IsValueType() || (type == typeof(string));
         }
 
-        public static Type GetNonNullableUnderlyingTypeIfAppropriate(this Type type)
-        {
-            return Nullable.GetUnderlyingType(type) ?? type;
-        }
+        public static Type GetNonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
         public static IEnumerable<Type> GetCoercibleNumericTypes(this Type numericType)
         {
@@ -217,7 +214,7 @@
             IDictionary<Type, double> cache,
             Func<IEnumerable<long>, long> enumValueFactory)
         {
-            type = type.GetNonNullableUnderlyingTypeIfAppropriate();
+            type = type.GetNonNullableType();
 
             return type.IsEnum() ? enumValueFactory.Invoke(GetEnumValues(type)) : cache[type];
         }

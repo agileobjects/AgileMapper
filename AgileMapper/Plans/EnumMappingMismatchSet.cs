@@ -34,7 +34,7 @@
                 .Select(ds => new
                 {
                     DataSource = ds,
-                    EnumType = ds.SourceMember.Type.GetNonNullableUnderlyingTypeIfAppropriate()
+                    EnumType = ds.SourceMember.Type.GetNonNullableType()
                 })
                 .GroupBy(dss => dss.EnumType)
                 .Select(dsGroup => new
@@ -44,7 +44,7 @@
                 })
                 .ToArray();
 
-            var targetEnumType = targetMember.Type.GetNonNullableUnderlyingTypeIfAppropriate();
+            var targetEnumType = targetMember.Type.GetNonNullableType();
             var targetEnumNames = Enum.GetNames(targetEnumType);
 
             var mappingMismatches = sourceEnumData

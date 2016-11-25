@@ -71,7 +71,7 @@
 
         private static Expression GetNumericValueValidityCheck(Expression sourceValue, Type targetType)
         {
-            var nonNullableTargetType = targetType.GetNonNullableUnderlyingTypeIfAppropriate();
+            var nonNullableTargetType = targetType.GetNonNullableType();
             var numericValueIsInRange = NumericValueIsInRangeComparison.For(sourceValue, nonNullableTargetType);
 
             if (NonWholeNumberCheckIsNotRequired(sourceValue, nonNullableTargetType))

@@ -179,7 +179,10 @@
                     .Map((ptf, pf) => ptf.Value1).To(pf => pf.Value)
                     .But
                     .If((ptf, pf) => ptf.Value1 == null)
-                    .Map((ptf, pf) => ptf.Value2).To(pf => pf.Value);
+                    .Map((ptf, pf) => ptf.Value2).To(pf => pf.Value)
+                    .And
+                    .If((ptf, pf) => Title.Duke == ptf.Value1)
+                    .Map(TitleShortlist.Other).To(pf => pf.Value);
 
                 var nonNullSource = new PublicTwoFields<Title?, Title> { Value1 = Title.Dr, Value2 = Title.Count };
                 var nonNullResult = mapper.Map(nonNullSource).ToANew<PublicField<TitleShortlist>>();
@@ -190,6 +193,11 @@
                 var nullResult = mapper.Map(nullSource).ToANew<PublicField<TitleShortlist>>();
 
                 nullResult.Value.ShouldBe(TitleShortlist.Mrs);
+
+                var dukeSource = new PublicTwoFields<Title?, Title> { Value1 = Title.Duke };
+                var dukeResult = mapper.Map(dukeSource).ToANew<PublicField<TitleShortlist>>();
+
+                dukeResult.Value.ShouldBe(TitleShortlist.Other);
             }
         }
     }

@@ -87,7 +87,7 @@
         private static bool TargetMemberIsAnEnum(QualifiedMember targetMember)
             => targetMember.IsSimple && IsEnum(targetMember.Type);
 
-        private static bool IsEnum(Type type) => type.GetNonNullableUnderlyingTypeIfAppropriate().IsEnum();
+        private static bool IsEnum(Type type) => type.GetNonNullableType().IsEnum();
 
         protected override Expression VisitBinary(BinaryExpression binary)
         {

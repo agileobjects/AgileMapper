@@ -66,11 +66,11 @@
         {
             ThrowIfConflictingIgnoredMemberExists(
                 ignoredMember,
-                () => "Member " + ignoredMember.TargetMember.GetPath() + " is already ignored");
+                im => "Member " + im.TargetMember.GetPath() + " is already ignored");
 
             ThrowIfConflictingDataSourceExists(
                 ignoredMember,
-                () => "Ignored member " + ignoredMember.TargetMember.GetPath() + " has a configured data source");
+                im => "Ignored member " + im.TargetMember.GetPath() + " has a configured data source");
 
             _ignoredMembers.Add(ignoredMember);
         }
@@ -86,11 +86,11 @@
         {
             ThrowIfConflictingIgnoredMemberExists(
                 dataSourceFactory,
-                () => "Member " + dataSourceFactory.TargetMember.GetPath() + " has been ignored");
+                dsf => "Member " + dsf.TargetMember.GetPath() + " has been ignored");
 
             ThrowIfConflictingDataSourceExists(
                 dataSourceFactory,
-                () => dataSourceFactory.TargetMember.GetPath() + " already has a configured data source");
+                dsf => dsf.TargetMember.GetPath() + " already has a configured data source");
 
             _dataSourceFactories.Add(dataSourceFactory);
         }
@@ -153,29 +153,31 @@
 
         #region Conflict Handling
 
-        private void ThrowIfConflictingIgnoredMemberExists(
-            UserConfiguredItemBase configuredItem,
-            Func<string> messageFactory)
+        private void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(
+            TConfiguredItem configuredItem,
+            Func<TConfiguredItem, string> messageFactory)
+            where TConfiguredItem : UserConfiguredItemBase
         {
             var conflictingIgnoredMember = _ignoredMembers
                 .FirstOrDefault(im => im.ConflictsWith(configuredItem));
 
             if (conflictingIgnoredMember != null)
             {
-                throw new MappingConfigurationException(messageFactory.Invoke());
+                throw new MappingConfigurationException(messageFactory.Invoke(configuredItem));
             }
         }
 
-        private void ThrowIfConflictingDataSourceExists(
-            UserConfiguredItemBase configuredItem,
-            Func<string> messageFactory)
+        private void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
+            TConfiguredItem configuredItem,
+            Func<TConfiguredItem, string> messageFactory)
+            where TConfiguredItem : UserConfiguredItemBase
         {
             var conflictingDataSource = _dataSourceFactories
                 .FirstOrDefault(dsf => dsf.ConflictsWith(configuredItem));
 
             if (conflictingDataSource != null)
             {
-                throw new MappingConfigurationException(messageFactory.Invoke());
+                throw new MappingConfigurationException(messageFactory.Invoke(configuredItem));
             }
         }
 

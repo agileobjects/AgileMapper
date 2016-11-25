@@ -124,9 +124,19 @@
         {
             public int Compare(UserConfiguredItemBase x, UserConfiguredItemBase y)
             {
+                if (ReferenceEquals(x, y))
+                {
+                    return 0;
+                }
+
                 if (!x.HasConfiguredCondition && y.HasConfiguredCondition)
                 {
                     return 1;
+                }
+
+                if (x.HasConfiguredCondition && !y.HasConfiguredCondition)
+                {
+                    return -1;
                 }
 
                 if (x.ConfigInfo.HasSameSourceTypeAs(y.ConfigInfo))
