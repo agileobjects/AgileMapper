@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Members
     internal class NestedAccessFinder : ExpressionVisitor
     {
         private static readonly object _syncLock = new object();
+        private static readonly Expression[] _noMemberAccesses = { };
 
         private readonly Expression _mappingDataObject;
         private readonly ICollection<Expression> _stringMemberAccessSubjects;
@@ -34,7 +35,9 @@ namespace AgileObjects.AgileMapper.Members
 
                 Visit(expression);
 
-                memberAccesses = _memberAccessesByPath.Values.Reverse().ToArray();
+                memberAccesses = _memberAccessesByPath.None()
+                    ? _noMemberAccesses
+                    : _memberAccessesByPath.Values.Reverse().ToArray();
 
                 _stringMemberAccessSubjects.Clear();
                 _nullCheckSubjects.Clear();
@@ -46,15 +49,37 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override Expression VisitBinary(BinaryExpression binary)
         {
-            if ((binary.NodeType == ExpressionType.NotEqual) &&
-                (binary.Right.NodeType == ExpressionType.Constant) &&
-                (((ConstantExpression)binary.Right).Value == null) &&
-                ShouldAddNullCheck(binary.Left))
+            Expression comparedValue;
+
+            if (TryGetNullComparison(binary.Left, binary.Right, binary, out comparedValue) ||
+                TryGetNullComparison(binary.Right, binary.Left, binary, out comparedValue))
             {
-                _nullCheckSubjects.Add(binary.Left.ToString());
+                _nullCheckSubjects.Add(comparedValue.ToString());
             }
 
             return base.VisitBinary(binary);
+        }
+
+        private bool TryGetNullComparison(
+            Expression comparedOperand,
+            Expression nullOperand,
+            Expression binary,
+            out Expression comparedValue)
+        {
+            if ((binary.NodeType != ExpressionType.Equal) && (binary.NodeType != ExpressionType.NotEqual))
+            {
+                comparedValue = null;
+                return false;
+            }
+
+            if ((nullOperand.NodeType != ExpressionType.Constant) || (((ConstantExpression)nullOperand).Value != null))
+            {
+                comparedValue = null;
+                return false;
+            }
+
+            comparedValue = ShouldAddNullCheck(comparedOperand) ? comparedOperand : null;
+            return comparedValue != null;
         }
 
         protected override Expression VisitMember(MemberExpression memberAccess)

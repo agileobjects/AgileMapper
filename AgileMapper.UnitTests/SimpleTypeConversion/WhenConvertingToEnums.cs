@@ -167,5 +167,30 @@
 
             result.Value.ShouldBeDefault();
         }
+
+        [Fact]
+        public void ShouldMapEnumsConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<Title?, Title>>()
+                    .To<PublicField<TitleShortlist>>()
+                    .Map((ptf, pf) => ptf.Value1).To(pf => pf.Value)
+                    .But
+                    .If((ptf, pf) => ptf.Value1 == null)
+                    .Map((ptf, pf) => ptf.Value2).To(pf => pf.Value);
+
+                var nonNullSource = new PublicTwoFields<Title?, Title> { Value1 = Title.Dr, Value2 = Title.Count };
+                var nonNullResult = mapper.Map(nonNullSource).ToANew<PublicField<TitleShortlist>>();
+
+                nonNullResult.Value.ShouldBe(TitleShortlist.Dr);
+
+                var nullSource = new PublicTwoFields<Title?, Title> { Value1 = null, Value2 = Title.Mrs };
+                var nullResult = mapper.Map(nullSource).ToANew<PublicField<TitleShortlist>>();
+
+                nullResult.Value.ShouldBe(TitleShortlist.Mrs);
+            }
+        }
     }
 }

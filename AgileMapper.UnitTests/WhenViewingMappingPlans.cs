@@ -246,12 +246,10 @@
                 mapper.WhenMapping
                     .From<PublicTwoFields<PaymentTypeUk, PaymentTypeUs>>()
                     .To<OrderUs>()
-                    .Map((s, o) => s.Value1)
-                    .To(o => o.PaymentType)
-                    .And
+                    .Map((s, o) => s.Value1).To(o => o.PaymentType)
+                    .But
                     .If((s, o) => s.Value1 == PaymentTypeUk.Cheque)
-                    .Map((s, o) => s.Value2)
-                    .To(o => o.PaymentType);
+                    .Map((s, o) => s.Value2).To(o => o.PaymentType);
 
                 var plan = mapper
                     .GetPlanFor<PublicTwoFields<PaymentTypeUk, PaymentTypeUs>>()
