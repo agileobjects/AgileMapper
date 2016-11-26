@@ -171,7 +171,7 @@
             }
 
             var conditionNestedAccessesChecks = mapperData
-                .GetNestedAccessesIn(condition, targetCanBeNull: true) // TODO: Use position.IsPriorToObjectCreation(targetMember)
+                .GetNestedAccessesIn(condition, position.IsPriorToObjectCreation(targetMember))
                 .GetIsNotDefaultComparisonsOrNull();
 
             if (conditionNestedAccessesChecks != null)

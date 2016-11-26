@@ -11,6 +11,9 @@
     internal static class CallbackPositionExtensions
     {
         public static bool IsPriorToObjectCreation(this CallbackPosition? position, QualifiedMember targetMember)
+            => IsPriorToObjectCreation(position.GetValueOrDefault(), targetMember);
+
+        public static bool IsPriorToObjectCreation(this CallbackPosition position, QualifiedMember targetMember)
         {
             if (position != CallbackPosition.Before)
             {
