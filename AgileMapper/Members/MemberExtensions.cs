@@ -82,20 +82,7 @@
             return memberChain.Skip(1).Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
-        public static bool IsEnumerableElement(this QualifiedMember member) => member.LeafMember.IsEnumerableElement();
-
         public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;
-
-        public static ICollection<string> GetJoinedNames(this IEnumerable<Member> members, MapperContext mapperContext)
-        {
-            var matchingNameSets = members
-                .Select(mapperContext.NamingSettings.GetMatchingNamesFor)
-                .ToArray();
-
-            var joinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(matchingNameSets);
-
-            return joinedNames;
-        }
 
         public static ICollection<string> ExtendWith(
             this ICollection<string> parentJoinedNames,

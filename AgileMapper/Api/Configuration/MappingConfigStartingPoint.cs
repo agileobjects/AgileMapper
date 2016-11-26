@@ -8,7 +8,6 @@
     using AgileMapper.Configuration;
     using Extensions;
     using Members;
-    using ReadableExpressions;
 
     /// <summary>
     /// Provides options for configuring how a mapper performs a mapping.

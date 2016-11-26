@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
 
@@ -31,7 +30,7 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.NestedAccessFinder.FindIn(value, targetCanBeNull);
 
         public static bool TargetMemberIsEnumerableElement(this IMemberMapperData mapperData)
-            => mapperData.TargetMember.IsEnumerableElement();
+            => mapperData.TargetMember.LeafMember.IsEnumerableElement();
 
         public static bool TargetMemberEverRecurses(this IMemberMapperData mapperData)
         {
@@ -78,9 +77,6 @@ namespace AgileObjects.AgileMapper.Members
 
             return nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(parentMember.Append(m), member));
         }
-
-        public static bool IsForStandaloneMapping(this IMemberMapperData mapperData)
-            => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();
 
         public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
         {

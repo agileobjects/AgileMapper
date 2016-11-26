@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
                   value.Type,
                   value.Type.IsEnumerable(),
                   value.ToReadableString(),
-                  mapperData.TargetMember.MemberChain.GetJoinedNames(mapperData.MapperContext),
+                  mapperData.TargetMember.JoinedNames,
                   mapperData.MapperContext)
         {
         }

@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq;
+    using Extensions;
     using Members;
 
     internal class MapperDataContext
@@ -12,10 +13,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MapperDataContext(IMemberMapperData childMapperData)
             : this(
                 childMapperData.Parent,
-                childMapperData.IsForStandaloneMapping(),
+                IsForStandaloneMapping(childMapperData),
                 childMapperData.Parent.Context.IsForDerivedType)
         {
         }
+
+        private static bool IsForStandaloneMapping(IBasicMapperData mapperData)
+            => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();
 
         public MapperDataContext(
             ObjectMapperData mapperData,
