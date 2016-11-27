@@ -29,7 +29,8 @@
                 new ToNumericConverter<double>(toStringConverter),
                 new ToNumericConverter<long>(toStringConverter),
                 new ToNumericConverter<short>(toStringConverter),
-                new ToNumericConverter<byte>(toStringConverter)
+                new ToNumericConverter<byte>(toStringConverter),
+                new FallbackNonSimpleTypeValueConverter()
             };
         }
 
@@ -43,25 +44,7 @@
         }
 
         public bool CanConvert(Type sourceType, Type targetType)
-        {
-            if (sourceType.IsEnumerable() && targetType.IsEnumerable())
-            {
-                sourceType = sourceType.GetEnumerableElementType();
-                targetType = targetType.GetEnumerableElementType();
-            }
-
-            if (targetType.IsAssignableFrom(sourceType))
-            {
-                return true;
-            }
-
-            if (targetType.IsComplex() && sourceType.IsComplex())
-            {
-                return true;
-            }
-
-            return GetConverterFor(sourceType, targetType) != null;
-        }
+            => targetType.IsAssignableFrom(sourceType) || GetConverterFor(sourceType, targetType) != null;
 
         private IValueConverter GetConverterFor(Type sourceType, Type targetType)
         {
@@ -81,11 +64,6 @@
             if (targetType.IsAssignableFrom(sourceValue.Type))
             {
                 return targetType.IsNullableType() ? sourceValue.GetConversionTo(targetType) : sourceValue;
-            }
-
-            if (!targetType.IsSimple())
-            {
-                return sourceValue;
             }
 
             var converter = GetConverterFor(sourceValue.Type, targetType);
