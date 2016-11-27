@@ -40,6 +40,6 @@
                 .CanConvert(keyAndValueTypes[1], mapperData.TargetMember.Type);
         }
 
-        public IDataSource Create(IMemberMappingData mappingData) => new DictionaryDataSource(mappingData);
+        public IDataSource Create(IChildMemberMappingData mappingData) => new DictionaryDataSource(mappingData);
     }
 }

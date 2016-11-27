@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly IDataSourceFactory Instance = new ExistingOrDefaultValueDataSourceFactory();
 
-        public IDataSource Create(IMemberMappingData mappingData)
+        public IDataSource Create(IChildMemberMappingData mappingData)
             => mappingData.MapperData.TargetMember.IsReadable
                 ? new ExistingMemberValueOrEmptyDataSource(mappingData.MapperData)
                 : DefaultValueDataSourceFactory.Instance.Create(mappingData);

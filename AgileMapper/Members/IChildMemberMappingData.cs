@@ -3,7 +3,7 @@
     using System;
     using ObjectPopulation;
 
-    internal interface IMemberMappingData
+    internal interface IChildMemberMappingData
     {
         MappingRuleSet RuleSet { get; }
 

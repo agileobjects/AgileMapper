@@ -9,7 +9,7 @@
         public EnumerableMappingDataSource(
             IDataSource sourceEnumerableDataSource,
             int dataSourceIndex,
-            IMemberMappingData enumerableMappingData)
+            IChildMemberMappingData enumerableMappingData)
             : base(
                   sourceEnumerableDataSource.SourceMember,
                   sourceEnumerableDataSource.Variables,
@@ -21,7 +21,7 @@
         private static Expression GetMapping(
             IDataSource sourceEnumerableDataSource,
             int dataSourceIndex,
-            IMemberMappingData enumerableMappingData)
+            IChildMemberMappingData enumerableMappingData)
         {
             var mapping = MappingFactory.GetChildMapping(
                 sourceEnumerableDataSource.SourceMember,

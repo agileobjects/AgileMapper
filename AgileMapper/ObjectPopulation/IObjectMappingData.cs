@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IObjectMapper Mapper { get; set; }
 
-        IMemberMappingData GetChildMappingData(IMemberMapperData childMapperData);
+        IChildMemberMappingData GetChildMappingData(IMemberMapperData childMapperData);
 
         object MapStart();
 

@@ -18,7 +18,7 @@
             };
         }
 
-        public DataSourceSet FindFor(IMemberMappingData childMappingData)
+        public DataSourceSet FindFor(IChildMemberMappingData childMappingData)
         {
             var validDataSources = EnumerateDataSources(childMappingData)
                 .Where(ds => ds.IsValid)
@@ -40,7 +40,7 @@
             return new DataSourceSet(validDataSources);
         }
 
-        private IEnumerable<IDataSource> EnumerateDataSources(IMemberMappingData childMappingData)
+        private IEnumerable<IDataSource> EnumerateDataSources(IChildMemberMappingData childMappingData)
         {
             var maptimeDataSource = GetMaptimeDataSourceOrNull(childMappingData);
 
@@ -78,7 +78,7 @@
             }
         }
 
-        private IDataSource GetMaptimeDataSourceOrNull(IMemberMappingData childMappingData)
+        private IDataSource GetMaptimeDataSourceOrNull(IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
 
@@ -104,13 +104,13 @@
             return configuredDataSources.Any();
         }
 
-        private static IDataSource FallbackDataSourceFor(IMemberMappingData mappingData)
+        private static IDataSource FallbackDataSourceFor(IChildMemberMappingData mappingData)
             => mappingData.RuleSet.FallbackDataSourceFactory.Create(mappingData);
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
             IEnumerable<IConfiguredDataSource> configuredDataSources,
             int dataSourceIndex,
-            IMemberMappingData mappingData)
+            IChildMemberMappingData mappingData)
         {
             var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData);
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, mappingData);
@@ -143,7 +143,7 @@
 
         private static IDataSource GetSourceMemberDataSourceOrNull(
             IQualifiedMember bestMatchingSourceMember,
-            IMemberMappingData mappingData)
+            IChildMemberMappingData mappingData)
         {
             if (bestMatchingSourceMember == null)
             {
@@ -159,7 +159,7 @@
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,
             int dataSourceIndex,
-            IMemberMappingData childMappingData)
+            IChildMemberMappingData childMappingData)
         {
             var childTargeMember = childMappingData.MapperData.TargetMember;
 

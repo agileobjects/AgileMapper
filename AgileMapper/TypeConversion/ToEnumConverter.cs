@@ -15,10 +15,13 @@
             _toStringConverter = toStringConverter;
         }
 
-        public bool IsFor(Type nonNullableTargetType) => nonNullableTargetType.IsEnum();
-
-        public bool CanConvert(Type nonNullableSourceType)
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
+            if (!nonNullableTargetType.IsEnum())
+            {
+                return false;
+            }
+
             return nonNullableSourceType.IsEnum() ||
                 (nonNullableSourceType == typeof(string)) ||
                 (nonNullableSourceType == typeof(char)) ||

@@ -18,7 +18,7 @@
         {
         }
 
-        public override bool CanConvert(Type nonNullableSourceType)
+        protected override bool CanConvert(Type nonNullableSourceType)
         {
             return base.CanConvert(nonNullableSourceType) ||
                    nonNullableSourceType.IsEnum() ||

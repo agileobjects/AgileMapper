@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.Members
     {
         public static readonly IDataSourceFactory Instance = new PreserveExistingValueDataSourceFactory();
 
-        public IDataSource Create(IMemberMappingData mappingData)
+        public IDataSource Create(IChildMemberMappingData mappingData)
             => new PreserveExistingValueDataSource(mappingData.MapperData);
 
         private class PreserveExistingValueDataSource : DataSourceBase

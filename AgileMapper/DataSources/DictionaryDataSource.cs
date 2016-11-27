@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         #endregion
 
-        public DictionaryDataSource(IMemberMappingData childMappingData)
+        public DictionaryDataSource(IChildMemberMappingData childMappingData)
             : this(
                 new DictionarySourceMember(childMappingData.MapperData),
                 Expression.Variable(
@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private DictionaryDataSource(
             DictionarySourceMember sourceMember,
             ParameterExpression variable,
-            IMemberMappingData childMappingData)
+            IChildMemberMappingData childMappingData)
             : base(
                   sourceMember,
                   new[] { variable },
@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetValueParsing(
             DictionarySourceMember sourceMember,
             Expression variable,
-            IMemberMappingData childMappingData)
+            IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
             var potentialNames = GetPotentialNames(childMapperData);
@@ -117,7 +117,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private static Expression GetValue(
             IQualifiedMember sourceMember,
             Expression variable,
-            IMemberMappingData childMappingData)
+            IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
 
@@ -144,7 +144,7 @@ namespace AgileObjects.AgileMapper.DataSources
             DictionarySourceMember sourceMember,
             Expression variable,
             IEnumerable<string> potentialNames,
-            IMemberMappingData childMappingData)
+            IChildMemberMappingData childMappingData)
         {
             if (DictionaryEntriesCouldBeEnumerableElements(sourceMember, childMappingData))
             {
@@ -164,7 +164,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         private static bool DictionaryEntriesCouldBeEnumerableElements(
             DictionarySourceMember sourceMember,
-            IMemberMappingData childMappingData)
+            IChildMemberMappingData childMappingData)
         {
             if (!childMappingData.MapperData.TargetMember.IsEnumerable)
             {
@@ -187,7 +187,7 @@ namespace AgileObjects.AgileMapper.DataSources
             DictionarySourceMember sourceMember,
             Expression variable,
             IEnumerable<string> potentialNames,
-            IMemberMappingData childMappingData)
+            IChildMemberMappingData childMappingData)
         {
             var sourceList = Expression.Variable(typeof(List<>).MakeGenericType(sourceMember.EntryType), "sourceList");
             var counter = Expression.Variable(typeof(int), "i");

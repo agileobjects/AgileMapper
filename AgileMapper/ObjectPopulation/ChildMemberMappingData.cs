@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using NetStandardPolyfills;
 
-    internal class ChildMemberMappingData<TSource, TTarget> : IMemberMappingData
+    internal class ChildMemberMappingData<TSource, TTarget> : IChildMemberMappingData
     {
         private readonly ObjectMappingData<TSource, TTarget> _parent;
         private readonly ICache<IQualifiedMember, Func<TSource, Type>> _runtimeTypeGettersCache;
@@ -36,9 +36,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return sourceMember.Type;
             }
 
-            if (sourceMember == MapperData.SourceMember)
+            IMemberMapperData mapperData = MapperData;
+
+            while (mapperData != null)
             {
-                return sourceMember.Type;
+                if (sourceMember == mapperData.SourceMember)
+                {
+                    return mapperData.SourceMember.Type;
+                }
+
+                mapperData = mapperData.Parent;
             }
 
             var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(sourceMember, sm =>

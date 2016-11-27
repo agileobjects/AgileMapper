@@ -32,10 +32,10 @@ namespace AgileObjects.AgileMapper.TypeConversion
                 nonNullableTargetType.GetVariableNameInCamelCase() + "Value");
         }
 
-        public bool IsFor(Type nonNullableTargetType)
-            => nonNullableTargetType == _nonNullableTargetType;
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+            => nonNullableTargetType == _nonNullableTargetType && CanConvert(nonNullableSourceType);
 
-        public virtual bool CanConvert(Type nonNullableSourceType)
+        protected virtual bool CanConvert(Type nonNullableSourceType)
             => (nonNullableSourceType == _nonNullableTargetType) || (nonNullableSourceType == typeof(object));
 
         public virtual Expression GetConversion(Expression sourceValue, Type targetType)

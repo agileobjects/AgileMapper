@@ -6,6 +6,7 @@
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
     using AgileMapper.Configuration;
+    using DataSources;
     using Extensions;
     using Members;
 
@@ -188,6 +189,19 @@
             => new InstanceConfigurator<TObject>(_mapperContext);
 
         /// <summary>
+        /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another enum.
+        /// This pairing will apply to mappings between all types, irrespective of the MappingRuleSet used.
+        /// </summary>
+        /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
+        /// <param name="enumMember">The first enum member in the pair.</param>
+        /// <returns>
+        /// An EnumPairSpecifier with which to specify the enum member to which the give <paramref name="enumMember"/> 
+        /// should be paired.
+        /// </returns>
+        public EnumPairSpecifier<TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember) where TFirstEnum : struct
+            => new EnumPairSpecifier<TFirstEnum>(_mapperContext, enumMember);
+
+        /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the given 
         /// <paramref name="exampleInstance"/>. Use this overload for anonymous types.
         /// </summary>
@@ -203,14 +217,6 @@
         /// <returns>A TargetTypeSpecifier with which to specify to which target type the configuration will apply.</returns>
         public TargetTypeSpecifier<TSource> From<TSource>()
             => GetTargetTypeSpecifier<TSource>(ci => ci.ForSourceType<TSource>());
-
-        private TargetTypeSpecifier<TSource> GetTargetTypeSpecifier<TSource>(
-            Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)
-        {
-            var configInfo = configInfoConfigurator.Invoke(new MappingConfigInfo(_mapperContext));
-
-            return new TargetTypeSpecifier<TSource>(configInfo);
-        }
 
         /// <summary>
         /// Configure how this mapper performs mappings from any source type to the target type specified by 
@@ -257,6 +263,96 @@
                 configInfoConfigurator.Invoke(ci);
                 return ci;
             });
+        }
+
+        private TargetTypeSpecifier<TSource> GetTargetTypeSpecifier<TSource>(
+            Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)
+        {
+            var configInfo = configInfoConfigurator.Invoke(new MappingConfigInfo(_mapperContext));
+
+            return new TargetTypeSpecifier<TSource>(configInfo);
+        }
+    }
+
+    /// <summary>
+    /// Provides options for specifying the enum member to which the configured enum member should be paired.
+    /// </summary>
+    /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
+    public class EnumPairSpecifier<TFirstEnum>
+    {
+        private readonly MappingConfigInfo _configInfo;
+        private readonly TFirstEnum _firstEnumMember;
+
+        internal EnumPairSpecifier(
+            MapperContext mapperContext,
+            TFirstEnum firstEnumMember)
+        {
+            _configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext);
+            _firstEnumMember = firstEnumMember;
+        }
+
+        /// <summary>
+        /// Configure this mapper to map the specified first enum member to the given <paramref name="secondEnumMember"/>.
+        /// </summary>
+        /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
+        /// <param name="secondEnumMember">The second enum member in the pair.</param>
+        /// <returns>A MappingConfigContinuation to enable further global mapping configuration.</returns>
+        public MappingConfigContinuation<object, object> With<TSecondEnum>(TSecondEnum secondEnumMember)
+            where TSecondEnum : struct
+        {
+            var enumPairing = EnumMemberPair.For(_configInfo, _firstEnumMember, secondEnumMember);
+
+            _configInfo.MapperContext.UserConfigurations.Add(enumPairing);
+
+            return new MappingConfigContinuation<object, object>(_configInfo);
+        }
+    }
+
+    internal class EnumMemberPair : UserConfiguredItemBase
+    {
+        private readonly object _firstEnumMember;
+        private readonly object _secondEnumMember;
+
+        public EnumMemberPair(
+            MappingConfigInfo configInfo,
+            object firstEnumMember,
+            object secondEnumMember)
+            : base(configInfo)
+        {
+            _firstEnumMember = firstEnumMember;
+            _secondEnumMember = secondEnumMember;
+        }
+
+        public static EnumMemberPair For<TFirstEnum, TSecondEnum>(
+            MappingConfigInfo configInfo,
+            TFirstEnum firstEnumMember,
+            TSecondEnum secondEnumMember)
+        {
+            //var secondValue = Expression.Constant(secondEnumMember, typeof(TSecondEnum));
+            //var firstToSecondMappingDataSource = new ConfiguredValueDataSourceFactory(configInfo, secondValue);
+
+            //var firstValue = Expression.Constant(firstEnumMember, typeof(TFirstEnum));
+            //var secondToFirstMappingDataSource = new ConfiguredValueDataSourceFactory(configInfo, firstValue);
+
+            //configInfo.MapperContext.UserConfigurations.Add(firstToSecondMappingDataSource);
+            //configInfo.MapperContext.UserConfigurations.Add(secondToFirstMappingDataSource);
+
+            //configInfo.AddConditionOrThrow();
+
+            //var valueConstant = Expression.Constant(value, typeof(TSourceValue));
+            //_configInfo.ForTargetType<TTarget>();
+
+            //var memberChain = new[]
+            //{
+            //    Member.RootTarget<TTarget>(),
+            //    Member.ConstructorParameter(parameter)
+            //};
+
+            //var constructorParameter = QualifiedMember.From(memberChain, configInfo.MapperContext);
+
+            //return new ConfiguredDataSourceFactory(configInfo, _customValueLambda, constructorParameter);
+
+            return null;
         }
     }
 }

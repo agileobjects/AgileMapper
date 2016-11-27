@@ -9,7 +9,7 @@
         public ComplexTypeMappingDataSource(
             IDataSource complexTypeDataSource,
             int dataSourceIndex,
-            IMemberMappingData complexTypeMappingData)
+            IChildMemberMappingData complexTypeMappingData)
             : base(
                   complexTypeDataSource.SourceMember,
                   complexTypeDataSource.Variables,
@@ -21,7 +21,7 @@
         private static Expression GetMapping(
             IDataSource complexTypeDataSource,
             int dataSourceIndex,
-            IMemberMappingData complexTypeMappingData)
+            IChildMemberMappingData complexTypeMappingData)
         {
             var mapping = MappingFactory.GetChildMapping(
                 complexTypeDataSource.SourceMember,
@@ -32,12 +32,12 @@
             return mapping;
         }
 
-        public ComplexTypeMappingDataSource(int dataSourceIndex, IMemberMappingData complexTypeMappingData)
+        public ComplexTypeMappingDataSource(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
             : base(complexTypeMappingData.MapperData.SourceMember, GetMapping(dataSourceIndex, complexTypeMappingData))
         {
         }
 
-        private static Expression GetMapping(int dataSourceIndex, IMemberMappingData complexTypeMappingData)
+        private static Expression GetMapping(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
         {
             var complexTypeMapperData = complexTypeMappingData.MapperData;
             var relativeMember = complexTypeMapperData.SourceMember.RelativeTo(complexTypeMapperData.SourceMember);

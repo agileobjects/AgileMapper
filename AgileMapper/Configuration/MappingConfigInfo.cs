@@ -170,8 +170,10 @@
                 condition = Expression.Not(condition);
             }
 
+            var targetCanBeNull = position.IsPriorToObjectCreation(targetMember);
+
             var conditionNestedAccessesChecks = mapperData
-                .GetNestedAccessesIn(condition, position.IsPriorToObjectCreation(targetMember))
+                .GetNestedAccessesIn(condition, targetCanBeNull)
                 .GetIsNotDefaultComparisonsOrNull();
 
             if (conditionNestedAccessesChecks != null)

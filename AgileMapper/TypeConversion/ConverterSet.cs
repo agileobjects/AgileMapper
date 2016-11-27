@@ -68,8 +68,7 @@
             sourceType = sourceType.GetNonNullableType();
             targetType = targetType.GetNonNullableType();
 
-            return _converters.FirstOrDefault(c =>
-                c.IsFor(targetType) && c.CanConvert(sourceType));
+            return _converters.FirstOrDefault(c => c.CanConvert(sourceType, targetType));
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)

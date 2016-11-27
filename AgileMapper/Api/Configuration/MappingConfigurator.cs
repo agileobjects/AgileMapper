@@ -115,7 +115,7 @@
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
             Func<TSource, TSourceValue> valueFunc)
-            => GetConstantTargetMemberSpecifier(valueFunc);
+            => GetConstantValueTargetMemberSpecifier(valueFunc);
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
         {
@@ -125,12 +125,12 @@
                 ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                     _configInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
                     valueLambdaInfo)
-                : GetConstantTargetMemberSpecifier(value);
+                : GetConstantValueTargetMemberSpecifier(value);
         }
 
         #region Map Helpers
 
-        private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantTargetMemberSpecifier<TSourceValue>(
+        private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
             TSourceValue value)
         {
             var valueConstant = Expression.Constant(value, typeof(TSourceValue));

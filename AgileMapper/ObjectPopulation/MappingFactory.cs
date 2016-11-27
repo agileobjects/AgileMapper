@@ -79,7 +79,7 @@
             IQualifiedMember sourceMember,
             Expression sourceMemberAccess,
             int dataSourceIndex,
-            IMemberMappingData childMappingData)
+            IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();

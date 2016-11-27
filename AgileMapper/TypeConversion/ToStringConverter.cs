@@ -10,9 +10,7 @@
 
     internal class ToStringConverter : IValueConverter
     {
-        public bool IsFor(Type nonNullableTargetType) => nonNullableTargetType == typeof(string);
-
-        public bool CanConvert(Type nonNullableSourceType) => true;
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType) => nonNullableTargetType == typeof(string);
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
         {

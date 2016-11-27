@@ -9,26 +9,16 @@ namespace AgileObjects.AgileMapper.TypeConversion
     public interface IValueConverter
     {
         /// <summary>
-        /// Gets a value indicating whether the <see cref="IValueConverter"/> converts the given 
-        /// <paramref name="nonNullableTargetType"/>.
+        /// Gets a value indicating whether the <see cref="IValueConverter"/> converts values of the given 
+        /// <paramref name="nonNullableSourceType"/> to the given <paramref name="nonNullableTargetType"/>.
         /// </summary>
+        /// <param name="nonNullableSourceType">The non-nullable type to evaluate.</param>
         /// <param name="nonNullableTargetType">The non-nullable type to evaluate.</param>
         /// <returns>
         /// True if the <see cref="IValueConverter"/> converts the given 
         /// <paramref name="nonNullableTargetType"/>, otherwise false.
         /// </returns>
-        bool IsFor(Type nonNullableTargetType);
-
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="IValueConverter"/> can convert the given 
-        /// <paramref name="nonNullableSourceType"/> to the target type it handles.
-        /// </summary>
-        /// <param name="nonNullableSourceType">The non-nullable type to evaluate.</param>
-        /// <returns>
-        /// True if the <see cref="IValueConverter"/> can convert the given 
-        /// <paramref name="nonNullableSourceType"/> to the target type it handles, otherwise false.
-        /// </returns>
-        bool CanConvert(Type nonNullableSourceType);
+        bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType);
 
         /// <summary>
         /// Gets an Expression converting the given <paramref name="sourceValue"/> to the given 
