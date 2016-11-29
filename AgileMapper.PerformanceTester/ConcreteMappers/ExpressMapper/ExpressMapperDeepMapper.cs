@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using AbstractMappers;
     using global::ExpressMapper;
+    using global::ExpressMapper.Extensions;
     using TestClasses;
 
     internal class ExpressMapperDeepMapper : DeepMapperBase
@@ -15,12 +16,12 @@
                 .Member(
                     dest => dest.Addresses,
                     src => src.Addresses != null
-                        ? Mapper.Map<ICollection<Address>, List<AddressDto>>(src.Addresses)
+                        ? src.Addresses.Map<ICollection<Address>, List<AddressDto>>()
                         : new List<AddressDto>())
                 .Member(
                     dest => dest.AddressesArray,
                     src => src.AddressesArray != null
-                        ? Mapper.Map<Address[], AddressDto[]>(src.AddressesArray)
+                        ? src.AddressesArray.Map<Address[], AddressDto[]>()
                         : new AddressDto[0]);
 
             Mapper.Compile();
