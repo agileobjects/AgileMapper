@@ -28,7 +28,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public abstract IMembersSource GetMembersSource(IObjectMappingData parentMappingData);
 
         public ObjectMapperKeyBase WithTypes<TNewSource, TNewTarget>()
-            => CreateInstance(MappingTypes.WithTypes<TNewSource, TNewTarget>());
+        {
+            if (MappingTypes.RuntimeTypesAreTheSame)
+            {
+                return this;
+            }
+
+            return CreateInstance(MappingTypes.WithTypes<TNewSource, TNewTarget>());
+        }
 
         protected abstract ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes);
     }

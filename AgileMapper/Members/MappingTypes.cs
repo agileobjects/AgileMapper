@@ -115,11 +115,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public MappingTypes WithTypes<TNewSource, TNewTarget>()
         {
-            if (!RuntimeTypesNeeded)
-            {
-                return this;
-            }
-
             return new MappingTypes(
                 typeof(TNewSource),
                 typeof(TNewTarget),
