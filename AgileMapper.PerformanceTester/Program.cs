@@ -14,6 +14,13 @@ namespace AgileObjects.AgileMapper.PerformanceTester
     using ConcreteMappers.Mapster;
     using ConcreteMappers.ValueInjecter;
 
+    // Specify comma-separated sets of mapper Ids and (optionally) test Ids from the string arrays
+    // below if desired. e.g:
+    //  - Run the deep and complex tests for AgileMapper:
+    //    ag deep,compl
+    //  - Run the constructor and flattening mapping tests for the manual and ExpressMapper mappers:
+    //    man,exp ctor,flat
+
     public class Program
     {
         private static readonly string[] _mapperIds = { "man", "ag", "au", "exp", "ma", "vi" };
