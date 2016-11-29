@@ -28,16 +28,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public abstract IMembersSource GetMembersSource(IObjectMappingData parentMappingData);
 
         public ObjectMapperKeyBase WithTypes<TNewSource, TNewTarget>()
-        {
-            var mappingTypes = MappingTypes.RuntimeTypesNeeded
-                ? MappingTypes.WithTypes<TNewSource, TNewTarget>()
-                : MappingTypes.Fixed<TNewSource, TNewTarget>();
-
-            return CreateInstance(mappingTypes);
-        }
+            => CreateInstance(MappingTypes.WithTypes<TNewSource, TNewTarget>());
 
         protected abstract ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes);
-
-
     }
 }
