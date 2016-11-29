@@ -57,7 +57,7 @@
             {
                 IEnumerable<Type> types = assembly.GetTypes();
 
-                if (Constants.IsPartialTrust)
+                if (Constants.ReflectionPermissionDenied)
                 {
                     types = types.Where(t => t.IsPublic());
                 }

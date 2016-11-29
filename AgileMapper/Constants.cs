@@ -10,7 +10,7 @@
 
     internal static class Constants
     {
-        public static readonly bool IsPartialTrust;
+        public static readonly bool ReflectionPermissionDenied;
 
         public static readonly string[] EmptyStringArray = { };
 
@@ -69,12 +69,12 @@
             try
             {
                 typeof(TrustTester)
-                    .GetNonPublicStaticMethod("IsPartialTrust")
+                    .GetNonPublicStaticMethod("IsReflectionPermitted")
                     .Invoke(null, null);
             }
             catch
             {
-                IsPartialTrust = true;
+                ReflectionPermissionDenied = true;
             }
         }
     }
@@ -82,6 +82,6 @@
     internal class TrustTester
     {
         // ReSharper disable once UnusedMember.Local
-        private static void IsPartialTrust() { }
+        private static void IsReflectionPermitted() { }
     }
 }
