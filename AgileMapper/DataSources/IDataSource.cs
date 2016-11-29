@@ -19,7 +19,5 @@
         IEnumerable<ParameterExpression> Variables { get; }
 
         Expression Value { get; }
-
-        Expression GetValueOption(Expression valueSoFar);
     }
 }

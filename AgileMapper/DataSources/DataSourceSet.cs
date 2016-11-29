@@ -2,8 +2,8 @@ namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
+    using Extensions;
 
     internal class DataSourceSet : IEnumerable<IDataSource>
     {
@@ -21,7 +21,10 @@ namespace AgileObjects.AgileMapper.DataSources
                 return;
             }
 
-            Value = GetValue(dataSources);
+            Value = dataSources.Chain(
+                dataSource => dataSource.Value,
+                (dataSource, valueSoFar) =>
+                    Expression.Condition(dataSource.Condition, dataSource.Value, valueSoFar));
 
             foreach (var dataSource in dataSources)
             {
@@ -34,25 +37,6 @@ namespace AgileObjects.AgileMapper.DataSources
                 }
             }
         }
-
-        #region Setup
-
-        private static Expression GetValue(IList<IDataSource> dataSources)
-        {
-            if (dataSources.Count == 1)
-            {
-                return dataSources[0].Value;
-            }
-
-            return dataSources
-                .Reverse()
-                .Skip(1)
-                .Aggregate(
-                    dataSources.Last().Value,
-                    (valueSoFar, dataSource) => dataSource.GetValueOption(valueSoFar));
-        }
-
-        #endregion
 
         public bool None { get; }
 

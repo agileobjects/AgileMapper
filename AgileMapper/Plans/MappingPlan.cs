@@ -5,9 +5,6 @@
     using System.Linq;
     using System.Linq.Expressions;
     using ObjectPopulation;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using NetStandardPolyfills;
 
     internal class MappingPlan<TSource, TTarget>

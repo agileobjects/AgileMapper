@@ -83,6 +83,7 @@
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSourcesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
+    <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
     <Compile Include="Configuration\WhenConfiguringExceptionHandling.cs" />
     <Compile Include="Configuration\WhenConfiguringMappingCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringNameMatching.cs" />

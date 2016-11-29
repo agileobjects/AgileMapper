@@ -188,7 +188,7 @@
                 return true;
             }
 
-            return targetMember.Type.GetAssembly() != typeof(string).GetAssembly();
+            return !ReferenceEquals(targetMember.Type.GetAssembly(), typeof(string).GetAssembly());
         }
     }
 }

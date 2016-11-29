@@ -6,7 +6,7 @@
     using Extensions;
     using NetStandardPolyfills;
 
-    internal class ToEnumConverter : IValueConverter
+    internal class ToEnumConverter : ValueConverterBase
     {
         private readonly ToStringConverter _toStringConverter;
 
@@ -15,7 +15,7 @@
             _toStringConverter = toStringConverter;
         }
 
-        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             if (!nonNullableTargetType.IsEnum())
             {
@@ -28,7 +28,7 @@
                 nonNullableSourceType.IsNumeric();
         }
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
             if (sourceValue.Type != typeof(string))
             {

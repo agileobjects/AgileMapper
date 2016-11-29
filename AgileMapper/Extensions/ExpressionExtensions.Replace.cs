@@ -4,9 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
 
     internal static partial class ExpressionExtensions
     {

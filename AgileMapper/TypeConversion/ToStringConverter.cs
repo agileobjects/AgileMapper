@@ -8,11 +8,11 @@
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
-    internal class ToStringConverter : IValueConverter
+    internal class ToStringConverter : ValueConverterBase
     {
-        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType) => nonNullableTargetType == typeof(string);
+        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType) => nonNullableTargetType == typeof(string);
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
             // targetType is always 'string':
             return GetConversion(sourceValue);

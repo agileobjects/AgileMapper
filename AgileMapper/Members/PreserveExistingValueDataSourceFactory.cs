@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
+    using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
@@ -14,17 +15,26 @@ namespace AgileObjects.AgileMapper.Members
         private class PreserveExistingValueDataSource : DataSourceBase
         {
             public PreserveExistingValueDataSource(IMemberMapperData mapperData)
-                : base(
+                : this(
                       mapperData.SourceMember,
                       mapperData.TargetMember.IsReadable
                           ? mapperData.GetTargetMemberAccess()
-                          : Constants.EmptyExpression,
-                      mapperData)
+                          : Constants.EmptyExpression)
             {
             }
 
-            public override Expression GetValueOption(Expression valueSoFar)
-                => Expression.Condition(Value.GetIsNotDefaultComparison(), Value, valueSoFar);
+            private PreserveExistingValueDataSource(
+                IQualifiedMember sourceMember,
+                Expression value)
+                : base(
+                      sourceMember,
+                      Enumerable.Empty<ParameterExpression>(),
+                      value,
+                      (value != Constants.EmptyExpression)
+                        ? value.GetIsNotDefaultComparison()
+                        : Constants.EmptyExpression)
+            {
+            }
         }
     }
 }

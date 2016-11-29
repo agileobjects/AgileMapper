@@ -80,6 +80,14 @@
 
         #endregion
 
+        #region Enum Pairing
+
+        public void Add(EnumMemberPair enumPairing)
+        {
+        }
+
+        #endregion
+
         #region DataSources
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)

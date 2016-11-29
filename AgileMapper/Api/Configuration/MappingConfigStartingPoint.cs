@@ -6,7 +6,6 @@
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
     using AgileMapper.Configuration;
-    using DataSources;
     using Extensions;
     using Members;
 
@@ -301,58 +300,9 @@
             where TSecondEnum : struct
         {
             var enumPairing = EnumMemberPair.For(_configInfo, _firstEnumMember, secondEnumMember);
-
             _configInfo.MapperContext.UserConfigurations.Add(enumPairing);
 
             return new MappingConfigContinuation<object, object>(_configInfo);
-        }
-    }
-
-    internal class EnumMemberPair : UserConfiguredItemBase
-    {
-        private readonly object _firstEnumMember;
-        private readonly object _secondEnumMember;
-
-        public EnumMemberPair(
-            MappingConfigInfo configInfo,
-            object firstEnumMember,
-            object secondEnumMember)
-            : base(configInfo)
-        {
-            _firstEnumMember = firstEnumMember;
-            _secondEnumMember = secondEnumMember;
-        }
-
-        public static EnumMemberPair For<TFirstEnum, TSecondEnum>(
-            MappingConfigInfo configInfo,
-            TFirstEnum firstEnumMember,
-            TSecondEnum secondEnumMember)
-        {
-            //var secondValue = Expression.Constant(secondEnumMember, typeof(TSecondEnum));
-            //var firstToSecondMappingDataSource = new ConfiguredValueDataSourceFactory(configInfo, secondValue);
-
-            //var firstValue = Expression.Constant(firstEnumMember, typeof(TFirstEnum));
-            //var secondToFirstMappingDataSource = new ConfiguredValueDataSourceFactory(configInfo, firstValue);
-
-            //configInfo.MapperContext.UserConfigurations.Add(firstToSecondMappingDataSource);
-            //configInfo.MapperContext.UserConfigurations.Add(secondToFirstMappingDataSource);
-
-            //configInfo.AddConditionOrThrow();
-
-            //var valueConstant = Expression.Constant(value, typeof(TSourceValue));
-            //_configInfo.ForTargetType<TTarget>();
-
-            //var memberChain = new[]
-            //{
-            //    Member.RootTarget<TTarget>(),
-            //    Member.ConstructorParameter(parameter)
-            //};
-
-            //var constructorParameter = QualifiedMember.From(memberChain, configInfo.MapperContext);
-
-            //return new ConfiguredDataSourceFactory(configInfo, _customValueLambda, constructorParameter);
-
-            return null;
         }
     }
 }

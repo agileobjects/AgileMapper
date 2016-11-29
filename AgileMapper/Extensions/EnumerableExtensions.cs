@@ -23,6 +23,24 @@
 
         public static bool DoesNotContain<T>(this ICollection<T> items, T item) => !items.Contains(item);
 
+        public static TReturn Chain<TItem, TReturn>(
+            this ICollection<TItem> items,
+            Func<TItem, TReturn> seedValueFactory,
+            Func<TItem, TReturn, TReturn> itemValueFactory)
+        {
+            if (items.HasOne())
+            {
+                return seedValueFactory.Invoke(items.First());
+            }
+
+            return items
+                .Reverse()
+                .Skip(1)
+                .Aggregate(
+                    seedValueFactory.Invoke(items.Last()),
+                    (valueSoFar, dataSource) => itemValueFactory.Invoke(dataSource, valueSoFar));
+        }
+
         public static T[] ToArray<T>(this IList<T> items)
         {
             var array = new T[items.Count];

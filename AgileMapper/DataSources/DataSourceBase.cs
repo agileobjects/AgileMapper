@@ -99,8 +99,5 @@
         public IEnumerable<ParameterExpression> Variables { get; }
 
         public Expression Value { get; }
-
-        public virtual Expression GetValueOption(Expression valueSoFar)
-            => Expression.Condition(Condition, Value, valueSoFar);
     }
 }

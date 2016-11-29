@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
 #if NET_STANDARD
@@ -12,17 +13,17 @@
 
     internal class ConverterSet
     {
-        private readonly IValueConverter[] _converters;
+        private readonly List<IValueConverter> _converters;
 
         public ConverterSet()
         {
             var toStringConverter = new ToStringConverter();
 
-            _converters = new IValueConverter[]
+            _converters = new List<IValueConverter>
             {
                 toStringConverter,
-                new ToEnumConverter(toStringConverter),
                 new ToNumericConverter<int>(toStringConverter),
+                new ToEnumConverter(toStringConverter),
                 new DefaultTryParseConverter<DateTime>(toStringConverter),
                 new DefaultTryParseConverter<Guid>(toStringConverter),
                 new ToNumericConverter<decimal>(toStringConverter),
@@ -32,6 +33,11 @@
                 new ToNumericConverter<byte>(toStringConverter),
                 new FallbackNonSimpleTypeValueConverter()
             };
+        }
+
+        public void Add(IValueConverter converter)
+        {
+            _converters.Insert(0, converter);
         }
 
         public void ThrowIfUnconvertible(Type sourceType, Type targetType)
@@ -44,14 +50,22 @@
         }
 
         public bool CanConvert(Type sourceType, Type targetType)
-            => targetType.IsAssignableFrom(sourceType) || GetConverterFor(sourceType, targetType) != null;
+            => targetType.IsAssignableFrom(sourceType) || EnumerateConverters(sourceType, targetType).Any();
 
-        private IValueConverter GetConverterFor(Type sourceType, Type targetType)
+        private IEnumerable<IValueConverter> EnumerateConverters(Type sourceType, Type targetType)
         {
             sourceType = sourceType.GetNonNullableType();
             targetType = targetType.GetNonNullableType();
 
-            return _converters.FirstOrDefault(c => c.CanConvert(sourceType, targetType));
+            foreach (var converter in _converters.Where(c => c.CanConvert(sourceType, targetType)))
+            {
+                yield return converter;
+
+                if (!converter.IsConditional)
+                {
+                    yield break;
+                }
+            }
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
@@ -66,9 +80,14 @@
                 return targetType.IsNullableType() ? sourceValue.GetConversionTo(targetType) : sourceValue;
             }
 
-            var converter = GetConverterFor(sourceValue.Type, targetType);
+            var converters = EnumerateConverters(sourceValue.Type, targetType).ToArray();
 
-            return converter.GetConversion(sourceValue, targetType);
+            var conversion = converters.Chain(
+                converter => converter.GetConversion(sourceValue, targetType),
+                (converter, conversionSoFar) =>
+                    converter.GetConversionOption(sourceValue, targetType, conversionSoFar));
+
+            return conversion;
         }
     }
 }
