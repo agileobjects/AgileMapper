@@ -9,13 +9,11 @@ namespace AgileObjects.AgileMapper.Members
         private MappingTypes(
             Type sourceType,
             Type targetType,
-            bool runtimeTypesNeeded,
             bool runtimeTypesAreTheSame,
             bool isEnumerable)
         {
             SourceType = sourceType;
             TargetType = targetType;
-            RuntimeTypesNeeded = runtimeTypesNeeded;
             RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
             IsEnumerable = isEnumerable;
         }
@@ -26,6 +24,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public static MappingTypes For<TSource, TTarget>(TSource source, TTarget target)
         {
+            if (MappingTypesCache<TSource, TTarget>.SkipTypesCheck)
+            {
+                return Fixed<TSource, TTarget>();
+            }
+
             var runtimeSourceTypeNeeded = TypeInfo<TSource>.RuntimeTypeNeeded;
             var runtimeTargetTypeNeeded = TypeInfo<TTarget>.RuntimeTypeNeeded;
 
@@ -37,8 +40,11 @@ namespace AgileObjects.AgileMapper.Members
                 sourceType = source.GetRuntimeSourceType();
                 runtimeTypesAreTheSame = sourceType == typeof(TSource);
 
-                if (!runtimeTargetTypeNeeded && !runtimeTypesAreTheSame &&
-                    sourceType.IsDerivedFrom(typeof(TTarget)))
+                if (runtimeTypesAreTheSame)
+                {
+                    runtimeSourceTypeNeeded = source == null;
+                }
+                else if (!runtimeTargetTypeNeeded && sourceType.IsDerivedFrom(typeof(TTarget)))
                 {
                     runtimeTargetTypeNeeded = true;
                 }
@@ -56,6 +62,11 @@ namespace AgileObjects.AgileMapper.Members
                 if (runtimeTypesAreTheSame)
                 {
                     runtimeTypesAreTheSame = targetType == typeof(TTarget);
+
+                    if (runtimeTypesAreTheSame)
+                    {
+                        runtimeTargetTypeNeeded = target == null;
+                    }
                 }
             }
             else
@@ -70,13 +81,13 @@ namespace AgileObjects.AgileMapper.Members
                 return Fixed<TSource, TTarget>();
             }
 
-            var isEnumerable = TypeInfo<TTarget>.IsEnumerable || (!runtimeTypesAreTheSame && targetType.IsEnumerable());
+            var isEnumerable = TypeInfo<TTarget>.IsEnumerable ||
+                ((targetType != typeof(TTarget)) && targetType.IsEnumerable());
 
             return new MappingTypes(
                 sourceType,
                 targetType,
-                true, // <- runtimeTypesNeeded
-                runtimeTypesAreTheSame,
+                false, // <- runtimeTypesAreTheSame
                 isEnumerable);
         }
 
@@ -86,7 +97,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type TargetType { get; }
 
-        public bool RuntimeTypesNeeded { get; }
+        public bool RuntimeTypesNeeded => !RuntimeTypesAreTheSame;
 
         public bool RuntimeTypesAreTheSame { get; }
 
@@ -107,19 +118,20 @@ namespace AgileObjects.AgileMapper.Members
             return new MappingTypes(
                 typeof(TNewSource),
                 typeof(TNewTarget),
-                RuntimeTypesNeeded,
                 RuntimeTypesAreTheSame,
                 IsEnumerable);
         }
 
         private static class MappingTypesCache<TSource, TTarget>
         {
+            public static readonly bool SkipTypesCheck =
+                !(TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded);
+
             public static readonly MappingTypes Instance = new MappingTypes(
                 typeof(TSource),
                 typeof(TTarget),
-                runtimeTypesNeeded: false,
-                runtimeTypesAreTheSame: true,
-                isEnumerable: TypeInfo<TTarget>.IsEnumerable);
+                true, // <- runtimeTypesAreTheSame
+                TypeInfo<TTarget>.IsEnumerable);
         }
     }
 }
