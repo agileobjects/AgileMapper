@@ -1,5 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
+    using AgileMapper.Configuration;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -23,6 +26,50 @@
                 result.Value1.ShouldBe(PaymentTypeUs.Check);
                 result.Value2.ShouldBe(PaymentTypeUk.Cheque);
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfSourceValueIsNotAnEnum()
+        {
+            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.PairEnum(DateTime.Today);
+                }
+            });
+
+            enumMappingEx.Message.ShouldContain("DateTime is not an enum type");
+        }
+
+        [Fact]
+        public void ShouldErrorIfTargetValueIsNotAnEnum()
+        {
+            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .PairEnum(PaymentTypeUk.Card).With(TimeSpan.MaxValue);
+                }
+            });
+
+            enumMappingEx.Message.ShouldContain("TimeSpan is not an enum type");
+        }
+
+        [Fact]
+        public void ShouldErrorIfSameEnumTypesSpecified()
+        {
+            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .PairEnum(PaymentTypeUk.Card).With(PaymentTypeUk.Cash);
+                }
+            });
+
+            enumMappingEx.Message.ShouldContain("different enum types");
         }
     }
 }

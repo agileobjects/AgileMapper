@@ -198,7 +198,7 @@
         /// should be paired.
         /// </returns>
         public EnumPairSpecifier<TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember) where TFirstEnum : struct
-            => new EnumPairSpecifier<TFirstEnum>(_mapperContext, enumMember);
+            => EnumPairSpecifier<TFirstEnum>.For(_mapperContext, enumMember);
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the given 
@@ -270,39 +270,6 @@
             var configInfo = configInfoConfigurator.Invoke(new MappingConfigInfo(_mapperContext));
 
             return new TargetTypeSpecifier<TSource>(configInfo);
-        }
-    }
-
-    /// <summary>
-    /// Provides options for specifying the enum member to which the configured enum member should be paired.
-    /// </summary>
-    /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
-    public class EnumPairSpecifier<TFirstEnum>
-    {
-        private readonly MappingConfigInfo _configInfo;
-        private readonly TFirstEnum _firstEnumMember;
-
-        internal EnumPairSpecifier(
-            MapperContext mapperContext,
-            TFirstEnum firstEnumMember)
-        {
-            _configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext);
-            _firstEnumMember = firstEnumMember;
-        }
-
-        /// <summary>
-        /// Configure this mapper to map the specified first enum member to the given <paramref name="secondEnumMember"/>.
-        /// </summary>
-        /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
-        /// <param name="secondEnumMember">The second enum member in the pair.</param>
-        /// <returns>A MappingConfigContinuation to enable further global mapping configuration.</returns>
-        public MappingConfigContinuation<object, object> With<TSecondEnum>(TSecondEnum secondEnumMember)
-            where TSecondEnum : struct
-        {
-            var enumPairing = EnumMemberPair.For(_configInfo, _firstEnumMember, secondEnumMember);
-            _configInfo.MapperContext.UserConfigurations.Add(enumPairing);
-
-            return new MappingConfigContinuation<object, object>(_configInfo);
         }
     }
 }
