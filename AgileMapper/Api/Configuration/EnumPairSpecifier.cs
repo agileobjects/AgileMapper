@@ -1,6 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
     using AgileMapper.Configuration;
+    using Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -11,25 +15,26 @@
     public class EnumPairSpecifier<TFirstEnum>
     {
         private readonly MappingConfigInfo _configInfo;
-        private readonly TFirstEnum _firstEnumMember;
+        private readonly TFirstEnum[] _firstEnumMembers;
 
         private EnumPairSpecifier(
             MapperContext mapperContext,
-            TFirstEnum firstEnumMember)
+            TFirstEnum[] firstEnumMembers)
         {
             _configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext);
-            _firstEnumMember = firstEnumMember;
+            _firstEnumMembers = firstEnumMembers;
         }
 
         #region Factory Method
 
         internal static EnumPairSpecifier<TFirstEnum> For(
             MapperContext mapperContext,
-            TFirstEnum firstEnumMember)
+            TFirstEnum[] firstEnumMembers)
         {
             ThrowIfNotEnumType<TFirstEnum>();
+            ThrowIfEmpty(firstEnumMembers);
 
-            return new EnumPairSpecifier<TFirstEnum>(mapperContext, firstEnumMember);
+            return new EnumPairSpecifier<TFirstEnum>(mapperContext, firstEnumMembers);
         }
 
         private static void ThrowIfNotEnumType<T>()
@@ -41,6 +46,14 @@
             }
         }
 
+        private static void ThrowIfEmpty(ICollection<TFirstEnum> firstEnumMembers)
+        {
+            if (firstEnumMembers.None())
+            {
+                throw new MappingConfigurationException("Source enum members must be provided.");
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -48,23 +61,38 @@
         /// </summary>
         /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
         /// <param name="secondEnumMember">The second enum member in the pair.</param>
-        /// <returns>A MappingConfigContinuation to enable further global mapping configuration.</returns>
-        public MappingConfigContinuation<object, object> With<TSecondEnum>(TSecondEnum secondEnumMember)
-            where TSecondEnum : struct
+        public void With<TSecondEnum>(TSecondEnum secondEnumMember) where TSecondEnum : struct
+            => With(new[] { secondEnumMember });
+
+        /// <summary>
+        /// Configure this mapper to map the previously-specified set of enum members to the given 
+        /// <paramref name="secondEnumMembers"/>.
+        /// </summary>
+        /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
+        /// <param name="secondEnumMembers">The second set of enum members in the pairs.</param>
+        public void With<TSecondEnum>(params TSecondEnum[] secondEnumMembers) where TSecondEnum : struct
         {
             ThrowIfNotEnumType<TSecondEnum>();
             ThrowIfSameTypes<TSecondEnum>();
+            ThrowIfEmpty(secondEnumMembers);
+            ThrowIfDifferingNumbers(secondEnumMembers);
 
-            var firstToSecondPairing = EnumMemberPair.For(_firstEnumMember, secondEnumMember);
-            var secondToFirstPairing = EnumMemberPair.For(secondEnumMember, _firstEnumMember);
+            for (var i = 0; i < _firstEnumMembers.Length; i++)
+            {
+                var firstEnumMember = _firstEnumMembers[i];
+                var secondEnumMember = secondEnumMembers[i];
 
-            _configInfo.MapperContext.ValueConverters.Add(firstToSecondPairing.ValueConverter);
-            _configInfo.MapperContext.ValueConverters.Add(secondToFirstPairing.ValueConverter);
+                ThrowIfAlreadyPaired(firstEnumMember, secondEnumMember);
 
-            _configInfo.MapperContext.UserConfigurations.Add(firstToSecondPairing);
-            _configInfo.MapperContext.UserConfigurations.Add(secondToFirstPairing);
+                var firstToSecondPairing = EnumMemberPair.For(firstEnumMember, secondEnumMember);
+                var secondToFirstPairing = EnumMemberPair.For(secondEnumMember, firstEnumMember);
 
-            return new MappingConfigContinuation<object, object>(_configInfo);
+                _configInfo.MapperContext.ValueConverters.Add(firstToSecondPairing.ValueConverter);
+                _configInfo.MapperContext.ValueConverters.Add(secondToFirstPairing.ValueConverter);
+
+                _configInfo.MapperContext.UserConfigurations.Add(firstToSecondPairing);
+                _configInfo.MapperContext.UserConfigurations.Add(secondToFirstPairing);
+            }
         }
 
         private static void ThrowIfSameTypes<TSecondEnum>()
@@ -73,6 +101,70 @@
             {
                 throw new MappingConfigurationException(
                     "Enum pairing can only be configured between different enum types.");
+            }
+        }
+
+        private static void ThrowIfEmpty<TSecondEnum>(ICollection<TSecondEnum> secondEnumMembers)
+        {
+            if (secondEnumMembers.None())
+            {
+                throw new MappingConfigurationException("Target enum members must be provided.");
+            }
+        }
+
+        // ReSharper disable once UnusedParameter.Local
+        private void ThrowIfDifferingNumbers<TSecondEnum>(ICollection<TSecondEnum> secondEnumMembers)
+        {
+            if (_firstEnumMembers.Length != secondEnumMembers.Count)
+            {
+                throw new MappingConfigurationException(
+                    "The same number of first and second enum values must be provided.");
+            }
+        }
+
+        private void ThrowIfAlreadyPaired<TSecondEnum>(TFirstEnum firstEnumMember, TSecondEnum secondEnumMember)
+        {
+            var firstEnumMemberName = firstEnumMember.ToString();
+            var secondEnumMemberName = secondEnumMember.ToString();
+
+            var relevantPairings = _configInfo
+                .MapperContext
+                .UserConfigurations
+                .EnumParings
+                .Where(ep => ep.IsFor(typeof(TFirstEnum), typeof(TSecondEnum)))
+                .ToArray();
+
+            if (relevantPairings.None())
+            {
+                return;
+            }
+
+            var confictingPairing = relevantPairings
+                .FirstOrDefault(ep => ep.FirstEnumMemberName == firstEnumMemberName);
+
+            if (confictingPairing != null)
+            {
+                throw new MappingConfigurationException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}.{1} is already paired with {2}.{3}",
+                    typeof(TFirstEnum).Name,
+                    firstEnumMemberName,
+                    typeof(TSecondEnum).Name,
+                    confictingPairing.SecondEnumMemberName));
+            }
+
+            confictingPairing = relevantPairings
+                .FirstOrDefault(ep => ep.SecondEnumMemberName == secondEnumMemberName);
+
+            if (confictingPairing != null)
+            {
+                throw new MappingConfigurationException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}.{1} is already paired with {2}.{3}",
+                    typeof(TSecondEnum).Name,
+                    secondEnumMemberName,
+                    typeof(TFirstEnum).Name,
+                    confictingPairing.FirstEnumMemberName));
             }
         }
     }

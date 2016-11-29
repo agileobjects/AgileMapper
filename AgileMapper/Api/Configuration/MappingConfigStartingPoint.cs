@@ -188,17 +188,30 @@
             => new InstanceConfigurator<TObject>(_mapperContext);
 
         /// <summary>
-        /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another enum.
+        /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another enum Type.
         /// This pairing will apply to mappings between all types, irrespective of the MappingRuleSet used.
         /// </summary>
         /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
         /// <param name="enumMember">The first enum member in the pair.</param>
         /// <returns>
-        /// An EnumPairSpecifier with which to specify the enum member to which the give <paramref name="enumMember"/> 
+        /// An EnumPairSpecifier with which to specify the enum member to which the given <paramref name="enumMember"/> 
         /// should be paired.
         /// </returns>
         public EnumPairSpecifier<TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember) where TFirstEnum : struct
-            => EnumPairSpecifier<TFirstEnum>.For(_mapperContext, enumMember);
+            => PairEnums(enumMember);
+
+        /// <summary>
+        /// Configure this mapper to pair the given <paramref name="enumMembers"/> with members of another enum Type.
+        /// Pairings will apply to mappings between all types, irrespective of the MappingRuleSet used.
+        /// </summary>
+        /// <typeparam name="TFirstEnum">The type of the first set of enum members being paired.</typeparam>
+        /// <param name="enumMembers">The first set of enum members to pair.</param>
+        /// <returns>
+        /// An EnumPairSpecifier with which to specify the set of enum members to which the given <paramref name="enumMembers"/> 
+        /// should be paired.
+        /// </returns>
+        public EnumPairSpecifier<TFirstEnum> PairEnums<TFirstEnum>(params TFirstEnum[] enumMembers) where TFirstEnum : struct
+            => EnumPairSpecifier<TFirstEnum>.For(_mapperContext, enumMembers);
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the given 

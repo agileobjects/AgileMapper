@@ -87,5 +87,84 @@
 
             enumMappingEx.Message.ShouldContain("different enum types");
         }
+
+        [Fact]
+        public void ShouldErrorIfNoSourceEnumMembersSpecified()
+        {
+            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .PairEnums<PaymentTypeUk>()
+                        .With(PaymentTypeUs.Check);
+                }
+            });
+
+            enumMappingEx.Message.ShouldContain("Source enum members");
+        }
+
+        [Fact]
+        public void ShouldErrorIfNoTargetEnumMembersSpecified()
+        {
+            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .PairEnums(PaymentTypeUk.Cheque)
+                        .With<PaymentTypeUs>();
+                }
+            });
+
+            enumMappingEx.Message.ShouldContain("Target enum members");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDifferentNumbersOfEnumMembersSpecified()
+        {
+            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .PairEnums(PaymentTypeUk.Cheque, PaymentTypeUk.Card, PaymentTypeUk.Cash)
+                        .With(PaymentTypeUs.Check, PaymentTypeUs.Cash);
+                }
+            });
+
+            enumMappingEx.Message.ShouldContain("same number of first and second enum values");
+        }
+
+        [Fact]
+        public void ShouldErrorIfSourceEnumMemberConflictingPairSpecified()
+        {
+            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check);
+                    mapper.WhenMapping.PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Card);
+                }
+            });
+
+            enumMappingEx.Message.ShouldContain("Cheque is already paired with PaymentTypeUs.Check");
+        }
+
+        [Fact]
+        public void ShouldErrorIfTargetEnumMemberConflictingPairSpecified()
+        {
+            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .PairEnums(PaymentTypeUk.Cheque, PaymentTypeUk.Cash)
+                        .With(PaymentTypeUs.Check, PaymentTypeUs.Check);
+                }
+            });
+
+            enumMappingEx.Message.ShouldContain("Check is already paired with PaymentTypeUk.Cheque");
+        }
     }
 }
