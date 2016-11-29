@@ -19,7 +19,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeASimpleTypeEnumerableMember()
+        public void ShouldIncludeASimpleTypeArrayMember()
         {
             var source = new PublicProperty<long[]> { Value = new[] { 1L, 2L, 3L } };
             var result = Mapper.Flatten(source);

@@ -128,6 +128,8 @@
             return Expression.Call(typedToEnumerableMethod, enumerable);
         }
 
+        private static readonly MethodInfo _enumerableEmptyMethod = typeof(Enumerable).GetPublicStaticMethod("Empty");
+
         public static Expression GetEmptyInstanceCreation(this Type enumerableType, Type elementType = null)
         {
             if (elementType == null)
@@ -141,6 +143,11 @@
             }
 
             var typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
+
+            if (typeHelper.IsEnumerableInterface)
+            {
+                return Expression.Call(_enumerableEmptyMethod.MakeGenericMethod(elementType));
+            }
 
             return Expression.New(typeHelper.IsCollection ? typeHelper.CollectionType : typeHelper.ListType);
         }

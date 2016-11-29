@@ -294,7 +294,7 @@
             var source = new[] { "9", "8", "7" };
             var result = Mapper.Map(source).ToANew<IEnumerable<byte>>();
 
-            result.ShouldBe(s => (int)s, 9, 8, 7);
+            result.ShouldBe(s => s, 9, 8, 7);
         }
     }
 }
