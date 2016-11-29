@@ -29,6 +29,22 @@
         }
 
         [Fact]
+        public void ShouldRemovePairedEnumsFromEnumMismatchWarnings()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check);
+
+                var plan = mapper
+                    .GetPlanFor<PublicTwoFields<PaymentTypeUk, PaymentTypeUs>>()
+                    .OnTo<PublicTwoFields<PaymentTypeUs, PaymentTypeUk>>();
+
+                plan.ShouldNotContain("WARNING");
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfSourceValueIsNotAnEnum()
         {
             var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>

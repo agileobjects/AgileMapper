@@ -1,45 +1,55 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
+    using System;
     using System.Linq.Expressions;
     using TypeConversion;
 
-    internal class EnumMemberPair : UserConfiguredItemBase
+    internal class EnumMemberPair
     {
-        private readonly object _firstEnumMember;
-        private readonly object _secondEnumMember;
+        private readonly Type _firstEnumType;
+        private readonly Type _secondEnumType;
 
         public EnumMemberPair(
-            MappingConfigInfo configInfo,
-            object firstEnumMember,
-            object secondEnumMember)
-            : base(configInfo)
+            Type firstEnumType,
+            string firstEnumMemberName,
+            Type secondEnumType,
+            string secondEnumMemberName,
+            IValueConverter valueConverter)
         {
-            _firstEnumMember = firstEnumMember;
-            _secondEnumMember = secondEnumMember;
+            FirstEnumMemberName = firstEnumMemberName;
+            SecondEnumMemberName = secondEnumMemberName;
+            ValueConverter = valueConverter;
+            _firstEnumType = firstEnumType;
+            _secondEnumType = secondEnumType;
         }
 
         public static EnumMemberPair For<TFirstEnum, TSecondEnum>(
-            MappingConfigInfo configInfo,
             TFirstEnum firstEnumMember,
             TSecondEnum secondEnumMember)
         {
             var firstValue = Expression.Constant(firstEnumMember, typeof(TFirstEnum));
             var secondValue = Expression.Constant(secondEnumMember, typeof(TSecondEnum));
 
-            var firstToSecondValueConverter = new ConfiguredValueConverter(
+            var valueConverter = new ConfiguredValueConverter(
                 firstValue.Type,
                 secondValue,
                 (sourceValue, targetType) => Expression.Equal(sourceValue, firstValue));
 
-            var secondToFirstValueConverter = new ConfiguredValueConverter(
+            return new EnumMemberPair(
+                firstValue.Type,
+                firstEnumMember.ToString(),
                 secondValue.Type,
-                firstValue,
-                (sourceValue, targetType) => Expression.Equal(sourceValue, secondValue));
-
-            configInfo.MapperContext.ValueConverters.Add(firstToSecondValueConverter);
-            configInfo.MapperContext.ValueConverters.Add(secondToFirstValueConverter);
-
-            return new EnumMemberPair(configInfo, firstEnumMember, secondEnumMember);
+                secondEnumMember.ToString(),
+                valueConverter);
         }
+
+        public string FirstEnumMemberName { get; }
+
+        public string SecondEnumMemberName { get; }
+
+        public IValueConverter ValueConverter { get; }
+
+        public bool IsFor(Type sourceEnumType, Type targetEnumType)
+            => (_firstEnumType == sourceEnumType) && (_secondEnumType == targetEnumType);
     }
 }

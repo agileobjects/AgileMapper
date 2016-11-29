@@ -55,8 +55,14 @@
             ThrowIfNotEnumType<TSecondEnum>();
             ThrowIfSameTypes<TSecondEnum>();
 
-            var enumPairing = EnumMemberPair.For(_configInfo, _firstEnumMember, secondEnumMember);
-            _configInfo.MapperContext.UserConfigurations.Add(enumPairing);
+            var firstToSecondPairing = EnumMemberPair.For(_firstEnumMember, secondEnumMember);
+            var secondToFirstPairing = EnumMemberPair.For(secondEnumMember, _firstEnumMember);
+
+            _configInfo.MapperContext.ValueConverters.Add(firstToSecondPairing.ValueConverter);
+            _configInfo.MapperContext.ValueConverters.Add(secondToFirstPairing.ValueConverter);
+
+            _configInfo.MapperContext.UserConfigurations.Add(firstToSecondPairing);
+            _configInfo.MapperContext.UserConfigurations.Add(secondToFirstPairing);
 
             return new MappingConfigContinuation<object, object>(_configInfo);
         }

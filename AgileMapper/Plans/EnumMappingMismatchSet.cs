@@ -106,8 +106,9 @@
             {
                 var mismatches = GetMappingMismatches(
                     sourceEnumType,
-                    targetEnumType.Name,
-                    targetEnumNames);
+                    targetEnumType,
+                    targetEnumNames,
+                    mapperData);
 
                 if (mismatches.None())
                 {
@@ -119,12 +120,15 @@
 
             private static string[] GetMappingMismatches(
                 Type sourceEnumType,
-                string targetEnumTypeName,
-                string[] targetEnumNames)
+                Type targetEnumType,
+                string[] targetEnumNames,
+                IMemberMapperData mapperData)
             {
                 var sourceEnumNames = Enum.GetNames(sourceEnumType);
-                var unmatchedSourceValues = sourceEnumNames.Except(targetEnumNames).ToArray();
-                var unmatchedTargetValues = targetEnumNames.Except(sourceEnumNames).ToArray();
+                var unmatchedSourceValues = sourceEnumNames.Except(targetEnumNames).ToList();
+                var unmatchedTargetValues = targetEnumNames.Except(sourceEnumNames).ToList();
+
+                Filter(unmatchedSourceValues, unmatchedTargetValues, sourceEnumType, targetEnumType, mapperData);
 
                 if (unmatchedSourceValues.None() && unmatchedTargetValues.None())
                 {
@@ -132,12 +136,36 @@
                 }
 
                 var unmatchedValues = unmatchedSourceValues
-                    .Select(value => $" - {sourceEnumType.Name}.{value} matches no {targetEnumTypeName}")
+                    .Select(value => $" - {sourceEnumType.Name}.{value} matches no {targetEnumType.Name}")
                     .Concat(unmatchedTargetValues
-                        .Select(value => $" - {targetEnumTypeName}.{value} is matched by no {sourceEnumType.Name}"))
+                        .Select(value => $" - {targetEnumType.Name}.{value} is matched by no {sourceEnumType.Name}"))
                     .ToArray();
 
                 return unmatchedValues;
+            }
+
+            private static void Filter(
+                ICollection<string> unmatchedSourceValues,
+                ICollection<string> unmatchedTargetValues,
+                Type sourceEnumType,
+                Type targetEnumType,
+                IMemberMapperData mapperData)
+            {
+                var relevantEnumPairings = mapperData
+                    .MapperContext
+                    .UserConfigurations
+                    .EnumParings
+                    .Where(ep => ep.IsFor(sourceEnumType, targetEnumType));
+
+                foreach (var enumParing in relevantEnumPairings)
+                {
+                    if (unmatchedSourceValues.Contains(enumParing.FirstEnumMemberName) &&
+                        unmatchedTargetValues.Contains(enumParing.SecondEnumMemberName))
+                    {
+                        unmatchedSourceValues.Remove(enumParing.FirstEnumMemberName);
+                        unmatchedTargetValues.Remove(enumParing.SecondEnumMemberName);
+                    }
+                }
             }
 
             #endregion
