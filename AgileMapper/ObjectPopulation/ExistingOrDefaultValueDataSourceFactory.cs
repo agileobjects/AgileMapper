@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
     using DataSources;
+    using Extensions;
     using Members;
 
     internal class ExistingOrDefaultValueDataSourceFactory : IDataSourceFactory
@@ -9,9 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly IDataSourceFactory Instance = new ExistingOrDefaultValueDataSourceFactory();
 
         public IDataSource Create(IChildMemberMappingData mappingData)
-            => mappingData.MapperData.TargetMember.IsReadable
-                ? new ExistingMemberValueOrEmptyDataSource(mappingData.MapperData)
-                : DefaultValueDataSourceFactory.Instance.Create(mappingData);
+            => new ExistingMemberValueOrEmptyDataSource(mappingData.MapperData);
 
         private class ExistingMemberValueOrEmptyDataSource : DataSourceBase
         {
@@ -22,16 +21,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             private static Expression GetValue(IMemberMapperData mapperData)
             {
-                var existingValue = mapperData.GetTargetMemberAccess();
-
-                if (!mapperData.TargetMember.IsEnumerable)
+                if (mapperData.TargetMember.IsReadable)
                 {
-                    return existingValue;
+                    var existingValue = mapperData.GetTargetMemberAccess();
+
+                    if (!mapperData.TargetMember.IsEnumerable)
+                    {
+                        return existingValue;
+                    }
+
+                    var emptyEnumerable = mapperData.TargetMember.GetEmptyInstanceCreation();
+
+                    return Expression.Coalesce(existingValue, emptyEnumerable);
                 }
 
-                var emptyEnumerable = mapperData.TargetMember.GetEmptyInstanceCreation();
+                if (mapperData.TargetMember.IsEnumerable)
+                {
+                    var emptyEnumerable = mapperData.TargetMember.GetEmptyInstanceCreation();
 
-                return Expression.Coalesce(existingValue, emptyEnumerable);
+                    return emptyEnumerable.GetConversionTo(mapperData.TargetMember.Type);
+                }
+
+                return Expression.Default(mapperData.TargetMember.Type);
             }
         }
     }

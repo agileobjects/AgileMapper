@@ -177,6 +177,16 @@
         }
 
         [Fact]
+        public void ShouldHandleANullSourceMemberForAWriteOnlyTarget()
+        {
+            var source = new PublicField<ICollection<int?>> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<decimal[]>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBeEmpty();
+        }
+
+        [Fact]
         public void ShouldCreateAnEmptyCollectionByDefault()
         {
             var source = new PublicProperty<Collection<int>> { Value = null };
