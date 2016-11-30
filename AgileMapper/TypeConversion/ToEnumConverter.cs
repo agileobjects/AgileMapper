@@ -30,9 +30,16 @@
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
+            bool sourceIsAnEnum;
+
             if (sourceValue.Type != typeof(string))
             {
+                sourceIsAnEnum = sourceValue.Type.GetNonNullableType().IsEnum();
                 sourceValue = _toStringConverter.GetConversion(sourceValue);
+            }
+            else
+            {
+                sourceIsAnEnum = false;
             }
 
             var nonNullableEnumType = targetType.GetNonNullableType();
@@ -50,20 +57,38 @@
                 Expression.Constant(true, typeof(bool)), // <- IgnoreCase
                 valueVariable);
 
-            var isDefinedCall = Expression.Call(
-                null,
-                typeof(Enum).GetPublicStaticMethod("IsDefined"),
-                Expression.Constant(nonNullableEnumType),
-                valueVariable.GetConversionTo(typeof(object)));
-
-            var successfulParseReturnValue = valueVariable.GetConversionTo(targetType);
             var defaultValue = Expression.Default(targetType);
+            var parseSuccessBranch = GetParseSuccessBranch(sourceIsAnEnum, valueVariable, defaultValue);
 
-            var definedValueOrDefault = Expression.Condition(isDefinedCall, successfulParseReturnValue, defaultValue);
-            var parsedValueOrDefault = Expression.Condition(tryParseCall, definedValueOrDefault, defaultValue);
+            var parsedValueOrDefault = Expression.Condition(tryParseCall, parseSuccessBranch, defaultValue);
             var tryParseBlock = Expression.Block(new[] { valueVariable }, parsedValueOrDefault);
 
             return tryParseBlock;
+        }
+
+        private static Expression GetParseSuccessBranch(
+            bool sourceIsAnEnum,
+            Expression valueVariable,
+            Expression defaultValue)
+        {
+            var successfulParseReturnValue = valueVariable.GetConversionTo(defaultValue.Type);
+
+            if (sourceIsAnEnum)
+            {
+                // Enums are parsed using the member name, so no need to 
+                // check if the value is defined if the parse succeeds:
+                return successfulParseReturnValue;
+            }
+
+            var isDefinedCall = Expression.Call(
+                null,
+                typeof(Enum).GetPublicStaticMethod("IsDefined"),
+                Expression.Constant(valueVariable.Type),
+                valueVariable.GetConversionTo(typeof(object)));
+
+            var definedValueOrDefault = Expression.Condition(isDefinedCall, successfulParseReturnValue, defaultValue);
+
+            return definedValueOrDefault;
         }
     }
 }
