@@ -13,7 +13,7 @@
     internal class DerivedTypePairSet
     {
         private static readonly object _lookupSync = new object();
-        private static readonly DerivedTypePair[] _noPairs = { };
+        private static readonly DerivedTypePair[] _noPairs = Enumerable<DerivedTypePair>.EmptyArray;
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
         private readonly List<SourceAndTargetTypesKey> _autoCheckedTypes;
 
