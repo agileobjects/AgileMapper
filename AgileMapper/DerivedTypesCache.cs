@@ -10,7 +10,7 @@
 
     internal class DerivedTypesCache
     {
-        private static readonly Type[] _noTypes = { };
+        private static readonly Type[] _noTypes = Constants.NoTypeArguments;
 
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
         private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;

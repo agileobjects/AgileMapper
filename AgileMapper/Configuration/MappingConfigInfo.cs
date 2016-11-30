@@ -18,8 +18,6 @@
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", true, null, null, null);
 
         private MappingRuleSet _mappingRuleSet;
-        private Type _sourceType;
-        private Type _targetType;
         private Type _sourceValueType;
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
@@ -41,15 +39,26 @@
 
         public MapperContext MapperContext { get; }
 
+        public Type SourceType { get; private set; }
+
         public MappingConfigInfo ForAllSourceTypes() => ForSourceType(_allSourceTypes);
 
         public MappingConfigInfo ForSourceType<TSource>() => ForSourceType(typeof(TSource));
 
         public MappingConfigInfo ForSourceType(Type sourceType)
         {
-            _sourceType = sourceType;
+            SourceType = sourceType;
             return this;
         }
+
+        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => otherConfigInfo.SourceType == SourceType;
+
+        public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo.SourceType);
+
+        private bool IsForSourceType(Type sourceType)
+            => (SourceType == _allSourceTypes) || SourceType.IsAssignableFrom(sourceType);
+
+        public Type TargetType { get; private set; }
 
         public MappingConfigInfo ForAllTargetTypes() => ForTargetType<object>();
 
@@ -57,16 +66,14 @@
 
         public MappingConfigInfo ForTargetType(Type targetType)
         {
-            _targetType = targetType;
+            TargetType = targetType;
             return this;
         }
 
-        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => _sourceType == otherConfigInfo._sourceType;
-
-        public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => _targetType == otherConfigInfo._targetType;
+        public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
 
         public bool HasCompatibleTypes(MappingConfigInfo otherConfigInfo)
-            => HasCompatibleTypes(otherConfigInfo._sourceType, otherConfigInfo._targetType);
+            => HasCompatibleTypes(otherConfigInfo.SourceType, otherConfigInfo.TargetType);
 
         public bool HasCompatibleTypes(IBasicMapperData mapperData)
             => HasCompatibleTypes(mapperData.SourceType, mapperData.TargetType);
@@ -74,13 +81,8 @@
         public bool HasCompatibleTypes(Type sourceType, Type targetType)
         {
             return IsForSourceType(sourceType) &&
-                (_targetType.IsAssignableFrom(targetType) || targetType.IsAssignableFrom(_targetType));
+                (TargetType.IsAssignableFrom(targetType) || targetType.IsAssignableFrom(TargetType));
         }
-
-        public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo._sourceType);
-
-        private bool IsForSourceType(Type sourceType)
-            => (_sourceType == _allSourceTypes) || _sourceType.IsAssignableFrom(sourceType);
 
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 
@@ -193,11 +195,11 @@
 
         private Expression GetTypeCheckConditionOrNull(IMemberMapperData mapperData)
         {
-            var sourceType = (_sourceType == _allSourceTypes) ? typeof(object) : _sourceType;
-            var contextTypes = new[] { sourceType, _targetType };
+            var sourceType = (SourceType == _allSourceTypes) ? typeof(object) : SourceType;
+            var contextTypes = new[] { sourceType, TargetType };
             var context = mapperData.GetAppropriateMappingContext(contextTypes);
 
-            if (!_targetType.IsDerivedFrom(context.TargetType))
+            if (!TargetType.IsDerivedFrom(context.TargetType))
             {
                 return null;
             }
@@ -209,7 +211,7 @@
                 return null;
             }
 
-            var targetAccess = mapperData.GetTargetAccess(contextAccess, _targetType);
+            var targetAccess = mapperData.GetTargetAccess(contextAccess, TargetType);
             var targetAccessNotNull = targetAccess.GetIsNotDefaultComparison();
 
             return targetAccessNotNull;
@@ -217,12 +219,24 @@
 
         #endregion
 
-        public MappingConfigInfo CloneForContinuation()
+        public IBasicMapperData ToMapperData()
+        {
+            var dummyTargetMember = QualifiedMember
+                .From(Member.RootTarget(TargetType), MapperContext);
+
+            return new BasicMapperData(
+                _mappingRuleSet,
+                SourceType,
+                TargetType,
+                dummyTargetMember);
+        }
+
+        public MappingConfigInfo Clone()
         {
             return new MappingConfigInfo(MapperContext)
             {
-                _sourceType = _sourceType,
-                _targetType = _targetType,
+                SourceType = SourceType,
+                TargetType = TargetType,
                 _sourceValueType = _sourceValueType,
                 _mappingRuleSet = _mappingRuleSet
             };

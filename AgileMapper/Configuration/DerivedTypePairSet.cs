@@ -34,6 +34,8 @@
                 // ReSharper disable once AssignNullToNotNullAttribute
                 if (_typePairsByTargetType.TryGetValue(parentType, out typePairs))
                 {
+                    RemoveConflictingPairIfAppropriate(typePair, typePairs);
+
                     typePairs.Add(typePair);
                     typePairs.Sort(DerivedTypePairComparer.Instance);
                 }
@@ -43,6 +45,24 @@
                 }
 
                 parentType = parentType.GetBaseType();
+            }
+        }
+
+        private static void RemoveConflictingPairIfAppropriate(
+            DerivedTypePair typePair,
+            ICollection<DerivedTypePair> typePairs)
+        {
+            if (typePair.HasConfiguredCondition)
+            {
+                return;
+            }
+
+            var existingTypePair = typePairs.FirstOrDefault(tp =>
+                !tp.HasConfiguredCondition && tp.HasSourceType(typePair.DerivedSourceType));
+
+            if (existingTypePair != null)
+            {
+                typePairs.Remove(existingTypePair);
             }
         }
 
@@ -221,12 +241,7 @@
 
         private static Type GetRootType(Type type)
         {
-            if (type == typeof(object))
-            {
-                return type;
-            }
-
-            var parentType = type.GetBaseType();
+            var parentType = type;
 
             while (parentType != typeof(object))
             {

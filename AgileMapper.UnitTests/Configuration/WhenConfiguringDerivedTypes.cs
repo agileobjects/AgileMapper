@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -84,23 +85,63 @@
             }
         }
 
-        #region Helper Classes
-
-        internal class MegaProduct : Product
+        [Fact]
+        public void ShouldErrorIfSameSourceTypeSpecified()
         {
-            public decimal HowMega { get; set; }
+            var pairingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Product>()
+                        .To<ProductDto>()
+                        .Map<Product>()
+                        .To<ProductDtoMega>();
+
+                }
+            });
+
+            pairingEx.Message.ShouldContain("derived source type must be specified");
         }
 
-        internal class ProductDto
+        [Fact]
+        public void ShouldErrorIfSameTargetTypeSpecified()
         {
-            public string ProductId { get; set; }
+            var pairingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Product>()
+                        .To<ProductDto>()
+                        .Map<MegaProduct>()
+                        .To<ProductDto>();
+
+                }
+            });
+
+            pairingEx.Message.ShouldContain("derived target type must be specified");
         }
 
-        internal class ProductDtoMega : ProductDto
+        [Fact]
+        public void ShouldErrorIfUnnecessaryPairingSpecified()
         {
-            public string HowMega { get; set; }
-        }
+            var pairingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PersonViewModel>()
+                        .Map<Customer>()
+                        .To<CustomerViewModel>();
 
-        #endregion
+                }
+            });
+
+            pairingEx.Message.ShouldContain("Customer is automatically mapped to CustomerViewModel");
+            pairingEx.Message.ShouldContain("when mapping Person to PersonViewModel");
+            pairingEx.Message.ShouldContain("does not need to be configured");
+        }
     }
 }

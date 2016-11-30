@@ -21,13 +21,13 @@
         /// being configured. This property exists purely to provide a more fluent configuration interface.
         /// </summary>
         public IFullMappingConfigurator<TSource, TTarget> And
-            => new MappingConfigurator<TSource, TTarget>(_configInfo.CloneForContinuation());
+            => new MappingConfigurator<TSource, TTarget>(_configInfo.Clone());
 
         /// <summary>
         /// Perform an alternative configuration of how this mapper maps to and from the source and target types
         /// being configured. This property exists purely to provide a more fluent configuration interface.
         /// </summary>
         public IFullMappingConfigurator<TSource, TTarget> But
-            => new MappingConfigurator<TSource, TTarget>(_configInfo.CloneForContinuation());
+            => new MappingConfigurator<TSource, TTarget>(_configInfo.Clone());
     }
 }

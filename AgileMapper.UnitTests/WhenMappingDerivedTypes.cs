@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -102,19 +103,19 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .To<Person>()
-                    .Map<CustomerViewModel>()
-                    .To<Customer>();
+                    .From<Product>()
+                    .To<ProductDto>()
+                    .Map<MegaProduct>()
+                    .To<ProductDtoMega>();
 
-                var personSource = new PublicField<CustomerViewModel>
+                var personSource = new PublicField<Product>
                 {
-                    Value = new MysteryCustomerViewModel { Discount = 0.2 }
+                    Value = new MegaProduct { HowMega = 1.10m }
                 };
-                var result = mapper.Map(personSource).ToANew<PublicSetMethod<Person>>();
+                var result = mapper.Map(personSource).ToANew<PublicSetMethod<ProductDto>>();
 
-                result.Value.ShouldBeOfType<Customer>();
-                ((Customer)result.Value).Discount.ShouldBe(0.2);
+                result.Value.ShouldBeOfType<ProductDtoMega>();
+                ((ProductDtoMega)result.Value).HowMega.ShouldBe("1.10");
             }
         }
 
