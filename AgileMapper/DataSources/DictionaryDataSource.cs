@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -99,7 +100,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 _linqIntersectMethod,
                 Expression.Property(childMapperData.SourceObject, "Keys"),
                 Expression.NewArrayInit(typeof(string), potentialNames),
-                CaseInsensitiveStringComparer.InstanceMember);
+                Expression.Property(null, typeof(StringComparer), "OrdinalIgnoreCase"));
 
             var intersectionFirstOrDefault = Expression.Call(_linqFirstOrDefaultMethod, linqIntersect);
             var emptyString = Expression.Field(null, typeof(string), "Empty");

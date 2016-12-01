@@ -102,7 +102,7 @@
         public static bool Match(this IEnumerable<string> memberNames, IEnumerable<string> otherMemberNames)
         {
             return memberNames
-                .Intersect(otherMemberNames, CaseInsensitiveStringComparer.Instance)
+                .Intersect(otherMemberNames, StringComparer.OrdinalIgnoreCase)
                 .Any();
         }
 
