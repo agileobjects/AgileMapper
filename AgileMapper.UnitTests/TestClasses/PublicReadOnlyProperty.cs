@@ -9,4 +9,14 @@
 
         public T Value { get; }
     }
+
+    internal static class ReadOnlyPropertyExtensions
+    {
+        public static void CreateAReadOnlyPropertyUsing<T>(this IMapper mapper, T value)
+        {
+            mapper.WhenMapping
+                .To<PublicReadOnlyProperty<T>>()
+                .CreateInstancesUsing(data => new PublicReadOnlyProperty<T>(value));
+        }
+    }
 }

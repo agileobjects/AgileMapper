@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -123,6 +124,19 @@
             var result = Mapper.Map(source).Over(target);
 
             result.Value.ShouldBeSameAs(target.Value);
+        }
+
+        [Fact]
+        public void ShouldOverwriteANonNullReadOnlyNestedCollection()
+        {
+            var source = new PublicField<string[]> { Value = new[] { "One!", "Two!", "Three" } };
+            var strings = new Collection<string> { "A", "B", "C" };
+            var target = new PublicReadOnlyField<Collection<string>>(strings);
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeSameAs(strings);
+            result.Value.ShouldBe("One!", "Two!", "Three");
         }
     }
 }

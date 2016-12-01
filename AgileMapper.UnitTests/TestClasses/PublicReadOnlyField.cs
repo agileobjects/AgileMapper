@@ -4,9 +4,19 @@
     {
         public readonly T Value;
 
-        public PublicReadOnlyField(T value)
+        public PublicReadOnlyField(T readOnlyValue)
         {
-            Value = value;
+            Value = readOnlyValue;
+        }
+    }
+
+    internal static class ReadOnlyFieldExtensions
+    {
+        public static void CreateAReadOnlyFieldUsing<T>(this IMapper mapper, T value)
+        {
+            mapper.WhenMapping
+                .To<PublicReadOnlyField<T>>()
+                .CreateInstancesUsing(data => new PublicReadOnlyField<T>(value));
         }
     }
 }

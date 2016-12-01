@@ -19,7 +19,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData)
-            => _constructionFactory.GetNewObjectCreation(mappingData) == null;
+        {
+            if (mappingData.IsRoot)
+            {
+                return false;
+            }
+
+            return _constructionFactory.GetNewObjectCreation(mappingData) == null;
+        }
 
         protected override string GetNullMappingComment(Type targetType)
             => "Unable to construct object of Type " + targetType.GetFriendlyName();
@@ -109,6 +116,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var objectCreationValue = _constructionFactory.GetNewObjectCreation(mappingData);
+
+            if (objectCreationValue == null)
+            {
+                // Root mappings can map to objects which a mapper can't create;
+                // use the existing target object:
+                return mappingData.MapperData.TargetObject;
+            }
 
             if (postCreationCallbackExists)
             {

@@ -56,7 +56,18 @@
                 var properties = GetProperties(key.Type, OnlyTargets);
                 var methods = GetMethods(key.Type, OnlyCallableSetters, Member.SetMethod);
 
-                return GetMembers(fields, properties, methods);
+                var constructorParameterNames = key.Type
+                    .GetConstructors()
+                    .SelectMany(ctor => ctor.GetParameters().Select(p => p.Name))
+                    .Distinct()
+                    .ToArray();
+
+                var fieldsAndProperties = fields
+                    .Concat(properties)
+                    .Where(m => !constructorParameterNames.Contains(m.Name, StringComparer.OrdinalIgnoreCase))
+                    .ToArray();
+
+                return GetMembers(fieldsAndProperties, methods);
             });
         }
 

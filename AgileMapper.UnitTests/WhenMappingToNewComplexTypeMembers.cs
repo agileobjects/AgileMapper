@@ -130,9 +130,7 @@
             {
                 var address = new Address();
 
-                mapper.WhenMapping
-                    .ToANew<PublicReadOnlyProperty<Address>>()
-                    .CreateInstancesUsing(data => new PublicReadOnlyProperty<Address>(address));
+                mapper.CreateAReadOnlyPropertyUsing(address);
 
                 var source = new PublicField<Address> { Value = new Address { Line1 = "Readonly populated!" } };
                 var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<Address>>();
@@ -148,9 +146,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping
-                    .ToANew<PublicReadOnlyField<Address>>()
-                    .CreateInstancesUsing(data => new PublicReadOnlyField<Address>(default(Address)));
+                mapper.CreateAReadOnlyFieldUsing(default(Address));
 
                 var source = new PublicGetMethod<Address>(new Address { Line1 = "Not happening..." });
                 var result = mapper.Map(source).ToANew<PublicReadOnlyField<Address>>();

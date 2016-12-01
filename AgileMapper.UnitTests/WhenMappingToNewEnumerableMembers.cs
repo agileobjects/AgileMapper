@@ -203,9 +203,7 @@
             {
                 ICollection<Address> addresses = new List<Address>();
 
-                mapper.WhenMapping
-                    .ToANew<PublicReadOnlyField<ICollection<Address>>>()
-                    .CreateInstancesUsing(data => new PublicReadOnlyField<ICollection<Address>>(addresses));
+                mapper.CreateAReadOnlyFieldUsing(addresses);
 
                 var source = new PublicField<Address[]>
                 {
@@ -232,9 +230,7 @@
             {
                 ICollection<Address> addresses = new Address[0];
 
-                mapper.WhenMapping
-                    .ToANew<PublicReadOnlyField<ICollection<Address>>>()
-                    .CreateInstancesUsing(data => new PublicReadOnlyField<ICollection<Address>>(addresses));
+                mapper.CreateAReadOnlyFieldUsing(addresses);;
 
                 var source = new PublicField<Address[]>
                 {
@@ -259,9 +255,7 @@
             {
                 IEnumerable<Address> addresses = new List<Address>();
 
-                mapper.WhenMapping
-                    .ToANew<PublicReadOnlyField<IEnumerable<Address>>>()
-                    .CreateInstancesUsing(data => new PublicReadOnlyField<IEnumerable<Address>>(addresses));
+                mapper.CreateAReadOnlyFieldUsing(addresses);
 
                 var source = new PublicField<Address[]>
                 {
@@ -288,9 +282,7 @@
             {
                 IList<Address> addresses = new List<Address>();
 
-                mapper.WhenMapping
-                    .ToANew<PublicReadOnlyProperty<IList<Address>>>()
-                    .CreateInstancesUsing(data => new PublicReadOnlyProperty<IList<Address>>(addresses));
+                mapper.CreateAReadOnlyPropertyUsing(addresses);
 
                 var source = new PublicField<Address[]>
                 {
