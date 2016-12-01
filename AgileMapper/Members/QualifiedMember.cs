@@ -11,8 +11,11 @@ namespace AgileObjects.AgileMapper.Members
     [DebuggerDisplay("{GetPath()}")]
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], Constants.EmptyStringArray, MapperContext.WithDefaultNamingSettings);
-        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], Constants.EmptyStringArray, MapperContext.WithDefaultNamingSettings);
+        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], Constants.EmptyStringArray,
+            MapperContext.WithDefaultNamingSettings);
+
+        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], Constants.EmptyStringArray,
+            MapperContext.WithDefaultNamingSettings);
 
         private readonly Member[] _memberChain;
         private readonly MapperContext _mapperContext;
@@ -76,7 +79,10 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             RegistrationName = (LeafMember.MemberType != MemberType.ConstructorParameter)
-                ? Name : "ctor:" + Name;
+                ? Name
+                : "ctor:" + Name;
+
+            IsReadOnly = IsReadable && !leafMember.IsWriteable;
         }
 
         #region Setup
@@ -157,7 +163,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsReadable => LeafMember.IsReadable;
 
-        public bool IsReadOnly => IsReadable && !LeafMember.IsWriteable;
+        public bool IsReadOnly { get; set; }
 
         public bool IsRecursive { get; }
 

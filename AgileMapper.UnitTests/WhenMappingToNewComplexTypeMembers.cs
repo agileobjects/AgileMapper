@@ -65,7 +65,7 @@
         }
 
         [Fact]
-        public void ShouldHandleAnUnconstructableType()
+        public void ShouldHandleNoMatchingSourceForNestedCtorParameter()
         {
             var source = new { Value = new { Hello = "There" } };
             var result = Mapper.Map(source).ToANew<PublicSetMethod<PublicCtor<string>>>();
@@ -153,6 +153,39 @@
 
                 result.Value.ShouldBeNull();
             }
+        }
+
+        [Fact]
+        public void ShouldMapToANonNullUnconstructableNestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var existingValue = new PublicField<string>();
+
+                mapper.WhenMapping
+                    .ToANew<PublicField<PublicFactoryMethod<PublicField<string>>>>()
+                    .CreateInstancesUsing(data => new PublicField<PublicFactoryMethod<PublicField<string>>>
+                    {
+                        Value = PublicFactoryMethod<PublicField<string>>.Create(existingValue)
+                    });
+
+                var source = new { Value = new { Value = new { Value = "Hello!" } } };
+                var result = mapper.Map(source).ToANew<PublicField<PublicFactoryMethod<PublicField<string>>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldBeSameAs(existingValue);
+                result.Value.Value.Value.ShouldBeSameAs("Hello!");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleANullUnconstructableNestedMember()
+        {
+            var source = new { Value = new { Value = new { Value = "Goodbye!" } } };
+            var result = Mapper.Map(source).ToANew<PublicField<PublicFactoryMethod<PublicField<string>>>>();
+
+            result.Value.ShouldBeNull();
         }
     }
 }

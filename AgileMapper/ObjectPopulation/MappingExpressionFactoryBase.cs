@@ -10,7 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using Members;
     using NetStandardPolyfills;
-    using ReadableExpressions;
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -18,11 +17,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            if (TargetCannotBeMapped(mappingData))
+            Expression nullMappingBlock;
+
+            if (TargetCannotBeMapped(mappingData, out nullMappingBlock))
             {
-                return Expression.Block(
-                    ReadableExpression.Comment(GetNullMappingComment(mapperData.TargetType)),
-                    GetNullMappingReturnValue(mapperData));
+                return nullMappingBlock;
             }
 
             var returnNull = Expression.Return(
@@ -44,11 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mappingBlockWithTryCatch;
         }
 
-        protected abstract bool TargetCannotBeMapped(IObjectMappingData mappingData);
-
-        protected abstract string GetNullMappingComment(Type targetType);
-
-        protected abstract Expression GetNullMappingReturnValue(ObjectMapperData mapperData);
+        protected abstract bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock);
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(
             GotoExpression returnNull,

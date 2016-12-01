@@ -113,6 +113,7 @@
     <Compile Include="TestClasses\OrderUs.cs" />
     <Compile Include="TestClasses\PaymentTypeUk.cs" />
     <Compile Include="TestClasses\PaymentTypeUs.cs" />
+    <Compile Include="TestClasses\PublicFactoryMethod.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
     <Compile Include="TestClasses\PublicTwoFields.cs" />
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />

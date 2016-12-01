@@ -4,16 +4,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using ReadableExpressions;
 
     internal class EnumerableMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData)
-            => !mappingData.MapperData.SourceMember.IsEnumerable;
+        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
+        {
+            if (mappingData.MapperData.SourceMember.IsEnumerable)
+            {
+                nullMappingBlock = null;
+                return false;
+            }
 
-        protected override string GetNullMappingComment(Type targetType) => "No source enumerable available";
+            nullMappingBlock = Expression.Block(
+                ReadableExpression.Comment("No source enumerable available"),
+                mappingData.MapperData.EnumerablePopulationBuilder.ExistingOrNewEmptyInstance());
 
-        protected override Expression GetNullMappingReturnValue(ObjectMapperData mapperData)
-            => mapperData.EnumerablePopulationBuilder.ExistingOrNewEmptyInstance();
+            return true;
+        }
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
             => Enumerable.Empty<Expression>();

@@ -7,7 +7,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
     using Extensions;
     using Members;
-    using ReadableExpressions.Extensions;
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
@@ -18,21 +17,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }
 
-        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData)
+        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
-            if (mappingData.IsRoot)
-            {
-                return false;
-            }
-
-            return _constructionFactory.GetNewObjectCreation(mappingData) == null;
+            // If a target complex type is readonly or unconstructable 
+            // we still try to map to it using an existing non-null value:
+            nullMappingBlock = null;
+            return false;
         }
-
-        protected override string GetNullMappingComment(Type targetType)
-            => "Unable to construct object of Type " + targetType.GetFriendlyName();
-
-        protected override Expression GetNullMappingReturnValue(ObjectMapperData mapperData)
-            => Expression.Default(mapperData.TargetType);
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
         {
@@ -110,37 +101,40 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetObjectResolution(IObjectMappingData mappingData, bool postCreationCallbackExists)
         {
-            if (mappingData.MapperData.TargetMember.IsReadOnly)
+            var mapperData = mappingData.MapperData;
+
+            if (mapperData.TargetMember.IsReadOnly)
             {
-                return mappingData.MapperData.TargetObject;
+                return mapperData.TargetObject;
             }
 
-            var objectCreationValue = _constructionFactory.GetNewObjectCreation(mappingData);
+            var objectCreation = _constructionFactory.GetNewObjectCreation(mappingData);
 
-            if (objectCreationValue == null)
+            if (objectCreation == null)
             {
-                // Root mappings can map to objects which a mapper can't create;
-                // use the existing target object:
-                return mappingData.MapperData.TargetObject;
+                mapperData.TargetMember.IsReadOnly = true;
+
+                // Use the existing target object if the mapper can't create an instance:
+                return mapperData.TargetObject;
             }
 
             if (postCreationCallbackExists)
             {
-                mappingData.MapperData.Context.UsesMappingDataObjectAsParameter = true;
-                objectCreationValue = Expression.Assign(mappingData.MapperData.CreatedObject, objectCreationValue);
+                mapperData.Context.UsesMappingDataObjectAsParameter = true;
+                objectCreation = Expression.Assign(mapperData.CreatedObject, objectCreation);
             }
 
-            if (mappingData.MapperData.Context.UsesMappingDataObjectAsParameter)
+            if (mapperData.Context.UsesMappingDataObjectAsParameter)
             {
-                objectCreationValue = Expression.Assign(mappingData.MapperData.TargetObject, objectCreationValue);
+                objectCreation = Expression.Assign(mapperData.TargetObject, objectCreation);
             }
 
             if (IncludeExistingTargetCheck(mappingData))
             {
-                objectCreationValue = Expression.Coalesce(mappingData.MapperData.TargetObject, objectCreationValue);
+                objectCreation = Expression.Coalesce(mapperData.TargetObject, objectCreation);
             }
 
-            return objectCreationValue;
+            return objectCreation;
         }
 
         private static bool IncludeExistingTargetCheck(IObjectMappingData mappingData)
