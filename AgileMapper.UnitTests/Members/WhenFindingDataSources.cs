@@ -11,10 +11,11 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
         public void ShouldNotMatchSameNameIncompatibleTypeProperties()
         {
             var source = new TwoValues { Value = new int[5], value = string.Empty };
+            var target = new PublicProperty<byte>();
             var targetMember = TargetMemberFor<PublicProperty<byte>>(x => x.Value);
 
-            var mappingContext = new MappingExecutor<TwoValues>(new MappingRuleSetCollection().CreateNew, DefaultMapperContext);
-            var rootMappingData = mappingContext.CreateRootMappingData(source, targetMember);
+            var mappingContext = new MappingExecutor<TwoValues>(DefaultMapperContext.RuleSets.CreateNew, DefaultMapperContext);
+            var rootMappingData = mappingContext.CreateRootMappingData(source, target);
             var rootMapperData = rootMappingData.MapperData;
 
             var childMapperData = new ChildMemberMapperData(targetMember, rootMapperData);
