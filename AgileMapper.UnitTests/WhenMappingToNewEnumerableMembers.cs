@@ -195,5 +195,119 @@
             result.Value.ShouldNotBeNull();
             result.Value.ShouldBeEmpty();
         }
+
+        [Fact]
+        public void ShouldPopulateANonNullReadOnlyNestedICollection()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                ICollection<Address> addresses = new List<Address>();
+
+                mapper.WhenMapping
+                    .ToANew<PublicReadOnlyField<ICollection<Address>>>()
+                    .CreateInstancesUsing(data => new PublicReadOnlyField<ICollection<Address>>(addresses));
+
+                var source = new PublicField<Address[]>
+                {
+                    Value = new[]
+                    {
+                        new Address { Line1 = "Address 1" },
+                        new Address { Line1 = "Address 2" }
+                    }
+                };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyField<ICollection<Address>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(addresses);
+
+                result.Value.First().Line1.ShouldBe("Address 1");
+                result.Value.Second().Line1.ShouldBe("Address 2");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleANonNullReadOnlyNestedReadOnlyICollection()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                ICollection<Address> addresses = new Address[0];
+
+                mapper.WhenMapping
+                    .ToANew<PublicReadOnlyField<ICollection<Address>>>()
+                    .CreateInstancesUsing(data => new PublicReadOnlyField<ICollection<Address>>(addresses));
+
+                var source = new PublicField<Address[]>
+                {
+                    Value = new[]
+                    {
+                        new Address { Line1 = "Address One" },
+                        new Address { Line1 = "Address Two" }
+                    }
+                };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyField<ICollection<Address>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(addresses);
+                result.Value.ShouldBeEmpty();
+            }
+        }
+
+        [Fact]
+        public void ShouldPopulateANonNullReadOnlyNestedEnumerable()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                IEnumerable<Address> addresses = new List<Address>();
+
+                mapper.WhenMapping
+                    .ToANew<PublicReadOnlyField<IEnumerable<Address>>>()
+                    .CreateInstancesUsing(data => new PublicReadOnlyField<IEnumerable<Address>>(addresses));
+
+                var source = new PublicField<Address[]>
+                {
+                    Value = new[]
+                    {
+                        new Address { Line1 = "Address 1 Line 1" },
+                        new Address { Line1 = "Address 2 Line 1" }
+                    }
+                };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyField<IEnumerable<Address>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(addresses);
+
+                result.Value.First().Line1.ShouldBe("Address 1 Line 1");
+                result.Value.Second().Line1.ShouldBe("Address 2 Line 1");
+            }
+        }
+
+        [Fact]
+        public void ShouldPopulateANonNullReadOnlyNestedIList()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                IList<Address> addresses = new List<Address>();
+
+                mapper.WhenMapping
+                    .ToANew<PublicReadOnlyProperty<IList<Address>>>()
+                    .CreateInstancesUsing(data => new PublicReadOnlyProperty<IList<Address>>(addresses));
+
+                var source = new PublicField<Address[]>
+                {
+                    Value = new[]
+                    {
+                        new Address { Line1 = "Address 1! Line 1!" },
+                        new Address { Line1 = "Address 2! Line 1!" }
+                    }
+                };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<IList<Address>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(addresses);
+
+                result.Value.First().Line1.ShouldBe("Address 1! Line 1!");
+                result.Value.Second().Line1.ShouldBe("Address 2! Line 1!");
+            }
+        }
     }
 }

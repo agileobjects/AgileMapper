@@ -157,6 +157,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsReadable => LeafMember.IsReadable;
 
+        public bool IsReadOnly => IsReadable && !LeafMember.IsWriteable;
+
         public bool IsRecursive { get; }
 
         public bool IsRecursionRoot()

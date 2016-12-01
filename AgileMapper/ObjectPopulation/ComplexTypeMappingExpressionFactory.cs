@@ -103,7 +103,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetObjectResolution(IObjectMappingData mappingData, bool postCreationCallbackExists)
         {
-            if (!mappingData.MapperData.TargetMember.LeafMember.IsWriteable)
+            if (mappingData.MapperData.TargetMember.IsReadOnly)
             {
                 return mappingData.MapperData.TargetObject;
             }

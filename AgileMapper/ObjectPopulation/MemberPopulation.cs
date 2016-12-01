@@ -59,9 +59,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return _dataSources.Value;
             }
 
-            var population = MapperData.TargetMember.LeafMember.IsWriteable
-                ? MapperData.TargetMember.LeafMember.GetPopulation(MapperData.InstanceVariable, _dataSources.Value)
-                : GetReadOnlyMemberPopulation();
+            var population = MapperData.TargetMember.IsReadOnly
+                ? GetReadOnlyMemberPopulation()
+                : MapperData.TargetMember.LeafMember
+                    .GetPopulation(MapperData.InstanceVariable, _dataSources.Value);
 
             if (_dataSources.Variables.Any())
             {

@@ -247,7 +247,19 @@
             _populationExpressions.Add(Expression.Assign(TargetVariable, value));
         }
 
-        public void AssignTargetVariable() => AssignTargetVariableTo(GetTargetVariableValue());
+        public void AssignTargetVariable()
+        {
+            AssignTargetVariableTo(GetTargetVariableValue());
+
+            if (TargetCouldBeUnusable())
+            {
+                var targetVariableNull = TargetVariable.GetIsDefaultComparison();
+                var returnExistingValue = Expression.Return(_omd.ReturnLabelTarget, _omd.TargetObject);
+                var ifNullReturn = Expression.IfThen(targetVariableNull, returnExistingValue);
+
+                _populationExpressions.Add(ifNullReturn);
+            }
+        }
 
         private Expression GetTargetVariableValue()
         {
@@ -271,13 +283,18 @@
 
                 nonNullTargetVariableValue = Expression.Condition(
                     Expression.Property(_omd.TargetObject, isReadOnlyProperty),
-                    GetCopyIntoListConstruction(),
+                    GetUnusableTargetValue(_omd.TargetObject.Type),
                     _omd.TargetObject,
                     _omd.TargetObject.Type);
             }
             else
             {
                 nonNullTargetVariableValue = _omd.TargetObject;
+            }
+
+            if (_omd.TargetMember.IsReadOnly)
+            {
+                return nonNullTargetVariableValue;
             }
 
             var nullTargetVariableType = nonNullTargetVariableValue.Type.IsInterface()
@@ -311,21 +328,29 @@
 
         private Expression GetNonNullEnumerableTargetVariableValue()
         {
-            var nonNullTargetVariableValue = GetCopyIntoListConstruction();
-
             if (_targetTypeHelper.IsArray)
             {
-                return nonNullTargetVariableValue;
+                return GetCopyIntoListConstruction();
             }
 
             var targetIsCollection = Expression
                 .TypeIs(_omd.TargetObject, _targetTypeHelper.CollectionInterfaceType);
 
+            var collectionValue = _omd.TargetObject.GetConversionTo(_targetTypeHelper.CollectionInterfaceType);
+            var nonCollectionValue = GetUnusableTargetValue(collectionValue.Type);
+
             return Expression.Condition(
                 targetIsCollection,
-                _omd.TargetObject.GetConversionTo(_targetTypeHelper.CollectionInterfaceType),
-                nonNullTargetVariableValue,
+                collectionValue,
+                nonCollectionValue,
                 _targetTypeHelper.CollectionInterfaceType);
+        }
+
+        private Expression GetUnusableTargetValue(Type fallbackCollectionType)
+        {
+            return _omd.TargetMember.IsReadOnly
+                ? Expression.Default(fallbackCollectionType)
+                : GetCopyIntoListConstruction();
         }
 
         private Expression GetCopyIntoListConstruction()
@@ -334,6 +359,16 @@
             return Expression.New(
                 _targetTypeHelper.ListType.GetConstructor(new[] { _targetTypeHelper.EnumerableInterfaceType }),
                 _omd.TargetObject);
+        }
+
+        private bool TargetCouldBeUnusable()
+        {
+            if (_omd.TargetMember.LeafMember.IsWriteable)
+            {
+                return false;
+            }
+
+            return !(_targetTypeHelper.IsList || _targetTypeHelper.IsCollection);
         }
 
         public void RemoveAllTargetItems()
