@@ -103,6 +103,7 @@
     <Compile Include="Members\WhenFindingDataSources.cs" />
     <Compile Include="Members\WhenFindingSourceMembers.cs" />
     <Compile Include="Members\WhenFindingTargetMembers.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="TestClasses\FacebookUser.cs" />
     <Compile Include="TestClasses\MysteryCustomer.cs" />
     <Compile Include="TestClasses\MysteryCustomerViewModel.cs" />
@@ -133,7 +134,7 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToLongs.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
-    <Compile Include="SimpleTypeConversion\WhenMappingToDateTimes.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\Child.cs" />
     <Compile Include="TestClasses\Customer.cs" />

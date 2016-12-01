@@ -5,7 +5,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenMappingToDateTimes
+    public class WhenConvertingToDateTimes
     {
         [Fact]
         public void ShouldMapANullableDateTimeToADateTime()

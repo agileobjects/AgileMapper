@@ -27,6 +27,16 @@
             value.ShouldNotBe(default(T));
         }
 
+        public static void ShouldBeTrue(this bool? value)
+        {
+            value.GetValueOrDefault().ShouldBeTrue();
+        }
+
+        public static void ShouldBeFalse(this bool? value)
+        {
+            value.GetValueOrDefault().ShouldBeFalse();
+        }
+
         public static void ShouldBe<TActual, TExpected>(this TActual? value, TExpected expectedValue)
             where TActual : struct
         {

@@ -29,7 +29,7 @@
         public void ShouldMapAnUnsignedShortToANullableByte()
         {
             var source = new PublicProperty<ushort> { Value = 60 };
-            var target = Mapper.Map(source).ToANew<PublicField<byte>>();
+            var target = Mapper.Map(source).ToANew<PublicField<byte?>>();
 
             target.Value.ShouldBe(60);
         }

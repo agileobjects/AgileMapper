@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
         {
             if (sourceValue.Type == _nullableTargetType)
             {
-                return sourceValue.GetToValueOrDefaultCall();
+                return sourceValue.GetValueOrDefaultCall();
             }
 
             if (sourceValue.Type != typeof(string))

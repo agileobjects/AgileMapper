@@ -71,7 +71,7 @@
             return Expression.NotEqual(expression, Expression.Default(expression.Type));
         }
 
-        public static Expression GetToValueOrDefaultCall(this Expression nullableExpression)
+        public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
         {
             var parameterlessGetValueOrDefault = nullableExpression.Type
                 .GetPublicInstanceMethods()
