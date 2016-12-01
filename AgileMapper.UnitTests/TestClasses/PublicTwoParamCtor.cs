@@ -8,12 +8,12 @@
             Value2 = value2;
         }
 
-        public T1 Value1
+        internal T1 Value1
         {
             get;
         }
 
-        public T2 Value2
+        internal T2 Value2
         {
             get;
         }

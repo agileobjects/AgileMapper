@@ -116,7 +116,7 @@
             => enumerableMember.Append(GetElementMember(enumerableMember.Type));
 
         private static Member GetElementMember(Type enumerableType)
-            => GlobalContext.Instance.MemberFinder.GetReadableMembers(enumerableType).First();
+            => GlobalContext.Instance.MemberFinder.GetSourceMembers(enumerableType).First();
 
         public static Member[] RelativeTo(this Member[] memberChain, Member[] otherMemberChain)
         {
@@ -189,7 +189,7 @@
             return CreateMember(
                 memberAccess,
                 Member.RootTarget,
-                GlobalContext.Instance.MemberFinder.GetWriteableMembers,
+                GlobalContext.Instance.MemberFinder.GetTargetMembers,
                 mapperContext);
         }
 

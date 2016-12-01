@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
+    using Extensions;
     using Members;
     using ReadableExpressions;
 
@@ -58,7 +59,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return _dataSources.Value;
             }
 
-            var population = MapperData.TargetMember.LeafMember.GetPopulation(MapperData.InstanceVariable, _dataSources.Value);
+            var population = MapperData.TargetMember.LeafMember.IsWriteable
+                ? MapperData.TargetMember.LeafMember.GetPopulation(MapperData.InstanceVariable, _dataSources.Value)
+                : GetReadOnlyMemberPopulation();
 
             if (_dataSources.Variables.Any())
             {
@@ -69,6 +72,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 population = Expression.IfThen(_populateCondition, population);
             }
+
+            return population;
+        }
+
+        private Expression GetReadOnlyMemberPopulation()
+        {
+            var targetMemberAccess = MapperData.GetTargetMemberAccess();
+            var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
+
+            if (_dataSources.Value.NodeType != ExpressionType.Conditional)
+            {
+                return Expression.IfThen(targetMemberNotNull, _dataSources.Value);
+            }
+
+            var valueTernary = (ConditionalExpression)_dataSources.Value;
+            var populationTest = Expression.AndAlso(targetMemberNotNull, valueTernary.Test);
+            var population = Expression.IfThen(populationTest, valueTernary.IfTrue);
 
             return population;
         }

@@ -25,13 +25,13 @@
         {
             return _idMemberCache.GetOrAdd(typeIdKey, key =>
             {
-                var typeMembers = GetReadableMembers(key.Type);
+                var typeMembers = GetSourceMembers(key.Type);
 
                 return typeMembers.FirstOrDefault(member => member.IsIdentifier);
             });
         }
 
-        public IEnumerable<Member> GetReadableMembers(Type sourceType)
+        public IEnumerable<Member> GetSourceMembers(Type sourceType)
         {
             return _membersCache.GetOrAdd(TypeKey.ForSourceMembers(sourceType), key =>
             {
@@ -48,13 +48,13 @@
             });
         }
 
-        public IEnumerable<Member> GetWriteableMembers(Type targetType)
+        public IEnumerable<Member> GetTargetMembers(Type targetType)
         {
             return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
-                var fields = GetFields(key.Type, OnlyWriteable);
-                var properties = GetProperties(key.Type, OnlySettable);
-                var methods = GetMethods(key.Type, OnlySettable, Member.SetMethod);
+                var fields = GetFields(key.Type, OnlyTargets);
+                var properties = GetProperties(key.Type, OnlyTargets);
+                var methods = GetMethods(key.Type, OnlyCallableSetters, Member.SetMethod);
 
                 return GetMembers(fields, properties, methods);
             });
@@ -72,7 +72,16 @@
 
         private static bool All(FieldInfo field) => true;
 
-        private static bool OnlyWriteable(FieldInfo field) => !field.IsInitOnly;
+        private static bool OnlyTargets(FieldInfo field)
+        {
+            if (field.IsInitOnly)
+            {
+                // Include readonly object fields:
+                return !field.FieldType.IsSimple();
+            }
+
+            return true;
+        }
 
         #endregion
 
@@ -83,18 +92,26 @@
             return targetType
                 .GetPublicInstanceProperties()
                 .Where(filter)
-                .Where(p => p.GetGetMethod(nonPublic: false) != null)
                 .Select(Member.Property);
         }
 
-        private static bool OnlyGettable(PropertyInfo property)
-        {
-            return property.GetGetMethod(nonPublic: false) != null;
-        }
+        private static bool OnlyGettable(PropertyInfo property) => property.IsReadable();
 
-        private static bool OnlySettable(PropertyInfo property)
+        private static bool OnlyTargets(PropertyInfo property)
         {
-            return property.GetSetMethod(nonPublic: false) != null;
+            if (!property.IsReadable())
+            {
+                // Ignore set-only properties:
+                return false;
+            }
+
+            if (property.IsWriteable())
+            {
+                return true;
+            }
+
+            // Include readonly object type properties:
+            return !property.PropertyType.IsSimple();
         }
 
         #endregion
@@ -116,18 +133,17 @@
 
         private static bool OnlyRelevantCallable(MethodBase method)
         {
-            return _methodsToIgnore.DoesNotContain(method.Name) &&
-                method.Name.StartsWith("Get", StringComparison.OrdinalIgnoreCase) &&
-                !method.Name.StartsWith("get_", StringComparison.Ordinal) &&
-                method.GetParameters().None();
+            return !method.IsSpecialName &&
+                    method.Name.StartsWith("Get", StringComparison.OrdinalIgnoreCase) &&
+                   _methodsToIgnore.DoesNotContain(method.Name) &&
+                    method.GetParameters().None();
         }
 
-        private static bool OnlySettable(MethodInfo method)
+        private static bool OnlyCallableSetters(MethodInfo method)
         {
-            return
-                method.Name.StartsWith("Set", StringComparison.OrdinalIgnoreCase) &&
-                !method.Name.StartsWith("set_", StringComparison.Ordinal) &&
-                method.GetParameters().HasOne();
+            return !method.IsSpecialName &&
+                    method.Name.StartsWith("Set", StringComparison.OrdinalIgnoreCase) &&
+                    method.GetParameters().HasOne();
         }
 
         #endregion

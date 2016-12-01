@@ -57,7 +57,7 @@
             {
                 IEnumerable<Type> types = assembly.GetTypes();
 
-                if (Constants.ReflectionPermissionDenied)
+                if (Constants.ReflectionNotPermitted)
                 {
                     types = types.Where(t => t.IsPublic());
                 }

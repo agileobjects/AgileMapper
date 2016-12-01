@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return GlobalContext
                 .Instance
                 .MemberFinder
-                .GetWriteableMembers(mappingData.MapperData.TargetType)
+                .GetTargetMembers(mappingData.MapperData.TargetType)
                 .Select(targetMember => Create(targetMember, mappingData));
         }
 

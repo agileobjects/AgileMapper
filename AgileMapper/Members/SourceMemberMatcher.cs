@@ -35,7 +35,7 @@
             var relevantMembers = GlobalContext
                 .Instance
                 .MemberFinder
-                .GetReadableMembers(parentMember.Type)
+                .GetSourceMembers(parentMember.Type)
                 .Where(m => (m.IsSimple && rootData.MapperData.TargetMember.IsSimple) || !m.IsSimple);
 
             foreach (var sourceMember in relevantMembers)

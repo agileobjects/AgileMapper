@@ -103,6 +103,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetObjectResolution(IObjectMappingData mappingData, bool postCreationCallbackExists)
         {
+            if (!mappingData.MapperData.TargetMember.LeafMember.IsWriteable)
+            {
+                return mappingData.MapperData.TargetObject;
+            }
+
             var objectCreationValue = _constructionFactory.GetNewObjectCreation(mappingData);
 
             if (postCreationCallbackExists)

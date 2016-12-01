@@ -13,7 +13,7 @@
         public void ShouldFindAPublicProperty()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(PublicProperty<string>))
+                .GetSourceMembers(typeof(PublicProperty<string>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldNotBeNull();
@@ -24,7 +24,7 @@
         public void ShouldFindAPublicField()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(PublicField<int>))
+                .GetSourceMembers(typeof(PublicField<int>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldNotBeNull();
@@ -35,7 +35,7 @@
         public void ShouldFindAPublicGetMethod()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(PublicGetMethod<DateTime>))
+                .GetSourceMembers(typeof(PublicGetMethod<DateTime>))
                 .FirstOrDefault(m => m.Name == "GetValue");
 
             member.ShouldNotBeNull();
@@ -46,7 +46,7 @@
         public void ShouldFindARootArrayElement()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(int[]))
+                .GetSourceMembers(typeof(int[]))
                 .FirstOrDefault();
 
             member.ShouldNotBeNull();
@@ -56,7 +56,7 @@
         public void ShouldIgnoreAWriteOnlyPublicProperty()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(PublicWriteOnlyProperty<long>))
+                .GetSourceMembers(typeof(PublicWriteOnlyProperty<long>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -66,7 +66,7 @@
         public void ShouldIgnoreANonPublicField()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(InternalField<byte>))
+                .GetSourceMembers(typeof(InternalField<byte>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -76,7 +76,7 @@
         public void ShouldIgnoreASetMethod()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(PublicSetMethod<short>))
+                .GetSourceMembers(typeof(PublicSetMethod<short>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -86,7 +86,7 @@
         public void ShouldIgnoreGetType()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(PublicProperty<int?>))
+                .GetSourceMembers(typeof(PublicProperty<int?>))
                 .FirstOrDefault(m => m.Name == "GetType");
 
             member.ShouldBeNull();
@@ -96,7 +96,7 @@
         public void ShouldIgnoreGetHashCode()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(PublicProperty<DateTime?>))
+                .GetSourceMembers(typeof(PublicProperty<DateTime?>))
                 .FirstOrDefault(m => m.Name == "GetHashCode");
 
             member.ShouldBeNull();
@@ -106,7 +106,7 @@
         public void ShouldIgnoreAPropertyGetter()
         {
             var member = MemberFinder
-                .GetReadableMembers(typeof(PublicProperty<string>))
+                .GetSourceMembers(typeof(PublicProperty<string>))
                 .FirstOrDefault(m => m.Name.StartsWith("get_"));
 
             member.ShouldBeNull();

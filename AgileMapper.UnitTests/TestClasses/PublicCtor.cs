@@ -7,7 +7,7 @@
             Value = value;
         }
 
-        public T Value
+        internal T Value
         {
             get;
         }

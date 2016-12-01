@@ -222,7 +222,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     parent);
             }
 
-            if (Constants.ReflectionPermissionDenied)
+            if (Constants.ReflectionNotPermitted)
             {
                 var createCaller = GetPartialTrustMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mappingTypes);
 

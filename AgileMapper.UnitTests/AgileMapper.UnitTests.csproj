@@ -151,7 +151,7 @@
     <Compile Include="TestClasses\PublicReadOnlyProperty.cs" />
     <Compile Include="TestClasses\PublicSetMethod.cs" />
     <Compile Include="TestClasses\PublicWriteOnlyProperty.cs" />
-    <Compile Include="TestClasses\ReadOnlyField.cs" />
+    <Compile Include="TestClasses\PublicReadOnlyField.cs" />
     <Compile Include="TestClasses\Title.cs" />
     <Compile Include="TestClasses\TitleShortlist.cs" />
     <Compile Include="TestExtensions.cs" />

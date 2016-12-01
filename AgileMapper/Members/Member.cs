@@ -15,6 +15,7 @@ namespace AgileObjects.AgileMapper.Members
             string name,
             Type declaringType,
             Type type,
+            bool isWriteable = true,
             bool isRoot = false)
         {
             MemberType = memberType;
@@ -24,6 +25,9 @@ namespace AgileObjects.AgileMapper.Members
             IsIdentifier = IsIdMember(name, declaringType);
             DeclaringType = declaringType;
             Type = type;
+
+            IsReadable = memberType.IsReadable();
+            IsWriteable = isWriteable;
 
             IsEnumerable = type.IsEnumerable();
 
@@ -75,16 +79,16 @@ namespace AgileObjects.AgileMapper.Members
             => new Member(MemberType.ConstructorParameter, parameter.Name, parameter.Member.DeclaringType, parameter.ParameterType);
 
         public static Member Field(FieldInfo field)
-            => new Member(MemberType.Field, field.Name, field.DeclaringType, field.FieldType);
+            => new Member(MemberType.Field, field.Name, field.DeclaringType, field.FieldType, !field.IsInitOnly);
 
         public static Member Property(PropertyInfo property)
-            => new Member(MemberType.Property, property.Name, property.DeclaringType, property.PropertyType);
+            => new Member(MemberType.Property, property.Name, property.DeclaringType, property.PropertyType, property.IsWriteable());
 
         public static Member GetMethod(MethodInfo method)
             => new Member(MemberType.GetMethod, method.Name, method.DeclaringType, method.ReturnType);
 
         public static Member SetMethod(MethodInfo method)
-            => new Member(MemberType.SetMethod, method.Name, method.DeclaringType, method.GetParameters().First().ParameterType);
+            => new Member(MemberType.SetMethod, method.Name, method.DeclaringType, method.GetParameters()[0].ParameterType);
 
         #endregion
 
@@ -106,11 +110,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsSimple { get; }
 
+        public bool IsReadable { get; }
+
+        public bool IsWriteable { get; }
+
         public Type ElementType { get; }
 
         public MemberType MemberType { get; }
-
-        public bool IsReadable => MemberType.IsReadable();
 
         public Member WithType(Type runtimeType)
         {

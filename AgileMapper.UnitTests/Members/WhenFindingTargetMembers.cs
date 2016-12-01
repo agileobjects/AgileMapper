@@ -14,7 +14,7 @@
         public void ShouldFindAPublicProperty()
         {
             var member = MemberFinder
-                .GetWriteableMembers(typeof(PublicProperty<byte>))
+                .GetTargetMembers(typeof(PublicProperty<byte>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldNotBeNull();
@@ -25,29 +25,55 @@
         public void ShouldFindAPublicField()
         {
             var member = MemberFinder
-                .GetWriteableMembers(typeof(PublicField<int>))
+                .GetTargetMembers(typeof(PublicField<int>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldNotBeNull();
             member.Type.ShouldBe(typeof(int));
+            member.IsWriteable.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldFindAPublicReadOnlyField()
+        {
+            var member = MemberFinder
+                .GetTargetMembers(typeof(PublicReadOnlyField<IEnumerable<byte>>))
+                .FirstOrDefault(m => m.Name == "Value");
+
+            member.ShouldNotBeNull();
+            member.Type.ShouldBe(typeof(IEnumerable<byte>));
+            member.IsWriteable.ShouldBeFalse();
         }
 
         [Fact]
         public void ShouldFindAPublicSetMethod()
         {
             var member = MemberFinder
-                .GetWriteableMembers(typeof(PublicSetMethod<DateTime>))
+                .GetTargetMembers(typeof(PublicSetMethod<DateTime>))
                 .FirstOrDefault(m => m.Name == "SetValue");
 
             member.ShouldNotBeNull();
             member.Type.ShouldBe(typeof(DateTime));
+            member.IsWriteable.ShouldBeTrue();
         }
 
         [Fact]
-        public void ShouldIgnoreAReadOnlyPublicProperty()
+        public void ShouldFindAPublicReadOnlyComplexTypeProperty()
         {
             var member = MemberFinder
-                .GetWriteableMembers(typeof(PublicReadOnlyProperty<long>))
+                .GetTargetMembers(typeof(PublicReadOnlyProperty<object>))
+                .FirstOrDefault(m => m.Name == "Value");
+
+            member.ShouldNotBeNull();
+            member.Type.ShouldBe(typeof(object));
+            member.IsWriteable.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldIgnoreAPublicReadOnlySimpleTypeProperty()
+        {
+            var member = MemberFinder
+                .GetTargetMembers(typeof(PublicReadOnlyProperty<long>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -57,17 +83,7 @@
         public void ShouldIgnoreANonPublicField()
         {
             var member = MemberFinder
-                .GetWriteableMembers(typeof(InternalField<List<byte>>))
-                .FirstOrDefault(m => m.Name == "Value");
-
-            member.ShouldBeNull();
-        }
-
-        [Fact]
-        public void ShouldIgnoreAReadOnlyField()
-        {
-            var member = MemberFinder
-                .GetWriteableMembers(typeof(ReadOnlyField<IEnumerable<byte>>))
+                .GetTargetMembers(typeof(InternalField<List<byte>>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -77,7 +93,7 @@
         public void ShouldIgnoreAGetMethod()
         {
             var member = MemberFinder
-                .GetWriteableMembers(typeof(PublicGetMethod<string[]>))
+                .GetTargetMembers(typeof(PublicGetMethod<string[]>))
                 .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
@@ -87,7 +103,7 @@
         public void ShouldIgnoreAPropertySetter()
         {
             var member = MemberFinder
-                .GetWriteableMembers(typeof(PublicProperty<long>))
+                .GetTargetMembers(typeof(PublicProperty<long>))
                 .FirstOrDefault(m => m.Name.StartsWith("set_"));
 
             member.ShouldBeNull();

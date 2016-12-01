@@ -122,5 +122,41 @@
 
             result.Value.Name.ShouldBe("Fred");
         }
+
+        [Fact]
+        public void ShouldPopulateANonNullReadOnlyNestedMemberProperty()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var address = new Address();
+
+                mapper.WhenMapping
+                    .ToANew<PublicReadOnlyProperty<Address>>()
+                    .CreateInstancesUsing(data => new PublicReadOnlyProperty<Address>(address));
+
+                var source = new PublicField<Address> { Value = new Address { Line1 = "Readonly populated!" } };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<Address>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(address);
+                result.Value.Line1.ShouldBe("Readonly populated!");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleANullReadOnlyNestedMemberProperty()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .ToANew<PublicReadOnlyField<Address>>()
+                    .CreateInstancesUsing(data => new PublicReadOnlyField<Address>(default(Address)));
+
+                var source = new PublicGetMethod<Address>(new Address { Line1 = "Not happening..." });
+                var result = mapper.Map(source).ToANew<PublicReadOnlyField<Address>>();
+
+                result.Value.ShouldBeNull();
+            }
+        }
     }
 }

@@ -36,7 +36,7 @@
                 : MemberExtensions.CreateMember(
                     childMemberExpression,
                     Member.RootSource,
-                    MemberFinder.GetReadableMembers,
+                    MemberFinder.GetSourceMembers,
                     MapperContext.WithDefaultNamingSettings);
         }
 

@@ -4,13 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using Extensions;
-    using NetStandardPolyfills;
 
     internal static class Constants
     {
-        public static readonly bool ReflectionPermissionDenied;
+        public static readonly bool ReflectionNotPermitted = ReflectionExtensions.ReflectionNotPermitted;
 
         public static readonly string[] EmptyStringArray = Enumerable<string>.EmptyArray;
 
@@ -20,15 +18,6 @@
 
         public static readonly Expression EmptyExpression = Expression.Empty();
 
-#if !NET_STANDARD
-        public static readonly BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
-
-        public static readonly BindingFlags NonPublicInstance = BindingFlags.NonPublic | BindingFlags.Instance;
-
-        public static readonly BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static;
-
-        public static readonly BindingFlags NonPublicStatic = BindingFlags.NonPublic | BindingFlags.Static;
-#endif
         public const string CreateNew = "CreateNew";
 
         public const string Merge = "Merge";
@@ -63,25 +52,5 @@
         }
 
         #endregion
-
-        static Constants()
-        {
-            try
-            {
-                typeof(TrustTester)
-                    .GetNonPublicStaticMethod("IsReflectionPermitted")
-                    .Invoke(null, null);
-            }
-            catch
-            {
-                ReflectionPermissionDenied = true;
-            }
-        }
-    }
-
-    internal class TrustTester
-    {
-        // ReSharper disable once UnusedMember.Local
-        private static void IsReflectionPermitted() { }
     }
 }

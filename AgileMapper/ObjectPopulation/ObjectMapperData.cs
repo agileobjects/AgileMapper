@@ -214,7 +214,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             checkedTypes.Add(parentType);
 
-            var childTargetMembers = GlobalContext.Instance.MemberFinder.GetWriteableMembers(parentType);
+            var childTargetMembers = GlobalContext.Instance.MemberFinder.GetTargetMembers(parentType);
 
             foreach (var childMember in childTargetMembers)
             {

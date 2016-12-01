@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             var nonSimpleChildMembers = GlobalContext.Instance
                 .MemberFinder
-                .GetWriteableMembers(parentMember.Type)
+                .GetTargetMembers(parentMember.Type)
                 .Where(m => !m.IsSimple)
                 .ToArray();
 
