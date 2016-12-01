@@ -94,7 +94,7 @@
 
         [Fact]
         public void ShouldHandleANullConfiguredSourceMember()
-            {
+        {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
@@ -109,6 +109,42 @@
 
                 result.Address.ShouldBeNull();
             }
+        }
+
+        [Fact]
+        public void ShouldOverwriteANonNullReadOnlyNestedMemberProperty()
+        {
+            var source = new PublicField<Address> { Value = new Address { Line1 = "New value" } };
+            var address = new Address { Line1 = "Original value" };
+            var target = new PublicReadOnlyField<Address>(address);
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeSameAs(address);
+            result.Value.Line1.ShouldBe("New value");
+        }
+
+        [Fact]
+        public void ShouldOverwriteANonNullReadOnlyNestedMemberPropertyToNull()
+        {
+            var source = new PublicField<Address> { Value = new Address { Line1 = null } };
+            var address = new Address { Line1 = "Didn't start as null" };
+            var target = new PublicReadOnlyField<Address>(address);
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeSameAs(address);
+            result.Value.Line1.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleANullReadOnlyNestedMemberProperty()
+        {
+            var source = new PublicField<Address> { Value = new Address { Line1 = "New value" } };
+            var target = new PublicReadOnlyProperty<Address>(default(Address));
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeNull();
         }
     }
 }

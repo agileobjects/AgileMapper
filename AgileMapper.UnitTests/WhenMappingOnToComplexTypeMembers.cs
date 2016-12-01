@@ -122,5 +122,41 @@
                 result.Address.Line2.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldUpdateANullReadOnlyNestedMemberProperty()
+        {
+            var source = new PublicField<Address> { Value = new Address { Line1 = "New value" } };
+            var address = new Address { Line1 = null };
+            var target = new PublicReadOnlyField<Address>(address);
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeSameAs(address);
+            result.Value.Line1.ShouldBe("New value");
+        }
+
+        [Fact]
+        public void ShouldNotOverwriteANonNullReadOnlyNestedMemberProperty()
+        {
+            var source = new PublicField<Address> { Value = new Address { Line1 = "Nope" } };
+            var address = new Address { Line1 = "Yep" };
+            var target = new PublicReadOnlyProperty<Address>(address);
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeSameAs(address);
+            result.Value.Line1.ShouldBe("Yep");
+        }
+
+        [Fact]
+        public void ShouldHandleANullReadOnlyNestedMemberProperty()
+        {
+            var source = new PublicField<Address> { Value = new Address { Line1 = "New value" } };
+            var target = new PublicReadOnlyProperty<Address>(default(Address));
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBeNull();
+        }
     }
 }
