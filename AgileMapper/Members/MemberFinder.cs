@@ -76,8 +76,8 @@
         {
             if (field.IsInitOnly)
             {
-                // Include readonly object fields:
-                return !field.FieldType.IsSimple();
+                // Include readonly object fields (except arrays):
+                return !field.FieldType.IsArray && !field.FieldType.IsSimple();
             }
 
             return true;
@@ -110,8 +110,8 @@
                 return true;
             }
 
-            // Include readonly object type properties:
-            return !property.PropertyType.IsSimple();
+            // Include readonly object type properties (except arrays):
+            return !property.PropertyType.IsArray && !property.PropertyType.IsSimple();
         }
 
         #endregion

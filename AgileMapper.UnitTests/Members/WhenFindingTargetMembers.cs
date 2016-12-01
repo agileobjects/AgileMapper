@@ -70,6 +70,26 @@
         }
 
         [Fact]
+        public void ShouldIgnoreANonPublicField()
+        {
+            var member = MemberFinder
+                .GetTargetMembers(typeof(InternalField<List<byte>>))
+                .FirstOrDefault(m => m.Name == "Value");
+
+            member.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldIgnoreAPublicReadOnlyArrayField()
+        {
+            var member = MemberFinder
+                .GetTargetMembers(typeof(PublicReadOnlyField<byte[]>))
+                .FirstOrDefault(m => m.Name == "Value");
+
+            member.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldIgnoreAPublicReadOnlySimpleTypeProperty()
         {
             var member = MemberFinder
@@ -80,11 +100,11 @@
         }
 
         [Fact]
-        public void ShouldIgnoreANonPublicField()
+        public void ShouldIgnoreAReadOnlyArrayProperty()
         {
             var member = MemberFinder
-                .GetTargetMembers(typeof(InternalField<List<byte>>))
-                .FirstOrDefault(m => m.Name == "Value");
+                .GetTargetMembers(typeof(PublicReadOnlyProperty<long[]>))
+                .FirstOrDefault(m => m.Name.StartsWith("Value"));
 
             member.ShouldBeNull();
         }
