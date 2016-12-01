@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     var configuredConstruction = new Construction(configuredFactory, mapperData);
 
-                    constructions.Insert(0, configuredConstruction);
+                    constructions.Add(configuredConstruction);
 
                     if (configuredConstruction.IsUnconditional)
                     {
@@ -85,7 +85,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                                 memberAndDataSourceSet.Item2);
                         }
 
-                        constructions.Insert(0, greediestAvailableConstructor.Construction);
+                        constructions.Add(greediestAvailableConstructor.Construction);
                     }
                 }
 
@@ -188,32 +188,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             public Construction Construction { get; }
         }
 
-        private class Construction
+        private class Construction : IConditionallyChainable
         {
-            private readonly Expression _expression;
-            private readonly Expression _condition;
+            private readonly Expression _construction;
             private readonly ParameterExpression _mappingDataObject;
 
-            public Construction(List<Construction> constructions, ConstructionKey key)
-                : this(GetConstruction(constructions))
+            public Construction(ICollection<Construction> constructions, ConstructionKey key)
+                : this(constructions.ReverseChain())
             {
                 UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);
                 _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
             }
-
-            #region Setup
-
-            private static Expression GetConstruction(List<Construction> constructions)
-            {
-                return constructions
-                    .Skip(1)
-                    .Aggregate(
-                        constructions.First()._expression,
-                        (constructionSoFar, construction) =>
-                                Expression.Condition(construction._condition, construction._expression, constructionSoFar));
-            }
-
-            #endregion
 
             public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
                 : this(configuredFactory.Create(mapperData), configuredFactory.GetConditionOrNull(mapperData))
@@ -223,16 +208,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public Construction(Expression construction, Expression condition = null)
             {
-                _expression = construction;
-                _condition = condition;
+                _construction = construction;
+                Condition = condition;
             }
 
-            public bool IsUnconditional => _condition == null;
+            public bool IsUnconditional => Condition == null;
+
+            public Expression Condition { get; }
+
+            Expression IConditionallyChainable.Value => _construction;
 
             public bool UsesMappingDataObjectParameter { get; }
 
             public Expression GetConstruction(IObjectMappingData mappingData)
-                => _expression.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);
+                => _construction.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);
         }
 
         #endregion

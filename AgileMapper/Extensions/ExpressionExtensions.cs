@@ -25,17 +25,17 @@
 
         public static Expression AndTogether(this ICollection<Expression> expressions)
         {
-            if (expressions.Count == 0)
+            if (expressions.None())
             {
                 return null;
             }
 
-            if (expressions.Count == 1)
+            if (expressions.HasOne())
             {
                 return expressions.First();
             }
 
-            var allClauses = expressions.Skip(1).Aggregate(expressions.First(), Expression.AndAlso);
+            var allClauses = expressions.Chain(firstClause => firstClause, Expression.AndAlso);
 
             return allClauses;
         }
@@ -51,9 +51,7 @@
                 return null;
             }
 
-            var allNotNullCheck = notNullChecks
-                .Skip(1)
-                .Aggregate(notNullChecks.First(), Expression.AndAlso);
+            var allNotNullCheck = notNullChecks.Chain(firstCheck => firstCheck, Expression.AndAlso);
 
             return allNotNullCheck;
         }

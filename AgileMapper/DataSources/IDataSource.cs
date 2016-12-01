@@ -2,9 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Extensions;
     using Members;
 
-    internal interface IDataSource
+    internal interface IDataSource : IConditionallyChainable
     {
         IQualifiedMember SourceMember { get; }
 
@@ -14,10 +15,6 @@
 
         bool IsConditional { get; }
 
-        Expression Condition { get; }
-
         IEnumerable<ParameterExpression> Variables { get; }
-
-        Expression Value { get; }
     }
 }

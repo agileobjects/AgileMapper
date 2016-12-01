@@ -23,22 +23,48 @@
 
         public static bool DoesNotContain<T>(this ICollection<T> items, T item) => !items.Contains(item);
 
-        public static TReturn Chain<TItem, TReturn>(
+        public static Expression ReverseChain<T>(this ICollection<T> items)
+            where T : IConditionallyChainable
+        {
+            return ReverseChain(
+                items,
+                item => item.Value,
+                (valueSoFar, item) => Expression.Condition(item.Condition, item.Value, valueSoFar));
+        }
+
+        public static Expression ReverseChain<TItem>(
             this ICollection<TItem> items,
-            Func<TItem, TReturn> seedValueFactory,
-            Func<TItem, TReturn, TReturn> itemValueFactory)
+            Func<TItem, Expression> seedValueFactory,
+            Func<Expression, TItem, Expression> itemValueFactory)
+        {
+            return Chain(items, i => i.Last(), seedValueFactory, itemValueFactory, i => i.Reverse());
+        }
+
+        public static Expression Chain<TItem>(
+            this ICollection<TItem> items,
+            Func<TItem, Expression> seedValueFactory,
+            Func<Expression, TItem, Expression> itemValueFactory)
+        {
+            return Chain(items, i => i.First(), seedValueFactory, itemValueFactory, i => i);
+        }
+
+        private static Expression Chain<TItem>(
+            ICollection<TItem> items,
+            Func<ICollection<TItem>, TItem> seedFactory,
+            Func<TItem, Expression> seedValueFactory,
+            Func<Expression, TItem, Expression> itemValueFactory,
+            Func<ICollection<TItem>, IEnumerable<TItem>> initialOperation)
         {
             if (items.HasOne())
             {
                 return seedValueFactory.Invoke(items.First());
             }
 
-            return items
-                .Reverse()
+            return initialOperation.Invoke(items)
                 .Skip(1)
                 .Aggregate(
-                    seedValueFactory.Invoke(items.Last()),
-                    (valueSoFar, dataSource) => itemValueFactory.Invoke(dataSource, valueSoFar));
+                    seedValueFactory.Invoke(seedFactory.Invoke(items)),
+                    itemValueFactory.Invoke);
         }
 
         public static T[] ToArray<T>(this IList<T> items)

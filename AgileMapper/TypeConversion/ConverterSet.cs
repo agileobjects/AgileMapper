@@ -83,9 +83,9 @@
 
             var converters = EnumerateConverters(sourceValue.Type, targetType).ToArray();
 
-            var conversion = converters.Chain(
+            var conversion = converters.ReverseChain(
                 converter => converter.GetConversion(sourceValue, targetType),
-                (converter, conversionSoFar) =>
+                (conversionSoFar, converter) =>
                     converter.GetConversionOption(sourceValue, targetType, conversionSoFar));
 
             return conversion;

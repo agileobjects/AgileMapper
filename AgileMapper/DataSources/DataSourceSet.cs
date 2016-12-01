@@ -21,10 +21,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 return;
             }
 
-            Value = dataSources.Chain(
-                dataSource => dataSource.Value,
-                (dataSource, valueSoFar) =>
-                    Expression.Condition(dataSource.Condition, dataSource.Value, valueSoFar));
+            Value = dataSources.ReverseChain();
 
             foreach (var dataSource in dataSources)
             {

@@ -268,8 +268,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Where(pair => pair.HasConfiguredCondition)
                 .ToArray();
 
-            var pairConditions = conditionalPairs.Skip(1).Aggregate(
-                conditionalPairs[0].GetConditionOrNull(mapperData),
+            var pairConditions = conditionalPairs.Chain(
+                firstPair => firstPair.GetConditionOrNull(mapperData),
                 (conditionSoFar, pair) => Expression.OrElse(
                     conditionSoFar,
                     pair.GetConditionOrNull(mapperData)));
