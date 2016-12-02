@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -68,6 +69,16 @@
             var result = Mapper.Map(default(PublicField<int>)).OnTo(target);
 
             result.ShouldBe(target);
+        }
+
+        [Fact]
+        public void ShouldHandleATargetWithNoMembers()
+        {
+            var source = new PublicField<string> { Value = "Nut'in" };
+            var target = new object();
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.ShouldBeSameAs(target);
         }
     }
 }

@@ -134,11 +134,11 @@
                     : typeof(object);
         }
 
-        public static bool RuntimeTypeNeeded(this Type sourceType)
+        public static bool RuntimeTypeNeeded(this Type type)
         {
-            return (sourceType == typeof(object)) ||
-                   (sourceType == typeof(IEnumerable)) ||
-                   (sourceType == typeof(ICollection));
+            return (type == typeof(object)) ||
+                   (type == typeof(IEnumerable)) ||
+                   (type == typeof(ICollection));
         }
 
         public static bool IsPublic(this Type type)
