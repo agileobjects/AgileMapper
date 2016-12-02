@@ -38,7 +38,7 @@
 
             if (derivedTypes.Count != 0)
             {
-                derivedTypes.Sort(DerivedTypeComparer.Instance);
+                derivedTypes.Sort(TypeComparer.Instance);
             }
 
             return derivedTypes;
@@ -69,24 +69,5 @@
                 return ex.Types.WhereNotNull();
             }
         }
-
-        #region Helper Class
-
-        private class DerivedTypeComparer : IComparer<Type>
-        {
-            public static readonly IComparer<Type> Instance = new DerivedTypeComparer();
-
-            public int Compare(Type x, Type y)
-            {
-                if (x.IsAssignableFrom(y))
-                {
-                    return 1;
-                }
-
-                return -1;
-            }
-        }
-
-        #endregion
     }
 }

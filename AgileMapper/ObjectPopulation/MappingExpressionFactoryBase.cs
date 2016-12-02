@@ -32,8 +32,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var basicMapperData = mapperData.WithNoTargetMember();
 
             mappingExpressions.AddRange(GetShortCircuitReturns(returnNull, mapperData));
-            mappingExpressions.AddUnlessNullOrEmpty(GetTypeTests(mappingData));
             mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.Before, basicMapperData, mapperData));
+            mappingExpressions.AddUnlessNullOrEmpty(GetDerivedTypeMappings(mappingData));
             mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
             mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.After, basicMapperData, mapperData));
 
@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             GotoExpression returnNull,
             ObjectMapperData mapperData);
 
-        protected abstract Expression GetTypeTests(IObjectMappingData mappingData);
+        protected abstract Expression GetDerivedTypeMappings(IObjectMappingData mappingData);
 
         protected static Expression GetMappingCallbackOrNull(
             CallbackPosition callbackPosition,

@@ -270,5 +270,25 @@
                 resultValues.Second().Name.ShouldBe("Fred");
             }
         }
+
+        [Fact]
+        public void ShouldCreateADerivedTypeForARequestedParentType()
+        {
+            var source = new MysteryCustomer { Discount = 0.2m };
+            var result = Mapper.Map(source).ToANew<PersonViewModel>();
+
+            result.ShouldBeOfType<MysteryCustomerViewModel>();
+            ((MysteryCustomerViewModel)result).Discount.ShouldBe(0.2);
+        }
+
+        [Fact]
+        public void ShouldUseRuntimeSourceTypeToCreateADerivedTypeForARequestedParentType()
+        {
+            Customer source = new MysteryCustomer { Discount = 0.333m };
+            var result = Mapper.Map(source).ToANew<PersonViewModel>();
+
+            result.ShouldBeOfType<MysteryCustomerViewModel>();
+            ((MysteryCustomerViewModel)result).Discount.ShouldBe(0.333);
+        }
     }
 }

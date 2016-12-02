@@ -66,7 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ifTryGetReturn;
         }
 
-        protected override Expression GetTypeTests(IObjectMappingData mappingData)
+        protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
             => DerivedComplexTypeMappingsFactory.CreateFor(mappingData);
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
@@ -144,6 +144,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool IncludeExistingTargetCheck(IObjectMappingData mappingData)
         {
+            if (mappingData.IsRoot && !mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            {
+                return false;
+            }
+
             if (mappingData.MapperData.TargetMemberIsEnumerableElement())
             {
                 return !mappingData.MapperData.Context.IsForNewElement;
