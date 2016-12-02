@@ -11,12 +11,15 @@
         {
             try
             {
-                if (!Assembly.GetExecutingAssembly().IsFullyTrusted)
+#if !NET_STANDARD
+                if (typeof(ReflectionExtensions).Assembly.IsFullyTrusted)
                 {
-                    typeof(TrustTester)
-                        .GetNonPublicStaticMethod("IsReflectionPermitted")
-                        .Invoke(null, null);
+                    return;
                 }
+#endif
+                typeof(TrustTester)
+                    .GetNonPublicStaticMethod("IsReflectionPermitted")
+                    .Invoke(null, null);
             }
             catch
             {
