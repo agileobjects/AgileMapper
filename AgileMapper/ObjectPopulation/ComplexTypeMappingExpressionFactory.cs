@@ -108,9 +108,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapperData.TargetObject;
             }
 
-            var objectCreation = _constructionFactory.GetNewObjectCreation(mappingData);
+            if (mappingData.IsRoot && mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            {
+                return mapperData.TargetObject;
+            }
 
-            if (objectCreation == null)
+            var objectValue = _constructionFactory.GetNewObjectCreation(mappingData);
+
+            if (objectValue == null)
             {
                 mapperData.TargetMember.IsReadOnly = true;
 
@@ -121,29 +126,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (postCreationCallbackExists)
             {
                 mapperData.Context.UsesMappingDataObjectAsParameter = true;
-                objectCreation = Expression.Assign(mapperData.CreatedObject, objectCreation);
+                objectValue = Expression.Assign(mapperData.CreatedObject, objectValue);
             }
 
             if (mapperData.Context.UsesMappingDataObjectAsParameter)
             {
-                objectCreation = Expression.Assign(mapperData.TargetObject, objectCreation);
+                objectValue = Expression.Assign(mapperData.TargetObject, objectValue);
             }
 
             if (IncludeExistingTargetCheck(mappingData))
             {
-                objectCreation = Expression.Coalesce(mapperData.TargetObject, objectCreation);
+                objectValue = Expression.Coalesce(mapperData.TargetObject, objectValue);
             }
 
-            return objectCreation;
+            return objectValue;
         }
 
         private static bool IncludeExistingTargetCheck(IObjectMappingData mappingData)
         {
-            if (mappingData.IsRoot)
-            {
-                return mappingData.MappingContext.RuleSet.RootHasPopulatedTarget;
-            }
-
             if (mappingData.MapperData.TargetMemberIsEnumerableElement())
             {
                 return !mappingData.MapperData.Context.IsForNewElement;
