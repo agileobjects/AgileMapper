@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Security;
+    using System.Security.Permissions;
     using System.Security.Policy;
     using TestClasses;
     using Xunit;
@@ -12,37 +13,33 @@
         [Fact]
         public void ShouldPerformASimpleMapping()
         {
-            ExecuteInPartialTrust(helper =>
-            {
-                helper.TestSimpleMapping();
-            });
+            ExecuteInPartialTrust(helper => helper.TestSimpleMapping());
         }
 
         [Fact]
         public void ShouldPerformAComplexMapping()
         {
-            ExecuteInPartialTrust(helper =>
-            {
-                helper.TestComplexMapping();
-            });
+            ExecuteInPartialTrust(helper => helper.TestComplexMapping());
         }
 
         [Fact]
         public void ShouldPerformADerivedMapping()
         {
-            ExecuteInPartialTrust(helper =>
-            {
-                helper.TestDerivedMapping();
-            });
+            ExecuteInPartialTrust(helper => helper.TestDerivedMapping());
         }
 
         [Fact]
         public void ShouldPerformARuntimeTypedMapping()
         {
-            ExecuteInPartialTrust(helper =>
-            {
-                helper.TestRuntimeTypedMapping();
-            });
+            ExecuteInPartialTrust(helper => helper.TestRuntimeTypedMapping());
+        }
+
+        [Fact]
+        public void ShouldPerformAComplexMappingWithReflectionPermitted()
+        {
+            ExecuteInPartialTrust(
+                helper => helper.TestComplexMapping(),
+                PermitReflection);
         }
 
         [Fact]
@@ -62,16 +59,22 @@
             });
         }
 
-        private static void ExecuteInPartialTrust(Action<MappingHelper> testAction)
+        private static void ExecuteInPartialTrust(
+            Action<MappingHelper> testAction,
+            Action<PermissionSet> permissionsSetup = null)
         {
-            ExecuteInPartialTrust(helper =>
-            {
-                testAction.Invoke(helper);
-                return default(object);
-            });
+            ExecuteInPartialTrust(
+                helper =>
+                {
+                    testAction.Invoke(helper);
+                    return default(object);
+                },
+                permissionsSetup);
         }
 
-        private static TResult ExecuteInPartialTrust<TResult>(Func<MappingHelper, TResult> testFunc)
+        private static TResult ExecuteInPartialTrust<TResult>(
+            Func<MappingHelper, TResult> testFunc,
+            Action<PermissionSet> permissionsSetup = null)
         {
             AppDomain partialTrustDomain = null;
 
@@ -83,6 +86,8 @@
                 var permissions = new NamedPermissionSet(
                     "PartialTrust",
                     SecurityManager.GetStandardSandbox(evidence));
+
+                permissionsSetup?.Invoke(permissions);
 
                 partialTrustDomain = AppDomain.CreateDomain(
                     "PartialTrust",
@@ -104,6 +109,11 @@
                     AppDomain.Unload(partialTrustDomain);
                 }
             }
+        }
+
+        private static void PermitReflection(PermissionSet permissions)
+        {
+            permissions.AddPermission(new ReflectionPermission(PermissionState.Unrestricted));
         }
     }
 
