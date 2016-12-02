@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     {
         private static readonly Type[] _supportedSourceTypes = Constants
             .NumericTypes
-            .Concat(typeof(bool?), typeof(string), typeof(char))
+            .Concat(typeof(bool), typeof(string), typeof(char))
             .ToArray();
 
         public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)

@@ -278,5 +278,23 @@
 
             result.ShouldBe(false, true, false);
         }
+
+        [Fact]
+        public void ShouldMapANullableBoolTrueToABool()
+        {
+            var source = new PublicProperty<bool?> { Value = true };
+            var result = Mapper.Map(source).ToANew<PublicField<bool>>();
+
+            result.Value.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldMapANullableBoolNullToABool()
+        {
+            var source = new PublicProperty<bool?> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicField<bool>>();
+
+            result.Value.ShouldBeDefault();
+        }
     }
 }
