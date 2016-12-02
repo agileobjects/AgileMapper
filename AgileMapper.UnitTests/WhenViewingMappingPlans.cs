@@ -261,5 +261,16 @@
                 plan.ShouldContain("PaymentTypeUs.Check is matched by no PaymentTypeUk");
             }
         }
+
+        [Fact]
+        public void ShouldShowNestedEnumMismatches()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicField<OrderUs>>()
+                .ToANew<PublicProperty<OrderUk>>();
+
+            plan.ShouldContain("WARNING");
+            plan.ShouldContain("PublicField<OrderUs>.Value.PaymentType to PublicProperty<OrderUk>.Value.PaymentType");
+        }
     }
 }

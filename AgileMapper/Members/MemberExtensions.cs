@@ -70,6 +70,12 @@
             }
 
             var rootMemberNameIndex = memberPath.IndexOf("." + rootMember.Name + ".", StringComparison.Ordinal);
+
+            if (rootMemberNameIndex == -1)
+            {
+                return rootTypeName + memberPath;
+            }
+
             var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMember.Name.Length + 2);
             var path = rootTypeName + "." + rootMemberString;
 
@@ -274,7 +280,7 @@
             return Expression.Call(instance, methodInfo, valueParameter);
         }
 
-        private static string GetMemberName(Expression expression)
+        public static string GetMemberName(this Expression expression)
         {
             switch (expression.NodeType)
             {

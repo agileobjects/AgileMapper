@@ -13,30 +13,30 @@
     internal class EnumMappingMismatchFinder : ExpressionVisitor
     {
         private readonly ObjectMapperData _mapperData;
-        private readonly TargetMemberAndDataSources[] _dataSourcesByTargetMember;
+        private readonly TargetMemberData[] _targetMemberDatas;
         private readonly Dictionary<Expression, Expression> _assignmentReplacements;
 
         private EnumMappingMismatchFinder(
             ObjectMapperData mapperData,
-            TargetMemberAndDataSources[] dataSourcesByTargetMember)
+            TargetMemberData[] targetMemberDatas)
         {
             _mapperData = mapperData;
-            _dataSourcesByTargetMember = dataSourcesByTargetMember;
+            _targetMemberDatas = targetMemberDatas;
             _assignmentReplacements = new Dictionary<Expression, Expression>();
         }
 
         public static Expression Process(Expression lambda, IObjectMappingData mappingData)
         {
-            var dataSourcesByTargetMember = GetDataSourcesByTargetMember(mappingData);
+            var targetMemberDatas = GetAllTargetMemberDatas(mappingData);
 
-            if (dataSourcesByTargetMember.None())
+            if (targetMemberDatas.None())
             {
                 return lambda;
             }
 
             var finder = new EnumMappingMismatchFinder(
                 mappingData.MapperData,
-                dataSourcesByTargetMember);
+                targetMemberDatas);
 
             finder.Visit(lambda);
 
@@ -45,38 +45,33 @@
             return updatedLambda;
         }
 
-        private static TargetMemberAndDataSources[] GetDataSourcesByTargetMember(
-            IObjectMappingData mappingData)
-        {
-            return GetAllDataSourcesByTargetMember(mappingData.MapperData)
-                .Select(d => new TargetMemberAndDataSources(d.Item1, d.Item2))
-                .ToArray();
-        }
+        private static TargetMemberData[] GetAllTargetMemberDatas(IObjectMappingData mappingData)
+            => EnumerateTargetMemberDatas(mappingData.MapperData).ToArray();
 
-        private static IEnumerable<Tuple<QualifiedMember, DataSourceSet>> GetAllDataSourcesByTargetMember(
-            ObjectMapperData mapperData)
+        private static IEnumerable<TargetMemberData> EnumerateTargetMemberDatas(ObjectMapperData mapperData)
         {
-            foreach (var targetMemberAndDataSourceSet in mapperData.DataSourcesByTargetMember)
+            foreach (var targetMemberAndDataSource in mapperData.DataSourcesByTargetMember)
             {
-                var targetMember = targetMemberAndDataSourceSet.Key;
+                var targetMember = targetMemberAndDataSource.Key;
 
                 if (!TargetMemberIsAnEnum(targetMember))
                 {
                     continue;
                 }
 
-                var dataSources = targetMemberAndDataSourceSet.Value
-                    .Where(dataSource => IsEnum(dataSource.Value.Type));
+                var dataSources = targetMemberAndDataSource.Value
+                    .Where(dataSource => dataSource.IsValid && IsEnum(dataSource.SourceMember.Type))
+                    .ToArray();
 
                 if (dataSources.Any())
                 {
-                    yield return Tuple.Create(targetMember, targetMemberAndDataSourceSet.Value);
+                    yield return new TargetMemberData(targetMember, dataSources);
                 }
             }
 
             var childTargetMembersAndDataSources = mapperData
                 .ChildMapperDatas
-                .SelectMany(GetAllDataSourcesByTargetMember);
+                .SelectMany(EnumerateTargetMemberDatas);
 
             foreach (var childTargetMemberAndDataSources in childTargetMembersAndDataSources)
             {
@@ -91,15 +86,15 @@
 
         protected override Expression VisitBinary(BinaryExpression binary)
         {
-            TargetMemberAndDataSources targetMemberAndDataSources;
+            TargetMemberData targetMemberData;
 
             if ((binary.NodeType == ExpressionType.Assign) &&
                 IsEnum(binary.Left.Type) &&
-                TryGetMatch(binary.Right, out targetMemberAndDataSources))
+                TryGetMatch(binary.Left, out targetMemberData))
             {
                 var mismatchWarnings = EnumMappingMismatchSet.For(
-                    targetMemberAndDataSources.TargetMember,
-                    targetMemberAndDataSources.DataSources.Where(ds => IsEnum(ds.SourceMember.Type)),
+                    targetMemberData.TargetMember,
+                    targetMemberData.DataSources,
                     _mapperData);
 
                 if (mismatchWarnings.Any)
@@ -113,19 +108,21 @@
             return base.VisitBinary(binary);
         }
 
-        private bool TryGetMatch(Expression value, out TargetMemberAndDataSources targetMemberAndDataSources)
+        private bool TryGetMatch(Expression targetMemberAccess, out TargetMemberData targetMemberData)
         {
-            targetMemberAndDataSources = _dataSourcesByTargetMember
-                .FirstOrDefault(dss => dss.DataSources.Value == value);
+            var memberName = targetMemberAccess.GetMemberName();
 
-            return targetMemberAndDataSources != null;
+            targetMemberData = _targetMemberDatas
+                .FirstOrDefault(dss => dss.TargetMember.Name == memberName);
+
+            return targetMemberData != null;
         }
 
         #region Helper Class
 
-        private class TargetMemberAndDataSources
+        private class TargetMemberData
         {
-            public TargetMemberAndDataSources(QualifiedMember targetMember, DataSourceSet dataSources)
+            public TargetMemberData(QualifiedMember targetMember, IEnumerable<IDataSource> dataSources)
             {
                 TargetMember = targetMember;
                 DataSources = dataSources;
@@ -133,7 +130,7 @@
 
             public QualifiedMember TargetMember { get; }
 
-            public DataSourceSet DataSources { get; }
+            public IEnumerable<IDataSource> DataSources { get; }
         }
 
         #endregion
