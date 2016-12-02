@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
         {
             if (sourceValue.Type == typeof(bool?))
             {
-                return GetNullableBoolConversion(sourceValue, targetType);
+                return sourceValue.GetValueOrDefaultCall();
             }
 
             var nonNullableSourceType = sourceValue.Type.GetNonNullableType();
@@ -44,19 +44,6 @@ namespace AgileObjects.AgileMapper.TypeConversion
                     Expression.Default(typeof(bool?))));
 
             return sourceValueConversion;
-        }
-
-        private static Expression GetNullableBoolConversion(Expression sourceValue, Type targetType)
-        {
-            if (targetType == typeof(bool))
-            {
-                return sourceValue.GetValueOrDefaultCall();
-            }
-
-            return Expression.Condition(
-                Expression.Property(sourceValue, "HasValue"),
-                Expression.Property(sourceValue, "Value"),
-                Expression.Default(typeof(bool?)));
         }
 
         private static Tuple<Expression, Expression> GetComparisons(Expression sourceValue, Type nonNullableSourceType)
