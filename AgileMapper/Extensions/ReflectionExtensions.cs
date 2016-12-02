@@ -11,9 +11,12 @@
         {
             try
             {
-                typeof(TrustTester)
-                    .GetNonPublicStaticMethod("IsReflectionPermitted")
-                    .Invoke(null, null);
+                if (!Assembly.GetExecutingAssembly().IsFullyTrusted)
+                {
+                    typeof(TrustTester)
+                        .GetNonPublicStaticMethod("IsReflectionPermitted")
+                        .Invoke(null, null);
+                }
             }
             catch
             {
