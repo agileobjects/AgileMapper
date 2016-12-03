@@ -9,12 +9,12 @@
         public override void Initialise()
         {
             TypeAdapterConfig<ValueObject, ConstructedObject>.NewConfig()
-                .ConstructUsing(src => new ConstructedObject(src.Value));
+                .Compile();
         }
 
         protected override ConstructedObject Construct(ValueObject valueObject)
         {
-            return valueObject.Adapt<ConstructedObject>();
+            return valueObject.Adapt<ValueObject, ConstructedObject>();
         }
     }
 }
