@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -84,6 +85,40 @@
             result.ShouldBeSameAs(target);
             result.ShouldContain(originalObject);
             result.ShouldBe(p => p.Name, "Lisa", "Bart");
+        }
+
+        [Fact]
+        public void ShouldOverwriteUsingAConfiguredDataSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Product>()
+                    .To<PublicField<string>>()
+                    .Map((p, pf) => p.ProductId)
+                    .To(pf => pf.Value);
+
+                var source = new[]
+                {
+                    new Product { ProductId = "Bart" },
+                    new Product { ProductId = "Lisa" }
+                };
+
+                var target = new Collection<PublicField<string>>
+                {
+                    new PublicField<string> { Value = "Homer" },
+                    new PublicField<string> { Value = "Marge" }
+                };
+
+                var originalObjectOne = target.First();
+                var originalObjectTwo = target.Second();
+
+                mapper.Map(source).Over(target);
+
+                target.ShouldNotContain(originalObjectOne);
+                target.ShouldNotContain(originalObjectTwo);
+                target.ShouldBe(p => p.Value, "Bart", "Lisa");
+            }
         }
 
         [Fact]
