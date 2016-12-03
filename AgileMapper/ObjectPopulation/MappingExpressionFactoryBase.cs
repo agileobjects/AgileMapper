@@ -28,12 +28,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperData.ReturnLabelTarget,
                 Expression.Default(mapperData.TargetType));
 
-            var mappingExpressions = new List<Expression>();
+            var mappingExpressions = GetShortCircuitReturns(returnNull, mapperData).ToList();
+
+            Expression derivedTypeMappings;
+
+            if (MappingIsToDerivedType(mappingData, out derivedTypeMappings))
+            {
+                return mappingExpressions.Any()
+                    ? Expression.Block(mappingExpressions.Concat(derivedTypeMappings))
+                    : derivedTypeMappings;
+            }
+
             var basicMapperData = mapperData.WithNoTargetMember();
 
-            mappingExpressions.AddRange(GetShortCircuitReturns(returnNull, mapperData));
+            mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
             mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.Before, basicMapperData, mapperData));
-            mappingExpressions.AddUnlessNullOrEmpty(GetDerivedTypeMappings(mappingData));
             mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
             mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.After, basicMapperData, mapperData));
 
@@ -45,9 +54,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock);
 
-        protected abstract IEnumerable<Expression> GetShortCircuitReturns(
-            GotoExpression returnNull,
-            ObjectMapperData mapperData);
+        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData);
+
+        private bool MappingIsToDerivedType(IObjectMappingData mappingData, out Expression derivedTypeMappings)
+        {
+            derivedTypeMappings = GetDerivedTypeMappings(mappingData);
+
+            if (derivedTypeMappings.NodeType != ExpressionType.Goto)
+            {
+                return false;
+            }
+
+            var returnExpression = (GotoExpression)derivedTypeMappings;
+            derivedTypeMappings = returnExpression.Value;
+            return true;
+        }
 
         protected abstract Expression GetDerivedTypeMappings(IObjectMappingData mappingData);
 
