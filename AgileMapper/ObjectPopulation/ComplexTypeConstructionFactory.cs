@@ -167,7 +167,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 foreach (var argumentDataSource in argumentDataSources)
                 {
                     variables.AddRange(argumentDataSource.Item2.Variables);
-                    argumentValues.Add(argumentDataSource.Item2.Value);
+                    argumentValues.Add(argumentDataSource.Item2.GetValueExpression());
                 }
 
                 var objectConstruction = Expression.New(constructor, argumentValues);

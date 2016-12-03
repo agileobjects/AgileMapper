@@ -56,13 +56,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (!IsSuccessful)
             {
-                return _dataSources.Value;
+                return _dataSources.GetValueExpression();
             }
 
             var population = MapperData.TargetMember.IsReadOnly
                 ? GetReadOnlyMemberPopulation()
-                : MapperData.TargetMember.LeafMember
-                    .GetPopulation(MapperData.InstanceVariable, _dataSources.Value);
+                : _dataSources.GetPopulationExpression(MapperData);
 
             if (_dataSources.Variables.Any())
             {
@@ -81,13 +80,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var targetMemberAccess = MapperData.GetTargetMemberAccess();
             var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
+            var dataSourcesValue = _dataSources.GetValueExpression();
 
-            if (_dataSources.Value.NodeType != ExpressionType.Conditional)
+            if (dataSourcesValue.NodeType != ExpressionType.Conditional)
             {
-                return Expression.IfThen(targetMemberNotNull, _dataSources.Value);
+                return Expression.IfThen(targetMemberNotNull, dataSourcesValue);
             }
 
-            var valueTernary = (ConditionalExpression)_dataSources.Value;
+            var valueTernary = (ConditionalExpression)dataSourcesValue;
             var populationTest = Expression.AndAlso(targetMemberNotNull, valueTernary.Test);
             var population = Expression.IfThen(populationTest, valueTernary.IfTrue);
 
