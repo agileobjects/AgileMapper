@@ -80,8 +80,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
-                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping();
+                if (this.TargetMemberIsEnumerableElement())
+                {
+                    TargetTypeHasNotYetBeenMapped = TargetTypeWillNotBeMappedAgain = false;
+                }
+                else
+                {
+                    TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
+                    TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
+                }
 
                 _instanceVariable = Expression
                     .Variable(TargetType, TargetType.GetVariableNameInCamelCase());
@@ -156,6 +163,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             while (parent != null)
             {
+                if (!parent.TargetTypeHasNotYetBeenMapped)
+                {
+                    return false;
+                }
+
                 if (parent.HasTypeBeenMapped(TargetType, this))
                 {
                     return false;
@@ -197,8 +209,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private bool IsTargetTypeLastMapping()
+        private bool IsTargetTypeLastMapping(ObjectMapperData parent)
         {
+            while (parent != null)
+            {
+                if (!parent.TargetTypeWillNotBeMappedAgain)
+                {
+                    return false;
+                }
+
+                parent = parent.Parent;
+            }
+
             return !TypeHasACompatibleChildMember(TargetType, TargetType, new List<Type>());
         }
 
@@ -230,7 +252,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         return true;
                     }
 
-                    return TypeHasACompatibleChildMember(targetType, childMember.Type, checkedTypes);
+                    if (TypeHasACompatibleChildMember(targetType, childMember.Type, checkedTypes))
+                    {
+                        return true;
+                    }
+
+                    continue;
                 }
 
                 if (childMember.ElementType.IsComplex() && childMember.ElementType.IsAssignableFrom(targetType))
@@ -238,7 +265,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return true;
                 }
 
-                return TypeHasACompatibleChildMember(targetType, childMember.ElementType, checkedTypes);
+                if (TypeHasACompatibleChildMember(targetType, childMember.ElementType, checkedTypes))
+                {
+                    return true;
+                }
             }
 
             return false;

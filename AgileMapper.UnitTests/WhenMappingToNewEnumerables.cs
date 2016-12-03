@@ -66,9 +66,29 @@
             result.ShouldNotBeNull();
             result.ShouldNotBe(source);
             result.First().ShouldNotBe(source.First());
-            result.First().Name.ShouldBe(source.First().Name);
-            result.Last().ShouldNotBe(source.Last());
-            result.Last().Name.ShouldBe(source.Last().Name);
+            result.First().Name.ShouldBe("Pete");
+            result.Second().ShouldNotBe(source.Second());
+            result.Second().Name.ShouldBe("Johnny");
+        }
+
+        [Fact]
+        public void ShouldCreateAComplexTypeArrayUsingRuntimeTypedElements()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.TrackMappedObjects();
+
+                var viewModel = new CustomerViewModel { Name = "Dave", AddressLine1 = "View model!" };
+                var source = new List<PersonViewModel> { viewModel, viewModel };
+                var result = mapper.Map(source).ToANew<Person[]>();
+
+                result.First().ShouldBeOfType<Customer>();
+                result.First().Name.ShouldBe("Dave");
+                result.First().Address.ShouldNotBeNull();
+                result.First().Address.Line1.ShouldBe("View model!");
+
+                result.Second().ShouldBeSameAs(result.First());
+            }
         }
 
         [Fact]
