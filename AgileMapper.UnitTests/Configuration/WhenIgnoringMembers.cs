@@ -270,18 +270,46 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
-        public void ShouldErrorIfReadOnlyMemberSpecified()
+        public void ShouldErrorIfNonPublicReadOnlySimpleTypeMemberSpecified()
         {
-            Should.Throw<MappingConfigurationException>(() =>
+            var configurationEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper
-                        .WhenMapping
+                    mapper.WhenMapping
                         .To<PublicSetMethod<string>>()
                         .Ignore(psm => psm.Value);
                 }
             });
+
+            configurationEx.Message.ShouldContain("not writeable");
+        }
+
+        [Fact]
+        public void ShouldErrorIfReadOnlySimpleTypeMemberSpecified()
+        {
+            var configurationEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .To<PublicReadOnlyField<int>>()
+                        .Ignore(psm => psm.Value);
+                }
+            });
+
+            configurationEx.Message.ShouldContain("not writeable");
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfReadOnlyComplexTypeMemberSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<PublicReadOnlyProperty<Address>>()
+                    .Ignore(psm => psm.Value);
+            }
         }
     }
 }
