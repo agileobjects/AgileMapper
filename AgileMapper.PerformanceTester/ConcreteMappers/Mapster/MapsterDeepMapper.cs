@@ -10,15 +10,14 @@
         public override void Initialise()
         {
             TypeAdapterConfig<Customer, CustomerDto>.NewConfig()
-                .Map(dest => dest.Addresses, src => new List<AddressDto>(), src => src.Addresses == null)
-                .Map(dest => dest.Addresses, src => src.Addresses.Adapt<List<AddressDto>>())
-                .Map(dest => dest.AddressesArray, src => new AddressDto[0], src => src.AddressesArray == null)
-                .Map(dest => dest.AddressesArray, src => src.AddressesArray.Adapt<AddressDto[]>());
+                .Map(dest => dest.Addresses, src => src.Addresses ?? new List<Address>())
+                .Map(dest => dest.AddressesArray, src => src.AddressesArray ?? new Address[0])
+                .Compile();
         }
 
         protected override CustomerDto Map(Customer customer)
         {
-            return customer.Adapt<CustomerDto>();
+            return customer.Adapt<Customer, CustomerDto>();
         }
     }
 }

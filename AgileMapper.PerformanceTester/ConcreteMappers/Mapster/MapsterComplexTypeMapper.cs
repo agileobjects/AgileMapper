@@ -11,19 +11,16 @@
         public override void Initialise()
         {
             TypeAdapterConfig<Foo, Foo>.NewConfig()
-                .Map(dest => dest.Foos, src => new List<Foo>(), src => src.Foos == null)
-                .Map(dest => dest.Foos, src => src.Foos)
-                .Map(dest => dest.FooArray, src => new Foo[0], src => src.FooArray == null)
-                .Map(dest => dest.FooArray, src => src.FooArray)
-                .Map(dest => dest.Ints, src => Enumerable.Empty<int>(), src => src.Ints == null)
-                .Map(dest => dest.Ints, src => src.Ints)
-                .Map(dest => dest.IntArray, src => new int[0], src => src.IntArray == null)
-                .Map(dest => dest.IntArray, src => src.IntArray);
+                .Map(dest => dest.Foos, src => src.Foos ?? new List<Foo>())
+                .Map(dest => dest.FooArray, src => src.FooArray ?? new Foo[0])
+                .Map(dest => dest.Ints, src => src.Ints ?? Enumerable.Empty<int>())
+                .Map(dest => dest.IntArray, src => src.IntArray ?? new int[0])
+                .Compile();
         }
 
         protected override Foo Clone(Foo foo)
         {
-            return foo.Adapt<Foo>();
+            return foo.Adapt<Foo, Foo>();
         }
     }
 }
