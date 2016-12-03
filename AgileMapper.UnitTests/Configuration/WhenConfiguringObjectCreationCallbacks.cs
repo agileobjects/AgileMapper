@@ -5,6 +5,8 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using AgileMapper.Members;
+    using ReadableExpressions.Extensions;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -468,6 +470,32 @@
                 var result = mapper.Map(source).OnTo(target);
 
                 createdInstance.ShouldBe(result.Value);
+            }
+        }
+
+        [Fact]
+        public void ShouldCallAnObjectingCreatingCallbackForAConstructorOnlyTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var callbackCalled = false;
+
+                Func<IMappingData<object, PublicCtor<string>>, PublicCtor<string>> factory =
+                    ctx => new PublicCtor<string>(ctx.Source.GetType().GetFriendlyName());
+
+                mapper.WhenMapping
+                    .To<PublicCtor<string>>()
+                    .CreateInstancesUsing(factory)
+                    .And
+                    .Before
+                    .CreatingTargetInstances
+                    .Call(ctx => callbackCalled = true);
+
+                var source = new PublicProperty<Guid>();
+                var result = mapper.Map(source).ToANew<PublicCtor<string>>();
+
+                result.Value.ShouldBe("PublicProperty<Guid>");
+                callbackCalled.ShouldBeTrue();
             }
         }
     }

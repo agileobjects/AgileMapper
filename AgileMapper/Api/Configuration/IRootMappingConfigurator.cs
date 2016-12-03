@@ -19,7 +19,12 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <param name="factory">
         /// The factory expression to use to create instances of the type being configured.
         /// </param>
-        void CreateInstancesUsing(Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory);
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
+            Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory);
 
         /// <summary>
         /// Use the given <paramref name="factory"/> function to create instances of the target type being 
@@ -42,7 +47,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <param name="factory">
         /// The factory function to use to create instances of the type being configured.
         /// </param>
-        void CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class;
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class;
 
         /// <summary>
         /// Configure a factory to use to create instance of the type specified by the type argument.

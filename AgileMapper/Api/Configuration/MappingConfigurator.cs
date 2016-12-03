@@ -36,11 +36,19 @@
 
         #endregion
 
-        public void CreateInstancesUsing(Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
-            => new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
+        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
+        {
+            new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
 
-        public void CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
-            => new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+        }
+
+        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
+        {
+            new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
+
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+        }
 
         public IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class
             => new FactorySpecifier<TSource, TTarget, TObject>(_configInfo);

@@ -90,13 +90,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (mappingExpressions.Last() == objectAssignment)
                 {
-                    var assignment = (BinaryExpression)objectAssignment;
-                    var assignedValue = assignment.Right;
-
-                    if (assignedValue.NodeType == ExpressionType.Invoke)
-                    {
-                        assignedValue = assignedValue.Replace(mapperData.InstanceVariable, mapperData.TargetObject);
-                    }
+                    var assignedValue = ((BinaryExpression)objectAssignment).Right;
 
                     if (mappingExpressions.Count == 1)
                     {
