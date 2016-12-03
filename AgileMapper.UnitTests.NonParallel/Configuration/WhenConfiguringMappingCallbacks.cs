@@ -103,5 +103,26 @@
                 customersRemoved.ShouldBe(1);
             });
         }
+
+        [Fact]
+        public void ShouldExecuteAPreMappingCallbackForAConstructorOnlyTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var callbackCalled = false;
+
+                mapper.WhenMapping
+                    .To<PublicCtor<string>>()
+                    .Before
+                    .MappingBegins
+                    .Call(ctx => callbackCalled = true);
+
+                var source = new PublicProperty<Guid> { Value = Guid.NewGuid() };
+                var result = mapper.Map(source).ToANew<PublicCtor<string>>();
+
+                result.Value.ShouldBe(source.Value.ToString());
+                callbackCalled.ShouldBeTrue();
+            }
+        }
     }
 }
