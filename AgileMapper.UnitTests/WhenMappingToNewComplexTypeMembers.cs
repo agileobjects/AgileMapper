@@ -93,21 +93,31 @@
         }
 
         [Fact]
-        public void ShouldHandleARuntimeTypedNestedMemberMatch()
+        public void ShouldHandleRuntimeTypedNestedMemberMatches()
         {
             var runtimeTypedSource = new
             {
+                Na = (object)new { Me = "Harry!" },
                 Address = (object)new Address { Line1 = "Line Onnneee" }
             };
 
             var runtimeTypedResult = Mapper.Map(runtimeTypedSource).ToANew<PersonViewModel>();
 
+            runtimeTypedResult.Name.ShouldBe("Harry!");
             runtimeTypedResult.AddressLine1.ShouldBe("Line Onnneee");
 
-            var nonRuntimeTypedSource = new { Address = (object)123 };
+            var halfRuntimeTypedSource = new { Na = (object)new { Me = "Boris!" }, Address = (object)123 };
+
+            var halfRuntimeTypedResult = Mapper.Map(halfRuntimeTypedSource).ToANew<PersonViewModel>();
+
+            halfRuntimeTypedResult.Name.ShouldBe("Boris!");
+            halfRuntimeTypedResult.AddressLine1.ShouldBeNull();
+
+            var nonRuntimeTypedSource = new { Na = (object)123, Address = (object)456 };
 
             var nonRuntimeTypedResult = Mapper.Map(nonRuntimeTypedSource).ToANew<PersonViewModel>();
 
+            nonRuntimeTypedResult.Name.ShouldBeNull();
             nonRuntimeTypedResult.AddressLine1.ShouldBeNull();
         }
 
