@@ -12,7 +12,7 @@
     /// <summary>
     /// Provides options for configuring how a mapper performs a mapping.
     /// </summary>
-    public class MappingConfigStartingPoint : IGlobalConfigStartingPoint
+    public class MappingConfigStartingPoint : IGlobalConfigSettings
     {
         private readonly MapperContext _mapperContext;
 
@@ -30,9 +30,9 @@
         /// encounter an Exception will return null.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint SwallowAllExceptions() => PassExceptionsTo(ctx => { });
+        public IGlobalConfigSettings SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
         /// <summary>
         /// Pass Exceptions thrown during a mapping to the given <paramref name="callback"/> instead of throwing 
@@ -43,9 +43,9 @@
         /// swallowed, it should be rethrown inside the callback.
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint PassExceptionsTo(Action<IMappingExceptionData> callback)
+        public IGlobalConfigSettings PassExceptionsTo(Action<IMappingExceptionData> callback)
         {
             var exceptionCallback = new ExceptionCallback(
                 MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext),
@@ -65,9 +65,9 @@
         /// </summary>
         /// <param name="prefix">The prefix to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
+        public IGlobalConfigSettings UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have any of the given name <paramref name="prefixes"/>.
@@ -75,9 +75,9 @@
         /// </summary>
         /// <param name="prefixes">The prefixes to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint UseNamePrefixes(params string[] prefixes)
+        public IGlobalConfigSettings UseNamePrefixes(params string[] prefixes)
             => UseNamePatterns(prefixes.Select(p => "^" + p + "(.+)$"));
 
         /// <summary>
@@ -86,9 +86,9 @@
         /// </summary>
         /// <param name="suffix">The suffix to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
+        public IGlobalConfigSettings UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have any of the given name <paramref name="suffixes"/>.
@@ -96,9 +96,9 @@
         /// </summary>
         /// <param name="suffixes">The suffixes to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint UseNameSuffixes(params string[] suffixes)
+        public IGlobalConfigSettings UseNameSuffixes(params string[] suffixes)
             => UseNamePatterns(suffixes.Select(s => "^(.+)" + s + "$"));
 
         /// <summary>
@@ -110,9 +110,9 @@
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint UseNamePattern(string pattern) => UseNamePatterns(pattern);
+        public IGlobalConfigSettings UseNamePattern(string pattern) => UseNamePatterns(pattern);
 
         private static readonly Regex _patternChecker =
             new Regex(@"^\^(?<Prefix>[^(]+){0,1}\(\.\+\)(?<Suffix>[^$]+){0,1}\$$");
@@ -126,9 +126,9 @@
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint UseNamePatterns(params string[] patterns)
+        public IGlobalConfigSettings UseNamePatterns(params string[] patterns)
         {
             if (patterns.None())
             {
@@ -190,7 +190,7 @@
                 "Please specify a regular expression pattern in the format '^{prefix}(.+){suffix}$'");
         }
 
-        private IGlobalConfigStartingPoint UseNamePatterns(IEnumerable<string> patterns)
+        private IGlobalConfigSettings UseNamePatterns(IEnumerable<string> patterns)
         {
             _mapperContext.NamingSettings.AddNameMatchers(patterns);
             return this;
@@ -202,7 +202,7 @@
         /// Keep track of objects during mappings between all source and target types, in order to short-circuit 
         /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
         /// </summary>
-        public IGlobalConfigStartingPoint TrackMappedObjects()
+        public IGlobalConfigSettings TrackMappedObjects()
         {
             _mapperContext.UserConfigurations.Add(ObjectTrackingMode.TrackAll(_mapperContext));
             return this;
@@ -212,15 +212,15 @@
         /// Map null source collections to null instead of an empty collection, for all source and target types.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigStartingPoint MapNullCollectionsToNull()
+        public IGlobalConfigSettings MapNullCollectionsToNull()
         {
             _mapperContext.UserConfigurations.Add(NullCollectionsSetting.AlwaysMapToNull(_mapperContext));
             return this;
         }
 
-        MappingConfigStartingPoint IGlobalConfigStartingPoint.And => this;
+        MappingConfigStartingPoint IGlobalConfigSettings.And => this;
 
         #endregion
 

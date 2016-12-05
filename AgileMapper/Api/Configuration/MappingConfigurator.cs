@@ -53,32 +53,35 @@
         public IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class
             => new FactorySpecifier<TSource, TTarget, TObject>(_configInfo);
 
-        public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
+        public IFullMappingSettings<TSource, TTarget> SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
-        public void PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
+        public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
             var exceptionCallback = new ExceptionCallback(
                 _configInfo.ForTargetType<TTarget>(),
                 Expression.Constant(callback));
 
             _configInfo.MapperContext.UserConfigurations.Add(exceptionCallback);
+            return this;
         }
 
-        public MappingConfigContinuation<TSource, TTarget> TrackMappedObjects()
+        public IFullMappingSettings<TSource, TTarget> TrackMappedObjects()
         {
             var trackingMode = new ObjectTrackingMode(_configInfo.ForTargetType<TTarget>());
 
             _configInfo.MapperContext.UserConfigurations.Add(trackingMode);
-
-            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+            return this;
         }
 
-        public void MapNullCollectionsToNull()
+        public IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull()
         {
             var nullSetting = new NullCollectionsSetting(_configInfo.ForTargetType<TTarget>());
 
             _configInfo.MapperContext.UserConfigurations.Add(nullSetting);
+            return this;
         }
+
+        IFullMappingConfigurator<TSource, TTarget> IFullMappingSettings<TSource, TTarget>.And => this;
 
         public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {

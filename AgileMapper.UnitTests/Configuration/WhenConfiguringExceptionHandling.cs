@@ -12,13 +12,9 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .SwallowAllExceptions();
+                mapper.WhenMapping.SwallowAllExceptions();
 
-                mapper
-                    .After
-                    .CreatingInstances
+                mapper.After.CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("BANG"); });
 
                 var result = mapper.Map(new Person()).ToANew<PersonViewModel>();
@@ -57,8 +53,7 @@
                 var thrownTarget = default(object);
                 var thrownException = default(Exception);
 
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .PassExceptionsTo(ctx =>
                     {
                         thrownSource = ctx.Source;
@@ -66,9 +61,7 @@
                         thrownException = ctx.Exception;
                     });
 
-                mapper
-                    .After
-                    .CreatingInstances
+                mapper.After.CreatingInstances
                     .Call(ctx => { throw new InvalidOperationException("BOOM"); });
 
                 mapper.Map(new Person()).ToANew<PersonViewModel>();

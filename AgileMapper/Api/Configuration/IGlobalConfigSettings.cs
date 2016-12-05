@@ -6,7 +6,7 @@
     /// <summary>
     /// Provides options for globally configuring how all mappers will perform mappings.
     /// </summary>
-    public interface IGlobalConfigStartingPoint
+    public interface IGlobalConfigSettings
     {
         #region Exception Handling
 
@@ -15,9 +15,9 @@
         /// encounter an Exception will return null.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint SwallowAllExceptions();
+        IGlobalConfigSettings SwallowAllExceptions();
 
         /// <summary>
         /// Pass Exceptions thrown during a mapping to the given <paramref name="callback"/> instead of throwing 
@@ -28,9 +28,9 @@
         /// swallowed, it should be rethrown inside the callback.
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint PassExceptionsTo(Action<IMappingExceptionData> callback);
+        IGlobalConfigSettings PassExceptionsTo(Action<IMappingExceptionData> callback);
 
         #endregion
 
@@ -42,9 +42,9 @@
         /// </summary>
         /// <param name="prefix">The prefix to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint UseNamePrefix(string prefix);
+        IGlobalConfigSettings UseNamePrefix(string prefix);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have any of the given name <paramref name="prefixes"/>.
@@ -52,9 +52,9 @@
         /// </summary>
         /// <param name="prefixes">The prefixes to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint UseNamePrefixes(params string[] prefixes);
+        IGlobalConfigSettings UseNamePrefixes(params string[] prefixes);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have the given name <paramref name="suffix"/>.
@@ -62,9 +62,9 @@
         /// </summary>
         /// <param name="suffix">The suffix to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint UseNameSuffix(string suffix);
+        IGlobalConfigSettings UseNameSuffix(string suffix);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have any of the given name <paramref name="suffixes"/>.
@@ -72,9 +72,9 @@
         /// </summary>
         /// <param name="suffixes">The suffixes to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint UseNameSuffixes(params string[] suffixes);
+        IGlobalConfigSettings UseNameSuffixes(params string[] suffixes);
 
         /// <summary>
         /// Expect members of all source and target types to potentially match the given name <paramref name="pattern"/>.
@@ -85,9 +85,9 @@
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint UseNamePattern(string pattern);
+        IGlobalConfigSettings UseNamePattern(string pattern);
 
         /// <summary>
         /// Expect members of all source and target types to potentially match the given name <paramref name="patterns"/>.
@@ -98,9 +98,9 @@
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint UseNamePatterns(params string[] patterns);
+        IGlobalConfigSettings UseNamePatterns(params string[] patterns);
 
         #endregion
 
@@ -108,18 +108,18 @@
         /// Keep track of objects during mappings between all source and target types, in order to short-circuit 
         /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
         /// </summary>
-        IGlobalConfigStartingPoint TrackMappedObjects();
+        IGlobalConfigSettings TrackMappedObjects();
 
         /// <summary>
         /// Map null source collections to null instead of an empty collection, for all source and target types.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigStartingPoint MapNullCollectionsToNull();
+        IGlobalConfigSettings MapNullCollectionsToNull();
 
         /// <summary>
-        /// Provides a link back to the full <see cref="MappingConfigStartingPoint"/>, for api fluency.
+        /// Gets a link back to the full <see cref="MappingConfigStartingPoint"/>, for api fluency.
         /// </summary>
         MappingConfigStartingPoint And { get; }
     }
