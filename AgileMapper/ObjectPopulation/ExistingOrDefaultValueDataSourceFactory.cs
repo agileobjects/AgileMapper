@@ -21,25 +21,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             private static Expression GetValue(IMemberMapperData mapperData)
             {
-                if (mapperData.TargetMember.IsReadable)
-                {
-                    var existingValue = mapperData.GetTargetMemberAccess();
-
-                    if (!mapperData.TargetMember.IsEnumerable)
-                    {
-                        return existingValue;
-                    }
-
-                    var emptyEnumerable = mapperData.TargetMember.GetEmptyInstanceCreation();
-
-                    return Expression.Coalesce(existingValue, emptyEnumerable);
-                }
-
                 if (mapperData.TargetMember.IsEnumerable)
                 {
-                    var emptyEnumerable = mapperData.TargetMember.GetEmptyInstanceCreation();
+                    return mapperData.GetFallbackCollectionValue();
+                }
 
-                    return emptyEnumerable.GetConversionTo(mapperData.TargetMember.Type);
+                if (mapperData.TargetMember.IsReadable)
+                {
+                    return mapperData.GetTargetMemberAccess();
                 }
 
                 return Expression.Default(mapperData.TargetMember.Type);

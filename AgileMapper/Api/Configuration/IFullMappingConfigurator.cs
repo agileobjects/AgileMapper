@@ -37,14 +37,21 @@
         void PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback);
 
         /// <summary>
-        /// Configure this mapper to keep track of objects during a mapping in order to short-circuit 
-        /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
+        /// Configure this mapper to keep track of objects during a mapping from and to the source and target types 
+        /// being configured, in order to short-circuit circular relationships and ensure 1-to-1 relationships between 
+        /// source and mapped objects.
         /// </summary>
         /// <returns>
         /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
         MappingConfigContinuation<TSource, TTarget> TrackMappedObjects();
+
+        /// <summary>
+        /// Configure this mapper to map null source collections to null instead of an empty collection, for the 
+        /// source and target types being configured.
+        /// </summary>
+        void MapNullCollectionsToNull();
 
         /// <summary>
         /// Configure a derived target type to which to map instances of the given derived source type.

@@ -230,7 +230,7 @@
             {
                 ICollection<Address> addresses = new Address[0];
 
-                mapper.CreateAReadOnlyFieldUsing(addresses);;
+                mapper.CreateAReadOnlyFieldUsing(addresses);
 
                 var source = new PublicField<Address[]>
                 {
@@ -299,6 +299,43 @@
 
                 result.Value.First().Line1.ShouldBe("Address 1! Line 1!");
                 result.Value.Second().Line1.ShouldBe("Address 2! Line 1!");
+            }
+        }
+
+        [Fact]
+        public void ShouldMapCollectionsToNullIfConfiguredGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .MapNullCollectionsToNull();
+
+                var source = new PublicField<Collection<byte>> { Value = null };
+                var result = mapper.Map(source).ToANew<PublicSetMethod<IEnumerable<string>>>();
+
+                result.Value.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldMapCollectionsToNullIfConfiguredByType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<IEnumerable<int>>>()
+                    .To<PublicField<List<string>>>()
+                    .MapNullCollectionsToNull();
+
+                var matchingSource = new PublicProperty<IEnumerable<int>> { Value = null };
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<List<string>>>();
+
+                matchingResult.Value.ShouldBeNull();
+
+                var nonMatchingSource = new PublicProperty<IEnumerable<long>> { Value = null };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<List<string>>>();
+
+                nonMatchingResult.Value.ShouldBeEmpty();
             }
         }
     }

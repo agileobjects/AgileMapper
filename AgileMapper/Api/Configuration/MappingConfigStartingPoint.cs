@@ -12,7 +12,7 @@
     /// <summary>
     /// Provides options for configuring how a mapper performs a mapping.
     /// </summary>
-    public class MappingConfigStartingPoint
+    public class MappingConfigStartingPoint : IGlobalConfigStartingPoint
     {
         private readonly MapperContext _mapperContext;
 
@@ -21,29 +21,38 @@
             _mapperContext = mapperContext;
         }
 
+        #region Global Settings
+
         #region Exception Handling
 
         /// <summary>
-        /// Swallow exceptions thrown during a mapping irrespective of source and target type. Object mappings 
-        /// which encounter an Exception will return null.
+        /// Swallow exceptions thrown during a mapping, for all source and target types. Object mappings which 
+        /// encounter an Exception will return null.
         /// </summary>
-        public void SwallowAllExceptions() => PassExceptionsTo(ctx => { });
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
         /// <summary>
         /// Pass Exceptions thrown during a mapping to the given <paramref name="callback"/> instead of throwing 
-        /// them, irrespective of source and target type.
+        /// them, for all source and target types.
         /// </summary>
         /// <param name="callback">
         /// The callback to which to pass thrown Exception information. If the thrown exception should not be 
         /// swallowed, it should be rethrown inside the callback.
         /// </param>
-        public void PassExceptionsTo(Action<IMappingExceptionData> callback)
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint PassExceptionsTo(Action<IMappingExceptionData> callback)
         {
             var exceptionCallback = new ExceptionCallback(
                 MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext),
                 Expression.Constant(callback));
 
             _mapperContext.UserConfigurations.Add(exceptionCallback);
+            return this;
         }
 
         #endregion
@@ -51,57 +60,75 @@
         #region Naming
 
         /// <summary>
-        /// Expect members of any source and target type to potentially have the given name <paramref name="prefix"/>.
+        /// Expect members of all source and target types to potentially have the given name <paramref name="prefix"/>.
         /// Source and target members will be matched as if the prefix is absent.
         /// </summary>
         /// <param name="prefix">The prefix to ignore when matching source and target members.</param>
-        public void UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
 
         /// <summary>
-        /// Expect members of any source and target type to potentially have any of the given name <paramref name="prefixes"/>.
+        /// Expect members of all source and target types to potentially have any of the given name <paramref name="prefixes"/>.
         /// Source and target members will be matched as if the prefixes are absent.
         /// </summary>
         /// <param name="prefixes">The prefixes to ignore when matching source and target members.</param>
-        public void UseNamePrefixes(params string[] prefixes)
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint UseNamePrefixes(params string[] prefixes)
             => UseNamePatterns(prefixes.Select(p => "^" + p + "(.+)$"));
 
         /// <summary>
-        /// Expect members of any source and target type to potentially have the given name <paramref name="suffix"/>.
+        /// Expect members of all source and target types to potentially have the given name <paramref name="suffix"/>.
         /// Source and target members will be matched as if the suffix is absent.
         /// </summary>
         /// <param name="suffix">The suffix to ignore when matching source and target members.</param>
-        public void UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
 
         /// <summary>
-        /// Expect members of any source and target type to potentially have any of the given name <paramref name="suffixes"/>.
+        /// Expect members of all source and target types to potentially have any of the given name <paramref name="suffixes"/>.
         /// Source and target members will be matched as if the suffixes are absent.
         /// </summary>
         /// <param name="suffixes">The suffixes to ignore when matching source and target members.</param>
-        public void UseNameSuffixes(params string[] suffixes)
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint UseNameSuffixes(params string[] suffixes)
             => UseNamePatterns(suffixes.Select(s => "^(.+)" + s + "$"));
 
         /// <summary>
-        /// Expect members of any source and target type to potentially match the given name <paramref name="pattern"/>.
+        /// Expect members of all source and target types to potentially match the given name <paramref name="pattern"/>.
         /// The pattern will be used to find the part of a name which should be used to match a source and target member.
         /// </summary>
         /// <param name="pattern">
         /// The Regex pattern to check against source and target member names. The pattern is expected to start with the 
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
-        public void UseNamePattern(string pattern) => UseNamePatterns(pattern);
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint UseNamePattern(string pattern) => UseNamePatterns(pattern);
 
         private static readonly Regex _patternChecker =
             new Regex(@"^\^(?<Prefix>[^(]+){0,1}\(\.\+\)(?<Suffix>[^$]+){0,1}\$$");
 
         /// <summary>
-        /// Expect members of any source and target type to potentially match the given name <paramref name="patterns"/>.
+        /// Expect members of all source and target types to potentially match the given name <paramref name="patterns"/>.
         /// The patterns will be used to find the part of a name which should be used to match a source and target member.
         /// </summary>
         /// <param name="patterns">
         /// The Regex patterns to check against source and target member names. Each pattern is expected to start with the 
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
-        public void UseNamePatterns(params string[] patterns)
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint UseNamePatterns(params string[] patterns)
         {
             if (patterns.None())
             {
@@ -135,7 +162,7 @@
                 ThrowIfPatternIsInvalid(pattern);
             }
 
-            UseNamePatterns(patterns.AsEnumerable());
+            return UseNamePatterns(patterns.AsEnumerable());
         }
 
         private static void ThrowIfPatternIsInvalid(string pattern)
@@ -163,19 +190,37 @@
                 "Please specify a regular expression pattern in the format '^{prefix}(.+){suffix}$'");
         }
 
-        private void UseNamePatterns(IEnumerable<string> patterns)
-            => _mapperContext.NamingSettings.AddNameMatchers(patterns);
+        private IGlobalConfigStartingPoint UseNamePatterns(IEnumerable<string> patterns)
+        {
+            _mapperContext.NamingSettings.AddNameMatchers(patterns);
+            return this;
+        }
 
         #endregion
 
-        #region Object Equality
-
         /// <summary>
-        /// Configure this mapper to keep track of objects during a mapping in order to short-circuit 
+        /// Keep track of objects during mappings between all source and target types, in order to short-circuit 
         /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
         /// </summary>
-        public void TrackMappedObjects()
-            => _mapperContext.UserConfigurations.Add(ObjectTrackingMode.TrackAll(_mapperContext));
+        public IGlobalConfigStartingPoint TrackMappedObjects()
+        {
+            _mapperContext.UserConfigurations.Add(ObjectTrackingMode.TrackAll(_mapperContext));
+            return this;
+        }
+
+        /// <summary>
+        /// Map null source collections to null instead of an empty collection, for all source and target types.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IGlobalConfigStartingPoint"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigStartingPoint MapNullCollectionsToNull()
+        {
+            _mapperContext.UserConfigurations.Add(NullCollectionsSetting.AlwaysMapToNull(_mapperContext));
+            return this;
+        }
+
+        MappingConfigStartingPoint IGlobalConfigStartingPoint.And => this;
 
         #endregion
 

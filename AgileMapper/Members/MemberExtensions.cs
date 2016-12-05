@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -111,9 +110,6 @@
                 .Intersect(otherMemberNames, StringComparer.OrdinalIgnoreCase)
                 .Any();
         }
-
-        public static Expression GetEmptyInstanceCreation(this QualifiedMember member)
-            => member.Type.GetEmptyInstanceCreation(member.ElementType);
 
         public static IQualifiedMember GetElementMember(this IQualifiedMember enumerableMember)
             => enumerableMember.Append(GetElementMember(enumerableMember.Type));

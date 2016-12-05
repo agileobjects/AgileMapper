@@ -12,6 +12,7 @@
     internal class UserConfigurationSet
     {
         private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
+        private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
         private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
         private readonly ICollection<EnumMemberPair> _enumParings;
@@ -23,6 +24,7 @@
         public UserConfigurationSet()
         {
             _trackingModeSettings = new List<ObjectTrackingMode>();
+            _nullCollectionSettings = new List<NullCollectionsSetting>();
             _objectFactories = new List<ConfiguredObjectFactory>();
             Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
@@ -48,6 +50,15 @@
 
             return _trackingModeSettings.All(tm => !tm.AppliesTo(basicData));
         }
+
+        #endregion
+
+        #region Null Collections
+
+        public void Add(NullCollectionsSetting setting) => _nullCollectionSettings.Add(setting);
+
+        public bool MapToNullCollections(IBasicMapperData basicData)
+            => _nullCollectionSettings.Any(s => s.AppliesTo(basicData));
 
         #endregion
 

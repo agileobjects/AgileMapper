@@ -73,6 +73,13 @@
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
 
+        public void MapNullCollectionsToNull()
+        {
+            var nullSetting = new NullCollectionsSetting(_configInfo.ForTargetType<TTarget>());
+
+            _configInfo.MapperContext.UserConfigurations.Add(nullSetting);
+        }
+
         public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
             var configInfo = _configInfo.ForTargetType<TTarget>();

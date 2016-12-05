@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
 
@@ -24,7 +25,7 @@ namespace AgileObjects.AgileMapper.Members
             => !mapperData.IsRoot && mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
 
         public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
-            => mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
+            => mapperData.IsRoot ? mapperData.TargetObject : mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
 
         public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)
             => mapperData.NestedAccessFinder.FindIn(value, targetCanBeNull);
@@ -76,6 +77,37 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             return nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(parentMember.Append(m), member));
+        }
+
+        public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)
+        {
+            var targetMember = mapperData.TargetMember;
+            var mapToNullCollections = mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
+
+            Expression emptyEnumerable;
+
+            if (targetMember.IsReadable)
+            {
+                var existingValue = mapperData.GetTargetMemberAccess();
+
+                if (mapToNullCollections)
+                {
+                    return existingValue;
+                }
+
+                emptyEnumerable = targetMember.Type.GetEmptyInstanceCreation(targetMember.ElementType);
+
+                return Expression.Coalesce(existingValue, emptyEnumerable);
+            }
+
+            if (mapToNullCollections)
+            {
+                return Expression.Default(targetMember.Type);
+            }
+
+            emptyEnumerable = targetMember.Type.GetEmptyInstanceCreation(targetMember.ElementType);
+
+            return emptyEnumerable.GetConversionTo(targetMember.Type);
         }
 
         public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)

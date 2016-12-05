@@ -586,13 +586,6 @@
             _populationExpressions.Add(removeExistingItems);
         }
 
-        public Expression ExistingOrNewEmptyInstance()
-        {
-            var emptyInstance = _omd.TargetMember.GetEmptyInstanceCreation();
-
-            return Expression.Coalesce(_omd.TargetObject, emptyInstance);
-        }
-
         public Expression GetReturnValue() => ConvertForReturnValue(TargetVariable);
 
         private Expression ConvertForReturnValue(Expression value)

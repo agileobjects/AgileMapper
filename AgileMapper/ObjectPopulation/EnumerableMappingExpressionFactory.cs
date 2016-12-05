@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Members;
     using ReadableExpressions;
 
     internal class EnumerableMappingExpressionFactory : MappingExpressionFactoryBase
@@ -17,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             nullMappingBlock = Expression.Block(
                 ReadableExpression.Comment("No source enumerable available"),
-                mappingData.MapperData.EnumerablePopulationBuilder.ExistingOrNewEmptyInstance());
+                mappingData.MapperData.GetFallbackCollectionValue());
 
             return true;
         }
