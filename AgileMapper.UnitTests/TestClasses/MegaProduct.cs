@@ -1,7 +1,5 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
 {
-    using TestClasses;
-
     internal class MegaProduct : Product
     {
         public decimal HowMega { get; set; }

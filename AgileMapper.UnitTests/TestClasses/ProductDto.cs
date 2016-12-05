@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
 {
     internal class ProductDto
     {

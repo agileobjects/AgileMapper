@@ -80,9 +80,9 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\MegaProduct.cs" />
-    <Compile Include="Configuration\ProductDto.cs" />
-    <Compile Include="Configuration\ProductDtoMega.cs" />
+    <Compile Include="TestClasses\MegaProduct.cs" />
+    <Compile Include="TestClasses\ProductDto.cs" />
+    <Compile Include="TestClasses\ProductDtoMega.cs" />
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSourcesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
