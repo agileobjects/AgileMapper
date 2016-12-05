@@ -234,7 +234,7 @@
 
         /// <summary>
         /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another enum Type.
-        /// This pairing will apply to mappings between all types, irrespective of the MappingRuleSet used.
+        /// This pairing will apply to mappings between all types and MappingRuleSets (create new, overwrite, etc).
         /// </summary>
         /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
         /// <param name="enumMember">The first enum member in the pair.</param>
@@ -247,7 +247,7 @@
 
         /// <summary>
         /// Configure this mapper to pair the given <paramref name="enumMembers"/> with members of another enum Type.
-        /// Pairings will apply to mappings between all types, irrespective of the MappingRuleSet used.
+        /// Pairings will apply to mappings between all types and MappingRuleSets (create new, overwrite, etc).
         /// </summary>
         /// <typeparam name="TFirstEnum">The type of the first set of enum members being paired.</typeparam>
         /// <param name="enumMembers">The first set of enum members to pair.</param>
@@ -276,8 +276,8 @@
             => GetTargetTypeSpecifier<TSource>(ci => ci.ForSourceType<TSource>());
 
         /// <summary>
-        /// Configure how this mapper performs mappings from any source type to the target type specified by 
-        /// the type argument, irrespective of the MappingRuleSet used.
+        /// Configure how this mapper performs mappings from all source types and MappingRuleSets (create new, overwrite, 
+        /// etc), to the target type specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>

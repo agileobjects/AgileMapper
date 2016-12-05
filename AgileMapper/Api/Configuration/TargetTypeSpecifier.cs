@@ -17,8 +17,8 @@
         }
 
         /// <summary>
-        /// Configure how this mapper performs mappings from the source type being configured to the target 
-        /// type specified by the type argument, irrespective of the MappingRuleSet used.
+        /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
+        /// (create new, overwrite, etc), to the target type specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
