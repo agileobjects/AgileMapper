@@ -76,13 +76,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var postCreationCallback = GetCreationCallbackOrNull(CallbackPosition.After, mapperData);
             var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToArray();
 
-            yield return preCreationCallback;
+            if (preCreationCallback != null)
+            {
+                yield return preCreationCallback;
+            }
 
             var instanceVariableValue = GetObjectResolution(mappingData, postCreationCallback != null);
             var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, instanceVariableValue);
             yield return instanceVariableAssignment;
 
-            yield return postCreationCallback;
+            if (postCreationCallback != null)
+            {
+                yield return postCreationCallback;
+            }
 
             var registrationCall = GetObjectRegistrationCallOrNull(mapperData);
             if (registrationCall != null)
@@ -98,6 +104,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)
             => mapperData.MapperContext.UserConfigurations.GetCreationCallbackOrNull(callbackPosition, mapperData);
+
+        #region Object Resolution
 
         private Expression GetObjectResolution(IObjectMappingData mappingData, bool postCreationCallbackExists)
         {
@@ -157,6 +165,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
+        #endregion
+
+        #region Object Registration
+
         private static readonly MethodInfo _registerMethod = typeof(IObjectMappingDataUntyped).GetMethod("Register");
 
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
@@ -178,6 +190,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperData.InstanceVariable);
         }
 
+        #endregion
+
         private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)
         {
             var sourceMemberTypeTests = new List<Expression>();
@@ -190,18 +204,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                var prePopulationCallback = GetPopulationCallbackOrEmpty(CallbackPosition.Before, memberPopulation, mappingData);
+                var prePopulationCallback = GetPopulationCallbackOrNull(CallbackPosition.Before, memberPopulation, mappingData);
 
-                if (prePopulationCallback != Constants.EmptyExpression)
+                if (prePopulationCallback != null)
                 {
                     yield return prePopulationCallback;
                 }
 
                 yield return memberPopulation.GetPopulation();
 
-                var postPopulationCallback = GetPopulationCallbackOrEmpty(CallbackPosition.After, memberPopulation, mappingData);
+                var postPopulationCallback = GetPopulationCallbackOrNull(CallbackPosition.After, memberPopulation, mappingData);
 
-                if (postPopulationCallback != Constants.EmptyExpression)
+                if (postPopulationCallback != null)
                 {
                     yield return postPopulationCallback;
                 }
@@ -215,7 +229,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             CreateSourceMemberTypeTesterIfRequired(sourceMemberTypeTests, mappingData);
         }
 
-        private static Expression GetPopulationCallbackOrEmpty(
+        private static Expression GetPopulationCallbackOrNull(
             CallbackPosition position,
             IMemberPopulation memberPopulation,
             IObjectMappingData mappingData)

@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Expression derivedTypeMappings;
 
-            if (MappingIsToDerivedType(mappingData, out derivedTypeMappings))
+            if (MappingAlwaysBranchesToDerivedType(mappingData, out derivedTypeMappings))
             {
                 return mappingExpressions.Any()
                     ? Expression.Block(mappingExpressions.Concat(derivedTypeMappings))
@@ -43,10 +43,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
             mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.Before, basicMapperData, mapperData));
-            mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
+            mappingExpressions.AddRange(GetObjectPopulation(mappingData));
             mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.After, basicMapperData, mapperData));
 
-            var mappingBlock = GetMappingBlock(mappingExpressions.WhereNotNull().ToList(), mapperData);
+            var mappingBlock = GetMappingBlock(mappingExpressions, mapperData);
             var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
 
             return mappingBlockWithTryCatch;
@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData);
 
-        private bool MappingIsToDerivedType(IObjectMappingData mappingData, out Expression derivedTypeMappings)
+        private bool MappingAlwaysBranchesToDerivedType(IObjectMappingData mappingData, out Expression derivedTypeMappings)
         {
             derivedTypeMappings = GetDerivedTypeMappings(mappingData);
 

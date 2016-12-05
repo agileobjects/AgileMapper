@@ -23,8 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull,
-                ObjectMapperData mapperData)
+        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
             => Enumerable.Empty<Expression>();
 
         protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
