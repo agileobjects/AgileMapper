@@ -16,14 +16,29 @@
                 return null;
             }
 
-            return new ModelDto
+            var dto = new ModelDto { BaseDate = model.BaseDate };
+
+            if (model.Sub != null)
             {
-                BaseDate = model.BaseDate,
-                SubProperName = model.Sub?.ProperName,
-                Sub2ProperName = model.Sub2?.ProperName,
-                SubWithExtraNameProperName = model.SubWithExtraName?.ProperName,
-                SubSubSubCoolProperty = model.Sub?.SubSub?.CoolProperty
-            };
+                dto.SubProperName = model.Sub.ProperName;
+
+                if (model.Sub.SubSub != null)
+                {
+                    dto.SubSubSubCoolProperty = model.Sub.SubSub.CoolProperty;
+                }
+            }
+
+            if (model.Sub2 != null)
+            {
+                dto.Sub2ProperName = model.Sub2?.ProperName;
+            }
+
+            if (model.SubWithExtraName != null)
+            {
+                dto.SubWithExtraNameProperName = model.SubWithExtraName?.ProperName;
+            }
+
+            return dto;
         }
     }
 }

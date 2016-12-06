@@ -28,10 +28,18 @@
                 Int64 = foo.Int64,
                 NullableInt = foo.NullableInt,
                 SubFoo = Clone(foo.SubFoo),
-                Foos = foo.Foos?.Select(Clone).ToList() ?? new List<Foo>(),
-                FooArray = foo.FooArray?.Select(Clone).ToArray() ?? new Foo[0],
-                Ints = foo.Ints?.ToList() ?? new List<int>(),
-                IntArray = foo.IntArray?.ToArray() ?? new int[0]
+                Foos = foo.Foos != null
+                    ? foo.Foos.Select(Clone).ToList()
+                    : new List<Foo>(),
+                FooArray = foo.FooArray != null
+                    ? foo.FooArray.Select(Clone).ToArray()
+                    : Enumerable<Foo>.EmptyArray,
+                Ints = foo.Ints != null
+                    ? foo.Ints.ToList()
+                    : Enumerable<int>.Empty,
+                IntArray = foo.IntArray != null
+                    ? foo.IntArray.ToArray()
+                    : Enumerable<int>.EmptyArray
             };
         }
     }

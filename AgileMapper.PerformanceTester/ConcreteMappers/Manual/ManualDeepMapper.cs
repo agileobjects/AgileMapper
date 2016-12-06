@@ -18,45 +18,59 @@
                 return null;
             }
 
-            return new CustomerDto
+            var dto = new CustomerDto
             {
                 Id = customer.Id,
-                Name = customer.Name,
-                AddressCity = customer.Address?.City,
-                Address = (customer.Address != null)
-                    ? new Address
-                    {
-                        Id = customer.Address.Id,
-                        Street = customer.Address.Street,
-                        City = customer.Address.City,
-                        Country = customer.Address.Country
-                    } : null,
-                HomeAddress = (customer.HomeAddress != null)
-                ? new AddressDto
+                Name = customer.Name
+            };
+
+            if (customer.Address != null)
+            {
+                dto.AddressCity = customer.Address.City;
+                dto.Address = new Address
+                {
+                    Id = customer.Address.Id,
+                    Street = customer.Address.Street,
+                    City = customer.Address.City,
+                    Country = customer.Address.Country
+                };
+            }
+
+            if (customer.HomeAddress != null)
+            {
+                dto.HomeAddress = new AddressDto
                 {
                     Id = customer.HomeAddress.Id,
                     City = customer.HomeAddress.City,
                     Country = customer.HomeAddress.Country
-                } : null,
-                Addresses = customer
-                    .Addresses?
+                };
+            }
+
+            dto.Addresses = customer.Addresses != null
+                ? customer
+                    .Addresses
                     .Select(a => new AddressDto
                     {
                         Id = a.Id,
                         City = a.City,
                         Country = a.Country
                     })
-                    .ToList() ?? new List<AddressDto>(),
-                AddressesArray = customer
-                    .AddressesArray?
+                    .ToList()
+                : new List<AddressDto>();
+
+            dto.AddressesArray = (customer.AddressesArray != null)
+                ? customer
+                    .AddressesArray
                     .Select(a => new AddressDto
                     {
                         Id = a.Id,
                         City = a.City,
                         Country = a.Country
                     })
-                    .ToArray() ?? new AddressDto[0]
-            };
+                    .ToArray()
+                : Enumerable<AddressDto>.EmptyArray;
+
+            return dto;
         }
     }
 }
