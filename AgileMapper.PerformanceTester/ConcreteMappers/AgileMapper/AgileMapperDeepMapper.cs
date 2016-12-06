@@ -7,7 +7,6 @@
     {
         public override void Initialise()
         {
-            Mapper.GetPlanFor<Customer>().ToANew<CustomerDto>();
         }
 
         protected override CustomerDto Map(Customer customer)

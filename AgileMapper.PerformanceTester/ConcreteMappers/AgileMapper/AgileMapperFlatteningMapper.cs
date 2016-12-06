@@ -7,7 +7,6 @@
     {
         public override void Initialise()
         {
-            Mapper.GetPlanFor<ModelObject>().ToANew<ModelDto>();
         }
 
         protected override ModelDto Flatten(ModelObject model)

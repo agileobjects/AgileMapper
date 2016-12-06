@@ -7,7 +7,6 @@
     {
         public override void Initialise()
         {
-            Mapper.GetPlanFor<Foo>().ToANew<Foo>();
         }
 
         protected override Foo Clone(Foo foo)

@@ -7,7 +7,6 @@
     {
         public override void Initialise()
         {
-            Mapper.GetPlanFor<ValueObject>().ToANew<ConstructedObject>();
         }
 
         protected override ConstructedObject Construct(ValueObject valueObject)
