@@ -108,11 +108,6 @@
                 _autoCheckedTypes.Add(typesKey);
             }
 
-            if (mapperData.TargetMember.IsSimple)
-            {
-                mapperData = mapperData.Parent;
-            }
-
             Func<Type, string> derivedTargetTypeNameFactory;
 
             if (SkipDerivedTypePairsLookup(

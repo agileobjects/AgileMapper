@@ -120,7 +120,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Map Methods
 
-        public object MapStart() => _mapper.Map(this);
+        object IObjectMappingData.MapStart() => MapStart();
+
+        public TTarget MapStart() => _mapper.Map(this);
 
         public TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,

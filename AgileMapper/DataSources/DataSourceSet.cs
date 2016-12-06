@@ -66,12 +66,6 @@ namespace AgileObjects.AgileMapper.DataSources
                     }
 
                     population = GetMemberPopulation(mapperData, fallbackValue);
-
-                    if (dataSource.IsConditional)
-                    {
-                        population = Expression.IfThen(dataSource.Condition, population);
-                    }
-
                     continue;
                 }
 
