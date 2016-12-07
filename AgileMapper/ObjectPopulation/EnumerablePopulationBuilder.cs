@@ -34,8 +34,7 @@
         private readonly EnumerableTypeHelper _targetTypeHelper;
         private readonly ParameterExpression _sourceElementParameter;
         private ParameterExpression _sourceVariable;
-        private readonly Type _sourceElementType;
-        private readonly Type _targetElementType;
+        private readonly EnumerablePopulationContext _context;
         private readonly ICollection<Expression> _populationExpressions;
         private LambdaExpression _sourceElementIdLambda;
         private LambdaExpression _targetElementIdLambda;
@@ -48,13 +47,10 @@
             _omd = omd;
             _sourceItemsSelector = new SourceItemsSelector(this);
 
-            _sourceElementType = omd.SourceType.GetEnumerableElementType();
+            _context = new EnumerablePopulationContext(omd);
             _targetTypeHelper = new EnumerableTypeHelper(omd.TargetType, omd.TargetMember.ElementType);
-            _targetElementType = _targetTypeHelper.ElementType;
-            ElementTypesAreTheSame = _sourceElementType == _targetElementType;
-            ElementTypesAreSimple = _targetElementType.IsSimple();
 
-            _sourceElementParameter = _sourceElementType.GetOrCreateParameter();
+            _sourceElementParameter = _context.SourceElementType.GetOrCreateParameter();
 
             _populationExpressions = new List<Expression>();
         }
@@ -110,8 +106,6 @@
             return Parameters.Create<int>(counterName.ToString());
         }
 
-        public bool ElementTypesAreTheSame { get; }
-
         public bool ElementsAreIdentifiable
             => _elementsAreIdentifiable ?? (_elementsAreIdentifiable = DetermineIfElementsAreIdentifiable()).Value;
 
@@ -120,14 +114,14 @@
         private bool DetermineIfElementsAreIdentifiable()
         {
             var typeIdsCache = _omd.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
-            var sourceElementId = GetIdentifierOrNull(_sourceElementType, _sourceElementParameter, _omd, typeIdsCache);
+            var sourceElementId = GetIdentifierOrNull(_context.SourceElementType, _sourceElementParameter, _omd, typeIdsCache);
 
             if (sourceElementId == null)
             {
                 return false;
             }
 
-            if (ElementTypesAreTheSame)
+            if (_context.ElementTypesAreTheSame)
             {
                 _sourceElementIdLambda =
                     _targetElementIdLambda =
@@ -136,8 +130,8 @@
                 return true;
             }
 
-            var targetElementParameter = _targetElementType.GetOrCreateParameter();
-            var targetElementId = GetIdentifierOrNull(_targetElementType, targetElementParameter, _omd, typeIdsCache);
+            var targetElementParameter = _context.TargetElementType.GetOrCreateParameter();
+            var targetElementId = GetIdentifierOrNull(_context.TargetElementType, targetElementParameter, _omd, typeIdsCache);
 
             if (targetElementId == null)
             {
@@ -193,7 +187,7 @@
 
         #endregion
 
-        public bool ElementTypesAreSimple { get; }
+        public bool ElementTypesAreSimple => _context.ElementTypesAreSimple;
 
         public ParameterExpression TargetVariable { get; private set; }
 
@@ -206,27 +200,12 @@
         {
             _sourceTypeHelper = new EnumerableTypeHelper(
                 sourceValue.Type,
-                ElementTypesAreTheSame ? _sourceElementType : sourceValue.Type.GetEnumerableElementType());
+                _context.ElementTypesAreTheSame ? _context.SourceElementType : sourceValue.Type.GetEnumerableElementType());
 
-            _sourceVariable = GetSourceParameterFor(sourceValue.Type);
+            _sourceVariable = _context.GetSourceParameterFor(sourceValue.Type);
             var sourceVariableAssignment = Expression.Assign(_sourceVariable, sourceValue);
 
             _populationExpressions.Add(sourceVariableAssignment);
-        }
-
-        private ParameterExpression GetSourceParameterFor(Type type) => GetParameterFor(type, "source");
-
-        private ParameterExpression GetTargetParameterFor(Type type) => GetParameterFor(type, "target");
-
-        private ParameterExpression GetParameterFor(Type type, string sameTypesPrefix)
-        {
-            var parameterName = ElementTypesAreTheSame
-                ? sameTypesPrefix + type.GetVariableNameInPascalCase()
-                : type.GetVariableNameInCamelCase();
-
-            var parameter = Expression.Parameter(type, parameterName);
-
-            return parameter;
         }
 
         public void PopulateTargetVariableFromSourceObjectOnly()
@@ -242,7 +221,7 @@
 
         private void AssignTargetVariableTo(Expression value)
         {
-            TargetVariable = GetTargetParameterFor(value.Type);
+            TargetVariable = _context.GetTargetParameterFor(value.Type);
 
             _populationExpressions.Add(Expression.Assign(TargetVariable, value));
         }
@@ -378,7 +357,7 @@
 
         public void AddNewItemsToTargetVariable(IObjectMappingData enumerableMappingData)
         {
-            if (ElementTypesAreSimple && ElementTypesAreTheSame && _targetTypeHelper.IsList)
+            if (ElementTypesAreSimple && _context.ElementTypesAreTheSame && _targetTypeHelper.IsList)
             {
                 _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceVariable));
                 return;
@@ -393,14 +372,14 @@
 
                 if (ElementTypesAreSimple ||
                     _sourceTypeHelper.ElementType.RuntimeTypeNeeded() ||
-                    _targetElementType.RuntimeTypeNeeded())
+                    _context.TargetElementType.RuntimeTypeNeeded())
                 {
                     populationLoopAdapter = exp => exp;
                     sourceElement = GetIndexedElementAccess();
                 }
                 else
                 {
-                    sourceElement = GetSourceParameterFor(_sourceTypeHelper.ElementType);
+                    sourceElement = _context.GetSourceParameterFor(_sourceTypeHelper.ElementType);
                     populationLoopAdapter = loop => UpdateIndexAccessLoop(loop, (ParameterExpression)sourceElement);
                 }
             }
@@ -462,18 +441,9 @@
 
         private Expression GetIndexedElementAccess()
         {
-            if (_sourceTypeHelper.IsArray)
-            {
-                return Expression.ArrayIndex(_sourceVariable, Counter);
-            }
-
-            var indexer = _sourceVariable.Type
-                .GetPublicInstanceProperties()
-                .First(p =>
-                    (p.GetIndexParameters().Length == 1) &&
-                    (p.GetIndexParameters()[0].ParameterType == typeof(int)));
-
-            return Expression.MakeIndex(_sourceVariable, indexer, new[] { Counter });
+            return _sourceTypeHelper.IsArray
+                ? Expression.ArrayIndex(_sourceVariable, Counter)
+                : _sourceVariable.GetIndexAccess(Counter);
         }
 
         private Expression GetEnumeratorAssignment(out ParameterExpression enumerator)
@@ -512,11 +482,11 @@
         {
             return sourceElement.Type.IsSimple()
                 ? GetSimpleElementConversion(sourceElement)
-                : GetElementMapping(sourceElement, Expression.Default(_targetElementType), enumerableMappingData);
+                : GetElementMapping(sourceElement, Expression.Default(_context.TargetElementType), enumerableMappingData);
         }
 
         private Expression GetSimpleElementConversion(Expression sourceElement)
-            => GetSimpleElementConversion(sourceElement, _targetElementType);
+            => GetSimpleElementConversion(sourceElement, _context.TargetElementType);
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
             => _omd.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
@@ -531,15 +501,15 @@
 
         public void CreateCollectionData()
         {
-            var createCollectionDataMethod = ElementTypesAreTheSame
+            var createCollectionDataMethod = _context.ElementTypesAreTheSame
                 ? CollectionData.IdSameTypesCreateMethod
-                    .MakeGenericMethod(_targetElementType, _targetElementIdLambda.ReturnType)
+                    .MakeGenericMethod(_context.TargetElementType, _targetElementIdLambda.ReturnType)
                 : CollectionData.IdDifferentTypesCreateMethod
-                    .MakeGenericMethod(_sourceElementType, _targetElementType, _targetElementIdLambda.ReturnType);
+                    .MakeGenericMethod(_context.SourceElementType, _context.TargetElementType, _targetElementIdLambda.ReturnType);
 
             var callArguments = new List<Expression>(4) { _omd.SourceObject, _omd.TargetObject, _sourceElementIdLambda };
 
-            if (!ElementTypesAreTheSame)
+            if (!_context.ElementTypesAreTheSame)
             {
                 callArguments.Add(_targetElementIdLambda);
             }
@@ -547,7 +517,7 @@
             var createCollectionDataCall = Expression.Call(createCollectionDataMethod, callArguments);
 
             _collectionDataVariable = Parameters.Create(
-                typeof(CollectionData<,>).MakeGenericType(_sourceElementType, _targetElementType),
+                typeof(CollectionData<,>).MakeGenericType(_context.ElementTypes),
                 "collectionData");
 
             var assignCollectionData = Expression.Assign(_collectionDataVariable, createCollectionDataCall);
@@ -557,10 +527,10 @@
 
         public void MapIntersection(IObjectMappingData enumerableMappingData)
         {
-            var sourceElementParameter = GetSourceParameterFor(_sourceElementType);
-            var targetElementParameter = GetTargetParameterFor(_targetElementType);
+            var sourceElementParameter = _context.GetSourceParameterFor(_context.SourceElementType);
+            var targetElementParameter = _context.GetTargetParameterFor(_context.TargetElementType);
 
-            var forEachActionType = Expression.GetActionType(_sourceElementType, _targetElementType, typeof(int));
+            var forEachActionType = Expression.GetActionType(_context.SourceElementType, _context.TargetElementType, typeof(int));
             var forEachAction = GetElementMapping(sourceElementParameter, targetElementParameter, enumerableMappingData);
 
             var forEachLambda = Expression.Lambda(
@@ -571,7 +541,7 @@
                 Counter);
 
             var forEachCall = Expression.Call(
-                _forEachTupleMethod.MakeGenericMethod(_sourceElementType, _targetElementType),
+                _forEachTupleMethod.MakeGenericMethod(_context.ElementTypes),
                 Expression.Property(_collectionDataVariable, "Intersection"),
                 forEachLambda);
 
@@ -597,7 +567,7 @@
                 return value;
             }
 
-            return value.WithToArrayCall(_targetElementType);
+            return value.WithToArrayCall(_context.TargetElementType);
         }
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
@@ -648,19 +618,19 @@
 
             public SourceItemsSelector SourceItemsProjectedToTargetType()
             {
-                if (_builder.ElementTypesAreTheSame)
+                if (_builder._context.ElementTypesAreTheSame)
                 {
                     _result = _builder._omd.SourceObject;
                     return this;
                 }
 
                 var projectionFunc = Expression.Lambda(
-                    Expression.GetFuncType(_builder._sourceElementType, _builder._targetElementType),
+                    Expression.GetFuncType(_builder._context.ElementTypes),
                     _builder.GetSimpleElementConversion(_builder._sourceElementParameter),
                     _builder._sourceElementParameter);
 
                 var typedSelectMethod = _selectWithoutIndexMethod
-                    .MakeGenericMethod(_builder._sourceElementType, _builder._targetElementType);
+                    .MakeGenericMethod(_builder._context.ElementTypes);
 
                 _result = Expression.Call(typedSelectMethod, _builder._omd.SourceObject, projectionFunc);
 
@@ -670,7 +640,7 @@
             public SourceItemsSelector ExcludingTargetItems()
             {
                 _result = Expression.Call(
-                    _excludeMethod.MakeGenericMethod(_builder._targetElementType),
+                    _excludeMethod.MakeGenericMethod(_builder._context.TargetElementType),
                     _result,
                     _builder._omd.TargetObject);
 
@@ -691,8 +661,8 @@
                 }
 
                 _result = _builder._targetTypeHelper.IsArray
-                    ? _result.WithToArrayCall(_builder._targetElementType)
-                    : _result.WithToListCall(_builder._targetElementType);
+                    ? _result.WithToArrayCall(_builder._context.TargetElementType)
+                    : _result.WithToListCall(_builder._context.TargetElementType);
 
                 return _result;
             }

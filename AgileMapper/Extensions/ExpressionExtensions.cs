@@ -69,6 +69,17 @@
             return Expression.NotEqual(expression, Expression.Default(expression.Type));
         }
 
+        public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)
+        {
+            var indexer = indexedExpression.Type
+                .GetPublicInstanceProperties()
+                .First(p =>
+                    (p.GetIndexParameters().Length == 1) &&
+                    (p.GetIndexParameters()[0].ParameterType == indexValue.Type));
+
+            return Expression.MakeIndex(indexedExpression, indexer, new[] { indexValue });
+        }
+
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
         {
             var parameterlessGetValueOrDefault = nullableExpression.Type

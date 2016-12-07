@@ -8,11 +8,11 @@
 
     internal class DataSourceFinder
     {
-        private readonly ICollection<IConditionalDataSourceFactory> _mapTimeDataSourceFactories;
+        private readonly ICollection<IMaptimeDataSourceFactory> _mapTimeDataSourceFactories;
 
         public DataSourceFinder()
         {
-            _mapTimeDataSourceFactories = new List<IConditionalDataSourceFactory>
+            _mapTimeDataSourceFactories = new List<IMaptimeDataSourceFactory>
             {
                 new DictionaryDataSourceFactory()
             };
@@ -42,11 +42,15 @@
 
         private IEnumerable<IDataSource> EnumerateDataSources(IChildMemberMappingData childMappingData)
         {
-            var maptimeDataSource = GetMaptimeDataSourceOrNull(childMappingData);
+            var maptimeDataSources = GetMaptimeDataSourcesOrNull(childMappingData);
 
-            if (maptimeDataSource != null)
+            if (maptimeDataSources != null)
             {
-                yield return maptimeDataSource;
+                foreach (var maptimeDataSource in maptimeDataSources)
+                {
+                    yield return maptimeDataSource;
+                }
+
                 yield break;
             }
 
@@ -78,7 +82,7 @@
             }
         }
 
-        private IDataSource GetMaptimeDataSourceOrNull(IChildMemberMappingData childMappingData)
+        private IEnumerable<IDataSource> GetMaptimeDataSourcesOrNull(IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
 

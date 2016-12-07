@@ -8,7 +8,7 @@
     using Members;
     using NetStandardPolyfills;
 
-    internal class DictionaryDataSourceFactory : IConditionalDataSourceFactory
+    internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
         public bool IsFor(IMemberMapperData mapperData)
         {
@@ -26,20 +26,23 @@
                 return false;
             }
 
+            var valueType = keyAndValueTypes[1];
+
             if (mapperData.TargetMember.IsEnumerable)
             {
-                return (keyAndValueTypes[1] == typeof(object)) ||
-                       (keyAndValueTypes[1] == mapperData.TargetMember.ElementType) ||
+                return (valueType == typeof(object)) ||
+                       (valueType == mapperData.TargetMember.ElementType) ||
                         mapperData.TargetMember.ElementType.IsComplex() ||
-                        keyAndValueTypes[1].IsEnumerable();
+                        valueType.IsEnumerable();
             }
 
             return mapperData
                 .MapperContext
                 .ValueConverters
-                .CanConvert(keyAndValueTypes[1], mapperData.TargetMember.Type);
+                .CanConvert(valueType, mapperData.TargetMember.Type);
         }
 
-        public IDataSource Create(IChildMemberMappingData mappingData) => new DictionaryDataSource(mappingData);
+        public IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)
+            => DictionaryDataSourceSet.For(mappingData);
     }
 }

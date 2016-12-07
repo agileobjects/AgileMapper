@@ -31,8 +31,8 @@ namespace AgileObjects.AgileMapper.Extensions
             if (targetItems == null)
             {
                 return new CollectionData<TSource, TTarget>(
-                    Enumerable.Empty<TTarget>(),
-                    Enumerable.Empty<Tuple<TSource, TTarget>>(),
+                    Enumerable<TTarget>.Empty,
+                    Enumerable<Tuple<TSource, TTarget>>.Empty,
                     sourceItems);
             }
 

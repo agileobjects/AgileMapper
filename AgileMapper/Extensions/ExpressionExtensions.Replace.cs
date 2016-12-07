@@ -96,6 +96,9 @@
                     case ExpressionType.Goto:
                         return ReplaceIn((GotoExpression)expression);
 
+                    case ExpressionType.Index:
+                        return ReplaceIn((IndexExpression)expression);
+
                     case ExpressionType.Invoke:
                         return ReplaceIn((InvocationExpression)expression);
 
@@ -156,6 +159,9 @@
             private Expression ReplaceIn(UnaryExpression unary) => ReplaceIn(unary, un => un.Update(Replace(un.Operand)));
 
             private Expression ReplaceIn(GotoExpression @goto) => ReplaceIn(@goto, gt => gt.Update(gt.Target, Replace(gt.Value)));
+
+            private Expression ReplaceIn(IndexExpression indexAccess)
+                => ReplaceIn(indexAccess, idx => idx.Update(Replace(idx.Object), idx.Arguments.Select(Replace)));
 
             private Expression ReplaceIn(InvocationExpression invocation)
                 => ReplaceIn(invocation, inv => ReplaceInCall(inv.Expression, inv.Arguments, inv.Update));

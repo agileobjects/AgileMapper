@@ -31,23 +31,13 @@
         [Fact]
         public void ShouldPopulateASimpleTypeSetMethod()
         {
-            var source = new Dictionary<string, string> { ["Value"] = "Goodbye" };
+            var source = new Dictionary<string, string> { ["SetValue"] = "Goodbye" };
             var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBe("Goodbye");
         }
 
-        [Fact]
-        public void ShouldPopulateAnIdentifierMember()
-        {
-            var source = new Dictionary<string, object> { ["Identifier"] = Guid.NewGuid() };
-            var result = Mapper.Map(source).ToANew<PersonViewModel>();
-
-            result.ShouldNotBeNull();
-            result.Id.ShouldBe(source["Identifier"]);
-        }
-
-        [Fact]
+        //[Fact] // TODO: Enable via configuration:
         public void ShouldPopulateAComplexTypeSimpleTypeMemberByFlattenedName()
         {
             var source = new Dictionary<string, string> { ["ValueValue"] = "Over here!" };
@@ -66,21 +56,23 @@
         }
 
         [Fact]
-        public void ShouldConvertASimpleTypeMember()
+        public void ShouldConvertASimpleTypeMemberValue()
         {
-            var source = new Dictionary<string, string> { ["value"] = "123" };
+            var source = new Dictionary<string, string> { ["setvalue"] = "123" };
             var result = Mapper.Map(source).ToANew<PublicSetMethod<int>>();
 
             result.Value.ShouldBe(123);
         }
 
         [Fact]
-        public void ShouldConvertASimpleTypeMemberFromObject()
+        public void ShouldConvertASimpleTypeMemberValueFromObject()
         {
-            var source = new Dictionary<string, object> { ["Value"] = "999" };
-            var result = Mapper.Map(source).ToANew<PublicField<int>>();
+            var idGuid = Guid.NewGuid();
+            var source = new Dictionary<string, object> { ["Id"] = idGuid.ToString() };
+            var result = Mapper.Map(source).ToANew<PersonViewModel>();
 
-            result.Value.ShouldBe(999);
+            result.ShouldNotBeNull();
+            result.Id.ShouldBe(idGuid);
         }
 
         [Fact]

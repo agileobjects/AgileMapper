@@ -4,14 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Extensions;
 
     internal class NamingSettings
     {
         public static readonly NamingSettings Default = new NamingSettings();
 
         private readonly ICollection<Func<Member, string>> _matchingNameFactories;
-        private readonly IEnumerable<Func<Member, IEnumerable<string>>> _alternateNameFactories;
         private readonly ICollection<Func<IEnumerable<string>, string>> _joinedNameFactories;
 
         public NamingSettings()
@@ -21,12 +19,6 @@
                 member => member.IsIdentifier ? "Id" : null,
                 GetGetOrSetMethodName,
                 GetIdentifierName
-            };
-
-            _alternateNameFactories = new Func<Member, IEnumerable<string>>[]
-            {
-                GetIdentifierNames,
-                member => new [] { GetGetOrSetMethodName(member) }
             };
 
             _joinedNameFactories = new Func<IEnumerable<string>, string>[]
@@ -52,17 +44,6 @@
             }
 
             return null;
-        }
-
-        private static IEnumerable<string> GetIdentifierNames(Member member)
-        {
-            if (member.IsIdentifier)
-            {
-                yield return "Id";
-                yield return member.DeclaringType.Name + "Id";
-                yield return "Identifier";
-                yield return member.DeclaringType.Name + "Identifier";
-            }
         }
 
         public void AddNameMatchers(IEnumerable<string> patterns)
@@ -101,23 +82,6 @@
             {
                 yield return member.Name;
             }
-        }
-
-        public IEnumerable<string> GetAlternateNamesFor(Member member)
-        {
-            yield return member.Name;
-
-            foreach (var alternateName in _alternateNameFactories.SelectMany(f => f.Invoke(member)).WhereNotNull())
-            {
-                yield return alternateName;
-            }
-        }
-
-        public IEnumerable<string> GetJoinedNamesFor(IEnumerable<string> names)
-        {
-            return names.Any()
-                ? _joinedNameFactories.Select(f => f.Invoke(names)).ToArray()
-                : Constants.EmptyStringArray;
         }
 
         public ICollection<string> GetJoinedNamesFor(string[][] matchingNameSets)

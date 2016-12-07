@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
-            => Enumerable.Empty<Expression>();
+            => Enumerable<Expression>.Empty;
 
         protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
             => Constants.EmptyExpression;

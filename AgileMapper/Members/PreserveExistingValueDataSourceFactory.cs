@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.Members
                 Expression value)
                 : base(
                       sourceMember,
-                      Enumerable.Empty<ParameterExpression>(),
+                      Enumerable<ParameterExpression>.Empty,
                       value,
                       (value != Constants.EmptyExpression)
                         ? value.GetIsNotDefaultComparison()

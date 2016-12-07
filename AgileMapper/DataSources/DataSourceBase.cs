@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using Members;
@@ -9,7 +8,7 @@
     internal abstract class DataSourceBase : IDataSource
     {
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
-            : this(sourceMember, Enumerable.Empty<ParameterExpression>(), value)
+            : this(sourceMember, Enumerable<ParameterExpression>.Empty, value)
         {
         }
 
