@@ -10,7 +10,9 @@
 
     internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
-        public bool IsFor(IMemberMapperData mapperData)
+        public bool IsFor(IMemberMapperData mapperData) => CanMap(mapperData);
+
+        public static bool CanMap(IMemberMapperData mapperData)
         {
             return mapperData.SourceType.IsGenericType() &&
                   (mapperData.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) &&

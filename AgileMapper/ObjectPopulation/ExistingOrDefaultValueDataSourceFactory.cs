@@ -2,15 +2,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions;
     using Members;
 
     internal class ExistingOrDefaultValueDataSourceFactory : IDataSourceFactory
     {
         public static readonly IDataSourceFactory Instance = new ExistingOrDefaultValueDataSourceFactory();
 
-        public IDataSource Create(IChildMemberMappingData mappingData)
-            => new ExistingMemberValueOrEmptyDataSource(mappingData.MapperData);
+        public IDataSource Create(IMemberMapperData mapperData)
+            => new ExistingMemberValueOrEmptyDataSource(mapperData);
 
         private class ExistingMemberValueOrEmptyDataSource : DataSourceBase
         {

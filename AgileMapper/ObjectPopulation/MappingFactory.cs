@@ -8,6 +8,8 @@
 
     internal static class MappingFactory
     {
+        #region Derived Type Mappings
+
         public static Expression GetDerivedTypeMapping(
             IObjectMappingData declaredTypeMappingData,
             Expression sourceValue,
@@ -48,9 +50,9 @@
             // so no need for createMethod or createMethodCallArguments arguments:
             var inlineMappingBlock = GetInlineMappingBlock(
                 derivedTypeMappingData,
-                null,
+                default(MethodInfo),
                 mappingValues,
-                null);
+                Enumerable<Expression>.EmptyArray);
 
             return inlineMappingBlock;
         }
@@ -74,6 +76,8 @@
                 declaredTypeMapperData.DataSourceIndex,
                 declaredTypeMapperData);
         }
+
+        #endregion
 
         public static Expression GetChildMapping(
             IQualifiedMember sourceMember,

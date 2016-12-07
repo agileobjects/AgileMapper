@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.Members
 {
-    using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
@@ -9,8 +8,8 @@ namespace AgileObjects.AgileMapper.Members
     {
         public static readonly IDataSourceFactory Instance = new PreserveExistingValueDataSourceFactory();
 
-        public IDataSource Create(IChildMemberMappingData mappingData)
-            => new PreserveExistingValueDataSource(mappingData.MapperData);
+        public IDataSource Create(IMemberMapperData mapperData)
+            => new PreserveExistingValueDataSource(mapperData);
 
         private class PreserveExistingValueDataSource : DataSourceBase
         {

@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Collections;
     using System.Collections.Generic;
 #if NET_STANDARD
     using System.Reflection;
@@ -8,32 +7,20 @@ namespace AgileObjects.AgileMapper.DataSources
     using Extensions;
     using Members;
 
-    internal class DictionaryDataSourceSet : IEnumerable<IDataSource>
+    internal static class DictionaryDataSourceSet
     {
-        private readonly IEnumerable<IDataSource> _dataSources;
-
-        private DictionaryDataSourceSet(params IDataSource[] dataSources)
-        {
-            _dataSources = dataSources;
-        }
-
-        public static DictionaryDataSourceSet For(IChildMemberMappingData childMappingData)
+        public static IEnumerable<IDataSource> For(IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
             var sourceMember = new DictionarySourceMember(childMapperData);
 
-            var fallbackDataSource = GetFallbackDataSource(sourceMember, childMappingData);
-
-            if ((sourceMember.EntryType != typeof(object)) &&
-                (childMapperData.TargetMember.IsEnumerable != sourceMember.EntryType.IsEnumerable()))
+            if ((sourceMember.EntryType == typeof(object)) ||
+                (childMapperData.TargetMember.IsEnumerable == sourceMember.EntryType.IsEnumerable()))
             {
-                return new DictionaryDataSourceSet(fallbackDataSource);
+                yield return new DictionaryEntryDataSource(sourceMember, childMappingData);
             }
 
-            var dictionaryEntryDataSource =
-                new DictionaryEntryDataSource(sourceMember, childMappingData);
-
-            return new DictionaryDataSourceSet(dictionaryEntryDataSource, fallbackDataSource);
+            yield return GetFallbackDataSource(sourceMember, childMappingData);
         }
 
         private static IDataSource GetFallbackDataSource(
@@ -48,7 +35,7 @@ namespace AgileObjects.AgileMapper.DataSources
             return childMappingData
                 .RuleSet
                 .FallbackDataSourceFactory
-                .Create(childMappingData);
+                .Create(childMappingData.MapperData);
         }
 
         private static bool DictionaryEntriesCouldBeEnumerableElements(
@@ -71,9 +58,5 @@ namespace AgileObjects.AgileMapper.DataSources
 
             return targetElementsAreCompatibleWithEntries;
         }
-
-        public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

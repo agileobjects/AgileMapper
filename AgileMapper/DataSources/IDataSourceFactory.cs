@@ -4,6 +4,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
     internal interface IDataSourceFactory
     {
-        IDataSource Create(IChildMemberMappingData mappingData);
+        IDataSource Create(IMemberMapperData mapperData);
     }
 }

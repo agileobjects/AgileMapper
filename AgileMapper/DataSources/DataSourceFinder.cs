@@ -29,7 +29,7 @@
                 var initialDataSource = childMappingData
                     .RuleSet
                     .InitialDataSourceFactory
-                    .Create(childMappingData);
+                    .Create(childMappingData.MapperData);
 
                 if (initialDataSource.IsValid)
                 {
@@ -109,7 +109,7 @@
         }
 
         private static IDataSource FallbackDataSourceFor(IChildMemberMappingData mappingData)
-            => mappingData.RuleSet.FallbackDataSourceFactory.Create(mappingData);
+            => mappingData.RuleSet.FallbackDataSourceFactory.Create(mappingData.MapperData);
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
             IEnumerable<IConfiguredDataSource> configuredDataSources,
