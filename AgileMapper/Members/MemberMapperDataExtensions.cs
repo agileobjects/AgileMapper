@@ -25,7 +25,11 @@ namespace AgileObjects.AgileMapper.Members
             => !mapperData.IsRoot && mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
 
         public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
-            => mapperData.IsRoot ? mapperData.TargetObject : mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
+        {
+            return mapperData.Context.IsStandalone
+                ? mapperData.TargetObject
+                : mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
+        }
 
         public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)
             => mapperData.NestedAccessFinder.FindIn(value, targetCanBeNull);

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -190,12 +191,21 @@
         }
 
         [Fact]
-        public void ShouldHandleAnUnconvertibleObjectValue()
+        public void ShouldHandleAnUnconvertibleValueForASimpleType()
         {
             var source = new Dictionary<string, object> { ["Value"] = new object() };
             var result = Mapper.Map(source).ToANew<PublicProperty<int?>>();
 
             result.Value.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleAnUnconvertibleValueForACollection()
+        {
+            var source = new Dictionary<string, object> { ["Value"] = new Person { Name = "Nope" } };
+            var result = Mapper.Map(source).ToANew<PublicProperty<Collection<string>>>();
+
+            result.Value.ShouldBeEmpty();
         }
     }
 }
