@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper
     using DataSources;
     using Members;
     using ObjectPopulation;
+    using ObjectPopulation.Enumerables;
 
     internal class MappingRuleSetCollection
     {

@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Reflection;
+    using Enumerables;
     using Members;
     using NetStandardPolyfills;
 

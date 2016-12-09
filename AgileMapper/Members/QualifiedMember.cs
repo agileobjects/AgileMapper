@@ -196,6 +196,10 @@ namespace AgileObjects.AgileMapper.Members
             return true;
         }
 
+        IQualifiedMember IQualifiedMember.GetElementMember() => GetElementMember();
+
+        public QualifiedMember GetElementMember() => Append(Type.GetElementMember());
+
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
         public QualifiedMember Append(Member childMember)

@@ -1,50 +1,91 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Collections.Generic;
+    using System.Linq.Expressions;
+    using Extensions;
+    using Members;
 #if NET_STANDARD
     using System.Reflection;
 #endif
-    using Extensions;
-    using Members;
-    using NetStandardPolyfills;
 
     internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
-        public bool IsFor(IMemberMapperData mapperData) => CanMap(mapperData);
+        public bool IsFor(IMemberMapperData mapperData) => mapperData.HasSourceDictionary();
 
-        public static bool CanMap(IMemberMapperData mapperData)
+        public IDataSource Create(IChildMemberMappingData mappingData)
         {
-            return mapperData.SourceType.IsGenericType() &&
-                  (mapperData.SourceType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) &&
-                  DictionaryHasUseableTypes(mapperData);
-        }
+            var mapperData = mappingData.MapperData;
+            var sourceMember = new DictionarySourceMember(mapperData);
 
-        private static bool DictionaryHasUseableTypes(IMemberMapperData mapperData)
-        {
-            var keyAndValueTypes = mapperData.SourceType.GetGenericArguments();
-
-            if (keyAndValueTypes[0] != typeof(string))
+            if (mapperData.TargetMember.IsSimple)
             {
-                return false;
+                return new DictionaryEntryDataSource(sourceMember, mapperData);
             }
 
-            var valueType = keyAndValueTypes[1];
-
-            if (mapperData.TargetMember.IsEnumerable)
-            {
-                return (valueType == typeof(object)) ||
-                       (valueType == mapperData.TargetMember.ElementType) ||
-                        mapperData.TargetMember.ElementType.IsComplex() ||
-                        valueType.IsEnumerable();
-            }
-
-            return mapperData
-                .MapperContext
-                .ValueConverters
-                .CanConvert(valueType, mapperData.TargetMember.Type);
+            return new DictionaryDataSource(sourceMember, mapperData);
         }
 
-        public IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)
-            => DictionaryDataSourceSet.For(mappingData);
+        private class DictionaryEntryDataSource : DataSourceBase
+        {
+            public DictionaryEntryDataSource(DictionarySourceMember sourceMember, IMemberMapperData childMapperData)
+                : this(
+                      sourceMember.EntryMember,
+                      new DictionaryEntryVariablePair(sourceMember, childMapperData),
+                      childMapperData)
+            {
+            }
+
+            private DictionaryEntryDataSource(
+                IQualifiedMember sourceMember,
+                DictionaryEntryVariablePair dictionaryVariables,
+                IMemberMapperData childMapperData)
+                : base(
+                    sourceMember,
+                    new[] { dictionaryVariables.Key },
+                    GetDictionaryEntryValue(dictionaryVariables, childMapperData),
+                    GetMatchingKeyExistsTest(dictionaryVariables, childMapperData))
+            {
+            }
+
+            private static Expression GetDictionaryEntryValue(
+                DictionaryEntryVariablePair dictionaryVariables,
+                IMemberMapperData childMapperData)
+            {
+                var dictionaryEntryAccess = dictionaryVariables.GetEntryValueAccess(childMapperData);
+                var targetType = childMapperData.TargetMember.Type;
+
+                if (targetType.IsAssignableFrom(dictionaryEntryAccess.Type))
+                {
+                    return dictionaryEntryAccess;
+                }
+
+                var valueVariableAssignment = Expression.Assign(dictionaryVariables.Value, dictionaryEntryAccess);
+
+                var valueConversion = childMapperData
+                    .MapperContext
+                    .ValueConverters
+                    .GetConversion(dictionaryVariables.Value, targetType);
+
+                return Expression.Block(new[] { dictionaryVariables.Value }, valueVariableAssignment, valueConversion);
+            }
+
+            private static Expression GetMatchingKeyExistsTest(
+                DictionaryEntryVariablePair dictionaryVariables,
+                IMemberMapperData mapperData)
+            {
+                var keyVariableAssignment = dictionaryVariables.GetMatchingKeyAssignment(mapperData);
+
+                return keyVariableAssignment.GetIsNotDefaultComparison();
+            }
+        }
+
+        private class DictionaryDataSource : DataSourceBase
+        {
+            public DictionaryDataSource(IQualifiedMember sourceMember, IMemberMapperData mapperData)
+                : base(
+                      sourceMember,
+                      sourceMember.GetQualifiedAccess(mapperData.SourceObject))
+            {
+            }
+        }
     }
 }

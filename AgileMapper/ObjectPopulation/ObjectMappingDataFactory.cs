@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using Enumerables;
 #if NET_STANDARD
     using System.Reflection;
 #endif

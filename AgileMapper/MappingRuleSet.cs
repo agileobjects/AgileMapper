@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper
 {
     using DataSources;
-    using ObjectPopulation;
+    using ObjectPopulation.Enumerables;
 
     internal class MappingRuleSet
     {

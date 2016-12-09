@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Caching;
+    using Enumerables;
 
     internal class ObjectMapperFactory
     {

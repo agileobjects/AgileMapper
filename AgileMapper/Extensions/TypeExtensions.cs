@@ -28,16 +28,15 @@
                 : shortVariableName;
         }
 
-        public static string GetVariableNameInCamelCase(this Type type) => type.GetVariableName(f => f.ToCamelCase());
+        public static string GetVariableNameInCamelCase(this Type type) => GetVariableName(type).ToCamelCase();
 
-        public static string GetVariableNameInPascalCase(this Type type) => type.GetVariableName(f => f.ToPascalCase());
+        public static string GetVariableNameInPascalCase(this Type type) => GetVariableName(type).ToPascalCase();
 
-        private static string GetVariableName(
-            this Type type,
-            Func<string, string> formatter)
+        private static string GetVariableName(Type type)
         {
             var typeIsEnumerable = type.IsEnumerable();
-            var namingType = typeIsEnumerable ? type.GetEnumerableElementType() : type;
+            var typeIsDictionary = typeIsEnumerable && type.IsDictionary();
+            var namingType = (typeIsEnumerable && !typeIsDictionary) ? type.GetEnumerableElementType() : type;
             var variableName = namingType.Name;
 
             if (namingType.IsInterface())
@@ -54,19 +53,14 @@
                     namingType.GetGenericArguments().Select(arg => "_" + arg.GetVariableNameInPascalCase()));
             }
 
-            variableName = RemoveNonAlphaNumerics(variableName);
+            variableName = RemoveLeadingNonAlphaNumerics(variableName);
 
-            if (formatter != null)
-            {
-                variableName = formatter.Invoke(variableName);
-            }
-
-            return typeIsEnumerable
-                ? type.IsArray ? variableName + "Array" : Pluralise(variableName)
-                : variableName;
+            return (typeIsDictionary || !typeIsEnumerable)
+                ? variableName
+                : type.IsArray ? variableName + "Array" : Pluralise(variableName);
         }
 
-        private static string RemoveNonAlphaNumerics(string value)
+        private static string RemoveLeadingNonAlphaNumerics(string value)
         {
             // Anonymous types start with non-alphanumeric characters
             while (!char.IsLetterOrDigit(value, 0))
@@ -127,10 +121,10 @@
 
         public static Type GetEnumerableElementType(this Type enumerableType)
         {
-            return enumerableType.IsArray
+            return enumerableType.HasElementType
                 ? enumerableType.GetElementType()
                 : enumerableType.IsGenericType()
-                    ? enumerableType.GetGenericArguments().First()
+                    ? enumerableType.GetGenericArguments().Last()
                     : typeof(object);
         }
 
@@ -167,6 +161,11 @@
         public static bool IsSimple(this Type type)
         {
             return type.IsValueType() || (type == typeof(string));
+        }
+
+        public static bool IsDictionary(this Type type)
+        {
+            return type.IsGenericType() && (type.GetGenericTypeDefinition() == typeof(Dictionary<,>));
         }
 
         public static Type GetNonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;

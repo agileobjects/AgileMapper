@@ -16,10 +16,10 @@ namespace AgileObjects.AgileMapper.Members
         public DictionaryEntrySourceMember(
             Type entryType,
             QualifiedMember matchedTargetMember,
-            DictionarySourceMember parent)
+            IQualifiedMember parent)
             : this(
                 entryType,
-                () => parent.GetPath() + "." + matchedTargetMember.Name,
+                () => parent.GetPath() + "[\"" + matchedTargetMember.Name + "\"]",
                 matchedTargetMember)
         {
         }
@@ -53,6 +53,11 @@ namespace AgileObjects.AgileMapper.Members
         public string Name => _matchedTargetMember.Name;
 
         public string GetPath() => _pathFactory.Invoke();
+
+        IQualifiedMember IQualifiedMember.GetElementMember() => this.GetElementMember();
+
+        public IQualifiedMember GetObjectElementMember()
+            => Append(Member.EnumerableElement(typeof(object), typeof(object)));
 
         public IQualifiedMember Append(Member childMember) => new DictionaryEntrySourceMember(this, childMember);
 

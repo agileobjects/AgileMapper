@@ -9,6 +9,11 @@
 
     internal class SourceMemberDataSource : DataSourceBase
     {
+        public SourceMemberDataSource(IMemberMapperData mapperData)
+            : this(mapperData.SourceMember, mapperData)
+        {
+        }
+
         public SourceMemberDataSource(IQualifiedMember sourceMember, IMemberMapperData mapperData)
             : this(
                   sourceMember,

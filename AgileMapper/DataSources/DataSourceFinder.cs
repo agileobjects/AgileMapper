@@ -42,18 +42,6 @@
 
         private IEnumerable<IDataSource> EnumerateDataSources(IChildMemberMappingData childMappingData)
         {
-            var maptimeDataSources = GetMaptimeDataSourcesOrNull(childMappingData);
-
-            if (maptimeDataSources != null)
-            {
-                foreach (var maptimeDataSource in maptimeDataSources)
-                {
-                    yield return maptimeDataSource;
-                }
-
-                yield break;
-            }
-
             var dataSourceIndex = 0;
 
             IEnumerable<IConfiguredDataSource> configuredDataSources;
@@ -73,6 +61,14 @@
                 }
             }
 
+            var maptimeDataSource = GetMaptimeDataSourceOrNull(childMappingData);
+
+            if (maptimeDataSource != null)
+            {
+                yield return GetFinalDataSource(maptimeDataSource, dataSourceIndex, childMappingData);
+                yield break;
+            }
+
             var sourceMemberDataSources =
                 GetSourceMemberDataSources(configuredDataSources, dataSourceIndex, childMappingData);
 
@@ -80,20 +76,6 @@
             {
                 yield return dataSource;
             }
-        }
-
-        private IEnumerable<IDataSource> GetMaptimeDataSourcesOrNull(IChildMemberMappingData childMappingData)
-        {
-            var childMapperData = childMappingData.MapperData;
-
-            if (childMapperData.TargetMember.IsComplex)
-            {
-                return null;
-            }
-
-            return _mapTimeDataSourceFactories
-                .FirstOrDefault(factory => factory.IsFor(childMapperData))?
-                .Create(childMappingData);
         }
 
         private static bool DataSourcesAreConfigured(
@@ -108,8 +90,19 @@
             return configuredDataSources.Any();
         }
 
-        private static IDataSource FallbackDataSourceFor(IChildMemberMappingData mappingData)
-            => mappingData.RuleSet.FallbackDataSourceFactory.Create(mappingData.MapperData);
+        private IDataSource GetMaptimeDataSourceOrNull(IChildMemberMappingData childMappingData)
+        {
+            var childMapperData = childMappingData.MapperData;
+
+            if (childMapperData.TargetMember.IsComplex)
+            {
+                return null;
+            }
+
+            return _mapTimeDataSourceFactories
+                .FirstOrDefault(factory => factory.IsFor(childMapperData))?
+                .Create(childMappingData);
+        }
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
             IEnumerable<IConfiguredDataSource> configuredDataSources,
@@ -159,6 +152,9 @@
 
             return GetFinalDataSource(sourceMemberDataSource, 0, mappingData);
         }
+
+        private static IDataSource FallbackDataSourceFor(IChildMemberMappingData mappingData)
+            => mappingData.RuleSet.FallbackDataSourceFactory.Create(mappingData.MapperData);
 
         private static IDataSource GetFinalDataSource(
             IDataSource foundDataSource,

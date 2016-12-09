@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
+    using Enumerables;
     using Extensions;
     using Members;
     using Members.Sources;
@@ -474,6 +475,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return mapCall;
         }
+
+        public MethodCallExpression GetMapCall(Expression sourceElement)
+            => GetMapCall(sourceElement, Expression.Default(TargetMember.ElementType));
 
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
         {

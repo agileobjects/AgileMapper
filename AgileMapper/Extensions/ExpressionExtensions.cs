@@ -6,7 +6,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using NetStandardPolyfills;
-    using ObjectPopulation;
+    using ObjectPopulation.Enumerables;
     using ReadableExpressions.Extensions;
 
     internal static partial class ExpressionExtensions
@@ -40,6 +40,23 @@
             return allClauses;
         }
 
+        public static LoopExpression InsertAssignment(
+            this LoopExpression loop,
+            int insertIndex,
+            ParameterExpression variable,
+            Expression value)
+        {
+            var loopBody = (BlockExpression)loop.Body;
+            var loopBodyExpressions = new List<Expression>(loopBody.Expressions);
+
+            var variableAssignment = Expression.Assign(variable, value);
+            loopBodyExpressions.Insert(insertIndex, variableAssignment);
+
+            loopBody = loopBody.Update(loopBody.Variables.Concat(variable), loopBodyExpressions);
+
+            return loop.Update(loop.BreakLabel, loop.ContinueLabel, loopBody);
+        }
+
         public static Expression GetIsNotDefaultComparisonsOrNull(this IEnumerable<Expression> expressions)
         {
             var notNullChecks = expressions
@@ -71,6 +88,11 @@
 
         public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)
         {
+            if (indexedExpression.Type.IsArray)
+            {
+                return Expression.ArrayIndex(indexedExpression, indexValue);
+            }
+
             var indexer = indexedExpression.Type
                 .GetPublicInstanceProperties()
                 .First(p =>

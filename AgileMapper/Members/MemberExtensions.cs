@@ -112,12 +112,9 @@
         }
 
         public static IQualifiedMember GetElementMember(this IQualifiedMember enumerableMember)
-            => enumerableMember.Append(GetElementMember(enumerableMember.Type));
+            => enumerableMember.Append(enumerableMember.Type.GetElementMember());
 
-        public static QualifiedMember GetElementMember(this QualifiedMember enumerableMember)
-            => enumerableMember.Append(GetElementMember(enumerableMember.Type));
-
-        private static Member GetElementMember(Type enumerableType)
+        public static Member GetElementMember(this Type enumerableType)
             => GlobalContext.Instance.MemberFinder.GetSourceMembers(enumerableType).First();
 
         public static Member[] RelativeTo(this Member[] memberChain, Member[] otherMemberChain)

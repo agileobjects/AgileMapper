@@ -13,6 +13,8 @@ namespace AgileObjects.AgileMapper.Members
 
         string GetPath();
 
+        IQualifiedMember GetElementMember();
+
         IQualifiedMember Append(Member childMember);
 
         IQualifiedMember RelativeTo(IQualifiedMember otherMember);

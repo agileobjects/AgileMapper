@@ -83,6 +83,36 @@ namespace AgileObjects.AgileMapper.Members
             return nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(parentMember.Append(m), member));
         }
 
+        public static bool HasSourceDictionary(this IMemberMapperData mapperData)
+        {
+            if (!mapperData.SourceType.IsDictionary())
+            {
+                return false;
+            }
+
+            var keyAndValueTypes = mapperData.SourceType.GetGenericArguments();
+
+            if (keyAndValueTypes[0] != typeof(string))
+            {
+                return false;
+            }
+
+            var valueType = keyAndValueTypes[1];
+
+            if (mapperData.TargetMember.IsEnumerable)
+            {
+                return (valueType == typeof(object)) ||
+                       (valueType == mapperData.TargetMember.ElementType) ||
+                        mapperData.TargetMember.ElementType.IsComplex() ||
+                        valueType.IsEnumerable();
+            }
+
+            return mapperData
+                .MapperContext
+                .ValueConverters
+                .CanConvert(valueType, mapperData.TargetMember.Type);
+        }
+
         public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)
         {
             var targetMember = mapperData.TargetMember;

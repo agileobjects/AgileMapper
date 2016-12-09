@@ -120,10 +120,15 @@
 
         private static IEnumerable<T> StreamExclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
         {
-            var excludedItemCountsByItem = GetCountsByItem(excludedItems);
+            Dictionary<T, int> excludedItemCountsByItem = null;
 
             foreach (var item in items)
             {
+                if (excludedItemCountsByItem == null)
+                {
+                    excludedItemCountsByItem = GetCountsByItem(excludedItems);
+                }
+
                 int count;
 
                 if (excludedItemCountsByItem.TryGetValue(item, out count))

@@ -77,7 +77,16 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeEnumerableFromASourceEnumerable()
+        public void ShouldPopulateASimpleTypeEnumerableFromATypedSourceEnumerable()
+        {
+            var source = new Dictionary<string, long[]> { ["Value"] = new long[] { 4, 5, 6 } };
+            var result = Mapper.Map(source).ToANew<PublicProperty<ICollection<long>>>();
+
+            result.Value.ShouldBe(4, 5, 6);
+        }
+
+        [Fact]
+        public void ShouldPopulateASimpleTypeEnumerableFromAnUntypedSourceEnumerable()
         {
             var source = new Dictionary<string, object> { ["Value"] = new[] { 1, 2, 3 } };
             var result = Mapper.Map(source).ToANew<PublicProperty<IEnumerable<int>>>();
@@ -86,7 +95,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeEnumerableFromAConvertibleSourceEnumerable()
+        public void ShouldPopulateASimpleTypeEnumerableFromATypedConvertibleSourceEnumerable()
         {
             var source = new Dictionary<string, IEnumerable<int>> { ["Value"] = new[] { 4, 5, 6 } };
             var result = Mapper.Map(source).ToANew<PublicProperty<string[]>>();
@@ -95,7 +104,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAComplexTypeEnumerableFromASourceEnumerable()
+        public void ShouldPopulateAComplexTypeEnumerableFromATypedConvertibleSourceEnumerable()
         {
             var source = new Dictionary<string, IEnumerable<Person>>
             {
@@ -114,7 +123,21 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeEnumerableFromSourceEntries()
+        public void ShouldPopulateARootSimpleTypeEnumerableFromTypedEntries()
+        {
+            var source = new Dictionary<string, int>
+            {
+                ["[0]"] = 1,
+                ["[1]"] = 2,
+                ["[2]"] = 3
+            };
+            var result = Mapper.Map(source).ToANew<IEnumerable<int>>();
+
+            result.ShouldBe(1, 2, 3);
+        }
+
+        [Fact]
+        public void ShouldPopulateASimpleTypeEnumerableFromTypedEntries()
         {
             var source = new Dictionary<string, int>
             {
@@ -128,7 +151,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAComplexTypeEnumerableFromSourceEntries()
+        public void ShouldPopulateAComplexTypeEnumerableFromUntypedEntries()
         {
             var source = new Dictionary<string, object>
             {
@@ -182,7 +205,7 @@
         }
 
         [Fact]
-        public void ShouldIgnoreADeclaredUnconvertibleValue()
+        public void ShouldIgnoreADeclaredUnconvertibleValueType()
         {
             var source = new Dictionary<string, byte[]> { ["Value"] = new byte[0] };
             var result = Mapper.Map(source).ToANew<PublicProperty<int>>();

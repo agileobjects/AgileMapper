@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Diagnostics;
-    using System.Linq;
     using System.Reflection;
     using Extensions;
     using ObjectPopulation;
@@ -89,6 +88,15 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Member SetMethod(MethodInfo method)
             => new Member(MemberType.SetMethod, method.Name, method.DeclaringType, method.GetParameters()[0].ParameterType);
+
+        public static Member EnumerableElement(Type enumerableType, Type elementType = null)
+        {
+            return new Member(
+                MemberType.EnumerableElement,
+                Constants.EnumerableElementName,
+                enumerableType,
+                elementType ?? enumerableType.GetEnumerableElementType());
+        }
 
         #endregion
 

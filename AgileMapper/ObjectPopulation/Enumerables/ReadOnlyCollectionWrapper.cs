@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation
+﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
     using System.Collections;

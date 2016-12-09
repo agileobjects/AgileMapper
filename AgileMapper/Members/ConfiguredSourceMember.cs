@@ -62,6 +62,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public string GetPath() => _childMembers.GetFullName();
 
+        IQualifiedMember IQualifiedMember.GetElementMember() => this.GetElementMember();
+
         public IQualifiedMember Append(Member childMember)
             => _childMemberCache.GetOrAdd(childMember, cm => new ConfiguredSourceMember(this, cm));
 

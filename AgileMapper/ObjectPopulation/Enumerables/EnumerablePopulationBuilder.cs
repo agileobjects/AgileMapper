@@ -1,7 +1,6 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation
+﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -15,6 +14,18 @@
     {
         #region Untyped MethodInfos
 
+        private static readonly MethodInfo _selectWithoutIndexMethod = typeof(Enumerable)
+            .GetPublicStaticMethods()
+            .Last(m => (m.Name == "Select") &&
+                (m.GetParameters().Length == 2) &&
+                (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2));
+
+        private static readonly MethodInfo _selectWithIndexMethod = typeof(Enumerable)
+            .GetPublicStaticMethods()
+            .Last(m => (m.Name == "Select") &&
+                (m.GetParameters().Length == 2) &&
+                (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 3));
+
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
             .GetPublicStaticMethods()
             .First(m => m.Name == "ForEach");
@@ -23,18 +34,11 @@
             .GetPublicStaticMethods()
             .Last(m => m.Name == "ForEach");
 
-        private static readonly MethodInfo _enumeratorMoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
-        private static readonly MethodInfo _disposeMethod = typeof(IDisposable).GetMethod("Dispose");
-
         #endregion
 
-        private readonly ObjectMapperData _omd;
         private readonly SourceItemsSelector _sourceItemsSelector;
-        private EnumerableTypeHelper _sourceTypeHelper;
-        private readonly EnumerableTypeHelper _targetTypeHelper;
+        private readonly ISourceEnumerableAdapter _sourceAdapter;
         private readonly ParameterExpression _sourceElementParameter;
-        private ParameterExpression _sourceVariable;
-        private readonly EnumerablePopulationContext _context;
         private readonly ICollection<Expression> _populationExpressions;
         private LambdaExpression _sourceElementIdLambda;
         private LambdaExpression _targetElementIdLambda;
@@ -42,16 +46,15 @@
         private ParameterExpression _collectionDataVariable;
         private ParameterExpression _counterVariable;
 
-        public EnumerablePopulationBuilder(ObjectMapperData omd)
+        public EnumerablePopulationBuilder(ObjectMapperData mapperData)
         {
-            _omd = omd;
+            MapperData = mapperData;
+            Context = new EnumerablePopulationContext(mapperData);
             _sourceItemsSelector = new SourceItemsSelector(this);
+            _sourceElementParameter = Context.SourceElementType.GetOrCreateParameter();
+            TargetTypeHelper = new EnumerableTypeHelper(mapperData.TargetType, mapperData.TargetMember.ElementType);
 
-            _context = new EnumerablePopulationContext(omd);
-            _targetTypeHelper = new EnumerableTypeHelper(omd.TargetType, omd.TargetMember.ElementType);
-
-            _sourceElementParameter = _context.SourceElementType.GetOrCreateParameter();
-
+            _sourceAdapter = SourceEnumerableAdapterFactory.GetAdapterFor(this);
             _populationExpressions = new List<Expression>();
         }
 
@@ -61,9 +64,9 @@
         {
             var variables = new List<ParameterExpression>(2);
 
-            if (builder._sourceVariable != null)
+            if (builder.SourceVariable != null)
             {
-                variables.Add(builder._sourceVariable);
+                variables.Add(builder.SourceVariable);
             }
 
             if (builder._collectionDataVariable != null)
@@ -84,14 +87,14 @@
 
         private ParameterExpression GetCounterVariable()
         {
-            if (_omd.IsRoot)
+            if (MapperData.IsRoot)
             {
                 return Parameters.Create<int>("i");
             }
 
             var counterName = 'i';
 
-            var parentMapperData = _omd.Parent;
+            var parentMapperData = MapperData.Parent;
 
             while (!parentMapperData.Context.IsStandalone)
             {
@@ -106,22 +109,22 @@
             return Parameters.Create<int>(counterName.ToString());
         }
 
+        #region Type Identification
+
         public bool ElementsAreIdentifiable
             => _elementsAreIdentifiable ?? (_elementsAreIdentifiable = DetermineIfElementsAreIdentifiable()).Value;
 
-        #region Type Identification
-
         private bool DetermineIfElementsAreIdentifiable()
         {
-            var typeIdsCache = _omd.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
-            var sourceElementId = GetIdentifierOrNull(_context.SourceElementType, _sourceElementParameter, _omd, typeIdsCache);
+            var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
+            var sourceElementId = GetIdentifierOrNull(Context.SourceElementType, _sourceElementParameter, MapperData, typeIdsCache);
 
             if (sourceElementId == null)
             {
                 return false;
             }
 
-            if (_context.ElementTypesAreTheSame)
+            if (Context.ElementTypesAreTheSame)
             {
                 _sourceElementIdLambda =
                     _targetElementIdLambda =
@@ -130,8 +133,8 @@
                 return true;
             }
 
-            var targetElementParameter = _context.TargetElementType.GetOrCreateParameter();
-            var targetElementId = GetIdentifierOrNull(_context.TargetElementType, targetElementParameter, _omd, typeIdsCache);
+            var targetElementParameter = Context.TargetElementType.GetOrCreateParameter();
+            var targetElementId = GetIdentifierOrNull(Context.TargetElementType, targetElementParameter, MapperData, typeIdsCache);
 
             if (targetElementId == null)
             {
@@ -187,26 +190,42 @@
 
         #endregion
 
-        public bool ElementTypesAreSimple => _context.ElementTypesAreSimple;
+        public ObjectMapperData MapperData { get; }
+
+        public EnumerablePopulationContext Context { get; }
+
+        public bool ElementTypesAreSimple => Context.ElementTypesAreSimple;
+
+        public EnumerableTypeHelper SourceTypeHelper { get; private set; }
+
+        public ParameterExpression SourceVariable { get; private set; }
+
+        public Expression GetSourceCountAccess() => _sourceAdapter.GetSourceCountAccess();
+
+        public Expression GetSourceIndexAccess() => SourceVariable.GetIndexAccess(Counter);
+
+        public EnumerableTypeHelper TargetTypeHelper { get; }
 
         public ParameterExpression TargetVariable { get; private set; }
 
-        public void AssignSourceVariableFromSourceObject() => AssignSourceVariableFrom(_omd.SourceObject);
+        public void AssignSourceVariableFromSourceObject() => AssignSourceVariableFrom(_sourceAdapter.GetSourceValue());
 
         public void AssignSourceVariableFrom(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)
             => AssignSourceVariableFrom(sourceItemsSelection.Invoke(_sourceItemsSelector).GetResult());
 
         private void AssignSourceVariableFrom(Expression sourceValue)
         {
-            _sourceTypeHelper = new EnumerableTypeHelper(
+            SourceTypeHelper = new EnumerableTypeHelper(
                 sourceValue.Type,
-                _context.ElementTypesAreTheSame ? _context.SourceElementType : sourceValue.Type.GetEnumerableElementType());
+                Context.ElementTypesAreTheSame ? Context.TargetElementType : sourceValue.Type.GetEnumerableElementType());
 
-            _sourceVariable = _context.GetSourceParameterFor(sourceValue.Type);
-            var sourceVariableAssignment = Expression.Assign(_sourceVariable, sourceValue);
+            SourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
+            var sourceVariableAssignment = Expression.Assign(SourceVariable, sourceValue);
 
             _populationExpressions.Add(sourceVariableAssignment);
         }
+
+        #region Target Variable Population
 
         public void PopulateTargetVariableFromSourceObjectOnly()
             => AssignTargetVariableTo(GetSourceOnlyReturnValue());
@@ -221,7 +240,7 @@
 
         private void AssignTargetVariableTo(Expression value)
         {
-            TargetVariable = _context.GetTargetParameterFor(value.Type);
+            TargetVariable = Context.GetTargetParameterFor(value.Type);
 
             _populationExpressions.Add(Expression.Assign(TargetVariable, value));
         }
@@ -233,7 +252,7 @@
             if (TargetCouldBeUnusable())
             {
                 var targetVariableNull = TargetVariable.GetIsDefaultComparison();
-                var returnExistingValue = Expression.Return(_omd.ReturnLabelTarget, _omd.TargetObject);
+                var returnExistingValue = Expression.Return(MapperData.ReturnLabelTarget, MapperData.TargetObject);
                 var ifNullReturn = Expression.IfThen(targetVariableNull, returnExistingValue);
 
                 _populationExpressions.Add(ifNullReturn);
@@ -242,53 +261,53 @@
 
         private Expression GetTargetVariableValue()
         {
-            if (_targetTypeHelper.IsArray && !_sourceTypeHelper.IsEnumerableInterface)
+            if (TargetTypeHelper.IsArray && !SourceTypeHelper.IsEnumerableInterface)
             {
-                return GetCopyIntoWrapperConstruction(GetCountPropertyAccess());
+                return GetCopyIntoWrapperConstruction(GetSourceCountAccess());
             }
 
             Expression nonNullTargetVariableValue;
 
-            if (_targetTypeHelper.IsArray || _targetTypeHelper.IsEnumerableInterface)
+            if (TargetTypeHelper.IsDeclaredReadOnly)
             {
                 nonNullTargetVariableValue = GetNonNullEnumerableTargetVariableValue();
             }
-            else if (_targetTypeHelper.HasCollectionInterface &&
-                   !(_targetTypeHelper.IsList || _targetTypeHelper.IsCollection))
+            else if (TargetTypeHelper.HasCollectionInterface &&
+                   !(TargetTypeHelper.IsList || TargetTypeHelper.IsCollection))
             {
-                var isReadOnlyProperty = _targetTypeHelper
+                var isReadOnlyProperty = TargetTypeHelper
                     .CollectionInterfaceType
                     .GetPublicInstanceProperty("IsReadOnly");
 
                 nonNullTargetVariableValue = Expression.Condition(
-                    Expression.Property(_omd.TargetObject, isReadOnlyProperty),
-                    GetUnusableTargetValue(_omd.TargetObject.Type),
-                    _omd.TargetObject,
-                    _omd.TargetObject.Type);
+                    Expression.Property(MapperData.TargetObject, isReadOnlyProperty),
+                    GetUnusableTargetValue(MapperData.TargetObject.Type),
+                    MapperData.TargetObject,
+                    MapperData.TargetObject.Type);
             }
             else
             {
-                nonNullTargetVariableValue = _omd.TargetObject;
+                nonNullTargetVariableValue = MapperData.TargetObject;
             }
 
-            if (_omd.TargetMember.IsReadOnly)
+            if (MapperData.TargetMember.IsReadOnly)
             {
                 return nonNullTargetVariableValue;
             }
 
             var nullTargetVariableType = nonNullTargetVariableValue.Type.IsInterface()
-                ? _targetTypeHelper.ListType
+                ? TargetTypeHelper.ListType
                 : nonNullTargetVariableValue.Type;
 
-            var nullTargetVariableValue = _sourceTypeHelper.IsEnumerableInterface || _targetTypeHelper.IsCollection
+            var nullTargetVariableValue = SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
                 ? Expression.New(nullTargetVariableType)
                 : Expression.New(
                     // ReSharper disable once AssignNullToNotNullAttribute
                     nullTargetVariableType.GetConstructor(new[] { typeof(int) }),
-                    GetCountPropertyAccess());
+                    GetSourceCountAccess());
 
             var targetVariableValue = Expression.Condition(
-                _omd.TargetObject.GetIsNotDefaultComparison(),
+                MapperData.TargetObject.GetIsNotDefaultComparison(),
                 nonNullTargetVariableValue,
                 nullTargetVariableValue,
                 nonNullTargetVariableValue.Type);
@@ -298,36 +317,36 @@
 
         private Expression GetCopyIntoWrapperConstruction(Expression numberOfNewItems)
         {
-            var constructor = _targetTypeHelper.WrapperType
-                .GetConstructor(new[] { _targetTypeHelper.EnumerableInterfaceType, typeof(int) });
+            var constructor = TargetTypeHelper.WrapperType
+                .GetConstructor(new[] { TargetTypeHelper.EnumerableInterfaceType, typeof(int) });
 
             // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.New(constructor, _omd.TargetObject, numberOfNewItems);
+            return Expression.New(constructor, MapperData.TargetObject, numberOfNewItems);
         }
 
         private Expression GetNonNullEnumerableTargetVariableValue()
         {
-            if (_targetTypeHelper.IsArray)
+            if (TargetTypeHelper.IsArray)
             {
                 return GetCopyIntoListConstruction();
             }
 
             var targetIsCollection = Expression
-                .TypeIs(_omd.TargetObject, _targetTypeHelper.CollectionInterfaceType);
+                .TypeIs(MapperData.TargetObject, TargetTypeHelper.CollectionInterfaceType);
 
-            var collectionValue = _omd.TargetObject.GetConversionTo(_targetTypeHelper.CollectionInterfaceType);
+            var collectionValue = MapperData.TargetObject.GetConversionTo(TargetTypeHelper.CollectionInterfaceType);
             var nonCollectionValue = GetUnusableTargetValue(collectionValue.Type);
 
             return Expression.Condition(
                 targetIsCollection,
                 collectionValue,
                 nonCollectionValue,
-                _targetTypeHelper.CollectionInterfaceType);
+                TargetTypeHelper.CollectionInterfaceType);
         }
 
         private Expression GetUnusableTargetValue(Type fallbackCollectionType)
         {
-            return _omd.TargetMember.IsReadOnly
+            return MapperData.TargetMember.IsReadOnly
                 ? Expression.Default(fallbackCollectionType)
                 : GetCopyIntoListConstruction();
         }
@@ -336,19 +355,21 @@
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
-                _targetTypeHelper.ListType.GetConstructor(new[] { _targetTypeHelper.EnumerableInterfaceType }),
-                _omd.TargetObject);
+                TargetTypeHelper.ListType.GetConstructor(new[] { TargetTypeHelper.EnumerableInterfaceType }),
+                MapperData.TargetObject);
         }
 
         private bool TargetCouldBeUnusable()
         {
-            if (_omd.TargetMember.LeafMember.IsWriteable)
+            if (MapperData.TargetMember.LeafMember.IsWriteable)
             {
                 return false;
             }
 
-            return !(_targetTypeHelper.IsList || _targetTypeHelper.IsCollection);
+            return !(TargetTypeHelper.IsList || TargetTypeHelper.IsCollection);
         }
+
+        #endregion
 
         public void RemoveAllTargetItems()
         {
@@ -357,51 +378,13 @@
 
         public void AddNewItemsToTargetVariable(IObjectMappingData enumerableMappingData)
         {
-            if (ElementTypesAreSimple && _context.ElementTypesAreTheSame && _targetTypeHelper.IsList)
+            if (ElementTypesAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
             {
-                _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceVariable));
+                _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceAdapter.GetSourceValues()));
                 return;
             }
 
-            Func<LoopExpression, Expression> populationLoopAdapter;
-            Expression loopExitCheck, sourceElement;
-
-            if (_sourceTypeHelper.HasListInterface)
-            {
-                loopExitCheck = Expression.Equal(Counter, GetCountPropertyAccess());
-
-                if (ElementTypesAreSimple ||
-                    _sourceTypeHelper.ElementType.RuntimeTypeNeeded() ||
-                    _context.TargetElementType.RuntimeTypeNeeded())
-                {
-                    populationLoopAdapter = exp => exp;
-                    sourceElement = GetIndexedElementAccess();
-                }
-                else
-                {
-                    sourceElement = _context.GetSourceParameterFor(_sourceTypeHelper.ElementType);
-                    populationLoopAdapter = loop => UpdateIndexAccessLoop(loop, (ParameterExpression)sourceElement);
-                }
-            }
-            else
-            {
-                ParameterExpression enumerator;
-                var enumeratorAssignment = GetEnumeratorAssignment(out enumerator);
-
-                loopExitCheck = Expression.Not(Expression.Call(enumerator, _enumeratorMoveNextMethod));
-                sourceElement = Expression.Property(enumerator, "Current");
-
-                populationLoopAdapter = loop => Expression.Block(
-                    new[] { enumerator },
-                    enumeratorAssignment,
-                    Expression.TryFinally(loop, Expression.Call(enumerator, _disposeMethod)));
-            }
-
-            var populationLoop = GetPopulationLoop(
-                sourceElement,
-                loopExitCheck,
-                populationLoopAdapter,
-                enumerableMappingData);
+            var populationLoop = GetPopulationLoop(enumerableMappingData);
 
             var population = Expression.Block(
                 new[] { Counter },
@@ -411,85 +394,37 @@
             _populationExpressions.Add(population);
         }
 
-        private Expression UpdateIndexAccessLoop(
-            LoopExpression loop,
-            ParameterExpression sourceElement)
+        private Expression GetPopulationLoop(IObjectMappingData enumerableMappingData)
         {
-            var loopBody = (BlockExpression)loop.Body;
-            var loopBodyExpressions = new List<Expression>(loopBody.Expressions);
-
-            const int LOOP_EXIT_CHECK_INDEX = 0;
-            var sourceElementAssignment = Expression.Assign(sourceElement, GetIndexedElementAccess());
-            loopBodyExpressions.Insert(LOOP_EXIT_CHECK_INDEX + 1, sourceElementAssignment);
-
-            loopBody = loopBody.Update(loopBody.Variables.Concat(sourceElement), loopBodyExpressions);
-
-            return loop.Update(loop.BreakLabel, loop.ContinueLabel, loopBody);
-        }
-
-        private Expression GetCountPropertyAccess()
-        {
-            if (_sourceTypeHelper.IsArray)
-            {
-                return Expression.Property(_sourceVariable, "Length");
-            }
-
-            var countPropertyInfo = _sourceTypeHelper.CollectionInterfaceType.GetPublicInstanceProperty("Count");
-
-            return Expression.Property(_sourceVariable, countPropertyInfo);
-        }
-
-        private Expression GetIndexedElementAccess()
-        {
-            return _sourceTypeHelper.IsArray
-                ? Expression.ArrayIndex(_sourceVariable, Counter)
-                : _sourceVariable.GetIndexAccess(Counter);
-        }
-
-        private Expression GetEnumeratorAssignment(out ParameterExpression enumerator)
-        {
-            var getEnumeratorMethod = _sourceTypeHelper.EnumerableInterfaceType.GetMethod("GetEnumerator");
-            var getEnumeratorCall = Expression.Call(_sourceVariable, getEnumeratorMethod);
-            enumerator = Expression.Variable(getEnumeratorCall.Type, "enumerator");
-            var enumeratorAssignment = Expression.Assign(enumerator, getEnumeratorCall);
-
-            return enumeratorAssignment;
-        }
-
-        private Expression GetPopulationLoop(
-            Expression sourceElement,
-            Expression loopExitCheck,
-            Func<LoopExpression, Expression> populationLoopAdapter,
-            IObjectMappingData enumerableMappingData)
-        {
+            var loopData = _sourceAdapter.GetPopulationLoopData();
             var breakLoop = Expression.Break(Expression.Label(typeof(void), "Break"));
 
-            var elementToAdd = GetElementConversion(sourceElement, enumerableMappingData);
+            var elementToAdd = loopData.GetElementToAdd(enumerableMappingData);
             var addMappedElement = GetTargetMethodCall("Add", elementToAdd);
 
             var loopBody = Expression.Block(
-                Expression.IfThen(loopExitCheck, breakLoop),
+                Expression.IfThen(loopData.LoopExitCheck, breakLoop),
                 addMappedElement,
                 Expression.PreIncrementAssign(Counter));
 
             var populationLoop = Expression.Loop(loopBody, breakLoop.Target);
-            var adaptedLoop = populationLoopAdapter.Invoke(populationLoop);
+            var adaptedLoop = loopData.Adapt(populationLoop);
 
             return adaptedLoop;
         }
 
-        private Expression GetElementConversion(Expression sourceElement, IObjectMappingData enumerableMappingData)
+        public Expression GetElementConversion(Expression sourceElement, IObjectMappingData enumerableMappingData)
         {
-            return sourceElement.Type.IsSimple()
+            return Context.ElementTypesAreSimple
                 ? GetSimpleElementConversion(sourceElement)
-                : GetElementMapping(sourceElement, Expression.Default(_context.TargetElementType), enumerableMappingData);
+                : GetElementMapping(sourceElement, Expression.Default(Context.TargetElementType), enumerableMappingData);
         }
 
-        private Expression GetSimpleElementConversion(Expression sourceElement)
-            => GetSimpleElementConversion(sourceElement, _context.TargetElementType);
+        public Expression GetSimpleElementConversion(Expression sourceElement)
+            => GetSimpleElementConversion(sourceElement, Context.TargetElementType);
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
-            => _omd.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
+            => MapperData.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
 
         private static Expression GetElementMapping(
             Expression sourceElement,
@@ -499,17 +434,67 @@
             return MappingFactory.GetElementMapping(sourceElement, targetElement, enumerableMappingData);
         }
 
+        public Expression GetSourceItemsProjection(
+            Expression sourceEnumerableValue,
+            Func<Expression, Expression> projectionFuncFactory)
+        {
+            return GetSourceItemsProjection(
+                sourceEnumerableValue,
+                _selectWithoutIndexMethod,
+                (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter),
+                _sourceElementParameter);
+        }
+
+        public Expression GetSourceItemsProjection(
+            Expression sourceEnumerableValue,
+            Func<Expression, Expression, Expression> projectionFuncFactory)
+        {
+            return GetSourceItemsProjection(
+                sourceEnumerableValue,
+                _selectWithIndexMethod,
+                projectionFuncFactory,
+                _sourceElementParameter,
+                Counter);
+        }
+
+        private Expression GetSourceItemsProjection(
+            Expression sourceEnumerableValue,
+            MethodInfo linqSelectOverload,
+            Func<Expression, Expression, Expression> projectionFuncFactory,
+            params ParameterExpression[] projectionFuncParameters)
+        {
+            var funcTypes = projectionFuncParameters
+                .Select(p => p.Type)
+                .Concat(Context.TargetElementType)
+                .ToArray();
+
+            var projectionFunc = Expression.Lambda(
+                Expression.GetFuncType(funcTypes),
+                projectionFuncFactory.Invoke(_sourceElementParameter, Counter),
+                projectionFuncParameters);
+
+            var typedSelectMethod = linqSelectOverload.MakeGenericMethod(Context.ElementTypes);
+            var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionFunc);
+
+            return typedSelectCall;
+        }
+
         public void CreateCollectionData()
         {
-            var createCollectionDataMethod = _context.ElementTypesAreTheSame
+            var createCollectionDataMethod = Context.ElementTypesAreTheSame
                 ? CollectionData.IdSameTypesCreateMethod
-                    .MakeGenericMethod(_context.TargetElementType, _targetElementIdLambda.ReturnType)
+                    .MakeGenericMethod(Context.TargetElementType, _targetElementIdLambda.ReturnType)
                 : CollectionData.IdDifferentTypesCreateMethod
-                    .MakeGenericMethod(_context.SourceElementType, _context.TargetElementType, _targetElementIdLambda.ReturnType);
+                    .MakeGenericMethod(Context.SourceElementType, Context.TargetElementType, _targetElementIdLambda.ReturnType);
 
-            var callArguments = new List<Expression>(4) { _omd.SourceObject, _omd.TargetObject, _sourceElementIdLambda };
+            var callArguments = new List<Expression>(4)
+            {
+                _sourceAdapter.GetSourceValue(),
+                MapperData.TargetObject,
+                _sourceElementIdLambda
+            };
 
-            if (!_context.ElementTypesAreTheSame)
+            if (!Context.ElementTypesAreTheSame)
             {
                 callArguments.Add(_targetElementIdLambda);
             }
@@ -517,7 +502,7 @@
             var createCollectionDataCall = Expression.Call(createCollectionDataMethod, callArguments);
 
             _collectionDataVariable = Parameters.Create(
-                typeof(CollectionData<,>).MakeGenericType(_context.ElementTypes),
+                typeof(CollectionData<,>).MakeGenericType(Context.ElementTypes),
                 "collectionData");
 
             var assignCollectionData = Expression.Assign(_collectionDataVariable, createCollectionDataCall);
@@ -527,10 +512,10 @@
 
         public void MapIntersection(IObjectMappingData enumerableMappingData)
         {
-            var sourceElementParameter = _context.GetSourceParameterFor(_context.SourceElementType);
-            var targetElementParameter = _context.GetTargetParameterFor(_context.TargetElementType);
+            var sourceElementParameter = Context.GetSourceParameterFor(Context.SourceElementType);
+            var targetElementParameter = Context.GetTargetParameterFor(Context.TargetElementType);
 
-            var forEachActionType = Expression.GetActionType(_context.SourceElementType, _context.TargetElementType, typeof(int));
+            var forEachActionType = Expression.GetActionType(Context.SourceElementType, Context.TargetElementType, typeof(int));
             var forEachAction = GetElementMapping(sourceElementParameter, targetElementParameter, enumerableMappingData);
 
             var forEachLambda = Expression.Lambda(
@@ -541,7 +526,7 @@
                 Counter);
 
             var forEachCall = Expression.Call(
-                _forEachTupleMethod.MakeGenericMethod(_context.ElementTypes),
+                _forEachTupleMethod.MakeGenericMethod(Context.ElementTypes),
                 Expression.Property(_collectionDataVariable, "Intersection"),
                 forEachLambda);
 
@@ -562,17 +547,17 @@
         {
             var allowSameValue = value.NodeType != ExpressionType.MemberAccess;
 
-            if (allowSameValue && _omd.TargetType.IsAssignableFrom(value.Type))
+            if (allowSameValue && MapperData.TargetType.IsAssignableFrom(value.Type))
             {
                 return value;
             }
 
-            return value.WithToArrayCall(_context.TargetElementType);
+            return value.WithToArrayCall(Context.TargetElementType);
         }
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
         {
-            var method = _targetTypeHelper.CollectionInterfaceType.GetMethod(methodName)
+            var method = TargetTypeHelper.CollectionInterfaceType.GetMethod(methodName)
                 ?? TargetVariable.Type.GetMethod(methodName);
 
             return (argument != null)
@@ -597,12 +582,6 @@
         {
             #region Untyped MethodInfos
 
-            private static readonly MethodInfo _selectWithoutIndexMethod = typeof(Enumerable)
-                    .GetPublicStaticMethods()
-                    .Last(m => (m.Name == "Select") &&
-                        (m.GetParameters().Length == 2) &&
-                        (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2));
-
             private static readonly MethodInfo _excludeMethod = typeof(EnumerableExtensions)
                 .GetPublicStaticMethod("Exclude");
 
@@ -618,21 +597,19 @@
 
             public SourceItemsSelector SourceItemsProjectedToTargetType()
             {
-                if (_builder._context.ElementTypesAreTheSame)
+                var context = _builder.Context;
+                var sourceEnumerableValue = _builder._sourceAdapter.GetSourceValue();
+
+                if (context.ElementTypesAreTheSame ||
+                    (sourceEnumerableValue.Type.GetEnumerableElementType() == context.TargetElementType))
                 {
-                    _result = _builder._omd.SourceObject;
+                    _result = sourceEnumerableValue;
                     return this;
                 }
 
-                var projectionFunc = Expression.Lambda(
-                    Expression.GetFuncType(_builder._context.ElementTypes),
-                    _builder.GetSimpleElementConversion(_builder._sourceElementParameter),
-                    _builder._sourceElementParameter);
-
-                var typedSelectMethod = _selectWithoutIndexMethod
-                    .MakeGenericMethod(_builder._context.ElementTypes);
-
-                _result = Expression.Call(typedSelectMethod, _builder._omd.SourceObject, projectionFunc);
+                _result = _builder.GetSourceItemsProjection(
+                    sourceEnumerableValue,
+                    _builder.GetSimpleElementConversion);
 
                 return this;
             }
@@ -640,9 +617,9 @@
             public SourceItemsSelector ExcludingTargetItems()
             {
                 _result = Expression.Call(
-                    _excludeMethod.MakeGenericMethod(_builder._context.TargetElementType),
+                    _excludeMethod.MakeGenericMethod(_builder.Context.TargetElementType),
                     _result,
-                    _builder._omd.TargetObject);
+                    _builder.MapperData.TargetObject);
 
                 return this;
             }
@@ -660,9 +637,9 @@
                     return _result;
                 }
 
-                _result = _builder._targetTypeHelper.IsArray
-                    ? _result.WithToArrayCall(_builder._context.TargetElementType)
-                    : _result.WithToListCall(_builder._context.TargetElementType);
+                _result = _builder.TargetTypeHelper.IsArray
+                    ? _result.WithToArrayCall(_builder.Context.TargetElementType)
+                    : _result.WithToListCall(_builder.Context.TargetElementType);
 
                 return _result;
             }

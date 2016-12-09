@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #if NET_STANDARD
     using System.Reflection;
 #endif
+    using Extensions;
 
     internal class EnumerableTypeHelper
     {
@@ -23,6 +24,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ElementType = elementType;
         }
 
+        public bool IsDictionary => _enumerableType.IsDictionary();
+
         public bool IsArray => _enumerableType.IsArray;
 
         public bool IsList => ListType.IsAssignableFrom(_enumerableType);
@@ -34,6 +37,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool IsEnumerableInterface => _enumerableType == EnumerableInterfaceType;
 
         public bool HasCollectionInterface => CollectionInterfaceType.IsAssignableFrom(_enumerableType);
+
+        public bool IsDeclaredReadOnly => IsArray || IsEnumerableInterface;
 
         public Type ElementType { get; }
 

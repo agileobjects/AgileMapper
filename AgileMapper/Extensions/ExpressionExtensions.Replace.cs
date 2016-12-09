@@ -102,6 +102,9 @@
                     case ExpressionType.Invoke:
                         return ReplaceIn((InvocationExpression)expression);
 
+                    case ExpressionType.Label:
+                        return ReplaceIn((LabelExpression)expression);
+
                     case ExpressionType.Lambda:
                         return ReplaceIn((LambdaExpression)expression);
 
@@ -173,6 +176,9 @@
             {
                 return replacer.Invoke(Replace(subject), arguments.Select(Replace).ToArray());
             }
+
+            private Expression ReplaceIn(LabelExpression label)
+                => ReplaceIn(label, l => l.Update(l.Target, Replace(l.DefaultValue)));
 
             private Expression ReplaceIn(LambdaExpression lambda)
                 => ReplaceIn(lambda, l => Expression.Lambda(l.Type, Replace(l.Body), l.Parameters.Select(ReplaceIn)));
