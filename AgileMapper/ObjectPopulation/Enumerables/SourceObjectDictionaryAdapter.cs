@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
-    using System;
     using System.Collections;
     using System.Linq;
     using System.Linq.Expressions;
@@ -12,7 +11,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     {
         private readonly EnumerablePopulationBuilder _builder;
         private readonly SourceInstanceDictionaryAdapter _instanceDictionaryAdapter;
-        private readonly SourceElementsDictionaryAdapter _elementsDictionaryAdapter;
         private readonly Expression _emptyTarget;
 
         public SourceObjectDictionaryAdapter(
@@ -21,7 +19,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             _builder = builder;
             _instanceDictionaryAdapter = new SourceInstanceDictionaryAdapter(sourceMember, builder);
-            _elementsDictionaryAdapter = new SourceElementsDictionaryAdapter(builder);
 
             var targetEnumerableType = builder.TargetTypeHelper.EnumerableInterfaceType;
             _emptyTarget = targetEnumerableType.GetEmptyInstanceCreation();
@@ -115,7 +112,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetSourceValues()
         {
-            throw new NotImplementedException();
+            // This is called to provide a value for a List.AddRange() call,
+            // which requires the source and target elements to be simple and
+            // of the same type. This class is for Dictionary<string, object>,
+            // so this is never called:
+            return null;
         }
 
         public Expression GetSourceCountAccess() => _instanceDictionaryAdapter.GetSourceCountAccess();

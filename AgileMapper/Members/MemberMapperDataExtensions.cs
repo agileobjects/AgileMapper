@@ -98,19 +98,24 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             var valueType = keyAndValueTypes[1];
+            Type targetType;
 
             if (mapperData.TargetMember.IsEnumerable)
             {
-                return (valueType == typeof(object)) ||
-                       (valueType == mapperData.TargetMember.ElementType) ||
-                        mapperData.TargetMember.ElementType.IsComplex() ||
-                        valueType.IsEnumerable();
+                targetType = mapperData.TargetMember.ElementType;
+
+                if ((valueType == typeof(object)) || (valueType == targetType) ||
+                    targetType.IsComplex() || valueType.IsEnumerable())
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                targetType = mapperData.TargetMember.Type;
             }
 
-            return mapperData
-                .MapperContext
-                .ValueConverters
-                .CanConvert(valueType, mapperData.TargetMember.Type);
+            return mapperData.MapperContext.ValueConverters.CanConvert(valueType, targetType);
         }
 
         public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)

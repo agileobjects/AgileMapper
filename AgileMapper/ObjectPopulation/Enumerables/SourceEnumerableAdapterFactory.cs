@@ -6,18 +6,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     {
         public static ISourceEnumerableAdapter GetAdapterFor(EnumerablePopulationBuilder builder)
         {
-            if (builder.MapperData.HasSourceDictionary())
-            {
-                var sourceMember = new DictionarySourceMember(builder.MapperData);
+            var dictionarySourceMember = builder.MapperData.SourceMember as DictionarySourceMember;
 
-                if (sourceMember.HasObjectEntries)
+            if ((dictionarySourceMember != null) || builder.MapperData.HasSourceDictionary())
+            {
+                if (dictionarySourceMember == null)
                 {
-                    return new SourceObjectDictionaryAdapter(sourceMember, builder);
+                    dictionarySourceMember = new DictionarySourceMember(builder.MapperData);
                 }
 
-                if (sourceMember.CouldContainSourceInstance)
+                if (dictionarySourceMember.HasObjectEntries)
                 {
-                    return new SourceInstanceDictionaryAdapter(sourceMember, builder);
+                    return new SourceObjectDictionaryAdapter(dictionarySourceMember, builder);
+                }
+
+                if (dictionarySourceMember.CouldContainSourceInstance)
+                {
+                    return new SourceInstanceDictionaryAdapter(dictionarySourceMember, builder);
                 }
 
                 return new SourceElementsDictionaryAdapter(builder);

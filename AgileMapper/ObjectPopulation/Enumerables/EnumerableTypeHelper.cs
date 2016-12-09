@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 #if NET_STANDARD
     using System.Reflection;
 #endif
-    using Extensions;
 
     internal class EnumerableTypeHelper
     {
@@ -23,8 +22,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _enumerableType = enumerableType;
             ElementType = elementType;
         }
-
-        public bool IsDictionary => _enumerableType.IsDictionary();
 
         public bool IsArray => _enumerableType.IsArray;
 

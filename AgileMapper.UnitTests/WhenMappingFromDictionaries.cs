@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Globalization;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -48,7 +49,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAComplexTypeSimpleTypeMemberByDottedName()
+        public void ShouldPopulateANestedSimpleTypeMemberByDottedName()
         {
             var source = new Dictionary<string, string> { ["Value.Value"] = "Over there!" };
             var result = Mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
@@ -77,7 +78,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeEnumerableFromATypedSourceEnumerable()
+        public void ShouldPopulateASimpleTypeCollectionFromATypedSourceArray()
         {
             var source = new Dictionary<string, long[]> { ["Value"] = new long[] { 4, 5, 6 } };
             var result = Mapper.Map(source).ToANew<PublicProperty<ICollection<long>>>();
@@ -86,7 +87,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeEnumerableFromAnUntypedSourceEnumerable()
+        public void ShouldPopulateASimpleTypeEnumerableFromAnUntypedSourceArray()
         {
             var source = new Dictionary<string, object> { ["Value"] = new[] { 1, 2, 3 } };
             var result = Mapper.Map(source).ToANew<PublicProperty<IEnumerable<int>>>();
@@ -95,7 +96,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeEnumerableFromATypedConvertibleSourceEnumerable()
+        public void ShouldPopulateASimpleTypeArrayFromAConvertibleTypedSourceEnumerable()
         {
             var source = new Dictionary<string, IEnumerable<int>> { ["Value"] = new[] { 4, 5, 6 } };
             var result = Mapper.Map(source).ToANew<PublicProperty<string[]>>();
@@ -104,7 +105,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAComplexTypeEnumerableFromATypedConvertibleSourceEnumerable()
+        public void ShouldPopulateAComplexTypeArrayFromAConvertibleTypedSourceEnumerable()
         {
             var source = new Dictionary<string, IEnumerable<Person>>
             {
@@ -137,7 +138,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeEnumerableFromTypedEntries()
+        public void ShouldPopulateANestedSimpleTypeListFromTypedEntries()
         {
             var source = new Dictionary<string, int>
             {
@@ -151,7 +152,26 @@
         }
 
         [Fact]
-        public void ShouldPopulateAComplexTypeEnumerableFromUntypedEntries()
+        public void ShouldPopulateANestedSimpleTypeCollectionFromConvertibleTypedEntries()
+        {
+            var now = DateTime.Now;
+
+            var source = new Dictionary<string, DateTime>
+            {
+                ["Value[0]"] = now,
+                ["Value[1]"] = now.AddHours(1),
+                ["Value[2]"] = now.AddHours(2)
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<Collection<string>>>();
+
+            result.Value.ShouldBe(
+                now.ToString(CultureInfo.CurrentCulture),
+                now.AddHours(1).ToString(CultureInfo.CurrentCulture),
+                now.AddHours(2).ToString(CultureInfo.CurrentCulture));
+        }
+
+        [Fact]
+        public void ShouldPopulateAComplexTypeArrayFromUntypedEntries()
         {
             var source = new Dictionary<string, object>
             {
