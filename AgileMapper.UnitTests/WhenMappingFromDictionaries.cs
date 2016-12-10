@@ -171,7 +171,23 @@
         }
 
         [Fact]
-        public void ShouldPopulateAComplexTypeArrayFromUntypedEntries()
+        public void ShouldPopulateARootComplexTypeListFromUntypedEntries()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["[0]"] = new Product { ProductId = "Pants" },
+                ["[1]"] = new MegaProduct { ProductId = "Blouse" }
+            };
+            var result = Mapper.Map(source).ToANew<List<Product>>();
+
+            result.Count.ShouldBe(2);
+            result.First().ProductId.ShouldBe("Pants");
+            result.Second().ShouldBeOfType<MegaProduct>();
+            result.Second().ProductId.ShouldBe("Blouse");
+        }
+
+        [Fact]
+        public void ShouldPopulateANestedComplexTypeArrayFromUntypedEntries()
         {
             var source = new Dictionary<string, object>
             {

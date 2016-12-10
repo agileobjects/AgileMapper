@@ -20,11 +20,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private readonly Expression _targetMemberKey;
 
         public SourceElementsDictionaryPopulationLoopData(EnumerablePopulationBuilder builder)
-            : this(GetDictionaryMemberFor(builder), builder)
+            : this(GetDictionaryVariables(builder), builder)
         {
         }
 
-        private static DictionaryEntryVariablePair GetDictionaryMemberFor(EnumerablePopulationBuilder builder)
+        private static DictionaryEntryVariablePair GetDictionaryVariables(EnumerablePopulationBuilder builder)
         {
             var dictionarySourceMember =
                 (builder.MapperData.SourceMember as DictionarySourceMember)

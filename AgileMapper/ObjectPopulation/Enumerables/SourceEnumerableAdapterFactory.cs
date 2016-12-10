@@ -15,14 +15,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                     dictionarySourceMember = new DictionarySourceMember(builder.MapperData);
                 }
 
-                if (dictionarySourceMember.HasObjectEntries)
+                if (!builder.MapperData.IsRoot)
                 {
-                    return new SourceObjectDictionaryAdapter(dictionarySourceMember, builder);
-                }
+                    if (dictionarySourceMember.HasObjectEntries)
+                    {
+                        return new SourceObjectDictionaryAdapter(dictionarySourceMember, builder);
+                    }
 
-                if (dictionarySourceMember.CouldContainSourceInstance)
-                {
-                    return new SourceInstanceDictionaryAdapter(dictionarySourceMember, builder);
+                    if (dictionarySourceMember.CouldContainSourceInstance)
+                    {
+                        return new SourceInstanceDictionaryAdapter(dictionarySourceMember, builder);
+                    }
                 }
 
                 return new SourceElementsDictionaryAdapter(builder);
