@@ -3,9 +3,9 @@
 // Licence: https://github.com/AutoMapper/AutoMapper/blob/master/LICENSE.txt
 
 // AgileMapper and AutoMapper perform better with this attribute applied,
-// but ExpressMapper and Mapster throw exceptions - comment out to test
-// those mappers:
-[assembly: System.Security.AllowPartiallyTrustedCallers]
+// but ExpressMapper and Mapster throw exceptions - uncomment to test the
+// Agile and Auto at their fastest:
+//[assembly: System.Security.AllowPartiallyTrustedCallers]
 
 namespace AgileObjects.AgileMapper.PerformanceTester
 {
