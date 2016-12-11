@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.Members.Sources
             _memberFactory = memberFactory;
         }
 
-        public IQualifiedMember GetSourceMember<TSource>() => _memberFactory.RootSource<TSource>();
+        public IQualifiedMember GetSourceMember<TSource, TTarget>() => _memberFactory.RootSource<TSource, TTarget>();
 
         public QualifiedMember GetTargetMember<TTarget>() => _memberFactory.RootTarget<TTarget>();
     }

@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
@@ -44,11 +43,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetElementToAdd(IObjectMappingData enumerableMappingData)
         {
-            var convertedEnumeratorValue = _builder
-                .GetElementConversion(_enumerableLoopData.SourceElement, enumerableMappingData);
-
-            var convertedElementValue = _builder
-                .GetElementConversion(_elementsDictionaryLoopData.SourceElement, enumerableMappingData);
+            var convertedEnumeratorValue = _enumerableLoopData.GetElementToAdd(enumerableMappingData);
+            var convertedElementValue = _elementsDictionaryLoopData.GetElementToAdd(enumerableMappingData);
 
             return Expression.Condition(_sourceEnumerableFound, convertedEnumeratorValue, convertedElementValue);
         }
@@ -58,19 +54,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             var sourceEnumerableFoundTest = Expression.NotEqual(_builder.SourceVariable, _emptyTarget);
             var assignSourceEnumerableFound = Expression.Assign(_sourceEnumerableFound, sourceEnumerableFoundTest);
 
+            var adaptedLoop = _elementsDictionaryLoopData.Adapt(loop);
+
             var enumerableLoopBlock = _enumerableLoopData.GetLoopBlock(
-                loop,
+                adaptedLoop,
                 GetEnumeratorIfNecessary,
                 DisposeEnumeratorIfNecessary);
 
-            var blockVariables = new List<ParameterExpression>(enumerableLoopBlock.Variables)
-            {
-                _sourceEnumerableFound,
-                _elementsDictionaryLoopData.ElementKey
-            };
-
             return Expression.Block(
-                blockVariables,
+                new[] { _sourceEnumerableFound }.Concat(enumerableLoopBlock.Variables),
                 new[] { assignSourceEnumerableFound }.Concat(enumerableLoopBlock.Expressions));
         }
 

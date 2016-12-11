@@ -1,13 +1,18 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Linq.Expressions;
+    using Members;
 
     internal class SourceElementsDictionaryAdapter : ISourceEnumerableAdapter
     {
+        private readonly DictionarySourceMember _sourceMember;
         private readonly EnumerablePopulationBuilder _builder;
 
-        public SourceElementsDictionaryAdapter(EnumerablePopulationBuilder builder)
+        public SourceElementsDictionaryAdapter(
+            DictionarySourceMember sourceMember,
+            EnumerablePopulationBuilder builder)
         {
+            _sourceMember = sourceMember;
             _builder = builder;
         }
 
@@ -20,6 +25,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             => Expression.Property(_builder.SourceVariable, "Count");
 
         public IPopulationLoopData GetPopulationLoopData()
-            => new SourceElementsDictionaryPopulationLoopData(_builder);
+            => new SourceElementsDictionaryPopulationLoopData(_sourceMember, _builder);
     }
 }

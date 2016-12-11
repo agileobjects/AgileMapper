@@ -2,6 +2,9 @@
 {
     using System;
     using System.Linq.Expressions;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
     using Extensions;
     using Members;
 
@@ -23,6 +26,8 @@
         public Type[] ElementTypes { get; }
 
         public bool ElementTypesAreTheSame { get; }
+
+        public bool ElementTypesAreAssignable => TargetElementType.IsAssignableFrom(SourceElementType);
 
         public bool ElementTypesAreSimple { get; }
 

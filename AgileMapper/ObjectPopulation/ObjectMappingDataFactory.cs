@@ -127,7 +127,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceElementMember = parent.MapperData.SourceMember.GetElementMember();
             var targetElementMember = parent.MapperData.TargetMember.GetElementMember();
 
-            var key = new SourceAndTargetTypesKey(sourceElementMember.Type, targetElementMember.Type);
+            var membersSource = new FixedMembersMembersSource(sourceElementMember, targetElementMember);
+
+            return ForElement(sourceElementMember.Type, targetElementMember.Type, membersSource, parent);
+        }
+
+        public static IObjectMappingData ForElement(Type sourceElementType, Type targetElementType, IObjectMappingData parent)
+            => ForElement(sourceElementType, targetElementType, new ElementMembersSource(parent), parent);
+
+        private static IObjectMappingData ForElement(
+            Type sourceElementType,
+            Type targetElementType,
+            IMembersSource elementMembersSource,
+            IObjectMappingData parent)
+        {
+            var key = new SourceAndTargetTypesKey(sourceElementType, targetElementType);
 
             var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
@@ -154,19 +168,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return typedForElementLambda.Compile();
             });
 
-            var membersSource = new FixedMembersMembersSource(sourceElementMember, targetElementMember);
-
-            return (IObjectMappingData)typedForElementCaller.Invoke(_bridge, membersSource, parent);
+            return (IObjectMappingData)typedForElementCaller.Invoke(_bridge, elementMembersSource, parent);
         }
 
         object IObjectMappingDataFactoryBridge.ForElement<TSource, TTarget>(object membersSource, object parent)
         {
-            return ForElement(
-                default(TSource),
-                default(TTarget),
-                0,
-                (IMembersSource)membersSource,
-                (IObjectMappingData)parent);
+            var mappingData = (IObjectMappingData)parent;
+            var source = mappingData.GetSource<TSource>();
+            var target = mappingData.GetTarget<TTarget>();
+            var index = mappingData.GetEnumerableIndex().GetValueOrDefault();
+
+            return ForElement(source, target, index, (IMembersSource)membersSource, mappingData);
         }
 
         public static IObjectMappingData ForElement<TSource, TTarget>(

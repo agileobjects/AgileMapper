@@ -19,6 +19,22 @@
 
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
+        public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+        {
+            using (var enumerator = items.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    if (predicate.Invoke(enumerator.Current))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
 
         public static bool DoesNotContain<T>(this ICollection<T> items, T item) => !items.Contains(item);

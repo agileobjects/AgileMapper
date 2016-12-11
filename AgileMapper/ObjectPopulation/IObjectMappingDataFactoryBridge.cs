@@ -34,7 +34,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// An object representing the parent <see cref="IObjectMappingData{TSource, TTarget}"/>.
         /// </param>
         /// <returns>An element <see cref="IObjectMappingData{TSource, TTarget}"/> instance.</returns>
-        object ForElement<TSource, TTarget>(object membersSource, object parent);
+        object ForElement<TSource, TTarget>(object membersSource, object parent)
+            where TSource : class where TTarget : class;
 
         /// <summary>
         /// Creates an <see cref="IObjectMappingData{TSource, TTarget}"/> instance.

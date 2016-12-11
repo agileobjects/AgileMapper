@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members.Sources
 
         public int DataSourceIndex { get; }
 
-        public IQualifiedMember GetSourceMember<TSource>() => _sourceMember;
+        public IQualifiedMember GetSourceMember<TSource, TTarget>() => _sourceMember;
 
         public QualifiedMember GetTargetMember<TTarget>() => _targetMember;
     }

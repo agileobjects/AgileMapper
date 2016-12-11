@@ -159,7 +159,7 @@
             var source = new Dictionary<string, DateTime>
             {
                 ["Value[0]"] = now,
-                ["Value[1]"] = now.AddHours(1),
+                ["value[1]"] = now.AddHours(1),
                 ["Value[2]"] = now.AddHours(2)
             };
             var result = Mapper.Map(source).ToANew<PublicProperty<Collection<string>>>();
@@ -184,6 +184,25 @@
             result.First().ProductId.ShouldBe("Pants");
             result.Second().ShouldBeOfType<MegaProduct>();
             result.Second().ProductId.ShouldBe("Blouse");
+        }
+
+        [Fact]
+        public void ShouldPopulateARootComplexTypeCollectionFromUntypedDottedEntries()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["[0].ProductId"] = "Blouse",
+                ["[0].Price"] = "10.99",
+                ["[1].ProductId"] = "Pants",
+                ["[1].Price"] = "7.99"
+            };
+            var result = Mapper.Map(source).ToANew<ICollection<Product>>();
+
+            result.Count.ShouldBe(2);
+            result.First().ProductId.ShouldBe("Blouse");
+            result.First().Price.ShouldBe(10.99);
+            result.Second().ProductId.ShouldBe("Pants");
+            result.Second().Price.ShouldBe(7.99);
         }
 
         [Fact]

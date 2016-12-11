@@ -171,18 +171,21 @@
         public static Expression GetElementMapping(
             Expression sourceElementValue,
             Expression targetElementValue,
-            IObjectMappingData enumerableMappingData)
+            IObjectMappingData mappingData)
         {
-            var enumerableMapperData = enumerableMappingData.MapperData;
+            var mapperData = mappingData.MapperData;
 
-            var elementMappingData = ObjectMappingDataFactory.ForElement(enumerableMappingData);
-
-            if (elementMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
+            if (mapperData.TargetMember.IsEnumerable)
             {
-                return enumerableMapperData.GetMapCall(sourceElementValue, targetElementValue);
+                mappingData = ObjectMappingDataFactory.ForElement(mappingData);
             }
 
-            return GetInlineElementMappingBlock(elementMappingData, sourceElementValue, targetElementValue);
+            if (mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
+            {
+                return mapperData.GetMapCall(sourceElementValue, targetElementValue);
+            }
+
+            return GetInlineElementMappingBlock(mappingData, sourceElementValue, targetElementValue);
         }
 
         private static Expression GetInlineElementMappingBlock(

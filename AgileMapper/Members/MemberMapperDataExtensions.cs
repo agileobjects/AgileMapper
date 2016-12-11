@@ -34,7 +34,7 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)
             => mapperData.NestedAccessFinder.FindIn(value, targetCanBeNull);
 
-        public static bool TargetMemberIsEnumerableElement(this IMemberMapperData mapperData)
+        public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
             => mapperData.TargetMember.LeafMember.IsEnumerableElement();
 
         public static bool TargetMemberEverRecurses(this IMemberMapperData mapperData)

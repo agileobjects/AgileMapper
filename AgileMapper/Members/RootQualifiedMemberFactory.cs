@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using Caching;
+    using Extensions;
 
     internal class RootQualifiedMemberFactory
     {
@@ -13,13 +14,23 @@ namespace AgileObjects.AgileMapper.Members
             _memberCache = mapperContext.Cache.CreateScoped<QualifiedMemberKey, IQualifiedMember>();
         }
 
-        public IQualifiedMember RootSource<TSource>()
+        public IQualifiedMember RootSource<TSource, TTarget>()
         {
             var memberKey = QualifiedMemberKey.ForSource<TSource>();
 
             var rootMember = _memberCache.GetOrAdd(
                 memberKey,
-                k => QualifiedMember.From(Member.RootSource<TSource>(), _mapperContext));
+                k =>
+                {
+                    var sourceMember = QualifiedMember.From(Member.RootSource<TSource>(), _mapperContext);
+
+                    if (typeof(TSource).IsDictionary())
+                    {
+                        return new DictionarySourceMember(sourceMember, RootTarget<TTarget>());
+                    }
+
+                    return sourceMember;
+                });
 
             return rootMember;
         }

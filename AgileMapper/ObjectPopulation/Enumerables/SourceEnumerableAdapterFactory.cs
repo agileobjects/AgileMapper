@@ -8,13 +8,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             var dictionarySourceMember = builder.MapperData.SourceMember as DictionarySourceMember;
 
-            if ((dictionarySourceMember != null) || builder.MapperData.HasSourceDictionary())
+            if (dictionarySourceMember != null)
             {
-                if (dictionarySourceMember == null)
-                {
-                    dictionarySourceMember = new DictionarySourceMember(builder.MapperData);
-                }
-
                 if (!builder.MapperData.IsRoot)
                 {
                     if (dictionarySourceMember.HasObjectEntries)
@@ -28,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                     }
                 }
 
-                return new SourceElementsDictionaryAdapter(builder);
+                return new SourceElementsDictionaryAdapter(dictionarySourceMember, builder);
             }
 
             return new DefaultSourceEnumerableAdapter(builder);

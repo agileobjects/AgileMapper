@@ -16,15 +16,27 @@ namespace AgileObjects.AgileMapper.Members
         private readonly QualifiedMember _targetMember;
 
         public DictionarySourceMember(IMemberMapperData mapperData)
+            : this(mapperData.SourceMember, mapperData.SourceType, mapperData.TargetMember)
         {
-            _wrappedSourceMember = mapperData.SourceMember;
-            _targetMember = mapperData.TargetMember;
-            Type = mapperData.SourceType;
+        }
+
+        public DictionarySourceMember(IQualifiedMember wrappedSourceMember, QualifiedMember targetMember)
+            : this(wrappedSourceMember, wrappedSourceMember.Type, targetMember)
+        {
+        }
+
+        private DictionarySourceMember(
+            IQualifiedMember wrappedSourceMember,
+            Type sourceType,
+            QualifiedMember targetMember)
+        {
+            _wrappedSourceMember = wrappedSourceMember;
+            _targetMember = targetMember;
+            Type = sourceType;
             EntryMember = new DictionaryEntrySourceMember(Type.GetGenericArguments()[1], _targetMember, this);
 
             CouldContainSourceInstance =
-                HasObjectEntries ||
-                (mapperData.TargetMember.IsEnumerable == EntryType.IsEnumerable());
+                HasObjectEntries || (targetMember.IsEnumerable == EntryType.IsEnumerable());
         }
 
         public Type Type { get; }
@@ -48,17 +60,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public IQualifiedMember Append(Member childMember) => EntryMember.Append(childMember);
 
-        public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
-        {
-            throw new NotImplementedException();
-        }
+        public IQualifiedMember RelativeTo(IQualifiedMember otherMember) => this;
 
         public IQualifiedMember WithType(Type runtimeType) => this;
 
-        public bool CouldMatch(QualifiedMember otherMember)
-        {
-            throw new NotImplementedException();
-        }
+        public bool CouldMatch(QualifiedMember otherMember) => _wrappedSourceMember.CouldMatch(otherMember);
 
         public bool Matches(IQualifiedMember otherMember) => _targetMember.Matches(otherMember);
 
