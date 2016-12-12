@@ -141,7 +141,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IMembersSource elementMembersSource,
             IObjectMappingData parent)
         {
-            var key = new SourceAndTargetTypesKey(sourceElementType, targetElementType);
+            var key = new ForElementCallerKey(sourceElementType, targetElementType);
 
             var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
@@ -375,5 +375,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return constructionFunc;
         }
+
+        #region Key Classes
+
+        private class ForElementCallerKey : SourceAndTargetTypesKey
+        {
+            public ForElementCallerKey(Type sourceType, Type targetType)
+                : base(sourceType, targetType)
+            {
+            }
+        }
+
+        #endregion
     }
 }

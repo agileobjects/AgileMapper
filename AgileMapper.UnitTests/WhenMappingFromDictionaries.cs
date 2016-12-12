@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Globalization;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -165,9 +164,9 @@
             var result = Mapper.Map(source).ToANew<PublicProperty<Collection<string>>>();
 
             result.Value.ShouldBe(
-                now.ToString(CultureInfo.CurrentCulture),
-                now.AddHours(1).ToString(CultureInfo.CurrentCulture),
-                now.AddHours(2).ToString(CultureInfo.CurrentCulture));
+                now.ToCurrentCultureString(),
+                now.AddHours(1).ToCurrentCultureString(),
+                now.AddHours(2).ToCurrentCultureString());
         }
 
         [Fact]
@@ -186,7 +185,6 @@
             result.Second().ProductId.ShouldBe("Blouse");
         }
 
-
         [Fact]
         public void ShouldPopulateARootComplexTypeEnumerableFromTypedDottedEntries()
         {
@@ -201,6 +199,7 @@
             result.First().ProductId.ShouldBe("Hose");
             result.First().Price.ShouldBe(1.99);
         }
+
         [Fact]
         public void ShouldPopulateARootComplexTypeCollectionFromUntypedDottedEntries()
         {
@@ -276,6 +275,32 @@
             result.Value.Second().ProductId.ShouldBe("Silent Bob");
             result.Value.Second().Price.ShouldBe(1000.00);
             result.Value.Second().HowMega.ShouldBe(0.99);
+        }
+
+        [Fact]
+        public void ShouldPopulateComplexTypeAndSimpleTypeArrayConstructorParametersFromUntypedDottedEntries()
+        {
+            var now = DateTime.Now;
+            var nowString = now.ToCurrentCultureString();
+            var inTenMinutes = now.AddMinutes(10).ToCurrentCultureString();
+            var inTwentyMinutes = now.AddMinutes(20).ToCurrentCultureString();
+
+            var source = new Dictionary<string, object>
+            {
+                ["Value1.ProductId"] = "Boom",
+                ["Value1.Price"] = "1.99",
+                ["Value1.HowMega"] = "1.00",
+                ["Value2[0]"] = nowString,
+                ["Value2[1]"] = inTenMinutes,
+                ["Value2[2]"] = inTwentyMinutes
+            };
+            var result = Mapper.Map(source).ToANew<PublicTwoParamCtor<MegaProduct, DateTime?[]>>();
+
+            result.Value1.ProductId.ShouldBe("Boom");
+            result.Value1.Price.ShouldBe(1.99);
+            result.Value1.HowMega.ShouldBe(1.00);
+
+            result.Value2.ShouldBe(d => d.ToCurrentCultureString(), nowString, inTenMinutes, inTwentyMinutes);
         }
 
         [Fact]

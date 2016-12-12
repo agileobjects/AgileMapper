@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.SimpleTypeConversion
 {
     using System;
-    using System.Globalization;
     using System.Text;
     using Shouldly;
     using TestClasses;
@@ -24,7 +23,7 @@
             var source = new PublicProperty<DateTime> { Value = DateTime.Now };
             var result = Mapper.Map(source).ToANew<PublicField<string>>();
 
-            result.Value.ShouldBe(source.Value.ToString(CultureInfo.CurrentCulture));
+            result.Value.ShouldBe(source.Value.ToCurrentCultureString());
         }
 
         [Fact]
