@@ -186,6 +186,21 @@
             result.Second().ProductId.ShouldBe("Blouse");
         }
 
+
+        [Fact]
+        public void ShouldPopulateARootComplexTypeEnumerableFromTypedDottedEntries()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["[0].ProductId"] = "Hose",
+                ["[0].Price"] = "1.99"
+            };
+            var result = Mapper.Map(source).ToANew<IEnumerable<Product>>();
+
+            result.ShouldHaveSingleItem();
+            result.First().ProductId.ShouldBe("Hose");
+            result.First().Price.ShouldBe(1.99);
+        }
         [Fact]
         public void ShouldPopulateARootComplexTypeCollectionFromUntypedDottedEntries()
         {
@@ -203,21 +218,6 @@
             result.First().Price.ShouldBe(10.99);
             result.Second().ProductId.ShouldBe("Pants");
             result.Second().Price.ShouldBe(7.99);
-        }
-
-        [Fact]
-        public void ShouldPopulateARootComplexTypeEnumerableFromTypedDottedEntries()
-        {
-            var source = new Dictionary<string, string>
-            {
-                ["[0].ProductId"] = "Hose",
-                ["[0].Price"] = "1.99"
-            };
-            var result = Mapper.Map(source).ToANew<IEnumerable<Product>>();
-
-            result.ShouldHaveSingleItem();
-            result.First().ProductId.ShouldBe("Hose");
-            result.First().Price.ShouldBe(1.99);
         }
 
         [Fact]
@@ -251,6 +251,31 @@
             result.Value.First().ProductId.ShouldBe("Spade");
             result.Value.First().Price.ShouldBe(100.00);
             result.Value.First().HowMega.ShouldBe(1.01);
+        }
+
+        [Fact]
+        public void ShouldPopulateANestedComplexTypeArrayFromUntypedDottedEntries()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["Value[0].ProductId"] = "Jay",
+                ["Value[0].Price"] = "100.00",
+                ["Value[0].HowMega"] = "1.01",
+                ["Value[1].ProductId"] = "Silent Bob",
+                ["Value[1].Price"] = "1000.00",
+                ["Value[1].HowMega"] = ".99"
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<MegaProduct[]>>();
+
+            result.Value.Length.ShouldBe(2);
+
+            result.Value.First().ProductId.ShouldBe("Jay");
+            result.Value.First().Price.ShouldBe(100.00);
+            result.Value.First().HowMega.ShouldBe(1.01);
+
+            result.Value.Second().ProductId.ShouldBe("Silent Bob");
+            result.Value.Second().Price.ShouldBe(1000.00);
+            result.Value.Second().HowMega.ShouldBe(0.99);
         }
 
         [Fact]
