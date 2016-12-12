@@ -206,6 +206,21 @@
         }
 
         [Fact]
+        public void ShouldPopulateARootComplexTypeEnumerableFromTypedDottedEntries()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["[0].ProductId"] = "Hose",
+                ["[0].Price"] = "1.99"
+            };
+            var result = Mapper.Map(source).ToANew<IEnumerable<Product>>();
+
+            result.ShouldHaveSingleItem();
+            result.First().ProductId.ShouldBe("Hose");
+            result.First().Price.ShouldBe(1.99);
+        }
+
+        [Fact]
         public void ShouldPopulateANestedComplexTypeArrayFromUntypedEntries()
         {
             var source = new Dictionary<string, object>

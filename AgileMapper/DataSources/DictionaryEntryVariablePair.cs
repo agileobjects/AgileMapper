@@ -52,9 +52,12 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public DictionaryEntryVariablePair(DictionarySourceMember sourceMember, IBasicMapperData mapperData)
         {
+            SourceMember = sourceMember;
             _dictionaryEntryType = sourceMember.EntryType;
             _targetMemberName = mapperData.TargetMember.Name.ToCamelCase();
         }
+
+        public DictionarySourceMember SourceMember { get; }
 
         public ParameterExpression Key
             => _key ?? (_key = Expression.Variable(typeof(string), _targetMemberName + "Key"));
@@ -158,10 +161,10 @@ namespace AgileObjects.AgileMapper.DataSources
             return keyVariableAssignment;
         }
 
-        public Expression GetNoKeysWithMatchingStartQuery(IMemberMapperData mapperData)
+        public Expression GetNoKeysWithMatchingStartQuery(Expression targetMemberKey, IMemberMapperData mapperData)
         {
             var noKeysStartWithTarget = GetKeyMatchingQuery(
-                Key,
+                targetMemberKey,
                 (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
                 (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.OrdinalIgnoreCase),
                 _enumerableNoneMethod,
@@ -203,7 +206,7 @@ namespace AgileObjects.AgileMapper.DataSources
             return keyMatchesQueryCall;
         }
 
-        public Expression GetEntryValueAccess(IMemberMapperData mapperData)
-            => mapperData.SourceObject.GetIndexAccess(Key);
+        public Expression GetEntryValueAccess(IMemberMapperData mapperData, Expression key = null)
+            => mapperData.SourceObject.GetIndexAccess(key ?? Key);
     }
 }

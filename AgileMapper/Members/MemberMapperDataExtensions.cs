@@ -22,7 +22,19 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
-            => !mapperData.IsRoot && mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
+        {
+            if (mapperData.IsRoot)
+            {
+                return false;
+            }
+
+            if (mapperData.SourceMember.Matches(mapperData.Parent.SourceMember))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
         {

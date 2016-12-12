@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
             IQualifiedMember parent)
             : this(
                 entryType,
-                () => parent.GetPath() + "[\"" + matchedTargetMember.Name + "\"]",
+                () => parent.GetPath() + "'" + matchedTargetMember.Name + "']",
                 matchedTargetMember)
         {
         }

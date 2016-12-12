@@ -3,11 +3,10 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Diagnostics;
     using System.Linq.Expressions;
-    using Extensions;
-
 #if NET_STANDARD
     using System.Reflection;
 #endif
+    using Extensions;
 
     [DebuggerDisplay("{GetPath()}")]
     internal class DictionarySourceMember : IQualifiedMember
@@ -34,6 +33,7 @@ namespace AgileObjects.AgileMapper.Members
             _targetMember = targetMember;
             Type = sourceType;
             EntryMember = new DictionaryEntrySourceMember(Type.GetGenericArguments()[1], _targetMember, this);
+            HasObjectEntries = EntryType == typeof(object);
 
             CouldContainSourceInstance =
                 HasObjectEntries || (targetMember.IsEnumerable == EntryType.IsEnumerable());
@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public DictionaryEntrySourceMember EntryMember { get; }
 
-        public bool HasObjectEntries => EntryType == typeof(object);
+        public bool HasObjectEntries { get; }
 
         public bool IsEnumerable => true;
 

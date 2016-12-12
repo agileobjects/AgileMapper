@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
         {
-            if (!mapperData.Context.IsForDerivedType && mapperData.TargetMemberIsEnumerableElement())
+            if (SourceObjectCouldBeNull(mapperData))
             {
                 yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
             }
@@ -37,6 +37,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 yield return alreadyMappedShortCircuit;
             }
+        }
+
+        private static bool SourceObjectCouldBeNull(IMemberMapperData mapperData)
+        {
+            if (mapperData.Context.IsForDerivedType)
+            {
+                return false;
+            }
+
+            if (mapperData.TargetMemberIsEnumerableElement())
+            {
+                return !mapperData.HasSameSourceAsParent();
+            }
+
+            return false;
         }
 
         private static readonly MethodInfo _tryGetMethod = typeof(IObjectMappingDataUntyped).GetMethod("TryGet");
