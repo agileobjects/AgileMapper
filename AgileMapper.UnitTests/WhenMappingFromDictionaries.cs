@@ -237,6 +237,23 @@
         }
 
         [Fact]
+        public void ShouldPopulateANestedComplexTypeCollectionFromTypedDottedEntries()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["Value[0].ProductId"] = "Spade",
+                ["Value[0].Price"] = "100.00",
+                ["Value[0].HowMega"] = "1.01"
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<ICollection<MegaProduct>>>();
+
+            result.Value.ShouldHaveSingleItem();
+            result.Value.First().ProductId.ShouldBe("Spade");
+            result.Value.First().Price.ShouldBe(100.00);
+            result.Value.First().HowMega.ShouldBe(1.01);
+        }
+
+        [Fact]
         public void ShouldReuseAnExistingListIfNoEntriesMatch()
         {
             var source = new Dictionary<string, object>();

@@ -31,17 +31,19 @@ namespace AgileObjects.AgileMapper.DataSources
             .GetPublicInstanceMethods()
             .First(m => (m.Name == "StartsWith") && (m.GetParameters().Length == 2));
 
-        private static readonly MethodInfo _stringConcatTwoMethod = typeof(string)
+        private static readonly MethodInfo[] _stringConcatMethods = typeof(string)
             .GetPublicStaticMethods()
-            .First(m => (m.Name == "Concat") &&
-                        (m.GetParameters().Length == 2) &&
-                        (m.GetParameters().First().ParameterType == typeof(string)));
-
-        private static readonly MethodInfo _stringConcatThreeMethod = typeof(string)
-            .GetPublicStaticMethods()
-            .First(m => (m.Name == "Concat") &&
-                        (m.GetParameters().Length == 3) &&
-                        (m.GetParameters().First().ParameterType == typeof(string)));
+            .Where(m => m.Name == "Concat")
+            .Select(m => new
+            {
+                Method = m,
+                Parameters = m.GetParameters(),
+                FirstParameterType = m.GetParameters().First().ParameterType
+            })
+            .Where(m => (m.FirstParameterType == typeof(string)) || (m.FirstParameterType == typeof(IEnumerable<string>)))
+            .OrderBy(m => m.Parameters.Length)
+            .Select(m => m.Method)
+            .ToArray();
 
         #endregion
 
@@ -80,9 +82,9 @@ namespace AgileObjects.AgileMapper.DataSources
                 if (mapperData.TargetMemberIsEnumerableElement())
                 {
                     var index = mapperData.Parent.EnumerablePopulationBuilder.Counter;
-                    var indexString = GetTargetMemberDictionaryElementKey(mapperData, index);
+                    var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(mapperData, index);
 
-                    memberPartExpressions.Add(indexString);
+                    memberPartExpressions.InsertRange(0, elementKeyParts);
 
                     targetMemberIsNotWithinEnumerable = false;
                     mapperData = mapperData.Parent;
@@ -91,7 +93,12 @@ namespace AgileObjects.AgileMapper.DataSources
 
                 var memberName = mapperData.TargetMember.LeafMember.JoiningName;
 
-                memberPartExpressions.Add(Expression.Constant(memberName, typeof(string)));
+                if (mapperData.Parent.IsRoot)
+                {
+                    memberName = RemoveLeadingDotFrom(memberName);
+                }
+
+                memberPartExpressions.Insert(0, Expression.Constant(memberName, typeof(string)));
 
                 joinedName = memberName + joinedName;
                 mapperData = mapperData.Parent;
@@ -101,46 +108,76 @@ namespace AgileObjects.AgileMapper.DataSources
             {
                 if (joinedName.StartsWith('.'))
                 {
-                    joinedName = joinedName.Substring(1);
+                    joinedName = RemoveLeadingDotFrom(joinedName);
                 }
 
                 return Expression.Constant(joinedName, typeof(string));
             }
 
-            var targetMemberKeyConcatenation = memberPartExpressions.Chain(
-                firstPart => firstPart,
-                (namePart, nameSoFar) => Expression.Call(_stringConcatTwoMethod, nameSoFar, namePart));
+            OptimiseNamePartsForStringConcat(memberPartExpressions);
 
-            return targetMemberKeyConcatenation;
+            return GetStringConcatCall(memberPartExpressions);
         }
 
         public Expression GetTargetMemberDictionaryEnumerableElementKey(
             IMemberMapperData mapperData,
             Expression index)
         {
-            return GetTargetMemberDictionaryElementKey(
+            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(
                 mapperData,
                 index,
                 mapperData.IsRoot ? null : mapperData.TargetMember.Name);
+
+            return GetStringConcatCall(elementKeyParts.ToArray());
         }
 
-        private static Expression GetTargetMemberDictionaryElementKey(
+        private static IEnumerable<Expression> GetTargetMemberDictionaryElementKeyParts(
             IMemberMapperData mapperData,
             Expression index,
             string memberName = null)
         {
-            var openBrace = Expression.Constant(memberName + "[");
-            var indexString = mapperData.MapperContext.ValueConverters.GetConversion(index, typeof(string));
-            var closeBrace = Expression.Constant("]");
+            yield return Expression.Constant(memberName + "[");
+            yield return mapperData.MapperContext.ValueConverters.GetConversion(index, typeof(string));
+            yield return Expression.Constant("]");
+        }
 
-            var nameConstant = Expression.Call(
-                null,
-                _stringConcatThreeMethod,
-                openBrace,
-                indexString,
-                closeBrace);
+        private static Expression GetStringConcatCall(ICollection<Expression> elements)
+        {
+            if (_stringConcatMethods.Length >= elements.Count)
+            {
+                var concatMethod = _stringConcatMethods[elements.Count - 1];
 
-            return nameConstant;
+                return Expression.Call(null, concatMethod, elements);
+            }
+
+            var concatEnumerableMethod = _stringConcatMethods.First();
+            var newStringArray = Expression.NewArrayInit(typeof(string), elements);
+
+            return Expression.Call(null, concatEnumerableMethod, newStringArray);
+        }
+
+        private static string RemoveLeadingDotFrom(string name) => name.Substring(1);
+
+        private static void OptimiseNamePartsForStringConcat(IList<Expression> nameParts)
+        {
+            var currentNamePart = string.Empty;
+
+            for (var i = nameParts.Count - 1; i >= 0; --i)
+            {
+                var namePart = nameParts[i];
+
+                if (namePart.NodeType == ExpressionType.Constant)
+                {
+                    currentNamePart = (string)((ConstantExpression)namePart).Value + currentNamePart;
+                    nameParts.RemoveAt(i);
+                    continue;
+                }
+
+                nameParts.Add(Expression.Constant(currentNamePart, typeof(string)));
+                currentNamePart = string.Empty;
+            }
+
+            nameParts.Insert(0, Expression.Constant(currentNamePart, typeof(string)));
         }
 
         public Expression GetMatchingKeyAssignment(Expression targetMemberKey, IMemberMapperData mapperData)
@@ -206,7 +243,10 @@ namespace AgileObjects.AgileMapper.DataSources
             return keyMatchesQueryCall;
         }
 
-        public Expression GetEntryValueAccess(IMemberMapperData mapperData, Expression key = null)
-            => mapperData.SourceObject.GetIndexAccess(key ?? Key);
+        public Expression GetEntryValueAccess(IMemberMapperData mapperData)
+            => GetEntryValueAccess(mapperData, Key);
+
+        public Expression GetEntryValueAccess(IMemberMapperData mapperData, Expression key)
+            => mapperData.SourceObject.GetIndexAccess(key);
     }
 }
