@@ -106,11 +106,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
             if (targetMemberIsNotWithinEnumerable)
             {
-                if (joinedName.StartsWith('.'))
-                {
-                    joinedName = RemoveLeadingDotFrom(joinedName);
-                }
-
                 return Expression.Constant(joinedName, typeof(string));
             }
 

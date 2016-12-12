@@ -10,17 +10,19 @@ namespace AgileObjects.AgileMapper.Members
     internal class DictionaryEntrySourceMember : IQualifiedMember
     {
         private readonly QualifiedMember _matchedTargetMember;
+        private readonly DictionarySourceMember _parent;
         private readonly Func<string> _pathFactory;
         private readonly Member[] _childMembers;
 
         public DictionaryEntrySourceMember(
             Type entryType,
             QualifiedMember matchedTargetMember,
-            IQualifiedMember parent)
+            DictionarySourceMember parent)
             : this(
                 entryType,
-                () => parent.GetPath() + "'" + matchedTargetMember.Name + "']",
-                matchedTargetMember)
+                () => parent.GetPath() + "['" + matchedTargetMember.Name + "']",
+                matchedTargetMember,
+                parent)
         {
         }
 
@@ -29,6 +31,7 @@ namespace AgileObjects.AgileMapper.Members
                 childMember.Type,
                 () => parent.GetPath() + "." + childMember.Name,
                 parent._matchedTargetMember.Append(childMember),
+                parent._parent,
                 parent._childMembers.Append(childMember))
         {
         }
@@ -37,12 +40,14 @@ namespace AgileObjects.AgileMapper.Members
             Type type,
             Func<string> pathFactory,
             QualifiedMember matchedTargetMember,
+            DictionarySourceMember parent,
             Member[] childMembers = null)
         {
             Type = type;
             IsEnumerable = type.IsEnumerable();
             _pathFactory = pathFactory;
             _matchedTargetMember = matchedTargetMember;
+            _parent = parent;
             _childMembers = childMembers ?? new[] { Member.RootSource("Source", type) };
         }
 
@@ -70,6 +75,7 @@ namespace AgileObjects.AgileMapper.Members
                 Type,
                 _pathFactory,
                 _matchedTargetMember,
+                _parent,
                 relativeMemberChain);
         }
 
@@ -88,12 +94,18 @@ namespace AgileObjects.AgileMapper.Members
                 runtimeType,
                 _pathFactory,
                 _matchedTargetMember,
+                _parent,
                 childMembers);
         }
 
         public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 
-        public bool Matches(IQualifiedMember otherMember) => _matchedTargetMember.Matches(otherMember);
+        public bool Matches(IQualifiedMember otherMember)
+        {
+            return (otherMember == _parent)
+                ? Type.IsDictionary()
+                : _matchedTargetMember.Matches(otherMember);
+        }
 
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
     }
