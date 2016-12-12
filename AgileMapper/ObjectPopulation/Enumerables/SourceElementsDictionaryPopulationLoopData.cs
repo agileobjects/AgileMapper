@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 ? builder.Context.ElementTypesAreAssignable
                 : sourceMember.HasObjectEntries;
 
-            TargetElementKey = Expression.Variable(typeof(string), "targetKeyBalls");
+            TargetElementKey = Expression.Variable(typeof(string), "targetKey");
             SourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
             LoopExitCheck = MapperData.IsRoot ? GetRootLoopExitCheck() : GetKeyNotFoundLoopExitCheck();
         }
