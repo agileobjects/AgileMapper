@@ -31,6 +31,12 @@ namespace AgileObjects.AgileMapper.DataSources
             .GetPublicInstanceMethods()
             .First(m => (m.Name == "StartsWith") && (m.GetParameters().Length == 2));
 
+        private static readonly MethodInfo _stringJoinMethod = typeof(string)
+            .GetPublicStaticMethods()
+            .First(m => (m.Name == "Join") &&
+                        (m.GetParameters().Length == 2) &&
+                        (m.GetParameters()[1].ParameterType == typeof(string[])));
+
         private static readonly MethodInfo[] _stringConcatMethods = typeof(string)
             .GetPublicStaticMethods()
             .Where(m => m.Name == "Concat")
@@ -40,7 +46,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 Parameters = m.GetParameters(),
                 FirstParameterType = m.GetParameters().First().ParameterType
             })
-            .Where(m => (m.FirstParameterType == typeof(string)) || (m.FirstParameterType == typeof(IEnumerable<string>)))
+            .Where(m => m.FirstParameterType == typeof(string))
             .OrderBy(m => m.Parameters.Length)
             .Select(m => m.Method)
             .ToArray();
@@ -71,6 +77,20 @@ namespace AgileObjects.AgileMapper.DataSources
             => GetMatchingKeyAssignment(GetTargetMemberDictionaryKey(mapperData), mapperData);
 
         private static Expression GetTargetMemberDictionaryKey(IMemberMapperData childMapperData)
+        {
+            var keyParts = GetTargetMemberDictionaryKeyParts(childMapperData);
+
+            OptimiseNamePartsForStringConcat(keyParts);
+
+            if ((keyParts.Count == 1) && (keyParts.First().NodeType == ExpressionType.Constant))
+            {
+                return keyParts.First();
+            }
+
+            return GetStringConcatCall(keyParts);
+        }
+
+        private static IList<Expression> GetTargetMemberDictionaryKeyParts(IMemberMapperData childMapperData)
         {
             var mapperData = childMapperData;
             var joinedName = string.Empty;
@@ -106,49 +126,52 @@ namespace AgileObjects.AgileMapper.DataSources
 
             if (targetMemberIsNotWithinEnumerable)
             {
-                return Expression.Constant(joinedName, typeof(string));
+                memberPartExpressions.Clear();
+                memberPartExpressions.Add(Expression.Constant(joinedName, typeof(string)));
             }
 
-            OptimiseNamePartsForStringConcat(memberPartExpressions);
-
-            return GetStringConcatCall(memberPartExpressions);
+            return memberPartExpressions;
         }
 
         public Expression GetTargetMemberDictionaryEnumerableElementKey(
             IMemberMapperData mapperData,
             Expression index)
         {
-            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(
-                mapperData,
-                index,
-                mapperData.IsRoot ? null : mapperData.TargetMember.Name);
+            var keyParts = GetTargetMemberDictionaryKeyParts(mapperData);
+            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(mapperData, index);
 
-            return GetStringConcatCall(elementKeyParts.ToArray());
+            foreach (var elementKeyPart in elementKeyParts)
+            {
+                keyParts.Add(elementKeyPart);
+            }
+
+            OptimiseNamePartsForStringConcat(keyParts);
+
+            return GetStringConcatCall(keyParts);
         }
 
         private static IEnumerable<Expression> GetTargetMemberDictionaryElementKeyParts(
             IMemberMapperData mapperData,
-            Expression index,
-            string memberName = null)
+            Expression index)
         {
-            yield return Expression.Constant(memberName + "[");
+            yield return Expression.Constant("[");
             yield return mapperData.MapperContext.ValueConverters.GetConversion(index, typeof(string));
             yield return Expression.Constant("]");
         }
 
         private static Expression GetStringConcatCall(ICollection<Expression> elements)
         {
-            if (_stringConcatMethods.Length >= elements.Count)
+            if (_stringConcatMethods.Length >= elements.Count - 1)
             {
-                var concatMethod = _stringConcatMethods[elements.Count - 1];
+                var concatMethod = _stringConcatMethods[elements.Count - 2];
 
                 return Expression.Call(null, concatMethod, elements);
             }
 
-            var concatEnumerableMethod = _stringConcatMethods.First();
+            var emptyString = Expression.Field(null, typeof(string), "Empty");
             var newStringArray = Expression.NewArrayInit(typeof(string), elements);
 
-            return Expression.Call(null, concatEnumerableMethod, newStringArray);
+            return Expression.Call(null, _stringJoinMethod, emptyString, newStringArray);
         }
 
         private static string RemoveLeadingDotFrom(string name) => name.Substring(1);
@@ -168,7 +191,7 @@ namespace AgileObjects.AgileMapper.DataSources
                     continue;
                 }
 
-                nameParts.Add(Expression.Constant(currentNamePart, typeof(string)));
+                nameParts.Insert(i + 1, Expression.Constant(currentNamePart, typeof(string)));
                 currentNamePart = string.Empty;
             }
 

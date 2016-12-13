@@ -326,7 +326,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData DeclaredTypeMapperData { get; }
 
-        public IEnumerable<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
+        public ICollection<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
 
         public int DataSourceIndex { get; set; }
 
@@ -448,7 +448,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
-            Context.NeedsChildMapping = true;
+            Context.ChildMappingNeeded();
 
             return GetMapChildCall(
                 MappingDataObject,
@@ -481,7 +481,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
         {
-            Context.NeedsElementMapping = true;
+            Context.ElementMappingNeeded();
 
             var mapCall = Expression.Call(
                 MappingDataObject,

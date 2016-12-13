@@ -9,7 +9,7 @@
 
     internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
-        public bool IsFor(IMemberMapperData mapperData) => mapperData.HasSourceDictionary();
+        public bool IsFor(IMemberMapperData mapperData) => mapperData.HasUseableSourceDictionary();
 
         public IDataSource Create(IChildMemberMappingData mappingData)
         {

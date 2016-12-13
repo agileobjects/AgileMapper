@@ -2,6 +2,8 @@
 {
     internal class MappingInstanceData<TSource, TTarget> : IMappingData<TSource, TTarget>, IMappingData
     {
+        private readonly IMappingData _parent;
+
         protected MappingInstanceData(IMappingData<TSource, TTarget> mappingData)
             : this(mappingData.Source, mappingData.Target, mappingData.EnumerableIndex, mappingData.Parent)
         {
@@ -13,13 +15,15 @@
             int? enumerableIndex,
             IMappingData parent)
         {
-            Parent = parent;
+            _parent = parent;
             Source = source;
             Target = target;
             EnumerableIndex = enumerableIndex;
         }
 
-        public IMappingData Parent { get; }
+        IMappingData IMappingData.Parent => _parent;
+
+        IMappingData IMappingData<TSource, TTarget>.Parent => _parent;
 
         public TSource Source { get; }
 
@@ -31,7 +35,7 @@
 
         T IMappingData.GetTarget<T>() => Target as T;
 
-        public int? GetEnumerableIndex() => EnumerableIndex ?? Parent?.GetEnumerableIndex();
+        public int? GetEnumerableIndex() => EnumerableIndex ?? _parent?.GetEnumerableIndex();
 
         IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
         {
@@ -41,7 +45,7 @@
                 thisMappingData.GetSource<TDataSource>(),
                 thisMappingData.GetSource<TDataTarget>(),
                 GetEnumerableIndex(),
-                Parent);
+                _parent);
         }
     }
 }

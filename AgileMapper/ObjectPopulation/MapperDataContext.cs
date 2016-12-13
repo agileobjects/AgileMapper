@@ -37,9 +37,47 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsForNewElement { get; set; }
 
-        public bool NeedsChildMapping { get; set; }
+        public bool NeedsChildMapping { get; private set; }
 
-        public bool NeedsElementMapping { get; set; }
+        public void ChildMappingNeeded()
+        {
+            if (NeedsChildMapping)
+            {
+                return;
+            }
+
+            NeedsChildMapping = true;
+            BubbleMappingNeededToParent();
+        }
+
+        public bool NeedsElementMapping { get; private set; }
+
+        public void ElementMappingNeeded()
+        {
+            if (NeedsElementMapping)
+            {
+                return;
+            }
+
+            NeedsElementMapping = true;
+            BubbleMappingNeededToParent();
+        }
+
+        private void BubbleMappingNeededToParent()
+        {
+            if (_mapperData.IsRoot)
+            {
+                return;
+            }
+
+            if (_mapperData.TargetMemberIsEnumerableElement())
+            {
+                _mapperData.Parent.Context.ElementMappingNeeded();
+                return;
+            }
+
+            _mapperData.Parent.Context.ChildMappingNeeded();
+        }
 
         public bool UsesMappingDataObjectAsParameter
         {

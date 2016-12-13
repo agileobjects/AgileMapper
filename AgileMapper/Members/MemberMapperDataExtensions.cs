@@ -95,7 +95,7 @@ namespace AgileObjects.AgileMapper.Members
             return nonSimpleChildMembers.Any(m => TargetMemberRecursesWithin(parentMember.Append(m), member));
         }
 
-        public static bool HasSourceDictionary(this IMemberMapperData mapperData)
+        public static bool HasUseableSourceDictionary(this IMemberMapperData mapperData)
         {
             if (!mapperData.SourceType.IsDictionary())
             {
@@ -167,23 +167,6 @@ namespace AgileObjects.AgileMapper.Members
             var typedAccess = mapperData.GetTypedContextAccess(access, contextTypes);
 
             return typedAccess;
-        }
-
-        public static Expression GetParentMappingDataObjectAccess(this IMemberMapperData mapperData)
-        {
-            if (mapperData.IsRoot)
-            {
-                return mapperData.MappingDataObject;
-            }
-
-            var parentAccess = GetAppropriateMappingContextAccess(
-                mapperData,
-                mapperData.Parent.SourceType,
-                mapperData.Parent.TargetType);
-
-            return (parentAccess.NodeType == ExpressionType.MemberAccess)
-                ? Expression.Convert(parentAccess, typeof(IObjectMappingData))
-                : parentAccess;
         }
 
         public static Expression GetAppropriateMappingContextAccess(this IMemberMapperData mapperData, params Type[] contextTypes)

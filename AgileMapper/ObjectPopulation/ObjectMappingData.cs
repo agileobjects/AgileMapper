@@ -12,7 +12,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {
-        private readonly IObjectMappingData _parent;
         private readonly Dictionary<object, List<object>> _mappedObjectsBySource;
         private ObjectMapper<TSource, TTarget> _mapper;
         private ObjectMapperData _mapperData;
@@ -51,7 +50,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (parent != null)
             {
-                _parent = parent;
+                Parent = parent;
                 return;
             }
 
@@ -91,16 +90,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsRoot { get; }
 
-        IObjectMappingData IObjectMappingData.Parent => _parent;
+        public IObjectMappingData Parent { get; }
 
-        IObjectMappingDataUntyped IObjectMappingData<TSource, TTarget>.Parent => _parent;
+        IObjectMappingDataUntyped IObjectMappingData<TSource, TTarget>.Parent => Parent;
 
         public bool IsPartOfDerivedTypeMapping => DeclaredTypeMappingData != null;
 
         public IObjectMappingData DeclaredTypeMappingData { get; }
 
         public ObjectMapperData MapperData
-            => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For<TSource, TTarget>(this));
+        {
+            get { return _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For<TSource, TTarget>(this)); }
+            set { _mapperData = value; }
+        }
 
         private ChildMemberMappingData<TSource, TTarget> _childMappingData;
 
@@ -168,7 +170,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     this);
             }
 
-            return _parent.MapRecursion(
+            return Parent.MapRecursion(
                 sourceValue,
                 targetValue,
                 targetMemberName,
@@ -182,7 +184,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (!IsRoot)
             {
-                return _parent.TryGet(key, out complexType);
+                return Parent.TryGet(key, out complexType);
             }
 
             List<object> mappedTargets;
@@ -201,7 +203,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (!IsRoot)
             {
-                _parent.Register(key, complexType);
+                Parent.Register(key, complexType);
                 return;
             }
 
@@ -247,7 +249,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 MapperKey.WithTypes<TNewSource, TNewTarget>(),
                 MappingContext,
                 this,
-                _parent);
+                Parent);
         }
     }
 }

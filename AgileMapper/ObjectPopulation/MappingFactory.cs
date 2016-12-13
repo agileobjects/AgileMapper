@@ -144,7 +144,7 @@
                     mappingValues.EnumerableIndex,
                     Expression.Constant(childMapperData.TargetMember.RegistrationName),
                     Expression.Constant(dataSourceIndex),
-                    declaredTypeMapperData.GetParentMappingDataObjectAccess()
+                    childMapperData.Parent.MappingDataObject
                 });
 
             return inlineMappingBlock;
