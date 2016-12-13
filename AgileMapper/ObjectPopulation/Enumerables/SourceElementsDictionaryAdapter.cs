@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             => Expression.Property(_builder.MapperData.SourceObject, "Values");
 
         public Expression GetSourceCountAccess()
-            => Expression.Property(_builder.SourceVariable, "Count");
+            => Expression.Property(_builder.SourceValue, "Count");
 
         public IPopulationLoopData GetPopulationLoopData()
             => new SourceElementsDictionaryPopulationLoopData(_sourceMember, _builder);

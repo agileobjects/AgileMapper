@@ -51,7 +51,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression Adapt(LoopExpression loop)
         {
-            var sourceEnumerableFoundTest = Expression.NotEqual(_builder.SourceVariable, _emptyTarget);
+            var sourceEnumerableFoundTest = Expression.NotEqual(_builder.SourceValue, _emptyTarget);
             var assignSourceEnumerableFound = Expression.Assign(_sourceEnumerableFound, sourceEnumerableFoundTest);
 
             var adaptedLoop = _elementsDictionaryLoopData.Adapt(loop);

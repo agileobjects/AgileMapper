@@ -14,13 +14,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetSourceValue() => _builder.MapperData.SourceObject;
 
-        public Expression GetSourceValues() => _builder.SourceVariable;
+        public Expression GetSourceValues() => _builder.SourceValue;
 
         public Expression GetSourceCountAccess()
         {
             if (_builder.SourceTypeHelper.IsArray)
             {
-                return Expression.Property(_builder.SourceVariable, "Length");
+                return Expression.Property(_builder.SourceValue, "Length");
             }
 
             var countPropertyInfo = _builder
@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 .CollectionInterfaceType
                 .GetPublicInstanceProperty("Count");
 
-            return Expression.Property(_builder.SourceVariable, countPropertyInfo);
+            return Expression.Property(_builder.SourceValue, countPropertyInfo);
         }
 
         public IPopulationLoopData GetPopulationLoopData()

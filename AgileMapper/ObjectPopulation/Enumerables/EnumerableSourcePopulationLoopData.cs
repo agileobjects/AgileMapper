@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             Func<Expression, Expression> finallyClauseFactory)
         {
             var getEnumeratorMethod = _builder.SourceTypeHelper.EnumerableInterfaceType.GetMethod("GetEnumerator");
-            var getEnumeratorCall = Expression.Call(_builder.SourceVariable, getEnumeratorMethod);
+            var getEnumeratorCall = Expression.Call(_builder.SourceValue, getEnumeratorMethod);
             var enumeratorValue = enumeratorValueFactory.Invoke(getEnumeratorCall);
             var enumeratorAssignment = Expression.Assign(_enumerator, enumeratorValue);
 

@@ -38,6 +38,7 @@
 
         private readonly SourceItemsSelector _sourceItemsSelector;
         private readonly ISourceEnumerableAdapter _sourceAdapter;
+        private ParameterExpression _sourceVariable;
         private readonly ParameterExpression _sourceElementParameter;
         private readonly ICollection<Expression> _populationExpressions;
         private LambdaExpression _sourceElementIdLambda;
@@ -64,9 +65,9 @@
         {
             var variables = new List<ParameterExpression>(2);
 
-            if (builder.SourceVariable != null)
+            if (builder._sourceVariable != null)
             {
-                variables.Add(builder.SourceVariable);
+                variables.Add(builder._sourceVariable);
             }
 
             if (builder._collectionDataVariable != null)
@@ -198,31 +199,49 @@
 
         public EnumerableTypeHelper SourceTypeHelper { get; private set; }
 
-        public ParameterExpression SourceVariable { get; private set; }
+        public Expression SourceValue { get; private set; }
 
         public Expression GetSourceCountAccess() => _sourceAdapter.GetSourceCountAccess();
 
-        public Expression GetSourceIndexAccess() => SourceVariable.GetIndexAccess(Counter);
+        public Expression GetSourceIndexAccess() => SourceValue.GetIndexAccess(Counter);
 
         public EnumerableTypeHelper TargetTypeHelper { get; }
 
         public ParameterExpression TargetVariable { get; private set; }
 
-        public void AssignSourceVariableFromSourceObject() => AssignSourceVariableFrom(_sourceAdapter.GetSourceValue());
+        public void AssignSourceVariableFromSourceObject()
+        {
+            SourceValue = _sourceAdapter.GetSourceValue();
+
+            if ((SourceValue == MapperData.SourceObject) && MapperData.HasSameSourceAsParent())
+            {
+                CreateSourceTypeHelper(SourceValue);
+                return;
+            }
+
+            AssignSourceVariableFrom(SourceValue);
+        }
 
         public void AssignSourceVariableFrom(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)
             => AssignSourceVariableFrom(sourceItemsSelection.Invoke(_sourceItemsSelector).GetResult());
 
         private void AssignSourceVariableFrom(Expression sourceValue)
         {
+            CreateSourceTypeHelper(sourceValue);
+
+            _sourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
+            var sourceVariableAssignment = Expression.Assign(_sourceVariable, sourceValue);
+
+            SourceValue = _sourceVariable;
+
+            _populationExpressions.Add(sourceVariableAssignment);
+        }
+
+        private void CreateSourceTypeHelper(Expression sourceValue)
+        {
             SourceTypeHelper = new EnumerableTypeHelper(
                 sourceValue.Type,
                 Context.ElementTypesAreTheSame ? Context.TargetElementType : sourceValue.Type.GetEnumerableElementType());
-
-            SourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
-            var sourceVariableAssignment = Expression.Assign(SourceVariable, sourceValue);
-
-            _populationExpressions.Add(sourceVariableAssignment);
         }
 
         #region Target Variable Population
