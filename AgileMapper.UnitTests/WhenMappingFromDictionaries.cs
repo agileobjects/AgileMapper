@@ -11,7 +11,7 @@
     public class WhenMappingFromDictionaries
     {
         [Fact]
-        public void ShouldPopulateASimpleTypeMember()
+        public void ShouldPopulateAnIntMemberFromATypedEntry()
         {
             var source = new Dictionary<string, int> { ["Value"] = 123 };
             var result = Mapper.Map(source).ToANew<PublicField<int>>();
@@ -21,7 +21,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeMemberCaseInsensitively()
+        public void ShouldPopulateAStringMemberFromATypedEntryCaseInsensitively()
         {
             var source = new Dictionary<string, string> { ["value"] = "Hello" };
             var result = Mapper.Map(source).ToANew<PublicField<string>>();
@@ -30,7 +30,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeSetMethod()
+        public void ShouldPopulateAStringSetMethodFromATypedEntry()
         {
             var source = new Dictionary<string, string> { ["SetValue"] = "Goodbye" };
             var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
@@ -48,12 +48,21 @@
         }
 
         [Fact]
-        public void ShouldPopulateANestedSimpleTypeMemberByDottedName()
+        public void ShouldPopulateANestedStringMemberFromTypedDottedEntries()
         {
             var source = new Dictionary<string, string> { ["Value.Value"] = "Over there!" };
             var result = Mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
 
             result.Value.Value.ShouldBe("Over there!");
+        }
+
+        [Fact]
+        public void ShouldPopulateANestedBoolMemberFromUntypedDottedEntries()
+        {
+            var source = new Dictionary<string, object> { ["Value.Value"] = "true" };
+            var result = Mapper.Map(source).ToANew<PublicProperty<PublicProperty<bool>>>();
+
+            result.Value.Value.ShouldBeTrue();
         }
 
         [Fact]

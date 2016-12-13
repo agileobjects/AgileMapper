@@ -20,6 +20,21 @@
 
         public Expression GetConversion(Expression sourceValue)
         {
+            var toStringCall = GetConversionNoNullCheck(sourceValue);
+
+            if (!sourceValue.Type.IsNullableType() && sourceValue.Type.CanBeNull())
+            {
+                toStringCall = Expression.Condition(
+                    sourceValue.GetIsNotDefaultComparison(),
+                    toStringCall,
+                    Expression.Default(typeof(string)));
+            }
+
+            return toStringCall;
+        }
+
+        public Expression GetConversionNoNullCheck(Expression sourceValue)
+        {
             if (sourceValue.Type == typeof(byte[]))
             {
                 return GetBase64StringToByteArrayConversion(sourceValue);
@@ -30,14 +45,6 @@
                 .First(m => m.Name == "ToString");
 
             Expression toStringCall = Expression.Call(sourceValue, toStringMethod);
-
-            if (!sourceValue.Type.IsNullableType() && sourceValue.Type.CanBeNull())
-            {
-                toStringCall = Expression.Condition(
-                    sourceValue.GetIsNotDefaultComparison(),
-                    toStringCall,
-                    Expression.Default(typeof(string)));
-            }
 
             return toStringCall;
         }

@@ -23,7 +23,7 @@
             {
                 toStringConverter,
                 new ToNumericConverter<int>(toStringConverter),
-                new ToBoolConverter(),
+                new ToBoolConverter(toStringConverter),
                 new ToEnumConverter(toStringConverter),
                 new DefaultTryParseConverter<DateTime>(toStringConverter),
                 new DefaultTryParseConverter<Guid>(toStringConverter),

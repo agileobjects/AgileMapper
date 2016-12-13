@@ -23,10 +23,6 @@ namespace AgileObjects.AgileMapper.DataSources
             .First(m => (m.Name == "None") && (m.GetParameters().Length == 2))
             .MakeGenericMethod(typeof(string));
 
-        private static readonly MethodInfo _stringEqualsMethod = typeof(string)
-            .GetPublicInstanceMethods()
-            .First(m => (m.Name == "Equals") && (m.GetParameters().Length == 2));
-
         private static readonly MethodInfo _stringStartsWithMethod = typeof(string)
             .GetPublicInstanceMethods()
             .First(m => (m.Name == "StartsWith") && (m.GetParameters().Length == 2));
@@ -203,11 +199,7 @@ namespace AgileObjects.AgileMapper.DataSources
             var firstMatchingKeyOrNull = GetKeyMatchingQuery(
                 targetMemberKey,
                 Expression.Equal,
-                (keyParameter, targetKey) => Expression.Call(
-                    keyParameter,
-                    _stringEqualsMethod,
-                    targetKey,
-                    Expression.Constant(StringComparison.OrdinalIgnoreCase, typeof(StringComparison))),
+                (keyParameter, targetKey) => keyParameter.GetCaseInsensitiveEquals(targetKey),
                 _linqFirstOrDefaultMethod,
                 mapperData);
 

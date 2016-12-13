@@ -235,6 +235,33 @@
         }
 
         [Fact]
+        public void ShouldMapAStringTrueOnToABool()
+        {
+            var source = new PublicProperty<string> { Value = "true" };
+            var result = Mapper.Map(source).OnTo(new PublicSetMethod<bool>());
+
+            result.Value.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldMapAStringTrueOnToANullableBoolCaseInsensitively()
+        {
+            var source = new PublicProperty<string> { Value = "tRuE" };
+            var result = Mapper.Map(source).OnTo(new PublicField<bool?>());
+
+            result.Value.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldMapAStringFalseOnToANullableBool()
+        {
+            var source = new PublicProperty<string> { Value = "false" };
+            var result = Mapper.Map(source).OnTo(new PublicSetMethod<bool?>());
+
+            result.Value.ShouldBeFalse();
+        }
+
+        [Fact]
         public void ShouldMapAStringOneOverABool()
         {
             var source = new PublicField<string> { Value = "1" };
@@ -295,6 +322,42 @@
             var result = Mapper.Map(source).ToANew<PublicField<bool>>();
 
             result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectStringTrueToABool()
+        {
+            var source = new PublicProperty<object> { Value = "true" };
+            var result = Mapper.Map(source).ToANew<PublicProperty<bool>>();
+
+            result.Value.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectStringZeroToANullableBool()
+        {
+            var source = new PublicProperty<object> { Value = "0" };
+            var result = Mapper.Map(source).ToANew<PublicField<bool?>>();
+
+            result.Value.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectNonBoolStringToANullableBool()
+        {
+            var source = new PublicProperty<object> { Value = "jfkdlk" };
+            var result = Mapper.Map(source).ToANew<PublicProperty<bool?>>();
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectLongOneToANullableBool()
+        {
+            var source = new PublicProperty<object> { Value = 1L };
+            var result = Mapper.Map(source).ToANew<PublicProperty<bool?>>();
+
+            result.Value.ShouldBeTrue();
         }
     }
 }

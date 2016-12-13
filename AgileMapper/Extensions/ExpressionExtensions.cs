@@ -23,6 +23,10 @@
         private static readonly MethodInfo _toListMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToList");
 
+        private static readonly MethodInfo _stringEqualsMethod = typeof(string)
+            .GetPublicInstanceMethods()
+            .First(m => (m.Name == "Equals") && (m.GetParameters().Length == 2));
+
         public static Expression AndTogether(this ICollection<Expression> expressions)
         {
             if (expressions.None())
@@ -55,6 +59,15 @@
             loopBody = loopBody.Update(loopBody.Variables.Concat(variable), loopBodyExpressions);
 
             return loop.Update(loop.BreakLabel, loop.ContinueLabel, loopBody);
+        }
+
+        public static Expression GetCaseInsensitiveEquals(this Expression stringValue, Expression comparisonValue)
+        {
+            return Expression.Call(
+                stringValue,
+                _stringEqualsMethod,
+                comparisonValue,
+                Expression.Constant(StringComparison.OrdinalIgnoreCase, typeof(StringComparison)));
         }
 
         public static Expression GetIsNotDefaultComparisonsOrNull(this IEnumerable<Expression> expressions)

@@ -1,6 +1,8 @@
 namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
+    using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
@@ -10,8 +12,15 @@ namespace AgileObjects.AgileMapper.TypeConversion
     {
         private static readonly Type[] _supportedSourceTypes = Constants
             .NumericTypes
-            .Concat(typeof(bool), typeof(string), typeof(char))
+            .Concat(typeof(bool), typeof(string), typeof(object), typeof(char))
             .ToArray();
+
+        private readonly ToStringConverter _toStringConverter;
+
+        public ToBoolConverter(ToStringConverter toStringConverter)
+        {
+            _toStringConverter = toStringConverter;
+        }
 
         public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
             => (nonNullableTargetType == typeof(bool)) && _supportedSourceTypes.Contains(nonNullableSourceType);
@@ -24,61 +33,86 @@ namespace AgileObjects.AgileMapper.TypeConversion
             }
 
             var nonNullableSourceType = sourceValue.Type.GetNonNullableType();
-            var comparisonValues = GetComparisons(sourceValue, nonNullableSourceType);
 
-            var sourceEqualsTrueValue = Expression.Equal(sourceValue, comparisonValues.Item1);
+            var trueValues = GetTrueValues(sourceValue.Type, nonNullableSourceType);
+            var sourceEqualsTrueTests = GetSourceEqualsTests(sourceValue, trueValues);
 
             if (!targetType.IsNullableType())
             {
-                return sourceEqualsTrueValue;
+                return sourceEqualsTrueTests;
             }
 
-            var sourceEqualsFalseValue = Expression.Equal(sourceValue, comparisonValues.Item2);
+            var falseValues = GetFalseValues(sourceValue.Type, nonNullableSourceType);
+            var sourceEqualsFalseTests = GetSourceEqualsTests(sourceValue, falseValues);
 
             var sourceValueConversion = Expression.Condition(
-                sourceEqualsTrueValue,
+                sourceEqualsTrueTests,
                 Expression.Constant(true, typeof(bool?)),
                 Expression.Condition(
-                    sourceEqualsFalseValue,
+                    sourceEqualsFalseTests,
                     Expression.Constant(false, typeof(bool?)),
                     Expression.Default(typeof(bool?))));
 
             return sourceValueConversion;
         }
 
-        private static Tuple<Expression, Expression> GetComparisons(Expression sourceValue, Type nonNullableSourceType)
+        private static IEnumerable<ConstantExpression> GetTrueValues(Type sourceValueType, Type nonNullableSourceType)
+            => GetValues(sourceValueType, nonNullableSourceType, "true", 1);
+
+        private static IEnumerable<ConstantExpression> GetFalseValues(Type sourceValueType, Type nonNullableSourceType)
+            => GetValues(sourceValueType, nonNullableSourceType, "false", 0);
+
+        private static IEnumerable<ConstantExpression> GetValues(
+            Type sourceValueType,
+            Type nonNullableSourceType,
+            string textValue,
+            int numericValue)
         {
-            if (sourceValue.Type == typeof(string))
+            if ((sourceValueType == typeof(string)) || (sourceValueType == typeof(object)))
             {
-                return GetComparisonsTuple("1", "0");
+                yield return GetConstant(numericValue.ToString(CultureInfo.InvariantCulture));
+                yield return GetConstant(textValue);
+                yield break;
             }
 
             if (nonNullableSourceType == typeof(char))
             {
-                return GetComparisonsTuple('1', '0', sourceValue.Type);
+                yield return GetConstant(numericValue.ToString(CultureInfo.InvariantCulture).First(), sourceValueType);
+                yield break;
             }
 
-            return GetComparisonsTuple(
-                Convert.ChangeType(1, nonNullableSourceType),
-                Convert.ChangeType(0, nonNullableSourceType),
-                sourceValue.Type);
+            yield return GetConstant(Convert.ChangeType(numericValue, nonNullableSourceType), sourceValueType);
         }
 
-        private static Tuple<Expression, Expression> GetComparisonsTuple<T>(
-            T trueValue,
-            T falseValue,
-            Type valueType = null)
+        private static ConstantExpression GetConstant<T>(T value, Type valueType = null)
         {
             if (valueType == null)
             {
                 valueType = typeof(T);
             }
 
-            return Tuple.Create(
-                (Expression)Expression.Constant(trueValue, valueType),
-                (Expression)Expression.Constant(falseValue, valueType));
+            return Expression.Constant(value, valueType);
         }
 
+        private Expression GetSourceEqualsTests(Expression sourceValue, IEnumerable<ConstantExpression> values)
+        {
+            return values.ToArray().Chain(
+                firstValue => GetValueTest(sourceValue, firstValue),
+                (testsSoFar, testValue) => Expression.OrElse(testsSoFar, GetValueTest(sourceValue, testValue)));
+        }
 
+        private Expression GetValueTest(Expression sourceValue, ConstantExpression testValue)
+        {
+            if (sourceValue.Type == typeof(object))
+            {
+                sourceValue = _toStringConverter.GetConversionNoNullCheck(sourceValue);
+            }
+
+            var test = testValue.Value.ToString().Length == 1
+                ? Expression.Equal(sourceValue, testValue)
+                : sourceValue.GetCaseInsensitiveEquals(testValue);
+
+            return test;
+        }
     }
 }
