@@ -38,6 +38,18 @@
             result.Value.ShouldBe("Goodbye");
         }
 
+        [Fact]
+        public void ShouldPopulateADateTimeMemberFromAnUntypedEntry()
+        {
+            var now = DateTime.Now.ToCurrentCultureString();
+
+            var source = new Dictionary<string, object> { ["Value"] = now };
+            var target = new PublicProperty<DateTime> { Value = DateTime.Now.AddHours(1) };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ToCurrentCultureString().ShouldBe(now);
+        }
+
         //[Fact] // TODO: Enable via configuration:
         public void ShouldPopulateAComplexTypeSimpleTypeMemberByFlattenedName()
         {
