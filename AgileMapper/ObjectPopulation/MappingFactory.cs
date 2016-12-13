@@ -273,7 +273,7 @@
             var mapperData = mappingData.MapperData;
             var mapping = mappingData.Mapper.MappingLambda.Body;
 
-            var useLocalSourceValueVariable = UseLocalSourceValueVariable(mappingValues.SourceValue, mapping, mapperData);
+            var useLocalSourceValueVariable = ShouldUseLocalSourceValueVariable(mappingValues.SourceValue, mapping, mapperData);
 
             Expression sourceValue, sourceValueVariableValue = null;
 
@@ -311,10 +311,10 @@
                 : directAccessMapping;
         }
 
-        public static bool UseLocalSourceValueVariable(
+        private static bool ShouldUseLocalSourceValueVariable(
             Expression sourceValue,
             Expression mapping,
-            ObjectMapperData mapperData)
+            IMemberMapperData mapperData)
         {
             return (sourceValue.NodeType != ExpressionType.Parameter) &&
                    SourceAccessFinder.MultipleAccessesExist(mapperData, mapping);
@@ -364,7 +364,7 @@
                 return mappingExpression;
             }
 
-            if (!UseLocalSourceValueVariable(mapperData.SourceObject, mappingExpression, mapperData))
+            if (!ShouldUseLocalSourceValueVariable(mapperData.SourceObject, mappingExpression, mapperData))
             {
                 return mappingExpression;
             }
