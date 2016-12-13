@@ -21,11 +21,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTarget target,
             IMappingContext mappingContext)
         {
+            var mapperKey = new RootObjectMapperKey(MappingTypes.For(source, target), mappingContext);
+
             return Create(
                 source,
                 target,
                 null,
-                (mt, mc) => new RootObjectMapperKey(mt, mc),
+                mapperKey,
                 mappingContext);
         }
 
@@ -113,11 +115,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IChildMembersSource membersSource,
             IObjectMappingData parent)
         {
+            var mapperKey = new ChildObjectMapperKey(MappingTypes.For(source, target), membersSource);
+
             return Create(
                 source,
                 target,
                 enumerableIndex,
-                (mt, mc) => new ChildObjectMapperKey(mt, membersSource),
+                mapperKey,
                 parent.MappingContext,
                 parent);
         }
@@ -204,11 +208,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IMembersSource membersSource,
             IObjectMappingData parent)
         {
+            var mapperKey = new ElementObjectMapperKey(MappingTypes.For(source, target), membersSource);
+
             return Create(
                 source,
                 target,
                 enumerableIndex,
-                (mt, mc) => new ElementObjectMapperKey(mt, membersSource),
+                mapperKey,
                 parent.MappingContext,
                 parent);
         }
@@ -217,14 +223,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource source,
             TDeclaredTarget target,
             int? enumerableIndex,
-            Func<MappingTypes, IMappingContext, ObjectMapperKeyBase> mapperKeyFactory,
+            ObjectMapperKeyBase mapperKey,
             IMappingContext mappingContext,
             IObjectMappingData parent = null)
         {
-            var mappingTypes = MappingTypes.For(source, target);
-            var mapperKey = mapperKeyFactory.Invoke(mappingTypes, mappingContext);
-
-            if (mappingTypes.RuntimeTypesAreTheSame)
+            if (mapperKey.MappingTypes.RuntimeTypesAreTheSame)
             {
                 return new ObjectMappingData<TDeclaredSource, TDeclaredTarget>(
                     source,
@@ -237,7 +240,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (Constants.ReflectionNotPermitted)
             {
-                var createCaller = GetPartialTrustMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mappingTypes);
+                var createCaller = GetPartialTrustMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mapperKey.MappingTypes);
 
                 return (IObjectMappingData)createCaller.Invoke(
                     _bridge,
@@ -249,7 +252,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     parent);
             }
 
-            var constructionFunc = GetMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mappingTypes);
+            var constructionFunc = GetMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mapperKey.MappingTypes);
 
             return constructionFunc.Invoke(
                 source,
