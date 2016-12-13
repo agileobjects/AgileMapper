@@ -79,7 +79,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var condition = GetTypePairCondition(derivedTypePair, declaredTypeMapperData);
 
-                var derivedTypeMapping = MappingFactory.GetDerivedTypeMapping(
+                var derivedTypeMapping = DerivedMappingFactory.GetDerivedTypeMapping(
                     declaredTypeMappingData,
                     declaredTypeMapperData.SourceObject,
                     derivedTypePair.DerivedTargetType);
@@ -218,7 +218,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Expression typedVariable,
             Type targetType)
         {
-            var mapping = MappingFactory.GetDerivedTypeMapping(mappingData, typedVariable, targetType);
+            var mapping = DerivedMappingFactory.GetDerivedTypeMapping(mappingData, typedVariable, targetType);
             var returnMappingResult = Expression.Return(mappingData.MapperData.ReturnLabelTarget, mapping);
 
             return returnMappingResult;

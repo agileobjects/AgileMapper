@@ -8,77 +8,6 @@
 
     internal static class MappingFactory
     {
-        #region Derived Type Mappings
-
-        public static Expression GetDerivedTypeMapping(
-            IObjectMappingData declaredTypeMappingData,
-            Expression sourceValue,
-            Type targetType)
-        {
-            var declaredTypeMapperData = declaredTypeMappingData.MapperData;
-
-            var targetValue = declaredTypeMapperData.TargetMember.IsReadable
-                ? declaredTypeMapperData.TargetObject.GetConversionTo(targetType)
-                : Expression.Default(targetType);
-
-            var derivedTypeMappingData = declaredTypeMappingData.WithTypes(sourceValue.Type, targetType);
-
-            if (declaredTypeMappingData.IsRoot)
-            {
-                return GetDerivedTypeRootMapping(derivedTypeMappingData, sourceValue, targetValue);
-            }
-
-            if (declaredTypeMapperData.TargetMemberIsEnumerableElement())
-            {
-                return GetInlineElementMappingBlock(derivedTypeMappingData, sourceValue, targetValue);
-            }
-
-            return GetDerivedTypeChildMapping(derivedTypeMappingData, sourceValue, targetValue);
-        }
-
-        private static Expression GetDerivedTypeRootMapping(
-            IObjectMappingData derivedTypeMappingData,
-            Expression sourceValue,
-            Expression targetValue)
-        {
-            var mappingValues = new MappingValues(
-                sourceValue,
-                targetValue,
-                Expression.Default(typeof(int?)));
-
-            // Derived type conversions are performed with ObjectMappingData.As<TDerivedSource, TDerivedTarget>()
-            // so no need for createMethod or createMethodCallArguments arguments:
-            var inlineMappingBlock = GetInlineMappingBlock(
-                derivedTypeMappingData,
-                default(MethodInfo),
-                mappingValues,
-                Enumerable<Expression>.EmptyArray);
-
-            return inlineMappingBlock;
-        }
-
-        private static Expression GetDerivedTypeChildMapping(
-            IObjectMappingData derivedTypeMappingData,
-            Expression sourceValue,
-            Expression targetValue)
-        {
-            var derivedTypeMapperData = derivedTypeMappingData.MapperData;
-            var declaredTypeMapperData = derivedTypeMappingData.DeclaredTypeMappingData.MapperData;
-
-            var mappingValues = new MappingValues(
-                sourceValue,
-                targetValue,
-                derivedTypeMapperData.EnumerableIndex);
-
-            return GetChildMapping(
-                derivedTypeMappingData,
-                mappingValues,
-                declaredTypeMapperData.DataSourceIndex,
-                declaredTypeMapperData);
-        }
-
-        #endregion
-
         public static Expression GetChildMapping(
             IQualifiedMember sourceMember,
             Expression sourceMemberAccess,
@@ -114,7 +43,7 @@
                 childMapperData.Parent);
         }
 
-        private static Expression GetChildMapping(
+        public static Expression GetChildMapping(
             IObjectMappingData childMappingData,
             MappingValues mappingValues,
             int dataSourceIndex,
@@ -185,10 +114,10 @@
                 return mapperData.GetMapCall(sourceElementValue, targetElementValue);
             }
 
-            return GetInlineElementMappingBlock(mappingData, sourceElementValue, targetElementValue);
+            return GetElementMapping(mappingData, sourceElementValue, targetElementValue);
         }
 
-        private static Expression GetInlineElementMappingBlock(
+        public static Expression GetElementMapping(
             IObjectMappingData elementMappingData,
             Expression sourceElementValue,
             Expression targetElementValue)
@@ -229,7 +158,7 @@
                 });
         }
 
-        private static Expression GetInlineMappingBlock(
+        public static Expression GetInlineMappingBlock(
             IObjectMappingData childMappingData,
             MethodInfo createMethod,
             MappingValues mappingValues,
