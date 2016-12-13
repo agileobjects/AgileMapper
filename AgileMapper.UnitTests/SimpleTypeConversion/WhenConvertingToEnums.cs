@@ -169,6 +169,42 @@
         }
 
         [Fact]
+        public void ShouldMapANullObjectToAnEnum()
+        {
+            var source = new PublicProperty<object> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicProperty<Title>>();
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectEnumMemberNameToAnEnum()
+        {
+            var source = new PublicProperty<object> { Value = "Ms" };
+            var result = Mapper.Map(source).ToANew<PublicProperty<TitleShortlist>>();
+
+            result.Value.ShouldBe(TitleShortlist.Ms);
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectEnumMemberValueToAnNullableEnum()
+        {
+            var source = new PublicProperty<object> { Value = (int)TitleShortlist.Dr };
+            var result = Mapper.Map(source).ToANew<PublicProperty<TitleShortlist>>();
+
+            result.Value.ShouldBe(TitleShortlist.Dr);
+        }
+
+        [Fact]
+        public void ShouldMapAnObjectNullableEnumMemberValueToAnNullableEnum()
+        {
+            var source = new PublicProperty<object> { Value = (Title?)Title.Mr };
+            var result = Mapper.Map(source).ToANew<PublicProperty<TitleShortlist>>();
+
+            result.Value.ShouldBe(TitleShortlist.Mr);
+        }
+
+        [Fact]
         public void ShouldMapEnumsConditionally()
         {
             using (var mapper = Mapper.CreateNew())
