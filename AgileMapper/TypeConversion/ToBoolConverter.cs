@@ -77,7 +77,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
             if (nonNullableSourceType == typeof(char))
             {
-                yield return GetConstant(numericValue.ToString(CultureInfo.InvariantCulture).First(), sourceValueType);
+                yield return GetConstant(numericValue.ToString(CultureInfo.InvariantCulture)[0], sourceValueType);
                 yield break;
             }
 
