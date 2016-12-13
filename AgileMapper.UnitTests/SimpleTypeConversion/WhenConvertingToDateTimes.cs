@@ -33,5 +33,14 @@
 
             result.Value.ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldMapANullObjectStringToADateTime()
+        {
+            var source = new PublicProperty<object> { Value = default(string) };
+            var result = Mapper.Map(source).ToANew<PublicProperty<DateTime>>();
+
+            result.Value.ShouldBeDefault();
+        }
     }
 }

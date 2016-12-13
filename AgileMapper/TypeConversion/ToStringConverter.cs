@@ -14,12 +14,6 @@
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
-            // targetType is always 'string':
-            return GetConversion(sourceValue);
-        }
-
-        public Expression GetConversion(Expression sourceValue)
-        {
             var toStringCall = GetConversionNoNullCheck(sourceValue);
 
             if (!sourceValue.Type.IsNullableType() && sourceValue.Type.CanBeNull())

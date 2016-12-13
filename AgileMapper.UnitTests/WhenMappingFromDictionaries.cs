@@ -39,6 +39,18 @@
         }
 
         [Fact]
+        public void ShouldPopulateAStringMemberFromANullableTypedEntry()
+        {
+            var guid = Guid.NewGuid();
+
+            var source = new Dictionary<string, Guid?> { ["Value"] = guid };
+            var target = new PublicProperty<string>();
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBe(guid.ToString());
+        }
+
+        [Fact]
         public void ShouldPopulateADateTimeMemberFromAnUntypedEntry()
         {
             var now = DateTime.Now.ToCurrentCultureString();
@@ -104,6 +116,20 @@
             var result = Mapper.Map(source).ToANew<PublicProperty<ICollection<long>>>();
 
             result.Value.ShouldBe(4, 5, 6);
+        }
+
+        [Fact]
+        public void ShouldPopulateASimpleTypeListFromNullableTypedSourceEntries()
+        {
+            var source = new Dictionary<string, int?>
+            {
+                ["Value[0]"] = 56,
+                ["Value[1]"] = null,
+                ["Value[2]"] = 27382
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<IList<byte?>>>();
+
+            result.Value.ShouldBe<byte?>(56, null, default(byte?));
         }
 
         [Fact]

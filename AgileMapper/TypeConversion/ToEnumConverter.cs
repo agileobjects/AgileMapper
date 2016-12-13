@@ -36,7 +36,7 @@
             if (sourceValue.Type != typeof(string))
             {
                 sourceIsAnEnum = sourceValue.Type.GetNonNullableType().IsEnum();
-                sourceValue = _toStringConverter.GetConversion(sourceValue);
+                sourceValue = _toStringConverter.GetConversionNoNullCheck(sourceValue);
             }
             else
             {

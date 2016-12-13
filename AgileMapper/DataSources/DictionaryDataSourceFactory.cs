@@ -1,11 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
-    using Extensions;
-    using Members;
 #if NET_STANDARD
     using System.Reflection;
 #endif
+    using Extensions;
+    using Members;
+    using ReadableExpressions.Extensions;
+
 
     internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
@@ -64,6 +66,14 @@
                     .MapperContext
                     .ValueConverters
                     .GetConversion(dictionaryVariables.Value, targetType);
+
+                if (dictionaryVariables.SourceMember.EntryType.CanBeNull())
+                {
+                    valueConversion = Expression.Condition(
+                        dictionaryVariables.Value.GetIsNotDefaultComparison(),
+                        valueConversion,
+                        Expression.Default(targetType));
+                }
 
                 return Expression.Block(new[] { dictionaryVariables.Value }, valueVariableAssignment, valueConversion);
             }
