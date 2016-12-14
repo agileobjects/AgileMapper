@@ -11,8 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
-        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _childMappersByKey;
-        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _elementMappersByKey;
+        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapperFunc> _recursionMappingFuncsByKey;
 
         public ObjectMapper(
@@ -27,13 +26,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapperFunc = mappingLambda.Compile();
             }
 
-            if (mapperData.Context.NeedsChildMapping)
+            if (mapperData.Context.NeedsChildMapping || mapperData.Context.NeedsElementMapping)
             {
-                _childMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
-            }
-            else if (mapperData.Context.NeedsElementMapping)
-            {
-                _elementMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
+                _subMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
 
             if (mapperData.HasMapperFuncs)
@@ -90,69 +85,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TTarget Map(ObjectMappingData<TSource, TTarget> mappingData) => _mapperFunc.Invoke(mappingData);
 
-        public object MapChild<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource source,
-            TDeclaredTarget target,
-            int? enumerableIndex,
-            string targetMemberName,
-            int dataSourceIndex,
-            IObjectMappingData parentMappingData)
+        public object MapSubObject(IObjectMappingData mappingData)
         {
-            var childMappingData = ObjectMappingDataFactory.ForChild(
-                source,
-                target,
-                enumerableIndex,
-                targetMemberName,
-                dataSourceIndex,
-                parentMappingData);
+            mappingData.Mapper = _subMappersByKey.GetOrAddMapper(mappingData);
 
-            return Map(childMappingData, _childMappersByKey);
+            return mappingData.Mapper.Map(mappingData);
         }
 
-        public object MapElement<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceElement,
-            TDeclaredTarget targetElement,
-            int enumerableIndex,
-            IObjectMappingData parentMappingData)
+        public object MapRecursion(IObjectMappingData childMappingData)
         {
-            var elementMappingData = ObjectMappingDataFactory.ForElement(
-                sourceElement,
-                targetElement,
-                enumerableIndex,
-                parentMappingData);
-
-            return Map(elementMappingData, _elementMappersByKey);
-        }
-
-        public object MapRecursion<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource source,
-            TDeclaredTarget target,
-            int? enumerableIndex,
-            string targetMemberName,
-            int dataSourceIndex,
-            IObjectMappingData parentMappingData)
-        {
-            var childMappingData = MappingDataFactory.ForChild(
-                source,
-                target,
-                enumerableIndex,
-                targetMemberName,
-                dataSourceIndex,
-                parentMappingData);
-
             var mapperFunc = _recursionMappingFuncsByKey
                 .GetOrAdd(childMappingData.MapperKey, null);
 
             return mapperFunc.Map(childMappingData);
-        }
-
-        private static object Map(
-            IObjectMappingData mappingData,
-            ICache<ObjectMapperKeyBase, IObjectMapper> subMapperCache)
-        {
-            mappingData.Mapper = subMapperCache.GetOrAddMapper(mappingData);
-
-            return mappingData.Mapper.Map(mappingData);
         }
     }
 }

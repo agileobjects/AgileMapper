@@ -132,7 +132,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             string targetMemberName,
             int dataSourceIndex)
         {
-            return (TDeclaredTarget)Mapper.MapChild(
+            var childMappingData = GetChildMappingData(sourceValue, targetValue, targetMemberName, dataSourceIndex);
+
+            return (TDeclaredTarget)Mapper.MapSubObject(childMappingData);
+        }
+
+        private IObjectMappingData GetChildMappingData<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceValue,
+            TDeclaredTarget targetValue,
+            string targetMemberName,
+            int dataSourceIndex)
+        {
+            return ObjectMappingDataFactory.ForChild(
                 sourceValue,
                 targetValue,
                 GetEnumerableIndex(),
@@ -146,11 +157,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTargetElement targetElement,
             int enumerableIndex)
         {
-            return (TTargetElement)Mapper.MapElement(
+            var elementMappingData = ObjectMappingDataFactory.ForElement(
                 sourceElement,
                 targetElement,
                 enumerableIndex,
                 this);
+
+            return (TTargetElement)Mapper.MapSubObject(elementMappingData);
         }
 
         public TDeclaredTarget MapRecursion<TDeclaredSource, TDeclaredTarget>(
@@ -161,13 +174,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
-                return (TDeclaredTarget)Mapper.MapRecursion(
-                    sourceValue,
-                    targetValue,
-                    GetEnumerableIndex(),
-                    targetMemberName,
-                    dataSourceIndex,
-                    this);
+                var childMappingData = GetChildMappingData(sourceValue, targetValue, targetMemberName, dataSourceIndex);
+
+                return (TDeclaredTarget)Mapper.MapRecursion(childMappingData);
             }
 
             return Parent.MapRecursion(
