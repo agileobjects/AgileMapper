@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper
 {
     using DataSources;
+    using Members.Population;
     using ObjectPopulation.Enumerables;
 
     internal class MappingRuleSet
@@ -9,13 +10,13 @@ namespace AgileObjects.AgileMapper
             string name,
             bool rootHasPopulatedTarget,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
-            IDataSourceFactory initialDataSourceFactory,
+            IMemberPopulationGuardFactory populationGuardFactory,
             IDataSourceFactory fallbackDataSourceFactory)
         {
             Name = name;
             RootHasPopulatedTarget = rootHasPopulatedTarget;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
-            InitialDataSourceFactory = initialDataSourceFactory;
+            PopulationGuardFactory = populationGuardFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
         }
 
@@ -25,7 +26,7 @@ namespace AgileObjects.AgileMapper
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 
-        public IDataSourceFactory InitialDataSourceFactory { get; }
+        public IMemberPopulationGuardFactory PopulationGuardFactory { get; }
 
         public IDataSourceFactory FallbackDataSourceFactory { get; }
     }

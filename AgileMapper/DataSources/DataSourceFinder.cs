@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
     using Members;
     using NetStandardPolyfills;
 
@@ -23,19 +22,6 @@
             var validDataSources = EnumerateDataSources(childMappingData)
                 .Where(ds => ds.IsValid)
                 .ToArray();
-
-            if (childMappingData.MapperData.TargetMember.IsSimple && validDataSources.Any())
-            {
-                var initialDataSource = childMappingData
-                    .RuleSet
-                    .InitialDataSourceFactory
-                    .Create(childMappingData.MapperData);
-
-                if (initialDataSource.IsValid)
-                {
-                    validDataSources = validDataSources.Prepend(initialDataSource).ToArray();
-                }
-            }
 
             return new DataSourceSet(validDataSources);
         }

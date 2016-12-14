@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Members;
+    using Members.Population;
 
     internal static class MemberPopulationFactory
     {
@@ -40,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return MemberPopulation.NoDataSource(childMapperData);
             }
 
-            return new MemberPopulation(childMapperData, dataSources, populateCondition);
+            return new MemberPopulation(childMappingData, dataSources, populateCondition);
         }
 
         private static bool TargetMemberIsUnconditionallyIgnored(

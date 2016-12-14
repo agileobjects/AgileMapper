@@ -272,5 +272,13 @@
             plan.ShouldContain("WARNING");
             plan.ShouldContain("PublicField<OrderUs>.Value.PaymentType to PublicProperty<OrderUk>.Value.PaymentType");
         }
+
+        [Fact]
+        public void ShouldNotAssignATargetMemberToItself()
+        {
+            var plan = Mapper.GetPlanFor<PublicField<string>>().OnTo<PublicField<string>>();
+
+            plan.ShouldNotContain("publicField_String.Value = publicField_String.Value");
+        }
     }
 }

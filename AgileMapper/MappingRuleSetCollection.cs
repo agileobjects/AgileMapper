@@ -2,8 +2,7 @@ namespace AgileObjects.AgileMapper
 {
     using System.Collections.Generic;
     using System.Linq;
-    using DataSources;
-    using Members;
+    using Members.Population;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
 
@@ -17,21 +16,21 @@ namespace AgileObjects.AgileMapper
                 Constants.CreateNew,
                 false,
                 CopySourceEnumerablePopulationStrategy.Instance,
-                NullDataSourceFactory.Instance,
+                NullMemberPopulationGuardFactory.Instance,
                 ExistingOrDefaultValueDataSourceFactory.Instance);
 
             Merge = new MappingRuleSet(
                 Constants.Merge,
                 true,
                 MergeEnumerablePopulationStrategy.Instance,
-                PreserveExistingValueDataSourceFactory.Instance,
+                PreserveExistingValueMemberPopulationGuardFactory.Instance,
                 ExistingOrDefaultValueDataSourceFactory.Instance);
 
             Overwrite = new MappingRuleSet(
                 Constants.Overwrite,
                 true,
                 OverwriteEnumerablePopulationStrategy.Instance,
-                NullDataSourceFactory.Instance,
+                NullMemberPopulationGuardFactory.Instance,
                 DefaultValueDataSourceFactory.Instance);
 
             _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite };
