@@ -37,29 +37,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsForNewElement { get; set; }
 
-        public bool NeedsChildMapping { get; private set; }
+        public bool NeedsSubMapping { get; private set; }
 
-        public void ChildMappingNeeded()
+        public void SubMappingNeeded()
         {
-            if (NeedsChildMapping)
+            if (NeedsSubMapping)
             {
                 return;
             }
 
-            NeedsChildMapping = true;
-            BubbleMappingNeededToParent();
-        }
-
-        public bool NeedsElementMapping { get; private set; }
-
-        public void ElementMappingNeeded()
-        {
-            if (NeedsElementMapping)
-            {
-                return;
-            }
-
-            NeedsElementMapping = true;
+            NeedsSubMapping = true;
             BubbleMappingNeededToParent();
         }
 
@@ -72,11 +59,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (_mapperData.TargetMemberIsEnumerableElement())
             {
-                _mapperData.Parent.Context.ElementMappingNeeded();
+                _mapperData.Parent.Context.SubMappingNeeded();
                 return;
             }
 
-            _mapperData.Parent.Context.ChildMappingNeeded();
+            _mapperData.Parent.Context.SubMappingNeeded();
         }
 
         public bool UsesMappingDataObjectAsParameter
@@ -98,9 +85,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             get
             {
                 return (_isMappingDataObjectNeeded ??
-                        (_isMappingDataObjectNeeded =
-                            NeedsChildMapping || NeedsElementMapping || UsesMappingDataObjectAsParameter ||
-                            _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObject))).Value;
+                       (_isMappingDataObjectNeeded =
+                           NeedsSubMapping || UsesMappingDataObjectAsParameter ||
+                           _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObject))).Value;
             }
         }
 

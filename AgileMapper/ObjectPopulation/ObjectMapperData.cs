@@ -354,15 +354,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
-            foreach (var childMapperData in _childMapperDatas)
-            {
-                if (childMapperData.MappedObjectCachingNeeded)
-                {
-                    return true;
-                }
-            }
-
-            return Context.NeedsChildMapping || Context.NeedsElementMapping;
+            return _childMapperDatas.Any(childMapperData => childMapperData.MappedObjectCachingNeeded) ||
+                   Context.NeedsSubMapping;
         }
 
         public bool TargetTypeHasNotYetBeenMapped { get; }
@@ -448,7 +441,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
-            Context.ChildMappingNeeded();
+            Context.SubMappingNeeded();
 
             return GetMapChildCall(
                 MappingDataObject,
@@ -481,7 +474,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
         {
-            Context.ElementMappingNeeded();
+            Context.SubMappingNeeded();
 
             var mapCall = Expression.Call(
                 MappingDataObject,

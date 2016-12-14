@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapperFunc = mappingLambda.Compile();
             }
 
-            if (mapperData.Context.NeedsChildMapping || mapperData.Context.NeedsElementMapping)
+            if (mapperData.Context.NeedsSubMapping)
             {
                 _subMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
