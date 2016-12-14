@@ -1,6 +1,9 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Collections;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
@@ -110,6 +113,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Expression GetSourceElementMapping(Expression sourceParameter, Expression counter)
             => _builder.MapperData.GetMapCall(sourceParameter);
 
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public Expression GetSourceValues()
         {
             // This is called to provide a value for a List.AddRange() call,

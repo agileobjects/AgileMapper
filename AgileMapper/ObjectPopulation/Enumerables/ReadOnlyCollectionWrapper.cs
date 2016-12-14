@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Extensions;
 
@@ -45,6 +46,11 @@
         /// </summary>
         /// <param name="item">The object to locate in the</param>
         /// <returns>The index of item if found; otherwise, -1.</returns>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public int IndexOf(T item) => Array.IndexOf(_newItems, item, 0, _newItems.Length);
 
         /// <summary>
@@ -52,12 +58,22 @@
         /// </summary>
         /// <param name="index">The zero-based index at which item should be inserted.</param>
         /// <param name="item">The object to insert.</param>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public void Insert(int index, T item) => ((IList<T>)_newItems).Insert(index, item);
 
         /// <summary>
         /// Removes the item at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the item to remove.</param>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public void RemoveAt(int index) => ((IList<T>)_newItems).RemoveAt(index);
 
         /// <summary>
@@ -65,6 +81,11 @@
         /// </summary>
         /// <param name="index">The zero-based index of the element to get or set.</param>
         /// <returns>The element at the specified index.</returns>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public T this[int index]
         {
             get { return _newItems[index]; }
@@ -78,11 +99,21 @@
         /// <summary>
         /// Gets the number of elements contained in the collection.
         /// </summary>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public int Count => _newItems.Length + (_existingItems?.Count() ?? 0);
 
         /// <summary>
         /// Gets a value indicating whether the collection is read-only.
         /// </summary>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public bool IsReadOnly => true;
 
         /// <summary>
@@ -100,6 +131,11 @@
         /// </summary>
         /// <param name="item">The object to locate.</param>
         /// <returns>True if item is found in the collection, otherwise false.</returns>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public bool Contains(T item) => IndexOf(item) != -1;
 
         /// <summary>
@@ -110,6 +146,11 @@
         /// collection. The array must have zero-based indexing.
         /// </param>
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public void CopyTo(T[] array, int arrayIndex) => ((ICollection<T>)_newItems).CopyTo(array, arrayIndex);
 
         /// <summary>
@@ -120,11 +161,21 @@
         /// True if the item was successfully removed from the collection, otherwise false. 
         /// This method also returns false if item is not found in the original collection.
         /// </returns>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public bool Remove(T item) => ((ICollection<T>)_newItems).Remove(item);
 
         /// <summary>
         /// Removes all items from the collection.
         /// </summary>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public void Clear() => ((ICollection<T>)_newItems).Clear();
 
         #endregion
@@ -135,12 +186,22 @@
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An enumerator that can be used to iterate through the collection.</returns>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_newItems).GetEnumerator();
 
         /// <summary>
         /// Returns an enumerator that iterates through a collection.
         /// </summary>
         /// <returns>An IEnumerator object that can be used to iterate through the collection.</returns>
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         IEnumerator IEnumerable.GetEnumerator() => _newItems.GetEnumerator();
 
         #endregion

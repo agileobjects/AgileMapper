@@ -2,6 +2,9 @@ namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections;
     using System.Collections.Generic;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
@@ -112,7 +115,12 @@ namespace AgileObjects.AgileMapper.DataSources
         #region IEnumerable<IDataSource> Members
 
         public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
-
+        
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion

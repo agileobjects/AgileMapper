@@ -1,5 +1,8 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
@@ -64,6 +67,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public Expression GetEntryValueAccess()
             => DictionaryVariables.GetEntryValueAccess(_builder.MapperData);
 
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public Expression GetSourceValues()
         {
             // This is called to provide a value for a List.AddRange() call,
