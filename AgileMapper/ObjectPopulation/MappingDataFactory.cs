@@ -30,6 +30,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingData = CreateMappingData(source, target, enumerableIndex, mapperKey, parent);
 
+            if (!ChildMappersNeeded((IObjectMappingData)parent))
+            {
+                return mappingData;
+            }
+
             var parentMappingData = GetParentMappingData(mappingData);
 
             mappingData.MapperData = parentMappingData.MapperData.ChildMapperDatas.HasOne()
@@ -51,7 +56,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingData = CreateMappingData(sourceElement, targetElement, enumerableIndex, mapperKey, parent);
 
-            mappingData.MapperData = GetParentMappingData(mappingData).MapperData.ChildMapperDatas.First();
+            if (ChildMappersNeeded((IObjectMappingData)parent))
+            {
+                mappingData.MapperData = GetParentMappingData(mappingData).MapperData.ChildMapperDatas.First();
+            }
 
             return mappingData;
         }
@@ -72,6 +80,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperKey,
                 mappingDataParent.MappingContext,
                 mappingDataParent);
+        }
+
+        private static bool ChildMappersNeeded(IObjectMappingData mappingData)
+        {
+            while (!mappingData.IsRoot)
+            {
+                mappingData = mappingData.Parent;
+            }
+
+            return mappingData.MapperData.Context.NeedsSubMapping;
         }
 
         private static IObjectMappingData GetParentMappingData(IObjectMappingData mappingData)
