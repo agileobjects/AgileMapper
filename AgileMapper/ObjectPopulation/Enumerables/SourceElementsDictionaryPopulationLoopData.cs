@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
 #if NET_STANDARD
@@ -15,6 +16,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private readonly EnumerablePopulationBuilder _builder;
         private readonly Expression _targetMemberKey;
         private readonly bool _useDirectValueAccess;
+        private readonly ParameterExpression _targetElementKey;
+        private readonly Expression _sourceElement;
         private ParameterExpression _elementKeyExists;
 
         public SourceElementsDictionaryPopulationLoopData(
@@ -45,27 +48,38 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 ? builder.Context.ElementTypesAreAssignable
                 : sourceMember.HasObjectEntries;
 
-            TargetElementKey = Expression.Variable(typeof(string), "targetKey");
-            SourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
+            var useSeparateTargetKeyVariable = !ElementTypesAreSimple && PerformElementChecks;
+
+            _targetElementKey = useSeparateTargetKeyVariable
+                ? Expression.Variable(typeof(string), "targetKey")
+                : _dictionaryVariables.Key;
+
+            _sourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
             LoopExitCheck = MapperData.IsRoot ? GetRootLoopExitCheck() : GetKeyNotFoundLoopExitCheck();
         }
 
         private ObjectMapperData MapperData => _builder.MapperData;
 
         private Expression GetDictionaryEntryValueAccess()
-        {
-            return MapperData.IsRoot
-                ? _dictionaryVariables.GetEntryValueAccess(MapperData, TargetElementKey)
-                : _dictionaryVariables.GetEntryValueAccess(MapperData);
-        }
+            => _dictionaryVariables.GetEntryValueAccess(MapperData, _targetElementKey);
 
         private Expression GetRootLoopExitCheck()
         {
-            if (_builder.Context.ElementTypesAreSimple)
-            {
-                return Expression.Not(GetContainsRootElementKeyCall());
-            }
+            return ElementTypesAreSimple
+                ? Expression.Not(GetContainsRootElementKeyCall())
+                : GetNonSimpleElementLoopExitCheck(GetContainsRootElementKeyCall);
+        }
 
+        private Expression GetContainsRootElementKeyCall()
+        {
+            var containsKeyMethod = MapperData.SourceObject.Type.GetMethod("ContainsKey");
+            var containsKeyCall = Expression.Call(MapperData.SourceObject, containsKeyMethod, _targetElementKey);
+
+            return containsKeyCall;
+        }
+
+        private Expression GetNonSimpleElementLoopExitCheck(Func<Expression> containsKeyElementCallFactory)
+        {
             var noKeysStartWithTarget = GetNoKeysWithMatchingStartQuery();
 
             if (DoNotPerformElementChecks)
@@ -73,7 +87,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return noKeysStartWithTarget;
             }
 
-            var containsElementKeyCall = GetContainsRootElementKeyCall();
+            var containsElementKeyCall = containsKeyElementCallFactory.Invoke();
             _elementKeyExists = Expression.Variable(typeof(bool), "elementKeyExists");
             var assignElementKeyExists = Expression.Assign(_elementKeyExists, containsElementKeyCall);
             var elementKeyDoesNotExist = Expression.Not(assignElementKeyExists);
@@ -81,45 +95,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             return Expression.AndAlso(elementKeyDoesNotExist, noKeysStartWithTarget);
         }
 
-        private Expression GetContainsRootElementKeyCall()
-        {
-            var containsKeyMethod = MapperData.SourceObject.Type.GetMethod("ContainsKey");
-            var containsKeyCall = Expression.Call(MapperData.SourceObject, containsKeyMethod, TargetElementKey);
-
-            return containsKeyCall;
-        }
-
         private Expression GetKeyNotFoundLoopExitCheck()
         {
-            if (_builder.Context.ElementTypesAreSimple)
+            if (ElementTypesAreSimple)
             {
                 return GetContainsElementKeyCheck().GetIsDefaultComparison();
             }
 
-            var noKeysStartWithTarget = GetNoKeysWithMatchingStartQuery();
-
-            if (DoNotPerformElementChecks)
-            {
-                return noKeysStartWithTarget;
-            }
-
-            var containsElementKeyCheck = GetContainsElementKeyCheck().GetIsNotDefaultComparison();
-            _elementKeyExists = Expression.Variable(typeof(bool), "elementKeyExists");
-            var assignElementKeyExists = Expression.Assign(_elementKeyExists, containsElementKeyCheck);
-            var elementKeyDoesNotExist = Expression.Not(assignElementKeyExists);
-
-            return Expression.AndAlso(elementKeyDoesNotExist, noKeysStartWithTarget);
+            return GetNonSimpleElementLoopExitCheck(
+                () => GetContainsElementKeyCheck().GetIsNotDefaultComparison());
         }
 
         private Expression GetContainsElementKeyCheck()
-            => _dictionaryVariables.GetMatchingKeyAssignment(TargetElementKey, MapperData);
+            => _dictionaryVariables.GetMatchingKeyAssignment(_targetElementKey, MapperData);
 
         private Expression GetNoKeysWithMatchingStartQuery()
-            => _dictionaryVariables.GetNoKeysWithMatchingStartQuery(TargetElementKey, MapperData);
-
-        public Expression SourceElement { get; }
-
-        private ParameterExpression TargetElementKey { get; }
+            => _dictionaryVariables.GetNoKeysWithMatchingStartQuery(_targetElementKey, MapperData);
 
         public Expression LoopExitCheck { get; }
 
@@ -130,7 +121,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return GetElementMappingBlock(GetDictionaryToElementMapping(enumerableMappingData));
             }
 
-            var entryToElementMapping = _builder.GetElementConversion(SourceElement, enumerableMappingData);
+            var entryToElementMapping = _builder.GetElementConversion(_sourceElement, enumerableMappingData);
 
             if (ElementTypesAreSimple)
             {
@@ -178,17 +169,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             }
 
             var dictionaryValueAccess = GetDictionaryEntryValueAccess();
-            var dictionaryEntryAssignment = Expression.Assign(SourceElement, dictionaryValueAccess);
+            var dictionaryEntryAssignment = Expression.Assign(_sourceElement, dictionaryValueAccess);
 
             return Expression.Block(
-                new[] { (ParameterExpression)SourceElement },
+                new[] { (ParameterExpression)_sourceElement },
                 dictionaryEntryAssignment,
                 elementMapping);
         }
 
         public Expression Adapt(LoopExpression loop)
         {
-            loop = loop.InsertAssignment(Constants.BeforeLoopExitCheck, TargetElementKey, _targetMemberKey);
+            loop = loop.InsertAssignment(Constants.BeforeLoopExitCheck, _targetElementKey, _targetMemberKey);
 
             var loopBody = (BlockExpression)loop.Body;
 
@@ -197,11 +188,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             if (_elementKeyExists != null)
             {
                 loopVariables.Add(_elementKeyExists);
+
+                if (PerformElementChecks && !MapperData.IsRoot)
+                {
+                    loopVariables.Add(_dictionaryVariables.Key);
+                }
             }
 
-            if (PerformElementChecks && !MapperData.IsRoot)
+            if (loopVariables.Count == loopBody.Variables.Count)
             {
-                loopVariables.Add(_dictionaryVariables.Key);
+                return loop;
             }
 
             loopBody = loopBody.Update(loopVariables, loopBody.Expressions);

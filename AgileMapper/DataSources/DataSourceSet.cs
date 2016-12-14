@@ -65,11 +65,11 @@ namespace AgileObjects.AgileMapper.DataSources
                         continue;
                     }
 
-                    population = GetMemberPopulation(mapperData, fallbackValue);
+                    population = mapperData.GetTargetMemberPopulation(fallbackValue);
 
                     if (dataSource.IsConditional)
                     {
-                        population = Expression.IfThen(dataSource.Condition, population);
+                        population = dataSource.AddCondition(population);
                     }
 
                     continue;
@@ -77,13 +77,13 @@ namespace AgileObjects.AgileMapper.DataSources
 
                 if (population == null)
                 {
-                    population = Expression.IfThen(dataSource.Condition, GetMemberPopulation(mapperData, dataSource));
+                    population = dataSource.AddCondition(dataSource.GetMemberPopulation(mapperData));
                     continue;
                 }
 
                 population = Expression.IfThenElse(
                     dataSource.Condition,
-                    GetMemberPopulation(mapperData, dataSource.Value),
+                    dataSource.GetMemberPopulation(mapperData),
                     population);
             }
 
@@ -108,12 +108,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
             return fallbackDataSource;
         }
-
-        private static Expression GetMemberPopulation(IMemberMapperData mapperData, IDataSource dataSource)
-            => mapperData.TargetMember.LeafMember.GetPopulation(mapperData.InstanceVariable, dataSource.Value);
-
-        private static Expression GetMemberPopulation(IMemberMapperData mapperData, Expression value)
-            => mapperData.TargetMember.LeafMember.GetPopulation(mapperData.InstanceVariable, value);
 
         #region IEnumerable<IDataSource> Members
 

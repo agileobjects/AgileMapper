@@ -243,6 +243,9 @@ namespace AgileObjects.AgileMapper.Members
             return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
         }
 
+        public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
+            => mapperData.TargetMember.LeafMember.GetPopulation(mapperData.InstanceVariable, value);
+
         public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 

@@ -202,7 +202,8 @@
             var mapperData = mappingData.MapperData;
             var mapping = mappingData.Mapper.MappingLambda.Body;
 
-            var useLocalSourceValueVariable = ShouldUseLocalSourceValueVariable(mappingValues.SourceValue, mapping, mapperData);
+            var useLocalSourceValueVariable = 
+                ShouldUseLocalSourceValueVariable(mappingValues.SourceValue, mapping, mapperData);
 
             Expression sourceValue, sourceValueVariableValue = null;
 

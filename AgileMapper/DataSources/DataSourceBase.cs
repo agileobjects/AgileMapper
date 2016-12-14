@@ -98,5 +98,10 @@
         public IEnumerable<ParameterExpression> Variables { get; }
 
         public Expression Value { get; }
+
+        public virtual Expression AddCondition(Expression value) => Expression.IfThen(Condition, value);
+
+        public Expression GetMemberPopulation(IMemberMapperData mapperData)
+            => mapperData.GetTargetMemberPopulation(Value);
     }
 }

@@ -28,6 +28,8 @@
 
         private class DictionaryEntryDataSource : DataSourceBase
         {
+            private readonly DictionaryEntryVariablePair _dictionaryVariables;
+
             public DictionaryEntryDataSource(DictionarySourceMember sourceMember, IMemberMapperData childMapperData)
                 : this(
                       sourceMember.EntryMember,
@@ -46,6 +48,7 @@
                     GetDictionaryEntryValue(dictionaryVariables, childMapperData),
                     GetMatchingKeyExistsTest(dictionaryVariables, childMapperData))
             {
+                _dictionaryVariables = dictionaryVariables;
             }
 
             private static Expression GetDictionaryEntryValue(
@@ -85,6 +88,18 @@
                 var keyVariableAssignment = dictionaryVariables.GetMatchingKeyAssignment(mapperData);
 
                 return keyVariableAssignment.GetIsNotDefaultComparison();
+            }
+
+            public override Expression AddCondition(Expression value)
+            {
+                if (_dictionaryVariables.HasConstantTargetMemberKey)
+                {
+                    return base.AddCondition(value);
+                }
+
+                return Expression.Block(
+                    _dictionaryVariables.GetKeyAssignment(_dictionaryVariables.TargetMemberKey),
+                    base.AddCondition(value));
             }
         }
 

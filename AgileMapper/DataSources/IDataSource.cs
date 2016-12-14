@@ -16,5 +16,9 @@
         bool IsConditional { get; }
 
         IEnumerable<ParameterExpression> Variables { get; }
+
+        Expression AddCondition(Expression value);
+
+        Expression GetMemberPopulation(IMemberMapperData mapperData);
     }
 }
