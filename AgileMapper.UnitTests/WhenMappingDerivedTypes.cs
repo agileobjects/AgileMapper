@@ -289,5 +289,28 @@
             result.ShouldBeOfType<MysteryCustomerViewModel>();
             ((MysteryCustomerViewModel)result).Discount.ShouldBe(0.333);
         }
+
+        [Fact]
+        public void ShouldMapMultipleRuntimeTypedChildMembers()
+        {
+            var source = new PublicTwoFields<IEnumerable<object>, object[]>
+            {
+                Value1 = new[] { new Product { ProductId = "Giant Trousers", Price = 100.00 } },
+                Value2 = new object[] { new MysteryCustomerViewModel { Name = "Mr Faff" } }
+            };
+            var target = new PublicTwoFields<List<MegaProduct>, ICollection<Customer>>
+            {
+                Value1 = new List<MegaProduct>(),
+                Value2 = Enumerable<Customer>.EmptyArray
+            };
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value1.ShouldHaveSingleItem();
+            result.Value1.First().ProductId.ShouldBe("Giant Trousers");
+            result.Value1.First().Price.ShouldBe(100.00);
+
+            result.Value2.ShouldHaveSingleItem();
+            result.Value2.First().Name.ShouldBe("Mr Faff");
+        }
     }
 }

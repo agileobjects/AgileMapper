@@ -75,14 +75,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperKeyBase MapperKey { get; }
 
-        IObjectMapper IObjectMappingData.Mapper
+        public IObjectMapper Mapper
         {
-            get { return Mapper; }
-            set { _mapper = (ObjectMapper<TSource, TTarget>)value; }
+            get { return _mapper ?? (_mapper = MapperContext.ObjectMapperFactory.Create(this)); }
+            set
+            {
+                _mapper = (ObjectMapper<TSource, TTarget>)value;
+                _mapperData = _mapper.MapperData;
+            }
         }
 
-        private ObjectMapper<TSource, TTarget> Mapper
-            => _mapper ?? (_mapper = MapperContext.ObjectMapperFactory.Create(this));
+        public ObjectMapperData MapperData
+            => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For<TSource, TTarget>(this));
 
         public TTarget CreatedObject { get; set; }
 
@@ -97,12 +101,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool IsPartOfDerivedTypeMapping => DeclaredTypeMappingData != null;
 
         public IObjectMappingData DeclaredTypeMappingData { get; }
-
-        public ObjectMapperData MapperData
-        {
-            get { return _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For<TSource, TTarget>(this)); }
-            set { _mapperData = value; }
-        }
 
         private ChildMemberMappingData<TSource, TTarget> _childMappingData;
 
@@ -134,7 +132,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var childMappingData = GetChildMappingData(sourceValue, targetValue, targetMemberName, dataSourceIndex);
 
-            return (TDeclaredTarget)Mapper.MapSubObject(childMappingData);
+            return (TDeclaredTarget)_mapper.MapSubObject(childMappingData);
         }
 
         private IObjectMappingData GetChildMappingData<TDeclaredSource, TDeclaredTarget>(
@@ -163,7 +161,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableIndex,
                 this);
 
-            return (TTargetElement)Mapper.MapSubObject(elementMappingData);
+            return (TTargetElement)_mapper.MapSubObject(elementMappingData);
         }
 
         public TDeclaredTarget MapRecursion<TDeclaredSource, TDeclaredTarget>(
@@ -176,7 +174,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var childMappingData = GetChildMappingData(sourceValue, targetValue, targetMemberName, dataSourceIndex);
 
-                return (TDeclaredTarget)Mapper.MapRecursion(childMappingData);
+                return (TDeclaredTarget)_mapper.MapRecursion(childMappingData);
             }
 
             return Parent.MapRecursion(

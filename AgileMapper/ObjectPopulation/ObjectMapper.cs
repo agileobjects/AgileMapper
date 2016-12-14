@@ -25,6 +25,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 _mapperFunc = mappingLambda.Compile();
             }
+            else
+            {
+                mapperData.Mapper = this;
+            }
 
             if (mapperData.Context.NeedsSubMapping)
             {
@@ -87,9 +91,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public object MapSubObject(IObjectMappingData mappingData)
         {
-            mappingData.Mapper = _subMappersByKey.GetOrAddMapper(mappingData);
+            mappingData.MapperKey.MappingData = mappingData;
 
-            return mappingData.Mapper.Map(mappingData);
+            var mapper = _subMappersByKey.GetOrAdd(
+                mappingData.MapperKey,
+                key =>
+                {
+                    var mapperToCache = key.MappingData.Mapper;
+
+                    key.MappingData = null;
+
+                    return mapperToCache;
+                });
+
+            return mapper.Map(mappingData);
         }
 
         public object MapRecursion(IObjectMappingData childMappingData)

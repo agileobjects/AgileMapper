@@ -322,6 +322,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MapperContext MapperContext { get; }
 
+        public IObjectMapper Mapper { get; set; }
+
         public ObjectMapperData Parent { get; }
 
         public ObjectMapperData DeclaredTypeMapperData { get; }

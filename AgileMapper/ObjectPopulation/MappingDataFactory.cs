@@ -30,18 +30,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingData = CreateMappingData(source, target, enumerableIndex, mapperKey, parent);
 
-            if (!ChildMappersNeeded((IObjectMappingData)parent))
+            if (!ChildMappersNeeded(parent))
             {
                 return mappingData;
             }
 
             var parentMappingData = GetParentMappingData(mappingData);
 
-            mappingData.MapperData = parentMappingData.MapperData.ChildMapperDatas.HasOne()
+            var mapperData = parentMappingData.MapperData.ChildMapperDatas.HasOne()
                 ? parentMappingData.MapperData.ChildMapperDatas.First()
                 : parentMappingData.MapperData.ChildMapperDatas.First(md =>
                     (md.DataSourceIndex == dataSourceIndex) &&
                     (md.TargetMember.RegistrationName == targetMemberRegistrationName));
+
+            mappingData.Mapper = mapperData.Mapper;
 
             return mappingData;
         }
@@ -56,9 +58,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingData = CreateMappingData(sourceElement, targetElement, enumerableIndex, mapperKey, parent);
 
-            if (ChildMappersNeeded((IObjectMappingData)parent))
+            if (ChildMappersNeeded(parent))
             {
-                mappingData.MapperData = GetParentMappingData(mappingData).MapperData.ChildMapperDatas.First();
+                mappingData.Mapper =
+                    GetParentMappingData(mappingData).MapperData.ChildMapperDatas.First().Mapper;
             }
 
             return mappingData;
@@ -82,14 +85,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingDataParent);
         }
 
-        private static bool ChildMappersNeeded(IObjectMappingData mappingData)
+        private static bool ChildMappersNeeded(IObjectMappingDataUntyped mappingData)
         {
-            while (!mappingData.IsRoot)
+            var objectMappingData = (IObjectMappingData)mappingData;
+
+            while (!objectMappingData.IsRoot)
             {
-                mappingData = mappingData.Parent;
+                objectMappingData = objectMappingData.Parent;
             }
 
-            return mappingData.MapperData.Context.NeedsSubMapping;
+            return objectMappingData.MapperData.Context.NeedsSubMapping;
         }
 
         private static IObjectMappingData GetParentMappingData(IObjectMappingData mappingData)

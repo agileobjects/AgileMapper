@@ -117,6 +117,12 @@
 
         private bool DetermineIfElementsAreIdentifiable()
         {
+            if ((Context.SourceElementType == typeof(object)) ||
+                (Context.TargetElementType == typeof(object)))
+            {
+                return false;
+            }
+
             var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
             var sourceElementId = GetIdentifierOrNull(Context.SourceElementType, _sourceElementParameter, MapperData, typeIdsCache);
 
