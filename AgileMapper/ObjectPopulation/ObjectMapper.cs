@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 _mapperFunc = mappingLambda.Compile();
             }
-            else
+            else if (mapperData.Context.NeedsSubMapping)
             {
                 mapperData.Mapper = this;
             }

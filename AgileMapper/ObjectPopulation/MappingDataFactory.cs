@@ -89,7 +89,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var objectMappingData = (IObjectMappingData)mappingData;
 
-            while (!objectMappingData.IsRoot)
+            while (!objectMappingData.MapperData.Context.IsStandalone)
             {
                 objectMappingData = objectMappingData.Parent;
             }
