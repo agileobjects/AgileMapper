@@ -121,6 +121,6 @@
         /// <summary>
         /// Gets a link back to the full <see cref="MappingConfigStartingPoint"/>, for api fluency.
         /// </summary>
-        MappingConfigStartingPoint And { get; }
+        MappingConfigStartingPoint AndWhenMapping { get; }
     }
 }

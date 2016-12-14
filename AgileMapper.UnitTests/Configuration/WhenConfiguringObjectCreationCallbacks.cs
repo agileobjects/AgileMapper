@@ -498,5 +498,36 @@
                 callbackCalled.ShouldBeTrue();
             }
         }
+
+        [Fact]
+        public void ShouldProvideAccessToATypedParentContextInACallback()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                IMappingData<Customer, Person> parentContext = null;
+
+                mapper.WhenMapping
+                    .MapNullCollectionsToNull()
+                    .AndWhenMapping
+                    .From<Address>()
+                    .OnTo<Address>()
+                    .After
+                    .CreatingInstancesOf<Address>()
+                    .Call(ctx => parentContext = ctx.Parent.As<Customer, Person>());
+
+                var source = new Customer { Name = "Billy", Address = new Address { Line1 = "Corgan Lane" } };
+                var target = new Person();
+                var result = mapper.Map(source).OnTo(target);
+
+                parentContext.ShouldNotBeNull();
+                parentContext.Source.ShouldBeSameAs(source);
+                parentContext.Target.ShouldBeSameAs(target);
+                parentContext.EnumerableIndex.ShouldBeNull();
+                parentContext.Parent.ShouldBeNull();
+
+                result.Name.ShouldBe("Billy");
+                result.Address.Line1.ShouldBe("Corgan Lane");
+            }
+        }
     }
 }

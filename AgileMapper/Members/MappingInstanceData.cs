@@ -43,7 +43,7 @@
 
             return new MappingInstanceData<TDataSource, TDataTarget>(
                 thisMappingData.GetSource<TDataSource>(),
-                thisMappingData.GetSource<TDataTarget>(),
+                thisMappingData.GetTarget<TDataTarget>(),
                 GetEnumerableIndex(),
                 _parent);
         }

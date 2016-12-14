@@ -220,7 +220,7 @@
             return this;
         }
 
-        MappingConfigStartingPoint IGlobalConfigSettings.And => this;
+        MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
 
         #endregion
 
