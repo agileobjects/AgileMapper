@@ -462,5 +462,26 @@
 
             result.Value.ShouldBeEmpty();
         }
+
+        [Fact]
+        public void ShouldHandleAMappingException()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<Address>()
+                    .CreateInstancesUsing(ctx => new Address { Line1 = int.Parse("rstgerfed").ToString() });
+
+                var source = new Dictionary<string, string>
+                {
+                    ["Line1"] = "La la la",
+                    ["Line2"] = "La la la"
+                };
+
+                var mappingEx = Should.Throw<MappingException>(() => mapper.Map(source).ToANew<Address>());
+
+                mappingEx.Message.ShouldContain("Dictionary<string, string> -> Address");
+            }
+        }
     }
 }
