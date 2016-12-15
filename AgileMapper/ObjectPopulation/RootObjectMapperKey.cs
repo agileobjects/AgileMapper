@@ -1,10 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System.Diagnostics;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using Members;
     using Members.Sources;
+    using ReadableExpressions.Extensions;
 
-    [DebuggerDisplay("{_ruleSet.Name}: {MappingTypes.SourceType.Name} -> {MappingTypes.TargetType.Name}")]
     internal class RootObjectMapperKey : ObjectMapperKeyBase
     {
         private readonly MapperContext _mapperContext;
@@ -40,5 +42,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public override int GetHashCode() => 0;
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+
+        #endregion
+
+        public override string ToString()
+        {
+            var sourceTypeName = MappingTypes.SourceType.GetFriendlyName();
+            var targetTypeName = MappingTypes.TargetType.GetFriendlyName();
+
+            return $"{_ruleSet.Name}: {sourceTypeName} -> {targetTypeName}";
+        }
     }
 }
