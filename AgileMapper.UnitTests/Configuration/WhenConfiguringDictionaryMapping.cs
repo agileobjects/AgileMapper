@@ -25,6 +25,28 @@
         }
 
         [Fact]
+        public void ShouldUseACustomFullDictionaryKeyForANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries()
+                    .OnTo<PublicField<PublicProperty<decimal>>>()
+                    .MapKey("BoomDiddyMcBoom")
+                    .To(pf => pf.Value.Value);
+
+                var source = new Dictionary<string, string> { ["BoomDiddyMcBoom"] = "6476338" };
+                var target = new PublicField<PublicProperty<decimal>>
+                {
+                    Value = new PublicProperty<decimal>()
+                };
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Value.Value.ShouldBe(6476338.00m);
+            }
+        }
+
+        [Fact]
         public void ShouldUseCustomMemberNameDictionaryKeysForRootMembers()
         {
             using (var mapper = Mapper.CreateNew())

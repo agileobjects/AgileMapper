@@ -36,6 +36,15 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             => CreateConfigurator<TTarget>(Constants.CreateNew);
 
         /// <summary>
+        /// Configure how this mapper performs OnTo (merge) mappings from dictionaries to the target type 
+        /// specified by the type argument.
+        /// </summary>
+        /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
+        /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
+        public IDictionaryMappingConfigurator<TValue, TTarget> OnTo<TTarget>() where TTarget : class
+            => CreateConfigurator<TTarget>(Constants.Merge);
+
+        /// <summary>
         /// Configure how this mapper performs Over (overwrite) mappings from dictionaries to the target type 
         /// specified by the type argument.
         /// </summary>
