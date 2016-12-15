@@ -15,7 +15,7 @@
         private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
         private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
-        private readonly ICollection<EnumMemberPair> _enumParings;
+        private readonly ICollection<EnumMemberPair> _enumPairings;
         private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
         private readonly ICollection<MappingCallbackFactory> _mappingCallbackFactories;
         private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
@@ -28,7 +28,7 @@
             _objectFactories = new List<ConfiguredObjectFactory>();
             Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
-            _enumParings = new List<EnumMemberPair>();
+            _enumPairings = new List<EnumMemberPair>();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
             _mappingCallbackFactories = new List<MappingCallbackFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
@@ -97,10 +97,11 @@
 
         public void Add(EnumMemberPair enumPairing)
         {
-            _enumParings.Add(enumPairing);
+            _enumPairings.Add(enumPairing);
         }
 
-        public IEnumerable<EnumMemberPair> EnumParings => _enumParings;
+        public IEnumerable<EnumMemberPair> GetEnumPairingsFor(Type sourceType, Type targetType)
+            => _enumPairings.Where(ep => ep.IsFor(sourceType, targetType));
 
         #endregion
 

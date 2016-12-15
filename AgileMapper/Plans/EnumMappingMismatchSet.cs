@@ -154,8 +154,7 @@
                 var relevantEnumPairings = mapperData
                     .MapperContext
                     .UserConfigurations
-                    .EnumParings
-                    .Where(ep => ep.IsFor(sourceEnumType, targetEnumType));
+                    .GetEnumPairingsFor(sourceEnumType, targetEnumType);
 
                 foreach (var enumParing in relevantEnumPairings)
                 {

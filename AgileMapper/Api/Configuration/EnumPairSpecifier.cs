@@ -130,8 +130,7 @@
             var relevantPairings = _configInfo
                 .MapperContext
                 .UserConfigurations
-                .EnumParings
-                .Where(ep => ep.IsFor(typeof(TFirstEnum), typeof(TSecondEnum)))
+                .GetEnumPairingsFor(typeof(TFirstEnum), typeof(TSecondEnum))
                 .ToArray();
 
             if (relevantPairings.None())
