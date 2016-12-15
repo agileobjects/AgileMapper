@@ -29,6 +29,7 @@
             Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _enumPairings = new List<EnumMemberPair>();
+            Dictionaries = new DictionarySettings();
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
             _mappingCallbackFactories = new List<MappingCallbackFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
@@ -104,6 +105,8 @@
             => _enumPairings.Where(ep => ep.IsFor(sourceType, targetType));
 
         #endregion
+
+        public DictionarySettings Dictionaries { get; }
 
         #region DataSources
 

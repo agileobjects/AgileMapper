@@ -6,6 +6,7 @@
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
     using AgileMapper.Configuration;
+    using Dictionaries;
     using Extensions;
     using Members;
 
@@ -220,18 +221,6 @@
             return this;
         }
 
-        MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
-
-        #endregion
-
-        /// <summary>
-        /// Configure how this mapper maps objects of the type specified by the type argument.
-        /// </summary>
-        /// <typeparam name="TObject">The type of object to which the configuration will apply.</typeparam>
-        /// <returns>An InstanceConfigurator with which to complete the configuration.</returns>
-        public InstanceConfigurator<TObject> InstancesOf<TObject>() where TObject : class
-            => new InstanceConfigurator<TObject>(_mapperContext);
-
         /// <summary>
         /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another enum Type.
         /// This pairing will apply to mappings between all types and MappingRuleSets (create new, overwrite, etc).
@@ -257,6 +246,25 @@
         /// </returns>
         public EnumPairSpecifier<TFirstEnum> PairEnums<TFirstEnum>(params TFirstEnum[] enumMembers) where TFirstEnum : struct
             => EnumPairSpecifier<TFirstEnum>.For(_mapperContext, enumMembers);
+
+        MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
+
+        #endregion
+
+        /// <summary>
+        /// Configure how this mapper maps objects of the type specified by the type argument.
+        /// </summary>
+        /// <typeparam name="TObject">The type of object to which the configuration will apply.</typeparam>
+        /// <returns>An InstanceConfigurator with which to complete the configuration.</returns>
+        public InstanceConfigurator<TObject> InstancesOf<TObject>() where TObject : class
+            => new InstanceConfigurator<TObject>(_mapperContext);
+
+        /// <summary>
+        /// Configure how this mapper performs mappings from source Dictionary{string, T} instances.
+        /// </summary>
+        /// <returns>A DictionaryConfigurator with which to continue the configuration.</returns>
+        public DictionaryConfigurator<object> FromDictionaries()
+            => new DictionaryConfigurator<object>(MappingConfigInfo.AllSourceTypes(_mapperContext));
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the given 
