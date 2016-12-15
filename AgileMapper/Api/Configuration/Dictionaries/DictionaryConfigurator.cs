@@ -27,12 +27,24 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForAllRuleSets());
 
         /// <summary>
-        /// Configure how this mapper performs mappings from dictionaries to the target type specified by 
-        /// the type argument when mapping to new objects.
+        /// Configure how this mapper performs object creation mappings from dictionaries to the target type 
+        /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
         public IDictionaryMappingConfigurator<TValue, TTarget> ToANew<TTarget>() where TTarget : class
-            => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForRuleSet(Constants.CreateNew));
+            => CreateConfigurator<TTarget>(Constants.CreateNew);
+
+        /// <summary>
+        /// Configure how this mapper performs Over (overwrite) mappings from dictionaries to the target type 
+        /// specified by the type argument.
+        /// </summary>
+        /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
+        /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
+        public IDictionaryMappingConfigurator<TValue, TTarget> Over<TTarget>() where TTarget : class
+            => CreateConfigurator<TTarget>(Constants.Overwrite);
+
+        private IDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(string ruleSetName)
+            => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForRuleSet(ruleSetName));
     }
 }

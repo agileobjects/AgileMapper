@@ -293,8 +293,8 @@
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForAllRuleSets()).To<TTarget>();
 
         /// <summary>
-        /// Configure how this mapper performs mappings from any source type to the target type specified by 
-        /// the type argument when mapping to new objects.
+        /// Configure how this mapper performs object creation mappings from any source type to the target type 
+        /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
@@ -302,8 +302,8 @@
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.CreateNew)).ToANew<TTarget>();
 
         /// <summary>
-        /// Configure how this mapper performs mappings from any source type to the target type specified by 
-        /// the type argument when performing OnTo (merge) mappings.
+        /// Configure how this mapper performs OnTo (merge) mappings from any source type to the target type 
+        /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
@@ -311,8 +311,8 @@
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Merge)).OnTo<TTarget>();
 
         /// <summary>
-        /// Configure how this mapper performs mappings from any source type to the target type specified by 
-        /// the type argument when performing Over (overwrite) mappings.
+        /// Configure how this mapper performs Over (overwrite) mappings from any source type to the target type 
+        /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>

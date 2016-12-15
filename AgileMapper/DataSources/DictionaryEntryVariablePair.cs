@@ -180,18 +180,16 @@ namespace AgileObjects.AgileMapper.DataSources
         {
             var memberName = mapperData.MapperContext.UserConfigurations
                 .Dictionaries
-                .GetMemberKeyOrNull(mapperData);
+                .GetMemberKeyOrNull(mapperData) ?? mapperData.TargetMember.LeafMember.JoiningName;
 
-            if (memberName == null)
+            if (memberName.StartsWith('.'))
             {
-                memberName = mapperData.TargetMember.LeafMember.JoiningName;
+                if (mapperData.Parent.IsRoot)
+                {
+                    memberName = RemoveLeadingDotFrom(memberName);
+                }
             }
-
-            if (mapperData.Parent.IsRoot)
-            {
-                memberName = RemoveLeadingDotFrom(memberName);
-            }
-            else if (!memberName.StartsWith('.'))
+            else if (!mapperData.Parent.IsRoot)
             {
                 memberName = "." + memberName;
             }
