@@ -7,7 +7,7 @@
     public class WhenConfiguringDictionaryMapping
     {
         [Fact]
-        public void ShouldUseACustomDictionaryKey()
+        public void ShouldUseACustomFullDictionaryKey()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -21,6 +21,24 @@
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
 
                 result.Value.ShouldBe("123");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseACustomMemberNameDictionaryKey()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries()
+                    .ToANew<Address>()
+                    .MapMemberName("HouseName")
+                    .To(a => a.Line1);
+
+                var source = new Dictionary<string, string> { ["Value.HouseName"] = "Home" };
+                var result = mapper.Map(source).ToANew<PublicProperty<Address>>();
+
+                result.Value.Line1.ShouldBe("Home");
             }
         }
     }

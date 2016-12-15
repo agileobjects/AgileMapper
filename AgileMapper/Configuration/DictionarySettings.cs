@@ -1,25 +1,38 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Members;
 
-    internal class DictionarySettings
+    internal class DictionarySettings : ConfigurationSetBase
     {
-        private readonly List<CustomDictionaryKey> _configuredKeys;
+        private readonly List<CustomDictionaryKey> _configuredFullKeys;
+        private readonly List<CustomDictionaryKey> _configuredMemberKeys;
 
         public DictionarySettings()
         {
-            _configuredKeys = new List<CustomDictionaryKey>();
+            _configuredFullKeys = new List<CustomDictionaryKey>();
+            _configuredMemberKeys = new List<CustomDictionaryKey>();
         }
 
-        public Expression GetKeyOrNull(IBasicMapperData mapperData)
-            => _configuredKeys.FirstOrDefault(k => k.AppliesTo(mapperData))?.KeyValue;
-
-        public void Add(CustomDictionaryKey configuredKey)
+        public void AddFullKey(CustomDictionaryKey configuredKey)
         {
-            _configuredKeys.Add(configuredKey);
+            _configuredFullKeys.Add(configuredKey);
         }
+
+        public Expression GetFullKeyOrNull(IBasicMapperData mapperData)
+        {
+            var matchingKey = FindMatch(_configuredFullKeys, mapperData);
+
+            return (matchingKey != null) ? Expression.Constant(matchingKey.Key, typeof(string)) : null;
+        }
+
+        public void AddMemberKey(CustomDictionaryKey customKey)
+        {
+            _configuredMemberKeys.Add(customKey);
+        }
+
+        public string GetMemberKeyOrNull(IBasicMapperData mapperData)
+            => FindMatch(_configuredMemberKeys, mapperData)?.Key;
     }
 }

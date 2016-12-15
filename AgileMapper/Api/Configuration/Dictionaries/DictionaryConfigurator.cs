@@ -25,5 +25,14 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
         public IDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>() where TTarget : class
             => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForAllRuleSets());
+
+        /// <summary>
+        /// Configure how this mapper performs mappings from dictionaries to the target type specified by 
+        /// the type argument when mapping to new objects.
+        /// </summary>
+        /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
+        /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
+        public IDictionaryMappingConfigurator<TValue, TTarget> ToANew<TTarget>() where TTarget : class
+            => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForRuleSet(Constants.CreateNew));
     }
 }

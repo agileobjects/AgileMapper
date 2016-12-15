@@ -13,15 +13,18 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
     public class CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget>
     {
+        private readonly string _key;
+        private readonly Action<DictionarySettings, CustomDictionaryKey> _dictionarySettingsAction;
         private readonly MappingConfigInfo _configInfo;
-        private readonly Expression _keyValue;
 
         internal CustomDictionaryMappingTargetMemberSpecifier(
             MappingConfigInfo configInfo,
-            Expression keyValue)
+            string key,
+            Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
         {
+            _key = key;
+            _dictionarySettingsAction = dictionarySettingsAction;
             _configInfo = configInfo.ForTargetType<TTarget>();
-            _keyValue = keyValue;
         }
 
         /// <summary>
@@ -36,9 +39,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         public DictionaryMappingConfigContinuation<TValue, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
-            var configuredKey = new CustomDictionaryKey(_keyValue, targetMember, _configInfo);
+            var configuredKey = new CustomDictionaryKey(_key, targetMember, _configInfo);
 
-            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(configuredKey);
+            _dictionarySettingsAction.Invoke(
+                _configInfo.MapperContext.UserConfigurations.Dictionaries,
+                configuredKey);
 
             return new DictionaryMappingConfigContinuation<TValue, TTarget>(_configInfo);
         }

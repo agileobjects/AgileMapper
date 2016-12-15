@@ -5,14 +5,14 @@
     internal class CustomDictionaryKey : UserConfiguredItemBase
     {
         public CustomDictionaryKey(
-            Expression keyValue,
+            string key,
             LambdaExpression targetMemberLambda,
             MappingConfigInfo configInfo)
             : base(configInfo, targetMemberLambda)
         {
-            KeyValue = keyValue;
+            Key = key;
         }
 
-        public Expression KeyValue { get; }
+        public string Key { get; }
     }
 }

@@ -9,7 +9,14 @@
     using Members;
     using ObjectPopulation;
 
-    internal class UserConfigurationSet
+    internal abstract class ConfigurationSetBase
+    {
+        protected static TItem FindMatch<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
+            where TItem : UserConfiguredItemBase
+            => items.FirstOrDefault(im => im.AppliesTo(mapperData));
+    }
+
+    internal class UserConfigurationSet : ConfigurationSetBase
     {
         private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
         private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
@@ -170,10 +177,6 @@
         #endregion
 
         public DerivedTypePairSet DerivedTypes { get; }
-
-        private static TItem FindMatch<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
-            where TItem : UserConfiguredItemBase
-            => items.FirstOrDefault(im => im.AppliesTo(mapperData));
 
         private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
             where TItem : UserConfiguredItemBase

@@ -105,7 +105,7 @@ namespace AgileObjects.AgileMapper.DataSources
             var configuredKey = mapperData.MapperContext
                 .UserConfigurations
                 .Dictionaries
-                .GetKeyOrNull(mapperData);
+                .GetFullKeyOrNull(mapperData);
 
             if (configuredKey != null)
             {
@@ -178,11 +178,22 @@ namespace AgileObjects.AgileMapper.DataSources
             IList<Expression> memberPartExpressions,
             IMemberMapperData mapperData)
         {
-            var memberName = mapperData.TargetMember.LeafMember.JoiningName;
+            var memberName = mapperData.MapperContext.UserConfigurations
+                .Dictionaries
+                .GetMemberKeyOrNull(mapperData);
+
+            if (memberName == null)
+            {
+                memberName = mapperData.TargetMember.LeafMember.JoiningName;
+            }
 
             if (mapperData.Parent.IsRoot)
             {
                 memberName = RemoveLeadingDotFrom(memberName);
+            }
+            else if (!memberName.StartsWith('.'))
+            {
+                memberName = "." + memberName;
             }
 
             memberPartExpressions.Insert(0, Expression.Constant(memberName, typeof(string)));
