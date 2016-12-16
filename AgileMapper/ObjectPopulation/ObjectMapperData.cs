@@ -2,6 +2,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
@@ -515,5 +518,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IBasicMapperData WithNoTargetMember()
             => new BasicMapperData(RuleSet, SourceType, TargetType, QualifiedMember.None, Parent);
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+
+        #endregion
+        public override string ToString() => $"{SourceMember} -> {TargetMember}";
     }
 }

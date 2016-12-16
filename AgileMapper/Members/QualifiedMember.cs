@@ -2,13 +2,14 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq;
     using System.Linq.Expressions;
     using Caching;
     using Extensions;
 
-    [DebuggerDisplay("{GetPath()}")]
     internal class QualifiedMember : IQualifiedMember
     {
         public static readonly QualifiedMember All = new QualifiedMember(Enumerable<Member>.EmptyArray, null, null);
@@ -269,5 +270,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetQualifiedAccess(Expression instance)
             => _memberChain.GetQualifiedAccess(instance);
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+
+        #endregion
+        public override string ToString() => GetPath();
     }
 }
