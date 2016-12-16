@@ -11,11 +11,8 @@ namespace AgileObjects.AgileMapper.Members
     [DebuggerDisplay("{GetPath()}")]
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], Constants.EmptyStringArray,
-            MapperContext.WithDefaultNamingSettings);
-
-        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], Constants.EmptyStringArray,
-            MapperContext.WithDefaultNamingSettings);
+        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], Constants.EmptyStringArray, null);
+        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], Constants.EmptyStringArray, null);
 
         private readonly Member[] _memberChain;
         private readonly MapperContext _mapperContext;
@@ -35,15 +32,15 @@ namespace AgileObjects.AgileMapper.Members
         private QualifiedMember(Member[] memberChain, ICollection<string> joinedNames, MapperContext mapperContext)
             : this(memberChain.LastOrDefault(), mapperContext)
         {
+            if (LeafMember == null)
+            {
+                return;
+            }
+
             _memberChain = memberChain;
             JoinedNames = joinedNames;
-
             _pathFactory = () => _memberChain.GetFullName();
-
-            if (LeafMember != null)
-            {
-                IsRecursive = DetermineRecursion();
-            }
+            IsRecursive = DetermineRecursion();
         }
 
         private QualifiedMember(Member member, QualifiedMember parent, MapperContext mapperContext)
