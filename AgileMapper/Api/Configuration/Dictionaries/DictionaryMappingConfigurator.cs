@@ -1,14 +1,17 @@
 namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
     using System;
-    using System.Linq.Expressions;
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
 
-    internal class DictionaryMappingConfigurator<TValue, TTarget> : IDictionaryMappingConfigurator<TValue, TTarget>
+    internal class DictionaryMappingConfigurator<TValue, TTarget> :
+        MappingConfigurator<Dictionary<string, TValue>, TTarget>,
+        IDictionaryMappingConfigurator<TValue, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
 
         public DictionaryMappingConfigurator(MappingConfigInfo configInfo)
+            : base(configInfo)
         {
             _configInfo = configInfo;
         }

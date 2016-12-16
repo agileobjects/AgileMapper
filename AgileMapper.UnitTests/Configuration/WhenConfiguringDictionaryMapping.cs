@@ -90,5 +90,55 @@
                 result.Value.Line1.ShouldBe("Home");
             }
         }
+
+        [Fact]
+        public void ShouldApplyNonDictionarySpecificConfiguration()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries()
+                    .To<Product>()
+                    .MapKey("BlahBlahBlah")
+                    .To(p => p.ProductId)
+                    .And
+                    .If(ctx => ctx.Source.Count > 2)
+                    .Ignore(p => p.Price)
+                    .But
+                    .If((d, p) => d.Count < 2)
+                    .Map((d, p, i) => d.Count)
+                    .To(p => p.Price);
+
+                var oneEntrySource = new Dictionary<string, object>
+                {
+                    ["BlahBlahBlah"] = "Dictionary Madness!"
+                };
+                var oneEntryResult = mapper.Map(oneEntrySource).ToANew<Product>();
+
+                oneEntryResult.ProductId.ShouldBe("Dictionary Madness!");
+                oneEntryResult.Price.ShouldBe(1.00);
+
+                var twoEntriesSource = new Dictionary<string, object>
+                {
+                    ["BlahBlahBlah"] = "DictionaryAdventures.com",
+                    ["Price"] = 123.00
+                };
+                var twoEntriesResult = mapper.Map(twoEntriesSource).ToANew<Product>();
+
+                twoEntriesResult.ProductId.ShouldBe("DictionaryAdventures.com");
+                twoEntriesResult.Price.ShouldBe(123.00);
+
+                var threeEntriesSource = new Dictionary<string, object>
+                {
+                    ["BlahBlahBlah"] = "Dictionary Madness!!!",
+                    ["Price"] = 123.00,
+                    ["ExtraEntry"] = "Taking up space"
+                };
+                var threeEntriesResult = mapper.Map(threeEntriesSource).ToANew<Product>();
+
+                threeEntriesResult.ProductId.ShouldBe("Dictionary Madness!!!");
+                threeEntriesResult.Price.ShouldBeDefault();
+            }
+        }
     }
 }

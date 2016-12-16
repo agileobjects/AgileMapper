@@ -105,7 +105,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
         {
             if (sourceValue.Type == typeof(object))
             {
-                sourceValue = _toStringConverter.GetConversionNoNullCheck(sourceValue);
+                sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
 
             var test = testValue.Value.ToString().Length == 1

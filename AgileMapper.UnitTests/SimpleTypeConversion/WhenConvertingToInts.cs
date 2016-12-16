@@ -293,6 +293,16 @@
         }
 
         [Fact]
+        public void ShouldMapANullObjectOnToAnInt()
+        {
+            var source = new PublicProperty<object> { Value = null };
+            var target = new PublicField<int> { Value = default(int) };
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
         public void ShouldMapAStringEnumerableToAnIntEnumerable()
         {
             IEnumerable<string> source = new[] { "1", "2", "3" };

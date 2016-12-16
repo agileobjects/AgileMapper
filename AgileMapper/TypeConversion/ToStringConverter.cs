@@ -6,7 +6,6 @@
     using System.Reflection;
     using Extensions;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal class ToStringConverter : ValueConverterBase
     {
@@ -14,20 +13,11 @@
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
-            var toStringCall = GetConversionNoNullCheck(sourceValue);
-
-            if (!sourceValue.Type.IsNullableType() && sourceValue.Type.CanBeNull())
-            {
-                toStringCall = Expression.Condition(
-                    sourceValue.GetIsNotDefaultComparison(),
-                    toStringCall,
-                    Expression.Default(typeof(string)));
-            }
-
-            return toStringCall;
+            // Target type is always 'string':
+            return GetConversion(sourceValue);
         }
 
-        public Expression GetConversionNoNullCheck(Expression sourceValue)
+        public Expression GetConversion(Expression sourceValue)
         {
             if (sourceValue.Type == typeof(byte[]))
             {
@@ -36,7 +26,7 @@
 
             var toStringMethod = sourceValue.Type
                 .GetPublicInstanceMethods()
-                .First(m => m.Name == "ToString");
+                .First(m => (m.Name == "ToString") && m.GetParameters().HasOne());
 
             Expression toStringCall = Expression.Call(sourceValue, toStringMethod);
 

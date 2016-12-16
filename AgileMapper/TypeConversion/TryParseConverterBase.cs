@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
             if (sourceValue.Type != typeof(string))
             {
-                sourceValue = _toStringConverter.GetConversionNoNullCheck(sourceValue);
+                sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
 
             var tryParseCall = Expression.Call(_tryParseMethod, sourceValue, _valueVariable);

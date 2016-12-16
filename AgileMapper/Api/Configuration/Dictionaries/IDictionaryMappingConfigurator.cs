@@ -1,5 +1,7 @@
 namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Provides options for configuring mappings from and to a given source and target type.
     /// </summary>
@@ -7,7 +9,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// The type of values stored in the dictionary to which the configurations will apply.
     /// </typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
-    public interface IDictionaryMappingConfigurator<TValue, TTarget>
+    public interface IDictionaryMappingConfigurator<TValue, TTarget> : IFullMappingConfigurator<Dictionary<string, TValue>, TTarget>
     {
         /// <summary>
         /// Configure a custom full dictionary key for a particular target member when mapping from and to the dictionary 
