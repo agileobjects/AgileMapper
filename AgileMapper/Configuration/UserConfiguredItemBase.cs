@@ -23,7 +23,7 @@
 
         private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda)
         {
-            var targetMember = lambda.Body.ToTargetMember(MapperContext.WithDefaultNamingSettings);
+            var targetMember = lambda.Body.ToTargetMember(MapperContext.Default);
 
             if (targetMember != null)
             {

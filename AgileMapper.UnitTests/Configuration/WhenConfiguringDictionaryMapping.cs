@@ -140,5 +140,30 @@
                 threeEntriesResult.Price.ShouldBeDefault();
             }
         }
+
+        [Fact]
+        public void ShouldApplyFlattenedMemberNamesIfConfigured()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries()
+                    .UseFlattenedMemberNames();
+
+                var source = new Dictionary<string, string>
+                {
+                    ["Name"] = "Bob",
+                    ["Discount"] = "0.1",
+                    ["AddressLine1"] = "Bob's House",
+                    ["AddressLine2"] = "Bob's Street"
+                };
+                var result = mapper.Map(source).ToANew<Customer>();
+
+                result.Name.ShouldBe("Bob");
+                result.Discount.ShouldBe(0.1);
+                result.Address.Line1.ShouldBe("Bob's House");
+                result.Address.Line2.ShouldBe("Bob's Street");
+            }
+        }
     }
 }

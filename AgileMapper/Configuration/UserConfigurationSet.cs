@@ -28,7 +28,7 @@
         private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
         private readonly ICollection<ExceptionCallback> _exceptionCallbackFactories;
 
-        public UserConfigurationSet()
+        public UserConfigurationSet(MapperContext mapperContext)
         {
             _trackingModeSettings = new List<ObjectTrackingMode>();
             _nullCollectionSettings = new List<NullCollectionsSetting>();
@@ -36,7 +36,7 @@
             Identifiers = new MemberIdentifierSet();
             _ignoredMembers = new List<ConfiguredIgnoredMember>();
             _enumPairings = new List<EnumMemberPair>();
-            Dictionaries = new DictionarySettings();
+            Dictionaries = new DictionarySettings(mapperContext);
             _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
             _mappingCallbackFactories = new List<MappingCallbackFactory>();
             _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();

@@ -32,19 +32,19 @@
         private static IQualifiedMember SourceMemberFor(Member rootSourceMember, LambdaExpression childMemberExpression)
         {
             return (childMemberExpression == null)
-                ? QualifiedMember.From(rootSourceMember, MapperContext.WithDefaultNamingSettings)
+                ? QualifiedMember.From(rootSourceMember, MapperContext.Default)
                 : MemberExtensions.CreateMember(
                     childMemberExpression,
                     Member.RootSource,
                     MemberFinder.GetSourceMembers,
-                    MapperContext.WithDefaultNamingSettings);
+                    MapperContext.Default);
         }
 
         internal QualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
         {
             return (childMemberExpression == null)
-                ? QualifiedMember.From(Member.RootTarget(typeof(T)), MapperContext.WithDefaultNamingSettings)
-                : childMemberExpression.ToTargetMember(MapperContext.WithDefaultNamingSettings);
+                ? QualifiedMember.From(Member.RootTarget(typeof(T)), MapperContext.Default)
+                : childMemberExpression.ToTargetMember(MapperContext.Default);
         }
     }
 }

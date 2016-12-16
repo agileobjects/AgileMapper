@@ -11,7 +11,7 @@
 
     internal class MapperContext
     {
-        internal static readonly MapperContext WithDefaultNamingSettings = new MapperContext(NamingSettings.Default);
+        internal static readonly MapperContext Default = new MapperContext(NamingSettings.Default);
 
         public MapperContext(NamingSettings namingSettings = null)
         {
@@ -22,7 +22,7 @@
             ObjectMapperFactory = new ObjectMapperFactory(this);
             ObjectFlattener = new ObjectFlattener();
             DerivedTypes = new DerivedTypesCache();
-            UserConfigurations = new UserConfigurationSet();
+            UserConfigurations = new UserConfigurationSet(this);
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
         }

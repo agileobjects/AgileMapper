@@ -18,6 +18,20 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         }
 
         /// <summary>
+        /// Construct dictionary keys for nested members using flattened member names. For example, a
+        /// Person.Address.StreetName member would be populated using the dictionary entry with key 
+        /// 'AddressStreetName'.
+        /// </summary>
+        public void UseFlattenedMemberNames()
+        {
+            var globalConfigInfo = _configInfo.ForAllRuleSets().ForAllTargetTypes();
+
+            var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(globalConfigInfo);
+
+            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
+        }
+
+        /// <summary>
         /// Configure how this mapper performs mappings from dictionaries in all MappingRuleSets 
         /// (create new, overwrite, etc), to the target type specified by the type argument.
         /// </summary>

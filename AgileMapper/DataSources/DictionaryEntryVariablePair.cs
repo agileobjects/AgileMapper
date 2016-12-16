@@ -178,21 +178,12 @@ namespace AgileObjects.AgileMapper.DataSources
             IList<Expression> memberPartExpressions,
             IMemberMapperData mapperData)
         {
-            var memberName = mapperData.MapperContext.UserConfigurations
-                .Dictionaries
+            var dictionarySettings = mapperData.MapperContext.UserConfigurations.Dictionaries;
+
+            var memberName = dictionarySettings
                 .GetMemberKeyOrNull(mapperData) ?? mapperData.TargetMember.LeafMember.JoiningName;
 
-            if (memberName.StartsWith('.'))
-            {
-                if (mapperData.Parent.IsRoot)
-                {
-                    memberName = RemoveLeadingDotFrom(memberName);
-                }
-            }
-            else if (!mapperData.Parent.IsRoot)
-            {
-                memberName = "." + memberName;
-            }
+            memberName = dictionarySettings.GetJoiningName(memberName, mapperData);
 
             memberPartExpressions.Insert(0, Expression.Constant(memberName, typeof(string)));
 
