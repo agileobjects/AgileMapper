@@ -11,8 +11,8 @@ namespace AgileObjects.AgileMapper.Members
     [DebuggerDisplay("{GetPath()}")]
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(new Member[0], Constants.EmptyStringArray, null);
-        public static readonly QualifiedMember None = new QualifiedMember(new Member[0], Constants.EmptyStringArray, null);
+        public static readonly QualifiedMember All = new QualifiedMember(Enumerable<Member>.EmptyArray, null, null);
+        public static readonly QualifiedMember None = new QualifiedMember(Enumerable<Member>.EmptyArray, null, null);
 
         private readonly Member[] _memberChain;
         private readonly MapperContext _mapperContext;
