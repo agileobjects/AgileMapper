@@ -68,15 +68,15 @@ namespace AgileObjects.AgileMapper.Members
 
         private QualifiedMember(Member leafMember, MapperContext mapperContext)
         {
-            LeafMember = leafMember;
-            _mapperContext = mapperContext;
-            _runtimeTypedMemberCache = mapperContext.Cache.CreateNew<Type, QualifiedMember>();
-            _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>();
-
             if (leafMember == null)
             {
                 return;
             }
+
+            LeafMember = leafMember;
+            _mapperContext = mapperContext;
+            _runtimeTypedMemberCache = mapperContext.Cache.CreateNew<Type, QualifiedMember>();
+            _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>();
 
             RegistrationName = (LeafMember.MemberType != MemberType.ConstructorParameter)
                 ? Name

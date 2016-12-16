@@ -26,7 +26,7 @@
 
             var toStringMethod = sourceValue.Type
                 .GetPublicInstanceMethods()
-                .First(m => (m.Name == "ToString") && m.GetParameters().HasOne());
+                .First(m => (m.Name == "ToString") && m.GetParameters().None());
 
             Expression toStringCall = Expression.Call(sourceValue, toStringMethod);
 
