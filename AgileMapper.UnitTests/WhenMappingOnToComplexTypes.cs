@@ -63,6 +63,16 @@
         }
 
         [Fact]
+        public void ShouldUseARuntimeTargetType()
+        {
+            var source = new Customer { Name = "Benji", Discount = 0.2m };
+            Person target = new Customer { Name = "Bernard" };
+            var result = Mapper.Map(source).OnTo(target);
+
+            ((Customer)result).Discount.ShouldBe(0.2);
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceObject()
         {
             var target = new PublicProperty<int>();

@@ -1,17 +1,18 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Linq.Expressions;
     using Extensions;
     using Members;
 
     internal class JoiningNameFactory : UserConfiguredItemBase
     {
         private readonly string _separator;
-        private readonly Func<string, string, IBasicMapperData, string> _joinedNameFactory;
+        private readonly Func<string, string, IBasicMapperData, Expression> _joinedNameFactory;
 
         public JoiningNameFactory(
             string separator,
-            Func<string, string, IBasicMapperData, string> joinedNameFactory,
+            Func<string, string, IBasicMapperData, Expression> joinedNameFactory,
             MappingConfigInfo configInfo)
             : base(configInfo)
         {
@@ -22,32 +23,63 @@
         #region Factory Methods
 
         public static JoiningNameFactory Dotted(MapperContext mapperContext)
-        {
-            return new JoiningNameFactory(
-                ".",
-                HandleLeadingSeparator,
-                MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext));
-        }
+            => For(".", MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext));
+
+        public static JoiningNameFactory For(string separator, MappingConfigInfo configInfo)
+            => new JoiningNameFactory(separator, HandleLeadingSeparator, configInfo);
 
         public static JoiningNameFactory Flattened(MappingConfigInfo configInfo)
             => new JoiningNameFactory(string.Empty, Flatten, configInfo);
 
         #endregion
 
-        public string GetJoiningName(string name, IBasicMapperData mapperData)
-            => _joinedNameFactory.Invoke(_separator, name, mapperData);
-
-        private static string HandleLeadingSeparator(string separator, string name, IBasicMapperData mapperData)
+        public Expression GetJoiningName(string name, IMemberMapperData mapperData)
         {
-            if (name.StartsWith(separator))
+            var joiningName = _joinedNameFactory.Invoke(_separator, name, mapperData);
+
+            if (mapperData.Parent.IsRoot)
             {
-                return mapperData.Parent.IsRoot ? name.Substring(separator.Length) : name;
+                return joiningName;
             }
 
-            return mapperData.Parent.IsRoot ? name : separator + name;
+            var condition = GetConditionOrNull(mapperData);
+
+            if (condition == null)
+            {
+                return joiningName;
+            }
+
+            var dottedJoiningName = HandleLeadingSeparator(".", name, mapperData);
+
+            return Expression.Condition(condition, joiningName, dottedJoiningName);
         }
 
-        private static string Flatten(string separator, string name, IBasicMapperData mapperData)
-            => name.StartsWith('.') ? name.Substring(1) : name;
+        private static Expression HandleLeadingSeparator(string separator, string name, IBasicMapperData mapperData)
+        {
+            if (separator != ".")
+            {
+                name = name.Replace(".", separator);
+            }
+
+            if (name.StartsWith(separator))
+            {
+                if (mapperData.Parent.IsRoot)
+                {
+                    name = name.Substring(separator.Length);
+                }
+            }
+            else if (!mapperData.Parent.IsRoot)
+            {
+                name = separator + name;
+            }
+
+            return Constant(name);
+        }
+
+        private static Expression Flatten(string separator, string name, IBasicMapperData mapperData)
+            => Constant(name.StartsWith('.') ? name.Substring(1) : name);
+
+        private static Expression Constant(string value)
+            => Expression.Constant(value, typeof(string));
     }
 }

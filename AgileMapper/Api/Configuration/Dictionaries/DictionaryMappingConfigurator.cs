@@ -16,6 +16,17 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             _configInfo = configInfo;
         }
 
+        #region IDictionaryConfigSettings Members
+
+        void IDictionaryConfigSettings.UseMemberNameSeparator(string separator)
+        {
+            var joiningNameFactory = JoiningNameFactory.For(separator, _configInfo);
+
+            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
+        }
+
+        #endregion
+
         public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapKey(string key)
             => CreateTargetMemberSpecifier(key, (settings, customKey) => settings.AddFullKey(customKey));
 

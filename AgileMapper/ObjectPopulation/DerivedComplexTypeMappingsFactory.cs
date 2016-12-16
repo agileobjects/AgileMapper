@@ -24,11 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GetTypesDerivedFrom(declaredTypeMapperData.SourceType)
                 .ToArray();
 
-            var derivedTypePairs = declaredTypeMapperData.MapperContext
-                .UserConfigurations
-                .DerivedTypes
-                .GetDerivedTypePairsFor(declaredTypeMapperData)
-                .ToArray();
+            var derivedTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
 
             if (derivedSourceTypes.None() && derivedTypePairs.None())
             {
@@ -262,6 +258,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperData.TargetMember.WithType(targetType),
                 mapperData.Parent);
 
+            return GetTypePairsFor(pairTestMapperData, mapperData);
+        }
+
+        private static IList<DerivedTypePair> GetTypePairsFor(IBasicMapperData pairTestMapperData, IMemberMapperData mapperData)
+        {
             var derivedTypePairs = mapperData.MapperContext.UserConfigurations
                 .DerivedTypes
                 .GetDerivedTypePairsFor(pairTestMapperData, mapperData.MapperContext)

@@ -68,6 +68,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             => CreateConfigurator<TTarget>(Constants.Overwrite);
 
         private IDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(string ruleSetName)
-            => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForRuleSet(ruleSetName));
+        {
+            var configInfo = _configInfo.ForRuleSet(ruleSetName).ForTargetType<TTarget>();
+
+            return new DictionaryMappingConfigurator<TValue, TTarget>(configInfo);
+        }
     }
 }

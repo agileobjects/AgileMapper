@@ -165,5 +165,34 @@
                 result.Address.Line2.ShouldBe("Bob's Street");
             }
         }
+
+        [Fact]
+        public void ShouldApplyACustomSeparatorToASpecificTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries()
+                    .ToANew<Customer>()
+                    .UseMemberNameSeparator("_");
+
+                var source = new Dictionary<string, object>
+                {
+                    ["Name"] = "Freddy",
+                    ["Address.Line1"] = "Freddy's Dot",
+                    ["Address_Line1"] = "Freddy's Underscore"
+                };
+
+                var nonMatchingResult = mapper.Map(source).ToANew<Person>();
+
+                nonMatchingResult.Name.ShouldBe("Freddy");
+                nonMatchingResult.Address.Line1.ShouldBe("Freddy's Dot");
+
+                var matchingResult = mapper.Map(source).ToANew<Customer>();
+
+                matchingResult.Name.ShouldBe("Freddy");
+                matchingResult.Address.Line1.ShouldBe("Freddy's Underscore");
+            }
+        }
     }
 }

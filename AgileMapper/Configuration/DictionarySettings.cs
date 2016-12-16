@@ -46,7 +46,7 @@
             _joiningNameFactories.Insert(0, joiningNameFactory);
         }
 
-        public string GetJoiningName(string memberName, IBasicMapperData mapperData)
+        public Expression GetJoiningName(string memberName, IMemberMapperData mapperData)
             => FindMatch(_joiningNameFactories, mapperData).GetJoiningName(memberName, mapperData);
     }
 }

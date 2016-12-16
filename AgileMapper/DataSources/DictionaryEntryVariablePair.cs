@@ -116,7 +116,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             OptimiseNamePartsForStringConcat(keyParts);
 
-            if ((keyParts.Count == 1) && (keyParts.First().NodeType == ExpressionType.Constant))
+            if (keyParts.HasOne() && (keyParts.First().NodeType == ExpressionType.Constant))
             {
                 return keyParts.First();
             }
@@ -127,26 +127,31 @@ namespace AgileObjects.AgileMapper.DataSources
         private static IList<Expression> GetTargetMemberDictionaryKeyParts(IMemberMapperData mapperData)
         {
             var joinedName = string.Empty;
-            var targetMemberIsNotWithinEnumerable = true;
             var memberPartExpressions = new List<Expression>();
+            var joinedNameIsConstant = true;
 
             while (!mapperData.IsRoot)
             {
                 if (mapperData.TargetMemberIsEnumerableElement())
                 {
                     AddEnumerableMemberNamePart(memberPartExpressions, mapperData);
-                    targetMemberIsNotWithinEnumerable = false;
+                    joinedNameIsConstant = false;
                 }
                 else
                 {
-                    var memberName = AddMemberNamePart(memberPartExpressions, mapperData);
-                    joinedName = memberName + joinedName;
+                    var namePart = AddMemberNamePart(memberPartExpressions, mapperData);
+                    joinedNameIsConstant = joinedNameIsConstant && namePart.NodeType == ExpressionType.Constant;
+
+                    if (joinedNameIsConstant)
+                    {
+                        joinedName = (string)((ConstantExpression)namePart).Value + joinedName;
+                    }
                 }
 
                 mapperData = mapperData.Parent;
             }
 
-            if (targetMemberIsNotWithinEnumerable)
+            if (joinedNameIsConstant)
             {
                 memberPartExpressions.Clear();
                 memberPartExpressions.Add(Expression.Constant(joinedName, typeof(string)));
@@ -174,7 +179,7 @@ namespace AgileObjects.AgileMapper.DataSources
             yield return Expression.Constant("]");
         }
 
-        private static string AddMemberNamePart(
+        private static Expression AddMemberNamePart(
             IList<Expression> memberPartExpressions,
             IMemberMapperData mapperData)
         {
@@ -183,11 +188,11 @@ namespace AgileObjects.AgileMapper.DataSources
             var memberName = dictionarySettings
                 .GetMemberKeyOrNull(mapperData) ?? mapperData.TargetMember.LeafMember.JoiningName;
 
-            memberName = dictionarySettings.GetJoiningName(memberName, mapperData);
+            var memberNamePart = dictionarySettings.GetJoiningName(memberName, mapperData);
 
-            memberPartExpressions.Insert(0, Expression.Constant(memberName, typeof(string)));
+            memberPartExpressions.Insert(0, memberNamePart);
 
-            return memberName;
+            return memberNamePart;
         }
 
         private static Expression GetStringConcatCall(ICollection<Expression> elements)
@@ -205,10 +210,13 @@ namespace AgileObjects.AgileMapper.DataSources
             return Expression.Call(null, _stringJoinMethod, emptyString, newStringArray);
         }
 
-        private static string RemoveLeadingDotFrom(string name) => name.Substring(1);
-
         private static void OptimiseNamePartsForStringConcat(IList<Expression> nameParts)
         {
+            if (nameParts.HasOne())
+            {
+                return;
+            }
+
             var currentNamePart = string.Empty;
 
             for (var i = nameParts.Count - 1; i >= 0; --i)
@@ -217,8 +225,18 @@ namespace AgileObjects.AgileMapper.DataSources
 
                 if (namePart.NodeType == ExpressionType.Constant)
                 {
+                    if ((i == 0) && (currentNamePart == string.Empty))
+                    {
+                        return;
+                    }
+
                     currentNamePart = (string)((ConstantExpression)namePart).Value + currentNamePart;
                     nameParts.RemoveAt(i);
+                    continue;
+                }
+
+                if (currentNamePart == string.Empty)
+                {
                     continue;
                 }
 

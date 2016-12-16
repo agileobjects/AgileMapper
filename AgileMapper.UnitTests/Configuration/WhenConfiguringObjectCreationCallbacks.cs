@@ -322,7 +322,7 @@
         }
 
         [Fact]
-        public void ShouldCallAnObjectCreatingCallbackInAMemberCollectionConditionally()
+        public void ShouldCallAnObjectCreatedCallbackInAMemberCollectionConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {

@@ -66,9 +66,6 @@
             }
         }
 
-        public ICollection<DerivedTypePair> GetDerivedTypePairsFor(IMemberMapperData mapperData)
-            => GetDerivedTypePairsFor(mapperData, mapperData.MapperContext);
-
         public ICollection<DerivedTypePair> GetDerivedTypePairsFor(
             IBasicMapperData mapperData,
             MapperContext mapperContext)
@@ -106,62 +103,75 @@
                 }
 
                 _autoCheckedTypes.Add(typesKey);
-            }
 
-            Func<Type, string> derivedTargetTypeNameFactory;
-
-            if (SkipDerivedTypePairsLookup(
-                mapperData,
-                rootSourceType,
-                rootTargetType,
-                out derivedTargetTypeNameFactory))
-            {
-                return;
-            }
-
-            var derivedSourceTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootSourceType);
-
-            if (derivedSourceTypes.None())
-            {
-                return;
-            }
-
-            var derivedTargetTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootTargetType);
-
-            if (derivedTargetTypes.None())
-            {
-                return;
-            }
-
-            var candidatePairsData = derivedSourceTypes
-                .Select(t => new
+                if (rootSourceType == rootTargetType)
                 {
-                    DerivedSourceType = t,
-                    DerivedTargetTypeName = derivedTargetTypeNameFactory.Invoke(t)
-                })
-                .ToArray();
-
-            foreach (var candidatePairData in candidatePairsData)
-            {
-                var derivedTargetType = derivedTargetTypes
-                    .FirstOrDefault(t => t.Name == candidatePairData.DerivedTargetTypeName);
-
-                if (derivedTargetType == null)
-                {
-                    continue;
+                    AddSameRootTypePairs(rootSourceType, mapperContext);
+                    return;
                 }
 
-                var configInfo = new MappingConfigInfo(mapperContext)
-                    .ForRuleSet(mapperData.RuleSet)
-                    .ForSourceType(rootSourceType)
-                    .ForTargetType(rootTargetType);
+                Func<Type, string> derivedTargetTypeNameFactory;
 
-                var derivedTypePair = new DerivedTypePair(
-                    configInfo,
-                    candidatePairData.DerivedSourceType,
-                    derivedTargetType);
+                if (SkipDerivedTypePairsLookup(
+                    mapperData,
+                    rootSourceType,
+                    rootTargetType,
+                    out derivedTargetTypeNameFactory))
+                {
+                    return;
+                }
 
-                Add(derivedTypePair);
+                var derivedSourceTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootSourceType);
+
+                if (derivedSourceTypes.None())
+                {
+                    return;
+                }
+
+                var derivedTargetTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootTargetType);
+
+                if (derivedTargetTypes.None())
+                {
+                    return;
+                }
+
+                var candidatePairsData = derivedSourceTypes
+                    .Select(t => new
+                    {
+                        DerivedSourceType = t,
+                        DerivedTargetTypeName = derivedTargetTypeNameFactory.Invoke(t)
+                    })
+                    .ToArray();
+
+                foreach (var candidatePairData in candidatePairsData)
+                {
+                    var derivedTargetType = derivedTargetTypes
+                        .FirstOrDefault(t => t.Name == candidatePairData.DerivedTargetTypeName);
+
+                    if (derivedTargetType == null)
+                    {
+                        continue;
+                    }
+
+                    var derivedTypePair = CreatePairFor(
+                        rootSourceType,
+                        candidatePairData.DerivedSourceType,
+                        rootTargetType,
+                        derivedTargetType,
+                        mapperContext);
+
+                    Add(derivedTypePair);
+                }
+            }
+        }
+
+        private void AddSameRootTypePairs(Type rootType, MapperContext mapperContext)
+        {
+            var derivedTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootType);
+
+            foreach (var derivedType in derivedTypes)
+            {
+                Add(CreatePairFor(rootType, derivedType, rootType, derivedType, mapperContext));
             }
         }
 
@@ -171,7 +181,7 @@
             Type rootTargetType,
             out Func<Type, string> derivedTargetTypeNameFactory)
         {
-            if (mapperData.TargetMember.IsEnumerable || (rootSourceType == rootTargetType))
+            if (mapperData.TargetMember.IsEnumerable)
             {
                 derivedTargetTypeNameFactory = null;
                 return true;
@@ -245,6 +255,26 @@
             }
 
             return type;
+        }
+
+        private static DerivedTypePair CreatePairFor(
+            Type rootSourceType,
+            Type derivedSourceType,
+            Type rootTargetType,
+            Type derivedTargetType,
+            MapperContext mapperContext)
+        {
+            var configInfo = new MappingConfigInfo(mapperContext)
+                .ForAllRuleSets()
+                .ForSourceType(rootSourceType)
+                .ForTargetType(rootTargetType);
+
+            var derivedTypePair = new DerivedTypePair(
+                configInfo,
+                derivedSourceType,
+                derivedTargetType);
+
+            return derivedTypePair;
         }
 
         #endregion

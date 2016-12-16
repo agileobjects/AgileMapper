@@ -66,6 +66,31 @@
         }
 
         [Fact]
+        public void ShouldOverwriteARootComplexTypeCollectionElementByRuntimeType()
+        {
+            var id = Guid.NewGuid();
+
+            var source = new[]
+            {
+                new CustomerViewModel { Id = id, Name = "Kate", Discount = 0.2 }
+            };
+
+            var target = new Collection<Person>
+            {
+                new Customer { Id = id, Name = "George" }
+            };
+
+            var originalObject = target.First();
+            var result = Mapper.Map(source).Over(target);
+
+            result.ShouldBeSameAs(target);
+            result.ShouldContain(originalObject);
+            result.ShouldHaveSingleItem();
+            result.First().Name.ShouldBe("Kate");
+            ((Customer)result.First()).Discount.ShouldBe(0.2);
+        }
+
+        [Fact]
         public void ShouldOverwriteAnExistingObject()
         {
             var source = new[]
