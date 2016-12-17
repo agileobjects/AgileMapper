@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 (sourceMember.EntryType.IsSimple() || !builder.Context.ElementTypesAreAssignable);
 
             _targetMemberKey = dictionaryVariables
-                .GetTargetMemberDictionaryEnumerableElementKey(MapperData, builder.Counter);
+                .GetTargetMemberDictionaryEnumerableElementKey(builder.Counter);
 
             _useDirectValueAccess = ElementTypesAreSimple
                 ? builder.Context.ElementTypesAreAssignable
@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             _targetElementKey = useSeparateTargetKeyVariable
                 ? Expression.Variable(typeof(string), "targetKey")
-                : _dictionaryVariables.Key;
+                : dictionaryVariables.Key;
 
             _sourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
             LoopExitCheck = MapperData.IsRoot ? GetRootLoopExitCheck() : GetKeyNotFoundLoopExitCheck();
@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private ObjectMapperData MapperData => _builder.MapperData;
 
         private Expression GetDictionaryEntryValueAccess()
-            => _dictionaryVariables.GetEntryValueAccess(MapperData, _targetElementKey);
+            => _dictionaryVariables.GetEntryValueAccess(_targetElementKey);
 
         private Expression GetRootLoopExitCheck()
         {
@@ -107,10 +107,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         }
 
         private Expression GetContainsElementKeyCheck()
-            => _dictionaryVariables.GetMatchingKeyAssignment(_targetElementKey, MapperData);
+            => _dictionaryVariables.GetMatchingKeyAssignment(_targetElementKey);
 
         private Expression GetNoKeysWithMatchingStartQuery()
-            => _dictionaryVariables.GetNoKeysWithMatchingStartQuery(_targetElementKey, MapperData);
+            => _dictionaryVariables.GetNoKeysWithMatchingStartQuery(_targetElementKey);
 
         public Expression LoopExitCheck { get; }
 

@@ -10,18 +10,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
     internal class SourceInstanceDictionaryAdapter : ISourceEnumerableAdapter
     {
-        private readonly DefaultSourceEnumerableAdapter _defaultAdapter;
         private readonly DictionarySourceMember _sourceMember;
-        private readonly EnumerablePopulationBuilder _builder;
+        private readonly DefaultSourceEnumerableAdapter _defaultAdapter;
 
         public SourceInstanceDictionaryAdapter(
             DictionarySourceMember sourceMember,
             EnumerablePopulationBuilder builder)
         {
-            _defaultAdapter = new DefaultSourceEnumerableAdapter(builder);
             _sourceMember = sourceMember;
-            _builder = builder;
-
+            _defaultAdapter = new DefaultSourceEnumerableAdapter(builder);
             DictionaryVariables = new DictionaryEntryVariablePair(sourceMember, builder.MapperData);
         }
 
@@ -47,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetKeyNotFoundShortCircuit(Expression shortCircuitReturn)
         {
-            var sourceValueKeyAssignment = DictionaryVariables.GetMatchingKeyAssignment(_builder.MapperData);
+            var sourceValueKeyAssignment = DictionaryVariables.GetMatchingKeyAssignment();
             var keyNotFound = DictionaryVariables.Key.GetIsDefaultComparison();
             var ifKeyNotFoundShortCircuit = Expression.IfThen(keyNotFound, shortCircuitReturn);
 
@@ -56,7 +53,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private Expression GetNullValueEntryShortCircuit(Expression shortCircuitReturn)
         {
-            var sourceValue = DictionaryVariables.GetEntryValueAccess(_builder.MapperData);
+            var sourceValue = DictionaryVariables.GetEntryValueAccess();
             var valueAssignment = Expression.Assign(DictionaryVariables.Value, sourceValue);
             var valueIsNull = DictionaryVariables.Value.GetIsDefaultComparison();
             var ifValueNullShortCircuit = Expression.IfThen(valueIsNull, shortCircuitReturn);
@@ -65,7 +62,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         }
 
         public Expression GetEntryValueAccess()
-            => DictionaryVariables.GetEntryValueAccess(_builder.MapperData);
+            => DictionaryVariables.GetEntryValueAccess();
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD

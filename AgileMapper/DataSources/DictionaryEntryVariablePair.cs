@@ -49,13 +49,15 @@ namespace AgileObjects.AgileMapper.DataSources
 
         #endregion
 
+        private readonly IMemberMapperData _mapperData;
         private readonly Type _dictionaryEntryType;
         private readonly string _targetMemberName;
         private ParameterExpression _key;
         private ParameterExpression _value;
 
-        public DictionaryEntryVariablePair(DictionarySourceMember sourceMember, IBasicMapperData mapperData)
+        public DictionaryEntryVariablePair(DictionarySourceMember sourceMember, IMemberMapperData mapperData)
         {
+            _mapperData = mapperData;
             SourceMember = sourceMember;
             _dictionaryEntryType = sourceMember.EntryType;
             _targetMemberName = mapperData.TargetMember.Name.ToCamelCase();
@@ -80,12 +82,10 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression TargetMemberKey { get; private set; }
 
-        public Expression GetTargetMemberDictionaryEnumerableElementKey(
-            IMemberMapperData mapperData,
-            Expression index)
+        public Expression GetTargetMemberDictionaryEnumerableElementKey(Expression index)
         {
-            var keyParts = GetTargetMemberDictionaryKeyParts(mapperData);
-            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(mapperData, index);
+            var keyParts = GetTargetMemberDictionaryKeyParts();
+            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(_mapperData, index);
 
             foreach (var elementKeyPart in elementKeyParts)
             {
@@ -97,22 +97,22 @@ namespace AgileObjects.AgileMapper.DataSources
             return (TargetMemberKey = GetStringConcatCall(keyParts));
         }
 
-        public Expression GetMatchingKeyAssignment(IMemberMapperData mapperData)
-            => GetMatchingKeyAssignment(GetTargetMemberDictionaryKey(mapperData), mapperData);
+        public Expression GetMatchingKeyAssignment()
+            => GetMatchingKeyAssignment(GetTargetMemberDictionaryKey());
 
-        private static Expression GetTargetMemberDictionaryKey(IMemberMapperData mapperData)
+        private Expression GetTargetMemberDictionaryKey()
         {
-            var configuredKey = mapperData.MapperContext
+            var configuredKey = _mapperData.MapperContext
                 .UserConfigurations
                 .Dictionaries
-                .GetFullKeyOrNull(mapperData);
+                .GetFullKeyOrNull(_mapperData);
 
             if (configuredKey != null)
             {
                 return configuredKey;
             }
 
-            var keyParts = GetTargetMemberDictionaryKeyParts(mapperData);
+            var keyParts = GetTargetMemberDictionaryKeyParts();
 
             OptimiseNamePartsForStringConcat(keyParts);
 
@@ -124,11 +124,12 @@ namespace AgileObjects.AgileMapper.DataSources
             return GetStringConcatCall(keyParts);
         }
 
-        private static IList<Expression> GetTargetMemberDictionaryKeyParts(IMemberMapperData mapperData)
+        private IList<Expression> GetTargetMemberDictionaryKeyParts()
         {
             var joinedName = string.Empty;
             var memberPartExpressions = new List<Expression>();
             var joinedNameIsConstant = true;
+            var mapperData = _mapperData;
 
             while (!mapperData.IsRoot)
             {
@@ -247,7 +248,7 @@ namespace AgileObjects.AgileMapper.DataSources
             nameParts.Insert(0, Expression.Constant(currentNamePart, typeof(string)));
         }
 
-        public Expression GetMatchingKeyAssignment(Expression targetMemberKey, IMemberMapperData mapperData)
+        public Expression GetMatchingKeyAssignment(Expression targetMemberKey)
         {
             TargetMemberKey = targetMemberKey;
 
@@ -255,8 +256,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 HasConstantTargetMemberKey ? targetMemberKey : Key,
                 Expression.Equal,
                 (keyParameter, targetKey) => keyParameter.GetCaseInsensitiveEquals(targetKey),
-                _linqFirstOrDefaultMethod,
-                mapperData);
+                _linqFirstOrDefaultMethod);
 
             var keyVariableAssignment = GetKeyAssignment(firstMatchingKeyOrNull);
 
@@ -265,7 +265,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression GetKeyAssignment(Expression value) => Expression.Assign(Key, value);
 
-        public Expression GetNoKeysWithMatchingStartQuery(Expression targetMemberKey, IMemberMapperData mapperData)
+        public Expression GetNoKeysWithMatchingStartQuery(Expression targetMemberKey)
         {
             TargetMemberKey = targetMemberKey;
 
@@ -273,8 +273,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 targetMemberKey,
                 (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
                 (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.OrdinalIgnoreCase),
-                _enumerableNoneMethod,
-                mapperData);
+                _enumerableNoneMethod);
 
             return noKeysStartWithTarget;
         }
@@ -291,31 +290,29 @@ namespace AgileObjects.AgileMapper.DataSources
                 Expression.Constant(comparison, typeof(StringComparison)));
         }
 
-        private static Expression GetKeyMatchingQuery(
+        private Expression GetKeyMatchingQuery(
             Expression targetMemberKey,
             Func<Expression, Expression, Expression> rootKeyMatcherFactory,
             Func<Expression, Expression, Expression> nestedKeyMatcherFactory,
-            MethodInfo queryMethod,
-            IMemberMapperData mapperData)
+            MethodInfo queryMethod)
         {
             var keyParameter = Expression.Parameter(typeof(string), "key");
 
-            var keyMatcher = mapperData.IsRoot
+            var keyMatcher = _mapperData.IsRoot
                 ? rootKeyMatcherFactory.Invoke(keyParameter, targetMemberKey)
                 : nestedKeyMatcherFactory.Invoke(keyParameter, targetMemberKey);
 
             var keyMatchesLambda = Expression.Lambda<Func<string, bool>>(keyMatcher, keyParameter);
 
-            var dictionaryKeys = Expression.Property(mapperData.SourceObject, "Keys");
+            var dictionaryKeys = Expression.Property(_mapperData.SourceObject, "Keys");
             var keyMatchesQuery = Expression.Call(queryMethod, dictionaryKeys, keyMatchesLambda);
 
             return keyMatchesQuery;
         }
 
-        public Expression GetEntryValueAccess(IMemberMapperData mapperData)
-            => GetEntryValueAccess(mapperData, Key);
+        public Expression GetEntryValueAccess() => GetEntryValueAccess(Key);
 
-        public Expression GetEntryValueAccess(IMemberMapperData mapperData, Expression key)
-            => mapperData.SourceObject.GetIndexAccess(key);
+        public Expression GetEntryValueAccess(Expression key)
+            => _mapperData.SourceObject.GetIndexAccess(key);
     }
 }
