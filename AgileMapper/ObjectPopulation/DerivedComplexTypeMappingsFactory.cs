@@ -152,7 +152,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var derivedTargetType = derivedTypePairs[0].DerivedTargetType;
 
-                if (derivedTypePairs.All(tp => !tp.HasConfiguredCondition))
+                if (derivedTypePairs.None(tp => tp.HasConfiguredCondition))
                 {
                     typePairsCondition = GetTargetValidCheckOrNull(derivedTargetType, declaredTypeMapperData);
 
@@ -168,21 +168,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                             .Conditional(derivedSourceType, ifSourceVariableIsDerivedTypeThenMap));
                         continue;
                     }
-
-                    ifSourceVariableIsDerivedTypeThenMap = GetMapFromConditionOrDefaultExpression(
-                        declaredTypeMappingData,
-                        condition,
-                        typePairsCondition,
-                        typedVariable,
-                        targetType,
-                        derivedTargetType);
-
-                    derivedTypeMappings.Add(DerivedTypeMapping
-                        .Conditional(derivedSourceType, ifSourceVariableIsDerivedTypeThenMap));
-                    continue;
                 }
-
-                typePairsCondition = GetTypePairsCondition(derivedTypePairs, declaredTypeMapperData);
+                else
+                {
+                    typePairsCondition = GetTypePairsCondition(derivedTypePairs, declaredTypeMapperData);
+                }
 
                 ifSourceVariableIsDerivedTypeThenMap = GetMapFromConditionOrDefaultExpression(
                     declaredTypeMappingData,
