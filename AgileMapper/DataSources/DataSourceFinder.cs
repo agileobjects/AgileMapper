@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions;
     using Members;
-    using NetStandardPolyfills;
 
     internal class DataSourceFinder
     {
@@ -181,7 +181,7 @@
                 return true;
             }
 
-            return !ReferenceEquals(targetMember.Type.GetAssembly(), typeof(string).GetAssembly());
+            return !targetMember.Type.IsFromBcl();
         }
     }
 }
