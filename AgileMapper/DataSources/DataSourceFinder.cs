@@ -51,7 +51,14 @@
 
             if (maptimeDataSource != null)
             {
-                yield return GetFinalDataSource(maptimeDataSource, dataSourceIndex, childMappingData);
+                maptimeDataSource = GetFinalDataSource(maptimeDataSource, dataSourceIndex, childMappingData);
+                yield return maptimeDataSource;
+
+                if (maptimeDataSource.IsConditional)
+                {
+                    yield return GetFallbackDataSourceFor(childMappingData);
+                }
+
                 yield break;
             }
 
@@ -110,7 +117,7 @@
                 }
                 else
                 {
-                    yield return FallbackDataSourceFor(mappingData);
+                    yield return GetFallbackDataSourceFor(mappingData);
                 }
 
                 yield break;
@@ -120,7 +127,7 @@
 
             if (matchingSourceMemberDataSource.IsConditional)
             {
-                yield return FallbackDataSourceFor(mappingData);
+                yield return GetFallbackDataSourceFor(mappingData);
             }
         }
 
@@ -139,7 +146,7 @@
             return GetFinalDataSource(sourceMemberDataSource, 0, mappingData);
         }
 
-        private static IDataSource FallbackDataSourceFor(IChildMemberMappingData mappingData)
+        private static IDataSource GetFallbackDataSourceFor(IChildMemberMappingData mappingData)
             => mappingData.RuleSet.FallbackDataSourceFactory.Create(mappingData.MapperData);
 
         private static IDataSource GetFinalDataSource(

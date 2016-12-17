@@ -1,12 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
-    using ReadableExpressions.Extensions;
 
     internal class DictionaryEntryDataSource : DataSourceBase
     {
@@ -28,7 +24,7 @@
                 sourceMember,
                 new[] { dictionaryVariables.Key },
                 GetDictionaryEntryValue(dictionaryVariables, childMapperData),
-                GetMatchingKeyExistsTest(dictionaryVariables))
+                GetValidEntryExistsTest(dictionaryVariables))
         {
             _dictionaryVariables = dictionaryVariables;
         }
@@ -37,49 +33,59 @@
             DictionaryEntryVariablePair dictionaryVariables,
             IMemberMapperData childMapperData)
         {
-            var dictionaryEntryAccess = dictionaryVariables.GetEntryValueAccess();
-            var targetType = childMapperData.TargetMember.Type;
-
-            if (targetType.IsAssignableFrom(dictionaryEntryAccess.Type))
+            if (dictionaryVariables.UseDirectValueAccess)
             {
-                return dictionaryEntryAccess;
+                return dictionaryVariables.GetEntryValueAccess();
             }
-
-            var valueVariableAssignment = Expression.Assign(dictionaryVariables.Value, dictionaryEntryAccess);
 
             var valueConversion = childMapperData
                 .MapperContext
                 .ValueConverters
-                .GetConversion(dictionaryVariables.Value, targetType);
+                .GetConversion(dictionaryVariables.Value, childMapperData.TargetMember.Type);
 
-            if (dictionaryVariables.SourceMember.EntryType.CanBeNull())
+            return valueConversion;
+        }
+
+        private static Expression GetValidEntryExistsTest(DictionaryEntryVariablePair dictionaryVariables)
+        {
+            if (dictionaryVariables.UseDirectValueAccess)
             {
-                valueConversion = Expression.Condition(
-                    dictionaryVariables.Value.GetIsNotDefaultComparison(),
-                    valueConversion,
-                    Expression.Default(targetType));
+                return null;
             }
 
-            return Expression.Block(new[] { dictionaryVariables.Value }, valueVariableAssignment, valueConversion);
+            var dictionaryEntryAccess = dictionaryVariables.GetEntryValueAccess();
+            var valueVariableAssignment = Expression.Assign(dictionaryVariables.Value, dictionaryEntryAccess);
+            var valueNonNull = valueVariableAssignment.GetIsNotDefaultComparison();
+
+            return valueNonNull;
         }
 
-        private static Expression GetMatchingKeyExistsTest(DictionaryEntryVariablePair dictionaryVariables)
+        public override Expression AddPreCondition(Expression population)
         {
-            var keyVariableAssignment = dictionaryVariables.GetMatchingKeyAssignment();
+            var keyVariableAssignment = _dictionaryVariables.GetMatchingKeyAssignment();
+            var matchingKeyExists = keyVariableAssignment.GetIsNotDefaultComparison();
+            var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);
 
-            return keyVariableAssignment.GetIsNotDefaultComparison();
-        }
-
-        public override Expression AddCondition(Expression value)
-        {
             if (_dictionaryVariables.HasConstantTargetMemberKey)
             {
-                return base.AddCondition(value);
+                return ifKeyExistsPopulate;
             }
 
-            return Expression.Block(
-                _dictionaryVariables.GetKeyAssignment(_dictionaryVariables.TargetMemberKey),
-                base.AddCondition(value));
+            var keyAssignment = _dictionaryVariables.GetKeyAssignment(_dictionaryVariables.TargetMemberKey);
+
+            return Expression.Block(keyAssignment, ifKeyExistsPopulate);
+        }
+
+        public override Expression AddCondition(Expression value, Expression alternateBranch = null)
+        {
+            var conditional = base.AddCondition(value, alternateBranch);
+
+            if (_dictionaryVariables.UseDirectValueAccess)
+            {
+                return conditional;
+            }
+
+            return Expression.Block(new[] { _dictionaryVariables.Value }, conditional);
         }
     }
 }

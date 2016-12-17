@@ -61,6 +61,7 @@ namespace AgileObjects.AgileMapper.DataSources
             SourceMember = sourceMember;
             _dictionaryEntryType = sourceMember.EntryType;
             _targetMemberName = mapperData.TargetMember.Name.ToCamelCase();
+            UseDirectValueAccess = mapperData.TargetMember.Type.IsAssignableFrom(_dictionaryEntryType);
         }
 
         public DictionarySourceMember SourceMember { get; }
@@ -81,6 +82,8 @@ namespace AgileObjects.AgileMapper.DataSources
         }
 
         public Expression TargetMemberKey { get; private set; }
+
+        public bool UseDirectValueAccess { get; }
 
         public Expression GetTargetMemberDictionaryEnumerableElementKey(Expression index)
         {

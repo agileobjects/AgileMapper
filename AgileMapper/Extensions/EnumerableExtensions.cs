@@ -71,6 +71,11 @@
             Func<Expression, TItem, Expression> itemValueFactory,
             Func<ICollection<TItem>, IEnumerable<TItem>> initialOperation)
         {
+            if (items.None())
+            {
+                return null;
+            }
+
             if (items.HasOne())
             {
                 return seedValueFactory.Invoke(items.First());

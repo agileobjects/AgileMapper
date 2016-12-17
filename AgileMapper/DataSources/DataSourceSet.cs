@@ -44,7 +44,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression SourceMemberTypeTest { get; }
 
-        public IEnumerable<ParameterExpression> Variables => _variables;
+        public ICollection<ParameterExpression> Variables => _variables;
 
         public IDataSource this[int index] => _dataSources[index];
 
@@ -75,19 +75,14 @@ namespace AgileObjects.AgileMapper.DataSources
                         population = dataSource.AddCondition(population);
                     }
 
+                    population = dataSource.AddPreCondition(population);
                     continue;
                 }
 
-                if (population == null)
-                {
-                    population = dataSource.AddCondition(dataSource.GetMemberPopulation(mapperData));
-                    continue;
-                }
+                var memberPopulation = dataSource.GetMemberPopulation(mapperData);
 
-                population = Expression.IfThenElse(
-                    dataSource.Condition,
-                    dataSource.GetMemberPopulation(mapperData),
-                    population);
+                population = dataSource.AddCondition(memberPopulation, population);
+                population = dataSource.AddPreCondition(population);
             }
 
             return population;
@@ -115,7 +110,7 @@ namespace AgileObjects.AgileMapper.DataSources
         #region IEnumerable<IDataSource> Members
 
         public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
-        
+
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD
         [ExcludeFromCodeCoverage]

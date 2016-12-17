@@ -99,7 +99,14 @@
 
         public Expression Value { get; }
 
-        public virtual Expression AddCondition(Expression value) => Expression.IfThen(Condition, value);
+        public virtual Expression AddPreCondition(Expression population) => population;
+
+        public virtual Expression AddCondition(Expression value, Expression alternateBranch = null)
+        {
+            return alternateBranch != null
+                ? Expression.IfThenElse(Condition, value, alternateBranch)
+                : Expression.IfThen(Condition, value);
+        }
 
         public Expression GetMemberPopulation(IMemberMapperData mapperData)
             => mapperData.GetTargetMemberPopulation(Value);

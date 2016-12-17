@@ -401,6 +401,26 @@
         }
 
         [Fact]
+        public void ShouldOverwriteAStringPropertyToNullFromATypedEntry()
+        {
+            var source = new Dictionary<string, string> { ["Value"] = null };
+            var target = new PublicField<string> { Value = "To be overwritten..." };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldOverwriteAnIntPropertyToDefaultFromATypedEntry()
+        {
+            var source = new Dictionary<string, string> { ["Value"] = null };
+            var target = new PublicField<int> { Value = 6473 };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
         public void ShouldIgnoreANonStringKeyedDictionary()
         {
             var source = new Dictionary<int, int> { [123] = 456 };
