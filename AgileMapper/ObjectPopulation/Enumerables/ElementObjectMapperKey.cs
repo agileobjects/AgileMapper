@@ -36,7 +36,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 #if !NET_STANDARD
         [ExcludeFromCodeCoverage]
 #endif
-
         #endregion
         public override string ToString()
         {

@@ -47,9 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #if !NET_STANDARD
         [ExcludeFromCodeCoverage]
 #endif
-
         #endregion
-
         public override string ToString()
         {
             var sourceTypeName = MappingTypes.SourceType.GetFriendlyName();

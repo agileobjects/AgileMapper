@@ -275,7 +275,6 @@ namespace AgileObjects.AgileMapper.Members
 #if !NET_STANDARD
         [ExcludeFromCodeCoverage]
 #endif
-
         #endregion
         public override string ToString() => GetPath();
     }

@@ -1,6 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Globalization;
     using System.Linq;
 #if NET_STANDARD
@@ -88,5 +91,20 @@
             => HasSourceType(mapperData.SourceType) && base.AppliesTo(mapperData);
 
         protected override bool TargetMembersMatch(IBasicMapperData mapperData) => true;
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public override string ToString()
+        {
+            var rootSourceType = ConfigInfo.SourceType.GetFriendlyName();
+            var rootTargetType = ConfigInfo.TargetType.GetFriendlyName();
+            var derivedSourceType = DerivedSourceType.GetFriendlyName();
+            var derivedTargetType = DerivedTargetType.GetFriendlyName();
+
+            return $"{rootSourceType} -> {rootTargetType} > {derivedSourceType} -> {derivedTargetType}";
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
@@ -523,8 +524,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #if !NET_STANDARD
         [ExcludeFromCodeCoverage]
 #endif
-
         #endregion
-        public override string ToString() => $"{SourceMember} -> {TargetMember}";
+        public override string ToString()
+        {
+            var sourceType = SourceMember.Type.GetFriendlyName();
+            var targetType = TargetMember.Type.GetFriendlyName();
+
+            return $"{SourceMember}: {sourceType} -> {TargetMember}: {targetType}";
+        }
     }
 }
