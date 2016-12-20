@@ -72,7 +72,6 @@
                 return matchingKeyExists;
             }
 
-            // TODO: Test coverage: dictionary to enumerable of parameterised constructor types
             var keyAssignment = GetNonConstantKeyValueAssignment();
 
             return Expression.Block(keyAssignment, matchingKeyExists);

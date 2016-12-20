@@ -239,6 +239,23 @@
         }
 
         [Fact]
+        public void ShouldPopulateARootParameterisedConstructorComplexTypeEnumerableFromTypedDottedEntries()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["[0].Value"] = "123",
+                ["[1].Value"] = "456",
+                ["[2].value"] = "789"
+            };
+            var result = Mapper.Map(source).ToANew<IEnumerable<PublicCtor<int>>>();
+
+            result.Count().ShouldBe(3);
+            result.First().Value.ShouldBe(123);
+            result.Second().Value.ShouldBe(456);
+            result.Third().Value.ShouldBe(789);
+        }
+
+        [Fact]
         public void ShouldPopulateARootComplexTypeCollectionFromUntypedDottedEntries()
         {
             var source = new Dictionary<string, object>
@@ -428,6 +445,21 @@
             var result = Mapper.Map(source).Over(target);
 
             result.Value.ShouldBeDefault();
+        }
+
+        //[Fact]
+        public void ShouldOverwriteAComplexTypePropertyToNull()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["Name"] = "Frank",
+                ["Address"] = default(Address)
+            };
+            var target = new Customer { Name = "Charlie", Address = new Address { Line1 = "Cat Lane" } };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Name.ShouldBe("Frank");
+            result.Address.ShouldBeNull();
         }
 
         [Fact]
