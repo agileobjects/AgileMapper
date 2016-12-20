@@ -2,6 +2,9 @@
 {
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
@@ -60,9 +63,11 @@
 
         private static IObjectMappingData GetMappingDataFor(ParameterExpression mapCallSubject, IObjectMappingData mappingData)
         {
-            if (MappingDataObjectMatches(mapCallSubject, mappingData))
+            IObjectMappingData matchingMappingData;
+
+            if (TryGetMatchingMappingData(mapCallSubject, mappingData, out matchingMappingData))
             {
-                return mappingData;
+                return matchingMappingData;
             }
 
             return mappingData.MapperData
@@ -74,13 +79,36 @@
                         childMapperData.DataSourceIndex,
                         mappingData))
                 .Select(childMappingData => GetMappingDataFor(mapCallSubject, childMappingData))
-                .First(matchingMappingData => matchingMappingData != null);
+                .First(candidateMappingData => candidateMappingData != null);
         }
 
-        private static bool MappingDataObjectMatches(ParameterExpression mapCallSubject, IObjectMappingData mappingData)
+        private static bool TryGetMatchingMappingData(
+            ParameterExpression mapCallSubject,
+            IObjectMappingData mappingData,
+            out IObjectMappingData matchingMappingData)
         {
-            return (mapCallSubject.Type == mappingData.MapperData.MappingDataObject.Type) &&
-                   (mapCallSubject.Name == mappingData.MapperData.MappingDataObject.Name);
+            var mapperData = mappingData.MapperData;
+
+            if ((mapCallSubject.Type == mapperData.MappingDataObject.Type) &&
+                (mapCallSubject.Name == mapperData.MappingDataObject.Name))
+            {
+                matchingMappingData = mappingData;
+                return true;
+            }
+
+            var subjectArgumentTypes = mapCallSubject.Type.GetGenericArguments();
+            var subjectSourceType = subjectArgumentTypes.First();
+            var subjectTargetType = subjectArgumentTypes.Last();
+
+            if ((mapperData.SourceType == subjectSourceType) &&
+                mapperData.TargetType.IsAssignableFrom(subjectTargetType))
+            {
+                matchingMappingData = mappingData;
+                return true;
+            }
+
+            matchingMappingData = null;
+            return false;
         }
 
         public override bool Equals(object obj)

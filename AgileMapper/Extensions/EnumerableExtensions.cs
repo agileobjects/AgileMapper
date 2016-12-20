@@ -44,8 +44,23 @@
         {
             return ReverseChain(
                 items,
-                item => item.Value,
-                (valueSoFar, item) => Expression.Condition(item.Condition, item.Value, valueSoFar));
+                item => AddPreConditionIfNecessary(item, item.Value),
+                (valueSoFar, item) => AddPreConditionIfNecessary(
+                    item,
+                    Expression.Condition(item.Condition, item.Value, valueSoFar)));
+        }
+
+        private static Expression AddPreConditionIfNecessary(IConditionallyChainable item, Expression ifTrueBranch)
+        {
+            if (item.PreCondition == null)
+            {
+                return ifTrueBranch;
+            }
+
+            return Expression.Condition(
+                item.PreCondition,
+                ifTrueBranch,
+                Expression.Default(ifTrueBranch.Type));
         }
 
         public static Expression ReverseChain<TItem>(

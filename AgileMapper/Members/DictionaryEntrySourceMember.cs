@@ -10,7 +10,6 @@ namespace AgileObjects.AgileMapper.Members
     internal class DictionaryEntrySourceMember : IQualifiedMember
     {
         private readonly QualifiedMember _matchedTargetMember;
-        private readonly DictionarySourceMember _parent;
         private readonly Func<string> _pathFactory;
         private readonly Member[] _childMembers;
 
@@ -31,7 +30,7 @@ namespace AgileObjects.AgileMapper.Members
                 childMember.Type,
                 () => parent.GetPath() + "." + childMember.Name,
                 parent._matchedTargetMember.Append(childMember),
-                parent._parent,
+                parent.Parent,
                 parent._childMembers.Append(childMember))
         {
         }
@@ -47,9 +46,11 @@ namespace AgileObjects.AgileMapper.Members
             IsEnumerable = type.IsEnumerable();
             _pathFactory = pathFactory;
             _matchedTargetMember = matchedTargetMember;
-            _parent = parent;
+            Parent = parent;
             _childMembers = childMembers ?? new[] { Member.RootSource("Source", type) };
         }
+
+        public DictionarySourceMember Parent { get; }
 
         public Type Type { get; }
 
@@ -75,7 +76,7 @@ namespace AgileObjects.AgileMapper.Members
                 Type,
                 _pathFactory,
                 _matchedTargetMember,
-                _parent,
+                Parent,
                 relativeMemberChain);
         }
 
@@ -94,7 +95,7 @@ namespace AgileObjects.AgileMapper.Members
                 runtimeType,
                 _pathFactory,
                 _matchedTargetMember,
-                _parent,
+                Parent,
                 childMembers);
         }
 
@@ -102,7 +103,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Matches(IQualifiedMember otherMember)
         {
-            return (otherMember == _parent)
+            return (otherMember == Parent)
                 ? Type.IsDictionary()
                 : _matchedTargetMember.Matches(otherMember);
         }

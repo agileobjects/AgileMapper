@@ -179,6 +179,7 @@
                 var source = new Dictionary<string, object>
                 {
                     ["Name"] = "Freddy",
+                    ["Discount"] = 0.3,
                     ["Address.Line1"] = "Freddy's Dot",
                     ["Address_Line1"] = "Freddy's Underscore"
                 };
@@ -191,6 +192,7 @@
                 var matchingResult = mapper.Map(source).ToANew<Customer>();
 
                 matchingResult.Name.ShouldBe("Freddy");
+                matchingResult.Discount.ShouldBe(0.3);
                 matchingResult.Address.Line1.ShouldBe("Freddy's Underscore");
             }
         }

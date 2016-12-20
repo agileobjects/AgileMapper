@@ -281,6 +281,16 @@
         }
 
         [Fact]
+        public void ShouldUseTheDerivedRuntimeTypeOfAnExistingObject()
+        {
+            Customer source = new MysteryCustomer { Discount = 0.1m, Report = "Yummy" };
+            PersonViewModel target = new CustomerViewModel();
+            var result = Mapper.Map(source).OnTo(target);
+
+            ((CustomerViewModel)result).Discount.ShouldBe(0.1);
+        }
+
+        [Fact]
         public void ShouldUseRuntimeSourceTypeToCreateADerivedTypeForARequestedParentType()
         {
             Customer source = new MysteryCustomer { Discount = 0.333m };

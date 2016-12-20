@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 (sourceMember.EntryType.IsSimple() || !builder.Context.ElementTypesAreAssignable);
 
             _targetMemberKey = dictionaryVariables
-                .GetTargetMemberDictionaryEnumerableElementKey(builder.Counter);
+                .GetTargetMemberDictionaryEnumerableElementKey(builder);
 
             _useDirectValueAccess = ElementTypesAreSimple
                 ? builder.Context.ElementTypesAreAssignable

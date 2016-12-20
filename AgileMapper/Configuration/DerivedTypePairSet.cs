@@ -58,7 +58,7 @@
             }
 
             var existingTypePair = typePairs.FirstOrDefault(tp =>
-                !tp.HasConfiguredCondition && tp.HasSourceType(typePair.DerivedSourceType));
+                !tp.HasConfiguredCondition && (tp.DerivedSourceType == typePair.DerivedSourceType));
 
             if (existingTypePair != null)
             {
@@ -132,6 +132,7 @@
 
                 if (derivedTargetTypes.None())
                 {
+                    // TODO: Test coverage - derived source types but no derived target types
                     return;
                 }
 
@@ -181,12 +182,6 @@
             Type rootTargetType,
             out Func<Type, string> derivedTargetTypeNameFactory)
         {
-            if (mapperData.TargetMember.IsEnumerable)
-            {
-                derivedTargetTypeNameFactory = null;
-                return true;
-            }
-
             var sourceTypeName = rootSourceType.Name;
             var targetTypeName = rootTargetType.Name;
 
@@ -218,6 +213,7 @@
             if (mapperData.SourceType.IsSealed() || mapperData.TargetType.IsSealed() ||
                 mapperData.SourceType.IsFromBcl() || mapperData.TargetType.IsFromBcl())
             {
+                // TODO: Test coverage: sealed source or target type
                 derivedTargetTypeNameFactory = null;
                 return false;
             }

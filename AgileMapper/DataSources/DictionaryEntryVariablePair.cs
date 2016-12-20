@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using Extensions;
     using Members;
     using NetStandardPolyfills;
+    using ObjectPopulation.Enumerables;
 
     internal class DictionaryEntryVariablePair
     {
@@ -62,9 +63,12 @@ namespace AgileObjects.AgileMapper.DataSources
             _dictionaryEntryType = sourceMember.EntryType;
             _targetMemberName = mapperData.TargetMember.Name.ToCamelCase();
             UseDirectValueAccess = mapperData.TargetMember.Type.IsAssignableFrom(_dictionaryEntryType);
+            Variables = UseDirectValueAccess ? new[] { Key } : new[] { Key, Value };
         }
 
         public DictionarySourceMember SourceMember { get; }
+
+        public IEnumerable<ParameterExpression> Variables { get; }
 
         public ParameterExpression Key
             => _key ?? (_key = Expression.Variable(typeof(string), _targetMemberName + "Key"));
@@ -85,10 +89,10 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public bool UseDirectValueAccess { get; }
 
-        public Expression GetTargetMemberDictionaryEnumerableElementKey(Expression index)
+        public Expression GetTargetMemberDictionaryEnumerableElementKey(EnumerablePopulationBuilder builder)
         {
-            var keyParts = GetTargetMemberDictionaryKeyParts();
-            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(_mapperData, index);
+            var keyParts = GetTargetMemberDictionaryKeyParts(builder.MapperData);
+            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(_mapperData, builder.Counter);
 
             foreach (var elementKeyPart in elementKeyParts)
             {
@@ -115,7 +119,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 return configuredKey;
             }
 
-            var keyParts = GetTargetMemberDictionaryKeyParts();
+            var keyParts = GetTargetMemberDictionaryKeyParts(_mapperData);
 
             OptimiseNamePartsForStringConcat(keyParts);
 
@@ -127,22 +131,34 @@ namespace AgileObjects.AgileMapper.DataSources
             return GetStringConcatCall(keyParts);
         }
 
-        private IList<Expression> GetTargetMemberDictionaryKeyParts()
+        private static IList<Expression> GetTargetMemberDictionaryKeyParts(IMemberMapperData mapperData)
         {
             var joinedName = string.Empty;
             var memberPartExpressions = new List<Expression>();
             var joinedNameIsConstant = true;
-            var mapperData = _mapperData;
+            var parentCounterInaccessible = false;
+            Expression parentContextAccess = null;
 
             while (!mapperData.IsRoot)
             {
+                parentCounterInaccessible =
+                    parentCounterInaccessible ||
+                    mapperData.Context.IsStandalone ||
+                    mapperData.TargetMember.IsRecursionRoot();
+
                 if (mapperData.TargetMemberIsEnumerableElement())
                 {
-                    AddEnumerableMemberNamePart(memberPartExpressions, mapperData);
+                    var index = GetEnumerableIndexAccess(parentContextAccess, mapperData);
+                    AddEnumerableMemberNamePart(memberPartExpressions, mapperData, index);
                     joinedNameIsConstant = false;
                 }
                 else
                 {
+                    if (parentCounterInaccessible)
+                    {
+                        parentContextAccess = mapperData.MappingDataObject;
+                    }
+
                     var namePart = AddMemberNamePart(memberPartExpressions, mapperData);
                     joinedNameIsConstant = joinedNameIsConstant && namePart.NodeType == ExpressionType.Constant;
 
@@ -164,11 +180,26 @@ namespace AgileObjects.AgileMapper.DataSources
             return memberPartExpressions;
         }
 
+        private static Expression GetEnumerableIndexAccess(Expression parentContextAccess, IMemberMapperData mapperData)
+        {
+            if (parentContextAccess == null)
+            {
+                return mapperData.Parent.EnumerablePopulationBuilder.Counter;
+            }
+
+            var mappingDataType = typeof(IMappingData<,>)
+                .MakeGenericType(parentContextAccess.Type.GetGenericArguments());
+
+            var enumerableIndexProperty = mappingDataType.GetProperty("EnumerableIndex");
+
+            return Expression.Property(parentContextAccess, enumerableIndexProperty);
+        }
+
         private static void AddEnumerableMemberNamePart(
             List<Expression> memberPartExpressions,
-            IMemberMapperData mapperData)
+            IMemberMapperData mapperData,
+            Expression index)
         {
-            var index = mapperData.Parent.EnumerablePopulationBuilder.Counter;
             var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(mapperData, index);
 
             memberPartExpressions.InsertRange(0, elementKeyParts);
@@ -236,11 +267,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
                     currentNamePart = (string)((ConstantExpression)namePart).Value + currentNamePart;
                     nameParts.RemoveAt(i);
-                    continue;
-                }
-
-                if (currentNamePart == string.Empty)
-                {
                     continue;
                 }
 

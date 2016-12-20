@@ -112,6 +112,7 @@
         {
             if (!property.IsReadable())
             {
+                // TODO: Test coverage: set-only properties
                 // Ignore set-only properties:
                 return false;
             }

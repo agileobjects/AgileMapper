@@ -10,7 +10,6 @@
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
-    using NetStandardPolyfills;
 
     internal class MappingConfigInfo
     {
@@ -82,10 +81,7 @@
             => HasCompatibleTypes(mapperData.SourceType, mapperData.TargetType);
 
         public bool HasCompatibleTypes(Type sourceType, Type targetType)
-        {
-            return IsForSourceType(sourceType) &&
-                (TargetType.IsAssignableFrom(targetType) || targetType.IsAssignableFrom(TargetType));
-        }
+            => IsForSourceType(sourceType) && TargetType.IsAssignableFrom(targetType);
 
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 
@@ -165,7 +161,7 @@
         {
             if (!HasCondition)
             {
-                return GetTypeCheckConditionOrNull(mapperData);
+                return null;
             }
 
             var condition = _conditionLambda.GetBody(mapperData, position, targetMember);
@@ -186,38 +182,7 @@
                 condition = Expression.AndAlso(conditionNestedAccessesChecks, condition);
             }
 
-            var typeCheck = GetTypeCheckConditionOrNull(mapperData);
-
-            if (typeCheck != null)
-            {
-                condition = Expression.AndAlso(typeCheck, condition);
-            }
-
             return condition;
-        }
-
-        private Expression GetTypeCheckConditionOrNull(IMemberMapperData mapperData)
-        {
-            var sourceType = (SourceType == _allSourceTypes) ? typeof(object) : SourceType;
-            var contextTypes = new[] { sourceType, TargetType };
-            var context = mapperData.GetAppropriateMappingContext(contextTypes);
-
-            if (!TargetType.IsDerivedFrom(context.TargetType))
-            {
-                return null;
-            }
-
-            var contextAccess = mapperData.GetAppropriateMappingContextAccess(contextTypes);
-
-            if (contextAccess == mapperData.MappingDataObject)
-            {
-                return null;
-            }
-
-            var targetAccess = mapperData.GetTargetAccess(contextAccess, TargetType);
-            var targetAccessNotNull = targetAccess.GetIsNotDefaultComparison();
-
-            return targetAccessNotNull;
         }
 
         #endregion

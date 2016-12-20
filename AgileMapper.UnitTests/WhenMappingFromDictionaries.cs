@@ -316,6 +316,16 @@
         }
 
         [Fact]
+        public void ShouldPopulateSimpleTypeConstructorParameterFromUntypedEntry()
+        {
+            var guid = Guid.NewGuid();
+            var source = new Dictionary<string, object> { ["Value"] = guid.ToString() };
+            var result = Mapper.Map(source).ToANew<PublicCtor<Guid>>();
+
+            result.Value.ShouldBe(guid);
+        }
+
+        [Fact]
         public void ShouldPopulateComplexTypeAndSimpleTypeArrayConstructorParametersFromUntypedDottedEntries()
         {
             var now = DateTime.Now;

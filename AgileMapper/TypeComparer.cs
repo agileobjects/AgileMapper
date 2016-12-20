@@ -8,7 +8,7 @@
 
     internal class TypeComparer : IComparer<Type>
     {
-        public static readonly IComparer<Type> Instance = new TypeComparer();
+        public static readonly IComparer<Type> MostToLeastDerived = new TypeComparer();
 
         public int Compare(Type x, Type y)
         {
@@ -17,12 +17,12 @@
                 return 0;
             }
 
-            if (x.IsAssignableFrom(y))
+            if (y.IsAssignableFrom(x))
             {
-                return 1;
+                return -1;
             }
 
-            return -1;
+            return 1;
         }
     }
 }

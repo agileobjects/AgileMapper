@@ -212,6 +212,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 Condition = condition;
             }
 
+            public Expression PreCondition => null;
+
             public bool IsUnconditional => Condition == null;
 
             public Expression Condition { get; }

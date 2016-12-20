@@ -38,7 +38,7 @@
 
             if (derivedTypes.Count != 0)
             {
-                derivedTypes.Sort(TypeComparer.Instance);
+                derivedTypes.Sort(TypeComparer.MostToLeastDerived);
             }
 
             return derivedTypes;

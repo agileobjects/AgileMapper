@@ -9,7 +9,7 @@
         public IDataSource Create(IChildMemberMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var sourceMember = new DictionarySourceMember(mapperData);
+            var sourceMember = GetSourceMember(mapperData);
 
             if (mapperData.TargetMember.IsSimple)
             {
@@ -17,6 +17,28 @@
             }
 
             return new DictionaryDataSource(sourceMember, mapperData);
+        }
+
+        private static DictionarySourceMember GetSourceMember(IMemberMapperData mapperData)
+        {
+            if (!mapperData.TargetMember.IsRecursive)
+            {
+                return new DictionarySourceMember(mapperData);
+            }
+
+            var parentMapperData = mapperData.Parent;
+
+            while (!parentMapperData.IsRoot)
+            {
+                if (parentMapperData.TargetMember.LeafMember == mapperData.TargetMember.LeafMember)
+                {
+                    break;
+                }
+
+                parentMapperData = parentMapperData.Parent;
+            }
+
+            return (DictionarySourceMember)parentMapperData.SourceMember;
         }
 
         private class DictionaryDataSource : DataSourceBase

@@ -7,6 +7,7 @@
     internal class DictionaryEntryDataSource : DataSourceBase
     {
         private readonly DictionaryEntryVariablePair _dictionaryVariables;
+        private Expression _preCondition;
 
         public DictionaryEntryDataSource(DictionarySourceMember sourceMember, IMemberMapperData childMapperData)
             : this(
@@ -22,7 +23,7 @@
             IMemberMapperData childMapperData)
             : base(
                 sourceMember,
-                new[] { dictionaryVariables.Key },
+                dictionaryVariables.Variables,
                 GetDictionaryEntryValue(dictionaryVariables, childMapperData),
                 GetValidEntryExistsTest(dictionaryVariables))
         {
@@ -60,10 +61,26 @@
             return valueNonNull;
         }
 
+        public override Expression PreCondition => _preCondition ?? (_preCondition = CreatePreCondition());
+
+        private Expression CreatePreCondition()
+        {
+            var matchingKeyExists = GetMatchingKeyExistsTest();
+
+            if (_dictionaryVariables.HasConstantTargetMemberKey)
+            {
+                return matchingKeyExists;
+            }
+
+            // TODO: Test coverage: dictionary to enumerable of parameterised constructor types
+            var keyAssignment = GetNonConstantKeyValueAssignment();
+
+            return Expression.Block(keyAssignment, matchingKeyExists);
+        }
+
         public override Expression AddPreCondition(Expression population)
         {
-            var keyVariableAssignment = _dictionaryVariables.GetMatchingKeyAssignment();
-            var matchingKeyExists = keyVariableAssignment.GetIsNotDefaultComparison();
+            var matchingKeyExists = GetMatchingKeyExistsTest();
             var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);
 
             if (_dictionaryVariables.HasConstantTargetMemberKey)
@@ -71,21 +88,32 @@
                 return ifKeyExistsPopulate;
             }
 
-            var keyAssignment = _dictionaryVariables.GetKeyAssignment(_dictionaryVariables.TargetMemberKey);
+            var keyAssignment = GetNonConstantKeyValueAssignment();
 
             return Expression.Block(keyAssignment, ifKeyExistsPopulate);
         }
 
-        public override Expression AddCondition(Expression value, Expression alternateBranch = null)
+        private Expression GetMatchingKeyExistsTest()
         {
-            var conditional = base.AddCondition(value, alternateBranch);
+            var keyVariableAssignment = _dictionaryVariables.GetMatchingKeyAssignment();
+            var matchingKeyExists = keyVariableAssignment.GetIsNotDefaultComparison();
 
-            if (_dictionaryVariables.UseDirectValueAccess)
-            {
-                return conditional;
-            }
-
-            return Expression.Block(new[] { _dictionaryVariables.Value }, conditional);
+            return matchingKeyExists;
         }
+
+        private Expression GetNonConstantKeyValueAssignment()
+            => _dictionaryVariables.GetKeyAssignment(_dictionaryVariables.TargetMemberKey);
+
+        //public override Expression AddCondition(Expression value, Expression alternateBranch = null)
+        //{
+        //    var conditional = base.AddCondition(value, alternateBranch);
+
+        //    if (_dictionaryVariables.UseDirectValueAccess)
+        //    {
+        //        return conditional;
+        //    }
+
+        //    return Expression.Block(new[] { _dictionaryVariables.Value }, conditional);
+        //}
     }
 }

@@ -440,7 +440,7 @@
 
         public Expression GetElementConversion(Expression sourceElement, IObjectMappingData enumerableMappingData)
         {
-            return Context.ElementTypesAreSimple
+            return ElementTypesAreSimple
                 ? GetSimpleElementConversion(sourceElement)
                 : GetElementMapping(sourceElement, Expression.Default(Context.TargetElementType), enumerableMappingData);
         }

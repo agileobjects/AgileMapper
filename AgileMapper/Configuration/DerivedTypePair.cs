@@ -85,10 +85,8 @@
 
         public Type DerivedTargetType { get; }
 
-        public bool HasSourceType(Type derivedSourceType) => derivedSourceType == DerivedSourceType;
-
         public override bool AppliesTo(IBasicMapperData mapperData)
-            => HasSourceType(mapperData.SourceType) && base.AppliesTo(mapperData);
+            => DerivedSourceType.IsAssignableFrom(mapperData.SourceType) && base.AppliesTo(mapperData);
 
         protected override bool TargetMembersMatch(IBasicMapperData mapperData) => true;
 

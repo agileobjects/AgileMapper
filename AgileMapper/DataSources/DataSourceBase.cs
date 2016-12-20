@@ -91,6 +91,8 @@
 
         public virtual bool IsValid => Value != Constants.EmptyExpression;
 
+        public virtual Expression PreCondition => null;
+
         public bool IsConditional => Condition != null;
 
         public virtual Expression Condition { get; }
