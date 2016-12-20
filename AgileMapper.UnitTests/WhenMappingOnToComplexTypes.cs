@@ -32,7 +32,7 @@
         public void ShouldPreserveAnExistingSimpleTypePropertyValue()
         {
             const long ORIGINAL_VALUE = 527;
-            var source = new PublicProperty<long> { Value = 928 };
+            var source = new PublicSealed<long> { Value = 928 };
             var target = new PublicField<long> { Value = ORIGINAL_VALUE };
 
             Mapper.Map(source).OnTo(target);

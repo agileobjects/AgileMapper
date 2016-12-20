@@ -113,7 +113,6 @@
                 Func<Type, string> derivedTargetTypeNameFactory;
 
                 if (SkipDerivedTypePairsLookup(
-                    mapperData,
                     rootSourceType,
                     rootTargetType,
                     out derivedTargetTypeNameFactory))
@@ -177,11 +176,17 @@
         }
 
         private static bool SkipDerivedTypePairsLookup(
-            IBasicMapperData mapperData,
             Type rootSourceType,
             Type rootTargetType,
             out Func<Type, string> derivedTargetTypeNameFactory)
         {
+            if (rootSourceType.IsSealed() || rootTargetType.IsSealed() ||
+                rootSourceType.IsFromBcl() || rootTargetType.IsFromBcl())
+            {
+                derivedTargetTypeNameFactory = null;
+                return true;
+            }
+
             var sourceTypeName = rootSourceType.Name;
             var targetTypeName = rootTargetType.Name;
 
@@ -208,14 +213,6 @@
                     derivedTargetTypeNameFactory = null;
                     return true;
                 }
-            }
-
-            if (mapperData.SourceType.IsSealed() || mapperData.TargetType.IsSealed() ||
-                mapperData.SourceType.IsFromBcl() || mapperData.TargetType.IsFromBcl())
-            {
-                // TODO: Test coverage: sealed source or target type
-                derivedTargetTypeNameFactory = null;
-                return false;
             }
 
             if (sourceNameIsShorter)
