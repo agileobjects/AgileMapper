@@ -52,7 +52,7 @@
                     mapper.WhenMapping
                         .FromDictionaries
                         .To<Person>()
-                        .MapMemberName("PersonId")
+                        .MapKey("PersonId")
                         .To(p => p.Id);
                 }
             });
@@ -81,6 +81,54 @@
             });
 
             configEx.Message.ShouldContain("has been ignored");
+        }
+
+        [Fact]
+        public void ShouldErrorIfCustomDataSourceMemberIsGivenCustomMemberKey()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .To<Person>()
+                        .Map((d, p) => d.Count)
+                        .To(p => p.Name);
+
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .To<Person>()
+                        .MapKey("PersonName")
+                        .To(p => p.Name);
+                }
+            });
+
+            configEx.Message.ShouldContain("has a configured data source");
+        }
+
+        [Fact]
+        public void ShouldErrorIfCustomDataSourceMemberIsGivenCustomMemberName()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .To<Person>()
+                        .Map((d, p) => d.Count)
+                        .To(p => p.Name);
+
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .To<Person>()
+                        .MapMemberName("PersonName")
+                        .To(p => p.Name);
+                }
+            });
+
+            configEx.Message.ShouldContain("has a configured data source");
         }
     }
 }

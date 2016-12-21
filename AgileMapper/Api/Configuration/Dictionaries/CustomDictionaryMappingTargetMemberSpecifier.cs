@@ -27,6 +27,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             _configInfo = configInfo.ForTargetType<TTarget>();
         }
 
+        private UserConfigurationSet UserConfigurations => _configInfo.MapperContext.UserConfigurations;
+
         /// <summary>
         /// Apply the configuration to the given <paramref name="targetMember"/>.
         /// </summary>
@@ -41,15 +43,15 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         {
             var configuredKey = new CustomDictionaryKey(_key, targetMember, _configInfo);
 
-            _configInfo.MapperContext
-                .UserConfigurations
-                .ThrowIfConflictingIgnoredMemberExists(configuredKey);
+            UserConfigurations.ThrowIfConflictingIgnoredMemberExists(configuredKey);
+            UserConfigurations.ThrowIfConflictingDataSourceExists(configuredKey, GetConflictDescription);
 
-            _dictionarySettingsAction.Invoke(
-                _configInfo.MapperContext.UserConfigurations.Dictionaries,
-                configuredKey);
+            _dictionarySettingsAction.Invoke(UserConfigurations.Dictionaries, configuredKey);
 
             return new DictionaryMappingConfigContinuation<TValue, TTarget>(_configInfo);
         }
+
+        private static string GetConflictDescription(CustomDictionaryKey key)
+            => $"Configured dictionary key member {key.TargetMember.GetPath()} has a configured data source";
     }
 }

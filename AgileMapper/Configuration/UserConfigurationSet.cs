@@ -78,7 +78,9 @@
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
-            ThrowIfDuplicateIgnoredMemberExists(ignoredMember);
+            ThrowIfConflictingIgnoredMemberExists(
+                ignoredMember,
+                im => "Member " + im.TargetMember.GetPath() + " is already ignored");
 
             ThrowIfConflictingDataSourceExists(
                 ignoredMember,
@@ -173,13 +175,6 @@
 
         #region Conflict Handling
 
-        private void ThrowIfDuplicateIgnoredMemberExists(ConfiguredIgnoredMember ignoredMember)
-        {
-            ThrowIfConflictingIgnoredMemberExists(
-                ignoredMember,
-                im => "Member " + im.TargetMember.GetPath() + " is already ignored");
-        }
-
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
             where TConfiguredItem : UserConfiguredItemBase
         {
@@ -202,7 +197,7 @@
             }
         }
 
-        private void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
+        internal void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
             Func<TConfiguredItem, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
