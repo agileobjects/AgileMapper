@@ -92,6 +92,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool HasUseableSourceDictionary(this IMemberMapperData mapperData)
         {
+            if (!mapperData.SourceMember.IsEnumerable)
+            {
+                return false;
+            }
+
             if (!mapperData.SourceType.IsDictionary())
             {
                 return false;
