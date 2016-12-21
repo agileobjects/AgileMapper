@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -10,7 +11,7 @@
     using ObjectPopulation;
     using ReadableExpressions;
 
-    internal abstract class UserConfiguredItemBase
+    internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
     {
         protected UserConfiguredItemBase(MappingConfigInfo configInfo)
             : this(configInfo, QualifiedMember.All)
@@ -119,39 +120,34 @@
             return false;
         }
 
-        public static readonly IComparer<UserConfiguredItemBase> SpecificityComparer = new ConfiguredItemSpecificityComparer();
-
-        private class ConfiguredItemSpecificityComparer : IComparer<UserConfiguredItemBase>
+        int IComparable<UserConfiguredItemBase>.CompareTo(UserConfiguredItemBase other)
         {
-            public int Compare(UserConfiguredItemBase x, UserConfiguredItemBase y)
+            if (ReferenceEquals(this, other))
             {
-                if (ReferenceEquals(x, y))
-                {
-                    return 0;
-                }
+                return 0;
+            }
 
-                if (!x.HasConfiguredCondition && y.HasConfiguredCondition)
-                {
-                    return 1;
-                }
+            if (!HasConfiguredCondition && other.HasConfiguredCondition)
+            {
+                return 1;
+            }
 
-                if (x.HasConfiguredCondition && !y.HasConfiguredCondition)
-                {
-                    return -1;
-                }
-
-                if (x.ConfigInfo.HasSameSourceTypeAs(y.ConfigInfo))
-                {
-                    return 0;
-                }
-
-                if (x.ConfigInfo.IsForSourceType(y.ConfigInfo))
-                {
-                    return 1;
-                }
-
+            if (HasConfiguredCondition && !other.HasConfiguredCondition)
+            {
                 return -1;
             }
+
+            if (ConfigInfo.HasSameSourceTypeAs(other.ConfigInfo))
+            {
+                return 0;
+            }
+
+            if (ConfigInfo.IsForSourceType(other.ConfigInfo))
+            {
+                return 1;
+            }
+
+            return -1;
         }
     }
 

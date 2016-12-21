@@ -169,7 +169,7 @@
 
         private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
             where TItem : UserConfiguredItemBase
-            => items.Where(im => im.AppliesTo(mapperData)).OrderBy(im => im, UserConfiguredItemBase.SpecificityComparer);
+            => items.Where(im => im.AppliesTo(mapperData)).OrderBy(im => im);
 
         #region Conflict Handling
 
