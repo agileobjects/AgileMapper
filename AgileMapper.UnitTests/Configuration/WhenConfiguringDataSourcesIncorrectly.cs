@@ -34,11 +34,8 @@
                     mapper.WhenMapping
                         .From<PublicField<int>>()
                         .To<PublicField<DateTime>>()
-                        .Ignore(pf => pf.Value);
-
-                    mapper.WhenMapping
-                        .From<PublicField<int>>()
-                        .To<PublicField<DateTime>>()
+                        .Ignore(pf => pf.Value)
+                        .But
                         .Map(ctx => DateTime.UtcNow)
                         .To(x => x.Value);
                 }

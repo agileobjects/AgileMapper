@@ -41,6 +41,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         {
             var configuredKey = new CustomDictionaryKey(_key, targetMember, _configInfo);
 
+            _configInfo.MapperContext
+                .UserConfigurations
+                .ThrowIfConflictingIgnoredMemberExists(configuredKey);
+
             _dictionarySettingsAction.Invoke(
                 _configInfo.MapperContext.UserConfigurations.Dictionaries,
                 configuredKey);

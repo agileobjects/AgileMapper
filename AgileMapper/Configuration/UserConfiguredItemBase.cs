@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
 #if NET_STANDARD
     using System.Reflection;
@@ -152,5 +153,12 @@
                 return -1;
             }
         }
+    }
+
+    internal static class ConfiguredItemExtensions
+    {
+        public static TItem FindMatch<TItem>(this IEnumerable<TItem> items, IBasicMapperData mapperData)
+            where TItem : UserConfiguredItemBase
+            => items.FirstOrDefault(im => im.AppliesTo(mapperData));
     }
 }

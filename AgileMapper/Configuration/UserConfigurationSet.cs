@@ -9,14 +9,7 @@
     using Members;
     using ObjectPopulation;
 
-    internal abstract class ConfigurationSetBase
-    {
-        protected static TItem FindMatch<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
-            where TItem : UserConfiguredItemBase
-            => items.FirstOrDefault(im => im.AppliesTo(mapperData));
-    }
-
-    internal class UserConfigurationSet : ConfigurationSetBase
+    internal class UserConfigurationSet
     {
         private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
         private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
@@ -85,9 +78,7 @@
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
-            ThrowIfConflictingIgnoredMemberExists(
-                ignoredMember,
-                im => "Member " + im.TargetMember.GetPath() + " is already ignored");
+            ThrowIfDuplicateIgnoredMemberExists(ignoredMember);
 
             ThrowIfConflictingDataSourceExists(
                 ignoredMember,
@@ -97,7 +88,7 @@
         }
 
         public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IBasicMapperData mapperData)
-            => FindMatch(_ignoredMembers, mapperData);
+            => _ignoredMembers.FindMatch(mapperData);
 
         #endregion
 
@@ -119,9 +110,7 @@
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
-            ThrowIfConflictingIgnoredMemberExists(
-                dataSourceFactory,
-                dsf => "Member " + dsf.TargetMember.GetPath() + " has been ignored");
+            ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
 
             ThrowIfConflictingDataSourceExists(
                 dataSourceFactory,
@@ -172,7 +161,7 @@
         public void Add(ExceptionCallback callback) => _exceptionCallbackFactories.Add(callback);
 
         public Expression GetExceptionCallbackOrNull(IBasicMapperData mapperData)
-            => FindMatch(_exceptionCallbackFactories, mapperData)?.Callback;
+            => _exceptionCallbackFactories.FindMatch(mapperData)?.Callback;
 
         #endregion
 
@@ -183,6 +172,21 @@
             => items.Where(im => im.AppliesTo(mapperData)).OrderBy(im => im, UserConfiguredItemBase.SpecificityComparer);
 
         #region Conflict Handling
+
+        private void ThrowIfDuplicateIgnoredMemberExists(ConfiguredIgnoredMember ignoredMember)
+        {
+            ThrowIfConflictingIgnoredMemberExists(
+                ignoredMember,
+                im => "Member " + im.TargetMember.GetPath() + " is already ignored");
+        }
+
+        internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
+            where TConfiguredItem : UserConfiguredItemBase
+        {
+            ThrowIfConflictingIgnoredMemberExists(
+                configuredItem,
+                ci => "Member " + ci.TargetMember.GetPath() + " has been ignored");
+        }
 
         private void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(
             TConfiguredItem configuredItem,

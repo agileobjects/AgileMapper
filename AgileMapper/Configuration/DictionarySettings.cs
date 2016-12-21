@@ -4,7 +4,7 @@
     using System.Linq.Expressions;
     using Members;
 
-    internal class DictionarySettings : ConfigurationSetBase
+    internal class DictionarySettings
     {
         private readonly List<CustomDictionaryKey> _configuredFullKeys;
         private readonly List<CustomDictionaryKey> _configuredMemberKeys;
@@ -19,6 +19,7 @@
             {
                 JoiningNameFactory.Dotted(mapperContext)
             };
+
         }
 
         public void AddFullKey(CustomDictionaryKey configuredKey)
@@ -28,7 +29,7 @@
 
         public Expression GetFullKeyOrNull(IBasicMapperData mapperData)
         {
-            var matchingKey = FindMatch(_configuredFullKeys, mapperData);
+            var matchingKey = _configuredFullKeys.FindMatch(mapperData);
 
             return (matchingKey != null) ? Expression.Constant(matchingKey.Key, typeof(string)) : null;
         }
@@ -39,7 +40,7 @@
         }
 
         public string GetMemberKeyOrNull(IBasicMapperData mapperData)
-            => FindMatch(_configuredMemberKeys, mapperData)?.Key;
+            => _configuredMemberKeys.FindMatch(mapperData)?.Key;
 
         public void Add(JoiningNameFactory joiningNameFactory)
         {
@@ -47,6 +48,6 @@
         }
 
         public Expression GetJoiningName(string memberName, IMemberMapperData mapperData)
-            => FindMatch(_joiningNameFactories, mapperData).GetJoiningName(memberName, mapperData);
+            => _joiningNameFactories.FindMatch(mapperData).GetJoiningName(memberName, mapperData);
     }
 }
