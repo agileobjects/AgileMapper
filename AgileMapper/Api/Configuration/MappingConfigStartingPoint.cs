@@ -263,7 +263,7 @@
         /// Configure how this mapper performs mappings from source Dictionary{string, T} instances.
         /// </summary>
         /// <returns>A DictionaryConfigurator with which to continue the configuration.</returns>
-        public DictionaryConfigurator<object> FromDictionaries()
+        public DictionaryConfigurator<object> FromDictionaries
             => new DictionaryConfigurator<object>(MappingConfigInfo.AllSourceTypes(_mapperContext));
 
         /// <summary>

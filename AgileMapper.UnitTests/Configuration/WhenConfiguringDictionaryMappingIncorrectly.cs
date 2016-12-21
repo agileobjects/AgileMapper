@@ -13,7 +13,7 @@
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 Mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .To<PublicField<string>>()
                     .MapKey(null)
                     .To(pf => pf.Value);
@@ -28,7 +28,7 @@
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 Mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .To<PublicField<string>>()
                     .MapMemberName(null)
                     .To(pf => pf.Value);

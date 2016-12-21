@@ -12,7 +12,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .To<PublicField<string>>()
                     .MapKey("BoomDiddyBoom")
                     .To(pf => pf.Value);
@@ -30,7 +30,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .OnTo<PublicField<PublicProperty<decimal>>>()
                     .MapKey("BoomDiddyMcBoom")
                     .To(pf => pf.Value.Value);
@@ -52,7 +52,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .Over<Address>()
                     .MapMemberName("HouseNumber")
                     .To(a => a.Line1)
@@ -79,7 +79,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .ToANew<Address>()
                     .MapMemberName("HouseName")
                     .To(a => a.Line1);
@@ -97,7 +97,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .To<Product>()
                     .MapKey("BlahBlahBlah")
                     .To(p => p.ProductId)
@@ -147,7 +147,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .UseFlattenedMemberNames();
 
                 var source = new Dictionary<string, string>
@@ -172,7 +172,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries()
+                    .FromDictionaries
                     .ToANew<Customer>()
                     .UseMemberNameSeparator("_");
 
