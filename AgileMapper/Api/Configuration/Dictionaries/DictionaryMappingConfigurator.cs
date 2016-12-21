@@ -28,15 +28,26 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #endregion
 
         public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapKey(string key)
-            => CreateTargetMemberSpecifier(key, (settings, customKey) => settings.AddFullKey(customKey));
+            => CreateTargetMemberSpecifier("keys", key, (settings, customKey) => settings.AddFullKey(customKey));
 
         public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapMemberName(string memberName)
-            => CreateTargetMemberSpecifier(memberName, (settings, customKey) => settings.AddMemberKey(customKey));
+        {
+            return CreateTargetMemberSpecifier(
+                "member names",
+                memberName,
+                (settings, customKey) => settings.AddMemberKey(customKey));
+        }
 
         private CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> CreateTargetMemberSpecifier(
+            string keyName,
             string key,
             Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
         {
+            if (key == null)
+            {
+                throw new MappingConfigurationException(keyName + " cannot be null");
+            }
+
             return new CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget>(
                 _configInfo,
                 key,

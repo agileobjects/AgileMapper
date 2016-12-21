@@ -81,6 +81,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDictionaryMapping.cs" />
+    <Compile Include="Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
     <Compile Include="TestClasses\ProductDtoMega.cs" />

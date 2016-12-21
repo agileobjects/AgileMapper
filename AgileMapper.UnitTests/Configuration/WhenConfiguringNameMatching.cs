@@ -157,8 +157,7 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper
-                        .WhenMapping
+                    mapper.WhenMapping
                         .UseNamePatterns(@"
 ^_
 (.+)
@@ -174,8 +173,7 @@ _$");
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper
-                        .WhenMapping
+                    mapper.WhenMapping
                         .UseNamePattern(null);
                 }
             });
