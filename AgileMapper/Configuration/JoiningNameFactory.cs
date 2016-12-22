@@ -47,25 +47,7 @@
         public string Separator { get; }
 
         public Expression GetJoiningName(string name, IMemberMapperData mapperData)
-        {
-            var joiningName = _joinedNameFactory.Invoke(Separator, name, mapperData);
-
-            if (mapperData.Parent.IsRoot)
-            {
-                return joiningName;
-            }
-
-            var condition = GetConditionOrNull(mapperData);
-
-            if (condition == null)
-            {
-                return joiningName;
-            }
-
-            var dottedJoiningName = HandleLeadingSeparator(".", name, mapperData);
-
-            return Expression.Condition(condition, joiningName, dottedJoiningName);
-        }
+            => _joinedNameFactory.Invoke(Separator, name, mapperData);
 
         private static Expression HandleLeadingSeparator(string separator, string name, IBasicMapperData mapperData)
         {
