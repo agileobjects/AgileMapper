@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
             var tryParseCall = Expression.Call(_tryParseMethod, sourceValue, _valueVariable);
             var successfulParseReturnValue = _valueVariable.GetConversionTo(targetType);
-            var defaultValue = Expression.Default(targetType);
+            var defaultValue = targetType.ToDefaultExpression();
             var parsedValueOrDefault = Expression.Condition(tryParseCall, successfulParseReturnValue, defaultValue);
             var tryParseBlock = Expression.Block(new[] { _valueVariable }, parsedValueOrDefault);
 

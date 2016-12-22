@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var returnNull = Expression.Return(
                 mapperData.ReturnLabelTarget,
-                Expression.Default(mapperData.TargetType));
+                mapperData.TargetType.ToDefaultExpression());
 
             var mappingExpressions = GetShortCircuitReturns(returnNull, mapperData).ToList();
 
@@ -147,7 +147,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     exceptionVariable);
 
                 var callbackInvocation = Expression.Invoke(configuredCallback, exceptionContextCreateCall);
-                var returnDefault = Expression.Default(mappingBlock.Type);
+                var returnDefault = mappingBlock.Type.ToDefaultExpression();
                 catchBody = Expression.Block(callbackInvocation, returnDefault);
             }
             else

@@ -27,6 +27,14 @@
             .GetPublicInstanceMethods()
             .First(m => (m.Name == "Equals") && (m.GetParameters().Length == 2));
 
+        public static ConstantExpression ToConstantExpression<T>(this T item)
+            => ToConstantExpression(item, typeof(T));
+
+        public static ConstantExpression ToConstantExpression<TItem>(this TItem item, Type type)
+            => Expression.Constant(item, type);
+
+        public static DefaultExpression ToDefaultExpression(this Type type) => Expression.Default(type);
+
         public static Expression AndTogether(this ICollection<Expression> expressions)
         {
             if (expressions.None())
@@ -67,7 +75,7 @@
                 stringValue,
                 _stringEqualsMethod,
                 comparisonValue,
-                Expression.Constant(StringComparison.OrdinalIgnoreCase, typeof(StringComparison)));
+                StringComparison.OrdinalIgnoreCase.ToConstantExpression());
         }
 
         public static Expression GetIsNotDefaultComparisonsOrNull(this IEnumerable<Expression> expressions)
@@ -87,7 +95,7 @@
         }
 
         public static Expression GetIsDefaultComparison(this Expression expression)
-            => Expression.Equal(expression, Expression.Default(expression.Type));
+            => Expression.Equal(expression, ToDefaultExpression(expression.Type));
 
         public static Expression GetIsNotDefaultComparison(this Expression expression)
         {
@@ -96,7 +104,7 @@
                 return Expression.Property(expression, "HasValue");
             }
 
-            return Expression.NotEqual(expression, Expression.Default(expression.Type));
+            return Expression.NotEqual(expression, ToDefaultExpression(expression.Type));
         }
 
         public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)

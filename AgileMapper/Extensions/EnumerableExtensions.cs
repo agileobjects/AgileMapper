@@ -60,7 +60,7 @@
             return Expression.Condition(
                 item.PreCondition,
                 ifTrueBranch,
-                Expression.Default(ifTrueBranch.Type));
+                ifTrueBranch.Type.ToDefaultExpression());
         }
 
         public static Expression ReverseChain<TItem>(

@@ -47,11 +47,11 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
             var sourceValueConversion = Expression.Condition(
                 sourceEqualsTrueTests,
-                Expression.Constant(true, typeof(bool?)),
+                true.ToConstantExpression(typeof(bool?)),
                 Expression.Condition(
                     sourceEqualsFalseTests,
-                    Expression.Constant(false, typeof(bool?)),
-                    Expression.Default(typeof(bool?))));
+                    false.ToConstantExpression(typeof(bool?)),
+                    typeof(bool?).ToDefaultExpression()));
 
             return sourceValueConversion;
         }
@@ -91,7 +91,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
                 valueType = typeof(T);
             }
 
-            return Expression.Constant(value, valueType);
+            return value.ToConstantExpression(valueType);
         }
 
         private Expression GetSourceEqualsTests(Expression sourceValue, IEnumerable<ConstantExpression> values)

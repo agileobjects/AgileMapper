@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// <typeparam name="TValue">
     /// The type of values stored in the dictionary to which the configurations will apply.
     /// </typeparam>
-    public class DictionaryConfigurator<TValue>
+    public class DictionaryConfigurator<TValue> : IGlobalDictionarySettings<TValue>
     {
         private readonly MappingConfigInfo _configInfo;
 
@@ -22,11 +22,12 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// Person.Address.StreetName member would be populated using the dictionary entry with key 
         /// 'AddressStreetName' when mapping to a root Person object.
         /// </summary>
-        public void UseFlattenedMemberNames()
+        public IGlobalDictionarySettings<TValue> UseFlattenedMemberNames()
         {
             var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(GlobalConfigInfo);
 
             _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
+            return this;
         }
 
         /// <summary>
@@ -38,11 +39,29 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// The separator to use to separate member names when constructing dictionary keys for nested
         /// members.
         /// </param>
-        public void UseMemberNameSeparator(string separator)
+        public IGlobalDictionarySettings<TValue> UseMemberNameSeparator(string separator)
         {
             var joiningNameFactory = JoiningNameFactory.For(separator, GlobalConfigInfo);
 
             _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
+            return this;
+        }
+
+        /// <summary>
+        /// Use the given <paramref name="pattern"/> to create the part of a dictionary key representing an 
+        /// enumerable element. The pattern must contain a single 'i' character as a placeholder for the 
+        /// enbumerable index. For example, calling UseElementKeyPattern("(i)") and mapping from a dictionary
+        /// to a collection of ints will generate searches for keys '(0)', '(1)', '(2)', etc.
+        /// </summary>
+        /// <param name="pattern">
+        /// The pattern to use to create a dictionary key part representing an enumerable element.
+        /// </param>
+        public IGlobalDictionarySettings<TValue> UseElementKeyPattern(string pattern)
+        {
+            var keyPartFactory = ElementKeyPartFactory.For(pattern, GlobalConfigInfo);
+
+            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(keyPartFactory);
+            return this;
         }
 
         private MappingConfigInfo GlobalConfigInfo => _configInfo.ForAllRuleSets().ForAllTargetTypes();

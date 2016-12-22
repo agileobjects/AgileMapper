@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -30,7 +31,7 @@
         {
             if (!member.IsReadable)
             {
-                return Expression.Default(member.Type);
+                return member.Type.ToDefaultExpression();
             }
 
             if (!member.DeclaringType.IsAssignableFrom(instance.Type))

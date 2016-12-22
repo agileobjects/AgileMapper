@@ -258,5 +258,32 @@
                 matchingResult.Address.Line1.ShouldBe("Bobby's Underscore");
             }
         }
+
+        [Fact]
+        public void ShouldApplyACustomEnumerableElementPatternGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .UseFlattenedMemberNames()
+                    .UseElementKeyPattern("_i_");
+
+                var source = new Dictionary<string, string>
+                {
+                    ["_0_SetValue"] = "blah",
+                    ["_1_SetValue"] = "bleh",
+                    ["_2_SetValue"] = "bluh"
+                };
+
+                var target = new List<PublicSetMethod<string>>();
+                var result = mapper.Map(source).Over(target);
+
+                result.Count.ShouldBe(3);
+                result.First().Value.ShouldBe("blah");
+                result.Second().Value.ShouldBe("bleh");
+                result.Third().Value.ShouldBe("bluh");
+            }
+        }
     }
 }

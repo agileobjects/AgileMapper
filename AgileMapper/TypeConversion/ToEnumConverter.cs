@@ -55,10 +55,10 @@
             var tryParseCall = Expression.Call(
                 tryParseMethod,
                 sourceValue,
-                Expression.Constant(true, typeof(bool)), // <- IgnoreCase
+                true.ToConstantExpression(), // <- IgnoreCase
                 valueVariable);
 
-            var defaultValue = Expression.Default(targetType);
+            var defaultValue = targetType.ToDefaultExpression();
             var parseSuccessBranch = GetParseSuccessBranch(sourceIsAnEnum, valueVariable, defaultValue);
 
             var parsedValueOrDefault = Expression.Condition(tryParseCall, parseSuccessBranch, defaultValue);
@@ -84,7 +84,7 @@
             var isDefinedCall = Expression.Call(
                 null,
                 typeof(Enum).GetPublicStaticMethod("IsDefined"),
-                Expression.Constant(valueVariable.Type),
+                valueVariable.Type.ToConstantExpression(),
                 valueVariable.GetConversionTo(typeof(object)));
 
             var definedValueOrDefault = Expression.Condition(isDefinedCall, successfulParseReturnValue, defaultValue);

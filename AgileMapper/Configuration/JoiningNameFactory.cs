@@ -10,7 +10,7 @@
         private readonly string _separator;
         private readonly Func<string, string, IBasicMapperData, Expression> _joinedNameFactory;
 
-        public JoiningNameFactory(
+        private JoiningNameFactory(
             string separator,
             Func<string, string, IBasicMapperData, Expression> joinedNameFactory,
             MappingConfigInfo configInfo)
@@ -73,13 +73,10 @@
                 name = separator + name;
             }
 
-            return Constant(name);
+            return name.ToConstantExpression();
         }
 
         private static Expression Flatten(string separator, string name, IBasicMapperData mapperData)
-            => Constant(name.StartsWith('.') ? name.Substring(1) : name);
-
-        private static Expression Constant(string value)
-            => Expression.Constant(value, typeof(string));
+            => (name.StartsWith('.') ? name.Substring(1) : name).ToConstantExpression();
     }
 }

@@ -149,7 +149,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             var dictionaryToElementMapping = MappingFactory.GetElementMapping(
                 MapperData.SourceObject,
-                Expression.Default(_builder.Context.TargetElementType),
+                _builder.Context.TargetElementType.ToDefaultExpression(),
                 elementMappingData);
 
             return dictionaryToElementMapping;

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Text.RegularExpressions;
     using AgileMapper.Configuration;
     using Dictionaries;
@@ -50,7 +49,7 @@
         {
             var exceptionCallback = new ExceptionCallback(
                 MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext),
-                Expression.Constant(callback));
+                callback.ToConstantExpression());
 
             _mapperContext.UserConfigurations.Add(exceptionCallback);
             return this;

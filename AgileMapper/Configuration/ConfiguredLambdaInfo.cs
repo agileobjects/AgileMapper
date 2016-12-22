@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using Extensions;
 #if NET_STANDARD
     using System.Reflection;
 #endif
@@ -93,7 +94,7 @@
             }
 
             var parameters = funcArguments.Select(Parameters.Create).ToArray();
-            var valueFactory = Expression.Constant(func, funcType);
+            var valueFactory = func.ToConstantExpression();
             var valueFactoryInvocation = Expression.Invoke(valueFactory, parameters.Cast<Expression>());
             var valueFactoryLambda = Expression.Lambda(funcType, valueFactoryInvocation, parameters);
 

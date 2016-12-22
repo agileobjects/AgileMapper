@@ -455,14 +455,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapChildMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
-                Expression.Constant(targetMember.RegistrationName),
-                Expression.Constant(dataSourceIndex));
+                targetMember.RegistrationName.ToConstantExpression(),
+                dataSourceIndex.ToConstantExpression());
 
             return mapCall;
         }
 
         public MethodCallExpression GetMapCall(Expression sourceElement)
-            => GetMapCall(sourceElement, Expression.Default(TargetMember.ElementType));
+            => GetMapCall(sourceElement, TargetMember.ElementType.ToDefaultExpression());
 
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
         {
@@ -489,8 +489,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
                 EnumerableIndex,
-                Expression.Constant(targetMember.RegistrationName),
-                Expression.Constant(dataSourceIndex));
+                targetMember.RegistrationName.ToConstantExpression(),
+                dataSourceIndex.ToConstantExpression());
 
             return mapCall;
         }

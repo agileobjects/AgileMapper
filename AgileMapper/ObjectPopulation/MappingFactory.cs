@@ -71,8 +71,8 @@
                     mappingValues.SourceValue,
                     mappingValues.TargetValue,
                     mappingValues.EnumerableIndex,
-                    Expression.Constant(childMapperData.TargetMember.RegistrationName),
-                    Expression.Constant(dataSourceIndex),
+                    childMapperData.TargetMember.RegistrationName.ToConstantExpression(),
+                    dataSourceIndex.ToConstantExpression(),
                     childMapperData.Parent.MappingDataObject
                 });
 
@@ -130,7 +130,7 @@
             if (elementMapperData.Context.IsStandalone)
             {
                 enumerableIndex = Expression.Property(elementMapperData.EnumerableIndex, "Value");
-                parentMappingDataObject = Expression.Default(typeof(IObjectMappingData));
+                parentMappingDataObject = typeof(IObjectMappingData).ToDefaultExpression();
             }
             else
             {

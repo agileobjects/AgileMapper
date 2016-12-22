@@ -63,7 +63,7 @@
         {
             var numericValueIsValid = GetNumericValueValidityCheck(sourceValue, targetType);
             var castSourceValue = sourceValue.GetConversionTo(targetType);
-            var defaultTargetType = Expression.Default(targetType);
+            var defaultTargetType = targetType.ToDefaultExpression();
             var inRangeValueOrDefault = Expression.Condition(numericValueIsValid, castSourceValue, defaultTargetType);
 
             return inRangeValueOrDefault;
@@ -96,7 +96,7 @@
 
         private static Expression GetConstantValue(int value, Expression sourceValue)
         {
-            var constant = Expression.Constant(value);
+            var constant = value.ToConstantExpression();
 
             return (sourceValue.Type != typeof(int))
                 ? constant.GetConversionTo(sourceValue.Type) : constant;

@@ -153,7 +153,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if (mapToNullCollections)
             {
-                return Expression.Default(targetMember.Type);
+                return targetMember.Type.ToDefaultExpression();
             }
 
             emptyEnumerable = targetMember.Type.GetEmptyInstanceCreation(targetMember.ElementType);

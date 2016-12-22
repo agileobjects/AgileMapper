@@ -372,7 +372,7 @@
         private Expression GetUnusableTargetValue(Type fallbackCollectionType)
         {
             return MapperData.TargetMember.IsReadOnly
-                ? Expression.Default(fallbackCollectionType)
+                ? fallbackCollectionType.ToDefaultExpression()
                 : GetCopyIntoListConstruction();
         }
 
@@ -413,7 +413,7 @@
 
             var population = Expression.Block(
                 new[] { Counter },
-                Expression.Assign(Counter, Expression.Constant(0)),
+                Expression.Assign(Counter, 0.ToConstantExpression()),
                 populationLoop);
 
             _populationExpressions.Add(population);
@@ -442,7 +442,7 @@
         {
             return ElementTypesAreSimple
                 ? GetSimpleElementConversion(sourceElement)
-                : GetElementMapping(sourceElement, Expression.Default(Context.TargetElementType), enumerableMappingData);
+                : GetElementMapping(sourceElement, Context.TargetElementType.ToDefaultExpression(), enumerableMappingData);
         }
 
         public Expression GetSimpleElementConversion(Expression sourceElement)

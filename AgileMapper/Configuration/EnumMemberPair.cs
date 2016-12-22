@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using Extensions;
     using TypeConversion;
 
     internal class EnumMemberPair
@@ -27,8 +28,8 @@
             TFirstEnum firstEnumMember,
             TSecondEnum secondEnumMember)
         {
-            var firstValue = Expression.Constant(firstEnumMember, typeof(TFirstEnum));
-            var secondValue = Expression.Constant(secondEnumMember, typeof(TSecondEnum));
+            var firstValue = firstEnumMember.ToConstantExpression();
+            var secondValue = secondEnumMember.ToConstantExpression();
 
             var valueConverter = new ConfiguredValueConverter(
                 firstValue.Type,

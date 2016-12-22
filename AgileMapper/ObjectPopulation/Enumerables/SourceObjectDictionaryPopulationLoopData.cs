@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
+    using Extensions;
 
     internal class SourceObjectDictionaryPopulationLoopData : IPopulationLoopData
     {
@@ -71,7 +72,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             return Expression.Condition(
                 _sourceEnumerableFound,
                 getEnumeratorCall,
-                Expression.Default(getEnumeratorCall.Type));
+                getEnumeratorCall.Type.ToDefaultExpression());
         }
 
         private Expression DisposeEnumeratorIfNecessary(Expression disposeEnumeratorCall)

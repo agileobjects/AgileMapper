@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
     using DataSources;
+    using Extensions;
     using Members;
 
     internal class ExistingOrDefaultValueDataSourceFactory : IDataSourceFactory
@@ -30,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return mapperData.GetTargetMemberAccess();
                 }
 
-                return Expression.Default(mapperData.TargetMember.Type);
+                return mapperData.TargetMember.Type.ToDefaultExpression();
             }
         }
     }

@@ -17,7 +17,7 @@
 
             var targetValue = declaredTypeMapperData.TargetMember.IsReadable
                 ? declaredTypeMapperData.TargetObject.GetConversionTo(targetType)
-                : Expression.Default(targetType);
+                : targetType.ToDefaultExpression();
 
             var derivedTypeMappingData = declaredTypeMappingData.WithTypes(sourceValue.Type, targetType);
 
@@ -42,7 +42,7 @@
             var mappingValues = new MappingValues(
                 sourceValue,
                 targetValue,
-                Expression.Default(typeof(int?)));
+                typeof(int?).ToDefaultExpression());
 
             // Derived type conversions are performed with ObjectMappingData.As<TDerivedSource, TDerivedTarget>()
             // so no need for createMethod or createMethodCallArguments arguments:

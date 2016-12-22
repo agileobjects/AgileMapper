@@ -90,7 +90,7 @@ namespace AgileObjects.AgileMapper.DataSources
         public Expression GetTargetMemberDictionaryEnumerableElementKey(Expression index, IMemberMapperData mapperData)
         {
             var keyParts = GetTargetMemberDictionaryKeyParts(mapperData);
-            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(MapperData, index);
+            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(index, MapperData);
 
             foreach (var elementKeyPart in elementKeyParts)
             {
@@ -181,7 +181,7 @@ namespace AgileObjects.AgileMapper.DataSources
             if (joinedNameIsConstant)
             {
                 memberPartExpressions.Clear();
-                memberPartExpressions.Add(Expression.Constant(joinedName, typeof(string)));
+                memberPartExpressions.Add(joinedName.ToConstantExpression());
             }
 
             return memberPartExpressions;
@@ -207,18 +207,16 @@ namespace AgileObjects.AgileMapper.DataSources
             IMemberMapperData mapperData,
             Expression index)
         {
-            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(mapperData, index);
+            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(index, mapperData);
 
             memberPartExpressions.InsertRange(0, elementKeyParts);
         }
 
         private static IEnumerable<Expression> GetTargetMemberDictionaryElementKeyParts(
-            IMemberMapperData mapperData,
-            Expression index)
+            Expression index,
+            IMemberMapperData mapperData)
         {
-            yield return Expression.Constant("[");
-            yield return mapperData.MapperContext.ValueConverters.GetConversion(index, typeof(string));
-            yield return Expression.Constant("]");
+            return mapperData.MapperContext.UserConfigurations.Dictionaries.GetElementKeyParts(index, mapperData);
         }
 
         private static Expression AddMemberNamePart(
@@ -277,11 +275,11 @@ namespace AgileObjects.AgileMapper.DataSources
                     continue;
                 }
 
-                nameParts.Insert(i + 1, Expression.Constant(currentNamePart, typeof(string)));
+                nameParts.Insert(i + 1, currentNamePart.ToConstantExpression());
                 currentNamePart = string.Empty;
             }
 
-            nameParts.Insert(0, Expression.Constant(currentNamePart, typeof(string)));
+            nameParts.Insert(0, currentNamePart.ToConstantExpression());
         }
 
         public Expression GetMatchingKeyAssignment(Expression targetMemberKey)
@@ -325,7 +323,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 keyParameter,
                 _stringStartsWithMethod,
                 targetKey,
-                Expression.Constant(comparison, typeof(StringComparison)));
+                comparison.ToConstantExpression());
         }
 
         private Expression GetKeyMatchingQuery(

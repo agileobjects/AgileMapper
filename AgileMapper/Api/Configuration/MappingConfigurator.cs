@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using Extensions;
     using Members;
 
     internal class MappingConfigurator<TSource, TTarget> :
@@ -59,7 +60,7 @@
         {
             var exceptionCallback = new ExceptionCallback(
                 _configInfo.ForTargetType<TTarget>(),
-                Expression.Constant(callback));
+                callback.ToConstantExpression());
 
             _configInfo.MapperContext.UserConfigurations.Add(exceptionCallback);
             return this;
@@ -151,7 +152,7 @@
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
             TSourceValue value)
         {
-            var valueConstant = Expression.Constant(value, typeof(TSourceValue));
+            var valueConstant = value.ToConstantExpression();
             var valueLambda = Expression.Lambda<Func<TSourceValue>>(valueConstant);
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(

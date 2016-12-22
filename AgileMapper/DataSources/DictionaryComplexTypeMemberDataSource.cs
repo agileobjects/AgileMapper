@@ -51,11 +51,11 @@
         private static Expression GetEntryExistsTest(DictionaryEntryVariablePair dictionaryVariables)
         {
             var returnLabel = Expression.Label(typeof(bool), "Return");
-            var returnFalse = Expression.Return(returnLabel, Expression.Constant(false, typeof(bool)));
+            var returnFalse = Expression.Return(returnLabel, false.ToConstantExpression());
 
             var ifKeyNotFoundReturnFalse = dictionaryVariables.GetKeyNotFoundShortCircuit(returnFalse);
             var valueAssignment = dictionaryVariables.GetEntryValueAssignment();
-            var returnTrue = Expression.Label(returnLabel, Expression.Constant(true, typeof(bool)));
+            var returnTrue = Expression.Label(returnLabel, true.ToConstantExpression());
 
             if (dictionaryVariables.HasConstantTargetMemberKey)
             {
