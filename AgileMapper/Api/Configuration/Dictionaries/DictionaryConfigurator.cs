@@ -17,6 +17,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             _configInfo = configInfo.ForSourceValueType<TValue>();
         }
 
+        #region IGlobalDictionarySettings Members
+
         /// <summary>
         /// Construct dictionary keys for nested members using flattened member names. For example, a
         /// Person.Address.StreetName member would be populated using the dictionary entry with key 
@@ -64,7 +66,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             return this;
         }
 
-        private MappingConfigInfo GlobalConfigInfo => _configInfo.ForAllRuleSets().ForAllTargetTypes();
+        DictionaryConfigurator<TValue> IGlobalDictionarySettings<TValue>.AndWhenMapping => this;
+
+        #endregion
+
+        private MappingConfigInfo GlobalConfigInfo => _configInfo.Clone().ForAllRuleSets().ForAllTargetTypes();
 
         /// <summary>
         /// Configure how this mapper performs mappings from dictionaries in all MappingRuleSets 

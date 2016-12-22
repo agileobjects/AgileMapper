@@ -48,5 +48,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// dictionary mapping aspects.
         /// </returns>
         IGlobalDictionarySettings<TValue> UseElementKeyPattern(string pattern);
+
+        /// <summary>
+        /// Gets a link back to the full <see cref="DictionaryConfigurator{TValue}"/>, for api fluency.
+        /// </summary>
+        DictionaryConfigurator<TValue> AndWhenMapping { get; }
     }
 }

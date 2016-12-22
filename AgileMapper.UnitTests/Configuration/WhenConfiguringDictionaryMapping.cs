@@ -267,13 +267,17 @@
                 mapper.WhenMapping
                     .FromDictionaries
                     .UseFlattenedMemberNames()
-                    .UseElementKeyPattern("_i_");
+                    .UseElementKeyPattern("_i_")
+                    .AndWhenMapping
+                    .To<PublicSetMethod<string>>()
+                    .MapMemberName("Value")
+                    .To<string>(psm => psm.SetValue);
 
                 var source = new Dictionary<string, string>
                 {
-                    ["_0_SetValue"] = "blah",
-                    ["_1_SetValue"] = "bleh",
-                    ["_2_SetValue"] = "bluh"
+                    ["_0_Value"] = "blah",
+                    ["_1_Value"] = "bleh",
+                    ["_2_Value"] = "bluh"
                 };
 
                 var target = new List<PublicSetMethod<string>>();

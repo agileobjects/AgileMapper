@@ -40,8 +40,24 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// </returns>
         public DictionaryMappingConfigContinuation<TValue, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
+            => RegisterCustomKey(targetMember);
+
+        /// <summary>
+        /// Apply the configuration to the given <paramref name="targetSetMethod"/>.
+        /// </summary>
+        /// <typeparam name="TTargetValue">The type of the target set method's argument.</typeparam>
+        /// <param name="targetSetMethod">The target set method to which to apply the configuration.</param>
+        /// <returns>
+        /// A DictionaryMappingConfigContinuation to enable further configuration of mappings from dictionaries
+        /// to the target type being configured.
+        /// </returns>
+        public DictionaryMappingConfigContinuation<TValue, TTarget> To<TTargetValue>(
+            Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
+            => RegisterCustomKey(targetSetMethod);
+
+        private DictionaryMappingConfigContinuation<TValue, TTarget> RegisterCustomKey(LambdaExpression targetMemberLambda)
         {
-            var configuredKey = new CustomDictionaryKey(_key, targetMember, _configInfo);
+            var configuredKey = new CustomDictionaryKey(_key, targetMemberLambda, _configInfo);
 
             UserConfigurations.ThrowIfConflictingIgnoredMemberExists(configuredKey);
             UserConfigurations.ThrowIfConflictingDataSourceExists(configuredKey, GetConflictDescription);
