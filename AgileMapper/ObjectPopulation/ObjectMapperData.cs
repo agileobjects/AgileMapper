@@ -450,24 +450,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             Context.SubMappingNeeded();
 
-            return GetMapChildCall(
-                MappingDataObject,
-                _mapChildMethod,
-                sourceObject,
-                targetMember,
-                dataSourceIndex);
-        }
-
-        private MethodCallExpression GetMapChildCall(
-            Expression subject,
-            MethodInfo method,
-            Expression sourceObject,
-            QualifiedMember targetMember,
-            int dataSourceIndex)
-        {
             var mapCall = Expression.Call(
-                subject,
-                method.MakeGenericMethod(sourceObject.Type, targetMember.Type),
+                MappingDataObject,
+                _mapChildMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(InstanceVariable),
                 Expression.Constant(targetMember.RegistrationName),
@@ -498,12 +483,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
-            return GetMapChildCall(
+            var mapCall = Expression.Call(
                 EntryPointMapperData.MappingDataObject,
-                _mapRecursionMethod,
+                _mapRecursionMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
-                targetMember,
-                dataSourceIndex);
+                targetMember.GetAccess(InstanceVariable),
+                EnumerableIndex,
+                Expression.Constant(targetMember.RegistrationName),
+                Expression.Constant(dataSourceIndex));
+
+            return mapCall;
         }
 
         public void RegisterTargetMemberDataSourcesIfRequired(QualifiedMember targetMember, DataSourceSet dataSources)

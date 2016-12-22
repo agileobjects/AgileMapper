@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// <summary>
         /// Construct dictionary keys for nested members using flattened member names. For example, a
         /// Person.Address.StreetName member would be populated using the dictionary entry with key 
-        /// 'AddressStreetName'.
+        /// 'AddressStreetName' when mapping to a root Person object.
         /// </summary>
         public void UseFlattenedMemberNames()
         {
@@ -54,7 +54,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
         public IDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>() where TTarget : class
-                => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForAllRuleSets());
+            => CreateConfigurator<TTarget>(_configInfo.ForAllRuleSets());
 
         /// <summary>
         /// Configure how this mapper performs object creation mappings from dictionaries to the target type 
@@ -84,10 +84,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             => CreateConfigurator<TTarget>(Constants.Overwrite);
 
         private IDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(string ruleSetName)
-        {
-            var configInfo = _configInfo.ForRuleSet(ruleSetName).ForTargetType<TTarget>();
+            => CreateConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
 
-            return new DictionaryMappingConfigurator<TValue, TTarget>(configInfo);
-        }
+        private static IDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(MappingConfigInfo configInfo)
+            => new DictionaryMappingConfigurator<TValue, TTarget>(configInfo.ForTargetType<TTarget>());
     }
 }

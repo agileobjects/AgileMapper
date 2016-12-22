@@ -10,6 +10,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     public interface IDictionaryConfigSettings<TValue, TTarget>
     {
         /// <summary>
+        /// Construct dictionary keys for nested members using flattened member names. For example, a
+        /// Person.Address.StreetName member would be populated using the dictionary entry with key 
+        /// 'AddressStreetName' when mapping to a root Person object.
+        /// </summary>
+        DictionaryMappingConfigContinuation<TValue, TTarget> UseFlattenedMemberNames();
+
+        /// <summary>
         /// Use the given <paramref name="separator"/> to separate member names when mapping to nested
         /// complex type members. For example, calling UseMemberName("-") will require a dictionary entry 
         /// with the key 'Address-Line1' to map to an Address.Line1 member.

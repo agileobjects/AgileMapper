@@ -161,7 +161,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 }
                 else
                 {
-                    if (parentCounterInaccessible)
+                    if (parentCounterInaccessible && (parentContextAccess == null))
                     {
                         parentContextAccess = mapperData.MappingDataObject;
                     }

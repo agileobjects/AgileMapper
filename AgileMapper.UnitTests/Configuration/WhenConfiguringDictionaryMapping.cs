@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System.Collections.Generic;
+    using System.Linq;
     using TestClasses;
     using Xunit;
 
@@ -142,7 +143,7 @@
         }
 
         [Fact]
-        public void ShouldApplyFlattenedMemberNamesIfConfigured()
+        public void ShouldApplyFlattenedMemberNamesGlobally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -163,6 +164,39 @@
                 result.Discount.ShouldBe(0.1);
                 result.Address.Line1.ShouldBe("Bob's House");
                 result.Address.Line2.ShouldBe("Bob's Street");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyFlattenedMemberNamesToASpecifiedTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .To<Order>()
+                    .UseFlattenedMemberNames()
+                    .And
+                    .MapMemberName("OrderCode")
+                    .To(o => o.OrderId);
+
+                var source = new Dictionary<string, object>
+                {
+                    ["OrderCode"] = 64673438,
+                    ["Items[0]OrderItemId"] = 123,
+                    ["Items[0]ProductID"] = "XYZ",
+                    ["Items[1]OrderItemId"] = 987,
+                    ["Items[1]ProductID"] = "ABC"
+                };
+                var result = mapper.Map(source).ToANew<Order>();
+
+                result.OrderId.ShouldBe(64673438);
+
+                result.Items.First().OrderItemId.ShouldBe(123);
+                result.Items.First().ProductId.ShouldBe("XYZ");
+
+                result.Items.Second().OrderItemId.ShouldBe(987);
+                result.Items.Second().ProductId.ShouldBe("ABC");
             }
         }
 

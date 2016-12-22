@@ -18,6 +18,15 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         #region IDictionaryConfigSettings Members
 
+        public DictionaryMappingConfigContinuation<TValue, TTarget> UseFlattenedMemberNames()
+        {
+            var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(_configInfo);
+
+            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
+
+            return new DictionaryMappingConfigContinuation<TValue, TTarget>(_configInfo);
+        }
+
         public DictionaryMappingConfigContinuation<TValue, TTarget> UseMemberNameSeparator(string separator)
         {
             var joiningNameFactory = JoiningNameFactory.For(separator, _configInfo);
