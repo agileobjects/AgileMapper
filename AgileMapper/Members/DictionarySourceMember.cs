@@ -66,10 +66,9 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(QualifiedMember otherMember) => _wrappedSourceMember.CouldMatch(otherMember);
 
-        public bool Matches(IQualifiedMember otherMember) 
+        public bool Matches(IQualifiedMember otherMember)
             => _wrappedSourceMember.Matches(otherMember) || _targetMember.Matches(otherMember);
 
-        public Expression GetQualifiedAccess(Expression instance)
-            => _wrappedSourceMember.GetQualifiedAccess(instance);
+        public Expression GetQualifiedAccess(Expression instance) => EntryMember.GetQualifiedAccess(instance);
     }
 }

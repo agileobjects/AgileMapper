@@ -103,7 +103,7 @@
 
         public virtual Expression AddPreCondition(Expression population) => population;
 
-        public virtual Expression AddCondition(Expression value, Expression alternateBranch = null)
+        public Expression AddCondition(Expression value, Expression alternateBranch = null)
         {
             return alternateBranch != null
                 ? Expression.IfThenElse(Condition, value, alternateBranch)

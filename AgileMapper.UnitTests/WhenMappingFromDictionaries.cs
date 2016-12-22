@@ -447,7 +447,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        //[Fact]
+        [Fact]
         public void ShouldOverwriteAComplexTypePropertyToNull()
         {
             var source = new Dictionary<string, object>

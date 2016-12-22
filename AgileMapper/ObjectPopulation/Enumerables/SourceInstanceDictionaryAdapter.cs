@@ -43,26 +43,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         }
 
         public Expression GetKeyNotFoundShortCircuit(Expression shortCircuitReturn)
-        {
-            var sourceValueKeyAssignment = DictionaryVariables.GetMatchingKeyAssignment();
-            var keyNotFound = DictionaryVariables.Key.GetIsDefaultComparison();
-            var ifKeyNotFoundShortCircuit = Expression.IfThen(keyNotFound, shortCircuitReturn);
-
-            return Expression.Block(sourceValueKeyAssignment, ifKeyNotFoundShortCircuit);
-        }
+            => DictionaryVariables.GetKeyNotFoundShortCircuit(shortCircuitReturn);
 
         private Expression GetNullValueEntryShortCircuit(Expression shortCircuitReturn)
         {
-            var sourceValue = DictionaryVariables.GetEntryValueAccess();
-            var valueAssignment = Expression.Assign(DictionaryVariables.Value, sourceValue);
+            var valueAssignment = DictionaryVariables.GetEntryValueAssignment();
             var valueIsNull = DictionaryVariables.Value.GetIsDefaultComparison();
             var ifValueNullShortCircuit = Expression.IfThen(valueIsNull, shortCircuitReturn);
 
             return Expression.Block(valueAssignment, ifValueNullShortCircuit);
         }
 
-        public Expression GetEntryValueAccess()
-            => DictionaryVariables.GetEntryValueAccess();
+        public Expression GetEntryValueAccess() => DictionaryVariables.GetEntryValueAccess();
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD

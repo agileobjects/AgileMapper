@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.Members
         {
         }
 
-        private DictionaryEntrySourceMember(DictionaryEntrySourceMember parent, Member childMember)
+        public DictionaryEntrySourceMember(DictionaryEntrySourceMember parent, Member childMember)
             : this(
                 childMember.Type,
                 () => parent.GetPath() + "." + childMember.Name,

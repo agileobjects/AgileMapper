@@ -37,10 +37,4 @@
             return property.GetSetMethod(nonPublic: false) != null;
         }
     }
-
-    internal class TrustTester
-    {
-        // ReSharper disable once UnusedMember.Local
-        private static void IsReflectionPermitted() { }
-    }
 }

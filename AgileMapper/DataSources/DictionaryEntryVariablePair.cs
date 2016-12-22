@@ -8,7 +8,6 @@ namespace AgileObjects.AgileMapper.DataSources
     using Extensions;
     using Members;
     using NetStandardPolyfills;
-    using ObjectPopulation.Enumerables;
 
     internal class DictionaryEntryVariablePair
     {
@@ -50,23 +49,22 @@ namespace AgileObjects.AgileMapper.DataSources
 
         #endregion
 
-        private readonly IMemberMapperData _mapperData;
-        private readonly Type _dictionaryEntryType;
         private readonly string _targetMemberName;
         private ParameterExpression _key;
         private ParameterExpression _value;
 
         public DictionaryEntryVariablePair(DictionarySourceMember sourceMember, IMemberMapperData mapperData)
         {
-            _mapperData = mapperData;
             SourceMember = sourceMember;
-            _dictionaryEntryType = sourceMember.EntryType;
+            MapperData = mapperData;
             _targetMemberName = mapperData.TargetMember.Name.ToCamelCase();
-            UseDirectValueAccess = mapperData.TargetMember.Type.IsAssignableFrom(_dictionaryEntryType);
+            UseDirectValueAccess = mapperData.TargetMember.Type.IsAssignableFrom(sourceMember.EntryType);
             Variables = UseDirectValueAccess ? new[] { Key } : new[] { Key, Value };
         }
 
         public DictionarySourceMember SourceMember { get; }
+
+        public IMemberMapperData MapperData { get; }
 
         public IEnumerable<ParameterExpression> Variables { get; }
 
@@ -74,7 +72,7 @@ namespace AgileObjects.AgileMapper.DataSources
             => _key ?? (_key = Expression.Variable(typeof(string), _targetMemberName + "Key"));
 
         public ParameterExpression Value
-            => _value ?? (_value = Expression.Variable(_dictionaryEntryType, _targetMemberName.ToCamelCase()));
+            => _value ?? (_value = Expression.Variable(SourceMember.EntryType, _targetMemberName.ToCamelCase()));
 
         public bool HasConstantTargetMemberKey
         {
@@ -89,10 +87,10 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public bool UseDirectValueAccess { get; }
 
-        public Expression GetTargetMemberDictionaryEnumerableElementKey(EnumerablePopulationBuilder builder)
+        public Expression GetTargetMemberDictionaryEnumerableElementKey(Expression index, IMemberMapperData mapperData)
         {
-            var keyParts = GetTargetMemberDictionaryKeyParts(builder.MapperData);
-            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(_mapperData, builder.Counter);
+            var keyParts = GetTargetMemberDictionaryKeyParts(mapperData);
+            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(MapperData, index);
 
             foreach (var elementKeyPart in elementKeyParts)
             {
@@ -104,22 +102,31 @@ namespace AgileObjects.AgileMapper.DataSources
             return (TargetMemberKey = GetStringConcatCall(keyParts));
         }
 
+        public Expression GetKeyNotFoundShortCircuit(Expression shortCircuitReturn)
+        {
+            var sourceValueKeyAssignment = GetMatchingKeyAssignment();
+            var keyNotFound = Key.GetIsDefaultComparison();
+            var ifKeyNotFoundShortCircuit = Expression.IfThen(keyNotFound, shortCircuitReturn);
+
+            return Expression.Block(sourceValueKeyAssignment, ifKeyNotFoundShortCircuit);
+        }
+
         public Expression GetMatchingKeyAssignment()
             => GetMatchingKeyAssignment(GetTargetMemberDictionaryKey());
 
         private Expression GetTargetMemberDictionaryKey()
         {
-            var configuredKey = _mapperData.MapperContext
+            var configuredKey = MapperData.MapperContext
                 .UserConfigurations
                 .Dictionaries
-                .GetFullKeyOrNull(_mapperData);
+                .GetFullKeyOrNull(MapperData);
 
             if (configuredKey != null)
             {
                 return configuredKey;
             }
 
-            var keyParts = GetTargetMemberDictionaryKeyParts(_mapperData);
+            var keyParts = GetTargetMemberDictionaryKeyParts(MapperData);
 
             OptimiseNamePartsForStringConcat(keyParts);
 
@@ -292,6 +299,8 @@ namespace AgileObjects.AgileMapper.DataSources
             return keyVariableAssignment;
         }
 
+        public Expression GetNonConstantKeyAssignment() => GetKeyAssignment(TargetMemberKey);
+
         public Expression GetKeyAssignment(Expression value) => Expression.Assign(Key, value);
 
         public Expression GetNoKeysWithMatchingStartQuery(Expression targetMemberKey)
@@ -327,21 +336,23 @@ namespace AgileObjects.AgileMapper.DataSources
         {
             var keyParameter = Expression.Parameter(typeof(string), "key");
 
-            var keyMatcher = _mapperData.IsRoot
+            var keyMatcher = MapperData.IsRoot
                 ? rootKeyMatcherFactory.Invoke(keyParameter, targetMemberKey)
                 : nestedKeyMatcherFactory.Invoke(keyParameter, targetMemberKey);
 
             var keyMatchesLambda = Expression.Lambda<Func<string, bool>>(keyMatcher, keyParameter);
 
-            var dictionaryKeys = Expression.Property(_mapperData.SourceObject, "Keys");
+            var dictionaryKeys = Expression.Property(MapperData.SourceObject, "Keys");
             var keyMatchesQuery = Expression.Call(queryMethod, dictionaryKeys, keyMatchesLambda);
 
             return keyMatchesQuery;
         }
 
+        public Expression GetEntryValueAssignment() => Expression.Assign(Value, GetEntryValueAccess());
+
         public Expression GetEntryValueAccess() => GetEntryValueAccess(Key);
 
         public Expression GetEntryValueAccess(Expression key)
-            => _mapperData.SourceObject.GetIndexAccess(key);
+            => MapperData.SourceObject.GetIndexAccess(key);
     }
 }

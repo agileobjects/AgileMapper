@@ -4,45 +4,38 @@
     using Extensions;
     using Members;
 
-    internal class DictionaryEntryDataSource : DataSourceBase
+    internal class DictionaryEntryDataSource : DataSourceBase, IMaptimeDataSource
     {
         private readonly DictionaryEntryVariablePair _dictionaryVariables;
         private Expression _preCondition;
 
         public DictionaryEntryDataSource(DictionarySourceMember sourceMember, IMemberMapperData childMapperData)
-            : this(
-                sourceMember.EntryMember,
-                new DictionaryEntryVariablePair(sourceMember, childMapperData),
-                childMapperData)
+            : this(new DictionaryEntryVariablePair(sourceMember, childMapperData))
         {
         }
 
         private DictionaryEntryDataSource(
-            IQualifiedMember sourceMember,
-            DictionaryEntryVariablePair dictionaryVariables,
-            IMemberMapperData childMapperData)
+            DictionaryEntryVariablePair dictionaryVariables)
             : base(
-                sourceMember,
+                dictionaryVariables.SourceMember.EntryMember,
                 dictionaryVariables.Variables,
-                GetDictionaryEntryValue(dictionaryVariables, childMapperData),
+                GetDictionaryEntryValue(dictionaryVariables),
                 GetValidEntryExistsTest(dictionaryVariables))
         {
             _dictionaryVariables = dictionaryVariables;
         }
 
-        private static Expression GetDictionaryEntryValue(
-            DictionaryEntryVariablePair dictionaryVariables,
-            IMemberMapperData childMapperData)
+        private static Expression GetDictionaryEntryValue(DictionaryEntryVariablePair dictionaryVariables)
         {
             if (dictionaryVariables.UseDirectValueAccess)
             {
                 return dictionaryVariables.GetEntryValueAccess();
             }
 
-            var valueConversion = childMapperData
+            var valueConversion = dictionaryVariables.MapperData
                 .MapperContext
                 .ValueConverters
-                .GetConversion(dictionaryVariables.Value, childMapperData.TargetMember.Type);
+                .GetConversion(dictionaryVariables.Value, dictionaryVariables.MapperData.TargetMember.Type);
 
             return valueConversion;
         }
@@ -54,12 +47,13 @@
                 return null;
             }
 
-            var dictionaryEntryAccess = dictionaryVariables.GetEntryValueAccess();
-            var valueVariableAssignment = Expression.Assign(dictionaryVariables.Value, dictionaryEntryAccess);
+            var valueVariableAssignment = dictionaryVariables.GetEntryValueAssignment();
             var valueNonNull = valueVariableAssignment.GetIsNotDefaultComparison();
 
             return valueNonNull;
         }
+
+        public bool WrapInFinalDataSource => true;
 
         public override Expression PreCondition => _preCondition ?? (_preCondition = CreatePreCondition());
 
@@ -72,7 +66,7 @@
                 return matchingKeyExists;
             }
 
-            var keyAssignment = GetNonConstantKeyValueAssignment();
+            var keyAssignment = GetNonConstantKeyAssignment();
 
             return Expression.Block(keyAssignment, matchingKeyExists);
         }
@@ -87,7 +81,7 @@
                 return ifKeyExistsPopulate;
             }
 
-            var keyAssignment = GetNonConstantKeyValueAssignment();
+            var keyAssignment = GetNonConstantKeyAssignment();
 
             return Expression.Block(keyAssignment, ifKeyExistsPopulate);
         }
@@ -100,19 +94,7 @@
             return matchingKeyExists;
         }
 
-        private Expression GetNonConstantKeyValueAssignment()
-            => _dictionaryVariables.GetKeyAssignment(_dictionaryVariables.TargetMemberKey);
-
-        //public override Expression AddCondition(Expression value, Expression alternateBranch = null)
-        //{
-        //    var conditional = base.AddCondition(value, alternateBranch);
-
-        //    if (_dictionaryVariables.UseDirectValueAccess)
-        //    {
-        //        return conditional;
-        //    }
-
-        //    return Expression.Block(new[] { _dictionaryVariables.Value }, conditional);
-        //}
+        private Expression GetNonConstantKeyAssignment()
+            => _dictionaryVariables.GetNonConstantKeyAssignment();
     }
 }

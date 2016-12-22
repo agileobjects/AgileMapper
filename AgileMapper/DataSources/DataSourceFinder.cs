@@ -47,18 +47,25 @@
                 }
             }
 
-            var maptimeDataSource = GetMaptimeDataSourceOrNull(childMappingData);
+            IEnumerable<IMaptimeDataSource> maptimeDataSources;
 
-            if (maptimeDataSource != null)
+            if (UseMaptimeDataSources(childMappingData, out maptimeDataSources))
             {
-                maptimeDataSource = GetFinalDataSource(maptimeDataSource, dataSourceIndex, childMappingData);
-                yield return maptimeDataSource;
-
-                if (maptimeDataSource.IsConditional)
+                foreach (var maptimeDataSource in maptimeDataSources)
                 {
-                    yield return GetFallbackDataSourceFor(childMappingData);
+                    var finalDataSource = maptimeDataSource.WrapInFinalDataSource
+                        ? GetFinalDataSource(maptimeDataSource, dataSourceIndex, childMappingData)
+                        : maptimeDataSource;
+
+                    yield return finalDataSource;
+
+                    if (!finalDataSource.IsConditional)
+                    {
+                        yield break;
+                    }
                 }
 
+                yield return GetFallbackDataSourceFor(childMappingData);
                 yield break;
             }
 
@@ -83,18 +90,21 @@
             return configuredDataSources.Any();
         }
 
-        private IDataSource GetMaptimeDataSourceOrNull(IChildMemberMappingData childMappingData)
+        private bool UseMaptimeDataSources(
+            IChildMemberMappingData childMappingData,
+            out IEnumerable<IMaptimeDataSource> maptimeDataSources)
         {
-            var childMapperData = childMappingData.MapperData;
+            var applicableFactory = _mapTimeDataSourceFactories
+                .FirstOrDefault(factory => factory.IsFor(childMappingData.MapperData));
 
-            if (childMapperData.TargetMember.IsComplex)
+            if (applicableFactory == null)
             {
-                return null;
+                maptimeDataSources = Enumerable<IMaptimeDataSource>.Empty;
+                return false;
             }
 
-            return _mapTimeDataSourceFactories
-                .FirstOrDefault(factory => factory.IsFor(childMapperData))?
-                .Create(childMappingData);
+            maptimeDataSources = applicableFactory.Create(childMappingData);
+            return true;
         }
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(

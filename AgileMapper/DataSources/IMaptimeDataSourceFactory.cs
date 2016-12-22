@@ -1,11 +1,12 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
+    using System.Collections.Generic;
     using Members;
 
     internal interface IMaptimeDataSourceFactory
     {
         bool IsFor(IMemberMapperData mapperData);
 
-        IDataSource Create(IChildMemberMappingData mappingData);
+        IEnumerable<IMaptimeDataSource> Create(IChildMemberMappingData mappingData);
     }
 }
