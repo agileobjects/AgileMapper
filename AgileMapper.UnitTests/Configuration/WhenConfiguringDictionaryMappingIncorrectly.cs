@@ -150,7 +150,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfMemberNamesAreSeparatedGloballyAndFlattened()
+        public void ShouldErrorIfMemberNamesAreSeparatedAndFlattenedGlobally()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -164,6 +164,44 @@
             });
 
             configEx.Message.ShouldContain("global");
+            configEx.Message.ShouldContain("separated with '+'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfMemberNamesAreFlattenedAndSeparatedForASpecificTargetType()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .To<PublicField<PublicProperty<string>>>()
+                        .UseFlattenedMemberNames()
+                        .UseMemberNameSeparator("_");
+                }
+            });
+
+            configEx.Message.ShouldContain("PublicField<PublicProperty<string>>");
+            configEx.Message.ShouldContain("flattened");
+        }
+
+        [Fact]
+        public void ShouldErrorIfMemberNamesAreSeparatedAndFlattenedForASpecificTargetType()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .To<PublicProperty<PublicField<int>>>()
+                        .UseMemberNameSeparator("+")
+                        .UseFlattenedMemberNames();
+                }
+            });
+
+            configEx.Message.ShouldContain("PublicProperty<PublicField<int>>");
             configEx.Message.ShouldContain("separated with '+'");
         }
     }
