@@ -45,6 +45,13 @@
             var prefix = patternMatch.Groups["Prefix"].Value;
             var suffix = patternMatch.Groups["Suffix"].Value;
 
+            if (!configInfo.TargetType.IsEnumerable())
+            {
+                configInfo = configInfo
+                    .Clone()
+                    .ForTargetType(typeof(IEnumerable<>).MakeGenericType(configInfo.TargetType));
+            }
+
             return new ElementKeyPartFactory(prefix, suffix, configInfo);
         }
 

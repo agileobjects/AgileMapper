@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System;
     using System.Collections.Generic;
     using AgileMapper.Configuration;
+    using Extensions;
 
     internal class DictionaryMappingConfigurator<TValue, TTarget> :
         MappingConfigurator<Dictionary<string, TValue>, TTarget>,
@@ -18,23 +19,31 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         #region IDictionaryConfigSettings Members
 
-        public DictionaryMappingConfigContinuation<TValue, TTarget> UseFlattenedMemberNames()
+        public IDictionaryConfigSettings<TValue, TTarget> UseFlattenedMemberNames()
         {
             var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(_configInfo);
 
             _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
-
-            return new DictionaryMappingConfigContinuation<TValue, TTarget>(_configInfo);
+            return this;
         }
 
-        public DictionaryMappingConfigContinuation<TValue, TTarget> UseMemberNameSeparator(string separator)
+        public IDictionaryConfigSettings<TValue, TTarget> UseMemberNameSeparator(string separator)
         {
             var joiningNameFactory = JoiningNameFactory.For(separator, _configInfo);
 
             _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
-
-            return new DictionaryMappingConfigContinuation<TValue, TTarget>(_configInfo);
+            return this;
         }
+
+        public IDictionaryConfigSettings<TValue, TTarget> UseElementKeyPattern(string pattern)
+        {
+            var keyPartFactory = ElementKeyPartFactory.For(pattern, _configInfo);
+
+            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(keyPartFactory);
+            return this;
+        }
+
+        IDictionaryMappingConfigurator<TValue, TTarget> IDictionaryConfigSettings<TValue, TTarget>.And => this;
 
         #endregion
 

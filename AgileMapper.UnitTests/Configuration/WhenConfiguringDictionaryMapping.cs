@@ -289,5 +289,43 @@
                 result.Third().Value.ShouldBe("bluh");
             }
         }
+
+        [Fact]
+        public void ShouldApplyACustomEnumerableElementPatternToASpecificTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .OnTo<Address>()
+                    .UseMemberNameSeparator("-")
+                    .UseElementKeyPattern("i")
+                    .And
+                    .MapMemberName("StreetName")
+                    .To(a => a.Line1)
+                    .And
+                    .MapMemberName("CityName")
+                    .To(a => a.Line2);
+
+                var source = new Dictionary<string, string>
+                {
+                    ["Value0-StreetName"] = "Street Zero",
+                    ["Value0-CityName"] = "City Zero",
+                    ["Value1-StreetName"] = "Street One",
+                    ["Value1-CityName"] = "City One"
+                };
+
+                var target = new PublicField<IEnumerable<Address>> { Value = new List<Address>() };
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Value.Count().ShouldBe(2);
+
+                result.Value.First().Line1.ShouldBe("Street Zero");
+                result.Value.First().Line2.ShouldBe("City Zero");
+
+                result.Value.Second().Line1.ShouldBe("Street One");
+                result.Value.Second().Line2.ShouldBe("City One");
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// Person.Address.StreetName member would be populated using the dictionary entry with key 
         /// 'AddressStreetName' when mapping to a root Person object.
         /// </summary>
-        DictionaryMappingConfigContinuation<TValue, TTarget> UseFlattenedMemberNames();
+        IDictionaryConfigSettings<TValue, TTarget> UseFlattenedMemberNames();
 
         /// <summary>
         /// Use the given <paramref name="separator"/> to separate member names when mapping to nested
@@ -22,13 +22,32 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// with the key 'Address-Line1' to map to an Address.Line1 member.
         /// </summary>
         /// <param name="separator">
-        /// The separator to use to separate member names when constructing dictionary keys for nested
-        /// members.
+        ///     The separator to use to separate member names when constructing dictionary keys for nested
+        ///     members.
         /// </param>
         /// <returns>
         /// A DictionaryMappingConfigContinuation to enable further configuration of mappings from dictionaries
         /// to the target type being configured.
         /// </returns>
-        DictionaryMappingConfigContinuation<TValue, TTarget> UseMemberNameSeparator(string separator);
+        IDictionaryConfigSettings<TValue, TTarget> UseMemberNameSeparator(string separator);
+
+        /// <summary>
+        /// Use the given <paramref name="pattern"/> to create the part of a dictionary key representing an 
+        /// enumerable element. The pattern must contain a single 'i' character as a placeholder for the 
+        /// enbumerable index. For example, calling UseElementKeyPattern("(i)") and mapping from a dictionary
+        /// to a collection of ints will generate searches for keys '(0)', '(1)', '(2)', etc.
+        /// </summary>
+        /// <param name="pattern">
+        /// The pattern to use to create a dictionary key part representing an enumerable element.
+        /// </param>
+        /// <returns>
+        /// An IDictionaryConfigSettings with which to globally configure other dictionary mapping aspects.
+        /// </returns>
+        IDictionaryConfigSettings<TValue, TTarget> UseElementKeyPattern(string pattern);
+
+        /// <summary>
+        /// Gets a link back to the full IDictionaryMappingConfigurator, for api fluency.
+        /// </summary>
+        IDictionaryMappingConfigurator<TValue, TTarget> And { get; }
     }
 }
