@@ -204,5 +204,53 @@
             configEx.Message.ShouldContain("PublicProperty<PublicField<int>>");
             configEx.Message.ShouldContain("separated with '+'");
         }
+
+        [Fact]
+        public void ShouldErrorIfANullElementKeyPartIsSpecified()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping
+                    .FromDictionaries
+                    .UseElementKeyPattern(null));
+
+            configEx.Message.ShouldContain(
+                "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+        }
+
+        [Fact]
+        public void ShouldErrorIfABlankElementKeyPartIsSpecified()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping
+                    .FromDictionaries
+                    .UseElementKeyPattern(string.Empty));
+
+            configEx.Message.ShouldContain(
+                "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+        }
+
+        [Fact]
+        public void ShouldErrorIfAnElementKeyPartHasNoIndexPlaceholder()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping
+                    .FromDictionaries
+                    .UseElementKeyPattern("_x_"));
+
+            configEx.Message.ShouldContain(
+                "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+        }
+
+        [Fact]
+        public void ShouldErrorIfAnElementKeyPartHasMultipleIndexPlaceholders()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping
+                    .FromDictionaries
+                    .UseElementKeyPattern("ii"));
+
+            configEx.Message.ShouldContain(
+                "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+        }
     }
 }

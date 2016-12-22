@@ -33,7 +33,7 @@
         public static ElementKeyPartFactory SquareBracketedIndex(MapperContext mapperContext)
             => new ElementKeyPartFactory("[", "]", MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext));
 
-        private static readonly Regex _patternMatcher = new Regex("(?<Prefix>[^i]*)i(?<Suffix>[^i]*)"
+        private static readonly Regex _patternMatcher = new Regex("^(?<Prefix>[^i]*)i{1}(?<Suffix>[^i]*)$"
 #if !NET_STANDARD
             , RegexOptions.Compiled
 #endif
@@ -41,7 +41,18 @@
 
         public static ElementKeyPartFactory For(string pattern, MappingConfigInfo configInfo)
         {
+            if (string.IsNullOrWhiteSpace(pattern))
+            {
+                throw NewInvalidPatternException();
+            }
+
             var patternMatch = _patternMatcher.Match(pattern);
+
+            if (!patternMatch.Success)
+            {
+                throw NewInvalidPatternException();
+            }
+
             var prefix = patternMatch.Groups["Prefix"].Value;
             var suffix = patternMatch.Groups["Suffix"].Value;
 
@@ -53,6 +64,13 @@
             }
 
             return new ElementKeyPartFactory(prefix, suffix, configInfo);
+        }
+
+        private static MappingConfigurationException NewInvalidPatternException()
+        {
+            return new MappingConfigurationException(
+                "An enumerable element key pattern must contain a single 'i' character " +
+                "as a placeholder for the enumerable index");
         }
 
         #endregion
