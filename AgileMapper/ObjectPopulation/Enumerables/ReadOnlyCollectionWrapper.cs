@@ -24,17 +24,8 @@
         /// <param name="existingItems">The existing items to retain in the final collection.</param>
         /// <param name="numberOfNewItems">The number of new items to be added to the existing items.</param>
         public ReadOnlyCollectionWrapper(IEnumerable<T> existingItems, int numberOfNewItems)
-            : this(numberOfNewItems)
         {
             _existingItems = existingItems;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the ReadOnlyCollectionWrapper{T} class.
-        /// </summary>
-        /// <param name="numberOfNewItems">The number of new items to be added to the collection.</param>
-        public ReadOnlyCollectionWrapper(int numberOfNewItems)
-        {
             _newItems = new T[numberOfNewItems];
             _index = 0;
         }

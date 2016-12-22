@@ -7,7 +7,6 @@
 
     internal class JoiningNameFactory : UserConfiguredItemBase
     {
-        private readonly string _separator;
         private readonly Func<string, string, IBasicMapperData, Expression> _joinedNameFactory;
 
         private JoiningNameFactory(
@@ -16,8 +15,12 @@
             MappingConfigInfo configInfo)
             : base(configInfo)
         {
-            _separator = separator;
+            Separator = separator;
             _joinedNameFactory = joinedNameFactory;
+            TargetType = configInfo.TargetType;
+            IsDefault = HasDefault(separator);
+            IsFlattened = !IsDefault && (separator == string.Empty);
+            IsGlobal = TargetType == typeof(object);
         }
 
         #region Factory Methods
@@ -33,9 +36,19 @@
 
         #endregion
 
+        public Type TargetType { get; }
+
+        public bool IsGlobal { get; }
+
+        public bool IsDefault { get; }
+
+        public bool IsFlattened { get; }
+
+        public string Separator { get; }
+
         public Expression GetJoiningName(string name, IMemberMapperData mapperData)
         {
-            var joiningName = _joinedNameFactory.Invoke(_separator, name, mapperData);
+            var joiningName = _joinedNameFactory.Invoke(Separator, name, mapperData);
 
             if (mapperData.Parent.IsRoot)
             {
@@ -56,7 +69,7 @@
 
         private static Expression HandleLeadingSeparator(string separator, string name, IBasicMapperData mapperData)
         {
-            if (separator != ".")
+            if (!HasDefault(separator))
             {
                 name = name.Replace(".", separator);
             }
@@ -75,6 +88,8 @@
 
             return name.ToConstantExpression();
         }
+
+        private static bool HasDefault(string separator) => separator == ".";
 
         private static Expression Flatten(string separator, string name, IBasicMapperData mapperData)
             => (name.StartsWith('.') ? name.Substring(1) : name).ToConstantExpression();

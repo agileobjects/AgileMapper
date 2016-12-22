@@ -130,5 +130,41 @@
 
             configEx.Message.ShouldContain("has a configured data source");
         }
+
+        [Fact]
+        public void ShouldErrorIfMemberNamesAreFlattenedAndSeparatedGlobally()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .UseFlattenedMemberNames()
+                        .UseMemberNameSeparator("+");
+                }
+            });
+
+            configEx.Message.ShouldContain("global");
+            configEx.Message.ShouldContain("flattened");
+        }
+
+        [Fact]
+        public void ShouldErrorIfMemberNamesAreSeparatedGloballyAndFlattened()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .UseMemberNameSeparator("+")
+                        .UseFlattenedMemberNames();
+                }
+            });
+
+            configEx.Message.ShouldContain("global");
+            configEx.Message.ShouldContain("separated with '+'");
+        }
     }
 }

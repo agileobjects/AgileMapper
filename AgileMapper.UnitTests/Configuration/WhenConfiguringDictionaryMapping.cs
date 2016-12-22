@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -256,6 +257,35 @@
                 matchingResult.Name.ShouldBe("Bobby");
                 matchingResult.Discount.ShouldBe(0.3);
                 matchingResult.Address.Line1.ShouldBe("Bobby's Underscore");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyGlobalThenSpecificCustomSeparators()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .UseMemberNameSeparator("+")
+                    .AndWhenMapping
+                    .ToANew<Address>()
+                    .UseMemberNameSeparator("-");
+
+                var source = new Dictionary<string, object>
+                {
+                    ["[0]+Name"] = "Elizabeth",
+                    ["[0]-Address-Line1"] = "Buck Palace",
+                    ["[0]-Address-Line2"] = "London"
+                };
+
+                var result = mapper.Map(source).ToANew<Person[]>();
+
+                result.ShouldHaveSingleItem();
+
+                result.First().Name.ShouldBe("Elizabeth");
+                result.First().Address.Line1.ShouldBe("Buck Palace");
+                result.First().Address.Line2.ShouldBe("London");
             }
         }
 

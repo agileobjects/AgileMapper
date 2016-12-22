@@ -286,9 +286,11 @@
 
         private Expression GetTargetVariableValue()
         {
-            if (TargetTypeHelper.IsArray && !SourceTypeHelper.IsEnumerableInterface)
+            if (TargetTypeHelper.IsArray &&
+               !SourceTypeHelper.IsEnumerableInterface &&
+               !MapperData.SourceObject.Type.IsDictionary())
             {
-                return GetCopyIntoWrapperConstruction(GetSourceCountAccess());
+                return GetCopyIntoWrapperConstruction();
             }
 
             Expression nonNullTargetVariableValue;
@@ -340,13 +342,14 @@
             return targetVariableValue;
         }
 
-        private Expression GetCopyIntoWrapperConstruction(Expression numberOfNewItems)
+        private Expression GetCopyIntoWrapperConstruction()
         {
-            var constructor = TargetTypeHelper.WrapperType
+            var constructor = TargetTypeHelper
+                .WrapperType
                 .GetConstructor(new[] { TargetTypeHelper.EnumerableInterfaceType, typeof(int) });
 
             // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.New(constructor, MapperData.TargetObject, numberOfNewItems);
+            return Expression.New(constructor, MapperData.TargetObject, GetSourceCountAccess());
         }
 
         private Expression GetNonNullEnumerableTargetVariableValue()
