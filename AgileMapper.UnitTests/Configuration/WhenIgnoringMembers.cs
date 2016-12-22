@@ -70,6 +70,30 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldConditionallyIgnoreAConfiguredMemberForASpecifiedRuleSet()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .OnTo<Address>()
+                    .If(ctx => ctx.Source.Name == "Gandalf")
+                    .Ignore(a => a.Line1);
+
+                var source = new PersonViewModel { Name = "Gandalf", AddressLine1 = "??" };
+                var onToResult = mapper.Map(source).OnTo(new Person { Address = new Address() });
+
+                onToResult.Name.ShouldBe("Gandalf");
+                onToResult.Address.Line1.ShouldBeNull();
+
+                var createNewResult = mapper.Map(source).ToANew<Person>();
+
+                createNewResult.Name.ShouldBe("Gandalf");
+                createNewResult.Address.Line1.ShouldBe("??");
+            }
+        }
+
+        [Fact]
         public void ShouldIgnoreMultipleConfiguredMembers()
         {
             using (var mapper = Mapper.CreateNew())
