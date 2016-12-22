@@ -18,11 +18,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         #region IDictionaryConfigSettings Members
 
-        void IDictionaryConfigSettings.UseMemberNameSeparator(string separator)
+        public DictionaryMappingConfigContinuation<TValue, TTarget> UseMemberNameSeparator(string separator)
         {
             var joiningNameFactory = JoiningNameFactory.For(separator, _configInfo);
 
             _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
+
+            return new DictionaryMappingConfigContinuation<TValue, TTarget>(_configInfo);
         }
 
         #endregion

@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
     public interface IDictionaryMappingConfigurator<TValue, TTarget> :
         IFullMappingConfigurator<Dictionary<string, TValue>, TTarget>,
-        IDictionaryConfigSettings
+        IDictionaryConfigSettings<TValue, TTarget>
     {
         /// <summary>
         /// Configure a custom full dictionary key for a particular target member when mapping from and to the dictionary 

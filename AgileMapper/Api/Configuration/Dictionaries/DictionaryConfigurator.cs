@@ -24,12 +24,28 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// </summary>
         public void UseFlattenedMemberNames()
         {
-            var globalConfigInfo = _configInfo.ForAllRuleSets().ForAllTargetTypes();
-
-            var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(globalConfigInfo);
+            var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(GlobalConfigInfo);
 
             _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
         }
+
+        /// <summary>
+        /// Use the given <paramref name="separator"/> to separate member names when mapping to nested
+        /// complex type members of any target type. For example, calling UseMemberName("_") will require 
+        /// a dictionary entry with the key 'Address_Line1' to map to an Address.Line1 member.
+        /// </summary>
+        /// <param name="separator">
+        /// The separator to use to separate member names when constructing dictionary keys for nested
+        /// members.
+        /// </param>
+        public void UseMemberNameSeparator(string separator)
+        {
+            var joiningNameFactory = JoiningNameFactory.For(separator, GlobalConfigInfo);
+
+            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
+        }
+
+        private MappingConfigInfo GlobalConfigInfo => _configInfo.ForAllRuleSets().ForAllTargetTypes();
 
         /// <summary>
         /// Configure how this mapper performs mappings from dictionaries in all MappingRuleSets 
@@ -38,7 +54,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
         public IDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>() where TTarget : class
-            => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForAllRuleSets());
+                => new DictionaryMappingConfigurator<TValue, TTarget>(_configInfo.ForAllRuleSets());
 
         /// <summary>
         /// Configure how this mapper performs object creation mappings from dictionaries to the target type 

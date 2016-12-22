@@ -167,6 +167,30 @@
         }
 
         [Fact]
+        public void ShouldApplyACustomSeparatorGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .UseMemberNameSeparator("-");
+
+                var source = new Dictionary<string, object>
+                {
+                    ["Name"] = "Jimmy",
+                    ["Address-Line1"] = "Jimmy's House",
+                    ["Address-Line2"] = "Jimmy's Street"
+                };
+                var target = new MysteryCustomer { Address = new Address { Line1 = "La la la" } };
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Name.ShouldBe("Jimmy");
+                result.Address.Line1.ShouldBe("La la la");
+                result.Address.Line2.ShouldBe("Jimmy's Street");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyACustomSeparatorToASpecificTargetType()
         {
             using (var mapper = Mapper.CreateNew())
@@ -174,14 +198,18 @@
                 mapper.WhenMapping
                     .FromDictionaries
                     .ToANew<Customer>()
-                    .UseMemberNameSeparator("_");
+                    .UseMemberNameSeparator("_")
+                    .And
+                    .MapKey("PersonName")
+                    .To(p => p.Name);
 
                 var source = new Dictionary<string, object>
                 {
                     ["Name"] = "Freddy",
+                    ["PersonName"] = "Bobby",
                     ["Discount"] = 0.3,
                     ["Address.Line1"] = "Freddy's Dot",
-                    ["Address_Line1"] = "Freddy's Underscore"
+                    ["Address_Line1"] = "Bobby's Underscore"
                 };
 
                 var nonMatchingResult = mapper.Map(source).ToANew<Person>();
@@ -191,9 +219,9 @@
 
                 var matchingResult = mapper.Map(source).ToANew<Customer>();
 
-                matchingResult.Name.ShouldBe("Freddy");
+                matchingResult.Name.ShouldBe("Bobby");
                 matchingResult.Discount.ShouldBe(0.3);
-                matchingResult.Address.Line1.ShouldBe("Freddy's Underscore");
+                matchingResult.Address.Line1.ShouldBe("Bobby's Underscore");
             }
         }
     }
