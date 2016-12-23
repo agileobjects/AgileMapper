@@ -208,6 +208,23 @@
         }
 
         [Fact]
+        public void ShouldPopulateARootSimpleTypeArrayFromConvertibleTypedEntries()
+        {
+            var source = new Dictionary<string, long>
+            {
+                ["[0]"] = 123,
+                ["[1]"] = long.MaxValue,
+                ["[2]"] = 789
+            };
+            var result = Mapper.Map(source).ToANew<int[]>();
+
+            result.Length.ShouldBe(3);
+            result.First().ShouldBe(123);
+            result.Second().ShouldBeDefault();
+            result.Third().ShouldBe(789);
+        }
+
+        [Fact]
         public void ShouldPopulateARootComplexTypeListFromUntypedEntries()
         {
             var source = new Dictionary<string, object>
