@@ -1,0 +1,44 @@
+ManualCtorMapper                        0.0087959
+AgileMapperCtorMapper                   0.1537728
+AgileMapperCtorMapper APTC              0.1351278
+AutoMapperCtorMapper 5                  0.1625252
+AutoMapperCtorMapper 5 APTC             0.1551159
+AutoMapperCtorMapper 4                  1.1631414
+ExpressMapperCtorMapper                 0.2122651
+MapsterCtorMapper                       0.0314559
+ValueInjecterCtorMapper                 0.4489981
+
+ManualComplexTypeMapper                 1.5660736
+AgileMapperComplexTypeMapper            3.499686
+AgileMapperComplexTypeMapper APTC       2.0051501
+AutoMapperComplexTypeMapper 5           7.6068581
+AutoMapperComplexTypeMapper 5 APTC      6.2249653
+AutoMapperComplexTypeMapper 4           118.5824438
+ExpressMapperComplexTypeMapper          14.1514411
+MapsterComplexTypeMapper                3.2334581
+ValueInjecterComplexTypeMapper          98.5772214
+
+ManualFlatteningMapper                  0.0530323
+AgileMapperFlatteningMapper             0.3380915
+AgileMapperFlatteningMapper APTC        0.2115426
+AutoMapperFlatteningMapper 5            0.3834738
+AutoMapperFlatteningMapper 5 APTC       0.2311719
+AutoMapperFlatteningMapper 4            3.4723923
+ExpressMapperFlatteningMapper           0.5129148
+MapsterFlatteningMapper                 0.2082187
+ValueInjecterFlatteningMapper           12.678217
+
+ManualUnflatteningMapper                0.0502109
+AgileMapperUnflatteningMapper           0.5042676
+AgileMapperUnflatteningMapper APTC      0.3807293
+ValueInjecterUnflatteningMapper         13.5958067
+
+ManualDeepMapper                        0.4737255
+AgileMapperDeepMapper                   1.0929877
+AgileMapperDeepMapper APTC              0.5701307
+AutoMapperDeepMapper 5                  0.9725868
+AutoMapperDeepMapper 5 APTC             0.5729943
+AutoMapperDeepMapper 4                  23.1898584
+ExpressMapperDeepMapper                 6.2526695
+MapsterDeepMapper                       0.73005
+ValueInjecterDeepMapper                 27.745749
