@@ -94,6 +94,32 @@
         }
 
         [Fact]
+        public void ShouldUseACustomMemberNameDictionaryKeyForANestedEnumerableMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .To<PublicProperty<string[]>>()
+                    .MapMemberName("Strings")
+                    .To(pp => pp.Value);
+
+                var source = new Dictionary<string, string>
+                {
+                    ["Strings[0]"] = "Zero",
+                    ["Strings[1]"] = "One",
+                    ["Strings[2]"] = "Two"
+                };
+                var result = mapper.Map(source).ToANew<PublicProperty<string[]>>();
+
+                result.Value.Length.ShouldBe(3);
+                result.Value.First().ShouldBe("Zero");
+                result.Value.Second().ShouldBe("One");
+                result.Value.Third().ShouldBe("Two");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyNonDictionarySpecificConfiguration()
         {
             using (var mapper = Mapper.CreateNew())
