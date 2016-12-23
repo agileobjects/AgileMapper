@@ -19,16 +19,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Constants.EmptyExpression;
             }
 
-            var derivedSourceTypes = declaredTypeMapperData.MapperContext
-                .DerivedTypes
-                .GetTypesDerivedFrom(declaredTypeMapperData.SourceType)
-                .ToArray();
-
-            var derivedTargetTypes = declaredTypeMapperData.MapperContext
-                .DerivedTypes
-                .GetTypesDerivedFrom(declaredTypeMapperData.TargetType)
-                .ToArray();
-
+            var derivedSourceTypes = GetDerivedTypes(declaredTypeMapperData.SourceType, declaredTypeMapperData);
+            var derivedTargetTypes = GetDerivedTargetTypesIfNecessary(declaredTypeMappingData);
             var derivedTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
 
             if (derivedSourceTypes.None() && derivedTargetTypes.None() && derivedTypePairs.None())
@@ -67,6 +59,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return typedObjectVariables.Any()
                 ? Expression.Block(typedObjectVariables, derivedTypeMappingExpressions)
                 : Expression.Block(derivedTypeMappingExpressions);
+        }
+
+        private static ICollection<Type> GetDerivedTypes(Type parentType, IMemberMapperData mapperData)
+            => mapperData.MapperContext.DerivedTypes.GetTypesDerivedFrom(parentType).ToArray();
+
+        private static ICollection<Type> GetDerivedTargetTypesIfNecessary(IObjectMappingData mappingData)
+        {
+            if (mappingData.IsRoot && !mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            {
+                return Enumerable<Type>.EmptyArray;
+            }
+
+            return GetDerivedTypes(mappingData.MapperData.TargetType, mappingData.MapperData);
         }
 
         private static void AddDeclaredSourceTypeMappings(
