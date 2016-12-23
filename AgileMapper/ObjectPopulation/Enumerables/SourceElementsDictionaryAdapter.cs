@@ -3,28 +3,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Linq.Expressions;
     using Members;
 
-    internal class SourceElementsDictionaryAdapter : ISourceEnumerableAdapter
+    internal class SourceElementsDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {
         private readonly DictionarySourceMember _sourceMember;
-        private readonly EnumerablePopulationBuilder _builder;
 
         public SourceElementsDictionaryAdapter(
             DictionarySourceMember sourceMember,
             EnumerablePopulationBuilder builder)
+            : base(builder)
         {
             _sourceMember = sourceMember;
-            _builder = builder;
         }
 
-        public Expression GetSourceValue() => _builder.MapperData.SourceObject;
-
         public Expression GetSourceValues()
-            => Expression.Property(_builder.MapperData.SourceObject, "Values");
+            => Expression.Property(GetSourceValue(), "Values");
 
         public Expression GetSourceCountAccess()
-            => Expression.Property(_builder.SourceValue, "Count");
+            => Expression.Property(SourceValue, "Count");
+
+        public override bool UseReadOnlyTargetWrapper
+            => base.UseReadOnlyTargetWrapper && Builder.Context.ElementTypesAreSimple;
 
         public IPopulationLoopData GetPopulationLoopData()
-            => new SourceElementsDictionaryPopulationLoopData(_sourceMember, _builder);
+            => new SourceElementsDictionaryPopulationLoopData(_sourceMember, Builder);
     }
 }

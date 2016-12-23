@@ -3,42 +3,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Linq.Expressions;
     using NetStandardPolyfills;
 
-    internal class DefaultSourceEnumerableAdapter : ISourceEnumerableAdapter
+    internal class DefaultSourceEnumerableAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {
-        private readonly EnumerablePopulationBuilder _builder;
-
         public DefaultSourceEnumerableAdapter(EnumerablePopulationBuilder builder)
+            : base(builder)
         {
-            _builder = builder;
         }
 
-        public Expression GetSourceValue() => _builder.MapperData.SourceObject;
-
-        public Expression GetSourceValues() => _builder.SourceValue;
+        public Expression GetSourceValues() => SourceValue;
 
         public Expression GetSourceCountAccess()
         {
-            if (_builder.SourceTypeHelper.IsArray)
+            if (SourceTypeHelper.IsArray)
             {
-                return Expression.Property(_builder.SourceValue, "Length");
+                return Expression.Property(SourceValue, "Length");
             }
 
-            var countPropertyInfo = _builder
-                .SourceTypeHelper
+            var countPropertyInfo = SourceTypeHelper
                 .CollectionInterfaceType
                 .GetPublicInstanceProperty("Count");
 
-            return Expression.Property(_builder.SourceValue, countPropertyInfo);
+            return Expression.Property(SourceValue, countPropertyInfo);
         }
 
         public IPopulationLoopData GetPopulationLoopData()
         {
-            if (_builder.SourceTypeHelper.HasListInterface)
+            if (SourceTypeHelper.HasListInterface)
             {
-                return new IndexedSourcePopulationLoopData(_builder);
+                return new IndexedSourcePopulationLoopData(Builder);
             }
 
-            return new EnumerableSourcePopulationLoopData(_builder);
+            return new EnumerableSourcePopulationLoopData(Builder);
         }
     }
 }

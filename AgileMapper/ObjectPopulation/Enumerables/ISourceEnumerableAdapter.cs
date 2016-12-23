@@ -10,6 +10,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         Expression GetSourceCountAccess();
 
+        bool UseReadOnlyTargetWrapper { get; }
+
         IPopulationLoopData GetPopulationLoopData();
     }
 }

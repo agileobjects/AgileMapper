@@ -286,9 +286,7 @@
 
         private Expression GetTargetVariableValue()
         {
-            if (TargetTypeHelper.IsArray &&
-               !SourceTypeHelper.IsEnumerableInterface &&
-               !MapperData.SourceObject.Type.IsDictionary())
+            if (_sourceAdapter.UseReadOnlyTargetWrapper)
             {
                 return GetCopyIntoWrapperConstruction();
             }

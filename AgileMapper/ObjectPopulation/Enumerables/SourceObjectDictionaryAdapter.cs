@@ -10,24 +10,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using Members;
     using NetStandardPolyfills;
 
-    internal class SourceObjectDictionaryAdapter : ISourceEnumerableAdapter
+    internal class SourceObjectDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {
-        private readonly EnumerablePopulationBuilder _builder;
         private readonly SourceInstanceDictionaryAdapter _instanceDictionaryAdapter;
         private readonly Expression _emptyTarget;
 
         public SourceObjectDictionaryAdapter(
             DictionarySourceMember sourceMember,
             EnumerablePopulationBuilder builder)
+            : base(builder)
         {
-            _builder = builder;
             _instanceDictionaryAdapter = new SourceInstanceDictionaryAdapter(sourceMember, builder);
 
             var targetEnumerableType = builder.TargetTypeHelper.EnumerableInterfaceType;
             _emptyTarget = targetEnumerableType.GetEmptyInstanceCreation();
         }
 
-        public Expression GetSourceValue()
+        public override Expression GetSourceValue()
         {
             var returnLabel = Expression.Label(_emptyTarget.Type, "Return");
             var returnEmpty = Expression.Return(returnLabel, _emptyTarget);
@@ -98,9 +97,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             var typedCastMethod = linqCastMethod.MakeGenericMethod(typeof(object));
             var linqCastCall = Expression.Call(null, typedCastMethod, untypedEnumerableVariable);
 
-            var sourceItemsProjection = _builder.Context.ElementTypesAreSimple
-                ? _builder.GetSourceItemsProjection(linqCastCall, GetSourceElementConversion)
-                : _builder.GetSourceItemsProjection(linqCastCall, GetSourceElementMapping);
+            var sourceItemsProjection = Builder.Context.ElementTypesAreSimple
+                ? Builder.GetSourceItemsProjection(linqCastCall, GetSourceElementConversion)
+                : Builder.GetSourceItemsProjection(linqCastCall, GetSourceElementMapping);
 
             var returnProjectionResult = Expression.Label(returnLabel, sourceItemsProjection);
 
@@ -108,10 +107,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         }
 
         private Expression GetSourceElementConversion(Expression sourceParameter)
-            => _builder.GetSimpleElementConversion(sourceParameter);
+            => Builder.GetSimpleElementConversion(sourceParameter);
 
         private Expression GetSourceElementMapping(Expression sourceParameter, Expression counter)
-            => _builder.MapperData.GetMapCall(sourceParameter);
+            => Builder.MapperData.GetMapCall(sourceParameter);
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD
@@ -129,12 +128,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetSourceCountAccess() => _instanceDictionaryAdapter.GetSourceCountAccess();
 
+        public override bool UseReadOnlyTargetWrapper
+            => base.UseReadOnlyTargetWrapper && Builder.Context.ElementTypesAreSimple;
+
         public IPopulationLoopData GetPopulationLoopData()
         {
             return new SourceObjectDictionaryPopulationLoopData(
                 _emptyTarget,
                 _instanceDictionaryAdapter.DictionaryVariables,
-                _builder);
+                Builder);
         }
     }
 }
