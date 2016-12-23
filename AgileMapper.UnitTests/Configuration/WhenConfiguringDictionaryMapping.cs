@@ -357,5 +357,39 @@
                 result.Value.Second().Line2.ShouldBe("City One");
             }
         }
+
+        [Fact]
+        public void ShouldConditionallyMapToDerivedTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .ToANew<PersonViewModel>()
+                    .If(s => s.Source.ContainsKey("Discount"))
+                    .MapTo<CustomerViewModel>()
+                    .And
+                    .If(s => s.Source.ContainsKey("Report"))
+                    .MapTo<MysteryCustomerViewModel>();
+
+                var source = new Dictionary<string, object> { ["Name"] = "Person" };
+                var personResult = mapper.Map(source).ToANew<PersonViewModel>();
+
+                personResult.ShouldBeOfType<PersonViewModel>();
+                personResult.Name.ShouldBe("Person");
+
+                source.Add("Discount", "0.05");
+                var customerResult = mapper.Map(source).ToANew<PersonViewModel>();
+
+                customerResult.ShouldBeOfType<CustomerViewModel>();
+                ((CustomerViewModel)customerResult).Discount.ShouldBe(0.05);
+
+                source.Add("Report", "Very good!");
+                var mysteryCustomerResult = mapper.Map(source).ToANew<PersonViewModel>();
+
+                mysteryCustomerResult.ShouldBeOfType<MysteryCustomerViewModel>();
+                ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Very good!");
+            }
+        }
     }
 }

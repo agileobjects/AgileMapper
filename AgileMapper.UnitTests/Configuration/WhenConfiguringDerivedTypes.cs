@@ -34,8 +34,7 @@
             {
                 var exampleInstance = new { Name = default(string), Discount = default(decimal?), Report = default(string) };
 
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From(exampleInstance)
                     .ToANew<PersonViewModel>()
                     .If(s => s.Source.Discount.HasValue)
