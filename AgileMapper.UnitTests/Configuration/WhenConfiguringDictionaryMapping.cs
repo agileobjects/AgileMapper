@@ -391,5 +391,35 @@
                 ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Very good!");
             }
         }
+
+        [Fact]
+        public void ShouldConditionallyMapToDerivedTypesFromASpecificValueTypeDictionary()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionariesWithValueType<string>()
+                    .ToANew<CustomerViewModel>()
+                    .If(s => s.Source["Report"].Length > 10)
+                    .MapTo<MysteryCustomerViewModel>();
+
+                var source = new Dictionary<string, string>
+                {
+                    ["Name"] = "Customer",
+                    ["Report"] = "Too short!"
+                };
+                var customerResult = mapper.Map(source).ToANew<CustomerViewModel>();
+
+                customerResult.ShouldBeOfType<CustomerViewModel>();
+                customerResult.Name.ShouldBe("Customer");
+
+                source["Report"] = "Plenty long enough!";
+                var mysteryCustomerResult = mapper.Map(source).ToANew<CustomerViewModel>();
+
+                mysteryCustomerResult.ShouldBeOfType<MysteryCustomerViewModel>();
+                mysteryCustomerResult.Name.ShouldBe("Customer");
+                ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Plenty long enough!");
+            }
+        }
     }
 }

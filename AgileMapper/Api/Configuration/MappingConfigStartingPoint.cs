@@ -261,9 +261,18 @@
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, T} instances.
         /// </summary>
-        /// <returns>A DictionaryConfigurator with which to continue the configuration.</returns>
         public DictionaryConfigurator<object> FromDictionaries
             => new DictionaryConfigurator<object>(MappingConfigInfo.AllSourceTypes(_mapperContext));
+
+        /// <summary>
+        /// Configure how this mapper performs mappings from source Dictionary{string, TValue} instances.
+        /// </summary>
+        /// <typeparam name="TValue">
+        /// The type of values contained in the Dictionary to which the configuration will apply.
+        /// </typeparam>
+        /// <returns>A DictionaryConfigurator with which to continue the configuration.</returns>
+        public DictionaryConfigurator<TValue> FromDictionariesWithValueType<TValue>()
+            => new DictionaryConfigurator<TValue>(MappingConfigInfo.AllSourceTypes(_mapperContext));
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the given 
