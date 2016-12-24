@@ -190,6 +190,15 @@
         }
 
         [Fact]
+        public void ShouldHandleANullUnconstructableRootTarget()
+        {
+            var source = new { Value = new { Value = "Goodbye!" } };
+            var result = Mapper.Map(source).ToANew<PublicFactoryMethod<PublicField<string>>>();
+
+            result.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldHandleANullUnconstructableNestedMember()
         {
             var source = new { Value = new { Value = new { Value = "Goodbye!" } } };

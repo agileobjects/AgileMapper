@@ -8,6 +8,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Members;
     using Members.Population;
+    using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
@@ -22,10 +24,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
-            // If a target complex type is readonly or unconstructable 
-            // we still try to map to it using an existing non-null value:
-            nullMappingBlock = null;
-            return false;
+            if (!mappingData.IsRoot || mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            {
+                // If a target complex type is readonly or unconstructable 
+                // we still try to map to it using an existing non-null value:
+                nullMappingBlock = null;
+                return false;
+            }
+
+            if (_constructionFactory.GetNewObjectCreation(mappingData) != null)
+            {
+                nullMappingBlock = null;
+                return false;
+            }
+
+            var targetType = mappingData.MapperData.TargetType;
+
+            nullMappingBlock = Expression.Block(
+                ReadableExpression.Comment("Cannot construct an instance of " + targetType.GetFriendlyName()),
+                targetType.ToDefaultExpression());
+
+            return true;
         }
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
