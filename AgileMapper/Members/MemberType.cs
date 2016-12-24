@@ -7,6 +7,7 @@
         Property,
         GetMethod,
         SetMethod,
-        EnumerableElement
+        EnumerableElement,
+        DictionaryEntry
     }
 }

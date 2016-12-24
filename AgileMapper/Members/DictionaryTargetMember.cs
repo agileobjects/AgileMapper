@@ -7,8 +7,8 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class DictionaryTargetMember : QualifiedMember
     {
-        public DictionaryTargetMember(QualifiedMember wrappedTargetMember, MapperContext mapperContext)
-            : base(wrappedTargetMember.LeafMember, mapperContext)
+        public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
+            : base((Member[])wrappedTargetMember.MemberChain, wrappedTargetMember)
         {
             var dictionaryTypes = wrappedTargetMember.Type.GetGenericArguments();
             KeyType = dictionaryTypes[0];

@@ -98,6 +98,9 @@ namespace AgileObjects.AgileMapper.Members
                 elementType ?? enumerableType.GetEnumerableElementType());
         }
 
+        public static Member DictionaryEntry(Member sourceMember, DictionaryTargetMember targetMember)
+            => new Member(MemberType.DictionaryEntry, sourceMember.Name, targetMember.Type, targetMember.ValueType);
+
         #endregion
 
         public string Name { get; }

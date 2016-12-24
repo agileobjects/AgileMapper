@@ -8,12 +8,13 @@
 
     public class WhenMappingToDictionaries
     {
-        //[Fact]
+        [Fact]
         public void ShouldMapASimpleTypeMemberToATypedDictionary()
         {
             var source = new PublicField<int> { Value = int.MaxValue };
             var result = Mapper.Map(source).ToANew<Dictionary<string, int>>();
 
+            result.ShouldNotBeEmpty();
             result["Value"].ShouldBe(int.MaxValue);
         }
 

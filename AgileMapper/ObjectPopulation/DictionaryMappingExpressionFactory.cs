@@ -1,8 +1,8 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using DataSources;
     using Extensions;
     using Members;
     using ReadableExpressions;
@@ -30,23 +30,39 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
-        {
-            throw new NotImplementedException();
-        }
+            => Enumerable<Expression>.Empty;
 
         protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
-        {
-            throw new NotImplementedException();
-        }
+            => Constants.EmptyExpression;
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            throw new NotImplementedException();
+            var mapperData = mappingData.MapperData;
+            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
+
+            var objectValue = Expression.New(mapperData.TargetType);
+
+            var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, objectValue);
+            yield return instanceVariableAssignment;
+
+            var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(mapperData.SourceType);
+
+            foreach (var sourceMember in sourceMembers)
+            {
+                var qualifiedSourceMember = mapperData.SourceMember.Append(sourceMember);
+
+                var targetEntryMember = Member.DictionaryEntry(sourceMember, targetDictionaryMember);
+                var qualifiedTargetMember = targetDictionaryMember.Append(targetEntryMember);
+                var entryMapperData = new ChildMemberMapperData(qualifiedTargetMember, mapperData);
+
+                var sourceMemberDataSource = new SourceMemberDataSource(qualifiedSourceMember, entryMapperData);
+
+                var population = targetEntryMember.GetPopulation(mapperData.InstanceVariable, sourceMemberDataSource.Value);
+
+                yield return population;
+            }
         }
 
-        protected override Expression GetReturnValue(ObjectMapperData mapperData)
-        {
-            throw new NotImplementedException();
-        }
+        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;
     }
 }

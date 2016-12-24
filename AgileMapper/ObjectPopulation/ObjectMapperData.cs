@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private ObjectMapperData _entryPointMapperData;
-        private readonly ParameterExpression _instanceVariable;
+        private ParameterExpression _instanceVariable;
         private bool? _mappedObjectCachingNeeded;
 
         private ObjectMapperData(
@@ -94,9 +94,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
                     TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
                 }
-
-                _instanceVariable = Expression
-                    .Variable(TargetType, TargetType.GetVariableNameInCamelCase());
             }
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
@@ -375,7 +372,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression EnumerableIndex { get; }
 
-        public ParameterExpression InstanceVariable => _instanceVariable ?? EnumerablePopulationBuilder.TargetVariable;
+        public ParameterExpression InstanceVariable
+            => _instanceVariable ?? (_instanceVariable = CreateInstanceVariable());
+
+        private ParameterExpression CreateInstanceVariable()
+        {
+            if (TargetMember.IsEnumerable && !TargetType.IsDictionary())
+            {
+                return EnumerablePopulationBuilder.TargetVariable;
+            }
+
+            return Expression.Variable(TargetType, TargetType.GetVariableNameInCamelCase());
+        }
 
         public NestedAccessFinder NestedAccessFinder { get; }
 

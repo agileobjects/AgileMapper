@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.Members
 
                     if (typeof(TTarget).IsDictionary())
                     {
-                        return new DictionaryTargetMember(targetMember, _mapperContext);
+                        return new DictionaryTargetMember(targetMember);
                     }
 
                     return targetMember;

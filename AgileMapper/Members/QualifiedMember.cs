@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
         private readonly ICache<Member, QualifiedMember> _childMemberCache;
 
-        private QualifiedMember(Member[] memberChain, QualifiedMember adaptedMember)
+        protected QualifiedMember(Member[] memberChain, QualifiedMember adaptedMember)
             : this(memberChain, adaptedMember.JoinedNames, adaptedMember._mapperContext)
         {
             foreach (var childMember in adaptedMember._childMemberCache.Values)
@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             IsRecursive = DetermineRecursion();
         }
 
-        protected QualifiedMember(Member leafMember, MapperContext mapperContext)
+        private QualifiedMember(Member leafMember, MapperContext mapperContext)
         {
             if (leafMember == null)
             {
