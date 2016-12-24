@@ -78,7 +78,9 @@
 
             if (targetType.IsAssignableFrom(sourceValue.Type))
             {
-                return targetType.IsNullableType() ? sourceValue.GetConversionTo(targetType) : sourceValue;
+                return targetType.IsNullableType() || (sourceValue.Type.IsSimple() && (targetType == typeof(object)))
+                    ? sourceValue.GetConversionTo(targetType)
+                    : sourceValue;
             }
 
             var converters = EnumerateConverters(sourceValue.Type, targetType).ToArray();

@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq.Expressions;
     using Caching;
     using Extensions;
+    using ReadableExpressions.Extensions;
 
     internal class QualifiedMember : IQualifiedMember
     {
@@ -276,6 +277,6 @@ namespace AgileObjects.AgileMapper.Members
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public override string ToString() => GetPath();
+        public override string ToString() => $"{GetPath()}: {Type.GetFriendlyName()}";
     }
 }

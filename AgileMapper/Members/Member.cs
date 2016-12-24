@@ -1,12 +1,14 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-    using System.Diagnostics;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Reflection;
     using Extensions;
     using ObjectPopulation;
+    using ReadableExpressions.Extensions;
 
-    [DebuggerDisplay("{Name}: {Type.Name}")]
     internal class Member
     {
         public Member(
@@ -145,5 +147,12 @@ namespace AgileObjects.AgileMapper.Members
         {
             public static readonly Member MemberInstance = RootTarget(typeof(T));
         }
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public override string ToString() => $"{Name}: {Type.GetFriendlyName()}";
     }
 }
