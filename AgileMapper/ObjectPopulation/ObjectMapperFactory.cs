@@ -1,20 +1,25 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Caching;
     using Enumerables;
 
     internal class ObjectMapperFactory
     {
-        private readonly EnumerableMappingExpressionFactory _enumerableMappingExpressionFactory;
-        private readonly ComplexTypeMappingExpressionFactory _complexTypeMappingExpressionFactory;
+        private readonly IEnumerable<MappingExpressionFactoryBase> _mappingExpressionFactories;
         private readonly List<ICacheEmptier> _rootCacheEmptiers;
 
         public ObjectMapperFactory(MapperContext mapperContext)
         {
-            _enumerableMappingExpressionFactory = new EnumerableMappingExpressionFactory();
-            _complexTypeMappingExpressionFactory = new ComplexTypeMappingExpressionFactory(mapperContext);
+            _mappingExpressionFactories = new MappingExpressionFactoryBase[]
+            {
+                new DictionaryMappingExpressionFactory(),
+                new EnumerableMappingExpressionFactory(),
+                new ComplexTypeMappingExpressionFactory(mapperContext)
+            };
+
             _rootCacheEmptiers = new List<ICacheEmptier>();
         }
 
@@ -39,9 +44,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
-            var mappingExpression = mappingData.MapperKey.MappingTypes.IsEnumerable
-                ? _enumerableMappingExpressionFactory.Create(mappingData)
-                : _complexTypeMappingExpressionFactory.Create(mappingData);
+            var mappingExpressionFactory = _mappingExpressionFactories.First(mef => mef.IsFor(mappingData));
+            var mappingExpression = mappingExpressionFactory.Create(mappingData);
 
             mappingExpression = MappingFactory
                 .UseLocalSourceValueVariableIfAppropriate(mappingExpression, mappingData.MapperData);
@@ -57,7 +61,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void Reset()
         {
-            _complexTypeMappingExpressionFactory.Reset();
+            foreach (var mappingExpressionFactory in _mappingExpressionFactories)
+            {
+                mappingExpressionFactory.Reset();
+            }
 
             foreach (var rootCacheEmptier in _rootCacheEmptiers)
             {

@@ -201,7 +201,13 @@
                 return Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "Empty");
             }
 
-            return Expression.New(typeHelper.IsCollection ? typeHelper.CollectionType : typeHelper.ListType);
+            var fallbackType = typeHelper.IsCollection
+                ? typeHelper.CollectionType
+                : typeHelper.IsDictionary
+                    ? typeHelper.EnumerableType
+                    : typeHelper.ListType;
+
+            return Expression.New(fallbackType);
         }
 
         public static bool IsRootedIn(this Expression expression, Expression possibleParent)

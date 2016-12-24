@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             IsRecursive = DetermineRecursion();
         }
 
-        private QualifiedMember(Member leafMember, MapperContext mapperContext)
+        protected QualifiedMember(Member leafMember, MapperContext mapperContext)
         {
             if (leafMember == null)
             {

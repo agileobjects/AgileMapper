@@ -125,6 +125,7 @@
     <Compile Include="WhenFlatteningObjects.cs" />
     <Compile Include="WhenMappingFromDictionaries.cs" />
     <Compile Include="WhenMappingToConstructors.cs" />
+    <Compile Include="WhenMappingToDictionaries.cs" />
     <Compile Include="WhenUsingPartialTrust.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />
     <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />

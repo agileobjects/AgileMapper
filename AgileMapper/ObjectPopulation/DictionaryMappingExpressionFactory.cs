@@ -1,42 +1,52 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
+namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Extensions;
     using Members;
     using ReadableExpressions;
 
-    internal class EnumerableMappingExpressionFactory : MappingExpressionFactoryBase
+    internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
         public override bool IsFor(IObjectMappingData mappingData)
-            => mappingData.MapperKey.MappingTypes.IsEnumerable;
+            => mappingData.MapperKey.MappingTypes.TargetType.IsDictionary();
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
-            if (mappingData.MapperData.SourceMember.IsEnumerable)
+            var targetMember = (DictionaryTargetMember)mappingData.MapperData.TargetMember;
+
+            if ((targetMember.KeyType == typeof(string)) || (targetMember.KeyType == typeof(object)))
             {
                 nullMappingBlock = null;
                 return false;
             }
 
             nullMappingBlock = Expression.Block(
-                ReadableExpression.Comment("No source enumerable available"),
+                ReadableExpression.Comment("Only string- or object-keyed Dictionaries are supported"),
                 mappingData.MapperData.GetFallbackCollectionValue());
 
             return true;
         }
 
         protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
-            => Enumerable<Expression>.Empty;
+        {
+            throw new NotImplementedException();
+        }
 
         protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
-            => Constants.EmptyExpression;
+        {
+            throw new NotImplementedException();
+        }
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            yield return mappingData.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(mappingData);
+            throw new NotImplementedException();
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)
-            => mapperData.EnumerablePopulationBuilder.GetReturnValue();
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -41,7 +41,17 @@ namespace AgileObjects.AgileMapper.Members
 
             var rootMember = _memberCache.GetOrAdd(
                 memberKey,
-                k => QualifiedMember.From(Member.RootTarget<TTarget>(), _mapperContext));
+                k =>
+                {
+                    var targetMember = QualifiedMember.From(Member.RootTarget<TTarget>(), _mapperContext);
+
+                    if (typeof(TTarget).IsDictionary())
+                    {
+                        return new DictionaryTargetMember(targetMember, _mapperContext);
+                    }
+
+                    return targetMember;
+                });
 
             return (QualifiedMember)rootMember;
         }

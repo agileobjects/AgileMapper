@@ -3,13 +3,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using Extensions;
+
 #if NET_STANDARD
     using System.Reflection;
 #endif
 
     internal class EnumerableTypeHelper
     {
-        private readonly Type _enumerableType;
+        private bool? _isDictionary;
         private Type _wrapperType;
         private Type _listType;
         private Type _listInterfaceType;
@@ -19,23 +21,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public EnumerableTypeHelper(Type enumerableType, Type elementType)
         {
-            _enumerableType = enumerableType;
+            EnumerableType = enumerableType;
             ElementType = elementType;
         }
 
-        public bool IsArray => _enumerableType.IsArray;
+        public bool IsArray => EnumerableType.IsArray;
 
-        public bool IsList => ListType.IsAssignableFrom(_enumerableType);
+        public bool IsDictionary
+            => _isDictionary ?? (_isDictionary = EnumerableType.IsDictionary()).GetValueOrDefault();
 
-        public bool HasListInterface => ListInterfaceType.IsAssignableFrom(_enumerableType);
+        public bool IsList => ListType.IsAssignableFrom(EnumerableType);
 
-        public bool IsCollection => CollectionType.IsAssignableFrom(_enumerableType);
+        public bool HasListInterface => ListInterfaceType.IsAssignableFrom(EnumerableType);
 
-        public bool IsEnumerableInterface => _enumerableType == EnumerableInterfaceType;
+        public bool IsCollection => CollectionType.IsAssignableFrom(EnumerableType);
 
-        public bool HasCollectionInterface => CollectionInterfaceType.IsAssignableFrom(_enumerableType);
+        public bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
+
+        public bool HasCollectionInterface => CollectionInterfaceType.IsAssignableFrom(EnumerableType);
 
         public bool IsDeclaredReadOnly => IsArray || IsEnumerableInterface;
+
+        public Type EnumerableType { get; }
 
         public Type ElementType { get; }
 

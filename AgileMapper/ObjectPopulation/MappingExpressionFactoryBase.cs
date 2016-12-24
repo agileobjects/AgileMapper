@@ -13,6 +13,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class MappingExpressionFactoryBase
     {
+        public abstract bool IsFor(IObjectMappingData mappingData);
+
         public Expression Create(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
@@ -166,6 +168,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var catchBlock = Expression.Catch(exceptionVariable, catchBody);
 
             return Expression.TryCatch(mappingBlock, catchBlock);
+        }
+
+        public virtual void Reset()
+        {
         }
     }
 }

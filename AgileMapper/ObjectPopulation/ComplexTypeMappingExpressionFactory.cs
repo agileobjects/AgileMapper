@@ -18,6 +18,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
         }
 
+        public override bool IsFor(IObjectMappingData mappingData) => true;
+
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
             // If a target complex type is readonly or unconstructable 
@@ -270,6 +272,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;
 
-        public void Reset() => _constructionFactory.Reset();
+        public override void Reset() => _constructionFactory.Reset();
     }
 }
