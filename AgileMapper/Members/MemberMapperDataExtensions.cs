@@ -249,7 +249,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
-            => mapperData.TargetMember.LeafMember.GetPopulation(mapperData.InstanceVariable, value);
+            => mapperData.TargetMember.GetPopulation(value, mapperData);
 
         public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);

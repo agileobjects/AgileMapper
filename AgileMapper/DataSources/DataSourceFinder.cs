@@ -150,8 +150,8 @@
                 return null;
             }
 
-            bestMatchingSourceMember = bestMatchingSourceMember.RelativeTo(mappingData.MapperData.SourceMember);
-            var sourceMemberDataSource = new SourceMemberDataSource(bestMatchingSourceMember, mappingData.MapperData);
+            var sourceMemberDataSource = SourceMemberDataSource
+                .For(bestMatchingSourceMember, mappingData.MapperData);
 
             return GetFinalDataSource(sourceMemberDataSource, 0, mappingData);
         }

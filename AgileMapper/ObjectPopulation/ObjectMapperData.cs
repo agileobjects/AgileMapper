@@ -523,12 +523,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public override string ToString()
-        {
-            var sourceType = SourceMember.Type.GetFriendlyName();
-            var targetType = TargetMember.Type.GetFriendlyName();
-
-            return $"{SourceMember}: {sourceType} -> {TargetMember}: {targetType}";
-        }
+        public override string ToString() => SourceMember + " -> " + TargetMember;
     }
 }

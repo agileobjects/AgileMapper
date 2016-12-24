@@ -142,6 +142,9 @@ namespace AgileObjects.AgileMapper.Members
 
         public Member LeafMember { get; }
 
+        public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
+            => LeafMember.GetPopulation(mapperData.InstanceVariable, value);
+
         public Type Type => LeafMember?.Type;
 
         public Type ElementType => LeafMember?.ElementType;
@@ -202,7 +205,10 @@ namespace AgileObjects.AgileMapper.Members
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
         public QualifiedMember Append(Member childMember)
-            => _childMemberCache.GetOrAdd(childMember, cm => new QualifiedMember(cm, this, _mapperContext));
+            => _childMemberCache.GetOrAdd(childMember, CreateChildMember);
+
+        protected virtual QualifiedMember CreateChildMember(Member childMember)
+            => new QualifiedMember(childMember, this, _mapperContext);
 
         public QualifiedMember GetChildMember(string registrationName)
             => _childMemberCache.Values.First(childMember => childMember.RegistrationName == registrationName);
@@ -277,6 +283,6 @@ namespace AgileObjects.AgileMapper.Members
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public override string ToString() => $"{GetPath()}: {Type.GetFriendlyName()}";
+        public override string ToString() => GetPath() + ": " + Type.GetFriendlyName();
     }
 }

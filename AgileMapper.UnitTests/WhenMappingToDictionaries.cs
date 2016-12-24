@@ -37,6 +37,21 @@
         }
 
         [Fact]
+        public void ShouldMapNestedSimpleTypeMembersToATypedDictionary()
+        {
+            var source = new MysteryCustomer
+            {
+                Name = "Eddie",
+                Address = new Address { Line1 = "Customer house" }
+            };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, string>>();
+
+            result["Name"].ShouldBe("Eddie");
+            result["Address.Line1"].ShouldBe("Customer house");
+            result["Address.Line2"].ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldHandleAnInvalidKeyTypeTargetDictionary()
         {
             var source = new PublicField<string> { Value = "DateTime keys?!" };

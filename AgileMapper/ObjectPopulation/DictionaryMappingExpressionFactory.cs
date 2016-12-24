@@ -1,6 +1,8 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
@@ -10,11 +12,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
         public override bool IsFor(IObjectMappingData mappingData)
-            => mappingData.MapperKey.MappingTypes.TargetType.IsDictionary();
+        {
+            while (mappingData != null)
+            {
+                if (mappingData.MapperKey.MappingTypes.TargetType.IsDictionary())
+                {
+                    return true;
+                }
+
+                mappingData = mappingData.Parent;
+            }
+
+            return false;
+        }
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
-            var targetMember = (DictionaryTargetMember)mappingData.MapperData.TargetMember;
+            var targetMember = mappingData.MapperData.TargetMember as DictionaryTargetMember;
+
+            if (targetMember == null)
+            {
+                nullMappingBlock = null;
+                return false;
+            }
 
             if ((targetMember.KeyType == typeof(string)) || (targetMember.KeyType == typeof(object)))
             {
@@ -38,29 +58,100 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
+
+            if (mapperData.IsRoot)
+            {
+                var objectValue = Expression.New(mapperData.TargetType);
+
+                var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, objectValue);
+                yield return instanceVariableAssignment;
+            }
+
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
-            var objectValue = Expression.New(mapperData.TargetType);
+            foreach (var population in GetMemberPopulations(mapperData.SourceType, targetDictionaryMember, mappingData))
+            {
+                yield return population;
+            }
+        }
 
-            var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, objectValue);
-            yield return instanceVariableAssignment;
-
-            var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(mapperData.SourceType);
+        private static IEnumerable<Expression> GetMemberPopulations(
+            Type parentType,
+            DictionaryTargetMember targetDictionaryMember,
+            IObjectMappingData mappingData)
+        {
+            var mapperData = mappingData.MapperData;
+            var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(parentType);
 
             foreach (var sourceMember in sourceMembers)
             {
                 var qualifiedSourceMember = mapperData.SourceMember.Append(sourceMember);
+                var entryTargetMember = targetDictionaryMember.Append(sourceMember.Name);
 
-                var targetEntryMember = Member.DictionaryEntry(sourceMember, targetDictionaryMember);
-                var qualifiedTargetMember = targetDictionaryMember.Append(targetEntryMember);
-                var entryMapperData = new ChildMemberMapperData(qualifiedTargetMember, mapperData);
+                if (sourceMember.IsSimple)
+                {
+                    yield return GetSimpleMemberPopulation(
+                        qualifiedSourceMember,
+                        entryTargetMember,
+                        targetDictionaryMember,
+                        mapperData);
 
-                var sourceMemberDataSource = new SourceMemberDataSource(qualifiedSourceMember, entryMapperData);
+                    continue;
+                }
 
-                var population = targetEntryMember.GetPopulation(mapperData.InstanceVariable, sourceMemberDataSource.Value);
-
-                yield return population;
+                if (sourceMember.IsComplex)
+                {
+                    yield return GetNestedMemberPopulations(
+                        qualifiedSourceMember,
+                        entryTargetMember,
+                        mappingData);
+                }
             }
+        }
+
+        private static Expression GetSimpleMemberPopulation(
+            IQualifiedMember sourceMember,
+            DictionaryTargetMember entryTargetMember,
+            DictionaryTargetMember targetDictionaryMember,
+            ObjectMapperData mapperData)
+        {
+            var entryMapperData = new ChildMemberMapperData(entryTargetMember, mapperData);
+            var sourceMemberDataSource = SourceMemberDataSource.For(sourceMember, entryMapperData);
+            var population = targetDictionaryMember.GetPopulation(sourceMemberDataSource.Value, entryMapperData);
+
+            return population;
+        }
+
+        private static Expression GetNestedMemberPopulations(
+            IQualifiedMember sourceMember,
+            QualifiedMember entryTargetMember,
+            IObjectMappingData mappingData)
+        {
+            var mapperData = mappingData.MapperData;
+
+            var childMappingData = ObjectMappingDataFactory.ForChild(
+                sourceMember,
+                entryTargetMember,
+                0,
+                mappingData);
+
+            var mappingValues = new MappingValues(
+                sourceMember.GetQualifiedAccess(mapperData.SourceObject),
+                entryTargetMember.Type.ToDefaultExpression(),
+                mapperData.EnumerableIndex);
+
+            var childMappingBlock = (TryExpression)MappingFactory.GetChildMapping(
+                childMappingData,
+                mappingValues,
+                0,
+                mapperData);
+
+            var mappingBlock = (BlockExpression)childMappingBlock.Body;
+
+            mappingBlock = Expression.Block(
+                mappingBlock.Expressions.Take(mappingBlock.Expressions.Count - 1));
+
+            return mappingBlock;
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;

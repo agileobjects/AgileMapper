@@ -164,25 +164,14 @@
             {
                 { MemberType.Field, AssignMember },
                 { MemberType.Property, AssignMember },
-                { MemberType.SetMethod, CallSetMethod },
-                { MemberType.DictionaryEntry, AssignIndexer }
+                { MemberType.SetMethod, CallSetMethod }
             };
-
 
         private static Expression AssignMember(Expression instance, Member targetMember, Expression value)
             => Expression.Assign(targetMember.GetAccess(instance), value);
 
         private static Expression CallSetMethod(Expression instance, Member targetMember, Expression value)
             => Expression.Call(instance, targetMember.Name, Constants.NoTypeArguments, value);
-
-        private static Expression AssignIndexer(Expression instance, Member targetMember, Expression value)
-        {
-            var index = targetMember.Name.ToConstantExpression();
-            var indexAccess = instance.GetIndexAccess(index);
-            var indexAssignment = Expression.Assign(indexAccess, value);
-
-            return indexAssignment;
-        }
 
         #endregion
 

@@ -27,26 +27,6 @@ namespace AgileObjects.AgileMapper.DataSources
             .GetPublicInstanceMethods()
             .First(m => (m.Name == "StartsWith") && (m.GetParameters().Length == 2));
 
-        private static readonly MethodInfo _stringJoinMethod = typeof(string)
-            .GetPublicStaticMethods()
-            .First(m => (m.Name == "Join") &&
-                        (m.GetParameters().Length == 2) &&
-                        (m.GetParameters()[1].ParameterType == typeof(string[])));
-
-        private static readonly MethodInfo[] _stringConcatMethods = typeof(string)
-            .GetPublicStaticMethods()
-            .Where(m => m.Name == "Concat")
-            .Select(m => new
-            {
-                Method = m,
-                Parameters = m.GetParameters(),
-                FirstParameterType = m.GetParameters().First().ParameterType
-            })
-            .Where(m => m.FirstParameterType == typeof(string))
-            .OrderBy(m => m.Parameters.Length)
-            .Select(m => m.Method)
-            .ToArray();
-
         #endregion
 
         private readonly string _targetMemberName;
@@ -89,17 +69,15 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression GetTargetMemberDictionaryEnumerableElementKey(Expression index, IMemberMapperData mapperData)
         {
-            var keyParts = GetTargetMemberDictionaryKeyParts(mapperData);
-            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(index, MapperData);
+            var keyParts = mapperData.GetTargetMemberDictionaryKeyParts();
+            var elementKeyParts = MapperData.GetTargetMemberDictionaryElementKeyParts(index);
 
             foreach (var elementKeyPart in elementKeyParts)
             {
                 keyParts.Add(elementKeyPart);
             }
 
-            OptimiseNamePartsForStringConcat(keyParts);
-
-            return (TargetMemberKey = GetStringConcatCall(keyParts));
+            return TargetMemberKey = keyParts.GetStringConcatCall();
         }
 
         public Expression GetKeyNotFoundShortCircuit(Expression shortCircuitReturn)
@@ -112,175 +90,7 @@ namespace AgileObjects.AgileMapper.DataSources
         }
 
         public Expression GetMatchingKeyAssignment()
-            => GetMatchingKeyAssignment(GetTargetMemberDictionaryKey());
-
-        private Expression GetTargetMemberDictionaryKey()
-        {
-            var configuredKey = MapperData.MapperContext
-                .UserConfigurations
-                .Dictionaries
-                .GetFullKeyOrNull(MapperData);
-
-            if (configuredKey != null)
-            {
-                return configuredKey;
-            }
-
-            var keyParts = GetTargetMemberDictionaryKeyParts(MapperData);
-
-            OptimiseNamePartsForStringConcat(keyParts);
-
-            if (keyParts.HasOne() && (keyParts.First().NodeType == ExpressionType.Constant))
-            {
-                return keyParts.First();
-            }
-
-            return GetStringConcatCall(keyParts);
-        }
-
-        private static IList<Expression> GetTargetMemberDictionaryKeyParts(IMemberMapperData mapperData)
-        {
-            var joinedName = string.Empty;
-            var memberPartExpressions = new List<Expression>();
-            var joinedNameIsConstant = true;
-            var parentCounterInaccessible = false;
-            Expression parentContextAccess = null;
-
-            while (!mapperData.IsRoot)
-            {
-                parentCounterInaccessible =
-                    parentCounterInaccessible ||
-                    mapperData.Context.IsStandalone ||
-                    mapperData.TargetMember.IsRecursionRoot();
-
-                if (mapperData.TargetMemberIsEnumerableElement())
-                {
-                    var index = GetEnumerableIndexAccess(parentContextAccess, mapperData);
-                    AddEnumerableMemberNamePart(memberPartExpressions, mapperData, index);
-                    joinedNameIsConstant = false;
-                }
-                else
-                {
-                    if (parentCounterInaccessible && (parentContextAccess == null))
-                    {
-                        parentContextAccess = mapperData.MappingDataObject;
-                    }
-
-                    var namePart = AddMemberNamePart(memberPartExpressions, mapperData);
-                    joinedNameIsConstant = joinedNameIsConstant && namePart.NodeType == ExpressionType.Constant;
-
-                    if (joinedNameIsConstant)
-                    {
-                        joinedName = (string)((ConstantExpression)namePart).Value + joinedName;
-                    }
-                }
-
-                mapperData = mapperData.Parent;
-            }
-
-            if (joinedNameIsConstant)
-            {
-                memberPartExpressions.Clear();
-                memberPartExpressions.Add(joinedName.ToConstantExpression());
-            }
-
-            return memberPartExpressions;
-        }
-
-        private static Expression GetEnumerableIndexAccess(Expression parentContextAccess, IMemberMapperData mapperData)
-        {
-            if (parentContextAccess == null)
-            {
-                return mapperData.Parent.EnumerablePopulationBuilder.Counter;
-            }
-
-            var mappingDataType = typeof(IMappingData<,>)
-                .MakeGenericType(parentContextAccess.Type.GetGenericArguments());
-
-            var enumerableIndexProperty = mappingDataType.GetProperty("EnumerableIndex");
-
-            return Expression.Property(parentContextAccess, enumerableIndexProperty);
-        }
-
-        private static void AddEnumerableMemberNamePart(
-            List<Expression> memberPartExpressions,
-            IMemberMapperData mapperData,
-            Expression index)
-        {
-            var elementKeyParts = GetTargetMemberDictionaryElementKeyParts(index, mapperData);
-
-            memberPartExpressions.InsertRange(0, elementKeyParts);
-        }
-
-        private static IEnumerable<Expression> GetTargetMemberDictionaryElementKeyParts(
-            Expression index,
-            IMemberMapperData mapperData)
-        {
-            return mapperData.MapperContext.UserConfigurations.Dictionaries.GetElementKeyParts(index, mapperData);
-        }
-
-        private static Expression AddMemberNamePart(
-            IList<Expression> memberPartExpressions,
-            IMemberMapperData mapperData)
-        {
-            var dictionarySettings = mapperData.MapperContext.UserConfigurations.Dictionaries;
-
-            var memberName = dictionarySettings
-                .GetMemberKeyOrNull(mapperData) ?? mapperData.TargetMember.LeafMember.JoiningName;
-
-            var memberNamePart = dictionarySettings.GetJoiningName(memberName, mapperData);
-
-            memberPartExpressions.Insert(0, memberNamePart);
-
-            return memberNamePart;
-        }
-
-        private static Expression GetStringConcatCall(ICollection<Expression> elements)
-        {
-            if (_stringConcatMethods.Length >= elements.Count - 1)
-            {
-                var concatMethod = _stringConcatMethods[elements.Count - 2];
-
-                return Expression.Call(null, concatMethod, elements);
-            }
-
-            var emptyString = Expression.Field(null, typeof(string), "Empty");
-            var newStringArray = Expression.NewArrayInit(typeof(string), elements);
-
-            return Expression.Call(null, _stringJoinMethod, emptyString, newStringArray);
-        }
-
-        private static void OptimiseNamePartsForStringConcat(IList<Expression> nameParts)
-        {
-            if (nameParts.HasOne())
-            {
-                return;
-            }
-
-            var currentNamePart = string.Empty;
-
-            for (var i = nameParts.Count - 1; i >= 0; --i)
-            {
-                var namePart = nameParts[i];
-
-                if (namePart.NodeType == ExpressionType.Constant)
-                {
-                    if ((i == 0) && (currentNamePart == string.Empty))
-                    {
-                        return;
-                    }
-
-                    currentNamePart = (string)((ConstantExpression)namePart).Value + currentNamePart;
-                    nameParts.RemoveAt(i);
-                    continue;
-                }
-
-                nameParts.Insert(i + 1, currentNamePart.ToConstantExpression());
-                currentNamePart = string.Empty;
-            }
-
-            nameParts.Insert(0, currentNamePart.ToConstantExpression());
-        }
+            => GetMatchingKeyAssignment(MapperData.GetTargetMemberDictionaryKey());
 
         public Expression GetMatchingKeyAssignment(Expression targetMemberKey)
         {
