@@ -32,13 +32,13 @@
                 yield return parentMember;
             }
 
-            var relevantMembers = GlobalContext
+            var relevantSourceMembers = GlobalContext
                 .Instance
                 .MemberFinder
                 .GetSourceMembers(parentMember.Type)
-                .Where(m => (m.IsSimple && rootData.MapperData.TargetMember.IsSimple) || !m.IsSimple);
+                .Where(sourceMember => MembersHaveCompatibleTypes(sourceMember, rootData));
 
-            foreach (var sourceMember in relevantMembers)
+            foreach (var sourceMember in relevantSourceMembers)
             {
                 var childMember = parentMember.Append(sourceMember);
 
@@ -53,6 +53,23 @@
                     yield return qualifiedMember;
                 }
             }
+        }
+
+        private static bool MembersHaveCompatibleTypes(Member sourceMember, IChildMemberMappingData rootData)
+        {
+            if (!sourceMember.IsSimple)
+            {
+                return true;
+            }
+
+            var targetMember = rootData.MapperData.TargetMember;
+
+            if (targetMember.IsSimple)
+            {
+                return true;
+            }
+
+            return targetMember.Type == typeof(object);
         }
 
         private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMapperData mapperData)

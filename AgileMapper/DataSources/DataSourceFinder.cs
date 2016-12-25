@@ -164,14 +164,14 @@
             int dataSourceIndex,
             IChildMemberMappingData childMappingData)
         {
-            var childTargeMember = childMappingData.MapperData.TargetMember;
+            var childTargetMember = childMappingData.MapperData.TargetMember;
 
-            if (UseComplexTypeDataSource(childTargeMember))
+            if (UseComplexTypeDataSource(foundDataSource, childTargetMember))
             {
                 return new ComplexTypeMappingDataSource(foundDataSource, dataSourceIndex, childMappingData);
             }
 
-            if (childTargeMember.IsEnumerable)
+            if (childTargetMember.IsEnumerable)
             {
                 return new EnumerableMappingDataSource(foundDataSource, dataSourceIndex, childMappingData);
             }
@@ -179,7 +179,7 @@
             return foundDataSource;
         }
 
-        private static bool UseComplexTypeDataSource(QualifiedMember targetMember)
+        private static bool UseComplexTypeDataSource(IDataSource dataSource, QualifiedMember targetMember)
         {
             if (!targetMember.IsComplex)
             {
@@ -188,7 +188,7 @@
 
             if (targetMember.Type == typeof(object))
             {
-                return true;
+                return !dataSource.SourceMember.Type.IsSimple();
             }
 
             return !targetMember.Type.IsFromBcl();

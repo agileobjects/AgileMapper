@@ -62,5 +62,14 @@
             result.ShouldNotBeNull();
             result.Value.ShouldBe("Oi 'Arry!");
         }
+
+        [Fact]
+        public void ShouldMapFromASimpleTypeToObject()
+        {
+            var source = new PublicProperty<string> { Value = "Oi 'Arold!" };
+            var result = Mapper.Map(source).ToANew<PublicField<object>>();
+
+            result.Value.ShouldBe("Oi 'Arold!");
+        }
     }
 }
