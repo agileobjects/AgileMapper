@@ -62,7 +62,6 @@
             }
 
             var conflictingJoiningName = _joiningNameFactories
-                .Where(jnf => !jnf.IsDefault && (jnf.IsGlobal == joiningNameFactory.IsGlobal))
                 .FirstOrDefault(jnf => jnf.ConflictsWith(joiningNameFactory));
 
             if (conflictingJoiningName == null)
@@ -70,30 +69,22 @@
                 return;
             }
 
-            var targetDescription = conflictingJoiningName.IsGlobal
-                ? "globally"
-                : "for target type " + joiningNameFactory.TargetType.GetFriendlyName();
-
-            var separatorDescription = conflictingJoiningName.IsFlattened
-                ? "flattened"
-                : "separated with '" + conflictingJoiningName.Separator + "'";
-
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
                 "Member names are already configured {0} to be {1}",
-                targetDescription,
-                separatorDescription));
+                conflictingJoiningName.TargetScopeDescription,
+                conflictingJoiningName.SeparatorDescription));
         }
 
-        public Expression GetJoiningName(string memberName, IMemberMapperData mapperData)
-            => _joiningNameFactories.FindMatch(mapperData).GetJoiningName(memberName, mapperData);
+        public Expression GetJoiningName(Member member, IMemberMapperData mapperData)
+            => _joiningNameFactories.FindMatch(mapperData).GetJoiningName(member, mapperData);
 
         public void Add(ElementKeyPartFactory keyPartFactory)
         {
             _elementKeyPartFactories.Insert(0, keyPartFactory);
         }
 
-        public IEnumerable<Expression> GetElementKeyParts(Expression index, IMemberMapperData mapperData)
-            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyParts(index, mapperData);
+        public IEnumerable<Expression> GetElementKeyParts(Expression index, IBasicMapperData mapperData)
+            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyParts(index);
     }
 }

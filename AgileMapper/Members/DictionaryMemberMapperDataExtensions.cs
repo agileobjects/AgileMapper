@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
 
@@ -31,14 +32,14 @@ namespace AgileObjects.AgileMapper.Members
             var parentCounterInaccessible = false;
             Expression parentContextAccess = null;
 
-            while (!mapperData.IsRoot)
+            foreach (var targetMember in mapperData.TargetMember.MemberChain.Reverse().TakeWhile(m => !m.IsRoot))
             {
                 parentCounterInaccessible =
                     parentCounterInaccessible ||
                     mapperData.Context.IsStandalone ||
                     mapperData.TargetMember.IsRecursionRoot();
 
-                if (mapperData.TargetMemberIsEnumerableElement())
+                if (targetMember.IsEnumerableElement())
                 {
                     var index = GetEnumerableIndexAccess(parentContextAccess, mapperData);
                     AddEnumerableMemberNamePart(memberPartExpressions, mapperData, index);
@@ -51,7 +52,7 @@ namespace AgileObjects.AgileMapper.Members
                         parentContextAccess = mapperData.MappingDataObject;
                     }
 
-                    var namePart = AddMemberNamePart(memberPartExpressions, mapperData);
+                    var namePart = AddMemberNamePart(memberPartExpressions, targetMember, mapperData);
                     joinedNameIsConstant = joinedNameIsConstant && namePart.NodeType == ExpressionType.Constant;
 
                     if (joinedNameIsConstant)
@@ -60,7 +61,10 @@ namespace AgileObjects.AgileMapper.Members
                     }
                 }
 
-                mapperData = mapperData.Parent;
+                if (!mapperData.Parent.IsRoot)
+                {
+                    mapperData = mapperData.Parent;
+                }
             }
 
             if (joinedNameIsConstant)
@@ -106,14 +110,13 @@ namespace AgileObjects.AgileMapper.Members
 
         private static Expression AddMemberNamePart(
             IList<Expression> memberPartExpressions,
+            Member targetMember,
             IMemberMapperData mapperData)
         {
-            var dictionarySettings = mapperData.MapperContext.UserConfigurations.Dictionaries;
-
-            var memberName = dictionarySettings
-                                 .GetMemberKeyOrNull(mapperData) ?? mapperData.TargetMember.LeafMember.JoiningName;
-
-            var memberNamePart = dictionarySettings.GetJoiningName(memberName, mapperData);
+            var memberNamePart = mapperData.MapperContext
+                .UserConfigurations
+                .Dictionaries
+                .GetJoiningName(targetMember, mapperData);
 
             memberPartExpressions.Insert(0, memberNamePart);
 

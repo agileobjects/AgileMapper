@@ -2,9 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
-    using DataSources;
     using Extensions;
     using Members;
     using ReadableExpressions;
@@ -59,7 +57,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.IsRoot)
+            if (mapperData.TargetType.IsDictionary())
             {
                 var objectValue = Expression.New(mapperData.TargetType);
 
@@ -69,89 +67,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
-            foreach (var population in GetMemberPopulations(mapperData.SourceType, targetDictionaryMember, mappingData))
+            var allTargetMembers = EnumerateTargetMembers(mapperData.SourceType, targetDictionaryMember);
+            var memberPopulations = MemberPopulationFactory.Create(allTargetMembers, mappingData);
+
+            foreach (var memberPopulation in memberPopulations)
             {
-                yield return population;
+                yield return memberPopulation.GetPopulation();
             }
         }
 
-        private static IEnumerable<Expression> GetMemberPopulations(
-            Type parentType,
-            DictionaryTargetMember targetDictionaryMember,
-            IObjectMappingData mappingData)
+        private static IEnumerable<QualifiedMember> EnumerateTargetMembers(
+            Type parentSourceType,
+            DictionaryTargetMember targetDictionaryMember)
         {
-            var mapperData = mappingData.MapperData;
-            var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(parentType);
+            var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(parentSourceType);
 
             foreach (var sourceMember in sourceMembers)
             {
-                var qualifiedSourceMember = mapperData.SourceMember.Append(sourceMember);
                 var entryTargetMember = targetDictionaryMember.Append(sourceMember.Name);
 
                 if (sourceMember.IsSimple)
                 {
-                    yield return GetSimpleMemberPopulation(
-                        qualifiedSourceMember,
-                        entryTargetMember,
-                        targetDictionaryMember,
-                        mapperData);
-
+                    yield return entryTargetMember;
                     continue;
                 }
 
-                if (sourceMember.IsComplex)
+                foreach (var childTargetMember in EnumerateTargetMembers(sourceMember.Type, entryTargetMember))
                 {
-                    yield return GetNestedMemberPopulations(
-                        qualifiedSourceMember,
-                        entryTargetMember,
-                        mappingData);
+                    yield return childTargetMember;
                 }
             }
-        }
-
-        private static Expression GetSimpleMemberPopulation(
-            IQualifiedMember sourceMember,
-            DictionaryTargetMember entryTargetMember,
-            DictionaryTargetMember targetDictionaryMember,
-            ObjectMapperData mapperData)
-        {
-            var entryMapperData = new ChildMemberMapperData(entryTargetMember, mapperData);
-            var sourceMemberDataSource = SourceMemberDataSource.For(sourceMember, entryMapperData);
-            var population = targetDictionaryMember.GetPopulation(sourceMemberDataSource.Value, entryMapperData);
-
-            return population;
-        }
-
-        private static Expression GetNestedMemberPopulations(
-            IQualifiedMember sourceMember,
-            QualifiedMember entryTargetMember,
-            IObjectMappingData mappingData)
-        {
-            var mapperData = mappingData.MapperData;
-
-            var childMappingData = ObjectMappingDataFactory.ForChild(
-                sourceMember,
-                entryTargetMember,
-                0,
-                mappingData);
-
-            var mappingValues = new MappingValues(
-                sourceMember.GetQualifiedAccess(mapperData.SourceObject),
-                entryTargetMember.Type.ToDefaultExpression(),
-                mapperData.EnumerableIndex);
-
-            var childMappingBlock = (TryExpression)MappingFactory.GetChildMapping(
-                childMappingData,
-                mappingValues,
-                0,
-                mapperData);
-
-            var mappingBlock = (BlockExpression)childMappingBlock.Body;
-
-            mappingBlock = Expression.Block(
-                mappingBlock.Expressions.Take(mappingBlock.Expressions.Count - 1));
-
-            return mappingBlock;
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;

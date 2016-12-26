@@ -15,7 +15,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
@@ -462,7 +461,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 MappingDataObject,
                 _mapChildMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
-                targetMember.GetAccess(InstanceVariable),
+                targetMember.GetAccess(InstanceVariable, this),
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());
 
@@ -495,7 +494,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 EntryPointMapperData.MappingDataObject,
                 _mapRecursionMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
-                targetMember.GetAccess(InstanceVariable),
+                targetMember.GetAccess(InstanceVariable, this),
                 EnumerableIndex,
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());

@@ -5,46 +5,10 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
-    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal static class MemberExtensions
     {
-        #region AccessFactoriesByMemberType
-
-        private static readonly Dictionary<MemberType, Func<Expression, Member, Expression>> _accessFactoriesByMemberType =
-            new Dictionary<MemberType, Func<Expression, Member, Expression>>
-            {
-                { MemberType.Field, (instance, member) => Expression.Field(instance, FindMember<FieldInfo>(member)) },
-                { MemberType.Property, (instance, member) => Expression.Property(instance, FindMember<PropertyInfo>(member)) },
-                { MemberType.GetMethod, (instance, member) => Expression.Call(instance, FindMember<MethodInfo>(member)) }
-            };
-
-        private static TMemberInfo FindMember<TMemberInfo>(Member member)
-            where TMemberInfo : MemberInfo
-            => (TMemberInfo)member.DeclaringType.GetPublicInstanceMember(member.Name).First();
-
-        #endregion
-
-        public static Expression GetAccess(this Member member, Expression instance)
-        {
-            if (!member.IsReadable)
-            {
-                return member.Type.ToDefaultExpression();
-            }
-
-            if (!member.DeclaringType.IsAssignableFrom(instance.Type))
-            {
-                instance = Expression.Convert(instance, member.DeclaringType);
-            }
-
-            var accessFactory = _accessFactoriesByMemberType[member.MemberType];
-            var access = accessFactory.Invoke(instance, member);
-
-            return access;
-        }
-
         public static string GetFullName(this IEnumerable<Member> members)
             => string.Join(string.Empty, members.Select(m => m.JoiningName));
 

@@ -1,6 +1,10 @@
 namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
+#if !NET_STANDARD
+    using System.Linq;
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
@@ -123,5 +127,13 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             return population;
         }
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public override string ToString()
+            => MapperData.TargetMember + " (" + _dataSources.Count() + " data source(s))";
     }
 }

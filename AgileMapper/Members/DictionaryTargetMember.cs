@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.Members
         private DictionaryTargetMember(
             QualifiedMember wrappedTargetMember,
             DictionaryTargetMember rootDictionaryMember)
-            : base((Member[])wrappedTargetMember.MemberChain, wrappedTargetMember)
+            : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
         {
             KeyType = rootDictionaryMember.KeyType;
             ValueType = rootDictionaryMember.ValueType;
@@ -54,16 +54,23 @@ namespace AgileObjects.AgileMapper.Members
             return new DictionaryTargetMember(qualifiedTargetEntryMember, _rootDictionaryMember);
         }
 
-        public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
+        public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)
         {
             var index = mapperData.GetTargetMemberDictionaryKey();
 
-            while (!mapperData.IsRoot)
+            while (!mapperData.TargetType.IsDictionary())
             {
                 mapperData = mapperData.Parent;
             }
 
             var indexAccess = mapperData.InstanceVariable.GetIndexAccess(index);
+
+            return indexAccess;
+        }
+
+        public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
+        {
+            var indexAccess = GetAccess(mapperData.InstanceVariable, mapperData);
             var indexAssignment = Expression.Assign(indexAccess, value);
 
             return indexAssignment;

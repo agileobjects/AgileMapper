@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Linq.Expressions;
 #if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
 #endif
@@ -11,25 +12,48 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class Member
     {
-        public Member(
+        private readonly MemberInfo _memberInfo;
+        private readonly Func<Expression, MemberInfo, Expression> _accessFactory;
+
+        private Member(
+            MemberType memberType,
+            Type type,
+            MemberInfo memberInfo,
+            Func<Expression, MemberInfo, Expression> accessFactory = null,
+            bool isWriteable = true,
+            bool isRoot = false)
+            : this(
+                  memberType,
+                  memberInfo.Name,
+                  memberInfo.DeclaringType,
+                  type,
+                  accessFactory,
+                  isWriteable,
+                  isRoot)
+        {
+            _memberInfo = memberInfo;
+        }
+
+        private Member(
             MemberType memberType,
             string name,
             Type declaringType,
             Type type,
+            Func<Expression, MemberInfo, Expression> accessFactory = null,
             bool isWriteable = true,
             bool isRoot = false)
         {
             MemberType = memberType;
             Name = name;
-            JoiningName = (isRoot || this.IsEnumerableElement()) ? name : "." + name;
-            IsRoot = isRoot;
-            IsIdentifier = IsIdMember(name, declaringType);
             DeclaringType = declaringType;
             Type = type;
-
-            IsReadable = memberType.IsReadable();
+            _accessFactory = accessFactory;
             IsWriteable = isWriteable;
+            IsRoot = isRoot;
 
+            JoiningName = (isRoot || this.IsEnumerableElement()) ? name : "." + name;
+            IsIdentifier = IsIdMember(name, declaringType);
+            IsReadable = memberType.IsReadable();
             IsEnumerable = type.IsEnumerable();
 
             if (IsEnumerable)
@@ -77,19 +101,45 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public static Member ConstructorParameter(ParameterInfo parameter)
-            => new Member(MemberType.ConstructorParameter, parameter.Name, parameter.Member.DeclaringType, parameter.ParameterType);
+        {
+            return new Member(
+                MemberType.ConstructorParameter,
+                parameter.Name,
+                parameter.Member.DeclaringType,
+                parameter.ParameterType);
+        }
 
         public static Member Field(FieldInfo field)
-            => new Member(MemberType.Field, field.Name, field.DeclaringType, field.FieldType, !field.IsInitOnly);
+        {
+            return new Member(
+                MemberType.Field,
+                field.FieldType,
+                field,
+                (instance, f) => Expression.Field(instance, (FieldInfo)f),
+                !field.IsInitOnly);
+        }
 
         public static Member Property(PropertyInfo property)
-            => new Member(MemberType.Property, property.Name, property.DeclaringType, property.PropertyType, property.IsWriteable());
+        {
+            return new Member(
+                MemberType.Property,
+                property.PropertyType,
+                property,
+                (instance, p) => Expression.Property(instance, (PropertyInfo)p),
+                property.IsWriteable());
+        }
 
         public static Member GetMethod(MethodInfo method)
-            => new Member(MemberType.GetMethod, method.Name, method.DeclaringType, method.ReturnType);
+        {
+            return new Member(
+                MemberType.GetMethod,
+                method.ReturnType,
+                method,
+                (instance, m) => Expression.Call(instance, (MethodInfo)m));
+        }
 
         public static Member SetMethod(MethodInfo method)
-            => new Member(MemberType.SetMethod, method.Name, method.DeclaringType, method.GetParameters()[0].ParameterType);
+            => new Member(MemberType.SetMethod, method.GetParameters()[0].ParameterType, method);
 
         public static Member EnumerableElement(Type enumerableType, Type elementType = null)
         {
@@ -101,7 +151,13 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public static Member DictionaryEntry(string sourceMemberName, DictionaryTargetMember targetMember)
-            => new Member(MemberType.DictionaryEntry, sourceMemberName, targetMember.Type, targetMember.ValueType);
+        {
+            return new Member(
+                MemberType.DictionaryEntry,
+                sourceMemberName,
+                targetMember.Type,
+                targetMember.ValueType);
+        }
 
         #endregion
 
@@ -131,11 +187,46 @@ namespace AgileObjects.AgileMapper.Members
 
         public MemberType MemberType { get; }
 
+        public Expression GetAccess(Expression instance)
+        {
+            if (!IsReadable)
+            {
+                return Type.ToDefaultExpression();
+            }
+
+            if (!DeclaringType.IsAssignableFrom(instance.Type))
+            {
+                instance = Expression.Convert(instance, DeclaringType);
+            }
+
+            return _accessFactory.Invoke(instance, _memberInfo);
+        }
+
         public Member WithType(Type runtimeType)
         {
-            return (runtimeType == Type)
-                ? this
-                : new Member(MemberType, Name, DeclaringType, runtimeType);
+            if (runtimeType == Type)
+            {
+                return this;
+            }
+
+            if (_memberInfo != null)
+            {
+                return new Member(
+                    MemberType,
+                    runtimeType,
+                    _memberInfo,
+                    _accessFactory,
+                    IsWriteable,
+                    IsRoot);
+            }
+
+            return new Member(
+                MemberType,
+                Name,
+                DeclaringType,
+                runtimeType,
+                isWriteable: IsWriteable,
+                isRoot: IsRoot);
         }
 
         private static class SourceMemberCache<T>

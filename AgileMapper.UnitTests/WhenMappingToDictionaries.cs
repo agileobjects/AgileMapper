@@ -52,6 +52,17 @@
         }
 
         [Fact]
+        public void ShouldHandleANullComplexTypeMember()
+        {
+            var source = new MysteryCustomer { Name = "Richie", Address = null };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, string>>();
+
+            result["Name"].ShouldBe("Richie");
+            result.ContainsKey("Address.Line1").ShouldBeFalse();
+            result.ContainsKey("Address.Line2").ShouldBeFalse();
+        }
+
+        [Fact]
         public void ShouldHandleAnInvalidKeyTypeTargetDictionary()
         {
             var source = new PublicField<string> { Value = "DateTime keys?!" };

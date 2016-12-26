@@ -4,23 +4,27 @@
     using System.Linq.Expressions;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class JoiningNameFactory : UserConfiguredItemBase
     {
-        private readonly Func<string, string, IBasicMapperData, Expression> _joinedNameFactory;
+        private readonly string _separator;
+        private readonly Func<string, Member, IMemberMapperData, Expression> _joinedNameFactory;
+        private readonly Type _targetType;
+        private readonly bool _isDefault;
+        private readonly bool _isGlobal;
 
         private JoiningNameFactory(
             string separator,
-            Func<string, string, IBasicMapperData, Expression> joinedNameFactory,
+            Func<string, Member, IMemberMapperData, Expression> joinedNameFactory,
             MappingConfigInfo configInfo)
             : base(configInfo)
         {
-            Separator = separator;
+            _separator = separator;
             _joinedNameFactory = joinedNameFactory;
-            TargetType = configInfo.TargetType;
-            IsDefault = HasDefault(separator);
-            IsFlattened = !IsDefault && (separator == string.Empty);
-            IsGlobal = TargetType == typeof(object);
+            _targetType = configInfo.TargetType;
+            _isDefault = HasDefault(separator);
+            _isGlobal = _targetType == typeof(object);
         }
 
         #region Factory Methods
@@ -36,44 +40,77 @@
 
         #endregion
 
-        public Type TargetType { get; }
+        public string TargetScopeDescription
+            => _isGlobal ? "globally" : "for target type " + _targetType.GetFriendlyName();
 
-        public bool IsGlobal { get; }
+        public string SeparatorDescription
+            => IsFlattened ? "flattened" : "separated with '" + _separator + "'";
 
-        public bool IsDefault { get; }
+        private bool IsFlattened => !_isDefault && (_separator == string.Empty);
 
-        public bool IsFlattened { get; }
-
-        public string Separator { get; }
-
-        public Expression GetJoiningName(string name, IMemberMapperData mapperData)
-            => _joinedNameFactory.Invoke(Separator, name, mapperData);
-
-        private static Expression HandleLeadingSeparator(string separator, string name, IBasicMapperData mapperData)
+        public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {
+            if (_isDefault)
+            {
+                return false;
+            }
+
+            if (_isGlobal != ((JoiningNameFactory)otherConfiguredItem)._isGlobal)
+            {
+                return false;
+            }
+
+            return base.ConflictsWith(otherConfiguredItem);
+        }
+
+        public Expression GetJoiningName(Member member, IMemberMapperData mapperData)
+            => _joinedNameFactory.Invoke(_separator, member, mapperData);
+
+        private static Expression HandleLeadingSeparator(string separator, Member member, IMemberMapperData mapperData)
+        {
+            var memberName = GetJoiningNamePart(member, mapperData);
+            var isRootMember = Array.IndexOf(mapperData.TargetMember.MemberChain, member, 0) == 1;
+
             if (!HasDefault(separator))
             {
-                name = name.Replace(".", separator);
+                memberName = memberName.Replace(".", separator);
             }
 
-            if (name.StartsWith(separator))
+            if (memberName.StartsWith(separator))
             {
-                if (mapperData.Parent.IsRoot)
+                if (isRootMember)
                 {
-                    name = name.Substring(separator.Length);
+                    memberName = memberName.Substring(separator.Length);
                 }
             }
-            else if (!mapperData.Parent.IsRoot)
+            else if (!isRootMember)
             {
-                name = separator + name;
+                memberName = separator + memberName;
             }
 
-            return name.ToConstantExpression();
+            return memberName.ToConstantExpression();
+        }
+
+        private static string GetJoiningNamePart(Member member, IMemberMapperData mapperData)
+        {
+            var dictionarySettings = mapperData.MapperContext.UserConfigurations.Dictionaries;
+            var memberName = dictionarySettings.GetMemberKeyOrNull(mapperData) ?? member.JoiningName;
+
+            return memberName;
         }
 
         private static bool HasDefault(string separator) => separator == ".";
 
-        private static Expression Flatten(string separator, string name, IBasicMapperData mapperData)
-            => (name.StartsWith('.') ? name.Substring(1) : name).ToConstantExpression();
+        private static Expression Flatten(string separator, Member member, IMemberMapperData mapperData)
+        {
+            var memberName = GetJoiningNamePart(member, mapperData);
+
+            if (memberName.StartsWith('.'))
+            {
+                memberName = memberName.Substring(1);
+            }
+
+            return memberName.ToConstantExpression();
+        }
     }
 }

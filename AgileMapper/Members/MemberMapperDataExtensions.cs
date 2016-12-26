@@ -35,7 +35,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             return mapperData.Context.IsStandalone
                 ? mapperData.TargetObject
-                : mapperData.TargetMember.GetAccess(mapperData.InstanceVariable);
+                : mapperData.TargetMember.GetAccess(mapperData.InstanceVariable, mapperData);
         }
 
         public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)

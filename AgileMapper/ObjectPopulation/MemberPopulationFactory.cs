@@ -10,17 +10,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
         {
-            return GlobalContext
+            var targetMembers = GlobalContext
                 .Instance
                 .MemberFinder
                 .GetTargetMembers(mappingData.MapperData.TargetType)
-                .Select(targetMember => Create(targetMember, mappingData));
+                .Select(targetMember => mappingData.MapperData.TargetMember.Append(targetMember));
+
+            return Create(targetMembers, mappingData);
         }
 
-        private static IMemberPopulation Create(Member targetMember, IObjectMappingData mappingData)
+        public static IEnumerable<IMemberPopulation> Create(
+            IEnumerable<QualifiedMember> targetMembers,
+            IObjectMappingData mappingData)
         {
-            var qualifiedMember = mappingData.MapperData.TargetMember.Append(targetMember);
-            var childMapperData = new ChildMemberMapperData(qualifiedMember, mappingData.MapperData);
+            return targetMembers.Select(tm => Create(tm, mappingData));
+        }
+
+        private static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
+        {
+            var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 
             Expression populateCondition;
 

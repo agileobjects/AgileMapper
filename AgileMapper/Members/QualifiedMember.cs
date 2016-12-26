@@ -16,7 +16,6 @@ namespace AgileObjects.AgileMapper.Members
         public static readonly QualifiedMember All = new QualifiedMember(Enumerable<Member>.EmptyArray, null, null);
         public static readonly QualifiedMember None = new QualifiedMember(Enumerable<Member>.EmptyArray, null, null);
 
-        private readonly Member[] _memberChain;
         private readonly MapperContext _mapperContext;
         private readonly Func<string> _pathFactory;
         private readonly ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
@@ -39,9 +38,9 @@ namespace AgileObjects.AgileMapper.Members
                 return;
             }
 
-            _memberChain = memberChain;
+            MemberChain = memberChain;
             JoinedNames = joinedNames;
-            _pathFactory = () => _memberChain.GetFullName();
+            _pathFactory = () => MemberChain.GetFullName();
             IsRecursive = DetermineRecursion();
         }
 
@@ -52,13 +51,13 @@ namespace AgileObjects.AgileMapper.Members
 
             if (parent == null)
             {
-                _memberChain = new[] { member };
+                MemberChain = new[] { member };
                 JoinedNames = memberMatchingNames;
-                _pathFactory = () => _memberChain[0].JoiningName;
+                _pathFactory = () => MemberChain[0].JoiningName;
                 return;
             }
 
-            _memberChain = parent._memberChain.Append(member);
+            MemberChain = parent.MemberChain.Append(member);
             JoinedNames = parent.JoinedNames.ExtendWith(memberMatchingNames, mapperContext);
 
             _pathFactory = () => parent.GetPath() + member.JoiningName;
@@ -93,7 +92,7 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            if (_memberChain.Length < 3)
+            if (MemberChain.Length < 3)
             {
                 // Need at least 3 members for recursion: 
                 // Foo -> Foo.ChildFoo -> Foo.ChildFoo.ChildFoo
@@ -107,9 +106,9 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            for (var i = _memberChain.Length - 2; i > 0; --i)
+            for (var i = MemberChain.Length - 2; i > 0; --i)
             {
-                if (LeafMember == _memberChain[i])
+                if (LeafMember == MemberChain[i])
                 {
                     return true;
                 }
@@ -138,7 +137,7 @@ namespace AgileObjects.AgileMapper.Members
 
         #endregion
 
-        public IEnumerable<Member> MemberChain => _memberChain;
+        public Member[] MemberChain { get; }
 
         public Member LeafMember { get; }
 
@@ -178,9 +177,9 @@ namespace AgileObjects.AgileMapper.Members
 
             var recursedMember = default(Member);
 
-            for (var i = _memberChain.Length - 2; i > 0; --i)
+            for (var i = MemberChain.Length - 2; i > 0; --i)
             {
-                var member = _memberChain[i];
+                var member = MemberChain[i];
 
                 if (member != LeafMember)
                 {
@@ -217,14 +216,14 @@ namespace AgileObjects.AgileMapper.Members
         {
             var otherQualifiedMember = (QualifiedMember)otherMember;
 
-            if ((otherQualifiedMember.LeafMember == _memberChain[0]) &&
-                otherQualifiedMember._memberChain[0].IsRoot &&
-                ((otherQualifiedMember._memberChain.Length + 1) == _memberChain.Length))
+            if ((otherQualifiedMember.LeafMember == MemberChain[0]) &&
+                otherQualifiedMember.MemberChain[0].IsRoot &&
+                ((otherQualifiedMember.MemberChain.Length + 1) == MemberChain.Length))
             {
                 return this;
             }
 
-            var relativeMemberChain = _memberChain.RelativeTo(otherQualifiedMember._memberChain);
+            var relativeMemberChain = MemberChain.RelativeTo(otherQualifiedMember.MemberChain);
 
             return new QualifiedMember(relativeMemberChain, this);
         }
@@ -240,14 +239,14 @@ namespace AgileObjects.AgileMapper.Members
 
             var runtimeTypedMember = _runtimeTypedMemberCache.GetOrAdd(runtimeType, rt =>
             {
-                var newMemberChain = new Member[_memberChain.Length];
+                var newMemberChain = new Member[MemberChain.Length];
 
-                for (var i = 0; i < _memberChain.Length - 1; i++)
+                for (var i = 0; i < MemberChain.Length - 1; i++)
                 {
-                    newMemberChain[i] = _memberChain[i];
+                    newMemberChain[i] = MemberChain[i];
                 }
 
-                newMemberChain[_memberChain.Length - 1] = LeafMember.WithType(rt);
+                newMemberChain[MemberChain.Length - 1] = LeafMember.WithType(rt);
 
                 return new QualifiedMember(newMemberChain, this);
             });
@@ -273,10 +272,11 @@ namespace AgileObjects.AgileMapper.Members
             return otherMember.Matches(this);
         }
 
-        public Expression GetAccess(Expression instance) => LeafMember.GetAccess(instance);
+        public virtual Expression GetAccess(Expression instance, IMemberMapperData mapperData)
+            => LeafMember.GetAccess(instance);
 
         public Expression GetQualifiedAccess(Expression instance)
-            => _memberChain.GetQualifiedAccess(instance);
+            => MemberChain.GetQualifiedAccess(instance);
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD

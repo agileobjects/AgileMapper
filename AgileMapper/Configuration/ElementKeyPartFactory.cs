@@ -4,7 +4,6 @@
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
     using Extensions;
-    using Members;
 
     internal class ElementKeyPartFactory : UserConfiguredItemBase
     {
@@ -75,14 +74,14 @@
 
         #endregion
 
-        public IEnumerable<Expression> GetElementKeyParts(Expression index, IMemberMapperData mapperData)
+        public IEnumerable<Expression> GetElementKeyParts(Expression index)
         {
             if (_prefix != null)
             {
                 yield return _prefix;
             }
 
-            yield return mapperData.MapperContext.ValueConverters.GetConversion(index, typeof(string));
+            yield return ConfigInfo.MapperContext.ValueConverters.GetConversion(index, typeof(string));
 
             if (_suffix != null)
             {
