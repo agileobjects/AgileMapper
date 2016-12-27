@@ -1,8 +1,8 @@
 namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
-#if !NET_STANDARD
     using System.Linq;
+#if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
 #endif
     using System.Linq.Expressions;
