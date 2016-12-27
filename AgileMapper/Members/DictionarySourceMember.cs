@@ -12,10 +12,10 @@ namespace AgileObjects.AgileMapper.Members
     internal class DictionarySourceMember : IQualifiedMember
     {
         private readonly IQualifiedMember _wrappedSourceMember;
-        private readonly QualifiedMember _targetMember;
+        private readonly bool _isEntireDictionaryMatch;
 
         public DictionarySourceMember(IMemberMapperData mapperData)
-            : this(mapperData.SourceMember, mapperData.SourceType, mapperData.TargetMember)
+            : this(mapperData.SourceMember, mapperData.TargetMember)
         {
         }
 
@@ -27,16 +27,16 @@ namespace AgileObjects.AgileMapper.Members
         private DictionarySourceMember(
             IQualifiedMember wrappedSourceMember,
             Type sourceType,
-            QualifiedMember targetMember)
+            QualifiedMember matchedTargetMember)
         {
             _wrappedSourceMember = wrappedSourceMember;
-            _targetMember = targetMember;
+            _isEntireDictionaryMatch = wrappedSourceMember.Matches(matchedTargetMember);
             Type = sourceType;
-            EntryMember = new DictionaryEntrySourceMember(Type.GetGenericArguments()[1], _targetMember, this);
+            EntryMember = new DictionaryEntrySourceMember(Type.GetGenericArguments()[1], matchedTargetMember, this);
             HasObjectEntries = EntryType == typeof(object);
 
             CouldContainSourceInstance =
-                HasObjectEntries || (targetMember.IsEnumerable == EntryType.IsEnumerable());
+                HasObjectEntries || (matchedTargetMember.IsEnumerable == EntryType.IsEnumerable());
         }
 
         public Type Type { get; }
@@ -66,9 +66,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(QualifiedMember otherMember) => _wrappedSourceMember.CouldMatch(otherMember);
 
-        public bool Matches(IQualifiedMember otherMember)
-            => _wrappedSourceMember.Matches(otherMember) || _targetMember.Matches(otherMember);
+        public bool Matches(IQualifiedMember otherMember) => _wrappedSourceMember.Matches(otherMember);
 
-        public Expression GetQualifiedAccess(Expression instance) => EntryMember.GetQualifiedAccess(instance);
+        public Expression GetQualifiedAccess(Expression instance)
+        {
+            return _isEntireDictionaryMatch
+                ? _wrappedSourceMember.GetQualifiedAccess(instance)
+                : EntryMember.GetQualifiedAccess(instance);
+        }
     }
 }

@@ -21,14 +21,13 @@ namespace AgileObjects.AgileMapper.Members
             var dictionaryTypes = wrappedTargetMember.Type.GetGenericArguments();
             KeyType = dictionaryTypes[0];
             ValueType = dictionaryTypes[1];
-
             _rootDictionaryMember = this;
         }
 
         private DictionaryTargetMember(
-            QualifiedMember wrappedTargetMember,
+            QualifiedMember matchedTargetMember,
             DictionaryTargetMember rootDictionaryMember)
-            : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
+            : base(matchedTargetMember.MemberChain, matchedTargetMember)
         {
             KeyType = rootDictionaryMember.KeyType;
             ValueType = rootDictionaryMember.ValueType;
@@ -49,9 +48,9 @@ namespace AgileObjects.AgileMapper.Members
 
         protected override QualifiedMember CreateChildMember(Member childMember)
         {
-            var qualifiedTargetEntryMember = base.CreateChildMember(childMember);
+            var matchedTargetEntryMember = base.CreateChildMember(childMember);
 
-            return new DictionaryTargetMember(qualifiedTargetEntryMember, _rootDictionaryMember);
+            return new DictionaryTargetMember(matchedTargetEntryMember, _rootDictionaryMember);
         }
 
         public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)

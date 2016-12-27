@@ -2,9 +2,9 @@ namespace AgileObjects.AgileMapper.Members.Sources
 {
     internal class RootMembersSource : IMembersSource
     {
-        private readonly RootQualifiedMemberFactory _memberFactory;
+        private readonly QualifiedMemberFactory _memberFactory;
 
-        public RootMembersSource(RootQualifiedMemberFactory memberFactory)
+        public RootMembersSource(QualifiedMemberFactory memberFactory)
         {
             _memberFactory = memberFactory;
         }

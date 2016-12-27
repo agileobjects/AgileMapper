@@ -18,7 +18,8 @@
             Cache = new CacheSet();
             DataSources = new DataSourceFinder();
             NamingSettings = namingSettings ?? new NamingSettings();
-            RootMembersSource = new RootMembersSource(new RootQualifiedMemberFactory(this));
+            QualifiedMemberFactory = new QualifiedMemberFactory(this);
+            RootMembersSource = new RootMembersSource(QualifiedMemberFactory);
             ObjectMapperFactory = new ObjectMapperFactory(this);
             ObjectFlattener = new ObjectFlattener();
             DerivedTypes = new DerivedTypesCache();
@@ -32,6 +33,8 @@
         public DataSourceFinder DataSources { get; }
 
         public NamingSettings NamingSettings { get; }
+
+        public QualifiedMemberFactory QualifiedMemberFactory { get; }
 
         public RootMembersSource RootMembersSource { get; }
 

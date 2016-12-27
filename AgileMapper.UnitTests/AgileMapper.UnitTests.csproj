@@ -124,6 +124,7 @@
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
     <Compile Include="WhenMappingFromDictionaries.cs" />
+    <Compile Include="WhenMappingFromDictionaryMembers.cs" />
     <Compile Include="WhenMappingToConstructors.cs" />
     <Compile Include="WhenMappingToDictionaries.cs" />
     <Compile Include="WhenUsingPartialTrust.cs" />

@@ -3,12 +3,12 @@ namespace AgileObjects.AgileMapper.Members
     using Caching;
     using Extensions;
 
-    internal class RootQualifiedMemberFactory
+    internal class QualifiedMemberFactory
     {
         private readonly MapperContext _mapperContext;
         private readonly ICache<QualifiedMemberKey, IQualifiedMember> _memberCache;
 
-        public RootQualifiedMemberFactory(MapperContext mapperContext)
+        public QualifiedMemberFactory(MapperContext mapperContext)
         {
             _mapperContext = mapperContext;
             _memberCache = mapperContext.Cache.CreateScoped<QualifiedMemberKey, IQualifiedMember>();
@@ -16,36 +16,40 @@ namespace AgileObjects.AgileMapper.Members
 
         public IQualifiedMember RootSource<TSource, TTarget>()
         {
-            var memberKey = QualifiedMemberKey.ForSource<TSource>();
-
             var rootMember = _memberCache.GetOrAdd(
-                memberKey,
+                QualifiedMemberKey.ForSource<TSource>(),
                 k =>
                 {
                     var sourceMember = QualifiedMember.From(Member.RootSource<TSource>(), _mapperContext);
+                    var matchedTargetMember = RootTarget<TTarget>();
 
-                    if (typeof(TSource).IsDictionary())
-                    {
-                        return new DictionarySourceMember(sourceMember, RootTarget<TTarget>());
-                    }
-
-                    return sourceMember;
+                    return GetFinalSourceMember(sourceMember, matchedTargetMember);
                 });
 
             return rootMember;
         }
 
+        public IQualifiedMember GetFinalSourceMember(
+            IQualifiedMember sourceMember,
+            QualifiedMember matchedTargetMember)
+        {
+            if (sourceMember.Type.IsDictionary())
+            {
+                return new DictionarySourceMember(sourceMember, matchedTargetMember);
+            }
+
+            return sourceMember;
+        }
+
         public QualifiedMember RootTarget<TTarget>()
         {
-            var memberKey = QualifiedMemberKey.ForTarget<TTarget>();
-
             var rootMember = _memberCache.GetOrAdd(
-                memberKey,
+                QualifiedMemberKey.ForTarget<TTarget>(),
                 k =>
                 {
                     var targetMember = QualifiedMember.From(Member.RootTarget<TTarget>(), _mapperContext);
 
-                    if (typeof(TTarget).IsDictionary())
+                    if (targetMember.Type.IsDictionary())
                     {
                         return new DictionaryTargetMember(targetMember);
                     }

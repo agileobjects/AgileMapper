@@ -9,8 +9,18 @@
         {
             var rootSourceMember = rootData.MapperData.SourceMember;
 
-            return GetAllSourceMembers(rootSourceMember, rootData)
+            var matchingMember = GetAllSourceMembers(rootSourceMember, rootData)
                 .FirstOrDefault(sm => IsMatchingMember(sm, rootData.MapperData));
+
+            if (matchingMember == null)
+            {
+                return null;
+            }
+
+            return rootData.MapperData
+                .MapperContext
+                .QualifiedMemberFactory
+                .GetFinalSourceMember(matchingMember, rootData.MapperData.TargetMember);
         }
 
         private static IEnumerable<IQualifiedMember> GetAllSourceMembers(

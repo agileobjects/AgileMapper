@@ -29,14 +29,19 @@ namespace AgileObjects.AgileMapper.Members
 
         public static IList<Expression> GetTargetMemberDictionaryKeyParts(this IMemberMapperData mapperData)
         {
-            var joinedName = string.Empty;
+            var joinedName = default(string);
             var memberPartExpressions = new List<Expression>();
             var joinedNameIsConstant = true;
             var parentCounterInaccessible = false;
             Expression parentContextAccess = null;
 
-            foreach (var targetMember in mapperData.TargetMember.MemberChain.Reverse().TakeWhile(m => !m.IsRoot))
+            foreach (var targetMember in mapperData.TargetMember.MemberChain.Reverse())
             {
+                if (RootDictionaryContextReached(targetMember, mapperData))
+                {
+                    break;
+                }
+
                 parentCounterInaccessible =
                     parentCounterInaccessible ||
                     mapperData.Context.IsStandalone ||
@@ -77,6 +82,21 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             return memberPartExpressions;
+        }
+
+        private static bool RootDictionaryContextReached(Member targetMember, IMemberMapperData mapperData)
+        {
+            if (targetMember.IsRoot)
+            {
+                return true;
+            }
+
+            if (!mapperData.SourceType.IsDictionary())
+            {
+                return false;
+            }
+
+            return !mapperData.Parent.SourceType.IsDictionary();
         }
 
         private static Expression GetEnumerableIndexAccess(Expression parentContextAccess, IMemberMapperData mapperData)

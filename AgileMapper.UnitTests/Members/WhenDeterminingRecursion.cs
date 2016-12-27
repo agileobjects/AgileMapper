@@ -10,7 +10,7 @@
         [Fact]
         public void ShouldNotCountARootMemberAsRecursive()
         {
-            var rootMember = new RootQualifiedMemberFactory(DefaultMapperContext)
+            var rootMember = new QualifiedMemberFactory(DefaultMapperContext)
                 .RootTarget<PublicProperty<string>>();
 
             rootMember.IsRecursive.ShouldBeFalse();
