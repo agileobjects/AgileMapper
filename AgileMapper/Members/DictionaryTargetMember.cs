@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly DictionaryTargetMember _rootDictionaryMember;
 
         public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
-            : base((Member[])wrappedTargetMember.MemberChain, wrappedTargetMember)
+            : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
         {
             var dictionaryTypes = wrappedTargetMember.Type.GetGenericArguments();
             KeyType = dictionaryTypes[0];
@@ -57,12 +57,6 @@ namespace AgileObjects.AgileMapper.Members
         public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)
         {
             var index = mapperData.GetTargetMemberDictionaryKey();
-
-            while (!mapperData.TargetType.IsDictionary())
-            {
-                mapperData = mapperData.Parent;
-            }
-
             var indexAccess = mapperData.InstanceVariable.GetIndexAccess(index);
 
             return indexAccess;

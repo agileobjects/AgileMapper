@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System;
     using System.Collections.Generic;
+    using Extensions;
 #if NET_STANDARD
     using System.Reflection;
 #endif
@@ -10,7 +12,7 @@
     {
         public bool IsFor(IMemberMapperData mapperData)
         {
-            if (mapperData.HasUseableSourceDictionary())
+            if (HasUseableSourceDictionary(mapperData))
             {
                 if (mapperData.TargetMember.IsComplex)
                 {
@@ -21,6 +23,41 @@
             }
 
             return false;
+        }
+
+        private static bool HasUseableSourceDictionary(IMemberMapperData mapperData)
+        {
+            if (!mapperData.SourceType.IsDictionary())
+            {
+                return false;
+            }
+
+            var keyAndValueTypes = mapperData.SourceType.GetGenericArguments();
+
+            if (keyAndValueTypes[0] != typeof(string))
+            {
+                return false;
+            }
+
+            var valueType = keyAndValueTypes[1];
+            Type targetType;
+
+            if (mapperData.TargetMember.IsEnumerable)
+            {
+                targetType = mapperData.TargetMember.ElementType;
+
+                if ((valueType == typeof(object)) || (valueType == targetType) ||
+                    targetType.IsComplex() || valueType.IsEnumerable())
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                targetType = mapperData.TargetMember.Type;
+            }
+
+            return mapperData.MapperContext.ValueConverters.CanConvert(valueType, targetType);
         }
 
         public IEnumerable<IMaptimeDataSource> Create(IChildMemberMappingData mappingData)

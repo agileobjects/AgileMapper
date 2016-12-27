@@ -26,13 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
-            var targetMember = mappingData.MapperData.TargetMember as DictionaryTargetMember;
-
-            if (targetMember == null)
-            {
-                nullMappingBlock = null;
-                return false;
-            }
+            var targetMember = (DictionaryTargetMember)mappingData.MapperData.TargetMember;
 
             if ((targetMember.KeyType == typeof(string)) || (targetMember.KeyType == typeof(object)))
             {

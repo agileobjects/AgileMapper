@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             _instanceDictionaryAdapter = new SourceInstanceDictionaryAdapter(sourceMember, builder);
 
-            var targetEnumerableType = builder.TargetTypeHelper.EnumerableInterfaceType;
+            var targetEnumerableType = TargetTypeHelper.EnumerableInterfaceType;
             _emptyTarget = targetEnumerableType.GetEmptyInstanceCreation();
         }
 

@@ -20,6 +20,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public virtual Expression GetSourceValue() => Builder.MapperData.SourceObject;
 
         public virtual bool UseReadOnlyTargetWrapper =>
-            Builder.TargetTypeHelper.IsArray && !Builder.SourceTypeHelper.IsEnumerableInterface;
+            TargetTypeHelper.IsArray && !SourceTypeHelper.IsEnumerableInterface;
     }
 }
