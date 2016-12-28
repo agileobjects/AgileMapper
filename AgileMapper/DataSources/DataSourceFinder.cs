@@ -9,11 +9,11 @@
     {
         private readonly ICollection<IMaptimeDataSourceFactory> _mapTimeDataSourceFactories;
 
-        public DataSourceFinder()
+        public DataSourceFinder(MapperContext mapperContext)
         {
             _mapTimeDataSourceFactories = new List<IMaptimeDataSourceFactory>
             {
-                new DictionaryDataSourceFactory()
+                new DictionaryDataSourceFactory(mapperContext)
             };
         }
 

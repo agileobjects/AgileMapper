@@ -1,14 +1,15 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-    using System.Diagnostics;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq.Expressions;
 #if NET_STANDARD
     using System.Reflection;
 #endif
     using Extensions;
 
-    [DebuggerDisplay("{GetPath()}")]
     internal class DictionarySourceMember : IQualifiedMember
     {
         private readonly IQualifiedMember _wrappedSourceMember;
@@ -74,5 +75,12 @@ namespace AgileObjects.AgileMapper.Members
                 ? _wrappedSourceMember.GetQualifiedAccess(instance)
                 : EntryMember.GetQualifiedAccess(instance);
         }
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public override string ToString() => _wrappedSourceMember.ToString();
     }
 }

@@ -2,15 +2,22 @@
 {
     using System;
     using System.Collections.Generic;
-    using Extensions;
 #if NET_STANDARD
     using System.Reflection;
 #endif
+    using Extensions;
     using Members;
 
     internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
-        public bool IsFor(IMemberMapperData mapperData)
+        private readonly MapperContext _mapperContext;
+
+        public DictionaryDataSourceFactory(MapperContext mapperContext)
+        {
+            _mapperContext = mapperContext;
+        }
+
+        public bool IsFor(IBasicMapperData mapperData)
         {
             if (HasUseableSourceDictionary(mapperData))
             {
@@ -25,7 +32,7 @@
             return false;
         }
 
-        private static bool HasUseableSourceDictionary(IMemberMapperData mapperData)
+        private bool HasUseableSourceDictionary(IBasicMapperData mapperData)
         {
             if (!mapperData.SourceType.IsDictionary())
             {
@@ -57,7 +64,7 @@
                 targetType = mapperData.TargetMember.Type;
             }
 
-            return mapperData.MapperContext.ValueConverters.CanConvert(valueType, targetType);
+            return _mapperContext.ValueConverters.CanConvert(valueType, targetType);
         }
 
         public IEnumerable<IMaptimeDataSource> Create(IChildMemberMappingData mappingData)

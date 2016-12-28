@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System.Linq.Expressions;
     using DataSources;
     using Extensions;
     using Members;

@@ -16,7 +16,7 @@
         public MapperContext(NamingSettings namingSettings = null)
         {
             Cache = new CacheSet();
-            DataSources = new DataSourceFinder();
+            DataSources = new DataSourceFinder(this);
             NamingSettings = namingSettings ?? new NamingSettings();
             QualifiedMemberFactory = new QualifiedMemberFactory(this);
             RootMembersSource = new RootMembersSource(QualifiedMemberFactory);

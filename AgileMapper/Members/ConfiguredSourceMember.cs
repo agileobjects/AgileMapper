@@ -2,10 +2,14 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq.Expressions;
     using Caching;
     using Extensions;
     using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {
@@ -123,5 +127,12 @@ namespace AgileObjects.AgileMapper.Members
                 _mapperContext,
                 _childMembers);
         }
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public override string ToString() => GetPath() + ": " + Type.GetFriendlyName();
     }
 }

@@ -14,8 +14,7 @@
         {
         }
 
-        private DictionaryEntryDataSource(
-            DictionaryEntryVariablePair dictionaryVariables)
+        private DictionaryEntryDataSource(DictionaryEntryVariablePair dictionaryVariables)
             : base(
                 dictionaryVariables.SourceMember.EntryMember,
                 dictionaryVariables.Variables,
