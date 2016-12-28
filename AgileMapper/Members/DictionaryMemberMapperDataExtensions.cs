@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.Members
 
             foreach (var targetMember in mapperData.TargetMember.MemberChain.Reverse())
             {
-                if (RootDictionaryContextReached(targetMember, mapperData))
+                if (targetMember.IsRoot || IsRootDictionaryContext(mapperData))
                 {
                     break;
                 }
@@ -84,13 +84,8 @@ namespace AgileObjects.AgileMapper.Members
             return memberPartExpressions;
         }
 
-        private static bool RootDictionaryContextReached(Member targetMember, IMemberMapperData mapperData)
+        private static bool IsRootDictionaryContext(IMemberMapperData mapperData)
         {
-            if (targetMember.IsRoot)
-            {
-                return true;
-            }
-
             if (!mapperData.SourceType.IsDictionary())
             {
                 return false;

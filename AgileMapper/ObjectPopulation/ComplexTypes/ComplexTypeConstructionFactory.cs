@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation
+namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
     using System.Collections.Generic;

@@ -2,19 +2,13 @@
 {
     using System.Linq.Expressions;
     using Extensions;
-    using Members;
 
-    internal class DictionaryEntryDataSource : DataSourceBase, IMaptimeDataSource
+    internal class DictionaryEntryDataSource : DataSourceBase
     {
         private readonly DictionaryEntryVariablePair _dictionaryVariables;
         private Expression _preCondition;
 
-        public DictionaryEntryDataSource(DictionarySourceMember sourceMember, IMemberMapperData childMapperData)
-            : this(new DictionaryEntryVariablePair(sourceMember, childMapperData))
-        {
-        }
-
-        private DictionaryEntryDataSource(DictionaryEntryVariablePair dictionaryVariables)
+        public DictionaryEntryDataSource(DictionaryEntryVariablePair dictionaryVariables)
             : base(
                 dictionaryVariables.SourceMember.EntryMember,
                 dictionaryVariables.Variables,
@@ -51,8 +45,6 @@
 
             return valueNonNull;
         }
-
-        public bool WrapInFinalDataSource => true;
 
         public override Expression PreCondition => _preCondition ?? (_preCondition = CreatePreCondition());
 

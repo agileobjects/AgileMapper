@@ -13,7 +13,6 @@ namespace AgileObjects.AgileMapper.Members
     internal class DictionarySourceMember : IQualifiedMember
     {
         private readonly IQualifiedMember _wrappedSourceMember;
-        private readonly bool _isEntireDictionaryMatch;
 
         public DictionarySourceMember(IMemberMapperData mapperData)
             : this(mapperData.SourceMember, mapperData.TargetMember)
@@ -31,9 +30,11 @@ namespace AgileObjects.AgileMapper.Members
             QualifiedMember matchedTargetMember)
         {
             _wrappedSourceMember = wrappedSourceMember;
-            _isEntireDictionaryMatch = wrappedSourceMember.Matches(matchedTargetMember);
+            IsEntireDictionaryMatch = wrappedSourceMember.Matches(matchedTargetMember);
             Type = sourceType;
-            EntryMember = new DictionaryEntrySourceMember(Type.GetGenericArguments()[1], matchedTargetMember, this);
+            var dictionaryTypes = Type.GetGenericArguments();
+            KeyType = dictionaryTypes[0];
+            EntryMember = new DictionaryEntrySourceMember(dictionaryTypes[1], matchedTargetMember, this);
             HasObjectEntries = EntryType == typeof(object);
 
             CouldContainSourceInstance =
@@ -41,6 +42,8 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public Type Type { get; }
+
+        public Type KeyType { get; }
 
         public Type EntryType => EntryMember.Type;
 
@@ -51,6 +54,8 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsEnumerable => true;
 
         public bool CouldContainSourceInstance { get; }
+
+        public bool IsEntireDictionaryMatch { get; }
 
         public string Name => _wrappedSourceMember.Name;
 
@@ -71,7 +76,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetQualifiedAccess(Expression instance)
         {
-            return _isEntireDictionaryMatch
+            return IsEntireDictionaryMatch
                 ? _wrappedSourceMember.GetQualifiedAccess(instance)
                 : EntryMember.GetQualifiedAccess(instance);
         }

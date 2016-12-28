@@ -2,9 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
 
@@ -17,44 +14,44 @@
             _mapperContext = mapperContext;
         }
 
-        public bool IsFor(IBasicMapperData mapperData)
+        public bool IsFor(IMemberMapperData mapperData)
         {
-            if (HasUseableSourceDictionary(mapperData))
+            if (mapperData.TargetMember.IsComplex && mapperData.Context.IsStandalone)
             {
-                if (mapperData.TargetMember.IsComplex)
-                {
-                    return !mapperData.IsRoot;
-                }
+                return false;
+            }
 
+            return HasUseableSourceDictionary(mapperData);
+        }
+
+        private bool HasUseableSourceDictionary(IMemberMapperData mapperData)
+        {
+            DictionarySourceMember dictionarySourceMember;
+
+            if (!mapperData.SourceMemberIsStringKeyedDictionary(out dictionarySourceMember))
+            {
+                return false;
+            }
+
+            if (dictionarySourceMember.HasObjectEntries)
+            {
                 return true;
             }
 
-            return false;
-        }
+            var valueType = dictionarySourceMember.EntryType;
 
-        private bool HasUseableSourceDictionary(IBasicMapperData mapperData)
-        {
-            if (!mapperData.SourceType.IsDictionary())
-            {
-                return false;
-            }
-
-            var keyAndValueTypes = mapperData.SourceType.GetGenericArguments();
-
-            if (keyAndValueTypes[0] != typeof(string))
-            {
-                return false;
-            }
-
-            var valueType = keyAndValueTypes[1];
             Type targetType;
 
             if (mapperData.TargetMember.IsEnumerable)
             {
+                if (valueType.IsEnumerable())
+                {
+                    return true;
+                }
+
                 targetType = mapperData.TargetMember.ElementType;
 
-                if ((valueType == typeof(object)) || (valueType == targetType) ||
-                    targetType.IsComplex() || valueType.IsEnumerable())
+                if ((valueType == targetType) || targetType.IsComplex())
                 {
                     return true;
                 }
@@ -67,21 +64,17 @@
             return _mapperContext.ValueConverters.CanConvert(valueType, targetType);
         }
 
-        public IEnumerable<IMaptimeDataSource> Create(IChildMemberMappingData mappingData)
+        public IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var sourceMember = GetSourceMember(mapperData);
 
             if (mapperData.TargetMember.IsSimple)
             {
-                yield return new DictionaryEntryDataSource(sourceMember, mapperData);
+                yield return new DictionaryEntryDataSource(new DictionaryEntryVariablePair(mapperData));
                 yield break;
             }
 
-            if (UseComplexTypeDataSource(sourceMember, mapperData))
-            {
-                yield return new DictionaryComplexTypeMemberDataSource(sourceMember, mappingData);
-            }
+            var sourceMember = GetSourceMember(mapperData);
 
             yield return new DictionaryNonSimpleMemberDataSource(sourceMember, mapperData);
         }
@@ -108,32 +101,14 @@
             return (DictionarySourceMember)parentMapperData.SourceMember;
         }
 
-        private static bool UseComplexTypeDataSource(DictionarySourceMember sourceMember, IBasicMapperData mapperData)
-        {
-            if (!mapperData.TargetMember.IsComplex)
-            {
-                return false;
-            }
-
-            if (sourceMember.EntryType == typeof(object))
-            {
-                return true;
-            }
-
-            return sourceMember.EntryType.IsAssignableFrom(mapperData.TargetMember.Type) ||
-                   mapperData.TargetMember.Type.IsAssignableFrom(sourceMember.EntryType);
-        }
-
-        private class DictionaryNonSimpleMemberDataSource : DataSourceBase, IMaptimeDataSource
+        private class DictionaryNonSimpleMemberDataSource : DataSourceBase
         {
             public DictionaryNonSimpleMemberDataSource(IQualifiedMember sourceMember, IMemberMapperData mapperData)
                 : base(
-                      sourceMember,
-                      sourceMember.GetQualifiedAccess(mapperData.SourceObject))
+                    sourceMember,
+                    sourceMember.GetQualifiedAccess(mapperData.SourceObject))
             {
             }
-
-            public bool WrapInFinalDataSource => true;
         }
     }
 }

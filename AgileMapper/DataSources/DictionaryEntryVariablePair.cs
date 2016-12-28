@@ -33,13 +33,28 @@ namespace AgileObjects.AgileMapper.DataSources
         private ParameterExpression _key;
         private ParameterExpression _value;
 
+        public DictionaryEntryVariablePair(IMemberMapperData mapperData)
+            : this(mapperData.GetDictionarySourceMemberOrNull(), mapperData)
+        {
+        }
+
         public DictionaryEntryVariablePair(DictionarySourceMember sourceMember, IMemberMapperData mapperData)
         {
             SourceMember = sourceMember;
             MapperData = mapperData;
-            _targetMemberName = mapperData.TargetMember.Name.ToCamelCase();
+            _targetMemberName = GetTargetMemberName(mapperData);
             UseDirectValueAccess = mapperData.TargetMember.Type.IsAssignableFrom(sourceMember.EntryType);
             Variables = UseDirectValueAccess ? new[] { Key } : new[] { Key, Value };
+        }
+
+        private static string GetTargetMemberName(IBasicMapperData mapperData)
+        {
+            if (mapperData.TargetMemberIsEnumerableElement())
+            {
+                return "element";
+            }
+
+            return mapperData.TargetMember.Name.ToCamelCase();
         }
 
         public DictionarySourceMember SourceMember { get; }

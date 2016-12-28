@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     {
         public static ISourceEnumerableAdapter GetAdapterFor(EnumerablePopulationBuilder builder)
         {
-            var dictionarySourceMember = builder.MapperData.SourceMember as DictionarySourceMember;
+            var dictionarySourceMember = builder.MapperData.GetDictionarySourceMemberOrNull();
 
             if (dictionarySourceMember != null)
             {

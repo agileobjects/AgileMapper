@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Caching;
+    using ComplexTypes;
     using Enumerables;
 
     internal class ObjectMapperFactory

@@ -1,12 +1,14 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-    using System.Diagnostics;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using ReadableExpressions.Extensions;
 
-    [DebuggerDisplay("{GetPath()}")]
     internal class DictionaryEntrySourceMember : IQualifiedMember
     {
         private readonly QualifiedMember _matchedTargetMember;
@@ -109,5 +111,17 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public override string ToString()
+        {
+            var entryType = Type.GetFriendlyName();
+
+            return GetPath() + ": " + entryType;
+        }
     }
 }

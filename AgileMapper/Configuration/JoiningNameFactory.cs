@@ -69,21 +69,20 @@
         private static Expression HandleLeadingSeparator(string separator, Member member, IMemberMapperData mapperData)
         {
             var memberName = GetJoiningNamePart(member, mapperData);
-            var isRootMember = Array.IndexOf(mapperData.TargetMember.MemberChain, member, 0) == 1;
 
             if (!HasDefault(separator))
             {
                 memberName = memberName.Replace(".", separator);
             }
 
-            if (memberName.StartsWith(separator))
+            if (memberName.StartsWith(separator, StringComparison.Ordinal))
             {
-                if (isRootMember)
+                if (IsRootMember(member, mapperData))
                 {
                     memberName = memberName.Substring(separator.Length);
                 }
             }
-            else if (!isRootMember)
+            else if (!IsRootMember(member, mapperData))
             {
                 memberName = separator + memberName;
             }
@@ -97,6 +96,34 @@
             var memberName = dictionarySettings.GetMemberKeyOrNull(mapperData) ?? member.JoiningName;
 
             return memberName;
+        }
+
+        private static bool IsRootMember(Member member, IMemberMapperData mapperData)
+        {
+            var memberIndex = Array.IndexOf(mapperData.TargetMember.MemberChain, member, 0);
+
+            if (memberIndex == 1)
+            {
+                return true;
+            }
+
+            var rootDictionaryContextOffset = mapperData.TargetMember.MemberChain.Length;
+            var sourceMember = mapperData.SourceMember;
+
+            while (mapperData.SourceMember.Type == sourceMember.Type)
+            {
+                --rootDictionaryContextOffset;
+                mapperData = mapperData.Parent;
+
+                if (mapperData == null)
+                {
+                    return false;
+                }
+            }
+
+            memberIndex = memberIndex - rootDictionaryContextOffset;
+
+            return memberIndex == 1;
         }
 
         private static bool HasDefault(string separator) => separator == ".";

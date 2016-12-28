@@ -33,13 +33,59 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
         {
-            return mapperData.Context.IsStandalone
-                ? mapperData.TargetObject
-                : mapperData.TargetMember.GetAccess(mapperData.InstanceVariable, mapperData);
+            if (mapperData.Context.IsStandalone)
+            {
+                return mapperData.TargetObject;
+            }
+
+            var subjectMapperData = mapperData.TargetMember.LeafMember.DeclaringType == mapperData.InstanceVariable.Type
+                ? mapperData
+                : mapperData.Parent;
+
+            return mapperData.TargetMember.GetAccess(subjectMapperData.InstanceVariable, mapperData);
         }
 
         public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)
             => mapperData.NestedAccessFinder.FindIn(value, targetCanBeNull);
+
+        public static bool SourceMemberIsStringKeyedDictionary(
+            this IMemberMapperData mapperData,
+            out DictionarySourceMember dictionarySourceMember)
+        {
+            dictionarySourceMember = mapperData.GetDictionarySourceMemberOrNull();
+
+            if (dictionarySourceMember == null)
+            {
+                return false;
+            }
+
+            return dictionarySourceMember.KeyType == typeof(string);
+        }
+
+        public static DictionarySourceMember GetDictionarySourceMemberOrNull(this IMemberMapperData mapperData)
+        {
+            var dictionarySourceMember = mapperData.SourceMember as DictionarySourceMember;
+
+            if (dictionarySourceMember != null)
+            {
+                return dictionarySourceMember;
+            }
+
+            var dictionaryEntrySourceMember = mapperData.SourceMember as DictionaryEntrySourceMember;
+
+            if (dictionaryEntrySourceMember == null)
+            {
+                return null;
+            }
+
+            if (dictionaryEntrySourceMember.Type.IsDictionary())
+            {
+                return dictionaryEntrySourceMember.Parent;
+            }
+
+            // We're mapping a dictionary entry by its runtime type:
+            return null;
+        }
 
         public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
             => mapperData.TargetMember.LeafMember.IsEnumerableElement();
@@ -145,7 +191,7 @@ namespace AgileObjects.AgileMapper.Members
 
             while (!mapperData.TypesMatch(contextTypes))
             {
-                dataAccess = mapperData.Context.IsStandalone
+                dataAccess = mapperData.Context.IsStandalone || mapperData.TargetMember.IsRecursionRoot()
                     ? Expression.Property(dataAccess, "Parent")
                     : (Expression)mapperData.Parent.MappingDataObject;
 
@@ -269,13 +315,13 @@ namespace AgileObjects.AgileMapper.Members
 
         private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
 
-        private static Expression GetSourceAccess(Expression dataAccess, Type sourceType)
-            => GetAccess(dataAccess, _getSourceMethod, sourceType);
+        private static Expression GetSourceAccess(Expression subject, Type sourceType)
+            => GetAccess(subject, _getSourceMethod, sourceType);
 
         private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget");
 
-        private static Expression GetTargetAccess(Expression dataAccess, Type targetType)
-            => GetAccess(dataAccess, _getTargetMethod, targetType);
+        private static Expression GetTargetAccess(Expression subject, Type targetType)
+            => GetAccess(subject, _getTargetMethod, targetType);
 
         private static Expression GetAccess(Expression subject, MethodInfo method, Type typeArgument)
             => Expression.Call(subject, method.MakeGenericMethod(typeArgument));

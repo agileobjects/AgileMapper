@@ -47,19 +47,15 @@
                 }
             }
 
-            IEnumerable<IMaptimeDataSource> maptimeDataSources;
+            IEnumerable<IDataSource> maptimeDataSources;
 
             if (UseMaptimeDataSources(childMappingData, out maptimeDataSources))
             {
                 foreach (var maptimeDataSource in maptimeDataSources)
                 {
-                    var finalDataSource = maptimeDataSource.WrapInFinalDataSource
-                        ? GetFinalDataSource(maptimeDataSource, dataSourceIndex, childMappingData)
-                        : maptimeDataSource;
+                    yield return GetFinalDataSource(maptimeDataSource, dataSourceIndex, childMappingData);
 
-                    yield return finalDataSource;
-
-                    if (!finalDataSource.IsConditional)
+                    if (!maptimeDataSource.IsConditional)
                     {
                         yield break;
                     }
@@ -92,14 +88,14 @@
 
         private bool UseMaptimeDataSources(
             IChildMemberMappingData childMappingData,
-            out IEnumerable<IMaptimeDataSource> maptimeDataSources)
+            out IEnumerable<IDataSource> maptimeDataSources)
         {
             var applicableFactory = _mapTimeDataSourceFactories
                 .FirstOrDefault(factory => factory.IsFor(childMappingData.MapperData));
 
             if (applicableFactory == null)
             {
-                maptimeDataSources = Enumerable<IMaptimeDataSource>.Empty;
+                maptimeDataSources = Enumerable<IDataSource>.Empty;
                 return false;
             }
 

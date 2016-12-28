@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation
+namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
     using System.Collections.Generic;
@@ -14,10 +14,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
         private readonly ComplexTypeConstructionFactory _constructionFactory;
+        private readonly IEnumerable<ISourceShortCircuitFactory> _shortCircuitFactories;
 
         public ComplexTypeMappingExpressionFactory(MapperContext mapperContext)
         {
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
+
+            _shortCircuitFactories = new[]
+            {
+                SourceDictionaryShortCircuitFactory.Instance
+            };
         }
 
         public override bool IsFor(IObjectMappingData mappingData) => true;
@@ -47,17 +53,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData)
+        #region Short-Circuits
+
+        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
+
             if (SourceObjectCouldBeNull(mapperData))
             {
                 yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
             }
 
-            var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(returnNull.Target, mapperData);
+            var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(mapperData);
             if (alreadyMappedShortCircuit != null)
             {
                 yield return alreadyMappedShortCircuit;
+            }
+
+            ISourceShortCircuitFactory sourceShortCircuitFactory;
+
+            if (TryGetShortCircuitFactory(mapperData, out sourceShortCircuitFactory))
+            {
+                yield return sourceShortCircuitFactory.GetShortCircuit(mappingData);
             }
         }
 
@@ -76,9 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private static readonly MethodInfo _tryGetMethod = typeof(IObjectMappingDataUntyped).GetMethod("TryGet");
-
-        private static Expression GetAlreadyMappedObjectShortCircuitOrNull(LabelTarget returnTarget, ObjectMapperData mapperData)
+        private static Expression GetAlreadyMappedObjectShortCircuitOrNull(ObjectMapperData mapperData)
         {
             if (mapperData.TargetTypeHasNotYetBeenMapped)
             {
@@ -90,18 +105,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return null;
             }
 
+            var tryGetMethod = typeof(IObjectMappingDataUntyped).GetMethod("TryGet");
+
             var tryGetCall = Expression.Call(
                 mapperData.EntryPointMapperData.MappingDataObject,
-                _tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
+                tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
                 mapperData.SourceObject,
                 mapperData.InstanceVariable);
 
             var ifTryGetReturn = Expression.IfThen(
                 tryGetCall,
-                Expression.Return(returnTarget, mapperData.InstanceVariable));
+                Expression.Return(mapperData.ReturnLabelTarget, mapperData.InstanceVariable));
 
             return ifTryGetReturn;
         }
+
+        private bool TryGetShortCircuitFactory(ObjectMapperData mapperData, out ISourceShortCircuitFactory applicableFactory)
+        {
+            applicableFactory = _shortCircuitFactories.FirstOrDefault(f => f.IsFor(mapperData));
+            return applicableFactory != null;
+        }
+
+        #endregion
 
         protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
             => DerivedComplexTypeMappingsFactory.CreateFor(mappingData);

@@ -5,8 +5,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
     internal interface IMaptimeDataSourceFactory
     {
-        bool IsFor(IBasicMapperData mapperData);
+        bool IsFor(IMemberMapperData mapperData);
 
-        IEnumerable<IMaptimeDataSource> Create(IChildMemberMappingData mappingData);
+        IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData);
     }
 }

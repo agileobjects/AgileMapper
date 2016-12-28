@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperData.ReturnLabelTarget,
                 mapperData.TargetType.ToDefaultExpression());
 
-            var mappingExpressions = GetShortCircuitReturns(returnNull, mapperData).ToList();
+            var mappingExpressions = GetShortCircuitReturns(returnNull, mappingData).ToList();
 
             Expression derivedTypeMappings;
 
@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock);
 
-        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, ObjectMapperData mapperData);
+        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData);
 
         private bool MappingAlwaysBranchesToDerivedType(IObjectMappingData mappingData, out Expression derivedTypeMappings)
         {

@@ -45,6 +45,7 @@
 
         private static Expression GetRuntimeTypeCheck(UnaryExpression cast, IMemberMapperData mapperData)
         {
+            // TODO: Replace with mapperData.GetSourceAccess() call?
             var getSourceCall = Expression.Call(
                 Parameters.MappingData,
                 _getSourceMethod.MakeGenericMethod(mapperData.SourceType));

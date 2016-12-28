@@ -10,7 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
     internal class SourceInstanceDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {
-        private readonly DictionarySourceMember _sourceMember;
         private readonly DefaultSourceEnumerableAdapter _defaultAdapter;
 
         public SourceInstanceDictionaryAdapter(
@@ -18,7 +17,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             EnumerablePopulationBuilder builder)
             : base(builder)
         {
-            _sourceMember = sourceMember;
             _defaultAdapter = new DefaultSourceEnumerableAdapter(builder);
             DictionaryVariables = new DictionaryEntryVariablePair(sourceMember, builder.MapperData);
         }
@@ -27,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public override Expression GetSourceValue()
         {
-            var emptyTarget = _sourceMember.EntryType.GetEmptyInstanceCreation();
+            var emptyTarget = DictionaryVariables.SourceMember.EntryType.GetEmptyInstanceCreation();
             var returnLabel = Expression.Label(emptyTarget.Type, "Return");
             var returnEmpty = Expression.Return(returnLabel, emptyTarget);
 

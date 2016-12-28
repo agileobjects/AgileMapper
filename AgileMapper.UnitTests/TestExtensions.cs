@@ -61,6 +61,7 @@
 
         public static void ShouldBe<T>(this IEnumerable<T> actualValues, params T[] expectedValues)
         {
+            actualValues.ShouldNotBeEmpty();
             actualValues.SequenceEqual(expectedValues).ShouldBeTrue();
         }
 
@@ -71,6 +72,7 @@
 
         public static void ShouldBe<T1, T2>(this IEnumerable<T1> actualValues, IEnumerable<T2> expectedValues, Func<T1, T2> converter)
         {
+            actualValues.ShouldNotBeEmpty();
             actualValues.Select(converter).SequenceEqual(expectedValues).ShouldBeTrue();
         }
     }
