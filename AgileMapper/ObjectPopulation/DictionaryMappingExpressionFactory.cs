@@ -184,19 +184,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperData = populationLoopData.Builder.MapperData;
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
-            var dictionaryVariables = new DictionaryEntryVariablePair(mapperData);
-
+            var keyVariable = Expression.Variable(targetDictionaryMember.KeyType, "targetKey");
             var keyAccess = Expression.Property(populationLoopData.SourceElement, "Key");
-            var keyConversion = mapperData.GetValueConversion(keyAccess, targetDictionaryMember.KeyType);
-            var keyAssignment = dictionaryVariables.GetKeyAssignment(keyConversion);
+            var keyConversion = mapperData.GetValueConversion(keyAccess, keyVariable.Type);
+            var keyAssignment = keyVariable.AssignTo(keyConversion);
 
             var valueAccess = Expression.Property(populationLoopData.SourceElement, "Value");
             var valueConversion = populationLoopData.Builder.GetElementConversion(valueAccess, mappingData);
 
-            var targetEntryIndex = mapperData.InstanceVariable.GetIndexAccess(dictionaryVariables.Key);
+            var targetEntryIndex = mapperData.InstanceVariable.GetIndexAccess(keyVariable);
             var targetEntryAssignment = targetEntryIndex.AssignTo(valueConversion);
 
-            return Expression.Block(new[] { dictionaryVariables.Key }, keyAssignment, targetEntryAssignment);
+            return Expression.Block(new[] { keyVariable }, keyAssignment, targetEntryAssignment);
         }
 
         private static Expression GetParameterlessDictionaryAssignment(IMemberMapperData mapperData)

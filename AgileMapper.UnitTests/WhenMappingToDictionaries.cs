@@ -100,6 +100,27 @@
         }
 
         [Fact]
+        public void ShouldMapBetweenDifferentComplexValueTypedDictionaries()
+        {
+            var source = new Dictionary<int, PersonViewModel>
+            {
+                [123] = new PersonViewModel { Name = "Bobby", AddressLine1 = "Address 1" },
+                [456] = new PersonViewModel { Name = "Magnus", AddressLine1 = "Address 2!" }
+            };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, Person>>();
+
+            result.ShouldNotBeSameAs(source);
+            result.Count.ShouldBe(2);
+
+            result["123"].Name.ShouldBe("Bobby");
+            result["123"].Address.Line1.ShouldBe("Address 1");
+
+            result["456"].Name.ShouldBe("Magnus");
+            result["456"].Address.Line1.ShouldBe("Address 2!");
+
+        }
+
+        [Fact]
         public void ShouldHandleANullComplexTypeMember()
         {
             var source = new MysteryCustomer { Name = "Richie", Address = null };

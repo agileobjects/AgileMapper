@@ -55,6 +55,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)
         {
+            if (mapperData.InstanceVariable.Type != _rootDictionaryMember.Type)
+            {
+                return base.GetAccess(instance, mapperData);
+            }
+
             var index = mapperData.GetTargetMemberDictionaryKey();
             var indexAccess = mapperData.InstanceVariable.GetIndexAccess(index);
 
