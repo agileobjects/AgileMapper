@@ -62,5 +62,22 @@
             result.Value.ShouldNotBeNull();
             result.Value.ShouldBe(guidOne, guidTwo);
         }
+
+        [Fact]
+        public void ShouldPopulateANestedComplexTypeListFromNestedStringEntries()
+        {
+            var source = new PublicField<Dictionary<string, string>>
+            {
+                Value = new Dictionary<string, string>
+                {
+                    ["[0].Value"] = "Item 1!",
+                    ["[1].Value"] = "Item 2!"
+                }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<List<PublicProperty<string>>>>();
+
+            result.Value.Count.ShouldBe(2);
+            result.Value.ShouldBe(pp => pp.Value, "Item 1!", "Item 2!");
+        }
     }
 }
