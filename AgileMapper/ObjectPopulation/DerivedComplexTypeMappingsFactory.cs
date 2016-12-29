@@ -142,7 +142,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var typedVariableName = "source" + derivedSourceType.GetVariableNameInPascalCase();
                 var typedVariable = Expression.Variable(derivedSourceType, typedVariableName);
                 var typeAsConversion = Expression.TypeAs(declaredTypeMapperData.SourceObject, derivedSourceType);
-                var typedVariableAssignment = Expression.Assign(typedVariable, typeAsConversion);
+                var typedVariableAssignment = typedVariable.AssignTo(typeAsConversion);
 
                 typedObjectVariables.Add(typedVariable);
                 derivedTypeMappingExpressions.Insert(typedVariableAssignment, insertionOffset);

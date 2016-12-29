@@ -70,7 +70,7 @@
                 if (CacheValueInVariable(nestedAccess))
                 {
                     var valueVariable = Expression.Variable(nestedAccess.Type, "accessValue");
-                    nestedAccesses[i] = Expression.Assign(valueVariable, nestedAccess);
+                    nestedAccesses[i] = valueVariable.AssignTo(nestedAccess);
 
                     nestedAccessVariableByNestedAccess.Add(nestedAccess, valueVariable);
                     variables.Add(valueVariable);

@@ -71,7 +71,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             enumerableVariable = Expression.Variable(typeof(IEnumerable), "sourceEnumerable");
             var sourceValue = _instanceDictionaryAdapter.GetEntryValueAccess();
             var valueAsEnumerable = Expression.TypeAs(sourceValue, typeof(IEnumerable));
-            var enumerableAssignment = Expression.Assign(enumerableVariable, valueAsEnumerable);
+            var enumerableAssignment = enumerableVariable.AssignTo(valueAsEnumerable);
 
             return enumerableAssignment;
         }
@@ -84,7 +84,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             var enumerableAsTyped = Expression.TypeAs(untypedEnumerableVariable, targetEnumerableType);
             var typedEnumerableVariableName = targetEnumerableType.GetVariableNameInCamelCase();
             typedEnumerableVariable = Expression.Variable(targetEnumerableType, typedEnumerableVariableName);
-            var typedEnumerableAssignment = Expression.Assign(typedEnumerableVariable, enumerableAsTyped);
+            var typedEnumerableAssignment = typedEnumerableVariable.AssignTo(enumerableAsTyped);
 
             return typedEnumerableAssignment;
         }

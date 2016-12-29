@@ -124,7 +124,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression GetNonConstantKeyAssignment() => GetKeyAssignment(TargetMemberKey);
 
-        public Expression GetKeyAssignment(Expression value) => Expression.Assign(Key, value);
+        public Expression GetKeyAssignment(Expression value) => Key.AssignTo(value);
 
         public Expression GetNoKeysWithMatchingStartQuery(Expression targetMemberKey)
         {
@@ -171,7 +171,7 @@ namespace AgileObjects.AgileMapper.DataSources
             return keyMatchesQuery;
         }
 
-        public Expression GetEntryValueAssignment() => Expression.Assign(Value, GetEntryValueAccess());
+        public Expression GetEntryValueAssignment() => Value.AssignTo(GetEntryValueAccess());
 
         public Expression GetEntryValueAccess() => GetEntryValueAccess(Key);
 

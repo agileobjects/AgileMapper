@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
         {
             var indexAccess = GetAccess(mapperData.InstanceVariable, mapperData);
-            var indexAssignment = Expression.Assign(indexAccess, value);
+            var indexAssignment = indexAccess.AssignTo(value);
 
             return indexAssignment;
         }

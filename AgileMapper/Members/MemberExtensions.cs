@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Extensions;
     using ReadableExpressions.Extensions;
 
     internal static class MemberExtensions
@@ -132,7 +133,7 @@
             };
 
         private static Expression AssignMember(Expression instance, Member targetMember, Expression value)
-            => Expression.Assign(targetMember.GetAccess(instance), value);
+            => targetMember.GetAccess(instance).AssignTo(value);
 
         private static Expression CallSetMethod(Expression instance, Member targetMember, Expression value)
             => Expression.Call(instance, targetMember.Name, Constants.NoTypeArguments, value);

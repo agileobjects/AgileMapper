@@ -89,7 +89,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             var containsElementKeyCall = containsKeyElementCallFactory.Invoke();
             _elementKeyExists = Expression.Variable(typeof(bool), "elementKeyExists");
-            var assignElementKeyExists = Expression.Assign(_elementKeyExists, containsElementKeyCall);
+            var assignElementKeyExists = _elementKeyExists.AssignTo(containsElementKeyCall);
             var elementKeyDoesNotExist = Expression.Not(assignElementKeyExists);
 
             return Expression.AndAlso(elementKeyDoesNotExist, noKeysStartWithTarget);
@@ -169,7 +169,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             }
 
             var dictionaryValueAccess = GetDictionaryEntryValueAccess();
-            var dictionaryEntryAssignment = Expression.Assign(_sourceElement, dictionaryValueAccess);
+            var dictionaryEntryAssignment = _sourceElement.AssignTo(dictionaryValueAccess);
 
             return Expression.Block(
                 new[] { (ParameterExpression)_sourceElement },

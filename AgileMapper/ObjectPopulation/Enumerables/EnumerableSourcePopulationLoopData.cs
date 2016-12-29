@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Extensions;
 
     internal class EnumerableSourcePopulationLoopData : IPopulationLoopData
     {
@@ -43,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             var getEnumeratorMethod = _builder.SourceTypeHelper.EnumerableInterfaceType.GetMethod("GetEnumerator");
             var getEnumeratorCall = Expression.Call(_builder.SourceValue, getEnumeratorMethod);
             var enumeratorValue = enumeratorValueFactory.Invoke(getEnumeratorCall);
-            var enumeratorAssignment = Expression.Assign(_enumerator, enumeratorValue);
+            var enumeratorAssignment = _enumerator.AssignTo(enumeratorValue);
 
             var finallyClause = finallyClauseFactory.Invoke(Expression.Call(_enumerator, _disposeMethod));
 

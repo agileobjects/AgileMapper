@@ -144,7 +144,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             var instanceVariableValue = GetObjectResolution(mappingData, postCreationCallback != null);
-            var instanceVariableAssignment = Expression.Assign(mapperData.InstanceVariable, instanceVariableValue);
+            var instanceVariableAssignment = mapperData.InstanceVariable.AssignTo(instanceVariableValue);
             yield return instanceVariableAssignment;
 
             if (postCreationCallback != null)
@@ -196,12 +196,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             if (postCreationCallbackExists)
             {
                 mapperData.Context.UsesMappingDataObjectAsParameter = true;
-                objectValue = Expression.Assign(mapperData.CreatedObject, objectValue);
+                objectValue = mapperData.CreatedObject.AssignTo(objectValue);
             }
 
             if (mapperData.Context.UsesMappingDataObjectAsParameter)
             {
-                objectValue = Expression.Assign(mapperData.TargetObject, objectValue);
+                objectValue = mapperData.TargetObject.AssignTo(objectValue);
             }
 
             if (IncludeExistingTargetCheck(mappingData))

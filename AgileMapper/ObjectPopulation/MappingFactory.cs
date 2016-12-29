@@ -202,7 +202,7 @@
             var mapperData = mappingData.MapperData;
             var mapping = mappingData.Mapper.MappingLambda.Body;
 
-            var useLocalSourceValueVariable = 
+            var useLocalSourceValueVariable =
                 ShouldUseLocalSourceValueVariable(mappingValues.SourceValue, mapping, mapperData);
 
             Expression sourceValue, sourceValueVariableValue = null;
@@ -315,7 +315,7 @@
             Expression body,
             bool performValueReplacement = false)
         {
-            var variableAssignment = Expression.Assign(variable, variableValue);
+            var variableAssignment = variable.AssignTo(variableValue);
             var mappingTryCatch = (TryExpression)body;
 
             var mappingBody = mappingTryCatch.Body;

@@ -52,6 +52,18 @@
         }
 
         [Fact]
+        public void ShouldMapBetweenSameTypedDictionaries()
+        {
+            var source = new Dictionary<string, int> { ["One"] = 1, ["Two"] = 2 };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, int>>();
+
+            result.ShouldNotBeSameAs(source);
+            result.Count.ShouldBe(2);
+            result["One"].ShouldBe(1);
+            result["Two"].ShouldBe(2);
+        }
+
+        [Fact]
         public void ShouldHandleANullComplexTypeMember()
         {
             var source = new MysteryCustomer { Name = "Richie", Address = null };

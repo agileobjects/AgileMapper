@@ -96,7 +96,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                     if (mappingExpressions.Count == 1)
                     {
-                        return Expression.Block(assignedValue);
+                        return assignedValue;
                     }
 
                     mappingExpressions[mappingExpressions.Count - 1] = assignedValue;

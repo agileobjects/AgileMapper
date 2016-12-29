@@ -27,6 +27,9 @@
             .GetPublicInstanceMethods()
             .First(m => (m.Name == "Equals") && (m.GetParameters().Length == 2));
 
+        public static BinaryExpression AssignTo(this Expression subject, Expression value)
+            => Expression.Assign(subject, value);
+
         public static ConstantExpression ToConstantExpression<T>(this T item)
             => ToConstantExpression(item, typeof(T));
 
@@ -61,7 +64,7 @@
             var loopBody = (BlockExpression)loop.Body;
             var loopBodyExpressions = new List<Expression>(loopBody.Expressions);
 
-            var variableAssignment = Expression.Assign(variable, value);
+            var variableAssignment = variable.AssignTo(value);
             loopBodyExpressions.Insert(insertIndex, variableAssignment);
 
             loopBody = loopBody.Update(loopBody.Variables.Concat(variable), loopBodyExpressions);

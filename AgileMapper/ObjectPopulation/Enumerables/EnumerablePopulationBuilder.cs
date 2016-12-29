@@ -236,7 +236,7 @@
             CreateSourceTypeHelper(sourceValue);
 
             _sourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
-            var sourceVariableAssignment = Expression.Assign(_sourceVariable, sourceValue);
+            var sourceVariableAssignment = _sourceVariable.AssignTo(sourceValue);
 
             SourceValue = _sourceVariable;
 
@@ -267,7 +267,7 @@
         {
             TargetVariable = Context.GetTargetParameterFor(value.Type);
 
-            _populationExpressions.Add(Expression.Assign(TargetVariable, value));
+            _populationExpressions.Add(TargetVariable.AssignTo(value));
         }
 
         public void AssignTargetVariable()
@@ -414,7 +414,7 @@
 
             var population = Expression.Block(
                 new[] { Counter },
-                Expression.Assign(Counter, 0.ToConstantExpression()),
+                Counter.AssignTo(0.ToConstantExpression()),
                 populationLoop);
 
             _populationExpressions.Add(population);
@@ -531,7 +531,7 @@
                 typeof(CollectionData<,>).MakeGenericType(Context.ElementTypes),
                 "collectionData");
 
-            var assignCollectionData = Expression.Assign(_collectionDataVariable, createCollectionDataCall);
+            var assignCollectionData = _collectionDataVariable.AssignTo(createCollectionDataCall);
 
             _populationExpressions.Add(assignCollectionData);
         }
