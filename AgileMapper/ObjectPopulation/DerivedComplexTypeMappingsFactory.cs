@@ -66,6 +66,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static ICollection<Type> GetDerivedTargetTypesIfNecessary(IObjectMappingData mappingData)
         {
+            if (mappingData.MapperData.Context.IsForNewElement)
+            {
+                return Enumerable<Type>.EmptyArray;
+            }
+
             if (mappingData.IsRoot && !mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
             {
                 return Enumerable<Type>.EmptyArray;
