@@ -84,21 +84,26 @@ namespace AgileObjects.AgileMapper.DataSources
 
         private Expression GetFallbackValueOrNull(IMemberMapperData mapperData)
         {
-            var fallbackDataSource = _dataSources.Last().Value;
+            var fallbackValue = _dataSources.Last().Value;
 
-            if (fallbackDataSource.NodeType == ExpressionType.Coalesce)
+            if (_dataSources.HasOne())
             {
-                return ((BinaryExpression)fallbackDataSource).Right;
+                return fallbackValue;
+            }
+
+            if (fallbackValue.NodeType == ExpressionType.Coalesce)
+            {
+                return ((BinaryExpression)fallbackValue).Right;
             }
 
             var targetMemberAccess = mapperData.GetTargetMemberAccess();
 
-            if (fallbackDataSource.ToString() == targetMemberAccess.ToString())
+            if (fallbackValue.ToString() == targetMemberAccess.ToString())
             {
                 return null;
             }
 
-            return fallbackDataSource;
+            return fallbackValue;
         }
 
         #region IEnumerable<IDataSource> Members

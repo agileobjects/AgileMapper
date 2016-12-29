@@ -76,6 +76,30 @@
         }
 
         [Fact]
+        public void ShouldMapBetweenSameComplexValueTypedDictionaries()
+        {
+            var key1 = Guid.NewGuid();
+            var key2 = Guid.NewGuid();
+
+            var source = new Dictionary<Guid, Address>
+            {
+                [key1] = new Address { Line1 = "Address 1" },
+                [key2] = new Address { Line1 = "Address 2 Line 1", Line2 = "Address 2 Line 2" }
+            };
+            var result = Mapper.Map(source).ToANew<Dictionary<Guid, Address>>();
+
+            result.ShouldNotBeSameAs(source);
+            result.Count.ShouldBe(2);
+
+            result[key1].ShouldNotBeSameAs(source[key1]);
+            result[key1].Line1.ShouldBe("Address 1");
+
+            result[key2].ShouldNotBeSameAs(source[key2]);
+            result[key2].Line1.ShouldBe("Address 2 Line 1");
+            result[key2].Line2.ShouldBe("Address 2 Line 2");
+        }
+
+        [Fact]
         public void ShouldHandleANullComplexTypeMember()
         {
             var source = new MysteryCustomer { Name = "Richie", Address = null };

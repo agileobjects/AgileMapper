@@ -235,7 +235,9 @@
             var result = Mapper.Map(source).ToANew<ICollection<MegaProduct>>();
 
             result.Count.ShouldBe(2);
+            result.First().ShouldNotBeSameAs(source.First());
             result.First().ProductId.ShouldBe("asdfasdf");
+            result.Second().ShouldNotBeSameAs(source.Second());
             result.Second().ProductId.ShouldBe("mnbvmnbv");
         }
 

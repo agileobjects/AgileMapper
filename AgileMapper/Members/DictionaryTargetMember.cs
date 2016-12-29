@@ -63,6 +63,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
         {
+            if (mapperData.InstanceVariable.Type != _rootDictionaryMember.Type)
+            {
+                return base.GetPopulation(value, mapperData);
+            }
+
             var indexAccess = GetAccess(mapperData.InstanceVariable, mapperData);
             var indexAssignment = indexAccess.AssignTo(value);
 
