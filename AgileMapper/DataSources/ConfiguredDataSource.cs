@@ -14,11 +14,22 @@
             Expression value,
             IMemberMapperData mapperData)
             : this(
-                  new ConfiguredSourceMember(value, mapperData),
+                  GetSourceMember(value, mapperData),
                   configuredCondition,
                   GetConvertedValue(value, mapperData),
                   mapperData)
         {
+        }
+
+        private static IQualifiedMember GetSourceMember(Expression value, IMemberMapperData mapperData)
+        {
+            var sourceMember = new ConfiguredSourceMember(value, mapperData);
+
+            var finalSourceMember = mapperData.MapperContext
+                .QualifiedMemberFactory
+                .GetFinalSourceMember(sourceMember, mapperData.TargetMember);
+
+            return finalSourceMember;
         }
 
         private ConfiguredDataSource(
