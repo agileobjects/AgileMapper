@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             return dictionarySourceMember.HasObjectEntries ||
-                   !dictionarySourceMember.EntryType.IsSimple();
+                   !dictionarySourceMember.ValueType.IsSimple();
         }
 
         public Expression GetShortCircuit(IObjectMappingData mappingData)

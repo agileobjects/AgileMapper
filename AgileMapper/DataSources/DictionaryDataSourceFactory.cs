@@ -38,7 +38,7 @@
                 return true;
             }
 
-            var valueType = dictionarySourceMember.EntryType;
+            var valueType = dictionarySourceMember.ValueType;
 
             Type targetType;
 

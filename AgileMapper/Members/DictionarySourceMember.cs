@@ -35,17 +35,17 @@ namespace AgileObjects.AgileMapper.Members
             var dictionaryTypes = Type.GetGenericArguments();
             KeyType = dictionaryTypes[0];
             EntryMember = new DictionaryEntrySourceMember(dictionaryTypes[1], matchedTargetMember, this);
-            HasObjectEntries = EntryType == typeof(object);
+            HasObjectEntries = ValueType == typeof(object);
 
             CouldContainSourceInstance =
-                HasObjectEntries || (matchedTargetMember.IsEnumerable == EntryType.IsEnumerable());
+                HasObjectEntries || (matchedTargetMember.IsEnumerable == ValueType.IsEnumerable());
         }
 
         public Type Type { get; }
 
         public Type KeyType { get; }
 
-        public Type EntryType => EntryMember.Type;
+        public Type ValueType => EntryMember.Type;
 
         public DictionaryEntrySourceMember EntryMember { get; }
 

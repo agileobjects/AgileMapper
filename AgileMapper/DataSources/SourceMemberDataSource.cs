@@ -12,7 +12,7 @@
         private SourceMemberDataSource(IQualifiedMember sourceMember, Expression value, IMemberMapperData mapperData)
             : base(
                   sourceMember,
-                  mapperData.MapperContext.ValueConverters.GetConversion(value, mapperData.TargetMember.Type),
+                  mapperData.GetValueConversion(value, mapperData.TargetMember.Type),
                   mapperData)
         {
             SourceMemberTypeTest = CreateSourceMemberTypeTest(value, mapperData);

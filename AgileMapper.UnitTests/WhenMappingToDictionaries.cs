@@ -52,10 +52,22 @@
         }
 
         [Fact]
-        public void ShouldMapBetweenSameTypedDictionaries()
+        public void ShouldMapBetweenSameSimpleValueTypedDictionaries()
         {
             var source = new Dictionary<string, int> { ["One"] = 1, ["Two"] = 2 };
             var result = Mapper.Map(source).ToANew<Dictionary<string, int>>();
+
+            result.ShouldNotBeSameAs(source);
+            result.Count.ShouldBe(2);
+            result["One"].ShouldBe(1);
+            result["Two"].ShouldBe(2);
+        }
+
+        [Fact]
+        public void ShouldMapBetweenDifferentSimpleValueTypeDictionaries()
+        {
+            var source = new Dictionary<string, char> { ["One"] = '1', ["Two"] = '2' };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, long>>();
 
             result.ShouldNotBeSameAs(source);
             result.Count.ShouldBe(2);

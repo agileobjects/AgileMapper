@@ -5,6 +5,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using DataSources;
+    using Enumerables;
     using Extensions;
     using Members;
     using NetStandardPolyfills;
@@ -56,15 +58,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (mapperData.TargetType.IsDictionary())
             {
-                Expression cloneDictionary;
+                DictionarySourceMember sourceDictionaryMember;
 
-                if (SourceMemberIsSameTypeDictionary(mapperData, out cloneDictionary))
+                if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
                 {
-                    yield return mapperData.InstanceVariable.AssignTo(cloneDictionary);
+                    if (sourceDictionaryMember.Type == mapperData.TargetType)
+                    {
+                        yield return GetClonedDictionaryAssignment(mapperData);
+                        yield break;
+                    }
+
+                    yield return GetProjectedDictionaryAssignment(sourceDictionaryMember, mapperData);
+                    yield return GetDictionaryToDictionaryProjection(sourceDictionaryMember, mapperData);
                     yield break;
                 }
 
-                yield return mapperData.InstanceVariable.AssignTo(Expression.New(mapperData.TargetType));
+                yield return GetParameterlessDictionaryAssignment(mapperData);
             }
 
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
@@ -78,39 +87,111 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private bool SourceMemberIsSameTypeDictionary(IMemberMapperData mapperData, out Expression cloneDictionary)
+        private static bool SourceMemberIsDictionary(
+            IMemberMapperData mapperData,
+            out DictionarySourceMember sourceDictionaryMember)
         {
-            var sourceDictionaryMember = mapperData.GetDictionarySourceMemberOrNull();
-
-            if ((sourceDictionaryMember == null) ||
-                (mapperData.TargetMember.Type != sourceDictionaryMember.Type))
-            {
-                cloneDictionary = null;
-                return false;
-            }
-
-            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
-            var copyConstructor = GetDictionaryCopyConstructor(targetDictionaryMember.Type);
-            var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
-            cloneDictionary = Expression.New(copyConstructor, mapperData.SourceObject, comparer);
-            return true;
+            sourceDictionaryMember = mapperData.GetDictionarySourceMemberOrNull();
+            return sourceDictionaryMember != null;
         }
 
-        private static ConstructorInfo GetDictionaryCopyConstructor(Type dictionaryType)
+        private static Expression GetClonedDictionaryAssignment(IMemberMapperData mapperData)
+        {
+            var cloneConstructor = GetDictionaryCloneConstructor(mapperData.TargetMember.Type);
+            var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
+            var cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject, comparer);
+            var assignment = mapperData.InstanceVariable.AssignTo(cloneDictionary);
+
+            return assignment;
+        }
+
+        private static ConstructorInfo GetDictionaryCloneConstructor(Type dictionaryType)
         {
             var dictionaryTypes = dictionaryType.GetGenericArguments();
             var dictionaryInterfaceType = typeof(IDictionary<,>).MakeGenericType(dictionaryTypes);
 
-            var copyConstructor = dictionaryType
-              .GetPublicInstanceConstructors()
-              .Select(ctor => new { Ctor = ctor, Parameters = ctor.GetParameters() })
-              .First(ctor =>
-                  (ctor.Parameters.Length == 2) &&
-                  (ctor.Parameters[0].ParameterType == dictionaryInterfaceType))
-              .Ctor;
-
-            return copyConstructor;
+            return FindDictionaryConstructor(dictionaryType, dictionaryInterfaceType, numberOfParameters: 2);
         }
+
+        private static ConstructorInfo FindDictionaryConstructor(
+            Type dictionaryType,
+            Type firstParameterType,
+            int numberOfParameters)
+        {
+            return dictionaryType
+                .GetPublicInstanceConstructors()
+                .Select(ctor => new { Ctor = ctor, Parameters = ctor.GetParameters() })
+                .First(ctor =>
+                    (ctor.Parameters.Length == numberOfParameters) &&
+                    (ctor.Parameters[0].ParameterType == firstParameterType))
+                .Ctor;
+        }
+
+        private static Expression GetProjectedDictionaryAssignment(
+            DictionarySourceMember sourceDictionaryMember,
+            IMemberMapperData mapperData)
+        {
+            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
+
+            if (sourceDictionaryMember.ValueType != targetDictionaryMember.ValueType)
+            {
+                return GetParameterlessDictionaryAssignment(mapperData);
+            }
+
+            var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
+
+            var constructor = FindDictionaryConstructor(
+                targetDictionaryMember.Type,
+                comparer.Type,
+                numberOfParameters: 1);
+
+            return mapperData.InstanceVariable.AssignTo(Expression.New(constructor, comparer));
+        }
+
+        private static Expression GetDictionaryToDictionaryProjection(
+            DictionarySourceMember sourceDictionaryMember,
+            ObjectMapperData mapperData)
+        {
+            var keyValuePairType = typeof(KeyValuePair<,>)
+                .MakeGenericType(sourceDictionaryMember.KeyType, sourceDictionaryMember.ValueType);
+
+            var populationLoopData = new EnumerableSourcePopulationLoopData(
+                mapperData.EnumerablePopulationBuilder,
+                keyValuePairType,
+                mapperData.SourceObject);
+
+            var populationLoop = populationLoopData.BuildPopulationLoop(
+                mapperData.EnumerablePopulationBuilder,
+                sourceDictionaryMember,
+                GetTargetEntryAssignment);
+
+            return populationLoop;
+        }
+
+        private static Expression GetTargetEntryAssignment(
+            IPopulationLoopData loopData,
+            DictionarySourceMember sourceDictionaryMember)
+        {
+            var populationLoopData = (EnumerableSourcePopulationLoopData)loopData;
+            var mapperData = populationLoopData.Builder.MapperData;
+            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
+            var dictionaryVariables = new DictionaryEntryVariablePair(sourceDictionaryMember, mapperData);
+
+            var keyAccess = Expression.Property(populationLoopData.SourceElement, "Key");
+            var keyConversion = mapperData.GetValueConversion(keyAccess, targetDictionaryMember.KeyType);
+            var keyAssignment = dictionaryVariables.GetKeyAssignment(keyConversion);
+
+            var valueAccess = Expression.Property(populationLoopData.SourceElement, "Value");
+            var valueConversion = mapperData.GetValueConversion(valueAccess, targetDictionaryMember.ValueType);
+
+            var targetEntryIndex = mapperData.InstanceVariable.GetIndexAccess(dictionaryVariables.Key);
+            var targetEntryAssignment = targetEntryIndex.AssignTo(valueConversion);
+
+            return Expression.Block(new[] { dictionaryVariables.Key }, keyAssignment, targetEntryAssignment);
+        }
+
+        private static Expression GetParameterlessDictionaryAssignment(IMemberMapperData mapperData)
+            => mapperData.InstanceVariable.AssignTo(Expression.New(mapperData.TargetType));
 
         private static IEnumerable<QualifiedMember> EnumerateTargetMembers(
             Type parentSourceType,

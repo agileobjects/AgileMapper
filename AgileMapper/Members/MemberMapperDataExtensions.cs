@@ -167,6 +167,9 @@ namespace AgileObjects.AgileMapper.Members
             return emptyEnumerable.GetConversionTo(targetMember.Type);
         }
 
+        public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
+            => mapperData.MapperContext.ValueConverters.GetConversion(value, targetType);
+
         public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
         {
             var access = mapperData.GetAppropriateMappingContextAccess(contextTypes);

@@ -43,7 +43,7 @@ namespace AgileObjects.AgileMapper.DataSources
             SourceMember = sourceMember;
             MapperData = mapperData;
             _targetMemberName = GetTargetMemberName(mapperData);
-            UseDirectValueAccess = mapperData.TargetMember.Type.IsAssignableFrom(sourceMember.EntryType);
+            UseDirectValueAccess = mapperData.TargetMember.Type.IsAssignableFrom(sourceMember.ValueType);
             Variables = UseDirectValueAccess ? new[] { Key } : new[] { Key, Value };
         }
 
@@ -67,7 +67,7 @@ namespace AgileObjects.AgileMapper.DataSources
             => _key ?? (_key = Expression.Variable(typeof(string), _targetMemberName + "Key"));
 
         public ParameterExpression Value
-            => _value ?? (_value = Expression.Variable(SourceMember.EntryType, _targetMemberName.ToCamelCase()));
+            => _value ?? (_value = Expression.Variable(SourceMember.ValueType, _targetMemberName.ToCamelCase()));
 
         public bool HasConstantTargetMemberKey
         {

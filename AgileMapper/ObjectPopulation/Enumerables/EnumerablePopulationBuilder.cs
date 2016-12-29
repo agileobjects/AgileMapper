@@ -410,33 +410,14 @@
                 return;
             }
 
-            var populationLoop = GetPopulationLoop(enumerableMappingData);
-
-            var population = Expression.Block(
-                new[] { Counter },
-                Counter.AssignTo(0.ToConstantExpression()),
-                populationLoop);
-
-            _populationExpressions.Add(population);
-        }
-
-        private Expression GetPopulationLoop(IObjectMappingData enumerableMappingData)
-        {
             var loopData = _sourceAdapter.GetPopulationLoopData();
-            var breakLoop = Expression.Break(Expression.Label(typeof(void), "Break"));
 
-            var elementToAdd = loopData.GetElementToAdd(enumerableMappingData);
-            var addMappedElement = GetTargetMethodCall("Add", elementToAdd);
+            var populationLoop = loopData.BuildPopulationLoop(
+                this,
+                enumerableMappingData,
+                (ld, emd) => GetTargetMethodCall("Add", ld.GetElementToAdd(emd)));
 
-            var loopBody = Expression.Block(
-                Expression.IfThen(loopData.LoopExitCheck, breakLoop),
-                addMappedElement,
-                Expression.PreIncrementAssign(Counter));
-
-            var populationLoop = Expression.Loop(loopBody, breakLoop.Target);
-            var adaptedLoop = loopData.Adapt(populationLoop);
-
-            return adaptedLoop;
+            _populationExpressions.Add(populationLoop);
         }
 
         public Expression GetElementConversion(Expression sourceElement, IObjectMappingData enumerableMappingData)
@@ -450,7 +431,7 @@
             => GetSimpleElementConversion(sourceElement, Context.TargetElementType);
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
-            => MapperData.MapperContext.ValueConverters.GetConversion(sourceElement, targetType);
+            => MapperData.GetValueConversion(sourceElement, targetType);
 
         private static Expression GetElementMapping(
             Expression sourceElement,

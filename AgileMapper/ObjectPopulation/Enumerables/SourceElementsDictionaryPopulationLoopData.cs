@@ -39,7 +39,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             DoNotPerformElementChecks =
                 !ElementTypesAreSimple &&
                 !sourceMember.HasObjectEntries &&
-                (sourceMember.EntryType.IsSimple() || !builder.Context.ElementTypesAreAssignable);
+                (sourceMember.ValueType.IsSimple() || !builder.Context.ElementTypesAreAssignable);
 
             _targetMemberKey = dictionaryVariables
                 .GetTargetMemberDictionaryEnumerableElementKey(builder.Counter, MapperData);

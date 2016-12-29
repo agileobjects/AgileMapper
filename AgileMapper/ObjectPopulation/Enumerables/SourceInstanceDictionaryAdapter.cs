@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public override Expression GetSourceValue()
         {
-            var emptyTarget = DictionaryVariables.SourceMember.EntryType.GetEmptyInstanceCreation();
+            var emptyTarget = DictionaryVariables.SourceMember.ValueType.GetEmptyInstanceCreation();
             var returnLabel = Expression.Label(emptyTarget.Type, "Return");
             var returnEmpty = Expression.Return(returnLabel, emptyTarget);
 

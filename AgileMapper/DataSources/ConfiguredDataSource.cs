@@ -72,7 +72,7 @@
                 return value;
             }
 
-            var convertedValue = mapperData.MapperContext.ValueConverters.GetConversion(value, mapperData.TargetMember.Type);
+            var convertedValue = mapperData.GetValueConversion(value, mapperData.TargetMember.Type);
 
             return convertedValue;
         }

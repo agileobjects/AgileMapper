@@ -12,41 +12,61 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private static readonly MethodInfo _enumeratorMoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
         private static readonly MethodInfo _disposeMethod = typeof(IDisposable).GetMethod("Dispose");
 
-        private readonly EnumerablePopulationBuilder _builder;
-
+        private readonly Expression _enumerableSubject;
+        private readonly MethodInfo _getEnumeratorMethod;
         private readonly ParameterExpression _enumerator;
 
         public EnumerableSourcePopulationLoopData(EnumerablePopulationBuilder builder)
+            : this(builder, builder.SourceTypeHelper.ElementType, builder.SourceValue)
         {
-            _builder = builder;
+        }
 
-            var enumeratorType = typeof(IEnumerator<>).MakeGenericType(builder.SourceTypeHelper.ElementType);
-            _enumerator = Expression.Variable(enumeratorType, "enumerator");
+        public EnumerableSourcePopulationLoopData(
+            EnumerablePopulationBuilder builder,
+            Type elementType,
+            Expression enumerableSubject)
+        {
+            Builder = builder;
+            _enumerableSubject = enumerableSubject;
+            _getEnumeratorMethod = typeof(IEnumerable<>).MakeGenericType(elementType).GetMethod("GetEnumerator");
+
+            _enumerator = Expression.Variable(_getEnumeratorMethod.ReturnType, "enumerator");
 
             LoopExitCheck = Expression.Not(Expression.Call(_enumerator, _enumeratorMoveNextMethod));
             SourceElement = Expression.Property(_enumerator, "Current");
         }
+
+        public EnumerablePopulationBuilder Builder { get; }
 
         public Expression LoopExitCheck { get; }
 
         public Expression SourceElement { get; }
 
         public Expression GetElementToAdd(IObjectMappingData enumerableMappingData)
-            => _builder.GetElementConversion(SourceElement, enumerableMappingData);
+            => Builder.GetElementConversion(SourceElement, enumerableMappingData);
 
-        public Expression Adapt(LoopExpression loop) => GetLoopBlock(loop, exp => exp, exp => exp);
+        public Expression Adapt(LoopExpression loop) => GetLoopBlock(loop);
 
         public BlockExpression GetLoopBlock(
             Expression loop,
-            Func<Expression, Expression> enumeratorValueFactory,
-            Func<Expression, Expression> finallyClauseFactory)
+            Func<Expression, Expression> enumeratorValueFactory = null,
+            Func<Expression, Expression> finallyClauseFactory = null)
         {
-            var getEnumeratorMethod = _builder.SourceTypeHelper.EnumerableInterfaceType.GetMethod("GetEnumerator");
-            var getEnumeratorCall = Expression.Call(_builder.SourceValue, getEnumeratorMethod);
-            var enumeratorValue = enumeratorValueFactory.Invoke(getEnumeratorCall);
+            Expression enumeratorValue = Expression.Call(_enumerableSubject, _getEnumeratorMethod);
+
+            if (enumeratorValueFactory != null)
+            {
+                enumeratorValue = enumeratorValueFactory.Invoke(enumeratorValue);
+            }
+
             var enumeratorAssignment = _enumerator.AssignTo(enumeratorValue);
 
-            var finallyClause = finallyClauseFactory.Invoke(Expression.Call(_enumerator, _disposeMethod));
+            Expression finallyClause = Expression.Call(_enumerator, _disposeMethod);
+
+            if (finallyClauseFactory != null)
+            {
+                finallyClause = finallyClauseFactory.Invoke(finallyClause);
+            }
 
             return Expression.Block(
                 new[] { _enumerator },
