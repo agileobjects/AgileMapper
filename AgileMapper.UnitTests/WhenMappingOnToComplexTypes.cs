@@ -31,13 +31,12 @@
         [Fact]
         public void ShouldPreserveAnExistingSimpleTypePropertyValue()
         {
-            const long ORIGINAL_VALUE = 527;
             var source = new PublicSealed<long> { Value = 928 };
-            var target = new PublicField<long> { Value = ORIGINAL_VALUE };
+            var target = new PublicField<long> { Value = 527 };
 
             Mapper.Map(source).OnTo(target);
 
-            target.Value.ShouldBe(ORIGINAL_VALUE);
+            target.Value.ShouldBe(527);
         }
 
         [Fact]

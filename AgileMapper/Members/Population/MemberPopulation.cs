@@ -31,14 +31,16 @@ namespace AgileObjects.AgileMapper.Members.Population
             Expression populateCondition,
             IChildMemberMappingData mappingData)
         {
-            if (dataSources.None || !mappingData.MapperData.TargetMember.IsSimple)
+            var mapperData = mappingData.MapperData;
+
+            if (SkipPopulateCondition(dataSources, mapperData))
             {
                 return populateCondition;
             }
 
             var populationGuard = mappingData.RuleSet
                 .PopulationGuardFactory
-                .GetPopulationGuardOrNull(mappingData.MapperData);
+                .GetPopulationGuardOrNull(mapperData);
 
             if (populationGuard == null)
             {
@@ -51,6 +53,28 @@ namespace AgileObjects.AgileMapper.Members.Population
             }
 
             return Expression.AndAlso(populateCondition, populationGuard);
+        }
+
+        private static bool SkipPopulateCondition(DataSourceSet dataSources, IBasicMapperData mapperData)
+        {
+            if (dataSources.None)
+            {
+                return true;
+            }
+
+            if (mapperData.TargetMember.IsSimple)
+            {
+                return false;
+            }
+
+            if (mapperData.TargetMember.Type != typeof(object))
+            {
+                return true;
+            }
+
+            var objectValueChecksAllowed = !mapperData.TargetMember.AllowObjectValueChecks;
+
+            return objectValueChecksAllowed;
         }
 
         private MemberPopulation(IMemberMapperData mapperData, DataSourceSet dataSources)

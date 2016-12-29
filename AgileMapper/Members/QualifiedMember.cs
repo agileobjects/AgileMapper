@@ -141,9 +141,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public Member LeafMember { get; }
 
-        public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
-            => LeafMember.GetPopulation(mapperData.InstanceVariable, value);
-
         public Type Type => LeafMember?.Type;
 
         public Type ElementType => LeafMember?.ElementType;
@@ -196,6 +193,8 @@ namespace AgileObjects.AgileMapper.Members
 
             return true;
         }
+
+        public virtual bool AllowObjectValueChecks => false;
 
         IQualifiedMember IQualifiedMember.GetElementMember() => GetElementMember();
 
@@ -277,6 +276,12 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetQualifiedAccess(Expression instance)
             => MemberChain.GetQualifiedAccess(instance);
+
+        public virtual Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
+            => GetAccess(mapperData.InstanceVariable, mapperData).GetIsDefaultComparison();
+
+        public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
+            => LeafMember.GetPopulation(mapperData.InstanceVariable, value);
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD

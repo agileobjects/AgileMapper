@@ -6,7 +6,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenMappingToDictionaries
+    public class WhenMappingToNewDictionaries
     {
         [Fact]
         public void ShouldMapASimpleTypeMemberToAnUntypedDictionary()

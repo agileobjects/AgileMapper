@@ -84,6 +84,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
+        protected static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
+        {
+            if (IncludeExistingTargetCheck(mappingData))
+            {
+                return Expression.Coalesce(mappingData.MapperData.TargetObject, value);
+            }
+
+            return value;
+        }
+
+        private static bool IncludeExistingTargetCheck(IObjectMappingData mappingData)
+        {
+            if (mappingData.IsRoot && !mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            {
+                return false;
+            }
+
+            if (mappingData.MapperData.TargetMemberIsEnumerableElement())
+            {
+                return !mappingData.MapperData.Context.IsForNewElement;
+            }
+
+            return true;
+        }
+
         private Expression GetMappingBlock(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
         {
             if (mappingExpressions[0].NodeType != ExpressionType.Block)

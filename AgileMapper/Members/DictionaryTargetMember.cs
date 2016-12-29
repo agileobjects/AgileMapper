@@ -38,6 +38,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type ValueType { get; }
 
+        public override bool AllowObjectValueChecks => true;
+
         public DictionaryTargetMember Append(string sourceMemberName)
         {
             var targetEntryMember = Member.DictionaryEntry(sourceMemberName, this);
@@ -64,6 +66,25 @@ namespace AgileObjects.AgileMapper.Members
             var indexAccess = mapperData.InstanceVariable.GetIndexAccess(index);
 
             return indexAccess;
+        }
+
+        public override Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
+        {
+            var existingValueVariable = Expression.Variable(ValueType, "existingValue");
+            var tryGetValueMethod = mapperData.InstanceVariable.Type.GetMethod("TryGetValue");
+            var index = mapperData.GetTargetMemberDictionaryKey();
+
+            var tryGetValueCall = Expression.Call(
+                mapperData.InstanceVariable,
+                tryGetValueMethod,
+                index,
+                existingValueVariable);
+
+            var existingValueIsDefault = existingValueVariable.GetIsDefaultComparison();
+
+            var valueMissingOrDefault = Expression.OrElse(Expression.Not(tryGetValueCall), existingValueIsDefault);
+
+            return Expression.Block(new[] { existingValueVariable }, valueMissingOrDefault);
         }
 
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)

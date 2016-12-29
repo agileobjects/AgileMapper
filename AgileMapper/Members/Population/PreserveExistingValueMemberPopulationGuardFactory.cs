@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.Members.Population
 {
     using System.Linq.Expressions;
-    using Extensions;
     using Members;
 
     internal class PreserveExistingValueMemberPopulationGuardFactory : IMemberPopulationGuardFactory
@@ -10,9 +9,14 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public Expression GetPopulationGuardOrNull(IMemberMapperData mapperData)
         {
-            return mapperData.TargetMember.IsReadable
-                ? mapperData.GetTargetMemberAccess().GetIsDefaultComparison()
-                : null;
+            if (!mapperData.TargetMember.IsReadable)
+            {
+                return null;
+            }
+
+            var existingValueIsDefault = mapperData.TargetMember.GetHasDefaultValueCheck(mapperData);
+
+            return existingValueIsDefault;
         }
     }
 }

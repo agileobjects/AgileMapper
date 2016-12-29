@@ -62,12 +62,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         yield break;
                     }
 
-                    yield return GetProjectedDictionaryAssignment(sourceDictionaryMember, mapperData);
+                    yield return GetProjectedDictionaryAssignment(sourceDictionaryMember, mappingData);
                     yield return GetDictionaryToDictionaryProjection(sourceDictionaryMember, mappingData);
                     yield break;
                 }
 
-                yield return GetParameterlessDictionaryAssignment(mapperData);
+                yield return GetParameterlessDictionaryAssignment(mappingData);
             }
 
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
@@ -137,13 +137,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetProjectedDictionaryAssignment(
             DictionarySourceMember sourceDictionaryMember,
-            IMemberMapperData mapperData)
+            IObjectMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
             if (sourceDictionaryMember.ValueType != targetDictionaryMember.ValueType)
             {
-                return GetParameterlessDictionaryAssignment(mapperData);
+                return GetParameterlessDictionaryAssignment(mappingData);
             }
 
             var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
@@ -153,7 +154,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 comparer.Type,
                 numberOfParameters: 1);
 
-            return mapperData.InstanceVariable.AssignTo(Expression.New(constructor, comparer));
+            return GetDictionaryAssignment(Expression.New(constructor, comparer), mappingData);
         }
 
         private static Expression GetDictionaryToDictionaryProjection(
@@ -198,8 +199,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.Block(new[] { keyVariable }, keyAssignment, targetEntryAssignment);
         }
 
-        private static Expression GetParameterlessDictionaryAssignment(IMemberMapperData mapperData)
-            => mapperData.InstanceVariable.AssignTo(Expression.New(mapperData.TargetType));
+        private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)
+            => GetDictionaryAssignment(Expression.New(mappingData.MapperData.TargetType), mappingData);
+
+        private static Expression GetDictionaryAssignment(Expression value, IObjectMappingData mappingData)
+        {
+            value = AddExistingTargetCheckIfAppropriate(value, mappingData);
+
+            return mappingData.MapperData.InstanceVariable.AssignTo(value);
+        }
 
         private static IEnumerable<QualifiedMember> EnumerateTargetMembers(
             Type parentSourceType,

@@ -204,27 +204,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 objectValue = mapperData.TargetObject.AssignTo(objectValue);
             }
 
-            if (IncludeExistingTargetCheck(mappingData))
-            {
-                objectValue = Expression.Coalesce(mapperData.TargetObject, objectValue);
-            }
+            objectValue = AddExistingTargetCheckIfAppropriate(objectValue, mappingData);
 
             return objectValue;
-        }
-
-        private static bool IncludeExistingTargetCheck(IObjectMappingData mappingData)
-        {
-            if (mappingData.IsRoot && !mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
-            {
-                return false;
-            }
-
-            if (mappingData.MapperData.TargetMemberIsEnumerableElement())
-            {
-                return !mappingData.MapperData.Context.IsForNewElement;
-            }
-
-            return true;
         }
 
         #endregion
