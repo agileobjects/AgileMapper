@@ -402,7 +402,7 @@
             _populationExpressions.Add(GetTargetMethodCall("Clear"));
         }
 
-        public void AddNewItemsToTargetVariable(IObjectMappingData enumerableMappingData)
+        public void AddNewItemsToTargetVariable(IObjectMappingData mappingData)
         {
             if (ElementTypesAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
             {
@@ -414,17 +414,17 @@
 
             var populationLoop = loopData.BuildPopulationLoop(
                 this,
-                enumerableMappingData,
-                (ld, emd) => GetTargetMethodCall("Add", ld.GetElementToAdd(emd)));
+                mappingData,
+                (ld, md) => GetTargetMethodCall("Add", ld.GetElementToAdd(md)));
 
             _populationExpressions.Add(populationLoop);
         }
 
-        public Expression GetElementConversion(Expression sourceElement, IObjectMappingData enumerableMappingData)
+        public Expression GetElementConversion(Expression sourceElement, IObjectMappingData mappingData)
         {
             return ElementTypesAreSimple
                 ? GetSimpleElementConversion(sourceElement)
-                : GetElementMapping(sourceElement, Context.TargetElementType.ToDefaultExpression(), enumerableMappingData);
+                : GetElementMapping(sourceElement, Context.TargetElementType.ToDefaultExpression(), mappingData);
         }
 
         public Expression GetSimpleElementConversion(Expression sourceElement)
@@ -436,9 +436,9 @@
         private static Expression GetElementMapping(
             Expression sourceElement,
             Expression targetElement,
-            IObjectMappingData enumerableMappingData)
+            IObjectMappingData mappingData)
         {
-            return MappingFactory.GetElementMapping(sourceElement, targetElement, enumerableMappingData);
+            return MappingFactory.GetElementMapping(sourceElement, targetElement, mappingData);
         }
 
         public Expression GetSourceItemsProjection(

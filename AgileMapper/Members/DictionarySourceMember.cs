@@ -62,7 +62,14 @@ namespace AgileObjects.AgileMapper.Members
         public string GetPath() => _wrappedSourceMember.GetPath();
 
         public IQualifiedMember GetElementMember()
-            => HasObjectEntries ? EntryMember.GetObjectElementMember() : EntryMember.GetElementMember();
+        {
+            if (EntryMember.IsEnumerable)
+            {
+                return EntryMember.GetElementMember();
+            }
+
+            return EntryMember.GetInstanceElementMember();
+        }
 
         public IQualifiedMember Append(Member childMember) => EntryMember.Append(childMember);
 

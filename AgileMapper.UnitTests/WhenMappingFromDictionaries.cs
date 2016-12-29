@@ -225,6 +225,21 @@
         }
 
         [Fact]
+        public void ShouldPopulateARootComplexTypeCollectionFromTypedEntries()
+        {
+            var source = new Dictionary<string, MegaProduct>
+            {
+                ["[0]"] = new MegaProduct { ProductId = "asdfasdf" },
+                ["[1]"] = new MegaProduct { ProductId = "mnbvmnbv" }
+            };
+            var result = Mapper.Map(source).ToANew<ICollection<MegaProduct>>();
+
+            result.Count.ShouldBe(2);
+            result.First().ProductId.ShouldBe("asdfasdf");
+            result.Second().ProductId.ShouldBe("mnbvmnbv");
+        }
+
+        [Fact]
         public void ShouldPopulateARootComplexTypeListFromUntypedEntries()
         {
             var source = new Dictionary<string, object>

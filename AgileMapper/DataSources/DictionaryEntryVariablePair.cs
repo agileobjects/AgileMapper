@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.DataSources
         public IEnumerable<ParameterExpression> Variables { get; }
 
         public ParameterExpression Key
-            => _key ?? (_key = Expression.Variable(typeof(string), _targetMemberName + "Key"));
+            => _key ?? (_key = Expression.Variable(SourceMember.KeyType, _targetMemberName + "Key"));
 
         public ParameterExpression Value
             => _value ?? (_value = Expression.Variable(SourceMember.ValueType, _targetMemberName.ToCamelCase()));

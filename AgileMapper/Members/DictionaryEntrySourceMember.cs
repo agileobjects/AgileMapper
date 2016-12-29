@@ -64,8 +64,7 @@ namespace AgileObjects.AgileMapper.Members
 
         IQualifiedMember IQualifiedMember.GetElementMember() => this.GetElementMember();
 
-        public IQualifiedMember GetObjectElementMember()
-            => Append(Member.EnumerableElement(typeof(object), typeof(object)));
+        public IQualifiedMember GetInstanceElementMember() => Append(Member.EnumerableElement(Type, Type));
 
         public IQualifiedMember Append(Member childMember) => new DictionaryEntrySourceMember(this, childMember);
 

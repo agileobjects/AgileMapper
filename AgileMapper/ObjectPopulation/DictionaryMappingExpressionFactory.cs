@@ -31,6 +31,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
+            if (mappingData.MapperKey.MappingTypes.SourceType.IsDictionary())
+            {
+                nullMappingBlock = null;
+                return false;
+            }
+
             var targetMember = (DictionaryTargetMember)mappingData.MapperData.TargetMember;
 
             if ((targetMember.KeyType == typeof(string)) || (targetMember.KeyType == typeof(object)))
@@ -62,14 +68,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
                 {
-                    if (sourceDictionaryMember.Type == mapperData.TargetType)
+                    if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
                     {
                         yield return GetClonedDictionaryAssignment(mapperData);
                         yield break;
                     }
 
                     yield return GetProjectedDictionaryAssignment(sourceDictionaryMember, mapperData);
-                    yield return GetDictionaryToDictionaryProjection(sourceDictionaryMember, mapperData);
+                    yield return GetDictionaryToDictionaryProjection(sourceDictionaryMember, mappingData);
                     yield break;
                 }
 
@@ -93,6 +99,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             sourceDictionaryMember = mapperData.GetDictionarySourceMemberOrNull();
             return sourceDictionaryMember != null;
+        }
+
+        private static bool UseDictionaryCloneConstructor(
+            IQualifiedMember sourceDictionaryMember,
+            IBasicMapperData mapperData)
+        {
+            if (sourceDictionaryMember.Type != mapperData.TargetType)
+            {
+                return false;
+            }
+
+            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
+
+            return targetDictionaryMember.ValueType.IsSimple();
         }
 
         private static Expression GetClonedDictionaryAssignment(IMemberMapperData mapperData)
@@ -150,8 +170,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetDictionaryToDictionaryProjection(
             DictionarySourceMember sourceDictionaryMember,
-            ObjectMapperData mapperData)
+            IObjectMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
+
             var keyValuePairType = typeof(KeyValuePair<,>)
                 .MakeGenericType(sourceDictionaryMember.KeyType, sourceDictionaryMember.ValueType);
 
@@ -162,27 +184,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var populationLoop = populationLoopData.BuildPopulationLoop(
                 mapperData.EnumerablePopulationBuilder,
-                sourceDictionaryMember,
+                mappingData,
                 GetTargetEntryAssignment);
 
             return populationLoop;
         }
 
-        private static Expression GetTargetEntryAssignment(
-            IPopulationLoopData loopData,
-            DictionarySourceMember sourceDictionaryMember)
+        private static Expression GetTargetEntryAssignment(IPopulationLoopData loopData, IObjectMappingData mappingData)
         {
             var populationLoopData = (EnumerableSourcePopulationLoopData)loopData;
             var mapperData = populationLoopData.Builder.MapperData;
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
-            var dictionaryVariables = new DictionaryEntryVariablePair(sourceDictionaryMember, mapperData);
+
+            var dictionaryVariables = new DictionaryEntryVariablePair(mapperData);
 
             var keyAccess = Expression.Property(populationLoopData.SourceElement, "Key");
             var keyConversion = mapperData.GetValueConversion(keyAccess, targetDictionaryMember.KeyType);
             var keyAssignment = dictionaryVariables.GetKeyAssignment(keyConversion);
 
             var valueAccess = Expression.Property(populationLoopData.SourceElement, "Value");
-            var valueConversion = mapperData.GetValueConversion(valueAccess, targetDictionaryMember.ValueType);
+            var valueConversion = populationLoopData.Builder.GetElementConversion(valueAccess, mappingData);
 
             var targetEntryIndex = mapperData.InstanceVariable.GetIndexAccess(dictionaryVariables.Key);
             var targetEntryAssignment = targetEntryIndex.AssignTo(valueConversion);
