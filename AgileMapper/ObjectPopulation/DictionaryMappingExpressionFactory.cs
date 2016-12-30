@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using DataSources;
     using Enumerables;
     using Extensions;
     using Members;
@@ -142,7 +141,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperData = mappingData.MapperData;
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
-            if (sourceDictionaryMember.ValueType != targetDictionaryMember.ValueType)
+            if (UseParameterlessConstructor(sourceDictionaryMember, targetDictionaryMember))
             {
                 return GetParameterlessDictionaryAssignment(mappingData);
             }
@@ -155,6 +154,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 numberOfParameters: 1);
 
             return GetDictionaryAssignment(Expression.New(constructor, comparer), mappingData);
+        }
+
+        private static bool UseParameterlessConstructor(
+            DictionarySourceMember sourceDictionaryMember,
+            DictionaryTargetMember targetDictionaryMember)
+        {
+            if (sourceDictionaryMember.Type.IsInterface)
+            {
+                return true;
+            }
+
+            return sourceDictionaryMember.ValueType != targetDictionaryMember.ValueType;
         }
 
         private static Expression GetDictionaryToDictionaryProjection(
@@ -200,7 +211,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)
-            => GetDictionaryAssignment(Expression.New(mappingData.MapperData.TargetType), mappingData);
+        {
+            var targetType = mappingData.MapperData.TargetType.IsInterface
+                ? typeof(Dictionary<,>).MakeGenericType(mappingData.MapperData.TargetType.GetGenericArguments())
+                : mappingData.MapperData.TargetType;
+
+            return GetDictionaryAssignment(Expression.New(targetType), mappingData);
+        }
 
         private static Expression GetDictionaryAssignment(Expression value, IObjectMappingData mappingData)
         {

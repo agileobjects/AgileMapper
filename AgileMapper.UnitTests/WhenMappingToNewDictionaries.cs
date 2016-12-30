@@ -64,6 +64,18 @@
         }
 
         [Fact]
+        public void ShouldMapBetweenDifferentSimpleKeyTypeIDictionaries()
+        {
+            IDictionary<int, int> source = new Dictionary<int, int> { [1] = 1, [2] = 2 };
+            var result = Mapper.Map(source).ToANew<IDictionary<string, int>>();
+
+            result.ShouldNotBeSameAs(source);
+            result.Count.ShouldBe(2);
+            result["1"].ShouldBe(1);
+            result["2"].ShouldBe(2);
+        }
+
+        [Fact]
         public void ShouldMapBetweenDifferentSimpleValueTypeDictionaries()
         {
             var source = new Dictionary<string, char> { ["One"] = '1', ["Two"] = '2' };

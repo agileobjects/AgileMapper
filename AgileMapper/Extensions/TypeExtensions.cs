@@ -165,7 +165,14 @@
 
         public static bool IsDictionary(this Type type)
         {
-            return type.IsGenericType() && (type.GetGenericTypeDefinition() == typeof(Dictionary<,>));
+            if (!type.IsGenericType())
+            {
+                return false;
+            }
+
+            var typeDefinition = type.GetGenericTypeDefinition();
+
+            return (typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>));
         }
 
         public static Type GetNonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
