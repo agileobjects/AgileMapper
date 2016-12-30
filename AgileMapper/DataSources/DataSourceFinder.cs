@@ -182,6 +182,11 @@
                 return false;
             }
 
+            if (targetMember.IsDictionary)
+            {
+                return true;
+            }
+
             if (targetMember.Type == typeof(object))
             {
                 return !dataSource.SourceMember.Type.IsSimple();

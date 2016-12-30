@@ -49,15 +49,20 @@ namespace AgileObjects.AgileMapper.Members
                 {
                     var targetMember = QualifiedMember.From(Member.RootTarget<TTarget>(), _mapperContext);
 
-                    if (targetMember.Type.IsDictionary())
-                    {
-                        return new DictionaryTargetMember(targetMember);
-                    }
-
-                    return targetMember;
+                    return GetFinalTargetMember(targetMember);
                 });
 
             return (QualifiedMember)rootMember;
+        }
+
+        public QualifiedMember GetFinalTargetMember(QualifiedMember targetMember)
+        {
+            if (targetMember.IsDictionary)
+            {
+                return new DictionaryTargetMember(targetMember);
+            }
+
+            return targetMember;
         }
 
         private class QualifiedMemberKey

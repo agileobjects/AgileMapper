@@ -6,7 +6,6 @@
     using System.Linq.Expressions;
     using Extensions;
     using Members;
-    using ReadableExpressions.Extensions;
 
     internal class DictionarySettings
     {

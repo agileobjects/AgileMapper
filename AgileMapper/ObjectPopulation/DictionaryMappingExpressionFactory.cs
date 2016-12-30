@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
         public override bool IsFor(IObjectMappingData mappingData)
-            => mappingData.MapperKey.MappingTypes.TargetType.IsDictionary();
+            => mappingData.MapperData.TargetMember.IsDictionary;
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
@@ -50,7 +50,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.TargetType.IsDictionary())
+            if (mapperData.TargetMember.IsDictionary)
             {
                 DictionarySourceMember sourceDictionaryMember;
 

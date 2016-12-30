@@ -13,6 +13,11 @@ namespace AgileObjects.AgileMapper.TypeConversion
                 return false;
             }
 
+            if (nonNullableTargetType.IsDictionary())
+            {
+                return true;
+            }
+
             if (nonNullableTargetType.IsEnumerable())
             {
                 return nonNullableSourceType.IsEnumerable();

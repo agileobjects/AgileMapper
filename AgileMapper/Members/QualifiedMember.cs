@@ -157,6 +157,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsEnumerable => LeafMember.IsEnumerable;
 
+        public bool IsDictionary => LeafMember.IsDictionary;
+
         public bool IsSimple => LeafMember.IsSimple;
 
         public bool IsReadable => LeafMember.IsReadable;
@@ -206,7 +208,12 @@ namespace AgileObjects.AgileMapper.Members
             => _childMemberCache.GetOrAdd(childMember, CreateChildMember);
 
         protected virtual QualifiedMember CreateChildMember(Member childMember)
-            => new QualifiedMember(childMember, this, _mapperContext);
+        {
+            var qualifiedChildMember = new QualifiedMember(childMember, this, _mapperContext);
+            qualifiedChildMember = _mapperContext.QualifiedMemberFactory.GetFinalTargetMember(qualifiedChildMember);
+
+            return qualifiedChildMember;
+        }
 
         public QualifiedMember GetChildMember(string registrationName)
             => _childMemberCache.Values.First(childMember => childMember.RegistrationName == registrationName);

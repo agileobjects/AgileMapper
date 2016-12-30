@@ -34,10 +34,11 @@ namespace AgileObjects.AgileMapper.Members
             var joinedNameIsConstant = true;
             var parentCounterInaccessible = false;
             Expression parentContextAccess = null;
+            var isTargetDictionary = mapperData.TargetMember is DictionaryTargetMember;
 
             foreach (var targetMember in mapperData.TargetMember.MemberChain.Reverse())
             {
-                if (targetMember.IsRoot || IsRootDictionaryContext(mapperData))
+                if (IsRootDictionaryContext(targetMember, isTargetDictionary, mapperData))
                 {
                     break;
                 }
@@ -69,13 +70,13 @@ namespace AgileObjects.AgileMapper.Members
                     }
                 }
 
-                if (!mapperData.Parent.IsRoot)
+                if (!mapperData.Parent.IsRoot && !isTargetDictionary)
                 {
                     mapperData = mapperData.Parent;
                 }
             }
 
-            if (joinedNameIsConstant)
+            if (joinedNameIsConstant && (memberPartExpressions.Count > 1))
             {
                 memberPartExpressions.Clear();
                 memberPartExpressions.Add(joinedName.ToConstantExpression());
@@ -84,14 +85,22 @@ namespace AgileObjects.AgileMapper.Members
             return memberPartExpressions;
         }
 
-        private static bool IsRootDictionaryContext(IMemberMapperData mapperData)
+        private static bool IsRootDictionaryContext(
+            Member targetMember,
+            bool isTargetDictionary,
+            IMemberMapperData mapperData)
         {
-            if (!mapperData.SourceType.IsDictionary())
+            if (targetMember.IsRoot)
             {
-                return false;
+                return true;
             }
 
-            return !mapperData.Parent.SourceType.IsDictionary();
+            if (isTargetDictionary)
+            {
+                return targetMember.IsDictionary;
+            }
+
+            return mapperData.SourceType.IsDictionary() && !mapperData.Parent.SourceType.IsDictionary();
         }
 
         private static Expression GetEnumerableIndexAccess(Expression parentContextAccess, IMemberMapperData mapperData)

@@ -376,7 +376,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ParameterExpression CreateInstanceVariable()
         {
-            if (TargetMember.IsEnumerable && !TargetType.IsDictionary())
+            if (TargetMember.IsEnumerable && !TargetMember.IsDictionary)
             {
                 return EnumerablePopulationBuilder.TargetVariable;
             }
@@ -504,6 +504,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void RegisterTargetMemberDataSourcesIfRequired(QualifiedMember targetMember, DataSourceSet dataSources)
         {
+            // TODO: Only add entries where necessary
             DataSourcesByTargetMember.Add(targetMember, dataSources);
 
             if (targetMember.IsSimple)
@@ -511,6 +512,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
+            // TODO: Only add entries where necessary
             _dataSourcesByTargetMemberName.Add(targetMember.RegistrationName, dataSources);
         }
 

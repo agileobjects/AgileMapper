@@ -107,12 +107,17 @@
                 return true;
             }
 
-            var rootDictionaryContextOffset = mapperData.TargetMember.MemberChain.Length;
+            if (mapperData.TargetMember is DictionaryTargetMember)
+            {
+                return mapperData.TargetMember.MemberChain[memberIndex - 1].IsDictionary;
+            }
+
+            var rootDictionaryContextIndex = mapperData.TargetMember.MemberChain.Length;
             var sourceMember = mapperData.SourceMember;
 
             while (mapperData.SourceMember.Type == sourceMember.Type)
             {
-                --rootDictionaryContextOffset;
+                --rootDictionaryContextIndex;
                 mapperData = mapperData.Parent;
 
                 if (mapperData == null)
@@ -121,7 +126,7 @@
                 }
             }
 
-            memberIndex = memberIndex - rootDictionaryContextOffset;
+            memberIndex = memberIndex - rootDictionaryContextIndex;
 
             return memberIndex == 1;
         }

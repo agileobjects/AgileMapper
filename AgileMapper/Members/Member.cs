@@ -58,6 +58,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if (IsEnumerable)
             {
+                IsComplex = IsDictionary = type.IsDictionary();
                 ElementType = Type.GetEnumerableElementType();
                 return;
             }
@@ -176,6 +177,8 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsComplex { get; }
 
         public bool IsEnumerable { get; }
+
+        public bool IsDictionary { get; }
 
         public bool IsSimple { get; }
 
