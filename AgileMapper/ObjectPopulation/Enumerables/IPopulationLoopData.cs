@@ -15,14 +15,14 @@
 
     internal static class PopulationLoopDataExtensions
     {
-        public static Expression BuildPopulationLoop<TArg>(
+        public static Expression BuildPopulationLoop(
             this IPopulationLoopData loopData,
             EnumerablePopulationBuilder builder,
-            TArg builderArgument,
-            Func<IPopulationLoopData, TArg, Expression> mappedElementAdditionFactory)
+            IObjectMappingData mappingData,
+            Func<IPopulationLoopData, IObjectMappingData, Expression> mappedElementAdditionFactory)
         {
             var breakLoop = Expression.Break(Expression.Label(typeof(void), "Break"));
-            var mappedElementAddition = mappedElementAdditionFactory.Invoke(loopData, builderArgument);
+            var mappedElementAddition = mappedElementAdditionFactory.Invoke(loopData, mappingData);
 
             var loopBody = Expression.Block(
                 Expression.IfThen(loopData.LoopExitCheck, breakLoop),

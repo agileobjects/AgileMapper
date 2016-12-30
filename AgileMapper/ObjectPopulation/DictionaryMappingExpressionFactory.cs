@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Enumerables;
     using Extensions;
     using Members;
+    using Members.Population;
     using NetStandardPolyfills;
     using ReadableExpressions;
 
@@ -205,7 +206,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var valueConversion = populationLoopData.Builder.GetElementConversion(valueAccess, mappingData);
 
             var targetEntryIndex = mapperData.InstanceVariable.GetIndexAccess(keyVariable);
-            var targetEntryAssignment = targetEntryIndex.AssignTo(valueConversion);
+            Expression targetEntryAssignment = targetEntryIndex.AssignTo(valueConversion);
+
+            var targetDictionaryEntryMember = targetDictionaryMember.Append(keyVariable);
+            var childMapperData = new ChildMemberMapperData(targetDictionaryEntryMember, mappingData.MapperData);
+            var childMappingData = mappingData.GetChildMappingData(childMapperData);
+
+            var populationGuard = MemberPopulation.GetPopulationGuardOrNull(childMappingData);
+
+            if (populationGuard != null)
+            {
+                targetEntryAssignment = Expression.IfThen(populationGuard, targetEntryAssignment);
+            }
 
             return Expression.Block(new[] { keyVariable }, keyAssignment, targetEntryAssignment);
         }

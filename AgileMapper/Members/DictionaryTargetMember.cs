@@ -14,6 +14,7 @@ namespace AgileObjects.AgileMapper.Members
     internal class DictionaryTargetMember : QualifiedMember
     {
         private readonly DictionaryTargetMember _rootDictionaryMember;
+        private Expression _key;
 
         public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
             : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
@@ -38,7 +39,16 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type ValueType { get; }
 
-        public override bool AllowObjectValueChecks => true;
+        public override bool GuardObjectValuePopulations => true;
+
+        public DictionaryTargetMember Append(ParameterExpression key)
+        {
+            var childMember = Append(key.Name);
+
+            childMember._key = key;
+
+            return childMember;
+        }
 
         public DictionaryTargetMember Append(string sourceMemberName)
         {
@@ -62,7 +72,7 @@ namespace AgileObjects.AgileMapper.Members
                 return base.GetAccess(instance, mapperData);
             }
 
-            var index = mapperData.GetTargetMemberDictionaryKey();
+            var index = _key ?? mapperData.GetTargetMemberDictionaryKey();
             var indexAccess = mapperData.InstanceVariable.GetIndexAccess(index);
 
             return indexAccess;
@@ -72,7 +82,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             var existingValueVariable = Expression.Variable(ValueType, "existingValue");
             var tryGetValueMethod = mapperData.InstanceVariable.Type.GetMethod("TryGetValue");
-            var index = mapperData.GetTargetMemberDictionaryKey();
+            var index = _key ?? mapperData.GetTargetMemberDictionaryKey();
 
             var tryGetValueCall = Expression.Call(
                 mapperData.InstanceVariable,

@@ -194,7 +194,7 @@ namespace AgileObjects.AgileMapper.Members
             return true;
         }
 
-        public virtual bool AllowObjectValueChecks => false;
+        public virtual bool GuardObjectValuePopulations => false;
 
         IQualifiedMember IQualifiedMember.GetElementMember() => GetElementMember();
 

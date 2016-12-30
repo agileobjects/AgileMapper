@@ -21,26 +21,17 @@ namespace AgileObjects.AgileMapper.Members.Population
             Expression populateCondition)
             : this(mappingData.MapperData, dataSources)
         {
-            _populateCondition = GetPopulateCondition(dataSources, populateCondition, mappingData);
+            if (!dataSources.None)
+            {
+                _populateCondition = GetPopulateCondition(populateCondition, mappingData);
+            }
 
             MapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(MapperData.TargetMember, dataSources);
         }
 
-        private static Expression GetPopulateCondition(
-            DataSourceSet dataSources,
-            Expression populateCondition,
-            IChildMemberMappingData mappingData)
+        private static Expression GetPopulateCondition(Expression populateCondition, IChildMemberMappingData mappingData)
         {
-            var mapperData = mappingData.MapperData;
-
-            if (SkipPopulateCondition(dataSources, mapperData))
-            {
-                return populateCondition;
-            }
-
-            var populationGuard = mappingData.RuleSet
-                .PopulationGuardFactory
-                .GetPopulationGuardOrNull(mapperData);
+            var populationGuard = GetPopulationGuardOrNull(mappingData);
 
             if (populationGuard == null)
             {
@@ -55,13 +46,18 @@ namespace AgileObjects.AgileMapper.Members.Population
             return Expression.AndAlso(populateCondition, populationGuard);
         }
 
-        private static bool SkipPopulateCondition(DataSourceSet dataSources, IBasicMapperData mapperData)
+        public static Expression GetPopulationGuardOrNull(IChildMemberMappingData mappingData)
         {
-            if (dataSources.None)
+            if (SkipPopulateCondition(mappingData.MapperData))
             {
-                return true;
+                return null;
             }
 
+            return mappingData.RuleSet.PopulationGuardFactory.GetPopulationGuardOrNull(mappingData.MapperData);
+        }
+
+        private static bool SkipPopulateCondition(IBasicMapperData mapperData)
+        {
             if (mapperData.TargetMember.IsSimple)
             {
                 return false;
@@ -72,9 +68,9 @@ namespace AgileObjects.AgileMapper.Members.Population
                 return true;
             }
 
-            var objectValueChecksAllowed = !mapperData.TargetMember.AllowObjectValueChecks;
+            var skipObjectValueGuarding = !mapperData.TargetMember.GuardObjectValuePopulations;
 
-            return objectValueChecksAllowed;
+            return skipObjectValueGuarding;
         }
 
         private MemberPopulation(IMemberMapperData mapperData, DataSourceSet dataSources)
