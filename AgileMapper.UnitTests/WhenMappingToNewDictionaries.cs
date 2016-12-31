@@ -65,6 +65,18 @@
         }
 
         [Fact]
+        public void ShouldMapASimpleTypeListToAConvertibleTypedDictionary()
+        {
+            var source = new List<string> { "8", "7", "6" };
+            var result = Mapper.Map(source).ToANew<Dictionary<object, short>>();
+
+            result.Count.ShouldBe(3);
+            result["[0]"].ShouldBe(8);
+            result["[1]"].ShouldBe(7);
+            result["[2]"].ShouldBe(6);
+        }
+
+        [Fact]
         public void ShouldMapBetweenSameSimpleValueTypedDictionaries()
         {
             var source = new Dictionary<string, int> { ["One"] = 1, ["Two"] = 2 };
