@@ -52,6 +52,19 @@
         }
 
         [Fact]
+        public void ShouldMapASimpleTypeArrayToAnUntypedDictionary()
+        {
+            var source = new[] { 5, 6, 7, 8 };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, object>>();
+
+            result.Count.ShouldBe(4);
+            result["[0]"].ShouldBe(5);
+            result["[1]"].ShouldBe(6);
+            result["[2]"].ShouldBe(7);
+            result["[3]"].ShouldBe(8);
+        }
+
+        [Fact]
         public void ShouldMapBetweenSameSimpleValueTypedDictionaries()
         {
             var source = new Dictionary<string, int> { ["One"] = 1, ["Two"] = 2 };

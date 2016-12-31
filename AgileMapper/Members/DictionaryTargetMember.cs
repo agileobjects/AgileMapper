@@ -39,6 +39,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type ValueType { get; }
 
+        public bool HasObjectEntries => ValueType == typeof(object);
+
         public override bool GuardObjectValuePopulations => true;
 
         public DictionaryTargetMember Append(ParameterExpression key)

@@ -30,12 +30,12 @@
 
         public static Expression GetStringConcatCall(this IList<Expression> expressions)
         {
-            OptimiseForStringConcat(expressions);
-
             if (expressions.HasOne() && (expressions.First().NodeType == ExpressionType.Constant))
             {
                 return expressions.First();
             }
+
+            OptimiseForStringConcat(expressions);
 
             if (_stringConcatMethods.Length >= expressions.Count - 1)
             {

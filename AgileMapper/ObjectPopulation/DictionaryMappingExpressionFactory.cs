@@ -50,35 +50,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.TargetMember.IsDictionary)
+            DictionarySourceMember sourceDictionaryMember;
+
+            if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
             {
-                DictionarySourceMember sourceDictionaryMember;
-
-                if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
+                if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
                 {
-                    if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
-                    {
-                        yield return GetClonedDictionaryAssignment(mapperData);
-                        yield break;
-                    }
-
-                    yield return GetProjectedDictionaryAssignment(sourceDictionaryMember, mappingData);
-                    yield return GetDictionaryToDictionaryProjection(sourceDictionaryMember, mappingData);
+                    yield return GetClonedDictionaryAssignment(mapperData);
                     yield break;
                 }
 
-                yield return GetParameterlessDictionaryAssignment(mappingData);
+                yield return GetMappedDictionaryAssignment(sourceDictionaryMember, mappingData);
+                yield return GetDictionaryToDictionaryMapping(sourceDictionaryMember, mappingData);
+                yield break;
             }
 
-            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
-
-            var allTargetMembers = EnumerateTargetMembers(mapperData.SourceType, targetDictionaryMember);
-            var memberPopulations = MemberPopulationFactory.Create(allTargetMembers, mappingData);
-
-            foreach (var memberPopulation in memberPopulations)
-            {
-                yield return memberPopulation.GetPopulation();
-            }
+            yield return GetParameterlessDictionaryAssignment(mappingData);
+            yield return GetDictionaryPopulation(mappingData);
         }
 
         private static bool SourceMemberIsDictionary(
@@ -93,14 +81,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IQualifiedMember sourceDictionaryMember,
             IBasicMapperData mapperData)
         {
-            if (sourceDictionaryMember.Type != mapperData.TargetType)
-            {
-                return false;
-            }
-
-            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
-
-            return targetDictionaryMember.ValueType.IsSimple();
+            return mapperData.TargetMember.ElementType.IsSimple() &&
+                  (sourceDictionaryMember.Type == mapperData.TargetType);
         }
 
         private static Expression GetClonedDictionaryAssignment(IMemberMapperData mapperData)
@@ -135,14 +117,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Ctor;
         }
 
-        private static Expression GetProjectedDictionaryAssignment(
+        private static Expression GetMappedDictionaryAssignment(
             DictionarySourceMember sourceDictionaryMember,
             IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
-            if (UseParameterlessConstructor(sourceDictionaryMember, targetDictionaryMember))
+            if (UseParameterlessConstructor(sourceDictionaryMember, mapperData))
             {
                 return GetParameterlessDictionaryAssignment(mappingData);
             }
@@ -150,7 +131,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
 
             var constructor = FindDictionaryConstructor(
-                targetDictionaryMember.Type,
+                mapperData.TargetType,
                 comparer.Type,
                 numberOfParameters: 1);
 
@@ -159,17 +140,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool UseParameterlessConstructor(
             DictionarySourceMember sourceDictionaryMember,
-            DictionaryTargetMember targetDictionaryMember)
+            IBasicMapperData mapperData)
         {
             if (sourceDictionaryMember.Type.IsInterface)
             {
                 return true;
             }
 
-            return sourceDictionaryMember.ValueType != targetDictionaryMember.ValueType;
+            return sourceDictionaryMember.ValueType != mapperData.TargetMember.ElementType;
         }
 
-        private static Expression GetDictionaryToDictionaryProjection(
+        private static Expression GetDictionaryToDictionaryMapping(
             DictionarySourceMember sourceDictionaryMember,
             IObjectMappingData mappingData)
         {
@@ -186,24 +167,39 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var populationLoop = populationLoopData.BuildPopulationLoop(
                 mapperData.EnumerablePopulationBuilder,
                 mappingData,
-                GetTargetEntryAssignment);
+                GetSourceDictionaryTargetEntryAssignment);
 
             return populationLoop;
         }
 
-        private static Expression GetTargetEntryAssignment(IPopulationLoopData loopData, IObjectMappingData mappingData)
+        private static Expression GetSourceDictionaryTargetEntryAssignment(
+            IPopulationLoopData loopData,
+            IObjectMappingData mappingData)
+        {
+            return GetTargetEntryAssignment(
+                loopData,
+                mappingData,
+                eld => Expression.Property(eld.SourceElement, "Key"),
+                eld => Expression.Property(eld.SourceElement, "Value"));
+        }
+
+        private static Expression GetTargetEntryAssignment(
+            IPopulationLoopData loopData,
+            IObjectMappingData mappingData,
+            Func<EnumerableSourcePopulationLoopData, Expression> targetElementKeyFactory,
+            Func<EnumerableSourcePopulationLoopData, Expression> targetElementValueFactory)
         {
             var populationLoopData = (EnumerableSourcePopulationLoopData)loopData;
             var mapperData = populationLoopData.Builder.MapperData;
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
             var keyVariable = Expression.Variable(targetDictionaryMember.KeyType, "targetKey");
-            var keyAccess = Expression.Property(populationLoopData.SourceElement, "Key");
+            var keyAccess = targetElementKeyFactory.Invoke(populationLoopData);
             var keyConversion = mapperData.GetValueConversion(keyAccess, keyVariable.Type);
             var keyAssignment = keyVariable.AssignTo(keyConversion);
 
-            var valueAccess = Expression.Property(populationLoopData.SourceElement, "Value");
-            var valueConversion = populationLoopData.Builder.GetElementConversion(valueAccess, mappingData);
+            var valueAccess = targetElementValueFactory.Invoke(populationLoopData);
+            var valueConversion = GetElementConversion(populationLoopData, valueAccess, mappingData);
 
             var targetEntryIndex = mapperData.InstanceVariable.GetIndexAccess(keyVariable);
             Expression targetEntryAssignment = targetEntryIndex.AssignTo(valueConversion);
@@ -222,6 +218,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.Block(new[] { keyVariable }, keyAssignment, targetEntryAssignment);
         }
 
+        private static Expression GetElementConversion(
+            EnumerableSourcePopulationLoopData loopData,
+            Expression value,
+            IObjectMappingData mappingData)
+        {
+            if (value.Type.IsSimple())
+            {
+                return loopData.Builder.GetSimpleElementConversion(value);
+            }
+
+            return loopData.Builder.GetElementConversion(value, mappingData);
+        }
+
         private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)
         {
             var targetType = mappingData.MapperData.TargetType.IsInterface
@@ -237,6 +246,60 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return mappingData.MapperData.InstanceVariable.AssignTo(value);
         }
+
+        private static Expression GetDictionaryPopulation(IObjectMappingData mappingData)
+        {
+            var mapperData = mappingData.MapperData;
+            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
+
+            if (mapperData.SourceMember.IsEnumerable)
+            {
+                return GetEnumerableToDictionaryMapping(mappingData);
+            }
+
+            var allTargetMembers = EnumerateTargetMembers(mapperData.SourceType, targetDictionaryMember);
+            var memberPopulations = MemberPopulationFactory.Create(allTargetMembers, mappingData);
+            var memberPopulationBlock = Expression.Block(memberPopulations.Select(mp => mp.GetPopulation()));
+
+            return memberPopulationBlock;
+        }
+
+        private static Expression GetEnumerableToDictionaryMapping(IObjectMappingData mappingData)
+        {
+            var mapperData = mappingData.MapperData;
+            var sourceElementType = mapperData.SourceType.GetEnumerableElementType();
+
+            var populationLoopData = new EnumerableSourcePopulationLoopData(
+                mapperData.EnumerablePopulationBuilder,
+                sourceElementType,
+                mapperData.SourceObject);
+
+            var populationLoop = populationLoopData.BuildPopulationLoop(
+                mapperData.EnumerablePopulationBuilder,
+                mappingData,
+                GetSourceEnumerableTargetEntryAssignment);
+
+            return populationLoop;
+        }
+
+        private static Expression GetSourceEnumerableTargetEntryAssignment(
+            IPopulationLoopData loopData,
+            IObjectMappingData mappingData)
+        {
+            return GetTargetEntryAssignment(
+                loopData,
+                mappingData,
+                eld =>
+                {
+                    var targetElementMember = eld.Builder.MapperData.TargetMember.GetElementMember();
+                    var targetElementMapperData = new ChildMemberMapperData(targetElementMember, eld.Builder.MapperData);
+                    var targetElementKey = targetElementMapperData.GetTargetMemberDictionaryKey();
+
+                    return targetElementKey;
+                },
+                eld => eld.SourceElement);
+        }
+
 
         private static IEnumerable<QualifiedMember> EnumerateTargetMembers(
             Type parentSourceType,
