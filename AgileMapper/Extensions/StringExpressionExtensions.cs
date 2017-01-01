@@ -30,6 +30,11 @@
 
         public static Expression GetStringConcatCall(this IList<Expression> expressions)
         {
+            if (expressions.None())
+            {
+                return string.Empty.ToConstantExpression();
+            }
+
             if (expressions.HasOne() && (expressions.First().NodeType == ExpressionType.Constant))
             {
                 return expressions.First();
