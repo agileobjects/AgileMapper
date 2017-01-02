@@ -107,6 +107,11 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (parentContextAccess == null)
             {
+                while (!mapperData.TargetMemberIsEnumerableElement())
+                {
+                    mapperData = mapperData.Parent;
+                }
+
                 return mapperData.Parent.EnumerablePopulationBuilder.Counter;
             }
 

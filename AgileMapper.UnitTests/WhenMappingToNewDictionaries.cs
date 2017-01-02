@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -74,6 +75,26 @@
             result["[0]"].ShouldBe(8);
             result["[1]"].ShouldBe(7);
             result["[2]"].ShouldBe(6);
+        }
+
+        [Fact]
+        public void ShouldMapAComplexTypeCollectionToAnUntypedDictionary()
+        {
+            var source = new Collection<Address>
+            {
+                new Address { Line1 = "LOL" },
+                new Address { Line1 = "ROFL", Line2 = "YOLO" }
+            };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, object>>();
+
+            result.Count.ShouldBe(4);
+            result.ContainsKey("[0]").ShouldBeFalse();
+
+            result["[0].Line1"].ShouldBe("LOL");
+            result["[0].Line2"].ShouldBeNull();
+
+            result["[1].Line1"].ShouldBe("ROFL");
+            result["[1].Line2"].ShouldBe("YOLO");
         }
 
         [Fact]

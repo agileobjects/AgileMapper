@@ -64,20 +64,80 @@ namespace AgileObjects.AgileMapper.Members
         {
             var matchedTargetEntryMember = base.CreateChildMember(childMember);
 
-            return new DictionaryTargetMember(matchedTargetEntryMember, _rootDictionaryMember);
+            if (CreateDictionaryChildMember(matchedTargetEntryMember))
+            {
+                return new DictionaryTargetMember(matchedTargetEntryMember, _rootDictionaryMember);
+            }
+
+            return matchedTargetEntryMember;
+        }
+
+        private bool CreateDictionaryChildMember(QualifiedMember entryMember)
+        {
+            if (_rootDictionaryMember.HasObjectEntries)
+            {
+                return true;
+            }
+
+            if (entryMember.MemberChain.Length <= 2)
+            {
+                return true;
+            }
+
+            for (var i = entryMember.MemberChain.Length - 1; i > 0; --i)
+            {
+                var member = entryMember.MemberChain[i];
+
+                if (member.IsSimple)
+                {
+                    continue;
+                }
+
+                if (member.IsDictionary)
+                {
+                    return true;
+                }
+
+                if (member.IsComplex && (member.Type != typeof(object)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        protected override QualifiedMember CreateRuntimeTypedMember(Type runtimeType)
+        {
+            var runtimeTypedTargetEntryMember = base.CreateRuntimeTypedMember(runtimeType);
+
+            return new DictionaryTargetMember(runtimeTypedTargetEntryMember, _rootDictionaryMember);
         }
 
         public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)
         {
-            if (mapperData.InstanceVariable.Type != _rootDictionaryMember.Type)
+            if (mapperData.TargetMember == _rootDictionaryMember)
             {
                 return base.GetAccess(instance, mapperData);
             }
 
             var index = _key ?? mapperData.GetTargetMemberDictionaryKey();
-            var indexAccess = mapperData.InstanceVariable.GetIndexAccess(index);
+            var dictionaryMapperData = FindDictionaryMapperData(mapperData);
+            var indexAccess = dictionaryMapperData.InstanceVariable.GetIndexAccess(index);
 
             return indexAccess;
+        }
+
+        private IMemberMapperData FindDictionaryMapperData(IMemberMapperData mapperData)
+        {
+            var dictionaryMapperData = mapperData;
+
+            while (dictionaryMapperData.TargetMember != _rootDictionaryMember)
+            {
+                dictionaryMapperData = dictionaryMapperData.Parent;
+            }
+
+            return dictionaryMapperData;
         }
 
         public override Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
@@ -101,11 +161,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
         {
-            if (mapperData.InstanceVariable.Type != _rootDictionaryMember.Type)
-            {
-                return base.GetPopulation(value, mapperData);
-            }
-
             var indexAccess = GetAccess(mapperData.InstanceVariable, mapperData);
             var indexAssignment = indexAccess.AssignTo(value);
 

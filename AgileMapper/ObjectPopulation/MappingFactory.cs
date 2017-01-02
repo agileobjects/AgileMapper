@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq.Expressions;
-    using System.Reflection;
     using Extensions;
     using Members;
 
@@ -64,17 +63,8 @@
 
             var inlineMappingBlock = GetInlineMappingBlock(
                 childMappingData,
-                MappingDataFactory.ForChildMethod,
                 mappingValues,
-                new[]
-                {
-                    mappingValues.SourceValue,
-                    mappingValues.TargetValue,
-                    mappingValues.EnumerableIndex,
-                    childMapperData.TargetMember.RegistrationName.ToConstantExpression(),
-                    dataSourceIndex.ToConstantExpression(),
-                    childMapperData.Parent.MappingDataObject
-                });
+                MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childMapperData));
 
             return inlineMappingBlock;
         }
@@ -147,61 +137,45 @@
 
             return GetInlineMappingBlock(
                 elementMappingData,
-                MappingDataFactory.ForElementMethod,
                 mappingValues,
-                new[]
-                {
-                    mappingValues.SourceValue,
-                    mappingValues.TargetValue,
-                    mappingValues.EnumerableIndex,
-                    parentMappingDataObject
-                });
+                MappingDataCreationFactory.ForElement(mappingValues, parentMappingDataObject, elementMapperData));
         }
 
         public static Expression GetInlineMappingBlock(
-            IObjectMappingData childMappingData,
-            MethodInfo createMethod,
+            IObjectMappingData mappingData,
             MappingValues mappingValues,
-            Expression[] createMethodCallArguments)
+            Expression createMappingDataCall)
         {
-            var childMapper = childMappingData.Mapper;
+            var mapper = mappingData.Mapper;
 
-            if (childMapper.MappingExpression.NodeType != ExpressionType.Try)
+            if (mapper.MappingExpression.NodeType != ExpressionType.Try)
             {
-                return childMapper.MappingExpression;
+                return mapper.MappingExpression;
             }
 
-            if (!childMapper.MapperData.Context.UsesMappingDataObject)
+            if (!mapper.MapperData.Context.UsesMappingDataObject)
             {
                 return GetDirectAccessMapping(
-                    childMappingData,
+                    mapper.MappingLambda.Body,
+                    mapper.MapperData,
                     mappingValues,
-                    createMethod,
-                    createMethodCallArguments);
+                    createMappingDataCall);
             }
 
-            var createInlineMappingDataCall = GetCreateMappingDataCall(
-                createMethod,
-                childMapper.MapperData,
-                createMethodCallArguments);
-
             var mappingBlock = UseLocalSourceValueVariable(
-                childMapper.MapperData.MappingDataObject,
-                createInlineMappingDataCall,
-                childMapper.MappingExpression);
+                mapper.MapperData.MappingDataObject,
+                createMappingDataCall,
+                mapper.MappingExpression);
 
             return mappingBlock;
         }
 
-        private static Expression GetDirectAccessMapping(
-            IObjectMappingData mappingData,
+        public static Expression GetDirectAccessMapping(
+            Expression mapping,
+            ObjectMapperData mapperData,
             MappingValues mappingValues,
-            MethodInfo createMethod,
-            Expression[] createMethodCallArguments)
+            Expression createMappingDataCall)
         {
-            var mapperData = mappingData.MapperData;
-            var mapping = mappingData.Mapper.MappingLambda.Body;
-
             var useLocalSourceValueVariable =
                 ShouldUseLocalSourceValueVariable(mappingValues.SourceValue, mapping, mapperData);
 
@@ -227,14 +201,9 @@
 
             var directAccessMapping = mapping.Replace(replacementsByTarget);
 
-            var createInlineMappingDataCall = GetCreateMappingDataCall(
-                createMethod,
-                mapperData,
-                createMethodCallArguments);
-
             directAccessMapping = directAccessMapping.Replace(
                 mapperData.MappingDataObject,
-                createInlineMappingDataCall);
+                createMappingDataCall);
 
             return useLocalSourceValueVariable
                 ? UseLocalSourceValueVariable((ParameterExpression)sourceValue, sourceValueVariableValue, directAccessMapping)
@@ -267,22 +236,6 @@
             }
 
             return sourceValueVariableName + numericSuffix;
-        }
-
-        private static Expression GetCreateMappingDataCall(
-            MethodInfo createMethod,
-            ObjectMapperData childMapperData,
-            Expression[] createMethodCallArguments)
-        {
-            if (childMapperData.Context.IsStandalone)
-            {
-                return childMapperData.DeclaredTypeMapperData
-                    .GetAsCall(childMapperData.SourceType, childMapperData.TargetType);
-            }
-
-            return Expression.Call(
-                createMethod.MakeGenericMethod(childMapperData.SourceType, childMapperData.TargetType),
-                createMethodCallArguments);
         }
 
         public static Expression UseLocalSourceValueVariableIfAppropriate(

@@ -243,21 +243,24 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            var runtimeTypedMember = _runtimeTypedMemberCache.GetOrAdd(runtimeType, rt =>
-            {
-                var newMemberChain = new Member[MemberChain.Length];
-
-                for (var i = 0; i < MemberChain.Length - 1; i++)
-                {
-                    newMemberChain[i] = MemberChain[i];
-                }
-
-                newMemberChain[MemberChain.Length - 1] = LeafMember.WithType(rt);
-
-                return new QualifiedMember(newMemberChain, this);
-            });
+            var runtimeTypedMember = _runtimeTypedMemberCache
+                .GetOrAdd(runtimeType, CreateRuntimeTypedMember);
 
             return runtimeTypedMember;
+        }
+
+        protected virtual QualifiedMember CreateRuntimeTypedMember(Type runtimeType)
+        {
+            var newMemberChain = new Member[MemberChain.Length];
+
+            for (var i = 0; i < MemberChain.Length - 1; i++)
+            {
+                newMemberChain[i] = MemberChain[i];
+            }
+
+            newMemberChain[MemberChain.Length - 1] = LeafMember.WithType(runtimeType);
+
+            return new QualifiedMember(newMemberChain, this);
         }
 
         public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);

@@ -305,7 +305,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 dataSourceIndex = (membersSource as IChildMembersSource)?.DataSourceIndex;
                 parentMapperData = mappingData.Parent.MapperData;
-
                 isForStandaloneMapping = mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
             }
 

@@ -44,13 +44,10 @@
                 targetValue,
                 typeof(int?).ToDefaultExpression());
 
-            // Derived type conversions are performed with ObjectMappingData.As<TDerivedSource, TDerivedTarget>()
-            // so no need for createMethod or createMethodCallArguments arguments:
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(
                 derivedTypeMappingData,
-                default(MethodInfo),
                 mappingValues,
-                Enumerable<Expression>.EmptyArray);
+                MappingDataCreationFactory.ForDerivedType(derivedTypeMappingData.MapperData));
 
             return inlineMappingBlock;
         }

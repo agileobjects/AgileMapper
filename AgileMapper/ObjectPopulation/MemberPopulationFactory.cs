@@ -10,23 +10,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
         {
-            var targetMembers = GlobalContext
+            var memberPopulations = GlobalContext
                 .Instance
                 .MemberFinder
                 .GetTargetMembers(mappingData.MapperData.TargetType)
-                .Select(targetMember => mappingData.MapperData.TargetMember.Append(targetMember));
+                .Select(tm => Create(mappingData.MapperData.TargetMember.Append(tm), mappingData));
 
-            return Create(targetMembers, mappingData);
+            return memberPopulations;
         }
 
-        public static IEnumerable<IMemberPopulation> Create(
-            IEnumerable<QualifiedMember> targetMembers,
-            IObjectMappingData mappingData)
-        {
-            return targetMembers.Select(tm => Create(tm, mappingData));
-        }
-
-        private static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
+        public static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 
