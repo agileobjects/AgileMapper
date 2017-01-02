@@ -8,7 +8,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Enumerables;
     using Extensions;
     using Members;
-    using Members.Population;
     using NetStandardPolyfills;
     using ReadableExpressions;
 
@@ -50,22 +49,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            DictionarySourceMember sourceDictionaryMember;
-
-            if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
+            if (mapperData.TargetMember.IsDictionary)
             {
-                if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
+                DictionarySourceMember sourceDictionaryMember;
+
+                if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
                 {
-                    yield return GetClonedDictionaryAssignment(mapperData);
+                    if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
+                    {
+                        yield return GetClonedDictionaryAssignment(mapperData);
+                        yield break;
+                    }
+
+                    yield return GetMappedDictionaryAssignment(sourceDictionaryMember, mappingData);
+                    yield return GetDictionaryToDictionaryMapping(sourceDictionaryMember, mappingData);
                     yield break;
                 }
 
-                yield return GetMappedDictionaryAssignment(sourceDictionaryMember, mappingData);
-                yield return GetDictionaryToDictionaryMapping(sourceDictionaryMember, mappingData);
-                yield break;
+                yield return GetParameterlessDictionaryAssignment(mappingData);
             }
 
-            yield return GetParameterlessDictionaryAssignment(mappingData);
             yield return GetDictionaryPopulation(mappingData);
         }
 
@@ -173,7 +176,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static Expression GetSourceDictionaryTargetEntryAssignment(
-            IPopulationLoopData loopData,
+            EnumerableSourcePopulationLoopData loopData,
             IObjectMappingData mappingData)
         {
             return GetTargetEntryAssignment(
@@ -184,22 +187,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static Expression GetTargetEntryAssignment(
-            IPopulationLoopData loopData,
+            EnumerableSourcePopulationLoopData loopData,
             IObjectMappingData mappingData,
             Func<EnumerableSourcePopulationLoopData, Expression> targetElementKeyFactory,
             Func<EnumerableSourcePopulationLoopData, Expression> targetElementValueFactory)
         {
-            var populationLoopData = (EnumerableSourcePopulationLoopData)loopData;
-            var mapperData = populationLoopData.Builder.MapperData;
+            var mapperData = loopData.Builder.MapperData;
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
             var keyVariable = Expression.Variable(targetDictionaryMember.KeyType, "targetKey");
-            var keyAccess = targetElementKeyFactory.Invoke(populationLoopData);
+            var keyAccess = targetElementKeyFactory.Invoke(loopData);
             var keyConversion = mapperData.GetValueConversion(keyAccess, keyVariable.Type);
             var keyAssignment = keyVariable.AssignTo(keyConversion);
 
-            var valueAccess = targetElementValueFactory.Invoke(populationLoopData);
-            var valueConversion = GetElementConversion(populationLoopData, valueAccess, mappingData);
+            var valueAccess = targetElementValueFactory.Invoke(loopData);
+            var valueConversion = GetElementConversion(loopData, valueAccess, mappingData);
 
             var targetEntryIndex = mapperData.InstanceVariable.GetIndexAccess(keyVariable);
             Expression targetEntryAssignment = targetEntryIndex.AssignTo(valueConversion);
@@ -208,7 +210,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var childMapperData = new ChildMemberMapperData(targetDictionaryEntryMember, mappingData.MapperData);
             var childMappingData = mappingData.GetChildMappingData(childMapperData);
 
-            var populationGuard = MemberPopulation.GetPopulationGuardOrNull(childMappingData);
+            var populationGuard = childMappingData.GetRuleSetPopulationGuardOrNull();
 
             if (populationGuard != null)
             {
@@ -283,7 +285,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static Expression GetSourceEnumerableTargetEntryAssignment(
-            IPopulationLoopData loopData,
+            EnumerableSourcePopulationLoopData loopData,
             IObjectMappingData mappingData)
         {
             return GetTargetEntryAssignment(
@@ -299,7 +301,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 },
                 eld => eld.SourceElement);
         }
-
 
         private static IEnumerable<QualifiedMember> EnumerateTargetMembers(
             Type parentSourceType,

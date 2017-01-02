@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public Expression GetPopulationGuardOrNull(IMemberMapperData mapperData)
         {
-            if (!mapperData.TargetMember.IsReadable)
+            if (SkipPopulateCondition(mapperData))
             {
                 return null;
             }
@@ -17,6 +17,28 @@ namespace AgileObjects.AgileMapper.Members.Population
             var existingValueIsDefault = mapperData.TargetMember.GetHasDefaultValueCheck(mapperData);
 
             return existingValueIsDefault;
+        }
+
+        private static bool SkipPopulateCondition(IBasicMapperData mapperData)
+        {
+            if (!mapperData.TargetMember.IsReadable)
+            {
+                return true;
+            }
+
+            if (mapperData.TargetMember.IsSimple)
+            {
+                return false;
+            }
+
+            if (mapperData.TargetMember.Type != typeof(object))
+            {
+                return true;
+            }
+
+            var skipObjectValueGuarding = !mapperData.TargetMember.GuardObjectValuePopulations;
+
+            return skipObjectValueGuarding;
         }
     }
 }
