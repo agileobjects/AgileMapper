@@ -203,10 +203,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var valueAccess = targetElementValueFactory.Invoke(loopData);
             var valueConversion = GetElementConversion(loopData, valueAccess, mappingData);
 
-            var targetEntryIndex = mapperData.InstanceVariable.GetIndexAccess(keyVariable);
-            Expression targetEntryAssignment = targetEntryIndex.AssignTo(valueConversion);
-
             var targetDictionaryEntryMember = targetDictionaryMember.Append(keyVariable);
+            var targetEntryAssignment = targetDictionaryEntryMember.GetPopulation(valueConversion, mapperData);
+
             var childMapperData = new ChildMemberMapperData(targetDictionaryEntryMember, mappingData.MapperData);
             var childMappingData = mappingData.GetChildMappingData(childMapperData);
 
@@ -227,7 +226,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (value.Type.IsSimple())
             {
-                return loopData.Builder.GetSimpleElementConversion(value);
+                var targetType = ((DictionaryTargetMember)mappingData.MapperData.TargetMember).ValueType;
+
+                return mappingData.MapperData.GetValueConversion(value, targetType);
             }
 
             return loopData.Builder.GetElementConversion(value, mappingData);
@@ -254,13 +255,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperData = mappingData.MapperData;
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
-            var allTargetMembers = EnumerateTargetMembers(mapperData.SourceType, targetDictionaryMember);
+            var allTargetMemberMapperDataPairs = EnumerateTargetMembers(
+                mapperData.SourceType,
+                targetDictionaryMember,
+                mappingData);
 
-            var memberPopulations = allTargetMembers
-                .Select(targetMember => GetMemberPopulation(targetMember, mappingData))
+            var memberPopulations = allTargetMemberMapperDataPairs
+                .Select(pair => GetMemberPopulation(pair.Item1, pair.Item2))
                 .ToArray();
 
-            if (memberPopulations.HasOne() && (memberPopulations[0].NodeType == ExpressionType.Block))
+            if (memberPopulations.HasOne())
             {
                 return memberPopulations[0];
             }
@@ -270,13 +274,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return memberPopulationBlock;
         }
 
-        private static IEnumerable<QualifiedMember> EnumerateTargetMembers(
+        private static IEnumerable<Tuple<DictionaryTargetMember, IObjectMappingData>> EnumerateTargetMembers(
             Type parentSourceType,
-            DictionaryTargetMember targetDictionaryMember)
+            DictionaryTargetMember targetDictionaryMember,
+            IObjectMappingData mappingData)
         {
             if (parentSourceType.IsEnumerable())
             {
-                yield return targetDictionaryMember;
+                yield return Tuple.Create(targetDictionaryMember, mappingData);
                 yield break;
             }
 
@@ -288,15 +293,43 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (sourceMember.IsSimple)
                 {
-                    yield return entryTargetMember;
+                    yield return Tuple.Create(entryTargetMember, mappingData);
                     continue;
                 }
 
-                foreach (var childTargetMember in EnumerateTargetMembers(sourceMember.Type, entryTargetMember))
+                var childMappingData = GetChildMappingData(sourceMember, entryTargetMember, mappingData);
+
+                var childMemberMapperDataPairs = EnumerateTargetMembers(
+                    sourceMember.Type,
+                    entryTargetMember,
+                    childMappingData);
+
+                foreach (var memberMappingDataPair in childMemberMapperDataPairs)
                 {
-                    yield return childTargetMember;
+                    yield return memberMappingDataPair;
                 }
             }
+        }
+
+        private static IObjectMappingData GetChildMappingData(
+            Member nonSimpleSourceMember,
+            QualifiedMember entryTargetMember,
+            IObjectMappingData mappingData)
+        {
+            if (nonSimpleSourceMember.IsComplex)
+            {
+                return mappingData;
+            }
+
+            var qualifiedSourceMember = mappingData.MapperData.SourceMember.Append(nonSimpleSourceMember);
+
+            var childMappingData = ObjectMappingDataFactory.ForChild(
+                qualifiedSourceMember,
+                entryTargetMember,
+                0,
+                mappingData);
+
+            return childMappingData;
         }
 
         private static Expression GetMemberPopulation(QualifiedMember targetMember, IObjectMappingData mappingData)
@@ -317,17 +350,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperData = mappingData.MapperData;
             var sourceElementType = mapperData.SourceType.GetEnumerableElementType();
 
-            var populationLoopData = new EnumerableSourcePopulationLoopData(
+            var loopData = new EnumerableSourcePopulationLoopData(
                 mapperData.EnumerablePopulationBuilder,
                 sourceElementType,
                 mapperData.SourceObject);
 
-            var populationLoop = populationLoopData.BuildPopulationLoop(
+            var populationLoop = loopData.BuildPopulationLoop(
                 mapperData.EnumerablePopulationBuilder,
                 mappingData,
                 GetSourceEnumerableTargetEntryAssignment);
 
-            return populationLoop;
+            if (mapperData.IsRoot || mapperData.SourceType.RuntimeTypeNeeded())
+            {
+                return populationLoop;
+            }
+
+            var mappingValues = new MappingValues(
+                mapperData.SourceMember.GetQualifiedAccess(mapperData.Parent.SourceObject),
+                mapperData.TargetType.ToDefaultExpression(),
+                mapperData.Parent.EnumerableIndex);
+
+            var directMapping = MappingFactory.GetDirectAccessMapping(
+                populationLoop,
+                mapperData,
+                mappingValues,
+                MappingDataCreationFactory.ForChildNoAsCheck(mappingValues, 0, mapperData));
+
+            return directMapping;
         }
 
         private static Expression GetSourceEnumerableTargetEntryAssignment(
@@ -363,7 +412,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 elementMapping,
                 elementMapperData,
                 mappingValues,
-                MappingDataCreationFactory.ForElement(mappingValues, elementMapperData));
+                MappingDataCreationFactory.ForElementNoAsCheck(mappingValues, elementMapperData));
 
             return directMapping;
         }

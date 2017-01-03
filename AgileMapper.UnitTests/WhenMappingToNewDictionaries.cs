@@ -98,6 +98,39 @@
         }
 
         [Fact]
+        public void ShouldMapNestedComplexAndSimpleTypeEnumerablesToAnUntypedDictionary()
+        {
+            var now = DateTime.Now;
+            var source = new PublicTwoFields<IEnumerable<Person>, ICollection<DateTime>>
+            {
+                Value1 = new[]
+                {
+                    new Person { Name = "Clare", Address = new Address { Line1 = "Nes", Line2 = "Ted" } },
+                    new Person { Name = "Jim" }
+                },
+                Value2 = new[] { now.AddMinutes(1), now.AddMinutes(2), now.AddMinutes(3) }
+            };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, object>>();
+
+            result.ContainsKey("Value1").ShouldBeFalse();
+            result.ContainsKey("Value2").ShouldBeFalse();
+
+            result["Value1[0].Name"].ShouldBe("Clare");
+            result.ContainsKey("Value1[0].Address").ShouldBeFalse();
+            result["Value1[0].Address.Line1"].ShouldBe("Nes");
+            result["Value1[0].Address.Line2"].ShouldBe("Ted");
+
+            result["Value1[1].Name"].ShouldBe("Jim");
+            result.ContainsKey("Value1[1].Address").ShouldBeFalse();
+            result.ContainsKey("Value1[1].Address.Line1").ShouldBeFalse();
+            result.ContainsKey("Value1[1].Address.Line2").ShouldBeFalse();
+
+            result["Value2[0]"].ShouldBe(now.AddMinutes(1));
+            result["Value2[1]"].ShouldBe(now.AddMinutes(2));
+            result["Value2[2]"].ShouldBe(now.AddMinutes(3));
+        }
+
+        [Fact]
         public void ShouldMapBetweenSameSimpleValueTypedDictionaries()
         {
             var source = new Dictionary<string, int> { ["One"] = 1, ["Two"] = 2 };

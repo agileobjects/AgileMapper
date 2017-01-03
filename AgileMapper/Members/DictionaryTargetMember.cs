@@ -116,7 +116,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)
         {
-            if (mapperData.TargetMember == _rootDictionaryMember)
+            if (this == _rootDictionaryMember)
             {
                 return base.GetAccess(instance, mapperData);
             }

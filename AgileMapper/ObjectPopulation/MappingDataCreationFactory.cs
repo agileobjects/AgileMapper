@@ -41,6 +41,14 @@
                 return asConversion;
             }
 
+            return ForChildNoAsCheck(mappingValues, dataSourceIndex, childMapperData);
+        }
+
+        public static Expression ForChildNoAsCheck(
+            MappingValues mappingValues,
+            int dataSourceIndex,
+            ObjectMapperData childMapperData)
+        {
             var createMethod = MappingDataFactory
                 .ForChildMethod
                 .MakeGenericMethod(childMapperData.SourceType, childMapperData.TargetType);
@@ -75,10 +83,10 @@
             return ForElement(mappingValues, enumerableMappingDataObject);
         }
 
-        public static Expression ForElement(MappingValues mappingValues, ObjectMapperData elementMapperData)
+        public static Expression ForElementNoAsCheck(MappingValues mappingValues, ObjectMapperData elementMapperData)
             => ForElement(mappingValues, elementMapperData.Parent.MappingDataObject);
 
-        public static Expression ForElement(MappingValues mappingValues, Expression enumerableMappingDataObject)
+        private static Expression ForElement(MappingValues mappingValues, Expression enumerableMappingDataObject)
         {
             var createMethod = MappingDataFactory
                 .ForElementMethod

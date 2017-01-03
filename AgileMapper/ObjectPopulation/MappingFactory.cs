@@ -269,24 +269,27 @@
             bool performValueReplacement = false)
         {
             var variableAssignment = variable.AssignTo(variableValue);
-            var mappingTryCatch = (TryExpression)body;
-
-            var mappingBody = mappingTryCatch.Body;
+            var bodyIsTryCatch = body.NodeType == ExpressionType.Try;
+            var tryCatch = bodyIsTryCatch ? (TryExpression)body : null;
+            var mappingBody = bodyIsTryCatch ? tryCatch.Body : body;
 
             if (performValueReplacement)
             {
                 mappingBody = mappingBody.Replace(variableValue, variable);
             }
 
-            var updatedTryCatch = mappingTryCatch.Update(
-                Expression.Block(variableAssignment, mappingBody),
-                mappingTryCatch.Handlers,
-                mappingTryCatch.Finally,
-                mappingTryCatch.Fault);
+            mappingBody = Expression.Block(variableAssignment, mappingBody);
 
-            var mappingBlock = Expression.Block(new[] { variable }, updatedTryCatch);
+            if (bodyIsTryCatch)
+            {
+                mappingBody = tryCatch.Update(
+                    mappingBody,
+                    tryCatch.Handlers,
+                    tryCatch.Finally,
+                    tryCatch.Fault);
+            }
 
-            return mappingBlock;
+            return Expression.Block(new[] { variable }, mappingBody);
         }
     }
 }
