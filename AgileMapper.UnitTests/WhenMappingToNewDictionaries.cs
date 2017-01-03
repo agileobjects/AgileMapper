@@ -223,6 +223,15 @@
         }
 
         [Fact]
+        public void ShouldHandleANullEnumerableMember()
+        {
+            var source = new PublicGetMethod<int[]>(value: null);
+            var result = Mapper.Map(source).ToANew<Dictionary<string, string>>();
+
+            result.ShouldBeEmpty();
+        }
+
+        [Fact]
         public void ShouldHandleAnInvalidKeyTypeTargetDictionary()
         {
             var source = new PublicField<string> { Value = "DateTime keys?!" };

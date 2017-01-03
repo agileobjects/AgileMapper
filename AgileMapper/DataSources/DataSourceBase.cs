@@ -8,13 +8,13 @@
     internal abstract class DataSourceBase : IDataSource
     {
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
-            : this(sourceMember, Enumerable<ParameterExpression>.Empty, value)
+            : this(sourceMember, Enumerable<ParameterExpression>.EmptyArray, value)
         {
         }
 
         protected DataSourceBase(
             IQualifiedMember sourceMember,
-            IEnumerable<ParameterExpression> variables,
+            ICollection<ParameterExpression> variables,
             Expression value,
             Expression condition = null)
         {
@@ -97,7 +97,7 @@
 
         public virtual Expression Condition { get; }
 
-        public IEnumerable<ParameterExpression> Variables { get; }
+        public ICollection<ParameterExpression> Variables { get; }
 
         public Expression Value { get; }
 

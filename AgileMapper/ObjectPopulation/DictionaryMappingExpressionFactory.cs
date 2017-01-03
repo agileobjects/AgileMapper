@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using DataSources;
     using Enumerables;
     using Extensions;
     using Members;
@@ -313,7 +314,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static IObjectMappingData GetChildMappingData(
             Member nonSimpleSourceMember,
-            QualifiedMember entryTargetMember,
+            DictionaryTargetMember entryTargetMember,
             IObjectMappingData mappingData)
         {
             if (nonSimpleSourceMember.IsComplex)
@@ -322,6 +323,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var qualifiedSourceMember = mappingData.MapperData.SourceMember.Append(nonSimpleSourceMember);
+
+            if (!entryTargetMember.HasObjectEntries)
+            {
+                entryTargetMember = (DictionaryTargetMember)entryTargetMember.WithType(qualifiedSourceMember.Type);
+            }
 
             var childMappingData = ObjectMappingDataFactory.ForChild(
                 qualifiedSourceMember,
@@ -365,8 +371,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return populationLoop;
             }
 
+            var sourceMemberDataSource = SourceMemberDataSource.For(mapperData.SourceMember, mapperData.Parent);
+
+            var sourceMemberValue = sourceMemberDataSource.Variables.Any()
+                ? sourceMemberDataSource.Variables.First()
+                : mapperData.SourceMember.GetQualifiedAccess(mapperData.Parent.SourceObject);
+
             var mappingValues = new MappingValues(
-                mapperData.SourceMember.GetQualifiedAccess(mapperData.Parent.SourceObject),
+                sourceMemberValue,
                 mapperData.TargetType.ToDefaultExpression(),
                 mapperData.Parent.EnumerableIndex);
 
@@ -376,7 +388,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingValues,
                 MappingDataCreationFactory.ForChildNoAsCheck(mappingValues, 0, mapperData));
 
-            return directMapping;
+            var population = Expression.IfThen(sourceMemberDataSource.Condition, directMapping);
+
+            if (sourceMemberDataSource.Variables.None())
+            {
+                return population;
+            }
+
+            var populationBlock = Expression.Block(sourceMemberDataSource.Variables, population);
+
+            return populationBlock;
         }
 
         private static Expression GetSourceEnumerableTargetEntryAssignment(

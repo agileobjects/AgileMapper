@@ -15,7 +15,7 @@
 
         bool IsConditional { get; }
 
-        IEnumerable<ParameterExpression> Variables { get; }
+        ICollection<ParameterExpression> Variables { get; }
 
         Expression AddPreCondition(Expression population);
 
