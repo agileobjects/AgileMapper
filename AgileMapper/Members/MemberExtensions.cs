@@ -86,8 +86,6 @@
         public static Member[] RelativeTo(this Member[] memberChain, Member[] otherMemberChain)
         {
             var otherMembersLeafMember = otherMemberChain.Last();
-            Member[] relativeMemberChain = null;
-
             var startIndex = memberChain.Length - 1;
 
             if ((memberChain.Length > 2) &&
@@ -98,23 +96,23 @@
                 --startIndex;
             }
 
-            for (var i = startIndex; i >= 0; --i)
+            while (startIndex >= 0)
             {
-                var member = memberChain[i];
+                var member = memberChain[startIndex];
 
-                if (member != otherMembersLeafMember)
+                if (member == otherMembersLeafMember)
                 {
-                    continue;
+                    break;
                 }
 
-                relativeMemberChain = new Member[memberChain.Length - i];
+                --startIndex;
+            }
 
-                for (var j = 0; j < relativeMemberChain.Length; j++)
-                {
-                    relativeMemberChain[j] = memberChain[j + i];
-                }
+            var relativeMemberChain = new Member[memberChain.Length - startIndex];
 
-                break;
+            for (var i = 0; i < relativeMemberChain.Length; i++)
+            {
+                relativeMemberChain[i] = memberChain[i + startIndex];
             }
 
             return relativeMemberChain;
