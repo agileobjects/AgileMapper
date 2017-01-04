@@ -405,7 +405,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             EnumerableSourcePopulationLoopData loopData,
             IObjectMappingData enumerableMappingData)
         {
-            if (ElementTypesAreSimple(loopData))
+            if (loopData.Builder.Context.SourceElementType.IsSimple())
             {
                 return GetTargetEntryAssignment(
                     loopData,
@@ -442,27 +442,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IObjectMappingData CreateElementMappingData(IObjectMappingData enumerableMappingData)
         {
             var builder = enumerableMappingData.MapperData.EnumerablePopulationBuilder;
-            var sourceElementType = builder.Context.SourceElementType;
+            var targetElementType = GetTargetElementType(builder);
 
-            var targetElementType = (builder.Context.TargetElementType == typeof(object))
-                ? sourceElementType
-                : builder.Context.TargetElementType;
-
-            var elementMappingData = ObjectMappingDataFactory
-                .ForElement(sourceElementType, targetElementType, enumerableMappingData);
+            var elementMappingData = ObjectMappingDataFactory.ForElement(
+                builder.Context.SourceElementType,
+                targetElementType,
+                enumerableMappingData);
 
             return elementMappingData;
         }
 
-        private static bool ElementTypesAreSimple(EnumerableSourcePopulationLoopData loopData)
+        private static Type GetTargetElementType(EnumerablePopulationBuilder builder)
         {
-            if (loopData.Builder.ElementTypesAreSimple)
+            if (builder.Context.ElementTypesAreSimple ||
+               (builder.Context.TargetElementType == typeof(object)))
             {
-                return true;
+                return builder.Context.SourceElementType;
             }
 
-            return (loopData.Builder.Context.TargetElementType == typeof(object)) &&
-                   loopData.Builder.Context.SourceElementType.IsSimple();
+            return builder.Context.TargetElementType;
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;

@@ -14,6 +14,7 @@ namespace AgileObjects.AgileMapper.Members
     internal class DictionaryTargetMember : QualifiedMember
     {
         private readonly DictionaryTargetMember _rootDictionaryMember;
+        private readonly bool _createDictionaryChildMembers;
         private Expression _key;
 
         public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
@@ -23,6 +24,7 @@ namespace AgileObjects.AgileMapper.Members
             KeyType = dictionaryTypes[0];
             ValueType = dictionaryTypes[1];
             _rootDictionaryMember = this;
+            _createDictionaryChildMembers = true;
         }
 
         private DictionaryTargetMember(
@@ -33,6 +35,7 @@ namespace AgileObjects.AgileMapper.Members
             KeyType = rootDictionaryMember.KeyType;
             ValueType = rootDictionaryMember.ValueType;
             _rootDictionaryMember = rootDictionaryMember;
+            _createDictionaryChildMembers = HasObjectEntries || ValueType.IsSimple();
         }
 
         public Type KeyType { get; }
@@ -64,47 +67,12 @@ namespace AgileObjects.AgileMapper.Members
         {
             var matchedTargetEntryMember = base.CreateChildMember(childMember);
 
-            if (CreateDictionaryChildMember(matchedTargetEntryMember))
+            if (_createDictionaryChildMembers)
             {
                 return new DictionaryTargetMember(matchedTargetEntryMember, _rootDictionaryMember);
             }
 
             return matchedTargetEntryMember;
-        }
-
-        private bool CreateDictionaryChildMember(QualifiedMember entryMember)
-        {
-            if (_rootDictionaryMember.HasObjectEntries)
-            {
-                return true;
-            }
-
-            if (entryMember.MemberChain.Length <= 2)
-            {
-                return true;
-            }
-
-            for (var i = entryMember.MemberChain.Length - 1; i > 0; --i)
-            {
-                var member = entryMember.MemberChain[i];
-
-                if (member.IsSimple)
-                {
-                    continue;
-                }
-
-                if (member.IsDictionary)
-                {
-                    return true;
-                }
-
-                if (member.IsComplex && (member.Type != typeof(object)))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         protected override QualifiedMember CreateRuntimeTypedMember(Type runtimeType)
@@ -161,6 +129,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
         {
+            if (this == _rootDictionaryMember)
+            {
+                return base.GetPopulation(value, mapperData);
+            }
+
             var indexAccess = GetAccess(mapperData.InstanceVariable, mapperData);
             var indexAssignment = indexAccess.AssignTo(value);
 

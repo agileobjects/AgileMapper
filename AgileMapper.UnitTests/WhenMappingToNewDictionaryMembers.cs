@@ -39,5 +39,31 @@
             result.Value["[2]"].ShouldBeNull();
             result.Value["[3]"].ShouldBe(99.009);
         }
+
+        [Fact]
+        public void ShouldMapANestedComplexTypeArrayToANestedTypedDictionary()
+        {
+            var source = new PublicProperty<ICollection<CustomerViewModel>>
+            {
+                Value = new List<CustomerViewModel>
+                {
+                    new CustomerViewModel { Name = "Cat", Discount = 0.5 },
+                    new CustomerViewModel { Name = "Dog", Discount = 0.6 }
+                }
+            };
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<Dictionary<string, decimal>>>();
+
+            result.Value.ContainsKey("[0]").ShouldBeFalse();
+
+            result.Value["[0].Name"].ShouldBeDefault();
+            result.Value.ContainsKey("[0].Id").ShouldBeFalse(); // <- because id is a Guid, which can't be parsed to a decimal
+            result.Value["[0].AddressLine1"].ShouldBeDefault();
+            result.Value["[0].Discount"].ShouldBe(0.5);
+
+            result.Value["[1].Name"].ShouldBeDefault();
+            result.Value.ContainsKey("[1].Id").ShouldBeFalse();
+            result.Value["[1].AddressLine1"].ShouldBeDefault();
+            result.Value["[1].Discount"].ShouldBe(0.6);
+        }
     }
 }
