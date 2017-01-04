@@ -147,7 +147,7 @@
         {
             return !method.IsSpecialName &&
                     method.Name.StartsWith("Get", StringComparison.OrdinalIgnoreCase) &&
-                   _methodsToIgnore.DoesNotContain(method.Name) &&
+                   (Array.IndexOf(_methodsToIgnore, method.Name) == -1) &&
                     method.GetParameters().None();
         }
 

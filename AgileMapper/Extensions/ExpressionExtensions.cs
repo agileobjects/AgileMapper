@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -27,15 +28,19 @@
             .GetPublicInstanceMethods()
             .First(m => (m.Name == "Equals") && (m.GetParameters().Length == 2));
 
+        [DebuggerStepThrough]
         public static BinaryExpression AssignTo(this Expression subject, Expression value)
             => Expression.Assign(subject, value);
 
+        [DebuggerStepThrough]
         public static ConstantExpression ToConstantExpression<T>(this T item)
             => ToConstantExpression(item, typeof(T));
 
+        [DebuggerStepThrough]
         public static ConstantExpression ToConstantExpression<TItem>(this TItem item, Type type)
             => Expression.Constant(item, type);
 
+        [DebuggerStepThrough]
         public static DefaultExpression ToDefaultExpression(this Type type) => Expression.Default(type);
 
         public static Expression AndTogether(this ICollection<Expression> expressions)

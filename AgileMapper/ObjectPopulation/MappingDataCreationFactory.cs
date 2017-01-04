@@ -41,14 +41,6 @@
                 return asConversion;
             }
 
-            return ForChildNoAsCheck(mappingValues, dataSourceIndex, childMapperData);
-        }
-
-        public static Expression ForChildNoAsCheck(
-            MappingValues mappingValues,
-            int dataSourceIndex,
-            ObjectMapperData childMapperData)
-        {
             var createMethod = MappingDataFactory
                 .ForChildMethod
                 .MakeGenericMethod(childMapperData.SourceType, childMapperData.TargetType);

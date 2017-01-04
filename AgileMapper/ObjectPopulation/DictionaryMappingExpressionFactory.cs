@@ -163,12 +163,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var keyValuePairType = typeof(KeyValuePair<,>)
                 .MakeGenericType(sourceDictionaryMember.KeyType, sourceDictionaryMember.ValueType);
 
-            var populationLoopData = new EnumerableSourcePopulationLoopData(
+            var loopData = new EnumerableSourcePopulationLoopData(
                 mapperData.EnumerablePopulationBuilder,
                 keyValuePairType,
                 mapperData.SourceObject);
 
-            var populationLoop = populationLoopData.BuildPopulationLoop(
+            var populationLoop = loopData.BuildPopulationLoop(
                 mapperData.EnumerablePopulationBuilder,
                 mappingData,
                 GetSourceDictionaryTargetEntryAssignment);
@@ -323,11 +323,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var qualifiedSourceMember = mappingData.MapperData.SourceMember.Append(nonSimpleSourceMember);
-
-            if (!entryTargetMember.HasObjectEntries)
-            {
-                entryTargetMember = (DictionaryTargetMember)entryTargetMember.WithType(qualifiedSourceMember.Type);
-            }
+            entryTargetMember = (DictionaryTargetMember)entryTargetMember.WithType(qualifiedSourceMember.Type);
 
             var childMappingData = ObjectMappingDataFactory.ForChild(
                 qualifiedSourceMember,
@@ -354,11 +350,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetEnumerableToDictionaryMapping(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var sourceElementType = mapperData.SourceType.GetEnumerableElementType();
 
             var loopData = new EnumerableSourcePopulationLoopData(
                 mapperData.EnumerablePopulationBuilder,
-                sourceElementType,
+                mapperData.EnumerablePopulationBuilder.Context.SourceElementType,
                 mapperData.SourceObject);
 
             var populationLoop = loopData.BuildPopulationLoop(
@@ -386,7 +381,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 populationLoop,
                 mapperData,
                 mappingValues,
-                MappingDataCreationFactory.ForChildNoAsCheck(mappingValues, 0, mapperData));
+                MappingDataCreationFactory.ForChild(mappingValues, 0, mapperData));
 
             var population = Expression.IfThen(sourceMemberDataSource.Condition, directMapping);
 

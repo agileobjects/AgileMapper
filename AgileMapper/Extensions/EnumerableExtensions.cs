@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
 
@@ -15,8 +16,10 @@
             }
         }
 
+        [DebuggerStepThrough]
         public static bool Any<T>(this ICollection<T> items) => items.Count > 0;
 
+        [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
         public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
@@ -35,9 +38,8 @@
             return true;
         }
 
+        [DebuggerStepThrough]
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
-
-        public static bool DoesNotContain<T>(this ICollection<T> items, T item) => !items.Contains(item);
 
         public static Expression ReverseChain<T>(this ICollection<T> items)
             where T : IConditionallyChainable
