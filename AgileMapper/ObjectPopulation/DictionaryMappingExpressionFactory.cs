@@ -383,12 +383,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return new AdHocDataSource(sourceMemberDataSource, populationLoop);
             }
 
-            var sourceMemberValue = sourceMemberDataSource.Variables.Any()
-                ? sourceMemberDataSource.Variables.First()
-                : mapperData.SourceMember.GetQualifiedAccess(mapperData.Parent.SourceObject);
-
             var mappingValues = new MappingValues(
-                sourceMemberValue,
+                sourceMemberDataSource.Value,
                 mapperData.TargetType.ToDefaultExpression(),
                 mapperData.Parent.EnumerableIndex);
 
