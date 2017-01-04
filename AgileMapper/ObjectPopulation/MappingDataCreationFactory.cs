@@ -60,6 +60,9 @@
             return createCall;
         }
 
+        public static Expression ForElement(MappingValues mappingValues, ObjectMapperData elementMapperData)
+            => ForElement(mappingValues, elementMapperData.Parent.MappingDataObject, elementMapperData);
+
         public static Expression ForElement(
             MappingValues mappingValues,
             Expression enumerableMappingDataObject,
@@ -72,14 +75,6 @@
                 return asConversion;
             }
 
-            return ForElement(mappingValues, enumerableMappingDataObject);
-        }
-
-        public static Expression ForElementNoAsCheck(MappingValues mappingValues, ObjectMapperData elementMapperData)
-            => ForElement(mappingValues, elementMapperData.Parent.MappingDataObject);
-
-        private static Expression ForElement(MappingValues mappingValues, Expression enumerableMappingDataObject)
-        {
             var createMethod = MappingDataFactory
                 .ForElementMethod
                 .MakeGenericMethod(mappingValues.SourceValue.Type, mappingValues.TargetValue.Type);

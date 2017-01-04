@@ -415,7 +415,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     eld => eld.SourceElement);
             }
 
-            var elementMappingData = ObjectMappingDataFactory.ForElement(enumerableMappingData);
+            var elementMappingData = CreateElementMappingData(enumerableMappingData);
             var elementMapping = GetDictionaryPopulation(elementMappingData);
             var elementMapperData = elementMappingData.MapperData;
 
@@ -428,9 +428,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 elementMapping,
                 elementMapperData,
                 mappingValues,
-                MappingDataCreationFactory.ForElementNoAsCheck(mappingValues, elementMapperData));
+                MappingDataCreationFactory.ForElement(mappingValues, elementMapperData));
 
             return directMapping;
+        }
+
+        private static IObjectMappingData CreateElementMappingData(IObjectMappingData enumerableMappingData)
+        {
+            var builder = enumerableMappingData.MapperData.EnumerablePopulationBuilder;
+            var sourceElementType = builder.Context.SourceElementType;
+
+            var targetElementType = (builder.Context.TargetElementType == typeof(object))
+                ? sourceElementType
+                : builder.Context.TargetElementType;
+
+            var elementMappingData = ObjectMappingDataFactory
+                .ForElement(sourceElementType, targetElementType, enumerableMappingData);
+
+            return elementMappingData;
         }
 
         private static bool ElementTypesAreSimple(EnumerableSourcePopulationLoopData loopData)
