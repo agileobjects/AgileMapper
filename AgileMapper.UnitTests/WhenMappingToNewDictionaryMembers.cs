@@ -26,5 +26,18 @@
             result.Value.ContainsKey("Address").ShouldBeFalse();
             result.Value["Address.Line1"].ShouldBe("Some Place");
         }
+
+        [Fact]
+        public void ShouldMapANestedSimpleTypeArrayToANestedTypedDictionary()
+        {
+            var source = new PublicProperty<string[]> { Value = new[] { "12", "13.6", "hjf", "99.009" } };
+            var result = Mapper.Map(source).ToANew<PublicField<Dictionary<object, decimal?>>>();
+
+            result.Value.Count.ShouldBe(4);
+            result.Value["[0]"].ShouldBe(12);
+            result.Value["[1]"].ShouldBe(13.6);
+            result.Value["[2]"].ShouldBeNull();
+            result.Value["[3]"].ShouldBe(99.009);
+        }
     }
 }
