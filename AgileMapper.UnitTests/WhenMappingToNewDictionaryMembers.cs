@@ -65,5 +65,28 @@
             result.Value["[1].AddressLine1"].ShouldBeDefault();
             result.Value["[1].Discount"].ShouldBe(0.6);
         }
+
+        [Fact]
+        public void ShouldFlattenANestedEnumerableOfEnumerablesToANestedTypedDictionary()
+        {
+            var source = new PublicProperty<int[][]>
+            {
+                Value = new[]
+                {
+                    new [] { 1,2,3 },
+                    new [] { 4,5,6 }
+                }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<Dictionary<string, double>>>();
+
+            result.Value.ContainsKey("[0]").ShouldBeFalse();
+
+            result.Value["[0][0]"].ShouldBe(1);
+            result.Value["[0][1]"].ShouldBe(2);
+            result.Value["[0][2]"].ShouldBe(3);
+            result.Value["[1][0]"].ShouldBe(4);
+            result.Value["[1][1]"].ShouldBe(5);
+            result.Value["[1][2]"].ShouldBe(6);
+        }
     }
 }

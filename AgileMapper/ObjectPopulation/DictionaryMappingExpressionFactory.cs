@@ -261,6 +261,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression GetDictionaryPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
+
+            if (mapperData.TargetMember.IsEnumerable && mapperData.TargetMemberIsEnumerableElement())
+            {
+                return GetEnumerableToDictionaryPopulationLoop(mappingData);
+            }
+
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
             var allTargetMemberMapperDataPairs = EnumerateTargetMembers(
@@ -364,19 +370,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private IDataSource GetEnumerableToDictionaryDataSource(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-
-            var loopData = new EnumerableSourcePopulationLoopData(
-                mapperData.EnumerablePopulationBuilder,
-                mapperData.EnumerablePopulationBuilder.Context.SourceElementType,
-                mapperData.SourceObject);
-
-            var populationLoop = loopData.BuildPopulationLoop(
-                mapperData.EnumerablePopulationBuilder,
-                mappingData,
-                GetSourceEnumerableTargetEntryAssignment);
-
             var contextMapperData = mapperData.IsRoot ? mapperData : mapperData.Parent;
             var sourceMemberDataSource = SourceMemberDataSource.For(mapperData.SourceMember, contextMapperData);
+            var populationLoop = GetEnumerableToDictionaryPopulationLoop(mappingData);
 
             if (mapperData.Context.IsStandalone)
             {
@@ -395,6 +391,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 MappingDataCreationFactory.ForChild(mappingValues, 0, mapperData));
 
             return new AdHocDataSource(sourceMemberDataSource, directAccessPopulationLoop);
+        }
+
+        private Expression GetEnumerableToDictionaryPopulationLoop(IObjectMappingData mappingData)
+        {
+            var mapperData = mappingData.MapperData;
+
+            var loopData = new EnumerableSourcePopulationLoopData(
+                mapperData.EnumerablePopulationBuilder,
+                mapperData.EnumerablePopulationBuilder.Context.SourceElementType,
+                mapperData.SourceObject);
+
+            var populationLoop = loopData.BuildPopulationLoop(
+                mapperData.EnumerablePopulationBuilder,
+                mappingData,
+                GetSourceEnumerableTargetEntryAssignment);
+
+            return populationLoop;
         }
 
         private Expression GetSourceEnumerableTargetEntryAssignment(

@@ -28,8 +28,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             Builder = builder;
             _enumerableSubject = enumerableSubject;
-            _getEnumeratorMethod = typeof(IEnumerable<>).MakeGenericType(elementType).GetMethod("GetEnumerator");
 
+            _getEnumeratorMethod = typeof(IEnumerable<>).MakeGenericType(elementType).GetMethod("GetEnumerator");
             _enumerator = Expression.Variable(_getEnumeratorMethod.ReturnType, "enumerator");
 
             LoopExitCheck = Expression.Not(Expression.Call(_enumerator, _enumeratorMoveNextMethod));

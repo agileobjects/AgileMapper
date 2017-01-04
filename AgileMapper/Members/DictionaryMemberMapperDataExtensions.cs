@@ -34,9 +34,10 @@ namespace AgileObjects.AgileMapper.Members
             var joinedNameIsConstant = true;
             var parentCounterInaccessible = false;
             Expression parentContextAccess = null;
-            var isTargetDictionary = mapperData.TargetMember is DictionaryTargetMember;
+            var targetQualifiedMember = mapperData.TargetMember;
+            var isTargetDictionary = targetQualifiedMember is DictionaryTargetMember;
 
-            foreach (var targetMember in mapperData.TargetMember.MemberChain.Reverse())
+            foreach (var targetMember in targetQualifiedMember.MemberChain.Reverse())
             {
                 if (IsRootDictionaryContext(targetMember, isTargetDictionary, mapperData))
                 {
@@ -70,7 +71,7 @@ namespace AgileObjects.AgileMapper.Members
                     }
                 }
 
-                if (!mapperData.Parent.IsRoot && !isTargetDictionary)
+                if (MoveToParentMapperContext(targetMember, isTargetDictionary, mapperData))
                 {
                     mapperData = mapperData.Parent;
                 }
@@ -153,6 +154,24 @@ namespace AgileObjects.AgileMapper.Members
             memberPartExpressions.Insert(0, memberNamePart);
 
             return memberNamePart;
+        }
+
+        private static bool MoveToParentMapperContext(
+            Member targetMember,
+            bool isTargetDictionary,
+            IMemberMapperData mapperData)
+        {
+            if (mapperData.Parent.IsRoot)
+            {
+                return false;
+            }
+
+            if (isTargetDictionary)
+            {
+                return targetMember.IsEnumerableElement();
+            }
+
+            return true;
         }
     }
 }
