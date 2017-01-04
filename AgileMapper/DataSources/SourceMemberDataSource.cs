@@ -64,7 +64,7 @@
             sourceMember = sourceMember.RelativeTo(mapperData.SourceMember);
 
             var sourceMemberValue = sourceMember
-                .GetQualifiedAccess(mapperData.SourceObject)
+                .GetQualifiedAccess(mapperData)
                 .GetConversionTo(sourceMember.Type);
 
             var sourceMemberDataSource = new SourceMemberDataSource(sourceMember, sourceMemberValue, mapperData);

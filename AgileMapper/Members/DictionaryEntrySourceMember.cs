@@ -109,7 +109,7 @@ namespace AgileObjects.AgileMapper.Members
                 : _matchedTargetMember.Matches(otherMember);
         }
 
-        public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
+        public Expression GetQualifiedAccess(IMemberMapperData mapperData) => _childMembers.GetQualifiedAccess(mapperData);
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD

@@ -284,8 +284,8 @@ namespace AgileObjects.AgileMapper.Members
         public virtual Expression GetAccess(Expression instance, IMemberMapperData mapperData)
             => LeafMember.GetAccess(instance);
 
-        public Expression GetQualifiedAccess(Expression instance)
-            => MemberChain.GetQualifiedAccess(instance);
+        public Expression GetQualifiedAccess(IMemberMapperData mapperData)
+            => MemberChain.GetQualifiedAccess(mapperData);
 
         public virtual Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
             => GetAccess(mapperData.InstanceVariable, mapperData).GetIsDefaultComparison();

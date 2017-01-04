@@ -81,11 +81,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Matches(IQualifiedMember otherMember) => _wrappedSourceMember.Matches(otherMember);
 
-        public Expression GetQualifiedAccess(Expression instance)
+        public Expression GetQualifiedAccess(IMemberMapperData mapperData)
         {
             return IsEntireDictionaryMatch
-                ? _wrappedSourceMember.GetQualifiedAccess(instance)
-                : EntryMember.GetQualifiedAccess(instance);
+                ? _wrappedSourceMember.GetQualifiedAccess(mapperData)
+                : EntryMember.GetQualifiedAccess(mapperData);
         }
 
         #region ExcludeFromCodeCoverage

@@ -47,10 +47,12 @@
             return path;
         }
 
-        public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression instance)
+        public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, IMemberMapperData mapperData)
         {
-            // Skip(1) because the 0th member is the instance:
-            return memberChain.Skip(1).Aggregate(instance, (accessSoFar, member) => member.GetAccess(accessSoFar));
+            // Skip(1) because the 0th member is the mapperData.SourceObject:
+            return memberChain.Skip(1).Aggregate(
+                mapperData.SourceObject,
+                (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
         public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;

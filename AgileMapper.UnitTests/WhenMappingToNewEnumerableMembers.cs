@@ -98,6 +98,41 @@
         }
 
         [Fact]
+        public void ShouldCreateANewEnumerableOfComplexTypeArrays()
+        {
+            var source = new PublicField<IEnumerable<CustomerViewModel[]>>
+            {
+                Value = new List<CustomerViewModel[]>
+                {
+                    new[]
+                    {
+                        new CustomerViewModel { Name = "Jack" },
+                        new CustomerViewModel { Name = "Sparrow" }
+                    },
+                    new[]
+                    {
+                        new CustomerViewModel { Name = "Andy" },
+                        new CustomerViewModel { Name = "Akiva" },
+                        new CustomerViewModel { Name = "Jorma" }
+                    }
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicField<IList<ICollection<Customer>>>>();
+
+            result.Value.Count.ShouldBe(2);
+
+            result.Value.First().Count.ShouldBe(2);
+            result.Value.First().First().Name.ShouldBe("Jack");
+            result.Value.First().Second().Name.ShouldBe("Sparrow");
+
+            result.Value.Second().Count.ShouldBe(3);
+            result.Value.Second().First().Name.ShouldBe("Andy");
+            result.Value.Second().Second().Name.ShouldBe("Akiva");
+            result.Value.Second().Third().Name.ShouldBe("Jorma");
+        }
+
+        [Fact]
         public void ShouldRetainAnExistingListItem()
         {
             using (var mapper = Mapper.CreateNew())

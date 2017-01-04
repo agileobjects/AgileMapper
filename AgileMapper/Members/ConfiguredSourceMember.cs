@@ -110,7 +110,7 @@ namespace AgileObjects.AgileMapper.Members
             return false;
         }
 
-        public Expression GetQualifiedAccess(Expression instance) => _childMembers.GetQualifiedAccess(instance);
+        public Expression GetQualifiedAccess(IMemberMapperData mapperData) => _childMembers.GetQualifiedAccess(mapperData);
 
         public IQualifiedMember WithType(Type runtimeType)
         {

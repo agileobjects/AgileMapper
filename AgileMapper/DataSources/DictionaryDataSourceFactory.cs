@@ -104,9 +104,7 @@
         private class DictionaryNonSimpleMemberDataSource : DataSourceBase
         {
             public DictionaryNonSimpleMemberDataSource(IQualifiedMember sourceMember, IMemberMapperData mapperData)
-                : base(
-                    sourceMember,
-                    sourceMember.GetQualifiedAccess(mapperData.SourceObject))
+                : base(sourceMember, sourceMember.GetQualifiedAccess(mapperData))
             {
             }
         }

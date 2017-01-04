@@ -41,7 +41,7 @@
         {
             var complexTypeMapperData = complexTypeMappingData.MapperData;
             var relativeMember = complexTypeMapperData.SourceMember.RelativeTo(complexTypeMapperData.SourceMember);
-            var sourceMemberAccess = relativeMember.GetQualifiedAccess(complexTypeMapperData.SourceObject);
+            var sourceMemberAccess = relativeMember.GetQualifiedAccess(complexTypeMapperData);
 
             return MappingFactory.GetChildMapping(
                 relativeMember,

@@ -36,7 +36,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return sourceMember.Type;
             }
 
-            IMemberMapperData mapperData = MapperData;
+            var mapperData = MapperData;
 
             while (mapperData != null)
             {
@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var sourceParameter = Parameters.Create<TSource>("source");
                 var relativeMember = sm.RelativeTo(MapperData.SourceMember);
-                var memberAccess = relativeMember.GetQualifiedAccess(MapperData.SourceObject);
+                var memberAccess = relativeMember.GetQualifiedAccess(MapperData);
                 memberAccess = memberAccess.Replace(MapperData.SourceObject, sourceParameter);
 
                 var getRuntimeTypeCall = Expression.Call(
