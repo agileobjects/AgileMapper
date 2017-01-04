@@ -258,7 +258,14 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
-            => mapperData.TargetMember.GetPopulation(value, mapperData);
+        {
+            if (value.Type == typeof(void))
+            {
+                return value;
+            }
+
+            return mapperData.TargetMember.GetPopulation(value, mapperData);
+        }
 
         public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);

@@ -1,14 +1,25 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using DataSources;
     using Members;
     using Members.Population;
 
-    internal static class MemberPopulationFactory
+    internal class MemberPopulationFactory
     {
-        public static IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
+        public static MemberPopulationFactory Default = new MemberPopulationFactory(DataSourceFinder.FindDataSources);
+
+        private readonly Func<IChildMemberMappingData, DataSourceSet> _dataSourcesFactory;
+
+        public MemberPopulationFactory(Func<IChildMemberMappingData, DataSourceSet> dataSourcesFactory)
+        {
+            _dataSourcesFactory = dataSourcesFactory;
+        }
+
+        public IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
         {
             var memberPopulations = GlobalContext
                 .Instance
@@ -19,7 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return memberPopulations;
         }
 
-        public static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
+        public IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 
@@ -31,11 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var childMappingData = mappingData.GetChildMappingData(childMapperData);
-
-            var dataSources = childMapperData
-                .MapperContext
-                .DataSources
-                .FindFor(childMappingData);
+            var dataSources = _dataSourcesFactory.Invoke(childMappingData);
 
             if (dataSources.None)
             {

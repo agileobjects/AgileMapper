@@ -17,6 +17,9 @@
             };
         }
 
+        public static DataSourceSet FindDataSources(IChildMemberMappingData childMappingData)
+            => childMappingData.MapperData.MapperContext.DataSources.FindFor(childMappingData);
+
         public DataSourceSet FindFor(IChildMemberMappingData childMappingData)
         {
             var validDataSources = EnumerateDataSources(childMappingData)

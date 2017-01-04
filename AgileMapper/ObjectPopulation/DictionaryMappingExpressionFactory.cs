@@ -14,6 +14,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
+        private readonly MemberPopulationFactory _memberPopulationFactory;
+
+        public DictionaryMappingExpressionFactory()
+        {
+            _memberPopulationFactory = new MemberPopulationFactory(GetDataSources);
+        }
+
         public override bool IsFor(IObjectMappingData mappingData)
             => mappingData.MapperData.TargetMember.IsDictionary;
 
@@ -251,7 +258,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mappingData.MapperData.InstanceVariable.AssignTo(value);
         }
 
-        private static Expression GetDictionaryPopulation(IObjectMappingData mappingData)
+        private Expression GetDictionaryPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
@@ -334,20 +341,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return childMappingData;
         }
 
-        private static Expression GetMemberPopulation(QualifiedMember targetMember, IObjectMappingData mappingData)
+        private Expression GetMemberPopulation(QualifiedMember targetMember, IObjectMappingData mappingData)
         {
-            if (mappingData.MapperData.SourceMember.IsEnumerable)
-            {
-                return GetEnumerableToDictionaryMapping(mappingData);
-            }
-
-            var memberPopulation = MemberPopulationFactory.Create(targetMember, mappingData);
+            var memberPopulation = _memberPopulationFactory.Create(targetMember, mappingData);
             var populationExpression = memberPopulation.GetPopulation();
 
             return populationExpression;
         }
 
-        private static Expression GetEnumerableToDictionaryMapping(IObjectMappingData mappingData)
+        private DataSourceSet GetDataSources(IChildMemberMappingData childMappingData)
+        {
+            if (childMappingData.MapperData.SourceMember.IsEnumerable)
+            {
+                var mappingDataSource = GetEnumerableToDictionaryDataSource(childMappingData.Parent);
+
+                return new DataSourceSet(mappingDataSource);
+            }
+
+            return DataSourceFinder.FindDataSources(childMappingData);
+        }
+
+        private IDataSource GetEnumerableToDictionaryDataSource(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
@@ -361,12 +375,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingData,
                 GetSourceEnumerableTargetEntryAssignment);
 
-            if (mapperData.IsRoot || mapperData.SourceType.RuntimeTypeNeeded())
-            {
-                return populationLoop;
-            }
+            var contextMapperData = mapperData.IsRoot ? mapperData : mapperData.Parent;
+            var sourceMemberDataSource = SourceMemberDataSource.For(mapperData.SourceMember, contextMapperData);
 
-            var sourceMemberDataSource = SourceMemberDataSource.For(mapperData.SourceMember, mapperData.Parent);
+            if (mapperData.Context.IsStandalone)
+            {
+                return new AdHocDataSource(sourceMemberDataSource, populationLoop);
+            }
 
             var sourceMemberValue = sourceMemberDataSource.Variables.Any()
                 ? sourceMemberDataSource.Variables.First()
@@ -377,25 +392,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperData.TargetType.ToDefaultExpression(),
                 mapperData.Parent.EnumerableIndex);
 
-            var directMapping = MappingFactory.GetDirectAccessMapping(
+            var directAccessPopulationLoop = MappingFactory.GetDirectAccessMapping(
                 populationLoop,
                 mapperData,
                 mappingValues,
                 MappingDataCreationFactory.ForChild(mappingValues, 0, mapperData));
 
-            var population = Expression.IfThen(sourceMemberDataSource.Condition, directMapping);
-
-            if (sourceMemberDataSource.Variables.None())
-            {
-                return population;
-            }
-
-            var populationBlock = Expression.Block(sourceMemberDataSource.Variables, population);
-
-            return populationBlock;
+            return new AdHocDataSource(sourceMemberDataSource, directAccessPopulationLoop);
         }
 
-        private static Expression GetSourceEnumerableTargetEntryAssignment(
+        private Expression GetSourceEnumerableTargetEntryAssignment(
             EnumerableSourcePopulationLoopData loopData,
             IObjectMappingData enumerableMappingData)
         {
