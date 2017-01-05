@@ -16,5 +16,12 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
             ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
         }
+
+        protected void SetupMemberNameSeparator(string separator)
+        {
+            var joiningNameFactory = JoiningNameFactory.For(separator, ConfigInfo);
+
+            ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
+        }
     }
 }

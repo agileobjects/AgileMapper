@@ -14,6 +14,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// Person.Address.StreetName member would be populated using the dictionary entry with key 
         /// 'AddressStreetName' when mapping to a root Person object.
         /// </summary>
+        /// <returns>
+        /// An ISourceDictionaryConfigSettings to enable further configuration of mappings from dictionaries
+        /// to the target type being configured.
+        /// </returns>
         ISourceDictionaryConfigSettings<TValue, TTarget> UseFlattenedMemberNames();
 
         /// <summary>
@@ -22,11 +26,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// with the key 'Address-Line1' to map to an Address.Line1 member.
         /// </summary>
         /// <param name="separator">
-        ///     The separator to use to separate member names when constructing dictionary keys for nested
-        ///     members.
+        /// The separator to use to separate member names when constructing dictionary keys for nested
+        /// members.
         /// </param>
         /// <returns>
-        /// A DictionaryMappingConfigContinuation to enable further configuration of mappings from dictionaries
+        /// An ISourceDictionaryConfigSettings to enable further configuration of mappings from dictionaries
         /// to the target type being configured.
         /// </returns>
         ISourceDictionaryConfigSettings<TValue, TTarget> UseMemberNameSeparator(string separator);
@@ -41,7 +45,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// The pattern to use to create a dictionary key part representing an enumerable element.
         /// </param>
         /// <returns>
-        /// An ISourceDictionaryConfigSettings with which to globally configure other dictionary mapping aspects.
+        /// An ISourceDictionaryConfigSettings to enable further configuration of mappings from dictionaries
+        /// to the target type being configured.
         /// </returns>
         ISourceDictionaryConfigSettings<TValue, TTarget> UseElementKeyPattern(string pattern);
 

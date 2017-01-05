@@ -15,14 +15,16 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         : CustomDictionaryKeySpecifierBase<TValue, TTarget>
     {
         private readonly string _key;
+        private readonly Action<DictionarySettings, CustomDictionaryKey> _dictionarySettingsAction;
 
         internal CustomDictionaryMappingTargetMemberSpecifier(
             MappingConfigInfo configInfo,
             string key,
             Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
-            : base(configInfo, dictionarySettingsAction)
+            : base(configInfo)
         {
             _key = key;
+            _dictionarySettingsAction = dictionarySettingsAction;
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             UserConfigurations.ThrowIfConflictingIgnoredMemberExists(configuredKey);
             UserConfigurations.ThrowIfConflictingDataSourceExists(configuredKey, GetConflictDescription);
 
-            return RegisterCustomKey(configuredKey);
+            return RegisterCustomKey(configuredKey, _dictionarySettingsAction);
         }
 
         private static string GetConflictDescription(CustomDictionaryKey key)

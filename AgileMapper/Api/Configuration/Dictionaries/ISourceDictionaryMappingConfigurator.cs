@@ -19,14 +19,14 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// Configure a custom full dictionary key for a particular target member when mapping from and to the dictionary 
         /// and target types being configured.
         /// </summary>
-        /// <param name="memberNameKey">
+        /// <param name="fullMemberNameKey">
         /// The dictionary key with which to retrieve the value to map to the configured target member.
         /// </param>
         /// <returns>
         /// A CustomDictionaryMappingTargetMemberSpecifier with which to specify the target member for which the custom 
         /// key should be used.
         /// </returns>
-        CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapFullKey(string memberNameKey);
+        CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapFullKey(string fullMemberNameKey);
 
         /// <summary>
         /// Configure a custom member name to use in a key for a particular target member when mapping from and 

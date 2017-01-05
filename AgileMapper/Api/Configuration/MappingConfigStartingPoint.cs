@@ -261,8 +261,7 @@
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, T} instances.
         /// </summary>
-        public DictionaryConfigurator<object> Dictionaries
-            => new DictionaryConfigurator<object>(MappingConfigInfo.AllSourceTypes(_mapperContext));
+        public DictionaryConfigurator<object> Dictionaries => DictionariesWithValueType<object>();
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, TValue} instances.

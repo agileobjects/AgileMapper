@@ -102,5 +102,38 @@
                 result["Address_Line2"].ShouldBe("Jenny's Street");
             }
         }
+
+        [Fact]
+        public void ShouldApplyACustomSeparatorToASpecifiedSourceType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomer>()
+                    .ToDictionariesWithValueType<string>()
+                    .UseMemberNameSeparator("!")
+                    .And
+                    .MapMember(c => c.Address.Line1)
+                    .ToFullKey("StreetAddress");
+
+                var address = new Address { Line1 = "Paddy's", Line2 = "Philly" };
+                var matchingSource = new MysteryCustomer { Address = address };
+                var matchingResult = mapper.Map(matchingSource).ToANew<Dictionary<string, string>>();
+
+                matchingResult["StreetAddress"].ShouldBe("Paddy's");
+                matchingResult["Address!Line2"].ShouldBe("Philly");
+                matchingResult.ContainsKey("Address.Line1").ShouldBeFalse();
+                matchingResult.ContainsKey("Address!Line1").ShouldBeFalse();
+
+                var nonMatchingSource = new Customer { Address = address };
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<Dictionary<string, string>>();
+
+                nonMatchingSourceResult["Address.Line1"].ShouldBe("Paddy's");
+
+                var nonMatchingTargetResult = mapper.Map(nonMatchingSource).ToANew<Dictionary<string, object>>();
+
+                nonMatchingTargetResult["Address.Line1"].ShouldBe("Paddy's");
+            }
+        }
     }
 }

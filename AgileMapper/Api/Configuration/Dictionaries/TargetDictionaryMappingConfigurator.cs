@@ -24,6 +24,12 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             return this;
         }
 
+        public ITargetDictionaryConfigSettings<TSource, TValue> UseMemberNameSeparator(string separator)
+        {
+            SetupMemberNameSeparator(separator);
+            return this;
+        }
+
         ITargetDictionaryMappingConfigurator<TSource, TValue> ITargetDictionaryConfigSettings<TSource, TValue>.And
             => this;
 
@@ -34,10 +40,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         {
             var sourceQualifiedMember = GetSourceMemberOrThrow(sourceMember);
 
-            return new CustomTargetDictionaryKeySpecifier<TSource, TValue>(
-                ConfigInfo,
-                sourceQualifiedMember,
-                (settings, customKey) => settings.AddMemberKey(customKey));
+            return new CustomTargetDictionaryKeySpecifier<TSource, TValue>(ConfigInfo, sourceQualifiedMember);
         }
 
         private QualifiedMember GetSourceMemberOrThrow(LambdaExpression lambda)

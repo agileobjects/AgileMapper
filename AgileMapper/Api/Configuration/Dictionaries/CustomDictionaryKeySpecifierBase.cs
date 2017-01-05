@@ -11,13 +11,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// <typeparam name="TSecond">The second type argument necessary in the dictionary configuration.</typeparam>
     public abstract class CustomDictionaryKeySpecifierBase<TFirst, TSecond>
     {
-        private readonly Action<DictionarySettings, CustomDictionaryKey> _dictionarySettingsAction;
-
-        internal CustomDictionaryKeySpecifierBase(
-            MappingConfigInfo configInfo,
-            Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
+        internal CustomDictionaryKeySpecifierBase(MappingConfigInfo configInfo)
         {
-            _dictionarySettingsAction = dictionarySettingsAction;
             ConfigInfo = configInfo;
         }
 
@@ -26,9 +21,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         internal UserConfigurationSet UserConfigurations => ConfigInfo.MapperContext.UserConfigurations;
 
         internal DictionaryMappingConfigContinuation<TFirst, TSecond> RegisterCustomKey(
-            CustomDictionaryKey configuredKey)
+            CustomDictionaryKey configuredKey,
+            Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
         {
-            _dictionarySettingsAction.Invoke(UserConfigurations.Dictionaries, configuredKey);
+            dictionarySettingsAction.Invoke(UserConfigurations.Dictionaries, configuredKey);
 
             return new DictionaryMappingConfigContinuation<TFirst, TSecond>(ConfigInfo);
         }

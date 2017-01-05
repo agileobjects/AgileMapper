@@ -23,9 +23,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         public ISourceDictionaryConfigSettings<TValue, TTarget> UseMemberNameSeparator(string separator)
         {
-            var joiningNameFactory = JoiningNameFactory.For(separator, ConfigInfo);
-
-            ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
+            SetupMemberNameSeparator(separator);
             return this;
         }
 
@@ -42,8 +40,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         #endregion
 
-        public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapFullKey(string memberNameKey)
-            => CreateTargetMemberSpecifier("keys", memberNameKey, (settings, customKey) => settings.AddFullKey(customKey));
+        public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapFullKey(string fullMemberNameKey)
+            => CreateTargetMemberSpecifier("keys", fullMemberNameKey, (settings, customKey) => settings.AddFullKey(customKey));
 
         public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapMemberNameKey(string memberNameKeyPart)
         {

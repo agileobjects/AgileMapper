@@ -14,7 +14,26 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// Person.Address.StreetName member would be mapped to a dictionary entry with key 
         /// 'AddressStreetName' when mapping from a root Person object.
         /// </summary>
+        /// <returns>
+        /// An ITargetDictionaryConfigSettings to enable further configuration of mappings from the source type
+        /// being configured to dictionaries.
+        /// </returns>
         ITargetDictionaryConfigSettings<TSource, TValue> UseFlattenedMemberNames();
+
+        /// <summary>
+        /// Use the given <paramref name="separator"/> to separate member names when mapping from nested complex 
+        /// type members to dictionaries. For example, calling UseMemberName("_") will create a dictionary entry 
+        /// with the key 'Address_Line1' when mapped from an Address.Line1 member.
+        /// </summary>
+        /// <param name="separator">
+        /// The separator to use to separate member names when constructing dictionary keys for nested
+        /// members.
+        /// </param>
+        /// <returns>
+        /// An ITargetDictionaryConfigSettings to enable further configuration of mappings from the source type
+        /// being configured to dictionaries.
+        /// </returns>
+        ITargetDictionaryConfigSettings<TSource, TValue> UseMemberNameSeparator(string separator);
 
         /// <summary>
         /// Gets a link back to the full ITargetDictionaryMappingConfigurator, for api fluency.
