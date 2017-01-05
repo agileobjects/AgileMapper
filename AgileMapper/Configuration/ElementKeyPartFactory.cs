@@ -55,7 +55,7 @@
             var prefix = patternMatch.Groups["Prefix"].Value;
             var suffix = patternMatch.Groups["Suffix"].Value;
 
-            if (!configInfo.TargetType.IsEnumerable())
+            if ((configInfo.TargetType != typeof(object)) && !configInfo.TargetType.IsEnumerable())
             {
                 configInfo = configInfo
                     .Clone()

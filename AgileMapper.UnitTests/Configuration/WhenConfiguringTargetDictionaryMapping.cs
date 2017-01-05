@@ -135,5 +135,30 @@
                 nonMatchingTargetResult["Address.Line1"].ShouldBe("Paddy's");
             }
         }
+
+        [Fact]
+        public void ShouldApplyACustomEnumerableElementPatternGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .Dictionaries
+                    .UseMemberNameSeparator("-")
+                    .UseElementKeyPattern("+i+");
+
+                var source = new[]
+                {
+                    new Address { Line1 = "Mato's House", Line2 = "Mato's Street" },
+                    new Address { Line1 = "Magnus's House", Line2 = "Magnus's Street" },
+                };
+                var result = mapper.Map(source).ToANew<Dictionary<string, object>>();
+
+                result.Count.ShouldBe(4);
+                result["+0+-Line1"].ShouldBe("Mato's House");
+                result["+0+-Line2"].ShouldBe("Mato's Street");
+                result["+1+-Line1"].ShouldBe("Magnus's House");
+                result["+1+-Line2"].ShouldBe("Magnus's Street");
+            }
+        }
     }
 }
