@@ -6,7 +6,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenConfiguringDictionaryMapping
+    public class WhenConfiguringSourceDictionaryMapping
     {
         [Fact]
         public void ShouldUseACustomFullDictionaryKeyForARootMember()
@@ -14,7 +14,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .To<PublicField<string>>()
                     .MapKey("BoomDiddyBoom")
                     .To(pf => pf.Value);
@@ -32,7 +32,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .OnTo<PublicField<PublicProperty<decimal>>>()
                     .MapKey("BoomDiddyMcBoom")
                     .To(pf => pf.Value.Value);
@@ -54,7 +54,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .Over<Address>()
                     .MapMemberName("HouseNumber")
                     .To(a => a.Line1)
@@ -81,7 +81,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .ToANew<Address>()
                     .MapMemberName("HouseName")
                     .To(a => a.Line1);
@@ -99,7 +99,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .To<PublicProperty<string[]>>()
                     .MapMemberName("Strings")
                     .To(pp => pp.Value);
@@ -125,7 +125,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .To<Product>()
                     .MapKey("BlahBlahBlah")
                     .To(p => p.ProductId)
@@ -175,7 +175,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .UseFlattenedMemberNames();
 
                 var source = new Dictionary<string, string>
@@ -200,7 +200,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .To<Order>()
                     .UseFlattenedMemberNames()
                     .And
@@ -233,7 +233,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .UseMemberNameSeparator("-");
 
                 var source = new Dictionary<string, object>
@@ -257,7 +257,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .ToANew<Customer>()
                     .UseMemberNameSeparator("_")
                     .And
@@ -292,7 +292,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .UseMemberNameSeparator("+")
                     .AndWhenMapping
                     .ToANew<Address>()
@@ -321,7 +321,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .UseFlattenedMemberNames()
                     .UseElementKeyPattern("_i_")
                     .AndWhenMapping
@@ -352,7 +352,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .OnTo<Address>()
                     .UseMemberNameSeparator("-")
                     .UseElementKeyPattern("i")
@@ -390,7 +390,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .ToANew<PersonViewModel>()
                     .If(s => s.Source.ContainsKey("Discount"))
                     .MapTo<CustomerViewModel>()
@@ -424,7 +424,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .FromDictionariesWithValueType<string>()
+                    .DictionariesWithValueType<string>()
                     .ToANew<CustomerViewModel>()
                     .If(s => s.Source["Report"].Length > 10)
                     .MapTo<MysteryCustomerViewModel>();

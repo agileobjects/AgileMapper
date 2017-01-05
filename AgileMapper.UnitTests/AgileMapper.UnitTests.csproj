@@ -80,9 +80,10 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\WhenConfiguringDictionaryMapping.cs" />
+    <Compile Include="Configuration\WhenConfiguringSourceDictionaryMapping.cs" />
     <Compile Include="Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringNestedDictionaryMapping.cs" />
+    <Compile Include="Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
     <Compile Include="TestClasses\ProductDtoMega.cs" />

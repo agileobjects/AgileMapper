@@ -13,7 +13,7 @@
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 Mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .To<PublicField<string>>()
                     .MapKey(null)
                     .To(pf => pf.Value);
@@ -28,7 +28,7 @@
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 Mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .To<PublicField<string>>()
                     .MapMemberName(null)
                     .To(pf => pf.Value);
@@ -45,12 +45,12 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<Person>()
                         .Ignore(p => p.Id);
 
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<Person>()
                         .MapKey("PersonId")
                         .To(p => p.Id);
@@ -68,12 +68,12 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<PublicField<string>>()
                         .Ignore(pf => pf.Value);
 
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<PublicField<string>>()
                         .MapMemberName("ValueValue")
                         .To(pf => pf.Value);
@@ -91,13 +91,13 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<Person>()
                         .Map((d, p) => d.Count)
                         .To(p => p.Name);
 
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<Person>()
                         .MapKey("PersonName")
                         .To(p => p.Name);
@@ -115,13 +115,13 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<Person>()
                         .Map((d, p) => d.Count)
                         .To(p => p.Name);
 
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<Person>()
                         .MapMemberName("PersonName")
                         .To(p => p.Name);
@@ -139,7 +139,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .UseFlattenedMemberNames()
                         .UseMemberNameSeparator("+");
                 }
@@ -157,7 +157,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .UseMemberNameSeparator("+")
                         .UseFlattenedMemberNames();
                 }
@@ -175,7 +175,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<PublicField<PublicProperty<string>>>()
                         .UseFlattenedMemberNames()
                         .UseMemberNameSeparator("_");
@@ -194,7 +194,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .FromDictionaries
+                        .Dictionaries
                         .To<PublicProperty<PublicField<int>>>()
                         .UseMemberNameSeparator("+")
                         .UseFlattenedMemberNames();
@@ -210,7 +210,7 @@
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
                 Mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .UseElementKeyPattern(null));
 
             configEx.Message.ShouldContain(
@@ -222,7 +222,7 @@
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
                 Mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .UseElementKeyPattern(string.Empty));
 
             configEx.Message.ShouldContain(
@@ -234,7 +234,7 @@
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
                 Mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .UseElementKeyPattern("_x_"));
 
             configEx.Message.ShouldContain(
@@ -246,7 +246,7 @@
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
                 Mapper.WhenMapping
-                    .FromDictionaries
+                    .Dictionaries
                     .UseElementKeyPattern("ii"));
 
             configEx.Message.ShouldContain(
