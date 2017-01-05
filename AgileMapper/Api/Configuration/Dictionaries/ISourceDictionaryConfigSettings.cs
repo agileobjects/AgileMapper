@@ -7,14 +7,14 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// The type of values stored in the dictionary to which the configurations will apply.
     /// </typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
-    public interface IDictionaryConfigSettings<TValue, TTarget>
+    public interface ISourceDictionaryConfigSettings<TValue, TTarget>
     {
         /// <summary>
         /// Construct dictionary keys for nested members using flattened member names. For example, a
         /// Person.Address.StreetName member would be populated using the dictionary entry with key 
         /// 'AddressStreetName' when mapping to a root Person object.
         /// </summary>
-        IDictionaryConfigSettings<TValue, TTarget> UseFlattenedMemberNames();
+        ISourceDictionaryConfigSettings<TValue, TTarget> UseFlattenedMemberNames();
 
         /// <summary>
         /// Use the given <paramref name="separator"/> to separate member names when mapping to nested
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// A DictionaryMappingConfigContinuation to enable further configuration of mappings from dictionaries
         /// to the target type being configured.
         /// </returns>
-        IDictionaryConfigSettings<TValue, TTarget> UseMemberNameSeparator(string separator);
+        ISourceDictionaryConfigSettings<TValue, TTarget> UseMemberNameSeparator(string separator);
 
         /// <summary>
         /// Use the given <paramref name="pattern"/> to create the part of a dictionary key representing an 
@@ -41,13 +41,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// The pattern to use to create a dictionary key part representing an enumerable element.
         /// </param>
         /// <returns>
-        /// An IDictionaryConfigSettings with which to globally configure other dictionary mapping aspects.
+        /// An ISourceDictionaryConfigSettings with which to globally configure other dictionary mapping aspects.
         /// </returns>
-        IDictionaryConfigSettings<TValue, TTarget> UseElementKeyPattern(string pattern);
+        ISourceDictionaryConfigSettings<TValue, TTarget> UseElementKeyPattern(string pattern);
 
         /// <summary>
-        /// Gets a link back to the full IDictionaryMappingConfigurator, for api fluency.
+        /// Gets a link back to the full ISourceDictionaryMappingConfigurator, for api fluency.
         /// </summary>
-        IDictionaryMappingConfigurator<TValue, TTarget> And { get; }
+        ISourceDictionaryMappingConfigurator<TValue, TTarget> And { get; }
     }
 }

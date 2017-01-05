@@ -12,22 +12,18 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// </typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
     public class CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget>
+        : CustomDictionaryKeySpecifierBase<TValue, TTarget>
     {
         private readonly string _key;
-        private readonly Action<DictionarySettings, CustomDictionaryKey> _dictionarySettingsAction;
-        private readonly MappingConfigInfo _configInfo;
 
         internal CustomDictionaryMappingTargetMemberSpecifier(
             MappingConfigInfo configInfo,
             string key,
             Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
+            : base(configInfo, dictionarySettingsAction)
         {
             _key = key;
-            _dictionarySettingsAction = dictionarySettingsAction;
-            _configInfo = configInfo.ForTargetType<TTarget>();
         }
-
-        private UserConfigurationSet UserConfigurations => _configInfo.MapperContext.UserConfigurations;
 
         /// <summary>
         /// Apply the configuration to the given <paramref name="targetMember"/>.
@@ -35,10 +31,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// <typeparam name="TTargetValue">The target member's type.</typeparam>
         /// <param name="targetMember">The target member to which to apply the configuration.</param>
         /// <returns>
-        /// A DictionaryMappingConfigContinuation to enable further configuration of mappings from dictionaries
-        /// to the target type being configured.
+        /// An ISourceDictionaryMappingConfigContinuation to enable further configuration of mappings from 
+        /// dictionaries to the target type being configured.
         /// </returns>
-        public DictionaryMappingConfigContinuation<TValue, TTarget> To<TTargetValue>(
+        public ISourceDictionaryMappingConfigContinuation<TValue, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
             => RegisterCustomKey(targetMember);
 
@@ -48,23 +44,21 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// <typeparam name="TTargetValue">The type of the target set method's argument.</typeparam>
         /// <param name="targetSetMethod">The target set method to which to apply the configuration.</param>
         /// <returns>
-        /// A DictionaryMappingConfigContinuation to enable further configuration of mappings from dictionaries
-        /// to the target type being configured.
+        /// A ISourceDictionaryMappingConfigContinuation to enable further configuration of mappings from 
+        /// dictionaries to the target type being configured.
         /// </returns>
-        public DictionaryMappingConfigContinuation<TValue, TTarget> To<TTargetValue>(
+        public ISourceDictionaryMappingConfigContinuation<TValue, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
             => RegisterCustomKey(targetSetMethod);
 
         private DictionaryMappingConfigContinuation<TValue, TTarget> RegisterCustomKey(LambdaExpression targetMemberLambda)
         {
-            var configuredKey = new CustomDictionaryKey(_key, targetMemberLambda, _configInfo);
+            var configuredKey = CustomDictionaryKey.ForTargetMember(_key, targetMemberLambda, ConfigInfo);
 
             UserConfigurations.ThrowIfConflictingIgnoredMemberExists(configuredKey);
             UserConfigurations.ThrowIfConflictingDataSourceExists(configuredKey, GetConflictDescription);
 
-            _dictionarySettingsAction.Invoke(UserConfigurations.Dictionaries, configuredKey);
-
-            return new DictionaryMappingConfigContinuation<TValue, TTarget>(_configInfo);
+            return RegisterCustomKey(configuredKey);
         }
 
         private static string GetConflictDescription(CustomDictionaryKey key)

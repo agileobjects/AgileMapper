@@ -43,8 +43,8 @@
             _configuredMemberKeys.Add(customKey);
         }
 
-        public string GetMemberKeyOrNull(IBasicMapperData mapperData)
-            => _configuredMemberKeys.FindMatch(mapperData)?.Key;
+        public string GetMemberKeyOrNull(Member member, IBasicMapperData mapperData)
+            => _configuredMemberKeys.FirstOrDefault(k => k.AppliesTo(member, mapperData))?.Key;
 
         public void Add(JoiningNameFactory joiningNameFactory)
         {

@@ -16,7 +16,7 @@
                 mapper.WhenMapping
                     .Dictionaries
                     .To<PublicField<string>>()
-                    .MapKey("BoomDiddyBoom")
+                    .MapFullKey("BoomDiddyBoom")
                     .To(pf => pf.Value);
 
                 var source = new Dictionary<string, int> { ["BoomDiddyBoom"] = 123 };
@@ -34,7 +34,7 @@
                 mapper.WhenMapping
                     .Dictionaries
                     .OnTo<PublicField<PublicProperty<decimal>>>()
-                    .MapKey("BoomDiddyMcBoom")
+                    .MapFullKey("BoomDiddyMcBoom")
                     .To(pf => pf.Value.Value);
 
                 var source = new Dictionary<string, string> { ["BoomDiddyMcBoom"] = "6476338" };
@@ -56,10 +56,10 @@
                 mapper.WhenMapping
                     .Dictionaries
                     .Over<Address>()
-                    .MapMemberName("HouseNumber")
+                    .MapMemberNameKey("HouseNumber")
                     .To(a => a.Line1)
                     .And
-                    .MapMemberName("StreetName")
+                    .MapMemberNameKey("StreetName")
                     .To(a => a.Line2);
 
                 var source = new Dictionary<string, string>
@@ -83,7 +83,7 @@
                 mapper.WhenMapping
                     .Dictionaries
                     .ToANew<Address>()
-                    .MapMemberName("HouseName")
+                    .MapMemberNameKey("HouseName")
                     .To(a => a.Line1);
 
                 var source = new Dictionary<string, string> { ["Value.HouseName"] = "Home" };
@@ -101,7 +101,7 @@
                 mapper.WhenMapping
                     .Dictionaries
                     .To<PublicProperty<string[]>>()
-                    .MapMemberName("Strings")
+                    .MapMemberNameKey("Strings")
                     .To(pp => pp.Value);
 
                 var source = new Dictionary<string, string>
@@ -127,7 +127,7 @@
                 mapper.WhenMapping
                     .Dictionaries
                     .To<Product>()
-                    .MapKey("BlahBlahBlah")
+                    .MapFullKey("BlahBlahBlah")
                     .To(p => p.ProductId)
                     .And
                     .If(ctx => ctx.Source.Count > 2)
@@ -204,7 +204,7 @@
                     .To<Order>()
                     .UseFlattenedMemberNames()
                     .And
-                    .MapMemberName("OrderCode")
+                    .MapMemberNameKey("OrderCode")
                     .To(o => o.OrderId);
 
                 var source = new Dictionary<string, object>
@@ -261,7 +261,7 @@
                     .ToANew<Customer>()
                     .UseMemberNameSeparator("_")
                     .And
-                    .MapKey("PersonName")
+                    .MapFullKey("PersonName")
                     .To(p => p.Name);
 
                 var source = new Dictionary<string, object>
@@ -326,7 +326,7 @@
                     .UseElementKeyPattern("_i_")
                     .AndWhenMapping
                     .To<PublicSetMethod<string>>()
-                    .MapMemberName("Value")
+                    .MapMemberNameKey("Value")
                     .To<string>(psm => psm.SetValue);
 
                 var source = new Dictionary<string, string>
@@ -357,10 +357,10 @@
                     .UseMemberNameSeparator("-")
                     .UseElementKeyPattern("i")
                     .And
-                    .MapMemberName("StreetName")
+                    .MapMemberNameKey("StreetName")
                     .To(a => a.Line1)
                     .And
-                    .MapMemberName("CityName")
+                    .MapMemberNameKey("CityName")
                     .To(a => a.Line2);
 
                 var source = new Dictionary<string, string>

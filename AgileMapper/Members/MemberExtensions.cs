@@ -148,6 +148,15 @@
             return population;
         }
 
+        public static QualifiedMember ToSourceMember(this Expression memberAccess, MapperContext mapperContext)
+        {
+            return CreateMember(
+                memberAccess,
+                Member.RootSource,
+                GlobalContext.Instance.MemberFinder.GetSourceMembers,
+                mapperContext);
+        }
+
         public static QualifiedMember ToTargetMember(this Expression memberAccess, MapperContext mapperContext)
         {
             return CreateMember(

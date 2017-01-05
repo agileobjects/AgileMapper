@@ -3,7 +3,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using AgileMapper.Configuration;
 
     /// <summary>
-    /// Provides options for configuring how a mapper performs mapping from Dictionary{string, TValue} instances.
+    /// Provides options for configuring how a mapper performs mapping from or to Dictionary{string, TValue} 
+    /// instances.
     /// </summary>
     /// <typeparam name="TValue">
     /// The type of values stored in the dictionary to which the configurations will apply.
@@ -77,8 +78,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// (create new, overwrite, etc), to the target type specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
-        /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
-        public IDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>() where TTarget : class
+        /// <returns>An ISourceDictionaryMappingConfigurator with which to complete the configuration.</returns>
+        public ISourceDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>() where TTarget : class
             => CreateConfigurator<TTarget>(_configInfo.ForAllRuleSets());
 
         /// <summary>
@@ -86,8 +87,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
-        /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
-        public IDictionaryMappingConfigurator<TValue, TTarget> ToANew<TTarget>() where TTarget : class
+        /// <returns>An ISourceDictionaryMappingConfigurator with which to complete the configuration.</returns>
+        public ISourceDictionaryMappingConfigurator<TValue, TTarget> ToANew<TTarget>() where TTarget : class
             => CreateConfigurator<TTarget>(Constants.CreateNew);
 
         /// <summary>
@@ -95,8 +96,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
-        /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
-        public IDictionaryMappingConfigurator<TValue, TTarget> OnTo<TTarget>() where TTarget : class
+        /// <returns>An ISourceDictionaryMappingConfigurator with which to complete the configuration.</returns>
+        public ISourceDictionaryMappingConfigurator<TValue, TTarget> OnTo<TTarget>() where TTarget : class
             => CreateConfigurator<TTarget>(Constants.Merge);
 
         /// <summary>
@@ -104,14 +105,14 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
-        /// <returns>An IDictionaryMappingConfigurator with which to complete the configuration.</returns>
-        public IDictionaryMappingConfigurator<TValue, TTarget> Over<TTarget>() where TTarget : class
+        /// <returns>An ISourceDictionaryMappingConfigurator with which to complete the configuration.</returns>
+        public ISourceDictionaryMappingConfigurator<TValue, TTarget> Over<TTarget>() where TTarget : class
             => CreateConfigurator<TTarget>(Constants.Overwrite);
 
-        private IDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(string ruleSetName)
+        private ISourceDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(string ruleSetName)
             => CreateConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
 
-        private static IDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(MappingConfigInfo configInfo)
-            => new DictionaryMappingConfigurator<TValue, TTarget>(configInfo.ForTargetType<TTarget>());
+        private static ISourceDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(MappingConfigInfo configInfo)
+            => new SourceDictionaryMappingConfigurator<TValue, TTarget>(configInfo.ForTargetType<TTarget>());
     }
 }

@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -33,6 +35,40 @@
                 result["Discount"].ShouldBe("0.25");
                 result["AddressLine1"].ShouldBe("Abbey Road");
                 result["AddressLine2"].ShouldBe("Penny Lane");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyFlattenedMemberNamesToASpecifiedSourceType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<Address>>()
+                    .ToDictionaries
+                    .UseFlattenedMemberNames()
+                    .And
+                    .MapMember(pf => pf.Value)
+                    .ToMemberNameKey("Data");
+
+                var matchingSource = new PublicField<Address>
+                {
+                    Value = new Address { Line1 = "As a pancake" }
+                };
+                var matchingResult = mapper.Map(matchingSource).ToANew<Dictionary<string, object>>();
+
+                matchingResult.Keys.Any(k => k.StartsWith("Value")).ShouldBeFalse();
+                matchingResult["DataLine1"].ShouldBe("As a pancake");
+                matchingResult["DataLine2"].ShouldBeNull();
+
+                var nonMatchingSource = new PublicProperty<Address>
+                {
+                    Value = new Address { Line1 = "Like a flatfish" }
+                };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Dictionary<string, object>>();
+
+                nonMatchingResult["Value.Line1"].ShouldBe("Like a flatfish");
+                nonMatchingResult["Value.Line2"].ShouldBeNull();
             }
         }
 

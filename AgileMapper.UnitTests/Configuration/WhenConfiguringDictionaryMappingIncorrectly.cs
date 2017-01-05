@@ -15,7 +15,7 @@
                 Mapper.WhenMapping
                     .Dictionaries
                     .To<PublicField<string>>()
-                    .MapKey(null)
+                    .MapFullKey(null)
                     .To(pf => pf.Value);
             });
 
@@ -30,7 +30,7 @@
                 Mapper.WhenMapping
                     .Dictionaries
                     .To<PublicField<string>>()
-                    .MapMemberName(null)
+                    .MapMemberNameKey(null)
                     .To(pf => pf.Value);
             });
 
@@ -52,7 +52,7 @@
                     mapper.WhenMapping
                         .Dictionaries
                         .To<Person>()
-                        .MapKey("PersonId")
+                        .MapFullKey("PersonId")
                         .To(p => p.Id);
                 }
             });
@@ -75,7 +75,7 @@
                     mapper.WhenMapping
                         .Dictionaries
                         .To<PublicField<string>>()
-                        .MapMemberName("ValueValue")
+                        .MapMemberNameKey("ValueValue")
                         .To(pf => pf.Value);
                 }
             });
@@ -99,7 +99,7 @@
                     mapper.WhenMapping
                         .Dictionaries
                         .To<Person>()
-                        .MapKey("PersonName")
+                        .MapFullKey("PersonName")
                         .To(p => p.Name);
                 }
             });
@@ -123,7 +123,7 @@
                     mapper.WhenMapping
                         .Dictionaries
                         .To<Person>()
-                        .MapMemberName("PersonName")
+                        .MapMemberNameKey("PersonName")
                         .To(p => p.Name);
                 }
             });

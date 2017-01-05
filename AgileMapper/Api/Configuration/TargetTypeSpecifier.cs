@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using AgileMapper.Configuration;
+    using Dictionaries;
 
     /// <summary>
     /// Provides options for specifying the target type and mapping rule set to which the configuration should
@@ -54,5 +55,12 @@
 
         private MappingConfigurator<TSource, TTarget> UsingRuleSet<TTarget>(string name) where TTarget : class
             => new MappingConfigurator<TSource, TTarget>(_configInfo.ForRuleSet(name));
+
+        /// <summary>
+        /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
+        /// (create new, overwrite, etc), to target dictionaries.
+        /// </summary>
+        public ITargetDictionaryConfigSettings<TSource, object> ToDictionaries
+            => new TargetDictionaryMappingConfigurator<TSource, object>(_configInfo.ForAllRuleSets());
     }
 }

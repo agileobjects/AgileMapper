@@ -8,6 +8,6 @@
     {
         public static TItem FindMatch<TItem>(this IEnumerable<TItem> items, IBasicMapperData mapperData)
             where TItem : UserConfiguredItemBase
-        => items.FirstOrDefault(im => im.AppliesTo(mapperData));
+            => items.FirstOrDefault(im => im.AppliesTo(mapperData));
     }
 }

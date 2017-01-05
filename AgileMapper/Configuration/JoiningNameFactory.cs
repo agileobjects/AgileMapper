@@ -93,7 +93,7 @@
         private static string GetJoiningNamePart(Member member, IMemberMapperData mapperData)
         {
             var dictionarySettings = mapperData.MapperContext.UserConfigurations.Dictionaries;
-            var memberName = dictionarySettings.GetMemberKeyOrNull(mapperData) ?? member.JoiningName;
+            var memberName = dictionarySettings.GetMemberKeyOrNull(member, mapperData) ?? member.JoiningName;
 
             return memberName;
         }

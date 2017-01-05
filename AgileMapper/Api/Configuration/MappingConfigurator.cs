@@ -10,12 +10,12 @@
         IFullMappingConfigurator<TSource, TTarget>,
         IConditionalRootMappingConfigurator<TSource, TTarget>
     {
-        private readonly MappingConfigInfo _configInfo;
-
         public MappingConfigurator(MappingConfigInfo configInfo)
         {
-            _configInfo = configInfo;
+            ConfigInfo = configInfo;
         }
+
+        protected MappingConfigInfo ConfigInfo { get; }
 
         #region If Overloads
 
@@ -31,7 +31,7 @@
 
         private IConditionalRootMappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
         {
-            _configInfo.AddConditionOrThrow(conditionLambda);
+            ConfigInfo.AddConditionOrThrow(conditionLambda);
             return this;
         }
 
@@ -39,46 +39,46 @@
 
         public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
-            new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
+            new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
 
-            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
         public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
         {
-            new FactorySpecifier<TSource, TTarget, TTarget>(_configInfo).Using(factory);
+            new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
 
-            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
         public IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class
-            => new FactorySpecifier<TSource, TTarget, TObject>(_configInfo);
+            => new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);
 
         public IFullMappingSettings<TSource, TTarget> SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
         public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
             var exceptionCallback = new ExceptionCallback(
-                _configInfo.ForTargetType<TTarget>(),
+                ConfigInfo.ForTargetType<TTarget>(),
                 callback.ToConstantExpression());
 
-            _configInfo.MapperContext.UserConfigurations.Add(exceptionCallback);
+            ConfigInfo.MapperContext.UserConfigurations.Add(exceptionCallback);
             return this;
         }
 
         public IFullMappingSettings<TSource, TTarget> TrackMappedObjects()
         {
-            var trackingMode = new ObjectTrackingMode(_configInfo.ForTargetType<TTarget>());
+            var trackingMode = new ObjectTrackingMode(ConfigInfo.ForTargetType<TTarget>());
 
-            _configInfo.MapperContext.UserConfigurations.Add(trackingMode);
+            ConfigInfo.MapperContext.UserConfigurations.Add(trackingMode);
             return this;
         }
 
         public IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull()
         {
-            var nullSetting = new NullCollectionsSetting(_configInfo.ForTargetType<TTarget>());
+            var nullSetting = new NullCollectionsSetting(ConfigInfo.ForTargetType<TTarget>());
 
-            _configInfo.MapperContext.UserConfigurations.Add(nullSetting);
+            ConfigInfo.MapperContext.UserConfigurations.Add(nullSetting);
             return this;
         }
 
@@ -86,25 +86,25 @@
 
         public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
-            var configInfo = _configInfo.ForTargetType<TTarget>();
+            var configInfo = ConfigInfo.ForTargetType<TTarget>();
 
             foreach (var targetMember in targetMembers)
             {
                 var configuredIgnoredMember =
                     new ConfiguredIgnoredMember(configInfo, targetMember);
 
-                _configInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
-                _configInfo.NegateCondition();
+                ConfigInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+                ConfigInfo.NegateCondition();
             }
 
-            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
         public PreEventMappingConfigStartingPoint<TSource, TTarget> Before
-            => new PreEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
+            => new PreEventMappingConfigStartingPoint<TSource, TTarget>(ConfigInfo);
 
         public PostEventMappingConfigStartingPoint<TSource, TTarget> After
-            => new PostEventMappingConfigStartingPoint<TSource, TTarget>(_configInfo);
+            => new PostEventMappingConfigStartingPoint<TSource, TTarget>(ConfigInfo);
 
         #region Map Overloads
 
@@ -112,7 +112,7 @@
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                _configInfo.ForSourceValueType<TSourceValue>(),
+                ConfigInfo.ForSourceValueType<TSourceValue>(),
                 valueFactoryExpression);
         }
 
@@ -120,7 +120,7 @@
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                _configInfo.ForSourceValueType<TSourceValue>(),
+                ConfigInfo.ForSourceValueType<TSourceValue>(),
                 valueFactoryExpression);
         }
 
@@ -128,7 +128,7 @@
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                _configInfo.ForSourceValueType<TSourceValue>(),
+                ConfigInfo.ForSourceValueType<TSourceValue>(),
                 valueFactoryExpression);
         }
 
@@ -142,7 +142,7 @@
 
             return (valueLambdaInfo != null)
                 ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                    _configInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
+                    ConfigInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
                     valueLambdaInfo)
                 : GetConstantValueTargetMemberSpecifier(value);
         }
@@ -156,7 +156,7 @@
             var valueLambda = Expression.Lambda<Func<TSourceValue>>(valueConstant);
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                _configInfo.ForSourceValueType(valueConstant.Type),
+                ConfigInfo.ForSourceValueType(valueConstant.Type),
                 valueLambda);
         }
 
@@ -165,13 +165,13 @@
         public MappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
             where TDerivedTarget : TTarget
         {
-            var derivedTypePair = new DerivedPairTargetTypeSpecifier<TSource, TSource, TTarget>(_configInfo);
+            var derivedTypePair = new DerivedPairTargetTypeSpecifier<TSource, TSource, TTarget>(ConfigInfo);
 
             return derivedTypePair.To<TDerivedTarget>();
         }
 
         public DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
-            => new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(_configInfo);
+            => new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(ConfigInfo);
 
         #endregion
     }
