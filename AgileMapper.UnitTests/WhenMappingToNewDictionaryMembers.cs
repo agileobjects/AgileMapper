@@ -67,26 +67,45 @@
         }
 
         [Fact]
-        public void ShouldFlattenANestedEnumerableOfEnumerablesToANestedTypedDictionary()
+        public void ShouldFlattenANestedArrayOfArraysToANestedTypedDictionary()
         {
             var source = new PublicProperty<int[][]>
             {
                 Value = new[]
                 {
-                    new [] { 1,2,3 },
-                    new [] { 4,5,6 }
+                    new [] { 1, 2, 3 },
+                    new [] { 4, 5, 6 }
                 }
             };
             var result = Mapper.Map(source).ToANew<PublicField<Dictionary<string, double>>>();
 
             result.Value.ContainsKey("[0]").ShouldBeFalse();
 
-            result.Value["[0][0]"].ShouldBe(1);
-            result.Value["[0][1]"].ShouldBe(2);
-            result.Value["[0][2]"].ShouldBe(3);
-            result.Value["[1][0]"].ShouldBe(4);
-            result.Value["[1][1]"].ShouldBe(5);
-            result.Value["[1][2]"].ShouldBe(6);
+            result.Value["[0][0]"].ShouldBe(1.0);
+            result.Value["[0][1]"].ShouldBe(2.0);
+            result.Value["[0][2]"].ShouldBe(3.0);
+            result.Value["[1][0]"].ShouldBe(4.0);
+            result.Value["[1][1]"].ShouldBe(5.0);
+            result.Value["[1][2]"].ShouldBe(6.0);
+        }
+
+        [Fact]
+        public void ShouldMapANestedEnumerableOfArraysToANestedEnumerableTypedDictionary()
+        {
+            var source = new PublicProperty<IEnumerable<int[]>>
+            {
+                Value = new[]
+                {
+                    new [] { 1, 2, 3 },
+                    new [] { 4, 5, 6 }
+                }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<Dictionary<string, IEnumerable<string>>>>();
+
+            result.Value.ContainsKey("[0][0]").ShouldBeFalse();
+
+            result.Value["[0]"].ShouldBe("1", "2", "3");
+            result.Value["[1]"].ShouldBe("4", "5", "6");
         }
     }
 }

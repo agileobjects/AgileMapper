@@ -261,13 +261,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression GetDictionaryPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
+            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
             if (mapperData.TargetMember.IsEnumerable && mapperData.TargetMemberIsEnumerableElement())
             {
+                if (targetDictionaryMember.ValueType.IsEnumerable())
+                {
+                    return GetEnumerableToEnumerableMapping(mappingData);
+                }
+
                 return GetEnumerableToDictionaryPopulationLoop(mappingData);
             }
-
-            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
             var allTargetMemberMapperDataPairs = EnumerateTargetMembers(
                 mapperData.SourceType,
@@ -286,6 +290,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var memberPopulationBlock = Expression.Block(memberPopulations);
 
             return memberPopulationBlock;
+        }
+
+        private static Expression GetEnumerableToEnumerableMapping(IObjectMappingData mappingData)
+        {
+            var mapperData = mappingData.MapperData;
+
+            var dictionaryEntryMember = (DictionaryTargetMember)mapperData.TargetMember;
+            var dictionaryEntryVariable = Expression.Variable(dictionaryEntryMember.ValueType, "enumerable");
+            var tryGetValueCall = dictionaryEntryMember.GetTryGetValueCall(dictionaryEntryVariable, mapperData);
+
+            var mappingValues = new MappingValues(
+                mapperData.SourceObject,
+                dictionaryEntryVariable,
+                mapperData.EnumerableIndex);
+
+            var enumerableMapping = MappingFactory.GetChildMapping(
+                mappingData,
+                mappingValues,
+                0,
+                mapperData);
+
+            var dictionaryEntryAssignment = dictionaryEntryMember.GetPopulation(enumerableMapping, mapperData);
+
+            return Expression.Block(
+                new[] { dictionaryEntryVariable },
+                tryGetValueCall,
+                dictionaryEntryAssignment);
         }
 
         private static IEnumerable<Tuple<DictionaryTargetMember, IObjectMappingData>> EnumerateTargetMembers(

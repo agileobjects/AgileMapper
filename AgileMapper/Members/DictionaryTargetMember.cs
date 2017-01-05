@@ -89,12 +89,20 @@ namespace AgileObjects.AgileMapper.Members
                 return base.GetAccess(instance, mapperData);
             }
 
-            var index = _key ?? mapperData.GetTargetMemberDictionaryKey();
+            return GetAccess(mapperData);
+        }
+
+        public Expression GetAccess(IMemberMapperData mapperData)
+        {
+            var index = GetKey(mapperData);
             var dictionaryMapperData = FindDictionaryMapperData(mapperData);
             var indexAccess = dictionaryMapperData.InstanceVariable.GetIndexAccess(index);
 
             return indexAccess;
         }
+
+        private Expression GetKey(IMemberMapperData mapperData)
+            => _key ?? (_key = mapperData.GetTargetMemberDictionaryKey());
 
         private IMemberMapperData FindDictionaryMapperData(IMemberMapperData mapperData)
         {
@@ -111,20 +119,28 @@ namespace AgileObjects.AgileMapper.Members
         public override Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
         {
             var existingValueVariable = Expression.Variable(ValueType, "existingValue");
-            var tryGetValueMethod = mapperData.InstanceVariable.Type.GetMethod("TryGetValue");
-            var index = _key ?? mapperData.GetTargetMemberDictionaryKey();
 
-            var tryGetValueCall = Expression.Call(
-                mapperData.InstanceVariable,
-                tryGetValueMethod,
-                index,
-                existingValueVariable);
-
+            var tryGetValueCall = GetTryGetValueCall(existingValueVariable, mapperData);
             var existingValueIsDefault = existingValueVariable.GetIsDefaultComparison();
 
             var valueMissingOrDefault = Expression.OrElse(Expression.Not(tryGetValueCall), existingValueIsDefault);
 
             return Expression.Block(new[] { existingValueVariable }, valueMissingOrDefault);
+        }
+
+        public Expression GetTryGetValueCall(Expression valueVariable, IMemberMapperData mapperData)
+        {
+            var dictionaryMapperData = FindDictionaryMapperData(mapperData);
+            var tryGetValueMethod = dictionaryMapperData.InstanceVariable.Type.GetMethod("TryGetValue");
+            var index = GetKey(mapperData);
+
+            var tryGetValueCall = Expression.Call(
+                dictionaryMapperData.InstanceVariable,
+                tryGetValueMethod,
+                index,
+                valueVariable);
+
+            return tryGetValueCall;
         }
 
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
