@@ -212,10 +212,17 @@
             var fallbackType = typeHelper.IsCollection
                 ? typeHelper.CollectionType
                 : typeHelper.IsDictionary
-                    ? typeHelper.EnumerableType
+                    ? GetDictionaryType(typeHelper.EnumerableType)
                     : typeHelper.ListType;
 
             return Expression.New(fallbackType);
+        }
+
+        private static Type GetDictionaryType(Type dictionaryType)
+        {
+            return dictionaryType.IsInterface()
+                ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericArguments())
+                : dictionaryType;
         }
 
         public static bool IsRootedIn(this Expression expression, Expression possibleParent)

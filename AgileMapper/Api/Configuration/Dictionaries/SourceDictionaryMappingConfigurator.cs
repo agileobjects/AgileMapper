@@ -29,9 +29,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         public ISourceDictionaryConfigSettings<TValue, TTarget> UseElementKeyPattern(string pattern)
         {
-            var keyPartFactory = ElementKeyPartFactory.For(pattern, ConfigInfo);
-
-            ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(keyPartFactory);
+            SetupElementKeyPattern(pattern);
             return this;
         }
 

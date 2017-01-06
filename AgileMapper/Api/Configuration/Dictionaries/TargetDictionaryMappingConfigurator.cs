@@ -30,6 +30,12 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             return this;
         }
 
+        public ITargetDictionaryConfigSettings<TSource, TValue> UseElementKeyPattern(string pattern)
+        {
+            SetupElementKeyPattern(pattern);
+            return this;
+        }
+
         ITargetDictionaryMappingConfigurator<TSource, TValue> ITargetDictionaryConfigSettings<TSource, TValue>.And
             => this;
 

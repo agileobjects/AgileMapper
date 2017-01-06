@@ -2,12 +2,14 @@
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
 #if NET_STANDARD
     using System.Reflection;
 #endif
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
 
@@ -58,7 +60,9 @@
         public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo.SourceType);
 
         private bool IsForSourceType(Type sourceType)
-            => (SourceType == _allSourceTypes) || SourceType.IsAssignableFrom(sourceType);
+            => IsForAllSourceTypes || SourceType.IsAssignableFrom(sourceType);
+
+        public bool IsForAllSourceTypes => SourceType == _allSourceTypes;
 
         public Type TargetType { get; private set; }
 
@@ -81,7 +85,22 @@
             => HasCompatibleTypes(mapperData.SourceType, mapperData.TargetType);
 
         public bool HasCompatibleTypes(Type sourceType, Type targetType)
-            => IsForSourceType(sourceType) && TargetType.IsAssignableFrom(targetType);
+        {
+            if (IsForSourceType(sourceType))
+            {
+                if (TargetType.IsAssignableFrom(targetType))
+                {
+                    return true;
+                }
+
+                if (targetType.IsInterface())
+                {
+                    return Array.IndexOf(TargetType.GetInterfaces(), targetType) != -1;
+                }
+            }
+
+            return false;
+        }
 
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 

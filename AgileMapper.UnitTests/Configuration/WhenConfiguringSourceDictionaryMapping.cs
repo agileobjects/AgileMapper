@@ -195,7 +195,7 @@
         }
 
         [Fact]
-        public void ShouldApplyFlattenedMemberNamesToASpecifiedTargetType()
+        public void ShouldApplyFlattenedMemberNamesToASpecificTargetType()
         {
             using (var mapper = Mapper.CreateNew())
             {

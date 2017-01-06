@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -39,7 +40,7 @@
         }
 
         [Fact]
-        public void ShouldApplyFlattenedMemberNamesToASpecifiedSourceType()
+        public void ShouldApplyFlattenedMemberNamesToASpecificSourceType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -104,7 +105,7 @@
         }
 
         [Fact]
-        public void ShouldApplyACustomSeparatorToASpecifiedSourceType()
+        public void ShouldApplyACustomSeparatorToASpecificSourceType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -158,6 +159,42 @@
                 result["+0+-Line2"].ShouldBe("Mato's Street");
                 result["+1+-Line1"].ShouldBe("Magnus's House");
                 result["+1+-Line2"].ShouldBe("Magnus's Street");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyACustomEnumerableElementPatternToASpecificTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .ToDictionaries
+                    .UseElementKeyPattern("(i)");
+
+                var source = new PublicProperty<IEnumerable<Person>>
+                {
+                    Value = new Collection<Person>
+                    {
+                        new Person { Name = "Sandra", Address = new Address { Line1 = "Home" } },
+                        new Person { Name = "David", Address = new Address { Line1 = "Home!" } }
+                    }
+                };
+                var target = new PublicField<IDictionary<string, object>>
+                {
+                    Value = new Dictionary<string, object>()
+                };
+                var originalDictionary = target.Value;
+
+                mapper.Map(source).OnTo(target);
+
+                target.Value.ShouldBeSameAs(originalDictionary);
+
+                target.Value["(0).Name"].ShouldBe("Sandra");
+                target.Value["(0).Address.Line1"].ShouldBe("Home");
+
+                target.Value["(1).Name"].ShouldBe("David");
+                target.Value["(1).Address.Line1"].ShouldBe("Home!");
             }
         }
     }

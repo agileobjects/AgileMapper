@@ -244,11 +244,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)
         {
-            var targetType = mappingData.MapperData.TargetType.IsInterface()
-                ? typeof(Dictionary<,>).MakeGenericType(mappingData.MapperData.TargetType.GetGenericArguments())
-                : mappingData.MapperData.TargetType;
+            var newDictionary = mappingData.MapperData.TargetType.GetEmptyInstanceCreation();
 
-            return GetDictionaryAssignment(Expression.New(targetType), mappingData);
+            return GetDictionaryAssignment(newDictionary, mappingData);
         }
 
         private static Expression GetDictionaryAssignment(Expression value, IObjectMappingData mappingData)
