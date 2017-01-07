@@ -5,11 +5,7 @@
     internal class AdHocDataSource : DataSourceBase
     {
         public AdHocDataSource(IDataSource wrappedDataSource, Expression value)
-            : base(
-                wrappedDataSource.SourceMember,
-                wrappedDataSource.Variables,
-                value,
-                wrappedDataSource.Condition)
+            : base(wrappedDataSource, value)
         {
         }
     }

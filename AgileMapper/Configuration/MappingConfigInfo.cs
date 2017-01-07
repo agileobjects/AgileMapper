@@ -2,7 +2,6 @@
 {
     using System;
     using System.Globalization;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
 #if NET_STANDARD
@@ -19,7 +18,6 @@
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", true, null, null, null);
 
         private MappingRuleSet _mappingRuleSet;
-        private Type _sourceValueType;
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
 
@@ -119,16 +117,18 @@
         public bool IsFor(MappingRuleSet mappingRuleSet)
             => (_mappingRuleSet == _allRuleSets) || (mappingRuleSet == _mappingRuleSet);
 
+        public Type SourceValueType { get; private set; }
+
         public MappingConfigInfo ForSourceValueType<TSourceValue>() => ForSourceValueType(typeof(TSourceValue));
 
         public MappingConfigInfo ForSourceValueType(Type sourceValueType)
         {
-            _sourceValueType = sourceValueType;
+            SourceValueType = sourceValueType;
             return this;
         }
 
         public void ThrowIfSourceTypeUnconvertible<TTargetValue>()
-            => MapperContext.ValueConverters.ThrowIfUnconvertible(_sourceValueType, typeof(TTargetValue));
+            => MapperContext.ValueConverters.ThrowIfUnconvertible(SourceValueType, typeof(TTargetValue));
 
         #region Conditions
 
@@ -224,7 +224,7 @@
             {
                 SourceType = SourceType,
                 TargetType = TargetType,
-                _sourceValueType = _sourceValueType,
+                SourceValueType = SourceValueType,
                 _mappingRuleSet = _mappingRuleSet
             };
         }

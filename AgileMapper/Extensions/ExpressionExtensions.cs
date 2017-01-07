@@ -125,7 +125,7 @@
             var indexer = indexedExpression.Type
                 .GetPublicInstanceProperties()
                 .First(p =>
-                    (p.GetIndexParameters().Length == 1) &&
+                    p.GetIndexParameters().HasOne() &&
                     (p.GetIndexParameters()[0].ParameterType == indexValue.Type));
 
             return Expression.MakeIndex(indexedExpression, indexer, new[] { indexValue });

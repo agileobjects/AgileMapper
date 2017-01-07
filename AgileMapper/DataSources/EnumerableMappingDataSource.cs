@@ -11,10 +11,8 @@
             int dataSourceIndex,
             IChildMemberMappingData enumerableMappingData)
             : base(
-                  sourceEnumerableDataSource.SourceMember,
-                  sourceEnumerableDataSource.Variables,
-                  GetMapping(sourceEnumerableDataSource, dataSourceIndex, enumerableMappingData),
-                  sourceEnumerableDataSource.Condition)
+                  sourceEnumerableDataSource,
+                  GetMapping(sourceEnumerableDataSource, dataSourceIndex, enumerableMappingData))
         {
         }
 

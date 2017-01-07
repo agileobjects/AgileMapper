@@ -197,5 +197,34 @@
                 target.Value["(1).Address.Line1"].ShouldBe("Home!");
             }
         }
+
+        [Fact]
+        public void ShouldApplyACustomConfiguredMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address>()
+                    .ToDictionaries
+                    .If(ctx => !string.IsNullOrEmpty(ctx.Source.Line2))
+                    .Map(ctx => "Present")
+                    .To(d => d["Line2State"])
+                    .But
+                    .If(ctx => string.IsNullOrEmpty(ctx.Source.Line2))
+                    .Map(ctx => "Missing")
+                    .To(d => d["Line2State"]);
+
+                var line2Source = new Address { Line1 = "Line 1: Yes", Line2 = "Line 2: Yes!" };
+                var line2Result = mapper.Map(line2Source).ToANew<Dictionary<string, object>>();
+
+                line2Result["Line2State"].ShouldBe("Present");
+                line2Result["Line2"].ShouldBe("Line 2: Yes!");
+
+                var noLine2Source = new Address { Line1 = "Line 1: Yes", Line2 = string.Empty };
+                var noLine2Result = mapper.Map(noLine2Source).ToANew<Dictionary<string, object>>();
+
+                noLine2Result["Line2State"].ShouldBe("Missing");
+            }
+        }
     }
 }

@@ -55,9 +55,9 @@ namespace AgileObjects.AgileMapper.Members
             return childMember;
         }
 
-        public DictionaryTargetMember Append(string sourceMemberName)
+        public DictionaryTargetMember Append(string entryKey)
         {
-            var targetEntryMember = Member.DictionaryEntry(sourceMemberName, this);
+            var targetEntryMember = Member.DictionaryEntry(entryKey, this);
             var childMember = Append(targetEntryMember);
 
             return (DictionaryTargetMember)childMember;

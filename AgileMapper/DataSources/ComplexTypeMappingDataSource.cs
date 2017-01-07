@@ -11,10 +11,8 @@
             int dataSourceIndex,
             IChildMemberMappingData complexTypeMappingData)
             : base(
-                  complexTypeDataSource.SourceMember,
-                  complexTypeDataSource.Variables,
-                  GetMapping(complexTypeDataSource, dataSourceIndex, complexTypeMappingData),
-                  complexTypeDataSource.Condition)
+                  complexTypeDataSource,
+                  GetMapping(complexTypeDataSource, dataSourceIndex, complexTypeMappingData))
         {
         }
 

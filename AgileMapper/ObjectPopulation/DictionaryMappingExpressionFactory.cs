@@ -271,10 +271,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return GetEnumerableToDictionaryPopulationLoop(mappingData);
             }
 
-            var allTargetMemberMapperDataPairs = EnumerateTargetMembers(
-                mapperData.SourceType,
-                targetDictionaryMember,
-                mappingData);
+            var allTargetMemberMapperDataPairs =
+                 EnumerateTargetMembers(mapperData.SourceType, targetDictionaryMember, mappingData)
+                .ToArray();
+
+            var configuredDataSourceFactories = mapperData.MapperContext
+                .UserConfigurations
+                .DataSourceFactories
+                .OfType<ConfiguredDictionaryDataSourceFactory>()
+                .Where(dsf => dsf.IsFor(mapperData))
+                .ToArray();
+
+            if (configuredDataSourceFactories.Any())
+            {
+                var allTargetMembers = allTargetMemberMapperDataPairs
+                    .Select(p => p.Item1)
+                    .ToArray();
+
+                var configuredCustomTargetMembers = configuredDataSourceFactories
+                    .Where(dsf => allTargetMembers.None(dsf.Matches))
+                    .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
+                    .Select(group => Tuple.Create(group.First().TargetDictionaryEntryMember, mappingData))
+                    .ToArray();
+
+                allTargetMemberMapperDataPairs = allTargetMemberMapperDataPairs
+                    .Concat(configuredCustomTargetMembers)
+                    .ToArray();
+            }
 
             var memberPopulations = allTargetMemberMapperDataPairs
                 .Select(pair => GetMemberPopulation(pair.Item1, pair.Item2))
@@ -376,7 +399,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return childMappingData;
         }
 
-        private Expression GetMemberPopulation(QualifiedMember targetMember, IObjectMappingData mappingData)
+        private Expression GetMemberPopulation(
+            QualifiedMember targetMember,
+            IObjectMappingData mappingData)
         {
             var memberPopulation = _memberPopulationFactory.Create(targetMember, mappingData);
             var populationExpression = memberPopulation.GetPopulation();

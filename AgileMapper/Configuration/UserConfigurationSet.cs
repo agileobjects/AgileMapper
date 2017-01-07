@@ -110,6 +110,8 @@
 
         #region DataSources
 
+        public IEnumerable<ConfiguredDataSourceFactory> DataSourceFactories => _dataSourceFactories;
+
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
             ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);

@@ -60,7 +60,7 @@
         /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
         /// (create new, overwrite, etc), to target dictionaries.
         /// </summary>
-        public ITargetDictionaryConfigSettings<TSource, object> ToDictionaries => ToDictionariesWithValueType<object>();
+        public ITargetDictionaryMappingConfigurator<TSource, object> ToDictionaries => ToDictionariesWithValueType<object>();
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
@@ -70,7 +70,7 @@
         /// The type of values contained in the Dictionary to which the configuration will apply.
         /// </typeparam>
         /// <returns>An ITargetDictionaryConfigSettings with which to continue the configuration.</returns>
-        public ITargetDictionaryConfigSettings<TSource, TValue> ToDictionariesWithValueType<TValue>()
+        public ITargetDictionaryMappingConfigurator<TSource, TValue> ToDictionariesWithValueType<TValue>()
             => new TargetDictionaryMappingConfigurator<TSource, TValue>(_configInfo.ForAllRuleSets());
     }
 }

@@ -12,6 +12,15 @@
         {
         }
 
+        protected DataSourceBase(IDataSource wrappedDataSource, Expression value = null)
+            : this(
+                  wrappedDataSource.SourceMember,
+                  wrappedDataSource.Variables,
+                  value ?? wrappedDataSource.Value,
+                  wrappedDataSource.Condition)
+        {
+        }
+
         protected DataSourceBase(
             IQualifiedMember sourceMember,
             ICollection<ParameterExpression> variables,

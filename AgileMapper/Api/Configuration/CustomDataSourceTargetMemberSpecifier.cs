@@ -60,7 +60,56 @@
             => RegisterDataSource<TTargetValue>(() => CreateFromLambda(targetSetMethod));
 
         private ConfiguredDataSourceFactory CreateFromLambda(LambdaExpression targetMemberLambda)
-            => new ConfiguredDataSourceFactory(_configInfo, _customValueLambda, targetMemberLambda);
+        {
+            DictionaryTargetMember dictionaryEntryMember;
+
+            if (IsDictionaryEntry(targetMemberLambda, out dictionaryEntryMember))
+            {
+                return new ConfiguredDictionaryDataSourceFactory(_configInfo, _customValueLambda, dictionaryEntryMember);
+            }
+
+            return new ConfiguredDataSourceFactory(_configInfo, _customValueLambda, targetMemberLambda);
+        }
+
+        private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
+        {
+            if (targetMemberLambda.Body.NodeType != ExpressionType.Call)
+            {
+                entryMember = null;
+                return false;
+            }
+
+            var methodCall = (MethodCallExpression)targetMemberLambda.Body;
+
+            if (!methodCall.Method.IsSpecialName ||
+                (methodCall.Method.Name != "get_Item") ||
+                !methodCall.Method.DeclaringType.IsDictionary())
+            {
+                entryMember = null;
+                return false;
+            }
+
+            var entryKeyExpression = methodCall.Arguments[0];
+
+            if (entryKeyExpression.NodeType != ExpressionType.Constant)
+            {
+                // throw
+            }
+
+            var entryKey = ((ConstantExpression)entryKeyExpression).Value as string;
+
+            if (entryKey == null)
+            {
+                // throw
+            }
+
+            var rootMember = (DictionaryTargetMember)_configInfo.MapperContext
+                .QualifiedMemberFactory
+                .RootTarget<TTarget>();
+
+            entryMember = rootMember.Append(entryKey);
+            return true;
+        }
 
         /// <summary>
         /// Apply the configuration to the constructor parameter with the type specified by the type argument.
