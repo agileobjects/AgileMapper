@@ -223,6 +223,24 @@
         }
 
         [Fact]
+        public void ShouldApplyACustomConfiguredMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .Dictionaries
+                    .ToANew<PublicField<long>>()
+                    .Map(ctx => ctx.Source.Count)
+                    .To(pf => pf.Value);
+
+                var source = new Dictionary<string, object> { ["One"] = 1, ["Two"] = 2 };
+                var result = mapper.Map(source).ToANew<PublicField<long>>();
+
+                result.Value.ShouldBe(2);
+            }
+        }
+
+        [Fact]
         public void ShouldApplyACustomConfiguredMemberConditionally()
         {
             using (var mapper = Mapper.CreateNew())
