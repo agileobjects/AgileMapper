@@ -199,7 +199,31 @@
         }
 
         [Fact]
-        public void ShouldApplyACustomConfiguredMember()
+        public void ShouldApplyAConfiguredConditionalTargetEntryValue()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomerViewModel>()
+                    .ToDictionaries
+                    .If((mcvm, d) => mcvm.Discount > 0.5)
+                    .Map((mcvm, d) => mcvm.Name + " (Big discount!)")
+                    .To(d => d["Name"]);
+
+                var noDiscountSource = new MysteryCustomerViewModel { Name = "Schumer", Discount = 0.0 };
+                var noDiscountResult = mapper.Map(noDiscountSource).ToANew<Dictionary<string, object>>();
+
+                noDiscountResult["Name"].ShouldBe("Schumer");
+
+                var bigDiscountSource = new MysteryCustomerViewModel { Name = "Silverman", Discount = 0.6 };
+                var bigDiscountResult = mapper.Map(bigDiscountSource).ToANew<Dictionary<string, object>>();
+
+                bigDiscountResult["Name"].ShouldBe("Silverman (Big discount!)");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyACustomConfiguredMemberConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {
