@@ -252,5 +252,18 @@
             configEx.Message.ShouldContain(
                 "pattern must contain a single 'i' character as a placeholder for the enumerable index");
         }
+
+        [Fact]
+        public void ShouldErrorIfCustomTargetMemberKeyIsNotAConstant()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .ToDictionaries
+                    .Map(ctx => ctx.EnumerableIndex)
+                    .To(d => d[d.Count.ToString()]));
+
+            configEx.Message.ShouldContain("must be constant");
+        }
     }
 }

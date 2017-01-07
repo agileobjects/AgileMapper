@@ -93,15 +93,11 @@
 
             if (entryKeyExpression.NodeType != ExpressionType.Constant)
             {
-                // throw
+                throw new MappingConfigurationException(
+                    "Target dictionary keys must be constant string values.");
             }
 
-            var entryKey = ((ConstantExpression)entryKeyExpression).Value as string;
-
-            if (entryKey == null)
-            {
-                // throw
-            }
+            var entryKey = (string)((ConstantExpression)entryKeyExpression).Value;
 
             var rootMember = (DictionaryTargetMember)_configInfo.MapperContext
                 .QualifiedMemberFactory
