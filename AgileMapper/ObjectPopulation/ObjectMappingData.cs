@@ -54,8 +54,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            IsRoot = true;
-
             if (IsPartOfDerivedTypeMapping)
             {
                 return;
@@ -92,7 +90,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region IObjectMappingData Members
 
-        public bool IsRoot { get; }
+        public bool IsRoot => Parent == null;
 
         public IObjectMappingData Parent { get; }
 
