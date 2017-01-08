@@ -140,6 +140,7 @@
             return Expression.Call(nullableExpression, parameterlessGetValueOrDefault);
         }
 
+        [DebuggerStepThrough]
         public static Expression GetConversionTo(this Expression expression, Type targetType)
             => (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
 
