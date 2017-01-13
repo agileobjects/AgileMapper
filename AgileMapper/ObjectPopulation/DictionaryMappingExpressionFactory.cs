@@ -13,13 +13,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        private readonly MemberPopulationFactory _memberPopulationFactory;
-
-        public DictionaryMappingExpressionFactory()
-        {
-            _memberPopulationFactory = MemberPopulationFactory.Default;
-        }
-
         public override bool IsFor(IObjectMappingData mappingData)
         {
             if (mappingData.MapperData.TargetMember.IsDictionary)
@@ -193,7 +186,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mappingData.MapperData.InstanceVariable.AssignTo(value);
         }
 
-        private Expression GetDictionaryPopulation(IObjectMappingData mappingData)
+        private static Expression GetDictionaryPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
@@ -261,13 +254,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private Expression GetMemberPopulation(QualifiedMember targetMember, IObjectMappingData mappingData)
+        private static Expression GetMemberPopulation(QualifiedMember targetMember, IObjectMappingData mappingData)
         {
-            var memberPopulation = _memberPopulationFactory.Create(targetMember, mappingData);
+            var memberPopulation = MemberPopulationFactory.Create(targetMember, mappingData);
             var populationExpression = memberPopulation.GetPopulation();
 
             return populationExpression;
         }
+
         protected override Expression GetReturnValue(ObjectMapperData mapperData)
             => mapperData.InstanceVariable;
     }

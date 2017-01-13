@@ -240,7 +240,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var sourceMemberTypeTests = new List<Expression>();
 
-            foreach (var memberPopulation in MemberPopulationFactory.Default.Create(mappingData))
+            foreach (var memberPopulation in MemberPopulationFactory.Create(mappingData))
             {
                 if (!memberPopulation.IsSuccessful)
                 {
