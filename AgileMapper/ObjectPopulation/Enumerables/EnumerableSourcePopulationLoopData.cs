@@ -42,8 +42,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression SourceElement { get; }
 
-        public Expression GetElementToAdd(IObjectMappingData enumerableMappingData)
-            => Builder.GetElementConversion(SourceElement, enumerableMappingData);
+        public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
+            => Builder.GetElementConversion(GetSourceElementValue(), enumerableMappingData);
+
+        protected virtual Expression GetSourceElementValue() => SourceElement;
 
         public Expression Adapt(LoopExpression loop) => GetLoopBlock(loop);
 

@@ -13,7 +13,7 @@
         public EnumerablePopulationContext(IBasicMapperData mapperData)
         {
             SourceElementType = mapperData.SourceType.GetEnumerableElementType();
-            TargetElementType = mapperData.TargetMember.ElementType;
+            TargetElementType = mapperData.TargetMember.GetElementType(SourceElementType);
             ElementTypes = new[] { SourceElementType, TargetElementType };
             ElementTypesAreTheSame = SourceElementType == TargetElementType;
             ElementTypesAreSimple = TargetElementType.IsSimple();

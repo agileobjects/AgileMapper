@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression LoopExitCheck { get; }
 
-        public Expression GetElementToAdd(IObjectMappingData enumerableMappingData)
+        public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
             => _builder.GetElementConversion(_sourceElement, enumerableMappingData);
 
         public Expression Adapt(LoopExpression loop)

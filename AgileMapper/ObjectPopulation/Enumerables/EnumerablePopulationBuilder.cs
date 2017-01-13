@@ -61,8 +61,13 @@
 
         #region Operator
 
-        public static implicit operator Expression(EnumerablePopulationBuilder builder)
+        public static implicit operator BlockExpression(EnumerablePopulationBuilder builder)
         {
+            if (builder._populationExpressions.None())
+            {
+                return null;
+            }
+
             var variables = new List<ParameterExpression>(2);
 
             if (builder._sourceVariable != null)
@@ -410,12 +415,19 @@
                 return;
             }
 
+            BuildPopulationLoop((ld, md) => GetTargetMethodCall("Add", ld.GetElementMapping(md)), mappingData);
+        }
+
+        public void BuildPopulationLoop(
+            Func<IPopulationLoopData, IObjectMappingData, Expression> elementPopulationFactory,
+            IObjectMappingData mappingData)
+        {
             var loopData = _sourceAdapter.GetPopulationLoopData();
 
             var populationLoop = loopData.BuildPopulationLoop(
                 this,
                 mappingData,
-                (ld, md) => GetTargetMethodCall("Add", ld.GetElementToAdd(md)));
+                elementPopulationFactory);
 
             _populationExpressions.Add(populationLoop);
         }

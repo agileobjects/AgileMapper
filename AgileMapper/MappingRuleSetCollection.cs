@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper
     using Members.Population;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
+    using ObjectPopulation.Enumerables.Dictionaries;
 
     internal class MappingRuleSetCollection
     {
@@ -16,6 +17,7 @@ namespace AgileObjects.AgileMapper
                 Constants.CreateNew,
                 false,
                 CopySourceEnumerablePopulationStrategy.Instance,
+                CopySourceEnumerableDictionaryPopulationStrategy.Instance,
                 NullMemberPopulationGuardFactory.Instance,
                 ExistingOrDefaultValueDataSourceFactory.Instance);
 
@@ -23,6 +25,7 @@ namespace AgileObjects.AgileMapper
                 Constants.Merge,
                 true,
                 MergeEnumerablePopulationStrategy.Instance,
+                CopySourceEnumerableDictionaryPopulationStrategy.Instance,
                 PreserveExistingValueMemberPopulationGuardFactory.Instance,
                 ExistingOrDefaultValueDataSourceFactory.Instance);
 
@@ -30,6 +33,7 @@ namespace AgileObjects.AgileMapper
                 Constants.Overwrite,
                 true,
                 OverwriteEnumerablePopulationStrategy.Instance,
+                CopySourceEnumerableDictionaryPopulationStrategy.Instance,
                 NullMemberPopulationGuardFactory.Instance,
                 DefaultValueDataSourceFactory.Instance);
 

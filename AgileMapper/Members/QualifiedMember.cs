@@ -145,6 +145,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type ElementType => LeafMember?.ElementType;
 
+        public virtual Type GetElementType(Type sourceElementType) => ElementType;
+
         public string Name => LeafMember.Name;
 
         public string RegistrationName { get; }

@@ -94,7 +94,7 @@
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.TargetMember.IsEnumerable)
+            if (CreateElementMappingDataFor(mapperData))
             {
                 mappingData = ObjectMappingDataFactory.ForElement(mappingData);
             }
@@ -105,6 +105,21 @@
             }
 
             return GetElementMapping(mappingData, sourceElementValue, targetElementValue);
+        }
+
+        private static bool CreateElementMappingDataFor(IBasicMapperData mapperData)
+        {
+            if (!mapperData.TargetMemberIsEnumerableElement())
+            {
+                return true;
+            }
+
+            if (mapperData.TargetMember.IsEnumerable)
+            {
+                return !mapperData.TargetMember.ElementType.IsSimple();
+            }
+
+            return false;
         }
 
         public static Expression GetElementMapping(
@@ -153,21 +168,19 @@
                 return mapper.MappingExpression;
             }
 
-            if (!mapper.MapperData.Context.UsesMappingDataObject)
+            if (mapper.MapperData.Context.UsesMappingDataObject)
             {
-                return GetDirectAccessMapping(
-                    mapper.MappingLambda.Body,
-                    mapper.MapperData,
-                    mappingValues,
-                    createMappingDataCall);
+                return UseLocalSourceValueVariable(
+                    mapper.MapperData.MappingDataObject,
+                    createMappingDataCall,
+                    mapper.MappingExpression);
             }
 
-            var mappingBlock = UseLocalSourceValueVariable(
-                mapper.MapperData.MappingDataObject,
-                createMappingDataCall,
-                mapper.MappingExpression);
-
-            return mappingBlock;
+            return GetDirectAccessMapping(
+                mapper.MappingLambda.Body,
+                mapper.MapperData,
+                mappingValues,
+                createMappingDataCall);
         }
 
         public static Expression GetDirectAccessMapping(

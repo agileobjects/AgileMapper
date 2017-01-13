@@ -42,10 +42,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression LoopExitCheck { get; }
 
-        public Expression GetElementToAdd(IObjectMappingData enumerableMappingData)
+        public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
         {
-            var convertedEnumeratorValue = _enumerableLoopData.GetElementToAdd(enumerableMappingData);
-            var convertedElementValue = _elementsDictionaryLoopData.GetElementToAdd(enumerableMappingData);
+            var convertedEnumeratorValue = _enumerableLoopData.GetElementMapping(enumerableMappingData);
+            var convertedElementValue = _elementsDictionaryLoopData.GetElementMapping(enumerableMappingData);
 
             return Expression.Condition(_sourceEnumerableFound, convertedEnumeratorValue, convertedElementValue);
         }

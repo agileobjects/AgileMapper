@@ -114,7 +114,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression LoopExitCheck { get; }
 
-        public Expression GetElementToAdd(IObjectMappingData enumerableMappingData)
+        public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
         {
             if (DoNotPerformElementChecks)
             {

@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Collections.Generic;
 #if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
 #endif
@@ -43,6 +44,22 @@ namespace AgileObjects.AgileMapper.Members
         public Type ValueType { get; }
 
         public bool HasObjectEntries => ValueType == typeof(object);
+
+        public bool HasSimpleEntries => ValueType.IsSimple();
+
+        public bool HasEnumerableEntries => ValueType.IsEnumerable();
+
+        public bool HasComplexEntries => !HasObjectEntries && ValueType.IsComplex();
+
+        public override Type GetElementType(Type sourceElementType)
+        {
+            if (HasObjectEntries || HasSimpleEntries)
+            {
+                return sourceElementType;
+            }
+
+            return base.GetElementType(sourceElementType);
+        }
 
         public override bool GuardObjectValuePopulations => true;
 
@@ -89,7 +106,27 @@ namespace AgileObjects.AgileMapper.Members
                 return base.GetAccess(instance, mapperData);
             }
 
+            if (ReturnNullAccess())
+            {
+                return Type.ToDefaultExpression();
+            }
+
             return GetAccess(mapperData);
+        }
+
+        private bool ReturnNullAccess()
+        {
+            if (Type == ValueType)
+            {
+                return false;
+            }
+
+            if (Type.IsSimple())
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public Expression GetAccess(IMemberMapperData mapperData)
@@ -102,7 +139,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private Expression GetKey(IMemberMapperData mapperData)
-            => _key ?? (_key = mapperData.GetTargetMemberDictionaryKey());
+            => _key ?? (_key = mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType));
 
         private IMemberMapperData FindDictionaryMapperData(IMemberMapperData mapperData)
         {
@@ -150,11 +187,77 @@ namespace AgileObjects.AgileMapper.Members
                 return base.GetPopulation(value, mapperData);
             }
 
+            BlockExpression flattening;
+
+            if (ValueIsFlattening(value, out flattening))
+            {
+                return flattening;
+            }
+
             var indexAccess = GetAccess(mapperData.InstanceVariable, mapperData);
-            var indexAssignment = indexAccess.AssignTo(value);
+            var convertedValue = mapperData.GetValueConversion(value, ValueType);
+            var indexAssignment = indexAccess.AssignTo(convertedValue);
 
             return indexAssignment;
         }
+
+        private bool ValueIsFlattening(Expression value, out BlockExpression flattening)
+        {
+            if (!(HasObjectEntries || HasSimpleEntries))
+            {
+                flattening = null;
+                return false;
+            }
+
+            ICollection<ParameterExpression> blockParameters;
+
+            if (value.NodeType == ExpressionType.Block)
+            {
+                flattening = (BlockExpression)value;
+                blockParameters = flattening.Variables;
+                value = flattening.Expressions[0];
+            }
+            else
+            {
+                blockParameters = Enumerable<ParameterExpression>.EmptyArray;
+            }
+
+            if (value.NodeType != ExpressionType.Try)
+            {
+                flattening = null;
+                return false;
+            }
+
+            flattening = (BlockExpression)((TryExpression)value).Body;
+            var flatteningExpressions = GetMappingExpressions(flattening);
+
+            flattening = blockParameters.Any()
+                ? Expression.Block(blockParameters, flatteningExpressions)
+                : flatteningExpressions.HasOne()
+                    ? (BlockExpression)flatteningExpressions[0]
+                    : Expression.Block(flatteningExpressions);
+
+            return true;
+        }
+
+        private static IList<Expression> GetMappingExpressions(Expression mapping)
+        {
+            var expressions = new List<Expression>();
+
+            while (mapping.NodeType == ExpressionType.Block)
+            {
+                var mappingBlock = (BlockExpression)mapping;
+                expressions.AddRange(mappingBlock.Expressions);
+                expressions.Remove(mappingBlock.Result);
+
+                mapping = mappingBlock.Result;
+            }
+
+            return expressions;
+        }
+
+        public DictionaryTargetMember WithTypeOf(Member sourceMember)
+            => (DictionaryTargetMember)WithType(sourceMember.Type);
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD

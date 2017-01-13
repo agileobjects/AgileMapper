@@ -375,12 +375,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ParameterExpression CreateInstanceVariable()
         {
-            if (TargetMember.IsEnumerable && !TargetMember.IsDictionary)
-            {
-                return EnumerablePopulationBuilder.TargetVariable;
-            }
-
-            return Expression.Variable(TargetType, TargetType.GetVariableNameInCamelCase());
+            return EnumerablePopulationBuilder?.TargetVariable
+                ?? Expression.Variable(TargetType, TargetType.GetVariableNameInCamelCase());
         }
 
         public NestedAccessFinder NestedAccessFinder { get; }

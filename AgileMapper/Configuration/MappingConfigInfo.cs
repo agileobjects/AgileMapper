@@ -15,7 +15,7 @@
     internal class MappingConfigInfo
     {
         private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
-        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", true, null, null, null);
+        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", true, null, null, null, null);
 
         private MappingRuleSet _mappingRuleSet;
         private ConfiguredLambdaInfo _conditionLambda;

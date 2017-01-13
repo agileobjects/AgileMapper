@@ -23,7 +23,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 if (mapperData.TargetMember.IsEnumerable)
                 {
-                    return mapperData.GetFallbackCollectionValue();
+                    return FallbackToNull(mapperData)
+                        ? mapperData.TargetMember.Type.ToDefaultExpression()
+                        : mapperData.GetFallbackCollectionValue();
                 }
 
                 if (mapperData.TargetMember.IsReadable)
@@ -32,6 +34,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 }
 
                 return mapperData.TargetMember.Type.ToDefaultExpression();
+            }
+
+            private static bool FallbackToNull(IBasicMapperData mapperData)
+            {
+                if (mapperData.TargetMember.IsDictionary)
+                {
+                    return false;
+                }
+
+                var dictionaryTargetMember = mapperData.TargetMember as DictionaryTargetMember;
+
+                if (dictionaryTargetMember == null)
+                {
+                    return false;
+                }
+
+                if (dictionaryTargetMember.HasEnumerableEntries)
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
     }

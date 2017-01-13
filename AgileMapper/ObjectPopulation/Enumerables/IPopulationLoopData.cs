@@ -8,7 +8,7 @@
     {
         Expression LoopExitCheck { get; }
 
-        Expression GetElementToAdd(IObjectMappingData enumerableMappingData);
+        Expression GetElementMapping(IObjectMappingData enumerableMappingData);
 
         Expression Adapt(LoopExpression loop);
     }
@@ -19,15 +19,16 @@
             this TLoopData loopData,
             EnumerablePopulationBuilder builder,
             IObjectMappingData mappingData,
-            Func<TLoopData, IObjectMappingData, Expression> mappedElementAdditionFactory)
+            Func<TLoopData, IObjectMappingData, Expression> elementPopulationFactory)
             where TLoopData : IPopulationLoopData
         {
             var breakLoop = Expression.Break(Expression.Label(typeof(void), "Break"));
-            var mappedElementAddition = mappedElementAdditionFactory.Invoke(loopData, mappingData);
+
+            var elementPopulation = elementPopulationFactory.Invoke(loopData, mappingData);
 
             var loopBody = Expression.Block(
                 Expression.IfThen(loopData.LoopExitCheck, breakLoop),
-                mappedElementAddition,
+                elementPopulation,
                 Expression.PreIncrementAssign(builder.Counter));
 
             var populationLoop = Expression.Loop(loopBody, breakLoop.Target);
