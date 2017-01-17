@@ -66,12 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static ICollection<Type> GetDerivedTargetTypesIfNecessary(IObjectMappingData mappingData)
         {
-            if (mappingData.MapperData.Context.IsForNewElement)
-            {
-                return Enumerable<Type>.EmptyArray;
-            }
-
-            if (mappingData.IsRoot && !mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            if (mappingData.MapperData.TargetIsDefinitelyUnpopulated())
             {
                 return Enumerable<Type>.EmptyArray;
             }
@@ -359,19 +354,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetTargetValidCheckOrNull(Type targetType, IMemberMapperData mapperData)
         {
-            if (mapperData.Context.IsForNewElement || !mapperData.TargetMember.IsReadable)
-            {
-                return null;
-            }
-
-            if (mapperData.IsRoot && !mapperData.RuleSet.RootHasPopulatedTarget)
+            if (!mapperData.TargetMember.IsReadable || mapperData.TargetIsDefinitelyUnpopulated())
             {
                 return null;
             }
 
             var targetIsOfDerivedType = GetTargetIsDerivedTypeCheck(targetType, mapperData);
 
-            if (mapperData.IsRoot && mapperData.RuleSet.RootHasPopulatedTarget)
+            if (mapperData.TargetIsDefinitelyPopulated())
             {
                 return targetIsOfDerivedType;
             }

@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
-            if (!mappingData.IsRoot || mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            if (mappingData.MapperData.TargetCouldBePopulated())
             {
                 // If a target complex type is readonly or unconstructable 
                 // we still try to map to it using an existing non-null value:
@@ -173,12 +173,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.TargetMember.IsReadOnly)
-            {
-                return mapperData.TargetObject;
-            }
-
-            if (mappingData.IsRoot && mappingData.MappingContext.RuleSet.RootHasPopulatedTarget)
+            if (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated())
             {
                 return mapperData.TargetObject;
             }
