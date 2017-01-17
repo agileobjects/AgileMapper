@@ -2,7 +2,6 @@
 {
     using Configuration;
     using Members;
-    using ObjectPopulation;
 
     internal class ConfiguredDictionaryDataSourceFactory : ConfiguredDataSourceFactory
     {
@@ -17,7 +16,7 @@
 
         public DictionaryTargetMember TargetDictionaryEntryMember { get; }
 
-        public bool IsFor(ObjectMapperData mapperData) => base.AppliesTo(mapperData);
+        public bool IsFor(IMemberMapperData mapperData) => base.AppliesTo(mapperData);
 
         public override bool AppliesTo(IBasicMapperData mapperData)
         {

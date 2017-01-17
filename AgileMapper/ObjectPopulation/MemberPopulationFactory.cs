@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -7,20 +8,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Population;
 
-    internal static class MemberPopulationFactory
+    internal class MemberPopulationFactory
     {
-        public static IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
-        {
-            var memberPopulations = GlobalContext
-                .Instance
+        public static MemberPopulationFactory Default = new MemberPopulationFactory(mapperData =>
+            GlobalContext.Instance
                 .MemberFinder
-                .GetTargetMembers(mappingData.MapperData.TargetType)
-                .Select(tm => Create(mappingData.MapperData.TargetMember.Append(tm), mappingData));
+                .GetTargetMembers(mapperData.TargetType)
+                .Select(tm => mapperData.TargetMember.Append(tm)));
+
+        private readonly Func<IMemberMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
+
+        public MemberPopulationFactory(Func<IMemberMapperData, IEnumerable<QualifiedMember>> targetMembersFactory)
+        {
+            _targetMembersFactory = targetMembersFactory;
+        }
+
+        public IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
+        {
+            var memberPopulations = _targetMembersFactory
+                .Invoke(mappingData.MapperData)
+                .Select(tm => Create(tm, mappingData));
 
             return memberPopulations;
         }
 
-        public static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
+        private IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 

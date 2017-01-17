@@ -13,6 +13,58 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
+        private readonly MemberPopulationFactory _memberPopulationFactory;
+
+        public DictionaryMappingExpressionFactory()
+        {
+            _memberPopulationFactory = new MemberPopulationFactory(GetAllTargetMembers);
+        }
+
+        private static IEnumerable<QualifiedMember> GetAllTargetMembers(IMemberMapperData mapperData)
+        {
+            var allTargetMembers = EnumerateTargetMembers(mapperData).ToArray();
+
+            var configuredDataSourceFactories = mapperData.MapperContext
+                .UserConfigurations
+                .DataSourceFactories
+                .OfType<ConfiguredDictionaryDataSourceFactory>()
+                .Where(dsf => dsf.IsFor(mapperData))
+                .ToArray();
+
+            if (configuredDataSourceFactories.Any())
+            {
+                var configuredCustomTargetMembers = configuredDataSourceFactories
+                    .Where(dsf => allTargetMembers.None(dsf.Matches))
+                    .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
+                    .Select(group => group.First().TargetDictionaryEntryMember)
+                    .ToArray();
+
+                allTargetMembers = allTargetMembers
+                    .Concat(configuredCustomTargetMembers)
+                    .ToArray();
+            }
+
+            return allTargetMembers;
+        }
+
+        private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(IMemberMapperData mapperData)
+        {
+            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
+            var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(mapperData.SourceType);
+
+            foreach (var sourceMember in sourceMembers)
+            {
+                var entryTargetMember = targetDictionaryMember.Append(sourceMember.Name);
+
+                if (!sourceMember.IsSimple)
+                {
+                    entryTargetMember = entryTargetMember.WithTypeOf(sourceMember);
+                }
+
+                yield return entryTargetMember;
+            }
+        }
+
         public override bool IsFor(IObjectMappingData mappingData)
         {
             if (mappingData.MapperData.TargetMember.IsDictionary)
@@ -186,7 +238,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mappingData.MapperData.InstanceVariable.AssignTo(value);
         }
 
-        private static Expression GetDictionaryPopulation(IObjectMappingData mappingData)
+        private Expression GetDictionaryPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
@@ -195,34 +247,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapperData.RuleSet.DictionaryPopulationStrategy.GetPopulation(mappingData);
             }
 
-            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
-
-            var allTargetMembers =
-                 EnumerateTargetMembers(mapperData.SourceType, targetDictionaryMember)
-                .ToArray();
-
-            var configuredDataSourceFactories = mapperData.MapperContext
-                .UserConfigurations
-                .DataSourceFactories
-                .OfType<ConfiguredDictionaryDataSourceFactory>()
-                .Where(dsf => dsf.IsFor(mapperData))
-                .ToArray();
-
-            if (configuredDataSourceFactories.Any())
-            {
-                var configuredCustomTargetMembers = configuredDataSourceFactories
-                    .Where(dsf => allTargetMembers.None(dsf.Matches))
-                    .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
-                    .Select(group => group.First().TargetDictionaryEntryMember)
-                    .ToArray();
-
-                allTargetMembers = allTargetMembers
-                    .Concat(configuredCustomTargetMembers)
-                    .ToArray();
-            }
-
-            var memberPopulations = allTargetMembers
-                .Select(targetMember => GetMemberPopulation(targetMember, mappingData))
+            var memberPopulations = _memberPopulationFactory
+                .Create(mappingData)
+                .Select(memberPopulation => memberPopulation.GetPopulation())
                 .ToArray();
 
             if (memberPopulations.HasOne())
@@ -233,33 +260,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var memberPopulationBlock = Expression.Block(memberPopulations);
 
             return memberPopulationBlock;
-        }
-
-        private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(
-            Type parentSourceType,
-            DictionaryTargetMember targetDictionaryMember)
-        {
-            var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(parentSourceType);
-
-            foreach (var sourceMember in sourceMembers)
-            {
-                var entryTargetMember = targetDictionaryMember.Append(sourceMember.Name);
-
-                if (!sourceMember.IsSimple)
-                {
-                    entryTargetMember = entryTargetMember.WithTypeOf(sourceMember);
-                }
-
-                yield return entryTargetMember;
-            }
-        }
-
-        private static Expression GetMemberPopulation(QualifiedMember targetMember, IObjectMappingData mappingData)
-        {
-            var memberPopulation = MemberPopulationFactory.Create(targetMember, mappingData);
-            var populationExpression = memberPopulation.GetPopulation();
-
-            return populationExpression;
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)
