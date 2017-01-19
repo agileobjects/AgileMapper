@@ -117,5 +117,26 @@
             result["[1]"].Line1.ShouldBe("2.1");
             result["[1]"].Line2.ShouldBe("2.2");
         }
+
+        [Fact]
+        public void ShouldOverwriteAComplexTypeListToADifferentComplexTypeIDictionary()
+        {
+            var source = new List<MysteryCustomer>
+            {
+                new MysteryCustomer { Name = "Lois", Address = new Address { Line1 = null } },
+                new MysteryCustomer { Name = "Clark", Address = new Address { Line1 = "Daily Planet" } }
+            };
+            IDictionary<string, MysteryCustomerViewModel> target = new Dictionary<string, MysteryCustomerViewModel>
+            {
+                ["[0]"] = new MysteryCustomerViewModel { Name = null, AddressLine1 = "Bugle" },
+                ["[1]"] = new MysteryCustomerViewModel { Name = "Perry" },
+            };
+            var result = Mapper.Map(source).Over(target);
+
+            result["[0]"].Name.ShouldBe("Lois");
+            result["[0]"].AddressLine1.ShouldBeNull();
+            result["[1]"].Name.ShouldBe("Clark");
+            result["[1]"].AddressLine1.ShouldBe("Daily Planet");
+        }
     }
 }
