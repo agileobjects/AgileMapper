@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
+    using Enumerables.Dictionaries;
     using Extensions;
     using Members;
     using NetStandardPolyfills;
@@ -244,7 +245,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (mapperData.SourceMember.IsEnumerable)
             {
-                return mapperData.RuleSet.DictionaryPopulationStrategy.GetPopulation(mappingData);
+                return GetEnumerableToDictionaryMapping(mappingData);
             }
 
             var memberPopulations = _memberPopulationFactory
@@ -260,6 +261,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var memberPopulationBlock = Expression.Block(memberPopulations);
 
             return memberPopulationBlock;
+        }
+
+        private static Expression GetEnumerableToDictionaryMapping(IObjectMappingData mappingData)
+        {
+            var builder = new DictionaryPopulationBuilder(mappingData.MapperData.EnumerablePopulationBuilder);
+
+            if (builder.HasSourceEnumerable)
+            {
+                builder.AssignSourceVariableFromSourceObject();
+            }
+
+            builder.AddItems(mappingData);
+
+            return builder;
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)

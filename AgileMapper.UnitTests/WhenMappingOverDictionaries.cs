@@ -26,10 +26,27 @@
             var target = new Dictionary<string, object> { ["Line3"] = "La la la" };
             var result = Mapper.Map(source).Over(target);
 
-            result.ShouldBeSameAs(target);
             result["Line1"].ShouldBe("Here");
             result["Line2"].ShouldBeNull();
             result["Line3"].ShouldBe("La la la");
+        }
+
+        [Fact]
+        public void ShouldOverwriteASimpleTypeListToADictionary()
+        {
+            var source = new List<int> { 1, 2, 3 };
+            var target = new Dictionary<string, string>
+            {
+                ["[0]"] = "9",
+                ["[1]"] = "8",
+                ["[4]"] = "6"
+            };
+            var result = Mapper.Map(source).Over(target);
+
+            result["[0]"].ShouldBe("1");
+            result["[1]"].ShouldBe("2");
+            result["[2]"].ShouldBe("3");
+            result["[4]"].ShouldBe("6");
         }
     }
 }

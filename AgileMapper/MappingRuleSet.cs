@@ -10,14 +10,12 @@ namespace AgileObjects.AgileMapper
             string name,
             bool rootHasPopulatedTarget,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
-            IEnumerablePopulationStrategy dictionaryPopulationStrategy,
             IMemberPopulationGuardFactory populationGuardFactory,
             IDataSourceFactory fallbackDataSourceFactory)
         {
             Name = name;
             RootHasPopulatedTarget = rootHasPopulatedTarget;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
-            DictionaryPopulationStrategy = dictionaryPopulationStrategy;
             PopulationGuardFactory = populationGuardFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
         }
@@ -27,8 +25,6 @@ namespace AgileObjects.AgileMapper
         public bool RootHasPopulatedTarget { get; }
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
-
-        public IEnumerablePopulationStrategy DictionaryPopulationStrategy { get; }
 
         public IMemberPopulationGuardFactory PopulationGuardFactory { get; }
 
