@@ -129,6 +129,7 @@
     <Compile Include="WhenMappingFromDictionaryMembers.cs" />
     <Compile Include="WhenMappingOnToDictionaries.cs" />
     <Compile Include="WhenMappingOverDictionaries.cs" />
+    <Compile Include="WhenMappingOverDictionaryMembers.cs" />
     <Compile Include="WhenMappingToConstructors.cs" />
     <Compile Include="WhenMappingToNewDictionaryMembers.cs" />
     <Compile Include="WhenMappingToNewDictionaries.cs" />
