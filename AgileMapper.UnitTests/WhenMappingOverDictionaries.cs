@@ -93,5 +93,29 @@
             result["[1].Line1"].ShouldBe("2.1");
             result["[1].Line2"].ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldOverwriteAComplexTypeCollectionToASameComplexTypeDictionary()
+        {
+            var source = new Collection<Address>
+            {
+                new Address { Line1 = "1.1", Line2 = null},
+                new Address { Line1 = "2.1", Line2 = "2.2" }
+            };
+            var target = new Dictionary<string, Address>
+            {
+                ["[0]"] = new Address { Line1 = "Old 1.1", Line2 = null },
+                ["[1]"] = default(Address)
+            };
+            var existingAddress = target["[0]"];
+            var result = Mapper.Map(source).Over(target);
+
+            result["[0]"].ShouldBeSameAs(existingAddress);
+            result["[0]"].Line1.ShouldBe("1.1");
+            result["[0]"].Line2.ShouldBeNull();
+            result["[1]"].ShouldNotBeNull();
+            result["[1]"].Line1.ShouldBe("2.1");
+            result["[1]"].Line2.ShouldBe("2.2");
+        }
     }
 }

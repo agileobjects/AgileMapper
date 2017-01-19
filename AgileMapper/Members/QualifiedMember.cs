@@ -289,8 +289,20 @@ namespace AgileObjects.AgileMapper.Members
         public Expression GetQualifiedAccess(IMemberMapperData mapperData)
             => MemberChain.GetQualifiedAccess(mapperData);
 
+        public virtual bool CheckExistingElementValue => false;
+
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public virtual Expression GetAccessChecked(IMemberMapperData mapperData) => null;
+
         public virtual Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
-            => GetAccess(mapperData.InstanceVariable, mapperData).GetIsDefaultComparison();
+            => GetAccess(mapperData).GetIsDefaultComparison();
+
+        private Expression GetAccess(IMemberMapperData mapperData)
+            => GetAccess(mapperData.InstanceVariable, mapperData);
 
         public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
             => LeafMember.GetPopulation(mapperData.InstanceVariable, value);

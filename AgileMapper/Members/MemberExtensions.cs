@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -55,6 +56,7 @@
                 (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
+        [DebuggerStepThrough]
         public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;
 
         public static ICollection<string> ExtendWith(

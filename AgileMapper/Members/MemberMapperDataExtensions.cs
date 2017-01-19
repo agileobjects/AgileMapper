@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -96,6 +97,7 @@ namespace AgileObjects.AgileMapper.Members
             return null;
         }
 
+        [DebuggerStepThrough]
         public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
             => mapperData.TargetMember.LeafMember.IsEnumerableElement();
 

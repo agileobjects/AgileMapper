@@ -153,16 +153,42 @@ namespace AgileObjects.AgileMapper.Members
             return dictionaryMapperData;
         }
 
+        public override bool CheckExistingElementValue => !HasObjectEntries && !HasSimpleEntries;
+
+        public override Expression GetAccessChecked(IMemberMapperData mapperData)
+        {
+            ParameterExpression existingValueVariable;
+
+            var valueMissingOrDefault = GetHasDefaultValueCheck(mapperData, out existingValueVariable);
+            var nullValue = existingValueVariable.Type.ToDefaultExpression();
+            var existingValueOrNull = Expression.Condition(valueMissingOrDefault, nullValue, existingValueVariable);
+            var checkedAccessBlock = Expression.Block(new[] { existingValueVariable }, existingValueOrNull);
+
+            return checkedAccessBlock;
+        }
+
+
         public override Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
         {
-            var existingValueVariable = Expression.Variable(ValueType, "existingValue");
+            ParameterExpression existingValueVariable;
+
+            var valueMissingOrDefault = GetHasDefaultValueCheck(mapperData, out existingValueVariable);
+
+            return Expression.Block(new[] { existingValueVariable }, valueMissingOrDefault);
+        }
+
+        private Expression GetHasDefaultValueCheck(
+            IMemberMapperData mapperData,
+            out ParameterExpression existingValueVariable)
+        {
+            existingValueVariable = Expression.Variable(ValueType, "existingValue");
 
             var tryGetValueCall = GetTryGetValueCall(existingValueVariable, mapperData);
             var existingValueIsDefault = existingValueVariable.GetIsDefaultComparison();
 
             var valueMissingOrDefault = Expression.OrElse(Expression.Not(tryGetValueCall), existingValueIsDefault);
 
-            return Expression.Block(new[] { existingValueVariable }, valueMissingOrDefault);
+            return valueMissingOrDefault;
         }
 
         public Expression GetTryGetValueCall(Expression valueVariable, IMemberMapperData mapperData)

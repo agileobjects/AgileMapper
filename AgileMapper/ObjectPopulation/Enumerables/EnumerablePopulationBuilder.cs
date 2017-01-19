@@ -434,9 +434,17 @@
 
         public Expression GetElementConversion(Expression sourceElement, IObjectMappingData mappingData)
         {
-            return ElementTypesAreSimple
-                ? GetSimpleElementConversion(sourceElement)
-                : GetElementMapping(sourceElement, Context.TargetElementType.ToDefaultExpression(), mappingData);
+            if (ElementTypesAreSimple)
+            {
+                return GetSimpleElementConversion(sourceElement);
+            }
+
+            var targetMember = mappingData.MapperData.TargetMember;
+
+            var existingElementValue = targetMember.CheckExistingElementValue                ? targetMember.GetAccessChecked(mappingData.MapperData)
+                : Context.TargetElementType.ToDefaultExpression();
+
+            return GetElementMapping(sourceElement, existingElementValue, mappingData);
         }
 
         public Expression GetSimpleElementConversion(Expression sourceElement)
