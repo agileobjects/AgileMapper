@@ -51,6 +51,27 @@
         }
 
         [Fact]
+        public void ShouldOverwriteANestedSimpleConvertibleTypeEnumerableToAnIDictionary()
+        {
+            var source = new PublicProperty<IEnumerable<string>>
+            {
+                Value = new List<string> { "6", "7", "8" }
+            };
+            IDictionary<string, int> target = new Dictionary<string, int>
+            {
+                ["Value[0]"] = 9,
+                ["Value[1]"] = 8,
+                ["Value[4]"] = 5
+            };
+            var result = Mapper.Map(source).Over(target);
+
+            result["Value[0]"].ShouldBe(6);
+            result["Value[1]"].ShouldBe(7);
+            result["Value[2]"].ShouldBe(8);
+            result["Value[4]"].ShouldBe(5);
+        }
+
+        [Fact]
         public void ShouldOverwriteAComplexTypeCollectionToADictionary()
         {
             var source = new Collection<Address>
