@@ -234,7 +234,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetDictionaryAssignment(Expression value, IObjectMappingData mappingData)
         {
-            value = AddExistingTargetCheckIfAppropriate(value, mappingData);
+            value = mappingData.MapperData.TargetMember.IsReadOnly
+                ? mappingData.MapperData.TargetObject
+                : AddExistingTargetCheckIfAppropriate(value, mappingData);
 
             return mappingData.MapperData.InstanceVariable.AssignTo(value);
         }

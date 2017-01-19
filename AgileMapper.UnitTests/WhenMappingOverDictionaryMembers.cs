@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System.Collections.Generic;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -21,6 +22,34 @@
 
             result.Value["Line1"].ShouldBe("Here");
             result.Value["Line2"].ShouldBe("There");
+        }
+
+        [Fact]
+        public void ShouldOverwriteAComplexTypeArrayToANestedSameComplexTypeDictionary()
+        {
+            var source = new PublicField<Address[]>
+            {
+                Value = new[]
+                {
+                    new Address { Line1 = "1.1", Line2 = null },
+                    new Address { Line1 = "2.1", Line2 = "2.2" }
+                }
+            };
+            var target = new PublicReadOnlyField<Dictionary<string, Address>>(
+                new Dictionary<string, Address>
+                {
+                    ["[0]"] = new Address { Line1 = "Old 1.1", Line2 = null },
+                    ["[1]"] = default(Address)
+                });
+            var existingAddress = target.Value["[0]"];
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value["[0]"].ShouldBeSameAs(existingAddress);
+            result.Value["[0]"].Line1.ShouldBe("1.1");
+            result.Value["[0]"].Line2.ShouldBeNull();
+            result.Value["[1]"].ShouldNotBeNull();
+            result.Value["[1]"].Line1.ShouldBe("2.1");
+            result.Value["[1]"].Line2.ShouldBe("2.2");
         }
     }
 }
