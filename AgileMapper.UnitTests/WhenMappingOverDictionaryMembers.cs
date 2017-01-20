@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -50,6 +51,26 @@
             result.Value["[1]"].ShouldNotBeNull();
             result.Value["[1]"].Line1.ShouldBe("2.1");
             result.Value["[1]"].Line2.ShouldBe("2.2");
+        }
+
+        [Fact]
+        public void ShouldOverwriteADictionaryToAConvertibleSimpleTypedDictionary()
+        {
+            var source = new PublicProperty<IDictionary<string, int>>
+            {
+                Value = new Dictionary<string, int> { ["One"] = 1, ["Three"] = 3, ["Five"] = 5 }
+            };
+            var target = new PublicField<IDictionary<string, short?>>
+            {
+                Value = new Dictionary<string, short?> { ["Two"] = 2, ["Three"] = 7578, ["Four"] = null }
+            };
+            Mapper.Map(source).Over(target);
+
+            target.Value["One"].ShouldBe(1);
+            target.Value["Two"].ShouldBe(2);
+            target.Value["Three"].ShouldBe(3);
+            target.Value["Four"].ShouldBeNull();
+            target.Value["Five"].ShouldBe(5);
         }
     }
 }
