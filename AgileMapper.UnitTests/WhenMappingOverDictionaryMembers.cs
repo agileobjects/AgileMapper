@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using Shouldly;
     using TestClasses;
     using Xunit;
