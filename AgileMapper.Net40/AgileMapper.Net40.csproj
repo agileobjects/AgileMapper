@@ -37,8 +37,8 @@
       <HintPath>..\packages\AgileObjects.NetStandardPolyfills.0.1.2\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=1.8.1.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.8.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.8.2.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.8.2\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
