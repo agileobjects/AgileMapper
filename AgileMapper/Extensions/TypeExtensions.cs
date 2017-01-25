@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Reflection;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal static class TypeExtensions
     {
@@ -34,10 +35,15 @@
 
         private static string GetVariableName(Type type)
         {
+            if (type.IsArray)
+            {
+                return GetVariableName(type.GetElementType()) + "Array";
+            }
+
             var typeIsEnumerable = type.IsEnumerable();
             var typeIsDictionary = typeIsEnumerable && type.IsDictionary();
             var namingType = (typeIsEnumerable && !typeIsDictionary) ? type.GetEnumerableElementType() : type;
-            var variableName = namingType.Name;
+            var variableName = GetBaseVariableName(namingType);
 
             if (namingType.IsInterface())
             {
@@ -46,18 +52,34 @@
 
             if (namingType.IsGenericType())
             {
-                variableName = variableName.Substring(0, variableName.IndexOf('`'));
-
-                variableName += string.Join(
-                    string.Empty,
-                    namingType.GetGenericArguments().Select(arg => "_" + arg.GetVariableNameInPascalCase()));
+                variableName = GetGenericTypeVariableName(variableName, namingType);
             }
 
             variableName = RemoveLeadingNonAlphaNumerics(variableName);
 
-            return (typeIsDictionary || !typeIsEnumerable)
-                ? variableName
-                : type.IsArray ? variableName + "Array" : Pluralise(variableName);
+            return (typeIsDictionary || !typeIsEnumerable) ? variableName : Pluralise(variableName);
+        }
+
+        private static string GetBaseVariableName(Type namingType)
+            => namingType.IsPrimitive ? namingType.GetFriendlyName() : namingType.Name;
+
+        private static string GetGenericTypeVariableName(string variableName, Type namingType)
+        {
+            var nonNullableType = namingType.GetNonNullableType();
+            var genericTypeArguments = namingType.GetGenericArguments();
+
+            if (nonNullableType != namingType)
+            {
+                return "nullable" + genericTypeArguments[0].GetVariableNameInPascalCase();
+            }
+
+            variableName = variableName.Substring(0, variableName.IndexOf('`'));
+
+            variableName += string.Join(
+                string.Empty,
+                genericTypeArguments.Select(arg => "_" + arg.GetVariableNameInPascalCase()));
+
+            return variableName;
         }
 
         private static string RemoveLeadingNonAlphaNumerics(string value)

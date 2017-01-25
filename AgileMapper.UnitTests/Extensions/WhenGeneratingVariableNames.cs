@@ -67,6 +67,18 @@
             typeof(IList<Body>).GetVariableNameInPascalCase().ShouldBe("Bodies");
         }
 
+        [Fact]
+        public void ShouldNameANullableLongVariable()
+        {
+            typeof(long?).GetVariableNameInCamelCase().ShouldBe("nullableLong");
+        }
+
+        [Fact]
+        public void ShouldNameAnArrayOfArraysVariable()
+        {
+            typeof(int?[][]).GetVariableNameInCamelCase().ShouldBe("nullableIntArrayArray");
+        }
+
         // ReSharper disable ClassNeverInstantiated.Local
         private class Box { }
 
