@@ -37,11 +37,11 @@
                 .GetPlanFor<PublicProperty<int[]>>()
                 .ToANew<PublicField<IEnumerable<int>>>();
 
-            plan.ShouldContain("sourceInt32Array = ");
-            plan.ShouldContain("ICollection<int> targetInt32s = ");
-            plan.ShouldContain("publicField_Int32s.Value is ICollection<int>");
-            plan.ShouldContain("new List<int>(publicField_Int32s.Value)");
-            plan.ShouldContain("targetInt32s.Add(sourceInt32Array[i])");
+            plan.ShouldContain("sourceIntArray = ");
+            plan.ShouldContain("ICollection<int> targetInts = ");
+            plan.ShouldContain("publicField_Ints.Value is ICollection<int>");
+            plan.ShouldContain("new List<int>(publicField_Ints.Value)");
+            plan.ShouldContain("targetInts.Add(sourceIntArray[i])");
         }
 
         [Fact]
