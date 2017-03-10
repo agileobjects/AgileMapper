@@ -19,8 +19,6 @@
             _membersCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, IEnumerable<Member>>();
         }
 
-        public Member GetIdentifierOrNull(Type type) => GetIdentifierOrNull(TypeKey.ForTypeId(type));
-
         public Member GetIdentifierOrNull(TypeKey typeIdKey)
         {
             return _idMemberCache.GetOrAdd(typeIdKey, key =>

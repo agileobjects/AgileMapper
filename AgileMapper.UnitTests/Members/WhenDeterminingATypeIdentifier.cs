@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Members
 {
+    using AgileMapper.Members;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -9,25 +10,33 @@
         [Fact]
         public void ShouldUseAnIdProperty()
         {
-            MemberFinder.GetIdentifierOrNull(new { Id = "blahblahblah" }.GetType()).ShouldNotBeNull();
+            MemberFinder
+                .GetIdentifierOrNull(TypeKey.ForTypeId(new { Id = "blahblahblah" }.GetType()))
+                .ShouldNotBeNull();
         }
 
         [Fact]
         public void ShouldUseAnIdentifierProperty()
         {
-            MemberFinder.GetIdentifierOrNull(new { Identifier = "lalalala" }.GetType()).ShouldNotBeNull();
+            MemberFinder
+                .GetIdentifierOrNull(TypeKey.ForTypeId(new { Identifier = "lalalala" }.GetType()))
+                .ShouldNotBeNull();
         }
 
         [Fact]
         public void ShouldUseATypeIdProperty()
         {
-            MemberFinder.GetIdentifierOrNull(typeof(Person)).ShouldNotBeNull();
+            MemberFinder
+                .GetIdentifierOrNull(TypeKey.ForTypeId(typeof(Person)))
+                .ShouldNotBeNull();
         }
 
         [Fact]
         public void ShouldReturnNullIfNoIdentifier()
         {
-            MemberFinder.GetIdentifierOrNull(new { NoIdHere = true }.GetType()).ShouldBeNull();
+            MemberFinder
+                .GetIdentifierOrNull(TypeKey.ForTypeId(new { NoIdHere = true }.GetType()))
+                .ShouldBeNull();
         }
     }
 }

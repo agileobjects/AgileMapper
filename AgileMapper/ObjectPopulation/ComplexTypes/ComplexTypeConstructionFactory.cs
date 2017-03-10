@@ -24,69 +24,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var objectCreation = _constructorsCache.GetOrAdd(new ConstructionKey(mappingData), key =>
             {
-                var mapperData = key.MappingData.MapperData;
-
                 var constructions = new List<Construction>();
-                var newingConstructorRequired = true;
 
-                var configuredFactories = mapperData
-                    .MapperContext
-                    .UserConfigurations
-                    .GetObjectFactories(mapperData);
+                bool newingConstructorRequired;
 
-                foreach (var configuredFactory in configuredFactories)
-                {
-                    var configuredConstruction = new Construction(configuredFactory, mapperData);
-
-                    constructions.Add(configuredConstruction);
-
-                    if (configuredConstruction.IsUnconditional)
-                    {
-                        newingConstructorRequired = false;
-                        break;
-                    }
-                }
+                AddConfiguredConstructions(
+                    constructions,
+                    key,
+                    out newingConstructorRequired);
 
                 if (newingConstructorRequired)
                 {
-                    var greediestAvailableConstructor = mapperData.InstanceVariable.Type
-                        .GetPublicInstanceConstructors()
-                        .Select(ctor => new ConstructorData(
-                            ctor,
-                            ctor.GetParameters()
-                                .Select(p =>
-                                {
-                                    var parameterMapperData = new ChildMemberMapperData(
-                                        mapperData.TargetMember.Append(Member.ConstructorParameter(p)),
-                                        mapperData);
-
-                                    return key.MappingData.GetChildMappingData(parameterMapperData);
-                                })
-                                .Select(memberMappingData =>
-                                {
-                                    var dataSources = mapperData
-                                        .MapperContext
-                                        .DataSources
-                                        .FindFor(memberMappingData);
-
-                                    return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
-                                })
-                                .ToArray()))
-                        .Where(ctor => ctor.CanBeConstructed)
-                        .OrderByDescending(ctor => ctor.NumberOfParameters)
-                        .FirstOrDefault();
-
-                    if (greediestAvailableConstructor != null)
-                    {
-                        foreach (var memberAndDataSourceSet in greediestAvailableConstructor.ArgumentDataSources)
-                        {
-                            key.MappingData.MapperData.RegisterTargetMemberDataSourcesIfRequired(
-                                memberAndDataSourceSet.Item1,
-                                memberAndDataSourceSet.Item2);
-                        }
-
-                        constructions.Add(greediestAvailableConstructor.Construction);
-                    }
+                    AddNewingConstruction(constructions, key);
                 }
 
                 if (constructions.None())
@@ -112,6 +61,89 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var creationExpression = objectCreation.GetConstruction(mappingData);
 
             return creationExpression;
+        }
+
+        private static void AddConfiguredConstructions(
+            ICollection<Construction> constructions,
+            ConstructionKey key,
+            out bool newingConstructorRequired)
+        {
+            var mapperData = key.MappingData.MapperData;
+
+            newingConstructorRequired = true;
+
+            var configuredFactories = mapperData
+                .MapperContext
+                .UserConfigurations
+                .GetObjectFactories(mapperData);
+
+            foreach (var configuredFactory in configuredFactories)
+            {
+                var configuredConstruction = new Construction(configuredFactory, mapperData);
+
+                constructions.Add(configuredConstruction);
+
+                if (configuredConstruction.IsUnconditional)
+                {
+                    newingConstructorRequired = false;
+                    return;
+                }
+            }
+        }
+
+        private static void AddNewingConstruction(ICollection<Construction> constructions, ConstructionKey key)
+        {
+            var mapperData = key.MappingData.MapperData;
+
+            var greediestAvailableConstructor = mapperData.InstanceVariable.Type
+                .GetPublicInstanceConstructors()
+                .Select(ctor => CreateConstructorData(ctor, key))
+                .Where(ctor => ctor.CanBeConstructed)
+                .OrderByDescending(ctor => ctor.NumberOfParameters)
+                .FirstOrDefault();
+
+            if (greediestAvailableConstructor == null)
+            {
+                return;
+            }
+
+            foreach (var memberAndDataSourceSet in greediestAvailableConstructor.ArgumentDataSources)
+            {
+                key.MappingData.MapperData.RegisterTargetMemberDataSourcesIfRequired(
+                    memberAndDataSourceSet.Item1,
+                    memberAndDataSourceSet.Item2);
+            }
+
+            constructions.Add(greediestAvailableConstructor.Construction);
+        }
+
+        private static ConstructorData CreateConstructorData(ConstructorInfo ctor, ConstructionKey key)
+        {
+            var mapperData = key.MappingData.MapperData;
+
+            var ctorData = new ConstructorData(
+                ctor,
+                ctor.GetParameters()
+                    .Select(p =>
+                    {
+                        var parameterMapperData = new ChildMemberMapperData(
+                            mapperData.TargetMember.Append(Member.ConstructorParameter(p)),
+                            mapperData);
+
+                        return key.MappingData.GetChildMappingData(parameterMapperData);
+                    })
+                    .Select(memberMappingData =>
+                    {
+                        var dataSources = mapperData
+                            .MapperContext
+                            .DataSources
+                            .FindFor(memberMappingData);
+
+                        return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
+                    })
+                    .ToArray());
+
+            return ctorData;
         }
 
         public void Reset() => _constructorsCache.Empty();
