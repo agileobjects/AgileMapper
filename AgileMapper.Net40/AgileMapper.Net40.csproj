@@ -779,7 +779,6 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="ObjectPopulation\ComplexTypes\TargetObjectResolutionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.Net40.cs" />
   </ItemGroup>
   <ItemGroup>
