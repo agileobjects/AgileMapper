@@ -61,7 +61,7 @@
         }
 
         private static string GetBaseVariableName(Type namingType)
-            => namingType.IsPrimitive() ? namingType.GetFriendlyName() : namingType.Name;
+            => namingType.IsPrimitive ? namingType.GetFriendlyName() : namingType.Name;
 
         private static string GetGenericTypeVariableName(string variableName, Type namingType)
         {
