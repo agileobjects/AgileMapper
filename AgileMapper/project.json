@@ -27,8 +27,8 @@
   },
 
   "dependencies": {
-    "AgileObjects.NetStandardPolyfills": "0.1.2",
-    "AgileObjects.ReadableExpressions": "1.8.0"
+    "AgileObjects.NetStandardPolyfills": "0.2.0",
+    "AgileObjects.ReadableExpressions": "1.8.2"
   },
 
   "frameworks": {
