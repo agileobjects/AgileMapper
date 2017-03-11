@@ -1,29 +1,28 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests", "AgileMapper.UnitTests\AgileMapper.UnitTests.csproj", "{A3F2D405-8C0B-4033-9EC5-1B64007593FB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.PerformanceTester", "AgileMapper.PerformanceTester\AgileMapper.PerformanceTester.csproj", "{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.NonParallel", "AgileMapper.UnitTests.NonParallel\AgileMapper.UnitTests.NonParallel.csproj", "{254D5970-FCEF-4386-8E5E-2028B765982B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05AB6D17-6066-41D5-8E79-31C342DFC2DC}"
 	ProjectSection(SolutionItems) = preProject
 		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
-		global.json = global.json
 		LICENCE.md = LICENCE.md
 		NuGetPack.bat = NuGetPack.bat
 		README.md = README.md
 		VersionInfo.cs = VersionInfo.cs
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests", "AgileMapper.UnitTests\AgileMapper.UnitTests.csproj", "{A3F2D405-8C0B-4033-9EC5-1B64007593FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.PerformanceTester", "AgileMapper.PerformanceTester\AgileMapper.PerformanceTester.csproj", "{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.NonParallel", "AgileMapper.UnitTests.NonParallel\AgileMapper.UnitTests.NonParallel.csproj", "{254D5970-FCEF-4386-8E5E-2028B765982B}"
+EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AgileMapper", "AgileMapper\AgileMapper.xproj", "{471A218A-9964-4C9E-843D-26032E989F00}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.Net40", "AgileMapper.Net40\AgileMapper.Net40.csproj", "{4E101600-EBEF-4E1F-9EC3-D6070F7417DD}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AgileMapper.UnitTests.Polyfills", "AgileMapper.UnitTests.Polyfills\AgileMapper.UnitTests.Polyfills.xproj", "{59F266BB-9EFB-430A-9FFE-4C5F88D330F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Polyfills", "AgileMapper.UnitTests.Polyfills\AgileMapper.UnitTests.Polyfills.csproj", "{59F266BB-9EFB-430A-9FFE-4C5F88D330F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
