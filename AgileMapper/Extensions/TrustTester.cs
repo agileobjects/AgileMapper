@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions
 {
-    internal class TrustTester
+    internal static class TrustTester
     {
         // ReSharper disable once UnusedMember.Local
         private static void IsReflectionPermitted() { }

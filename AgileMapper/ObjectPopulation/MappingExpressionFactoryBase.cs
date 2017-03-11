@@ -84,16 +84,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
-        protected static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
-        {
-            if (mappingData.MapperData.TargetCouldBePopulated())
-            {
-                return Expression.Coalesce(mappingData.MapperData.TargetObject, value);
-            }
-
-            return value;
-        }
-
         private Expression GetMappingBlock(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
         {
             if (mappingExpressions[0].NodeType != ExpressionType.Block)

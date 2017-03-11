@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    internal class SourceMemberMatcher
+    internal static class SourceMemberMatcher
     {
         public static IQualifiedMember GetMatchFor(IChildMemberMappingData rootData)
         {
