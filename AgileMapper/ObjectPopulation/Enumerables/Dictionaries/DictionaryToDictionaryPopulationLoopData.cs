@@ -17,6 +17,6 @@
 
         }
 
-        protected override Expression GetSourceElementValue() => Expression.Property(SourceElement, "Value");
+        public override Expression GetSourceElementValue() => Expression.Property(SourceElement, "Value");
     }
 }

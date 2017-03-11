@@ -41,7 +41,7 @@
                 derivedTypes.Sort(TypeComparer.MostToLeastDerived);
             }
 
-            return derivedTypes;
+            return derivedTypes.ToArray();
         }
 
         private static IEnumerable<Type> GetRelevantTypesFromAssembly(Assembly assembly)

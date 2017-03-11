@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using ComplexTypes;
     using DataSources;
     using Enumerables.Dictionaries;
     using Extensions;
@@ -32,30 +33,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Where(dsf => dsf.IsFor(mapperData))
                 .ToArray();
 
-            if (configuredDataSourceFactories.Any())
+            if (configuredDataSourceFactories.None())
             {
-                var configuredCustomTargetMembers = configuredDataSourceFactories
-                    .Where(dsf => allTargetMembers.None(dsf.Matches))
-                    .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
-                    .Select(group => group.First().TargetDictionaryEntryMember)
-                    .ToArray();
-
-                allTargetMembers = allTargetMembers
-                    .Concat(configuredCustomTargetMembers)
-                    .ToArray();
+                return allTargetMembers;
             }
+
+            var configuredCustomTargetMembers = configuredDataSourceFactories
+                .Where(dsf => allTargetMembers.None(dsf.Matches))
+                .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
+                .Select(group => group.First().TargetDictionaryEntryMember)
+                .ToArray();
+
+            allTargetMembers = allTargetMembers
+                .Concat(configuredCustomTargetMembers)
+                .ToArray();
 
             return allTargetMembers;
         }
 
-        private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(IMemberMapperData mapperData)
+        private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(IBasicMapperData mapperData)
         {
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
             var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(mapperData.SourceType);
 
             foreach (var sourceMember in sourceMembers)
             {
-                var entryTargetMember = targetDictionaryMember.Append(sourceMember.Name);
+                var entryTargetMember = targetDictionaryMember.Append(sourceMember.DeclaringType, sourceMember.Name);
 
                 if (!sourceMember.IsSimple)
                 {
@@ -121,27 +124,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.TargetMember.IsDictionary)
+            if (!mapperData.TargetMember.IsDictionary)
             {
-                DictionarySourceMember sourceDictionaryMember;
+                yield return GetDictionaryPopulation(mappingData);
+                yield break;
+            }
 
-                if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
+            Func<DictionarySourceMember, IObjectMappingData, Expression> assignmentFactory;
+
+            DictionarySourceMember sourceDictionaryMember;
+
+            if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
+            {
+                if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
                 {
-                    if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
-                    {
-                        yield return GetClonedDictionaryAssignment(mapperData);
-                        yield break;
-                    }
-
-                    yield return GetMappedDictionaryAssignment(sourceDictionaryMember, mappingData);
-                    yield return GetDictionaryPopulation(mappingData);
+                    yield return GetClonedDictionaryAssignment(mapperData);
                     yield break;
                 }
 
-                yield return GetParameterlessDictionaryAssignment(mappingData);
+                assignmentFactory = GetMappedDictionaryAssignment;
+            }
+            else
+            {
+                assignmentFactory = (sdm, md) => GetParameterlessDictionaryAssignment(md);
             }
 
-            yield return GetDictionaryPopulation(mappingData);
+            var population = GetDictionaryPopulation(mappingData);
+            var assignment = assignmentFactory.Invoke(sourceDictionaryMember, mappingData);
+
+            yield return assignment;
+            yield return population;
         }
 
         private static bool SourceMemberIsDictionary(
@@ -234,11 +246,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetDictionaryAssignment(Expression value, IObjectMappingData mappingData)
         {
-            value = mappingData.MapperData.TargetMember.IsReadOnly
-                ? mappingData.MapperData.TargetObject
-                : AddExistingTargetCheckIfAppropriate(value, mappingData);
+            var valueResolution = TargetObjectResolutionFactory.GetObjectResolution(
+                md => value,
+                mappingData,
+                assignTargetObject: mappingData.MapperData.HasMapperFuncs);
 
-            return mappingData.MapperData.InstanceVariable.AssignTo(value);
+            return mappingData.MapperData.InstanceVariable.AssignTo(valueResolution);
         }
 
         private Expression GetDictionaryPopulation(IObjectMappingData mappingData)

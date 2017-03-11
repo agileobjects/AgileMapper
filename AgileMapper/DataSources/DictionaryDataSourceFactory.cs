@@ -81,7 +81,7 @@
 
         private static DictionarySourceMember GetSourceMember(IMemberMapperData mapperData)
         {
-            if (!mapperData.TargetMember.IsRecursive)
+            if (!mapperData.TargetMember.IsRecursion)
             {
                 return new DictionarySourceMember(mapperData);
             }

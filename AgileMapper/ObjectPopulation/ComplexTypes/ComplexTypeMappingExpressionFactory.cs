@@ -143,7 +143,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 yield return preCreationCallback;
             }
 
-            var instanceVariableValue = GetObjectResolution(mappingData, postCreationCallback != null);
+            var assignCreatedObject = postCreationCallback != null;
+
+            var instanceVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
+                md => _constructionFactory.GetNewObjectCreation(md),
+                mappingData,
+                assignCreatedObject);
+
             var instanceVariableAssignment = mapperData.InstanceVariable.AssignTo(instanceVariableValue);
             yield return instanceVariableAssignment;
 
@@ -166,45 +172,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)
             => mapperData.MapperContext.UserConfigurations.GetCreationCallbackOrNull(callbackPosition, mapperData);
-
-        #region Object Resolution
-
-        private Expression GetObjectResolution(IObjectMappingData mappingData, bool postCreationCallbackExists)
-        {
-            var mapperData = mappingData.MapperData;
-
-            if (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated())
-            {
-                return mapperData.TargetObject;
-            }
-
-            var objectValue = _constructionFactory.GetNewObjectCreation(mappingData);
-
-            if (objectValue == null)
-            {
-                mapperData.TargetMember.IsReadOnly = true;
-
-                // Use the existing target object if the mapper can't create an instance:
-                return mapperData.TargetObject;
-            }
-
-            if (postCreationCallbackExists)
-            {
-                mapperData.Context.UsesMappingDataObjectAsParameter = true;
-                objectValue = mapperData.CreatedObject.AssignTo(objectValue);
-            }
-
-            if (mapperData.Context.UsesMappingDataObjectAsParameter)
-            {
-                objectValue = mapperData.TargetObject.AssignTo(objectValue);
-            }
-
-            objectValue = AddExistingTargetCheckIfAppropriate(objectValue, mappingData);
-
-            return objectValue;
-        }
-
-        #endregion
 
         #region Object Registration
 

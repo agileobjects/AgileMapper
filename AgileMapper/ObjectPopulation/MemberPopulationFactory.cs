@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class MemberPopulationFactory
     {
-        public static MemberPopulationFactory Default = new MemberPopulationFactory(mapperData =>
+        public static readonly MemberPopulationFactory Default = new MemberPopulationFactory(mapperData =>
             GlobalContext.Instance
                 .MemberFinder
                 .GetTargetMembers(mapperData.TargetType)
@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return memberPopulations;
         }
 
-        private IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
+        private static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 
@@ -51,7 +51,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return MemberPopulation.NoDataSource(childMapperData);
             }
 
-            return new MemberPopulation(childMappingData, dataSources, populateCondition);
+            return MemberPopulation.WithRegistration(childMappingData, dataSources, populateCondition);
         }
 
         private static bool TargetMemberIsUnconditionallyIgnored(

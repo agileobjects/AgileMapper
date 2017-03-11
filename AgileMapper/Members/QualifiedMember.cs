@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.Members
             MemberChain = memberChain;
             JoinedNames = joinedNames;
             _pathFactory = () => MemberChain.GetFullName();
-            IsRecursive = DetermineRecursion();
+            IsRecursion = DetermineRecursion();
         }
 
         private QualifiedMember(Member member, QualifiedMember parent, MapperContext mapperContext)
@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.Members
             JoinedNames = parent.JoinedNames.ExtendWith(memberMatchingNames, mapperContext);
 
             _pathFactory = () => parent.GetPath() + member.JoiningName;
-            IsRecursive = DetermineRecursion();
+            IsRecursion = DetermineRecursion();
         }
 
         private QualifiedMember(Member leafMember, MapperContext mapperContext)
@@ -87,7 +87,7 @@ namespace AgileObjects.AgileMapper.Members
 
         private bool DetermineRecursion()
         {
-            if (IsSimple)
+            if (IsSimple || (Type == typeof(object)))
             {
                 return false;
             }
@@ -108,7 +108,7 @@ namespace AgileObjects.AgileMapper.Members
 
             for (var i = MemberChain.Length - 2; i > 0; --i)
             {
-                if (LeafMember == MemberChain[i])
+                if (LeafMember.Equals(MemberChain[i]))
                 {
                     return true;
                 }
@@ -167,11 +167,17 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsReadOnly { get; set; }
 
-        public bool IsRecursive { get; }
+        public bool IsRecursion { get; }
 
+        /// <summary>
+        /// Determines whether the QualifiedMember represents the first time a Member
+        /// recurses within a recursive relationship. For example, the member representing
+        /// Foo.SubFoo.SubFoo is a recursion root; Foo.SubFoo is not.
+        /// </summary>
+        /// <returns>True if the QualifiedMember represents a recursion, otherwise false.</returns>
         public bool IsRecursionRoot()
         {
-            if (!IsRecursive)
+            if (!IsRecursion || IsSimple)
             {
                 return false;
             }
@@ -182,7 +188,7 @@ namespace AgileObjects.AgileMapper.Members
             {
                 var member = MemberChain[i];
 
-                if (member != LeafMember)
+                if (!member.Equals(LeafMember))
                 {
                     continue;
                 }
@@ -200,9 +206,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public virtual bool GuardObjectValuePopulations => false;
 
-        IQualifiedMember IQualifiedMember.GetElementMember() => GetElementMember();
-
-        public QualifiedMember GetElementMember() => Append(Type.GetElementMember());
+        IQualifiedMember IQualifiedMember.GetElementMember() => this.GetElementMember();
 
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
@@ -296,7 +300,7 @@ namespace AgileObjects.AgileMapper.Members
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public virtual Expression GetAccessChecked(IMemberMapperData mapperData) => null;
+        public virtual BlockExpression GetAccessChecked(IMemberMapperData mapperData) => null;
 
         public virtual Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
             => GetAccess(mapperData).GetIsDefaultComparison();

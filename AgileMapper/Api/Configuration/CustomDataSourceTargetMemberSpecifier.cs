@@ -103,7 +103,7 @@
                 .QualifiedMemberFactory
                 .RootTarget<TTarget>();
 
-            entryMember = rootMember.Append(entryKey);
+            entryMember = rootMember.Append(typeof(TSource), entryKey);
             return true;
         }
 

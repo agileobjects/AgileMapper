@@ -25,6 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _elementsDictionaryLoopData = new SourceElementsDictionaryPopulationLoopData(dictionaryVariables, builder);
             _sourceEnumerableFound = Expression.Variable(typeof(bool), "sourceEnumerableFound");
 
+            ContinueLoopTarget = Expression.Label(typeof(void), "Continue");
             LoopExitCheck = GetCompositeLoopExitCheck();
         }
 
@@ -40,7 +41,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             return Expression.Block(ifEnumeratorReturnResult, returnElementsResult);
         }
 
+        public LabelTarget ContinueLoopTarget { get; }
+
         public Expression LoopExitCheck { get; }
+
+        public Expression GetSourceElementValue() => _elementsDictionaryLoopData.GetSourceElementValue();
 
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
         {

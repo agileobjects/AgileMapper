@@ -81,8 +81,9 @@
                 .Any();
         }
 
-        public static IQualifiedMember GetElementMember(this IQualifiedMember enumerableMember)
-            => enumerableMember.Append(enumerableMember.Type.GetElementMember());
+        public static TMember GetElementMember<TMember>(this TMember enumerableMember)
+            where TMember : IQualifiedMember
+            => (TMember)enumerableMember.Append(enumerableMember.Type.GetElementMember());
 
         public static Member GetElementMember(this Type enumerableType)
             => GlobalContext.Instance.MemberFinder.GetSourceMembers(enumerableType).First();

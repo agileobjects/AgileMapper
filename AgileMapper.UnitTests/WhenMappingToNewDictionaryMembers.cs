@@ -48,7 +48,7 @@
                 Value = new List<CustomerViewModel>
                 {
                     new CustomerViewModel { Name = "Cat", Discount = 0.5 },
-                    new CustomerViewModel { Name = "Dog", Discount = 0.6 }
+                    new MysteryCustomerViewModel { Name = "Dog", Discount = 0.6, Report = "0.075" }
                 }
             };
             var result = Mapper.Map(source).ToANew<PublicSetMethod<Dictionary<string, decimal>>>();
@@ -64,6 +64,7 @@
             result.Value.ContainsKey("[1].Id").ShouldBeFalse();
             result.Value["[1].AddressLine1"].ShouldBeDefault();
             result.Value["[1].Discount"].ShouldBe(0.6);
+            result.Value["[1].Report"].ShouldBe(0.075);
         }
 
         [Fact]

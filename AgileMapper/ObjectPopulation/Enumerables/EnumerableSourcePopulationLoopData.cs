@@ -32,20 +32,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _getEnumeratorMethod = typeof(IEnumerable<>).MakeGenericType(elementType).GetMethod("GetEnumerator");
             _enumerator = Expression.Variable(_getEnumeratorMethod.ReturnType, "enumerator");
 
+            ContinueLoopTarget = Expression.Label(typeof(void), "Continue");
             LoopExitCheck = Expression.Not(Expression.Call(_enumerator, _enumeratorMoveNextMethod));
             SourceElement = Expression.Property(_enumerator, "Current");
         }
 
         public EnumerablePopulationBuilder Builder { get; }
 
+        public LabelTarget ContinueLoopTarget { get; }
+
         public Expression LoopExitCheck { get; }
 
         public Expression SourceElement { get; }
 
+        public virtual Expression GetSourceElementValue() => SourceElement;
+
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
             => Builder.GetElementConversion(GetSourceElementValue(), enumerableMappingData);
-
-        protected virtual Expression GetSourceElementValue() => SourceElement;
 
         public Expression Adapt(LoopExpression loop) => GetLoopBlock(loop);
 

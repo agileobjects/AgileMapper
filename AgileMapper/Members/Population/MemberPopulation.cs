@@ -15,18 +15,42 @@ namespace AgileObjects.AgileMapper.Members.Population
         private readonly DataSourceSet _dataSources;
         private readonly Expression _populateCondition;
 
-        public MemberPopulation(
+        private MemberPopulation(
+            IMemberMapperData mapperData,
+            DataSourceSet dataSources,
+            Expression populateCondition = null)
+        {
+            MapperData = mapperData;
+            _dataSources = dataSources;
+            _populateCondition = populateCondition;
+        }
+
+        #region Factory Methods
+
+        public static IMemberPopulation WithRegistration(
             IChildMemberMappingData mappingData,
             DataSourceSet dataSources,
-            Expression populateCondition)
-            : this(mappingData.MapperData, dataSources)
+            Expression populateCondition = null)
+        {
+            var memberPopulation = WithoutRegistration(mappingData, dataSources, populateCondition);
+            var mapperData = memberPopulation.MapperData;
+
+            mapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(mapperData.TargetMember, dataSources);
+
+            return memberPopulation;
+        }
+
+        public static IMemberPopulation WithoutRegistration(
+            IChildMemberMappingData mappingData,
+            DataSourceSet dataSources,
+            Expression populateCondition = null)
         {
             if (!dataSources.None)
             {
-                _populateCondition = GetPopulateCondition(populateCondition, mappingData);
+                populateCondition = GetPopulateCondition(populateCondition, mappingData);
             }
 
-            MapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(MapperData.TargetMember, dataSources);
+            return new MemberPopulation(mappingData.MapperData, dataSources, populateCondition);
         }
 
         private static Expression GetPopulateCondition(Expression populateCondition, IChildMemberMappingData mappingData)
@@ -45,14 +69,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             return Expression.AndAlso(populateCondition, populationGuard);
         }
-
-        private MemberPopulation(IMemberMapperData mapperData, DataSourceSet dataSources)
-        {
-            MapperData = mapperData;
-            _dataSources = dataSources;
-        }
-
-        #region Factory Methods
 
         public static IMemberPopulation IgnoredMember(IMemberMapperData mapperData)
             => CreateNullMemberPopulation(mapperData, targetMember => targetMember.Name + " is ignored");

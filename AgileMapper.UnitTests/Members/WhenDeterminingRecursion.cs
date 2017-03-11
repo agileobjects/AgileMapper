@@ -13,7 +13,7 @@
             var rootMember = new QualifiedMemberFactory(DefaultMapperContext)
                 .RootTarget<PublicProperty<string>>();
 
-            rootMember.IsRecursive.ShouldBeFalse();
+            rootMember.IsRecursion.ShouldBeFalse();
         }
 
         [Fact]
@@ -21,7 +21,7 @@
         {
             var rootChildMember = TargetMemberFor<Parent>(p => p.EldestChild);
 
-            rootChildMember.IsRecursive.ShouldBeFalse();
+            rootChildMember.IsRecursion.ShouldBeFalse();
         }
 
         [Fact]
@@ -30,7 +30,7 @@
             var rootChildParentMember = TargetMemberFor<Parent>(
                 p => p.EldestChild.EldestParent);
 
-            rootChildParentMember.IsRecursive.ShouldBeFalse();
+            rootChildParentMember.IsRecursion.ShouldBeFalse();
         }
 
         [Fact]
@@ -39,7 +39,7 @@
             var rootChildParentChildMember = TargetMemberFor<PublicField<Person>>(
                 p => p.Value.Address.Line1);
 
-            rootChildParentChildMember.IsRecursive.ShouldBeFalse();
+            rootChildParentChildMember.IsRecursion.ShouldBeFalse();
         }
 
         [Fact]
@@ -47,7 +47,7 @@
         {
             var circularChildMember = TargetMemberFor<SelfReferencingClass>(c => c.Reference.Reference);
 
-            circularChildMember.IsRecursive.ShouldBeTrue();
+            circularChildMember.IsRecursion.ShouldBeTrue();
         }
 
         [Fact]
@@ -56,7 +56,7 @@
             var rootChildParentChildMember = TargetMemberFor<Parent>(
                 p => p.EldestChild.EldestParent.EldestChild);
 
-            rootChildParentChildMember.IsRecursive.ShouldBeTrue();
+            rootChildParentChildMember.IsRecursion.ShouldBeTrue();
         }
 
         [Fact]
@@ -65,7 +65,7 @@
             var rootChildParentChildParentMember = TargetMemberFor<Parent>(
                 p => p.EldestChild.EldestParent.EldestChild.EldestParent);
 
-            rootChildParentChildParentMember.IsRecursive.ShouldBeTrue();
+            rootChildParentChildParentMember.IsRecursion.ShouldBeTrue();
         }
 
         [Fact]
@@ -80,7 +80,7 @@
             var rootChildEnumerableElementChildMember = rootChildEnumerableElementMember
                 .Append(rootChildEnumerableMember.LeafMember);
 
-            rootChildEnumerableElementChildMember.IsRecursive.ShouldBeTrue();
+            rootChildEnumerableElementChildMember.IsRecursion.ShouldBeTrue();
         }
 
         #region Helper Class

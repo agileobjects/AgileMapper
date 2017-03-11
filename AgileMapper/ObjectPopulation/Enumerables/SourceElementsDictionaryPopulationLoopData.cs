@@ -55,6 +55,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 : dictionaryVariables.Key;
 
             _sourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
+            ContinueLoopTarget = Expression.Label(typeof(void), "Continue");
             LoopExitCheck = MapperData.IsRoot ? GetRootLoopExitCheck() : GetKeyNotFoundLoopExitCheck();
         }
 
@@ -112,7 +113,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Expression GetNoKeysWithMatchingStartQuery()
             => _dictionaryVariables.GetNoKeysWithMatchingStartQuery(_targetElementKey);
 
+        public LabelTarget ContinueLoopTarget { get; }
+
         public Expression LoopExitCheck { get; }
+
+        public Expression GetSourceElementValue() => _sourceElement;
 
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
         {

@@ -13,6 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public IndexedSourcePopulationLoopData(EnumerablePopulationBuilder builder)
         {
             _builder = builder;
+            ContinueLoopTarget = Expression.Label(typeof(void), "Continue");
             LoopExitCheck = Expression.Equal(builder.Counter, builder.GetSourceCountAccess());
 
             _indexedSourceAccess = builder.GetSourceIndexAccess();
@@ -27,7 +28,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 : builder.Context.GetSourceParameterFor(builder.SourceTypeHelper.ElementType);
         }
 
+        public LabelTarget ContinueLoopTarget { get; }
+
         public Expression LoopExitCheck { get; }
+
+        public Expression GetSourceElementValue() => _sourceElement;
 
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
             => _builder.GetElementConversion(_sourceElement, enumerableMappingData);

@@ -242,6 +242,16 @@ namespace AgileObjects.AgileMapper.Members
             public static readonly Member MemberInstance = RootTarget(typeof(T));
         }
 
+        public bool Equals(Member otherMember)
+        {
+            if (ReferenceEquals(otherMember, this))
+            {
+                return true;
+            }
+
+            return (otherMember.DeclaringType == DeclaringType) && (otherMember.Name == Name);
+        }
+
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD
         [ExcludeFromCodeCoverage]

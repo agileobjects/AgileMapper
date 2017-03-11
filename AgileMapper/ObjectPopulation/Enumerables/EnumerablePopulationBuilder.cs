@@ -441,10 +441,51 @@
 
             var targetMember = mappingData.MapperData.TargetMember;
 
-            var existingElementValue = targetMember.CheckExistingElementValue                ? targetMember.GetAccessChecked(mappingData.MapperData)
-                : Context.TargetElementType.ToDefaultExpression();
+            Expression existingElementValue;
+
+            if (targetMember.CheckExistingElementValue)
+            {
+                var existingElementValueCheck = targetMember.GetAccessChecked(mappingData.MapperData);
+
+                if (existingElementValueCheck.Variables.Any())
+                {
+                    return GetValueCheckedElementMapping(sourceElement, existingElementValueCheck, mappingData);
+                }
+
+                existingElementValue = existingElementValueCheck;
+            }
+            else
+            {
+                existingElementValue = Context.TargetElementType.ToDefaultExpression();
+            }
 
             return GetElementMapping(sourceElement, existingElementValue, mappingData);
+        }
+
+        private static Expression GetValueCheckedElementMapping(
+            Expression sourceElement,
+            BlockExpression existingElementValueCheck,
+            IObjectMappingData mappingData)
+        {
+            var valueVariable = existingElementValueCheck.Variables[0];
+            var mapping = GetElementMapping(sourceElement, valueVariable, mappingData);
+
+            if (mapping.NodeType != ExpressionType.Try)
+            {
+                return Expression.Block(
+                    new[] { valueVariable },
+                    existingElementValueCheck.Expressions.Concat(mapping));
+            }
+
+            var mappingTryCatch = (TryExpression)mapping;
+
+            mapping = mappingTryCatch.Update(
+                Expression.Block(existingElementValueCheck.Expressions.Concat(mappingTryCatch.Body)),
+                mappingTryCatch.Handlers,
+                mappingTryCatch.Finally,
+                mappingTryCatch.Fault);
+
+            return Expression.Block(new[] { valueVariable }, mapping);
         }
 
         public Expression GetSimpleElementConversion(Expression sourceElement)

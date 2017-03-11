@@ -6,7 +6,11 @@
 
     internal interface IPopulationLoopData
     {
+        LabelTarget ContinueLoopTarget { get; }
+
         Expression LoopExitCheck { get; }
+
+        Expression GetSourceElementValue();
 
         Expression GetElementMapping(IObjectMappingData enumerableMappingData);
 
@@ -31,7 +35,7 @@
                 elementPopulation,
                 Expression.PreIncrementAssign(builder.Counter));
 
-            var populationLoop = Expression.Loop(loopBody, breakLoop.Target);
+            var populationLoop = Expression.Loop(loopBody, breakLoop.Target, loopData.ContinueLoopTarget);
             var adaptedLoop = loopData.Adapt(populationLoop);
 
             var population = Expression.Block(

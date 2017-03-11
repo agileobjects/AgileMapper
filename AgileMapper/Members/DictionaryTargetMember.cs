@@ -65,16 +65,34 @@ namespace AgileObjects.AgileMapper.Members
 
         public DictionaryTargetMember Append(ParameterExpression key)
         {
-            var childMember = Append(key.Name);
+            var memberKey = new DictionaryMemberKey(ValueType, key.Name, this);
+            var childMember = Append(memberKey);
 
             childMember._key = key;
 
             return childMember;
         }
 
-        public DictionaryTargetMember Append(string entryKey)
+        public DictionaryTargetMember Append(Type entryDeclaringType, string entryKey)
         {
-            var targetEntryMember = Member.DictionaryEntry(entryKey, this);
+            var memberKey = new DictionaryMemberKey(entryDeclaringType, entryKey, this);
+
+            return Append(memberKey);
+        }
+
+        private DictionaryTargetMember Append(DictionaryMemberKey memberKey)
+        {
+            var targetEntryMember = GlobalContext.Instance.Cache.GetOrAdd(
+                memberKey,
+                key =>
+                {
+                    var member = key.GetDictionaryEntryMember();
+
+                    key.DictionaryMember = null;
+
+                    return member;
+                });
+
             var childMember = Append(targetEntryMember);
 
             return (DictionaryTargetMember)childMember;
@@ -111,7 +129,7 @@ namespace AgileObjects.AgileMapper.Members
                 return Type.ToDefaultExpression();
             }
 
-            return GetAccess(mapperData);
+            return GetIndexAccess(mapperData);
         }
 
         private bool ReturnNullAccess()
@@ -129,20 +147,27 @@ namespace AgileObjects.AgileMapper.Members
             return true;
         }
 
-        public Expression GetAccess(IMemberMapperData mapperData)
+        private Expression GetIndexAccess(IMemberMapperData mapperData)
         {
             var index = GetKey(mapperData);
-            var dictionaryMapperData = FindDictionaryMapperData(mapperData);
-            var indexAccess = dictionaryMapperData.InstanceVariable.GetIndexAccess(index);
+            var dictionaryAccess = GetDictionaryAccess(mapperData);
+            var indexAccess = dictionaryAccess.GetIndexAccess(index);
 
             return indexAccess;
         }
 
         private Expression GetKey(IMemberMapperData mapperData)
-            => _key ?? (_key = mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType));
+            => _key ?? mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType);
 
-        private IMemberMapperData FindDictionaryMapperData(IMemberMapperData mapperData)
+        private Expression GetDictionaryAccess(IMemberMapperData mapperData)
         {
+            var parentContextAccess = mapperData.GetAppropriateMappingContextAccess(typeof(object), _rootDictionaryMember.Type);
+
+            if (parentContextAccess.NodeType != ExpressionType.Parameter)
+            {
+                return MemberMapperDataExtensions.GetTargetAccess(parentContextAccess, _rootDictionaryMember.Type);
+            }
+
             var dictionaryMapperData = mapperData;
 
             while (dictionaryMapperData.TargetMember != _rootDictionaryMember)
@@ -150,55 +175,41 @@ namespace AgileObjects.AgileMapper.Members
                 dictionaryMapperData = dictionaryMapperData.Parent;
             }
 
-            return dictionaryMapperData;
+            return dictionaryMapperData.InstanceVariable;
         }
 
         public override bool CheckExistingElementValue => !HasObjectEntries && !HasSimpleEntries;
-
-        public override Expression GetAccessChecked(IMemberMapperData mapperData)
-        {
-            ParameterExpression existingValueVariable;
-
-            var valueMissingOrDefault = GetHasDefaultValueCheck(mapperData, out existingValueVariable);
-            var nullValue = existingValueVariable.Type.ToDefaultExpression();
-            var existingValueOrNull = Expression.Condition(valueMissingOrDefault, nullValue, existingValueVariable);
-            var checkedAccessBlock = Expression.Block(new[] { existingValueVariable }, existingValueOrNull);
-
-            return checkedAccessBlock;
-        }
-
 
         public override Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
         {
             ParameterExpression existingValueVariable;
 
-            var valueMissingOrDefault = GetHasDefaultValueCheck(mapperData, out existingValueVariable);
-
-            return Expression.Block(new[] { existingValueVariable }, valueMissingOrDefault);
-        }
-
-        private Expression GetHasDefaultValueCheck(
-            IMemberMapperData mapperData,
-            out ParameterExpression existingValueVariable)
-        {
-            existingValueVariable = Expression.Variable(ValueType, "existingValue");
-
-            var tryGetValueCall = GetTryGetValueCall(existingValueVariable, mapperData);
+            var tryGetValueCall = GetTryGetValueCall(mapperData, out existingValueVariable);
             var existingValueIsDefault = existingValueVariable.GetIsDefaultComparison();
 
             var valueMissingOrDefault = Expression.OrElse(Expression.Not(tryGetValueCall), existingValueIsDefault);
 
-            return valueMissingOrDefault;
+            return Expression.Block(new[] { existingValueVariable }, valueMissingOrDefault);
         }
 
-        public Expression GetTryGetValueCall(Expression valueVariable, IMemberMapperData mapperData)
+        public override BlockExpression GetAccessChecked(IMemberMapperData mapperData)
         {
-            var dictionaryMapperData = FindDictionaryMapperData(mapperData);
-            var tryGetValueMethod = dictionaryMapperData.InstanceVariable.Type.GetMethod("TryGetValue");
+            ParameterExpression existingValueVariable;
+
+            var tryGetValueCall = GetTryGetValueCall(mapperData, out existingValueVariable);
+
+            return Expression.Block(new[] { existingValueVariable }, tryGetValueCall);
+        }
+
+        private Expression GetTryGetValueCall(IMemberMapperData mapperData, out ParameterExpression valueVariable)
+        {
+            var dictionaryAccess = GetDictionaryAccess(mapperData);
+            var tryGetValueMethod = dictionaryAccess.Type.GetMethod("TryGetValue");
             var index = GetKey(mapperData);
+            valueVariable = Expression.Variable(ValueType, "existingValue");
 
             var tryGetValueCall = Expression.Call(
-                dictionaryMapperData.InstanceVariable,
+                dictionaryAccess,
                 tryGetValueMethod,
                 index,
                 valueVariable);
@@ -208,6 +219,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
         {
+            if (mapperData.TargetMember.IsRecursion)
+            {
+                return value;
+            }
+
             if (this == _rootDictionaryMember)
             {
                 return base.GetPopulation(value, mapperData);
@@ -301,5 +317,49 @@ namespace AgileObjects.AgileMapper.Members
 
             return "[\"" + path + "\"]: " + Type.GetFriendlyName();
         }
+
+        #region Helper Classes
+
+        private class DictionaryMemberKey
+        {
+            private readonly Type _entryDeclaringType;
+            private readonly Type _entryValueType;
+            private readonly string _entryKey;
+
+            public DictionaryMemberKey(
+                Type entryDeclaringType,
+                string entryKey,
+                DictionaryTargetMember dictionaryMember)
+            {
+                _entryValueType = dictionaryMember.ValueType;
+                _entryDeclaringType = entryDeclaringType;
+                _entryKey = entryKey;
+                DictionaryMember = dictionaryMember;
+            }
+
+            public DictionaryTargetMember DictionaryMember { private get; set; }
+
+            public Member GetDictionaryEntryMember()
+                => Member.DictionaryEntry(_entryKey, DictionaryMember);
+
+            public override bool Equals(object obj)
+            {
+                var otherKey = (DictionaryMemberKey)obj;
+
+                // ReSharper disable once PossibleNullReferenceException
+                return (otherKey._entryValueType == _entryValueType) &&
+                       (otherKey._entryDeclaringType == _entryDeclaringType) &&
+                       (otherKey._entryKey == _entryKey);
+            }
+
+            #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+            [ExcludeFromCodeCoverage]
+#endif
+            #endregion
+            public override int GetHashCode() => 0;
+        }
+
+        #endregion
     }
 }

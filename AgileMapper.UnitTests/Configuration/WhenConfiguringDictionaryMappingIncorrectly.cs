@@ -263,7 +263,7 @@
                     .Map(ctx => ctx.EnumerableIndex)
                     .To(d => d[d.Count.ToString()]));
 
-            configEx.Message.ShouldContain("must be constant");
+            configEx.Message.ShouldContain("must be constant string");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
@@ -102,13 +103,75 @@
 
         private Expression AssignDictionaryEntry(
             IPopulationLoopData loopData,
+            DictionaryTargetMember dictionaryEntryMember,
+            IObjectMappingData mappingData)
+        {
+            if (_wrappedBuilder.ElementTypesAreSimple)
+            {
+                return GetPopulation(loopData, dictionaryEntryMember, mappingData);
+            }
+
+            mappingData = GetMappingData(mappingData);
+
+            if (dictionaryEntryMember.HasComplexEntries)
+            {
+                return GetPopulation(loopData, dictionaryEntryMember, mappingData);
+            }
+
+            var derivedSourceTypes = mappingData.MapperData.GetDerivedSourceTypes();
+
+            if (derivedSourceTypes.None())
+            {
+                return GetPopulation(loopData, dictionaryEntryMember, mappingData);
+            }
+
+            var typedVariables = new List<ParameterExpression>(derivedSourceTypes.Count);
+            var mappingExpressions = new List<Expression>(typedVariables.Count * 2 + 1);
+
+            var orderedDerivedSourceTypes = derivedSourceTypes
+                .OrderBy(t => t, TypeComparer.MostToLeastDerived);
+
+            foreach (var derivedSourceType in orderedDerivedSourceTypes)
+            {
+                var derivedSourceCheck = new DerivedSourceTypeCheck(derivedSourceType);
+                var sourceElement = loopData.GetSourceElementValue();
+                var typedVariableAssignment = derivedSourceCheck.GetTypedVariableAssignment(sourceElement);
+
+                typedVariables.Add(derivedSourceCheck.TypedVariable);
+                mappingExpressions.Add(typedVariableAssignment);
+
+                var derivedTypeMapping = GetDerivedTypeMapping(derivedSourceCheck, mappingData);
+                var derivedTypePopulation = GetPopulation(derivedTypeMapping, dictionaryEntryMember, mappingData);
+                var mapNextElement = Expression.Continue(loopData.ContinueLoopTarget);
+                var derivedMappingBlock = Expression.Block(derivedTypePopulation, mapNextElement);
+                var ifDerivedTypeReturn = Expression.IfThen(derivedSourceCheck.TypeCheck, derivedMappingBlock);
+
+                mappingExpressions.Add(ifDerivedTypeReturn);
+            }
+
+            mappingExpressions.Add(GetPopulation(loopData, dictionaryEntryMember, mappingData));
+
+            var mappingBlock = Expression.Block(typedVariables, mappingExpressions);
+
+            return mappingBlock;
+        }
+
+        private Expression GetPopulation(
+            IPopulationLoopData loopData,
             QualifiedMember dictionaryEntryMember,
             IObjectMappingData mappingData)
         {
-            mappingData = GetMappingData(mappingData);
-
-            var elementMapperData = new ChildMemberMapperData(dictionaryEntryMember, MapperData);
             var elementMapping = loopData.GetElementMapping(mappingData);
+
+            return GetPopulation(elementMapping, dictionaryEntryMember, mappingData);
+        }
+
+        private Expression GetPopulation(
+            Expression elementMapping,
+            QualifiedMember dictionaryEntryMember,
+            IObjectMappingData mappingData)
+        {
+            var elementMapperData = new ChildMemberMapperData(dictionaryEntryMember, MapperData);
             var elementMappingData = mappingData.GetChildMappingData(elementMapperData);
 
             var mapperData = mappingData.IsRoot ? mappingData.MapperData : mappingData.MapperData.Parent;
@@ -116,7 +179,7 @@
             var mappingDataSource = new AdHocDataSource(sourceMemberDataSource, elementMapping);
             var mappingDataSources = new DataSourceSet(mappingDataSource);
 
-            var memberPopulation = new MemberPopulation(elementMappingData, mappingDataSources, null);
+            var memberPopulation = MemberPopulation.WithoutRegistration(elementMappingData, mappingDataSources);
             var populationExpression = memberPopulation.GetPopulation();
 
             return populationExpression;
@@ -124,17 +187,24 @@
 
         private IObjectMappingData GetMappingData(IObjectMappingData mappingData)
         {
-            if (_wrappedBuilder.ElementTypesAreSimple)
-            {
-                return mappingData;
-            }
-
             var sourceElementType = _wrappedBuilder.Context.SourceElementType;
             var targetElementType = _targetDictionaryMember.GetElementType(sourceElementType);
 
             mappingData = ObjectMappingDataFactory.ForElement(sourceElementType, targetElementType, mappingData);
 
             return mappingData;
+        }
+
+        private static Expression GetDerivedTypeMapping(
+            DerivedSourceTypeCheck derivedSourceCheck,
+            IObjectMappingData mappingData)
+        {
+            var mappingTryCatch = DerivedMappingFactory.GetDerivedTypeMapping(
+                mappingData,
+                derivedSourceCheck.TypedVariable,
+                mappingData.MapperData.TargetType);
+
+            return mappingTryCatch;
         }
     }
 }
