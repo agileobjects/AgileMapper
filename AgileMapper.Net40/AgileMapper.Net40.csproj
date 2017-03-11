@@ -33,9 +33,8 @@
     <DocumentationFile>bin\Release\AgileObjects.AgileMapper.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgileObjects.NetStandardPolyfills, Version=0.1.2.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.NetStandardPolyfills.0.1.2\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="AgileObjects.NetStandardPolyfills, Version=0.2.0.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.NetStandardPolyfills.0.2.0\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
     </Reference>
     <Reference Include="AgileObjects.ReadableExpressions, Version=1.8.2.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
       <HintPath>..\packages\AgileObjects.ReadableExpressions.1.8.2\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
@@ -784,6 +783,7 @@
     <Compile Include="Properties\AssemblyInfo.Net40.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
