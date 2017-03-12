@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests
+﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;

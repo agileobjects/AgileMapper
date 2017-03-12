@@ -76,10 +76,10 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\WhenConfiguringSourceDictionaryMapping.cs" />
-    <Compile Include="Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs" />
-    <Compile Include="Configuration\WhenConfiguringNestedDictionaryMapping.cs" />
-    <Compile Include="Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
+    <Compile Include="Configuration\Dictionaries\WhenConfiguringSourceDictionaryMapping.cs" />
+    <Compile Include="Configuration\Dictionaries\WhenConfiguringDictionaryMappingIncorrectly.cs" />
+    <Compile Include="Configuration\Dictionaries\WhenConfiguringNestedDictionaryMapping.cs" />
+    <Compile Include="Configuration\Dictionaries\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
     <Compile Include="TestClasses\ProductDtoMega.cs" />
@@ -121,17 +121,17 @@
     <Compile Include="TestClasses\WeddingDto.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
-    <Compile Include="WhenMappingFromDictionaries.cs" />
-    <Compile Include="WhenMappingFromDictionaryMembers.cs" />
-    <Compile Include="WhenMappingOnToDictionaries.cs" />
-    <Compile Include="WhenMappingOnToDictionaryMembers.cs" />
-    <Compile Include="WhenMappingOverDictionaries.cs" />
-    <Compile Include="WhenMappingOverDictionaryMembers.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionaries.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />
+    <Compile Include="Dictionaries\WhenMappingOnToDictionaries.cs" />
+    <Compile Include="Dictionaries\WhenMappingOnToDictionaryMembers.cs" />
+    <Compile Include="Dictionaries\WhenMappingOverDictionaries.cs" />
+    <Compile Include="Dictionaries\WhenMappingOverDictionaryMembers.cs" />
     <Compile Include="WhenMappingToConstructors.cs" />
-    <Compile Include="WhenMappingToNewDictionaryMembers.cs" />
-    <Compile Include="WhenMappingToNewDictionaries.cs" />
+    <Compile Include="Dictionaries\WhenMappingToNewDictionaryMembers.cs" />
+    <Compile Include="Dictionaries\WhenMappingToNewDictionaries.cs" />
     <Compile Include="WhenUsingPartialTrust.cs" />
-    <Compile Include="WhenViewingDictionaryMappingPlans.cs" />
+    <Compile Include="Dictionaries\WhenViewingDictionaryMappingPlans.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />
     <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
