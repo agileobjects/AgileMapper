@@ -11,6 +11,9 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.Polyfills</RootNamespace>
+    <Product>AgileObjects.AgileMapper</Product>
+    <Authors>Steve Wilkes</Authors>
+    <Company>AgileObjects</Company>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">

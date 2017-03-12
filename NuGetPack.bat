@@ -1,2 +1,2 @@
 @echo off
-dotnet pack --output NuGet --configuration Release AgileMapper
+dotnet pack --output ../NuGet --configuration Release AgileMapper

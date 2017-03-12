@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <Description>A zero-configuration, highly-configurable, portable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API.</Description>
-    <Copyright>2016 Steve Wilkes</Copyright>
-    <AssemblyTitle>AgileMapper</AssemblyTitle>
+    <Copyright>2017 Steve Wilkes</Copyright>
+    <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
     <VersionPrefix>0.9.0</VersionPrefix>
     <Authors>Steve Wilkes</Authors>
     <TargetFrameworks>netstandard1.0;net40</TargetFrameworks>
@@ -13,8 +13,8 @@
     <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>AgileMapper</PackageId>
-    <PackageTags>Mapping, Mapper, ViewModel</PackageTags>
+    <PackageId>AgileObjects.AgileMapper</PackageId>
+    <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
@@ -24,6 +24,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
+    <Company>AgileObjects</Company>
   </PropertyGroup>
 
   <ItemGroup>
