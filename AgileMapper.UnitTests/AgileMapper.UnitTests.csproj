@@ -131,6 +131,7 @@
     <Compile Include="WhenMappingToNewDictionaryMembers.cs" />
     <Compile Include="WhenMappingToNewDictionaries.cs" />
     <Compile Include="WhenUsingPartialTrust.cs" />
+    <Compile Include="WhenViewingDictionaryMappingPlans.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />
     <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
