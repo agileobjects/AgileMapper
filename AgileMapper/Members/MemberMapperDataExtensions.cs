@@ -134,10 +134,11 @@ namespace AgileObjects.AgileMapper.Members
         {
             while (true)
             {
-                // If parentMember is enumerable, GetTargetMembers returns an 'Item'
-                // member representing the enumerable element; if we explicitly use
-                // parentMember.GetEnumerableElement we get infinite loops.
-                // TODO: Figure out why!
+                if (parentMember.IsEnumerable)
+                {
+                    parentMember = parentMember.GetElementMember();
+                    continue;
+                }
 
                 var nonSimpleChildMembers = GlobalContext.Instance
                     .MemberFinder

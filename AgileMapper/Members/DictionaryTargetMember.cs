@@ -340,7 +340,11 @@ namespace AgileObjects.AgileMapper.Members
             public DictionaryTargetMember DictionaryMember { private get; set; }
 
             public Member GetDictionaryEntryMember()
-                => Member.DictionaryEntry(_entryKey, DictionaryMember);
+            {
+                var typedTargetMember = (DictionaryTargetMember)DictionaryMember.WithType(_entryDeclaringType);
+
+                return Member.DictionaryEntry(_entryKey, typedTargetMember);
+            }
 
             public override bool Equals(object obj)
             {
