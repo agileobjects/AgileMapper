@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Dictionaries
+﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries.Configuration
 {
     using AgileMapper.Configuration;
     using Shouldly;

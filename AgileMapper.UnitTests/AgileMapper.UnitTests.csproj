@@ -76,10 +76,10 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\Dictionaries\WhenConfiguringSourceDictionaryMapping.cs" />
-    <Compile Include="Configuration\Dictionaries\WhenConfiguringDictionaryMappingIncorrectly.cs" />
-    <Compile Include="Configuration\Dictionaries\WhenConfiguringNestedDictionaryMapping.cs" />
-    <Compile Include="Configuration\Dictionaries\WhenConfiguringTargetDictionaryMapping.cs" />
+    <Compile Include="Dictionaries\Configuration\WhenConfiguringSourceDictionaryMapping.cs" />
+    <Compile Include="Dictionaries\Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs" />
+    <Compile Include="Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs" />
+    <Compile Include="Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
     <Compile Include="TestClasses\ProductDtoMega.cs" />
