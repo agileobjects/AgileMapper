@@ -88,6 +88,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (mappingExpressions[0].NodeType != ExpressionType.Block)
             {
+                if (mappingExpressions[0].NodeType == ExpressionType.MemberAccess)
+                {
+                    return mappingExpressions[0];
+                }
+
                 var objectAssignment = mappingExpressions.First(exp => exp.NodeType == ExpressionType.Assign);
 
                 if (mappingExpressions.Last() == objectAssignment)

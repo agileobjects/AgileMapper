@@ -355,10 +355,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
                 var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
 
+                var targetParameterValue = k.RuntimeTargetType.IsPrimitive()
+                    ? Expression.Coalesce(targetParameter, typeof(int).ToDefaultExpression())
+                    : (Expression)targetParameter;
+
                 var constructorCall = Expression.New(
                     dataType.GetPublicInstanceConstructors().First(),
                     sourceParameter.GetConversionTo(k.RuntimeSourceType),
-                    targetParameter.GetConversionTo(k.RuntimeTargetType),
+                    targetParameterValue.GetConversionTo(k.RuntimeTargetType),
                     enumerableIndexParameter,
                     mapperKeyParameter,
                     Parameters.MappingContext,

@@ -780,6 +780,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="ObjectPopulation\SimpleTypeMappingExpressionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.Net40.cs" />
   </ItemGroup>
   <ItemGroup>

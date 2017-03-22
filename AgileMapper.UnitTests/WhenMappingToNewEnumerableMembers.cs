@@ -43,6 +43,22 @@
         }
 
         [Fact]
+        public void ShouldCreateANewObjectCollection()
+        {
+            var source = new PublicField<object[]>
+            {
+                Value = new object[] { 9, new Person { Name = "Mags" }, string.Empty }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<Collection<object>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.First().ShouldBe(9);
+            result.Value.Second().ShouldBeOfType<Person>();
+            ((Person)result.Value.Second()).Name.ShouldBe("Mags");
+            result.Value.Third().ShouldBe(string.Empty);
+        }
+
+        [Fact]
         public void ShouldCreateANewComplexTypeEnumerable()
         {
             var source = new PublicField<Person[]>
@@ -222,16 +238,6 @@
         }
 
         [Fact]
-        public void ShouldCreateAnEmptyCollectionByDefault()
-        {
-            var source = new PublicProperty<Collection<int>> { Value = null };
-            var result = Mapper.Map(source).ToANew<PublicProperty<Collection<int>>>();
-
-            result.Value.ShouldNotBeNull();
-            result.Value.ShouldBeEmpty();
-        }
-
-        [Fact]
         public void ShouldPopulateANonNullReadOnlyNestedICollection()
         {
             using (var mapper = Mapper.CreateNew())
@@ -335,6 +341,16 @@
                 result.Value.First().Line1.ShouldBe("Address 1! Line 1!");
                 result.Value.Second().Line1.ShouldBe("Address 2! Line 1!");
             }
+        }
+
+        [Fact]
+        public void ShouldCreateAnEmptyCollectionByDefault()
+        {
+            var source = new PublicProperty<Collection<int>> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicProperty<Collection<int>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeEmpty();
         }
 
         [Fact]

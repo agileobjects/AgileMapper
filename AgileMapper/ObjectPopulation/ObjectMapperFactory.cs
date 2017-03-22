@@ -17,6 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappingExpressionFactories = new MappingExpressionFactoryBase[]
             {
                 new DictionaryMappingExpressionFactory(),
+                new SimpleTypeMappingExpressionFactory(),
                 new EnumerableMappingExpressionFactory(),
                 new ComplexTypeMappingExpressionFactory(mapperContext)
             };
