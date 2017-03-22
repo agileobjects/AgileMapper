@@ -97,6 +97,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             var greediestAvailableConstructor = mapperData.InstanceVariable.Type
                 .GetPublicInstanceConstructors()
+                .Where(IsNotCopyConstructor)
                 .Select(ctor => CreateConstructorData(ctor, key))
                 .Where(ctor => ctor.CanBeConstructed)
                 .OrderByDescending(ctor => ctor.NumberOfParameters)
@@ -115,6 +116,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             constructions.Add(greediestAvailableConstructor.Construction);
+        }
+
+        private static bool IsNotCopyConstructor(ConstructorInfo ctor)
+        {
+            // If the constructor takes an instance of itself, we'll potentially end 
+            // up in an infinite loop figuring out how to create instances for it:
+            return ctor.GetParameters().None(p => p.ParameterType == ctor.DeclaringType);
         }
 
         private static ConstructorData CreateConstructorData(ConstructorInfo ctor, ConstructionKey key)

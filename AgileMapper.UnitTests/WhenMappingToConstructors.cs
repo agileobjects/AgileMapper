@@ -83,12 +83,22 @@
             result.Value2.ShouldBeDefault();
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/9
+        [Fact]
+        public void ShouldIgnoreACopyConstructor()
+        {
+            var source = new CopyConstructor { StringValue = "Copy!" };
+            var result = Mapper.Map(source).ToANew<CopyConstructor>();
+
+            result.StringValue.ShouldBe("Copy!");
+        }
+
         #region Helper Classes
 
-        // ReSharper disable once ClassNeverInstantiated.Local
+        // ReSharper disable ClassNeverInstantiated.Local
+        // ReSharper disable UnusedMember.Local
         private class MultipleConstructors<T1, T2>
         {
-            // ReSharper disable UnusedMember.Local
             public MultipleConstructors()
             {
             }
@@ -103,12 +113,28 @@
                 Value1 = value1;
                 Value2 = value2;
             }
-            // ReSharper restore UnusedMember.Local
 
             public T1 Value1 { get; }
 
             public T2 Value2 { get; }
         }
+
+        private class CopyConstructor
+        {
+            public CopyConstructor()
+            {
+            }
+
+            public CopyConstructor(CopyConstructor otherInstance)
+            {
+                StringValue = otherInstance.StringValue;
+            }
+
+            // ReSharper disable once MemberCanBePrivate.Local
+            public string StringValue { get; set; }
+        }
+        // ReSharper restore UnusedMember.Local
+        // ReSharper restore ClassNeverInstantiated.Local
 
         #endregion
     }
