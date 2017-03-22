@@ -89,5 +89,16 @@
 
             result.ShouldBeSameAs(target);
         }
+
+        [Fact]
+        public void ShouldMapOnToInterface()
+        {
+            var source = new PublicImplementation<string> { Value = "Interface! :o" };
+            IPublicInterface<string> target = new PublicImplementation<string>();
+
+            Mapper.Map(source).OnTo(target);
+
+            target.Value.ShouldBe("Interface! :o");
+        }
     }
 }
