@@ -239,6 +239,11 @@
 
         private static Type GetRootType(Type type)
         {
+            if (type.IsInterface)
+            {
+                return type;
+            }
+
             var parentType = type;
 
             while (parentType != typeof(object))

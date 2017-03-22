@@ -71,5 +71,19 @@
 
             result.Value.ShouldBe("Oi 'Arold!");
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/11
+        [Fact]
+        public void ShouldMapFromAnInterface()
+        {
+            IPublicInterface<string> source = new PublicImplementation<string>
+            {
+                Value = "Interfaces!"
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
+
+            result.Value.ShouldBe("Interfaces!");
+        }
     }
 }
