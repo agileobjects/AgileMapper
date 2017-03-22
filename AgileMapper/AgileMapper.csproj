@@ -4,7 +4,7 @@
     <Description>A zero-configuration, highly-configurable, portable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API.</Description>
     <Copyright>2017 Steve Wilkes</Copyright>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
-    <VersionPrefix>0.10.0</VersionPrefix>
+    <VersionPrefix>0.10.1</VersionPrefix>
     <Authors>Steve Wilkes</Authors>
     <TargetFrameworks>netstandard1.0;net40</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
