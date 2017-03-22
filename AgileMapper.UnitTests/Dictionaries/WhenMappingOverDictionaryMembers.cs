@@ -71,5 +71,42 @@
             target.Value["Four"].ShouldBeNull();
             target.Value["Five"].ShouldBe(5);
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/10
+        [Fact]
+        public void ShouldMapADictionaryMemberOverADictionaryMember()
+        {
+            var source = new PublicProperty<Dictionary<string, object>>
+            {
+                Value = new Dictionary<string, object>
+                {
+                    ["One!"] = new PersonViewModel { Name = "One!" },
+                    ["Two!"] = new PersonViewModel { Name = "Two!" }
+                }
+            };
+
+
+            var target = new PublicProperty<Dictionary<string, object>>
+            {
+                Value = new Dictionary<string, object>
+                {
+                    ["Two!"] = new PersonViewModel { Name = "Three!" }
+                }
+            };
+
+            var existingTarget = target.Value;
+
+            Mapper.Map(source).Over(target);
+
+            target.Value.ShouldBeSameAs(existingTarget);
+
+            target.Value.ContainsKey("One!").ShouldBeTrue();
+            target.Value["One!"].ShouldBeOfType<PersonViewModel>();
+            ((PersonViewModel)target.Value["One!"]).Name.ShouldBe("One!");
+
+            target.Value.ContainsKey("Two!").ShouldBeTrue();
+            target.Value["Two!"].ShouldBeOfType<PersonViewModel>();
+            ((PersonViewModel)target.Value["Two!"]).Name.ShouldBe("Two!");
+        }
     }
 }

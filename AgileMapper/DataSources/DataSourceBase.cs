@@ -119,7 +119,7 @@
                 : Expression.IfThen(Condition, value);
         }
 
-        public Expression GetMemberPopulation(IMemberMapperData mapperData)
+        public Expression GetTargetMemberPopulation(IMemberMapperData mapperData)
             => mapperData.GetTargetMemberPopulation(Value);
     }
 }

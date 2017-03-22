@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.Members
     internal class DictionaryTargetMember : QualifiedMember
     {
         private readonly DictionaryTargetMember _rootDictionaryMember;
-        private readonly bool _createDictionaryChildMembers;
+        private bool _createDictionaryChildMembers;
         private Expression _key;
 
         public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
@@ -36,7 +36,7 @@ namespace AgileObjects.AgileMapper.Members
             KeyType = rootDictionaryMember.KeyType;
             ValueType = rootDictionaryMember.ValueType;
             _rootDictionaryMember = rootDictionaryMember;
-            _createDictionaryChildMembers = HasObjectEntries || ValueType.IsSimple();
+            _createDictionaryChildMembers = HasObjectEntries || HasSimpleEntries;
         }
 
         public Type KeyType { get; }
@@ -114,7 +114,10 @@ namespace AgileObjects.AgileMapper.Members
         {
             var runtimeTypedTargetEntryMember = base.CreateRuntimeTypedMember(runtimeType);
 
-            return new DictionaryTargetMember(runtimeTypedTargetEntryMember, _rootDictionaryMember);
+            return new DictionaryTargetMember(runtimeTypedTargetEntryMember, _rootDictionaryMember)
+            {
+                _createDictionaryChildMembers = _createDictionaryChildMembers
+            };
         }
 
         public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)
@@ -299,7 +302,35 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public DictionaryTargetMember WithTypeOf(Member sourceMember)
-            => (DictionaryTargetMember)WithType(sourceMember.Type);
+        {
+            if (sourceMember.Type == Type)
+            {
+                return this;
+            }
+
+            return (DictionaryTargetMember)WithType(sourceMember.Type);
+        }
+
+        public override void MapCreating(IQualifiedMember sourceMember)
+        {
+            if (CreateNonDictionaryChildMembers(sourceMember))
+            {
+                _createDictionaryChildMembers = false;
+            }
+
+            base.MapCreating(sourceMember);
+        }
+
+        private bool CreateNonDictionaryChildMembers(IQualifiedMember sourceMember)
+        {
+            // If this DictionaryTargetMember represents an object-typed dictionary 
+            // entry and we're mapping from a source of type object, we switch from
+            // mapping to flattened entries to mapping entire objects:
+            return HasObjectEntries &&
+                   LeafMember.IsEnumerableElement() &&
+                  (MemberChain[MemberChain.Length - 2] == _rootDictionaryMember.LeafMember) &&
+                  (sourceMember.Type == typeof(object));
+        }
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD

@@ -21,6 +21,6 @@ namespace AgileObjects.AgileMapper.Members.Sources
 
         public IQualifiedMember GetSourceMember<TSource, TTarget>() => _sourceMember;
 
-        public QualifiedMember GetTargetMember<TTarget>() => _targetMember;
+        public QualifiedMember GetTargetMember<TSource, TTarget>() => _targetMember;
     }
 }

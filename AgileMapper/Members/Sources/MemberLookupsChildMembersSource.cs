@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.Members.Sources
         public IQualifiedMember GetSourceMember<TSource, TTarget>()
             => _parent.MapperData.GetSourceMemberFor(TargetMemberRegistrationName, DataSourceIndex);
 
-        public QualifiedMember GetTargetMember<TTarget>()
+        public QualifiedMember GetTargetMember<TSource, TTarget>()
             => _parent.MapperData.GetTargetMemberFor(TargetMemberRegistrationName);
     }
 }

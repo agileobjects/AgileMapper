@@ -11,7 +11,7 @@
         public void ShouldNotCountARootMemberAsRecursive()
         {
             var rootMember = new QualifiedMemberFactory(DefaultMapperContext)
-                .RootTarget<PublicProperty<string>>();
+                .RootTarget<Person, PublicProperty<string>>();
 
             rootMember.IsRecursion.ShouldBeFalse();
         }

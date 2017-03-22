@@ -21,6 +21,6 @@
 
         Expression AddCondition(Expression value, Expression alternateBranch = null);
 
-        Expression GetMemberPopulation(IMemberMapperData mapperData);
+        Expression GetTargetMemberPopulation(IMemberMapperData mapperData);
     }
 }

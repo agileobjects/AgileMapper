@@ -311,6 +311,10 @@ namespace AgileObjects.AgileMapper.Members
         public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
             => LeafMember.GetPopulation(mapperData.InstanceVariable, value);
 
+        public virtual void MapCreating(IQualifiedMember sourceMember)
+        {
+        }
+
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD
         [ExcludeFromCodeCoverage]

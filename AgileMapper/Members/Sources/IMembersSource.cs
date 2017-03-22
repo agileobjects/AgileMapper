@@ -4,6 +4,6 @@ namespace AgileObjects.AgileMapper.Members.Sources
     {
         IQualifiedMember GetSourceMember<TSource, TTarget>();
 
-        QualifiedMember GetTargetMember<TTarget>();
+        QualifiedMember GetTargetMember<TSource, TTarget>();
     }
 }

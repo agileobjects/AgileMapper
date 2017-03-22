@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.Members.Sources
         public IQualifiedMember GetSourceMember<TSource, TTarget>()
         {
             var sourceElementMember = Parent.MapperData.SourceMember.GetElementMember();
-            var targetElementMember = GetTargetMember<TTarget>();
+            var targetElementMember = GetTargetMember<TSource, TTarget>();
 
             sourceElementMember = Parent.MapperData
                 .MapperContext
@@ -24,6 +24,7 @@ namespace AgileObjects.AgileMapper.Members.Sources
             return sourceElementMember;
         }
 
-        public QualifiedMember GetTargetMember<TTarget>() => Parent.MapperData.TargetMember.GetElementMember();
+        public QualifiedMember GetTargetMember<TSource, TTarget>()
+            => Parent.MapperData.TargetMember.GetElementMember();
     }
 }

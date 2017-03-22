@@ -159,11 +159,11 @@
         private Expression GetPopulation(
             IPopulationLoopData loopData,
             QualifiedMember dictionaryEntryMember,
-            IObjectMappingData mappingData)
+            IObjectMappingData dictionaryMappingData)
         {
-            var elementMapping = loopData.GetElementMapping(mappingData);
+            var elementMapping = loopData.GetElementMapping(dictionaryMappingData);
 
-            return GetPopulation(elementMapping, dictionaryEntryMember, mappingData);
+            return GetPopulation(elementMapping, dictionaryEntryMember, dictionaryMappingData);
         }
 
         private Expression GetPopulation(
@@ -174,9 +174,8 @@
             var elementMapperData = new ChildMemberMapperData(dictionaryEntryMember, MapperData);
             var elementMappingData = mappingData.GetChildMappingData(elementMapperData);
 
-            var mapperData = mappingData.IsRoot ? mappingData.MapperData : mappingData.MapperData.Parent;
-            var sourceMemberDataSource = SourceMemberDataSource.For(mapperData.SourceMember, mapperData);
-            var mappingDataSource = new AdHocDataSource(sourceMemberDataSource, elementMapping);
+            var sourceMember = mappingData.MapperData.SourceMember;
+            var mappingDataSource = new AdHocDataSource(sourceMember, elementMapping);
             var mappingDataSources = new DataSourceSet(mappingDataSource);
 
             var memberPopulation = MemberPopulation.WithoutRegistration(elementMappingData, mappingDataSources);

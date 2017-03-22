@@ -79,7 +79,7 @@ namespace AgileObjects.AgileMapper.DataSources
                     continue;
                 }
 
-                var memberPopulation = dataSource.GetMemberPopulation(mapperData);
+                var memberPopulation = dataSource.GetTargetMemberPopulation(mapperData);
 
                 population = dataSource.AddCondition(memberPopulation, population);
                 population = dataSource.AddPreCondition(population);

@@ -8,7 +8,7 @@
     public class WhenMappingOnToDictionaryMembers
     {
         [Fact]
-        public void ShouldMapADictionaryOnToAConvertibleSimpleTypedDictionary()
+        public void ShouldMapAnIDictionaryOnToAConvertibleSimpleTypedDictionary()
         {
             var guidOne = Guid.NewGuid();
             var guidTwo = Guid.NewGuid();

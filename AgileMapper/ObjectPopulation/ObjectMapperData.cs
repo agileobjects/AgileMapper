@@ -290,7 +290,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var membersSource = mappingData.MapperKey.GetMembersSource(mappingData.Parent);
             var sourceMember = membersSource.GetSourceMember<TSource, TTarget>().WithType(typeof(TSource));
-            var targetMember = membersSource.GetTargetMember<TTarget>().WithType(typeof(TTarget));
+            var targetMember = membersSource.GetTargetMember<TSource, TTarget>().WithType(typeof(TTarget));
             int? dataSourceIndex;
             ObjectMapperData parentMapperData;
             bool isForStandaloneMapping;
@@ -468,6 +468,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
         {
+            if (!TargetMember.IsEnumerable && this.TargetMemberIsEnumerableElement())
+            {
+                return Parent.GetMapCall(sourceElement, targetElement);
+            }
+
             Context.SubMappingNeeded();
 
             var mapCall = Expression.Call(

@@ -14,7 +14,6 @@
                 typeof(KeyValuePair<,>).MakeGenericType(sourceMember.KeyType, sourceMember.ValueType),
                 mapperData.SourceObject)
         {
-
         }
 
         public override Expression GetSourceElementValue() => Expression.Property(SourceElement, "Value");

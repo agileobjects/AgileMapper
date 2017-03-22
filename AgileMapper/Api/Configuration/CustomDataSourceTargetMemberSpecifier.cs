@@ -101,7 +101,7 @@
 
             var rootMember = (DictionaryTargetMember)_configInfo.MapperContext
                 .QualifiedMemberFactory
-                .RootTarget<TTarget>();
+                .RootTarget<TSource, TTarget>();
 
             entryMember = rootMember.Append(typeof(TSource), entryKey);
             return true;
