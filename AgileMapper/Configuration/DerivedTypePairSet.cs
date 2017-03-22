@@ -239,7 +239,7 @@
 
         private static Type GetRootType(Type type)
         {
-            if (type.IsInterface)
+            if (type.IsInterface())
             {
                 return type;
             }
