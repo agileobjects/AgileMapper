@@ -24,6 +24,17 @@ namespace AgileObjects.AgileMapper.Members
 
             var keyParts = GetTargetMemberDictionaryKeyParts(mapperData);
 
+            if (keyParts.Any() && (keyParts[0].NodeType == ExpressionType.Constant))
+            {
+                var firstKeyPart = (ConstantExpression)keyParts[0];
+                var firstKeyPartValue = (string)firstKeyPart.Value;
+
+                if (firstKeyPartValue.StartsWith('.'))
+                {
+                    keyParts[0] = firstKeyPartValue.Substring(1).ToConstantExpression();
+                }
+            }
+
             return keyParts.GetStringConcatCall();
         }
 
@@ -91,7 +102,7 @@ namespace AgileObjects.AgileMapper.Members
             bool isTargetDictionary,
             IMemberMapperData mapperData)
         {
-            if (targetMember.IsRoot)
+            if (targetMember.IsRoot || mapperData.Context.IsStandalone)
             {
                 return true;
             }

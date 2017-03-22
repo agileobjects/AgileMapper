@@ -108,5 +108,25 @@
             result.Value["[0]"].ShouldBe("1", "2", "3");
             result.Value["[1]"].ShouldBe("4", "5", "6");
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/8
+        [Fact]
+        public void ShouldMapFromARuntimeTypedNestedDictionary()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["Value1"] = "I'm Value1!",
+                ["Value2"] = new Dictionary<string, object>
+                {
+                    ["Value"] = "I'm nested!"
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicTwoFields<string, PublicProperty<string>>>();
+
+            result.Value1.ShouldBe("I'm Value1!");
+            result.Value2.ShouldNotBeNull();
+            result.Value2.Value.ShouldBe("I'm nested!");
+        }
     }
 }
