@@ -182,7 +182,16 @@
 
         public static bool IsSimple(this Type type)
         {
-            return type.IsValueType() || (type == typeof(string));
+            type = type.GetNonNullableType();
+
+            switch (type.GetTypeCode())
+            {
+                case NetStandardTypeCode.DBNull:
+                case NetStandardTypeCode.Object:
+                    return type == typeof(Guid);
+            }
+
+            return true;
         }
 
         public static bool IsDictionary(this Type type)

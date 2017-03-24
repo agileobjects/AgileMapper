@@ -105,6 +105,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (greediestAvailableConstructor == null)
             {
+                if (mapperData.InstanceVariable.Type.IsValueType())
+                {
+                    constructions.Add(Construction.Parameterless(mapperData.InstanceVariable.Type));
+                }
+
                 return;
             }
 
@@ -250,6 +255,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 _construction = construction;
                 Condition = condition;
+            }
+
+            public static Construction Parameterless(Type type)
+            {
+                var parameterlessNew = Expression.New(type);
+
+                return new Construction(parameterlessNew);
             }
 
             public Expression PreCondition => null;

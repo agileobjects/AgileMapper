@@ -27,13 +27,13 @@
 
         public MappingRuleSet RuleSet { get; private set; }
 
-        public TResult ToANew<TResult>() where TResult : class
+        public TResult ToANew<TResult>()
             => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
 
-        public TTarget OnTo<TTarget>(TTarget existing) where TTarget : class
+        public TTarget OnTo<TTarget>(TTarget existing)
             => PerformMapping(MapperContext.RuleSets.Merge, existing);
 
-        public TTarget Over<TTarget>(TTarget existing) where TTarget : class
+        public TTarget Over<TTarget>(TTarget existing)
             => PerformMapping(MapperContext.RuleSets.Overwrite, existing);
 
         private TTarget PerformMapping<TTarget>(MappingRuleSet ruleSet, TTarget target)

@@ -216,7 +216,15 @@
             private IEnumerable<ElementInit> ReplaceIn(IEnumerable<ElementInit> initializers)
                 => initializers.Select(init => init.Update(init.Arguments.Select(Replace)));
 
-            private NewExpression ReplaceIn(NewExpression newing) => (NewExpression)ReplaceIn(newing, nw => nw.Update(nw.Arguments.Select(Replace)));
+            private NewExpression ReplaceIn(NewExpression newing)
+            {
+                if (newing.Arguments.None())
+                {
+                    return newing;
+                }
+
+                return (NewExpression)ReplaceIn(newing, nw => nw.Update(nw.Arguments.Select(Replace)));
+            }
 
             private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, na => na.Update(na.Expressions.Select(Replace)));
 

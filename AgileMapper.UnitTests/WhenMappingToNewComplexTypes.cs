@@ -16,6 +16,15 @@
         }
 
         [Fact]
+        public void ShouldMapFromAnAnonymousTypeToAStruct()
+        {
+            var source = new { Value = "Hello struct!" };
+            var result = Mapper.Map(source).ToANew<PublicPropertyStruct<string>>();
+
+            result.Value.ShouldBe(source.Value);
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceObject()
         {
             var result = Mapper.Map(default(PublicProperty<int>)).ToANew<PublicField<int>>();
