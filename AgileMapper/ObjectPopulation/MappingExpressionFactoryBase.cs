@@ -49,9 +49,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.After, basicMapperData, mapperData));
 
             var mappingBlock = GetMappingBlock(mappingExpressions, mapperData);
-            var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
 
-            return mappingBlockWithTryCatch;
+            if (mapperData.Context.UseMappingTryCatch)
+            {
+                mappingBlock = WrapInTryCatch(mappingBlock, mapperData);
+            }
+
+            return mappingBlock;
         }
 
         protected abstract bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock);

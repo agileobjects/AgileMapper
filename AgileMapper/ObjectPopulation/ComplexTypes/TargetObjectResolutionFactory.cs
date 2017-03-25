@@ -1,9 +1,11 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal static class TargetObjectResolutionFactory
     {
@@ -48,12 +50,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
         {
-            if (mappingData.MapperData.TargetCouldBePopulated())
+            if (value.Type.IsValueType())
             {
-                return Expression.Coalesce(mappingData.MapperData.TargetObject, value);
+                // A user-defined struct will always be populated, but we can 
+                // happily overwrite it because it should never represent an 
+                // entity. We may as well use the existing value if it has a
+                // parameterless constructor, though:
+                if (value.Type.GetPublicInstanceConstructors().ToArray().None())
+                {
+                    return mappingData.MapperData.TargetObject;
+                }
+
+                return value;
             }
 
-            return value;
+            if (mappingData.MapperData.TargetIsDefinitelyUnpopulated())
+            {
+                return value;
+            }
+
+            return Expression.Coalesce(mappingData.MapperData.TargetObject, value);
         }
     }
 }

@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal class MapperDataContext
     {
@@ -52,18 +53,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private void BubbleMappingNeededToParent()
         {
-            if (_mapperData.IsRoot)
-            {
-                return;
-            }
-
-            if (_mapperData.TargetMemberIsEnumerableElement())
+            if (!_mapperData.IsRoot)
             {
                 _mapperData.Parent.Context.SubMappingNeeded();
-                return;
             }
+        }
 
-            _mapperData.Parent.Context.SubMappingNeeded();
+        public bool UseMappingTryCatch
+        {
+            get
+            {
+                if (_mapperData.IsRoot)
+                {
+                    return true;
+                }
+
+                if (_mapperData.TargetType.IsValueType())
+                {
+                    return false;
+                }
+
+                return _mapperData.Parent.Context.UseMappingTryCatch;
+            }
         }
 
         public bool UsesMappingDataObjectAsParameter

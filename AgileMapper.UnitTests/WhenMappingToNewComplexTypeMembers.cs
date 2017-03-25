@@ -65,6 +65,17 @@
         }
 
         [Fact]
+        public void ShouldMapToANestedStructConstructor()
+        {
+            var source = new { Value = new { Value = "800" } };
+            var result = Mapper.Map(source).ToANew<PublicPropertyStruct<PublicCtorStruct<int>>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldNotBeNull();
+            result.Value.Value.ShouldBe(800);
+        }
+
+        [Fact]
         public void ShouldHandleNoMatchingSourceForNestedCtorParameter()
         {
             var source = new { Value = new { Hello = "There" } };
