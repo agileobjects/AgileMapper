@@ -1,7 +1,6 @@
 # AgileMapper
-AgileMapper is a zero-configuration, [highly-configurable](https://github.com/agileobjects/AgileMapper/wiki/Configuration), 
-portable object-object mapper with [viewable execution plans](https://github.com/agileobjects/AgileMapper/wiki/Using-Execution-Plans) 
-via a [static or instance](https://github.com/agileobjects/AgileMapper/wiki/Static-vs-Instance-Mappers) API.
+AgileMapper is a zero-configuration, [highly-configurable](https://github.com/agileobjects/AgileMapper/wiki/Configuration) object-object mapper with [viewable execution plans](https://github.com/agileobjects/AgileMapper/wiki/Using-Execution-Plans) 
+via a [static or instance](https://github.com/agileobjects/AgileMapper/wiki/Static-vs-Instance-Mappers) API. It conforms to [.NET Standard 1.0](https://docs.microsoft.com/en-us/dotnet/articles/standard/library).
 
 You can use it to create new objects:
 
