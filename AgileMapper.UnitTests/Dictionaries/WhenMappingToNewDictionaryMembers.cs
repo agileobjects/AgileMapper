@@ -128,5 +128,29 @@
             result.Value2.ShouldNotBeNull();
             result.Value2.Value.ShouldBe("I'm nested!");
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/10
+        [Fact]
+        public void ShouldMapADictionaryMemberToANewDictionaryMember()
+        {
+            var source = new PublicField<Dictionary<string, object>>()
+            {
+                Value = new Dictionary<string, object>
+                {
+                    ["Location"] = "I'm in a Dictionary!",
+                    ["Number"] = 123,
+                    ["Object"] = new CustomerViewModel { Name = "Mr Yo Yo" }
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicProperty<Dictionary<string, object>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value["Location"].ShouldBe("I'm in a Dictionary!");
+            result.Value["Number"].ShouldBe(123);
+            result.Value["Object"].ShouldBeOfType<CustomerViewModel>();
+            result.Value["Object"].ShouldNotBeSameAs(source.Value["Object"]);
+            ((CustomerViewModel)result.Value["Object"]).Name.ShouldBe("Mr Yo Yo");
+        }
     }
 }
