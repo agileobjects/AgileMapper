@@ -121,6 +121,7 @@
     <Compile Include="TestClasses\PublicSealed.cs" />
     <Compile Include="TestClasses\PublicStruct.cs" />
     <Compile Include="TestClasses\PublicTwoFields.cs" />
+    <Compile Include="TestClasses\PublicTwoFieldsStruct.cs" />
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />

@@ -32,7 +32,7 @@
 
         public Expression EnumerableIndex => Parent.EnumerableIndex;
 
-        public ParameterExpression InstanceVariable => Parent.InstanceVariable;
+        public Expression TargetInstance => Parent.TargetInstance;
 
         public NestedAccessFinder NestedAccessFinder => Parent.NestedAccessFinder;
     }

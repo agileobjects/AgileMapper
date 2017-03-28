@@ -120,7 +120,7 @@
         {
             return position.IsPriorToObjectCreation(targetMember)
                 ? _parametersSwapper.Swap(_lambda, mapperData, ParametersSwapper.UseTargetMember)
-                : _parametersSwapper.Swap(_lambda, mapperData, ParametersSwapper.UseInstanceVariable);
+                : _parametersSwapper.Swap(_lambda, mapperData, ParametersSwapper.UseTargetInstance);
         }
     }
 }

@@ -296,7 +296,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> To<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<object, TTarget> To<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForAllRuleSets()).To<TTarget>();
 
         /// <summary>
@@ -305,7 +305,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> ToANew<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<object, TTarget> ToANew<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.CreateNew)).ToANew<TTarget>();
 
         /// <summary>
@@ -314,7 +314,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> OnTo<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<object, TTarget> OnTo<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Merge)).OnTo<TTarget>();
 
         /// <summary>
@@ -323,7 +323,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> Over<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<object, TTarget> Over<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Overwrite)).Over<TTarget>();
 
         private TargetTypeSpecifier<object> GetAllSourcesTargetTypeSpecifier(

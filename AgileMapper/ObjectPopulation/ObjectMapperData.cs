@@ -26,6 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MethodInfo _mapElementMethod;
         private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private ObjectMapperData _entryPointMapperData;
+        private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
         private bool? _mappedObjectCachingNeeded;
 
@@ -370,7 +371,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression EnumerableIndex { get; }
 
-        public ParameterExpression InstanceVariable
+        public Expression TargetInstance
+            => _targetInstance ?? (_targetInstance = GetTargetInstance());
+
+        private Expression GetTargetInstance()
+            => Context.UseLocalVariable ? LocalVariable : TargetObject;
+
+        public ParameterExpression LocalVariable
             => _instanceVariable ?? (_instanceVariable = CreateInstanceVariable());
 
         private ParameterExpression CreateInstanceVariable()
@@ -456,7 +463,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 MappingDataObject,
                 _mapChildMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
-                targetMember.GetAccess(InstanceVariable, this),
+                targetMember.GetAccess(this),
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());
 
@@ -494,7 +501,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 EntryPointMapperData.MappingDataObject,
                 _mapRecursionMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
-                targetMember.GetAccess(InstanceVariable, this),
+                targetMember.GetAccess(this),
                 EnumerableIndex,
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());

@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using Members;
@@ -56,12 +55,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 // happily overwrite it because it should never represent an 
                 // entity. We may as well use the existing value if it has a
                 // parameterless constructor, though:
-                if (value.Type.GetPublicInstanceConstructors().ToArray().None())
-                {
-                    return mappingData.MapperData.TargetObject;
-                }
-
-                return value;
+                return value.Type.IsConstructorless() ? mappingData.MapperData.TargetObject : value;
             }
 
             if (mappingData.MapperData.TargetIsDefinitelyUnpopulated())

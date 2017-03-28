@@ -25,7 +25,7 @@
 
         Expression EnumerableIndex { get; }
 
-        ParameterExpression InstanceVariable { get; }
+        Expression TargetInstance { get; }
 
         NestedAccessFinder NestedAccessFinder { get; }
     }

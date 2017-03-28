@@ -197,20 +197,20 @@ namespace AgileObjects.AgileMapper.Configuration
         public static Expression UseTargetMember(IMemberMapperData mapperData, Expression contextAccess, Type targetType)
             => mapperData.GetTargetAccess(contextAccess, targetType);
 
-        public static Expression UseInstanceVariable(IMemberMapperData mapperData, Expression contextAccess, Type targetType)
+        public static Expression UseTargetInstance(IMemberMapperData mapperData, Expression contextAccess, Type targetType)
         {
             if (!contextAccess.Type.IsGenericType())
             {
                 return UseTargetMember(mapperData, contextAccess, targetType);
             }
 
-            var instanceVariableAccess = mapperData
+            var targetInstanceAccess = mapperData
                 .GetAppropriateMappingContext(contextAccess.Type.GetGenericArguments())
-                .InstanceVariable;
+                .TargetInstance;
 
-            return targetType.IsAssignableFrom(instanceVariableAccess.Type)
-                ? instanceVariableAccess
-                : instanceVariableAccess.GetConversionTo(targetType);
+            return targetType.IsAssignableFrom(targetInstanceAccess.Type)
+                ? targetInstanceAccess
+                : targetInstanceAccess.GetConversionTo(targetType);
         }
 
         public Expression Swap(

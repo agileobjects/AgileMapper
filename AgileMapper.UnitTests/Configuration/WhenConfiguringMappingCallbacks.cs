@@ -15,9 +15,7 @@
             {
                 var mappedNames = new List<string>();
 
-                mapper
-                    .Before
-                    .MappingBegins
+                mapper.Before.MappingBegins
                     .Call((s, t) => mappedNames.AddRange(new[] { ((Person)s).Name, ((PersonViewModel)t).Name }));
 
                 var source = new Person { Name = "Bernie" };
@@ -36,9 +34,7 @@
             {
                 var mappedNames = new List<string>();
 
-                mapper
-                    .After
-                    .MappingEnds
+                mapper.After.MappingEnds
                     .If((s, t) => t.GetType() != typeof(Address))
                     .Call(ctx => mappedNames.AddRange(new[] { ((PersonViewModel)ctx.Source).Name, ((Person)ctx.Target).Name }));
 
@@ -56,8 +52,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .To<Person>()
                     .Before
                     .MappingBegins
@@ -87,8 +82,7 @@
                 var preMappingName = default(string);
                 var postMappingName = default(string);
 
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From<Person>()
                     .Over<PersonViewModel>()
                     .Before
@@ -116,8 +110,7 @@
             {
                 var mappedTargetId = default(Guid);
 
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From<Person>()
                     .ToANew<Person>()
                     .Before
@@ -145,8 +138,7 @@
                 var mappedAddress = default(Address);
                 var callbackCalled = false;
 
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .ToANew<Person>()
                     .After
                     .Mapping(p => p.Address)
@@ -194,8 +186,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .To<PublicField<string>>()
                     .Before
                     .MappingBegins
@@ -219,8 +210,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<string>>()
                     .Before
@@ -245,8 +235,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .To<PersonViewModel>()
                     .After
                     .MappingEnds
@@ -274,8 +263,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .To<PublicProperty<string>>()
                     .After
                     .MappingEnds
@@ -299,8 +287,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From<PublicField<string>>()
                     .To<PublicProperty<string>>()
                     .After

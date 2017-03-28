@@ -13,6 +13,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class MappingExpressionFactoryBase
     {
+        private const CallbackPosition Before = CallbackPosition.Before;
+        private const CallbackPosition After = CallbackPosition.After;
+
         public abstract bool IsFor(IObjectMappingData mappingData);
 
         public Expression Create(IObjectMappingData mappingData)
@@ -44,9 +47,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var basicMapperData = mapperData.WithNoTargetMember();
 
             mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
-            mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.Before, basicMapperData, mapperData));
+            mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(Before, basicMapperData, mapperData));
             mappingExpressions.AddRange(GetObjectPopulation(mappingData));
-            mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.After, basicMapperData, mapperData));
+            mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(After, basicMapperData, mapperData));
 
             var mappingBlock = GetMappingBlock(mappingExpressions, mapperData);
 
@@ -90,6 +93,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetMappingBlock(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
         {
+            if (mappingExpressions.None())
+            {
+                goto CreateFullMappingBlock;
+            }
+
             if (mappingExpressions[0].NodeType != ExpressionType.Block)
             {
                 if (mappingExpressions[0].NodeType == ExpressionType.MemberAccess)
@@ -97,11 +105,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return mappingExpressions[0];
                 }
 
-                var objectAssignment = mappingExpressions.First(exp => exp.NodeType == ExpressionType.Assign);
-
-                if (mappingExpressions.Last() == objectAssignment)
+                if (!mapperData.Context.UseLocalVariable)
                 {
-                    var assignedValue = ((BinaryExpression)objectAssignment).Right;
+                    goto CreateFullMappingBlock;
+                }
+
+                var localVariableAssignment = mappingExpressions.First(exp => exp.NodeType == ExpressionType.Assign);
+
+                if (mappingExpressions.Last() == localVariableAssignment)
+                {
+                    var assignedValue = ((BinaryExpression)localVariableAssignment).Right;
 
                     if (mappingExpressions.Count == 1)
                     {
@@ -114,9 +127,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 }
             }
 
+            CreateFullMappingBlock:
+
             mappingExpressions.Add(Expression.Label(mapperData.ReturnLabelTarget, GetReturnValue(mapperData)));
 
-            var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
+            var mappingBlock = mapperData.Context.UseLocalVariable
+                ? Expression.Block(new[] { mapperData.LocalVariable }, mappingExpressions)
+                : Expression.Block(mappingExpressions);
 
             return mappingBlock;
         }

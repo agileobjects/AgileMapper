@@ -48,11 +48,11 @@ namespace AgileObjects.AgileMapper.Members
                 return mapperData.TargetObject;
             }
 
-            var subjectMapperData = mapperData.TargetMember.LeafMember.DeclaringType == mapperData.InstanceVariable.Type
+            var subjectMapperData = mapperData.TargetMember.LeafMember.DeclaringType == mapperData.TargetInstance.Type
                 ? mapperData
                 : mapperData.Parent;
 
-            return mapperData.TargetMember.GetAccess(subjectMapperData.InstanceVariable, mapperData);
+            return mapperData.TargetMember.GetAccess(subjectMapperData.TargetInstance, mapperData);
         }
 
         public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)

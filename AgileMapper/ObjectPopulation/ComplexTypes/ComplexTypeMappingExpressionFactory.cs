@@ -111,11 +111,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 mapperData.EntryPointMapperData.MappingDataObject,
                 tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
                 mapperData.SourceObject,
-                mapperData.InstanceVariable);
+                mapperData.TargetInstance);
 
             var ifTryGetReturn = Expression.IfThen(
                 tryGetCall,
-                Expression.Return(mapperData.ReturnLabelTarget, mapperData.InstanceVariable));
+                Expression.Return(mapperData.ReturnLabelTarget, mapperData.TargetInstance));
 
             return ifTryGetReturn;
         }
@@ -143,15 +143,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 yield return preCreationCallback;
             }
 
-            var assignCreatedObject = postCreationCallback != null;
-
-            var instanceVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
-                md => _constructionFactory.GetNewObjectCreation(md),
-                mappingData,
-                assignCreatedObject);
-
-            var instanceVariableAssignment = mapperData.InstanceVariable.AssignTo(instanceVariableValue);
-            yield return instanceVariableAssignment;
+            if (mapperData.Context.UseLocalVariable)
+            {
+                yield return GetLocalVariableInstantiation(postCreationCallback != null, mappingData);
+            }
 
             if (postCreationCallback != null)
             {
@@ -193,7 +188,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 mapperData.EntryPointMapperData.MappingDataObject,
                 _registerMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
                 mapperData.SourceObject,
-                mapperData.InstanceVariable);
+                mapperData.TargetInstance);
         }
 
         #endregion
@@ -258,7 +253,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             mappingData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
         }
 
-        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;
+        private Expression GetLocalVariableInstantiation(bool assignCreatedObject, IObjectMappingData mappingData)
+        {
+            var localVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
+                md => _constructionFactory.GetNewObjectCreation(md),
+                mappingData,
+                assignCreatedObject);
+
+            var localVariableAssignment = mappingData.MapperData.LocalVariable.AssignTo(localVariableValue);
+
+            return localVariableAssignment;
+        }
+
+        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
 
         public override void Reset() => _constructionFactory.Reset();
     }

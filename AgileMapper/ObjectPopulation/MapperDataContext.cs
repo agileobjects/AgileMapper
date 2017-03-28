@@ -30,6 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapperData = mapperData;
             IsStandalone = isStandalone;
             IsForDerivedType = isForDerivedType;
+            UseLocalVariable = !mapperData.TargetMember.IsComplex || !mapperData.TargetIsDefinitelyPopulated();
         }
 
         public bool IsStandalone { get; }
@@ -58,6 +59,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapperData.Parent.Context.SubMappingNeeded();
             }
         }
+
+        public bool UseLocalVariable { get; }
 
         public bool UseMappingTryCatch
         {

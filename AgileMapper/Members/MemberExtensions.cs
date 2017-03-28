@@ -48,6 +48,9 @@
             return path;
         }
 
+        public static Expression GetAccess(this QualifiedMember member, IMemberMapperData mapperData)
+            => member.GetAccess(mapperData.TargetInstance, mapperData);
+
         public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, IMemberMapperData mapperData)
         {
             // Skip(1) because the 0th member is the mapperData.SourceObject:

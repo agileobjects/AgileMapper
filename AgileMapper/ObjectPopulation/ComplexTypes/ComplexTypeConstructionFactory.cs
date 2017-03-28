@@ -95,7 +95,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var mapperData = key.MappingData.MapperData;
 
-            var greediestAvailableConstructor = mapperData.InstanceVariable.Type
+            var greediestAvailableConstructor = mapperData.TargetInstance.Type
                 .GetPublicInstanceConstructors()
                 .Where(IsNotCopyConstructor)
                 .Select(ctor => CreateConstructorData(ctor, key))
@@ -105,9 +105,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (greediestAvailableConstructor == null)
             {
-                if (mapperData.InstanceVariable.Type.IsValueType())
+                if (mapperData.TargetInstance.Type.IsValueType())
                 {
-                    constructions.Add(Construction.Parameterless(mapperData.InstanceVariable.Type));
+                    constructions.Add(Construction.Parameterless(mapperData.TargetInstance.Type));
                 }
 
                 return;

@@ -206,6 +206,9 @@
             return (typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>));
         }
 
+        public static bool IsConstructorless(this Type structType)
+            => structType.GetPublicInstanceConstructors().ToArray().None();
+
         public static Type GetNonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
         public static IEnumerable<Type> GetCoercibleNumericTypes(this Type numericType)

@@ -182,7 +182,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var cloneConstructor = GetDictionaryCloneConstructor(mapperData.TargetMember.Type);
             var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
             var cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject, comparer);
-            var assignment = mapperData.InstanceVariable.AssignTo(cloneDictionary);
+            var assignment = mapperData.TargetInstance.AssignTo(cloneDictionary);
 
             return assignment;
         }
@@ -256,7 +256,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingData,
                 assignTargetObject: mappingData.MapperData.HasMapperFuncs);
 
-            return mappingData.MapperData.InstanceVariable.AssignTo(valueResolution);
+            return mappingData.MapperData.TargetInstance.AssignTo(valueResolution);
         }
 
         private Expression GetDictionaryPopulation(IObjectMappingData mappingData)
@@ -298,6 +298,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)
-            => mapperData.InstanceVariable;
+            => mapperData.TargetInstance;
     }
 }

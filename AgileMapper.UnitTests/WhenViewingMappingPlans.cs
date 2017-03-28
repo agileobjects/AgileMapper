@@ -70,7 +70,7 @@
                     .GetPlanFor<Person>()
                     .Over<PersonViewModel>();
 
-                plan.ShouldContain("personViewModel.Name = sourcePerson.Title + \" \" + sourcePerson.Name");
+                plan.ShouldContain("pToPvmData.Target.Name = sourcePerson.Title + \" \" + sourcePerson.Name");
             }
         }
 

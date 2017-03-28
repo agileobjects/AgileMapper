@@ -178,7 +178,7 @@ namespace AgileObjects.AgileMapper.Members
                 dictionaryMapperData = dictionaryMapperData.Parent;
             }
 
-            return dictionaryMapperData.InstanceVariable;
+            return dictionaryMapperData.TargetInstance;
         }
 
         public override bool CheckExistingElementValue => !HasObjectEntries && !HasSimpleEntries;
@@ -239,7 +239,7 @@ namespace AgileObjects.AgileMapper.Members
                 return flattening;
             }
 
-            var indexAccess = GetAccess(mapperData.InstanceVariable, mapperData);
+            var indexAccess = this.GetAccess(mapperData);
             var convertedValue = mapperData.GetValueConversion(value, ValueType);
             var indexAssignment = indexAccess.AssignTo(convertedValue);
 
