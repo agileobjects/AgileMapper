@@ -18,17 +18,38 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                var createdInstance = default(PublicProperty<int>);
+                var createdInstance = default(object);
 
                 mapper.After
                     .CreatingInstances
-                    .Call(ctx => createdInstance = (PublicProperty<int>)ctx.CreatedObject);
+                    .Call(ctx => createdInstance = ctx.CreatedObject);
 
                 var source = new PublicField<int>();
                 var result = mapper.Map(source).ToANew<PublicProperty<int>>();
 
                 createdInstance.ShouldNotBeNull();
-                createdInstance.ShouldBe(result);
+                createdInstance.ShouldBeOfType<PublicProperty<int>>();
+                createdInstance.ShouldBeSameAs(result);
+            }
+        }
+
+        [Fact]
+        public void ShouldCallAGlobalObjectCreatedCallbackWithAStruct()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var createdInstance = default(object);
+
+                mapper.After
+                    .CreatingInstances
+                    .Call(ctx => createdInstance = ctx.CreatedObject);
+
+                var source = new PublicField<long> { Value = 123456 };
+                var result = mapper.Map(source).ToANew<PublicCtorStruct<int>>();
+
+                createdInstance.ShouldNotBeNull();
+                createdInstance.ShouldBeOfType<PublicCtorStruct<int>>();
+                result.Value.ShouldBe(123456);
             }
         }
 

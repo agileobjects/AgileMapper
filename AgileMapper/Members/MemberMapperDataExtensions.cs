@@ -290,7 +290,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (contextAccess == mapperData.MappingDataObject)
             {
-                return mapperData.MappingDataObject;
+                return GetFinalContextAccess(contextAccess, contextTypes);
             }
 
             if (contextAccess.Type.IsGenericType())
@@ -300,8 +300,31 @@ namespace AgileObjects.AgileMapper.Members
                 if (contextTypes[0].IsAssignableFrom(contextAccessTypes[0]) &&
                     contextTypes[1].IsAssignableFrom(contextAccessTypes[1]))
                 {
-                    return contextAccess;
+                    return GetFinalContextAccess(contextAccess, contextTypes, contextAccessTypes);
                 }
+            }
+
+            return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
+        }
+
+        private static Expression GetFinalContextAccess(
+            Expression contextAccess,
+            Type[] contextTypes,
+            Type[] contextAccessTypes = null)
+        {
+            if ((contextAccessTypes == null) && !contextAccess.Type.IsGenericType())
+            {
+                return contextAccess;
+            }
+
+            if (contextAccessTypes == null)
+            {
+                contextAccessTypes = contextAccess.Type.GetGenericArguments();
+            }
+
+            if (contextAccessTypes.None(t => t.IsValueType()))
+            {
+                return contextAccess;
             }
 
             return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);

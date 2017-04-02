@@ -235,12 +235,19 @@ namespace AgileObjects.AgileMapper.Configuration
             public MappingContextInfo(SwapArgs swapArgs, Expression contextAccess, Type[] contextTypes)
             {
                 ContextTypes = contextTypes;
-                CreatedObject = swapArgs.MapperData.CreatedObject;
+                CreatedObject = GetCreatedObject(swapArgs, contextTypes);
                 SourceAccess = swapArgs.MapperData.GetSourceAccess(contextAccess, contextTypes[0]);
                 TargetAccess = swapArgs.TargetValueFactory.Invoke(swapArgs.MapperData, contextAccess, contextTypes[1]);
                 Index = swapArgs.MapperData.EnumerableIndex;
                 Parent = swapArgs.MapperData.ParentObject;
                 MappingDataAccess = swapArgs.MapperData.GetTypedContextAccess(contextAccess, contextTypes);
+            }
+
+            private static Expression GetCreatedObject(SwapArgs swapArgs, IList<Type> contextTypes)
+            {
+                return swapArgs.MapperData.TargetType.IsValueType()
+                    ? swapArgs.MapperData.CreatedObject.GetConversionTo(contextTypes[1])
+                    : swapArgs.MapperData.CreatedObject;
             }
 
             public Type[] ContextTypes { get; }

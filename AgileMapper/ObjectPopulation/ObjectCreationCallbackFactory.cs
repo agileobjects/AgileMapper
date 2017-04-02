@@ -8,6 +8,7 @@
     using Configuration;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal class ObjectCreationCallbackFactory : MappingCallbackFactory
     {
@@ -32,7 +33,7 @@
         {
             var condition = base.GetConditionOrNull(mapperData, position);
 
-            if (CallbackPosition != CallbackPosition.After)
+            if ((CallbackPosition != CallbackPosition.After) || mapperData.TargetType.IsValueType())
             {
                 return condition;
             }
