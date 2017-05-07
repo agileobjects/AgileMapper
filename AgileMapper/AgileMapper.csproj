@@ -25,6 +25,7 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Company>AgileObjects</Company>
+    <Version>0.10.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
