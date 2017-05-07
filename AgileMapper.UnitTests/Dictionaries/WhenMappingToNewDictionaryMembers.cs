@@ -152,5 +152,29 @@
             result.Value["Object"].ShouldNotBeSameAs(source.Value["Object"]);
             ((CustomerViewModel)result.Value["Object"]).Name.ShouldBe("Mr Yo Yo");
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/10
+        [Fact]
+        public void ShouldMapADictionaryObjectValuesToNewDictionaryObjectValues()
+        {
+            var source = new PublicField<Dictionary<string, object>>()
+            {
+                Value = new Dictionary<string, object>
+                {
+                    ["key1"] = new object(),
+                    ["key2"] = new object()
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicProperty<Dictionary<string, object>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ContainsKey("key1").ShouldBeTrue();
+            result.Value["key1"].ShouldBeOfType<object>();
+            result.Value["key1"].ShouldNotBeSameAs(source.Value["key1"]);
+            result.Value.ContainsKey("key2").ShouldBeTrue();
+            result.Value["key2"].ShouldBeOfType<object>();
+            result.Value["key2"].ShouldNotBeSameAs(source.Value["key2"]);
+        }
     }
 }

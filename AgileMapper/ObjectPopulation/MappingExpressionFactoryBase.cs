@@ -121,7 +121,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         return assignedValue;
                     }
 
-                    mappingExpressions[mappingExpressions.Count - 1] = assignedValue;
+                    mappingExpressions[mappingExpressions.Count - 1] = mapperData.GetReturnLabel(assignedValue);
 
                     return Expression.Block(mappingExpressions);
                 }
@@ -129,7 +129,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             CreateFullMappingBlock:
 
-            mappingExpressions.Add(Expression.Label(mapperData.ReturnLabelTarget, GetReturnValue(mapperData)));
+            var returnValue = GetReturnValue(mapperData);
+
+            mappingExpressions.Add(mapperData.GetReturnLabel(returnValue));
 
             var mappingBlock = mapperData.Context.UseLocalVariable
                 ? Expression.Block(new[] { mapperData.LocalVariable }, mappingExpressions)

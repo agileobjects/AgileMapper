@@ -188,6 +188,29 @@
             plan.ShouldContain("pfoToPpoData.Map(");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/13
+        [Fact]
+        public void ShouldShowMapChildObjectCalls()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicTwoFields<string, object>>()
+                    .Map((pp, ptf) => pp.Value)
+                    .To(ptf => ptf.Value1);
+
+
+                var plan = mapper
+                    .GetPlanFor<PublicProperty<string>>()
+                    .ToANew<PublicTwoFields<string, object>>();
+
+                plan.ShouldContain("// Map PublicProperty<string> -> PublicTwoFields<string, object>");
+                plan.ShouldContain(".Value1 = ppsToPtfsoData.Source.Value");
+                plan.ShouldContain("// No data source for Value2");
+            }
+        }
+
         [Fact]
         public void ShouldShowMapElementCalls()
         {

@@ -21,7 +21,7 @@
 
             result.Address.ShouldNotBeNull();
             result.Address.ShouldNotBe(source.Address);
-            result.Address.Line1.ShouldBe(source.Address.Line1);
+            result.Address.Line1.ShouldBe("Over here!");
         }
 
         [Fact]
@@ -143,6 +143,38 @@
 
             nonRuntimeTypedResult.Name.ShouldBeNull();
             nonRuntimeTypedResult.AddressLine1.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldMapAnUntypedMemberField()
+        {
+            var source = new PublicField<Address>
+            {
+                Value = new Address
+                {
+                    Line1 = "Over there!"
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicField<object>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeOfType<Address>();
+            ((Address)result.Value).Line1.ShouldBe("Over there!");
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/13
+        [Fact]
+        public void ShouldNotMapAnUntypedMemberFieldWithNoMatchingSourceMember()
+        {
+            var source = new Address
+            {
+                Line1 = "Some place"
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicField<object>>();
+
+            result.Value.ShouldBeNull();
         }
 
         [Fact]
