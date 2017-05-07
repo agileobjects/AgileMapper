@@ -119,7 +119,8 @@
             {
                 if (dataSourceIndex == 0)
                 {
-                    if (mappingData.MapperData.TargetMember.IsComplex)
+                    if (mappingData.MapperData.TargetMember.IsComplex &&
+                       (mappingData.MapperData.TargetMember.Type != typeof(object)))
                     {
                         yield return new ComplexTypeMappingDataSource(dataSourceIndex, mappingData);
                     }
