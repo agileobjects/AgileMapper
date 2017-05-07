@@ -104,13 +104,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         return assignedValue;
                     }
 
-                    mappingExpressions[mappingExpressions.Count - 1] = assignedValue;
+                    mappingExpressions[mappingExpressions.Count - 1] = mapperData.GetReturnLabel(assignedValue);
 
                     return Expression.Block(mappingExpressions);
                 }
             }
 
-            mappingExpressions.Add(Expression.Label(mapperData.ReturnLabelTarget, GetReturnValue(mapperData)));
+            var returnValue = GetReturnValue(mapperData);
+
+            mappingExpressions.Add(mapperData.GetReturnLabel(returnValue));
 
             var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
 

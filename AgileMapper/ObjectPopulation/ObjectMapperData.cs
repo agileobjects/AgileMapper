@@ -387,6 +387,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public LabelTarget ReturnLabelTarget { get; }
 
+        public Expression GetReturnLabel(Expression defaultValue)
+            => Expression.Label(ReturnLabelTarget, defaultValue);
+
         public ObjectMapperData EntryPointMapperData
             => _entryPointMapperData ?? (_entryPointMapperData = GetNearestEntryPointObjectMapperData());
 
