@@ -155,7 +155,9 @@
                 return null;
             }
 
-            return _creationCallbackFactories.FirstOrDefault(f => f.AppliesTo(position, mapperData))?.Create(mapperData);
+            return _creationCallbackFactories
+                .FirstOrDefault(f => f.AppliesTo(position, mapperData))?
+                .Create(mapperData);
         }
 
         #endregion

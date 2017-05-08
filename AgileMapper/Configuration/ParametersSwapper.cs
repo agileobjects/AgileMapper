@@ -151,7 +151,7 @@ namespace AgileObjects.AgileMapper.Configuration
             params Func<MappingContextInfo, Expression>[] parameterFactories)
         {
             var contextInfo = GetAppropriateMappingContext(
-                new[] { swapArgs.Lambda.Parameters[0].Type, swapArgs.Lambda.Parameters[1].Type },
+                swapArgs.Lambda.Parameters.Select(p => p.Type).ToArray(),
                 swapArgs);
 
             return swapArgs.Lambda.ReplaceParametersWith(parameterFactories.Select(f => f.Invoke(contextInfo)).ToArray());
@@ -208,9 +208,19 @@ namespace AgileObjects.AgileMapper.Configuration
                 .GetAppropriateMappingContext(contextAccess.Type.GetGenericArguments())
                 .TargetInstance;
 
-            return targetType.IsAssignableFrom(targetInstanceAccess.Type)
-                ? targetInstanceAccess
-                : targetInstanceAccess.GetConversionTo(targetType);
+            return ConvertTargetType(targetType, targetInstanceAccess)
+                ? targetInstanceAccess.GetConversionTo(targetType)
+                : targetInstanceAccess;
+        }
+
+        private static bool ConvertTargetType(Type targetType, Expression targetInstanceAccess)
+        {
+            if (targetType.IsAssignableFrom(targetInstanceAccess.Type))
+            {
+                return targetInstanceAccess.Type.IsValueType();
+            }
+
+            return true;
         }
 
         public Expression Swap(
@@ -243,11 +253,20 @@ namespace AgileObjects.AgileMapper.Configuration
                 MappingDataAccess = swapArgs.MapperData.GetTypedContextAccess(contextAccess, contextTypes);
             }
 
-            private static Expression GetCreatedObject(SwapArgs swapArgs, IList<Type> contextTypes)
+            private static Expression GetCreatedObject(SwapArgs swapArgs, IEnumerable<Type> contextTypes)
             {
-                return swapArgs.MapperData.TargetType.IsValueType()
-                    ? swapArgs.MapperData.CreatedObject.GetConversionTo(contextTypes[1])
+                var neededCreatedObjectType = contextTypes.Last();
+
+                return ConvertCreatedObjectType(neededCreatedObjectType, swapArgs)
+                    ? swapArgs.MapperData.CreatedObject.GetConversionTo(neededCreatedObjectType)
                     : swapArgs.MapperData.CreatedObject;
+            }
+
+            private static bool ConvertCreatedObjectType(Type neededCreatedObjectType, SwapArgs swapArgs)
+            {
+                var actualCreatedObjectType = swapArgs.MapperData.CreatedObject.Type;
+
+                return (neededCreatedObjectType != actualCreatedObjectType) && actualCreatedObjectType.IsValueType();
             }
 
             public Type[] ContextTypes { get; }

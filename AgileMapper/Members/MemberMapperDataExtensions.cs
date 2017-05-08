@@ -343,14 +343,28 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 
-        private static readonly MethodInfo _mappingDataAsMethod = typeof(IMappingData).GetMethod("As");
-        private static readonly MethodInfo _objectMappingDataAsMethod = typeof(IObjectMappingDataUntyped).GetMethod("As");
-
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
         {
-            var method = (subject.Type == typeof(IMappingData))
-                ? _mappingDataAsMethod
-                : _objectMappingDataAsMethod;
+            MethodInfo method;
+
+            if (subject.Type == typeof(IMappingData))
+            {
+                method = typeof(IMappingData).GetMethod("As");
+            }
+            else
+            {
+                var targetIsStruct = contextTypes[1].IsValueType();
+
+                if (targetIsStruct)
+                {
+                    method = subject.Type.GetMethod("WithSourceType");
+                    contextTypes = new[] { contextTypes[0] };
+                }
+                else
+                {
+                    method = typeof(IObjectMappingDataUntyped).GetMethod("As");
+                }
+            }
 
             return Expression.Call(subject, method.MakeGenericMethod(contextTypes));
         }

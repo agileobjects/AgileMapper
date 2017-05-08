@@ -37,7 +37,6 @@
         /// The type of object the creation of which the callback execution should follow.
         /// </typeparam>
         public IConditionalPostInstanceCreationCallbackSpecifier<object, object, TObject> CreatingInstancesOf<TObject>()
-            where TObject : class
             => new InstanceCreationCallbackSpecifier<object, object, TObject>(CallbackPosition.After, _mapperContext);
     }
 }

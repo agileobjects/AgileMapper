@@ -122,6 +122,31 @@
         }
 
         [Fact]
+        public void ShouldCallAnObjectCreatedCallbackForASpecifiedStructType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var createdStruct = default(PublicPropertyStruct<int>);
+
+                mapper.After
+                    .CreatingInstancesOf<PublicPropertyStruct<int>>()
+                    .Call((s, t, p) => createdStruct = p);
+
+                var nonMatchingSource = new { Value = "12345" };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<int>>();
+
+                createdStruct.ShouldBeDefault();
+                nonMatchingResult.Value.ShouldBe(12345);
+
+                var matchingSource = new Person();
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicPropertyStruct<int>>();
+
+                createdStruct.ShouldNotBeNull();
+                createdStruct.ShouldBe(matchingResult);
+            }
+        }
+
+        [Fact]
         public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceAndTargetTypes()
         {
             using (var mapper = Mapper.CreateNew())
