@@ -12,13 +12,20 @@
     {
         private static readonly Type[] _noTypes = Constants.NoTypeArguments;
 
+        private readonly List<Assembly> _assemblies;
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
         private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;
 
         public DerivedTypesCache()
         {
+            _assemblies = new List<Assembly>();
             _typesByAssembly = GlobalContext.Instance.Cache.CreateScoped<Assembly, IEnumerable<Type>>();
             _derivedTypesByType = GlobalContext.Instance.Cache.CreateScoped<Type, ICollection<Type>>();
+        }
+
+        public void AddAssemblies(Assembly[] assemblies)
+        {
+            _assemblies.AddRange(assemblies.Except(_assemblies));
         }
 
         public ICollection<Type> GetTypesDerivedFrom(Type type)
@@ -33,7 +40,16 @@
 
         private ICollection<Type> GetDerivedTypesForType(Type type)
         {
-            var assemblyTypes = _typesByAssembly.GetOrAdd(type.GetAssembly(), GetRelevantTypesFromAssembly);
+            var typeAssembly = type.GetAssembly();
+
+            var assemblies = _assemblies.Count > 0
+                ? _assemblies.Concat(typeAssembly).Distinct()
+                : new[] { typeAssembly };
+
+            var assemblyTypes = assemblies
+                .SelectMany(assembly => _typesByAssembly
+                    .GetOrAdd(assembly, GetRelevantTypesFromAssembly));
+
             var derivedTypes = assemblyTypes.Where(t => t.IsDerivedFrom(type)).ToList();
 
             if (derivedTypes.Count != 0)

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05AB6D17-6066-41D5-8E79-31C342DFC2DC}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,6 +23,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Polyfills", "AgileMapper.UnitTests.Polyfills\AgileMapper.UnitTests.Polyfills.csproj", "{59F266BB-9EFB-430A-9FFE-4C5F88D330F0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper", "AgileMapper\AgileMapper.csproj", "{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.MoreTestClasses", "AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj", "{049E1EE5-48CE-441A-B166-3CF6BEC17957}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,10 @@ Global
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{049E1EE5-48CE-441A-B166-3CF6BEC17957}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{049E1EE5-48CE-441A-B166-3CF6BEC17957}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{049E1EE5-48CE-441A-B166-3CF6BEC17957}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{049E1EE5-48CE-441A-B166-3CF6BEC17957}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

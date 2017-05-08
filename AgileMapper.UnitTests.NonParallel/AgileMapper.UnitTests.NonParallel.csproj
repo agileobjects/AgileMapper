@@ -67,6 +67,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
     <Compile Include="Configuration\WhenConfiguringMappingCallbacks.cs" />
     <Compile Include="NonParallelTestsBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +80,10 @@
     <ProjectReference Include="..\AgileMapper.Net40\AgileMapper.Net40.csproj">
       <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
       <Name>AgileMapper.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
+      <Project>{049e1ee5-48ce-441a-b166-3cf6bec17957}</Project>
+      <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
     </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests\AgileMapper.UnitTests.csproj">
       <Project>{a3f2d405-8c0b-4033-9ec5-1b64007593fb}</Project>

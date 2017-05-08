@@ -79,6 +79,7 @@
     <Compile Include="Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
+    <Compile Include="TestClasses\Earthworm.cs" />
     <Compile Include="TestClasses\IPublicInterface.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
@@ -198,6 +199,10 @@
     <ProjectReference Include="..\AgileMapper.Net40\AgileMapper.Net40.csproj">
       <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
       <Name>AgileMapper.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
+      <Project>{049e1ee5-48ce-441a-b166-3cf6bec17957}</Project>
+      <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

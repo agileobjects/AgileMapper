@@ -1,12 +1,30 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using AgileMapper.Configuration;
+    using MoreTestClasses;
     using Shouldly;
     using TestClasses;
     using Xunit;
 
     public class WhenConfiguringDerivedTypes
     {
+        [Fact]
+        public void ShouldScanConfiguredAssemblies()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .LookForDerivedTypesIn(typeof(Dog).Assembly, typeof(Earthworm).Assembly);
+
+                var result = mapper
+                    .Map(new { NumberOfLegs = 1000, SlitherNoise = "thththtth" })
+                    .Over(new Earthworm() as AnimalBase);
+
+                result.NumberOfLegs.ShouldBe(1000);
+                ((Earthworm)result).SlitherNoise.ShouldBe("thththtth");
+            }
+        }
+
         [Fact]
         public void ShouldMapACustomTypePair()
         {
