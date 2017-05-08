@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Text.RegularExpressions;
     using AgileMapper.Configuration;
     using Dictionaries;
@@ -245,6 +246,20 @@
         /// </returns>
         public EnumPairSpecifier<TFirstEnum> PairEnums<TFirstEnum>(params TFirstEnum[] enumMembers) where TFirstEnum : struct
             => EnumPairSpecifier<TFirstEnum>.For(_mapperContext, enumMembers);
+
+        /// <summary>
+        /// Scan the specified <paramref name="assemblies"/> when looking for types derived
+        /// from a source or target type being mapped.
+        /// </summary>
+        /// <param name="assemblies">The assemblies in which to look for derived types.</param>
+        /// <returns>
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings LookForDerivedTypesIn(params Assembly[] assemblies)
+        {
+            _mapperContext.DerivedTypes.AddAssemblies(assemblies);
+            return this;
+        }
 
         MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
 
