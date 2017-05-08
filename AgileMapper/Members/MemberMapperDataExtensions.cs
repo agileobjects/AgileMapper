@@ -345,35 +345,57 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
         {
-            MethodInfo method;
+            if (subject.Type.IsGenericType() &&
+                subject.Type.GetGenericArguments().SequenceEqual(contextTypes))
+            {
+                return subject;
+            }
 
             if (subject.Type == typeof(IMappingData))
             {
-                method = typeof(IMappingData).GetMethod("As");
+                return GetAsCall(subject, typeof(IMappingData).GetMethod("As"), contextTypes);
             }
-            else
+
+            var sourceIsStruct = contextTypes[0].IsValueType();
+
+            if (sourceIsStruct)
             {
-                var targetIsStruct = contextTypes[1].IsValueType();
-
-                if (targetIsStruct)
-                {
-                    method = subject.Type.GetMethod("WithSourceType");
-                    contextTypes = new[] { contextTypes[0] };
-                }
-                else
-                {
-                    method = typeof(IObjectMappingDataUntyped).GetMethod("As");
-                }
+                return GetAsCall(subject, subject.Type.GetMethod("WithTargetType"), contextTypes[1]);
             }
 
-            return Expression.Call(subject, method.MakeGenericMethod(contextTypes));
+            var targetIsStruct = contextTypes[1].IsValueType();
+
+            if (targetIsStruct)
+            {
+                return GetAsCall(subject, subject.Type.GetMethod("WithSourceType"), contextTypes[0]);
+            }
+
+            return GetAsCall(subject, typeof(IObjectMappingDataUntyped).GetMethod("As"), contextTypes);
         }
 
-        public static Expression GetSourceAccess(this IMemberMapperData mapperData, Expression contextAccess, Type sourceType)
-            => GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
+        private static Expression GetAsCall(
+            Expression subject,
+            MethodInfo asMethod,
+            params Type[] typeArguments)
+        {
+            return Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments));
+        }
 
-        public static Expression GetTargetAccess(this IMemberMapperData mapperData, Expression contextAccess, Type targetType)
-            => GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
+        public static Expression GetSourceAccess(
+            this IMemberMapperData mapperData,
+            Expression contextAccess,
+            Type sourceType)
+        {
+            return GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
+        }
+
+        public static Expression GetTargetAccess(
+            this IMemberMapperData mapperData,
+            Expression contextAccess,
+            Type targetType)
+        {
+            return GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
+        }
 
         private static Expression GetAccess(
             IMemberMapperData mapperData,

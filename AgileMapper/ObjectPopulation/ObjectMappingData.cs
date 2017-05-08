@@ -242,6 +242,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return As(Source as TNewSource, Target);
         }
 
+        public IObjectMappingData<TSource, TNewTarget> WithTargetType<TNewTarget>()
+            where TNewTarget : class
+        {
+            return As(Source, Target as TNewTarget);
+        }
+
         public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType)
         {
             var typesKey = new SourceAndTargetTypesKey(newSourceType, newTargetType);

@@ -204,6 +204,34 @@
         }
 
         [Fact]
+        public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceAndTargetStructTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var createdStruct = default(PublicCtorStruct<long>);
+
+                mapper.WhenMapping
+                    .From<PublicPropertyStruct<int>>()
+                    .To<PublicCtorStruct<long>>()
+                    .After
+                    .CreatingTargetInstances
+                    .Call(ctx => createdStruct = ctx.CreatedObject);
+
+                var nonMatchingSource = new { Value = "8765" };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicCtorStruct<long>>();
+
+                createdStruct.Value.ShouldBeDefault();
+                nonMatchingResult.Value.ShouldBe("8765");
+
+                var matchingSource = new PublicPropertyStruct<int> { Value = 5678 };
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicCtorStruct<long>>();
+
+                createdStruct.ShouldNotBeNull();
+                createdStruct.ShouldBe(matchingResult);
+            }
+        }
+
+        [Fact]
         public void ShouldCallAnObjectCreatedCallbackWithASourceObject()
         {
             using (var mapper = Mapper.CreateNew())
