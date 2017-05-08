@@ -175,6 +175,37 @@
         }
 
         [Fact]
+        public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceStructType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var creationCount = 0;
+
+                mapper.WhenMapping
+                    .From<PublicPropertyStruct<string>>()
+                    .To<Customer>()
+                    .After
+                    .CreatingTargetInstances
+                    .Call(ctx => ++creationCount)
+                    .And
+                    .Map(ctx => ctx.Source.Value)
+                    .To(c => c.Name);
+
+                var nonMatchingSource = new { Name = "Goldblum" };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Customer>();
+
+                creationCount.ShouldBe(0);
+                nonMatchingResult.Name.ShouldBe("Goldblum");
+
+                var matchingSource = new PublicPropertyStruct<string> { Value = "Fishy" };
+                var matchingResult = mapper.Map(matchingSource).ToANew<MysteryCustomer>();
+
+                creationCount.ShouldBe(1);
+                matchingResult.Name.ShouldBe("Fishy");
+            }
+        }
+
+        [Fact]
         public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceTargetAndCreatedTypes()
         {
             using (var mapper = Mapper.CreateNew())
@@ -221,7 +252,7 @@
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicCtorStruct<long>>();
 
                 createdStruct.Value.ShouldBeDefault();
-                nonMatchingResult.Value.ShouldBe("8765");
+                nonMatchingResult.Value.ShouldBe(8765);
 
                 var matchingSource = new PublicPropertyStruct<int> { Value = 5678 };
                 var matchingResult = mapper.Map(matchingSource).ToANew<PublicCtorStruct<long>>();
