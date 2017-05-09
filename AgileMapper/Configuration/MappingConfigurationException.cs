@@ -20,7 +20,21 @@
         /// </summary>
         /// <param name="message">The message that describes the mapping configuration error.</param>
         public MappingConfigurationException(string message)
-            : base(message)
+            : this(message, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MappingConfigurationException class with the given 
+        /// <paramref name="message"/>.
+        /// </summary>
+        /// <param name="message">The message that describes the mapping configuration error.</param>
+        /// <param name="innerException">
+        /// The exception that is the cause of the current exception, or null if no inner 
+        /// exception exists.
+        /// </param>
+        public MappingConfigurationException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
     }

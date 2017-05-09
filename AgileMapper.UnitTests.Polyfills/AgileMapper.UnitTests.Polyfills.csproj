@@ -20,7 +20,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1.1' ">
     <ProjectReference Include="..\AgileMapper\AgileMapper.csproj" />
     <PackageReference Include="Shouldly" Version="2.8.2" />
-    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="0.2.0" />
+    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="0.2.1" />
   </ItemGroup>
 
   <ItemGroup>
