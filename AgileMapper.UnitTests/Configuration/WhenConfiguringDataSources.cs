@@ -860,5 +860,40 @@
                 overwriteResult.Value.ShouldBe(source.Value);
             }
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/14
+        [Fact]
+        public void ShouldAllowIdAndIdentifierConfiguration()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, int>>()
+                    .To<IdTester>()
+                    .Map((ptf, id) => ptf.Value1)
+                    .To(id => id.ClassId)
+                    .And
+                    .Map((ptf, id) => ptf.Value2)
+                    .To(id => id.ClassIdentifier);
+
+                var source = new PublicTwoFields<int, int>
+                {
+                    Value1 = 123,
+                    Value2 = 987
+                };
+
+                var result = mapper.Map(source).ToANew<IdTester>();
+
+                result.ClassId.ShouldBe(123);
+                result.ClassIdentifier.ShouldBe(987);
+            }
+        }
+
+        private class IdTester
+        {
+            public int ClassId { get; set; }
+
+            public int ClassIdentifier { get; set; }
+        }
     }
 }

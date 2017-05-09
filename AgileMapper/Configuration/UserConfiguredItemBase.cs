@@ -55,11 +55,14 @@
 
             if (ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo))
             {
-                return TargetMember.Matches(otherConfiguredItem.TargetMember);
+                return MembersConflict(otherConfiguredItem.TargetMember);
             }
 
             return false;
         }
+
+        protected virtual bool MembersConflict(QualifiedMember otherMember)
+            => TargetMember.Matches(otherMember);
 
         protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherConfiguredItem)
         {
