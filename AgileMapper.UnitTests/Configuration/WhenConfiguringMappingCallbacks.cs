@@ -325,5 +325,30 @@
                 derivedSource.ShouldBeSameAs(source);
             }
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/15
+        [Fact]
+        public void ShouldPopulateAChildTargetObjectInAPostMappingCallback()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicField<string>>()
+                    .After
+                    .MappingEnds
+                    .Call(ctx => ctx.Target.Value += "!");
+
+                var source = new PublicField<PublicProperty<string>>
+                {
+                    Value = new PublicProperty<string> { Value = "Hello" }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicField<string>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldBe("Hello!");
+            }
+        }
     }
 }
