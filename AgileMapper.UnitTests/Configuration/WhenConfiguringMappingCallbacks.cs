@@ -56,8 +56,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .To<Person>()
                     .Before
                     .MappingBegins
@@ -87,8 +86,7 @@
                 var preMappingName = default(string);
                 var postMappingName = default(string);
 
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From<Person>()
                     .Over<PersonViewModel>()
                     .Before
@@ -116,8 +114,7 @@
             {
                 var mappedTargetId = default(Guid);
 
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From<Person>()
                     .ToANew<Person>()
                     .Before
@@ -145,8 +142,7 @@
                 var mappedAddress = default(Address);
                 var callbackCalled = false;
 
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .ToANew<Person>()
                     .After
                     .Mapping(p => p.Address)
@@ -194,8 +190,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .To<PublicField<string>>()
                     .Before
                     .MappingBegins
@@ -219,8 +214,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<string>>()
                     .Before
@@ -245,8 +239,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .To<PersonViewModel>()
                     .After
                     .MappingEnds
@@ -274,8 +267,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .To<PublicProperty<string>>()
                     .After
                     .MappingEnds
@@ -299,8 +291,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .From<PublicField<string>>()
                     .To<PublicProperty<string>>()
                     .After
@@ -336,6 +327,31 @@
                 mapper.Map(source).ToANew<Person>();
 
                 derivedSource.ShouldBeSameAs(source);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/15
+        [Fact]
+        public void ShouldPopulateAChildTargetObjectInAPostMappingCallback()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicField<string>>()
+                    .After
+                    .MappingEnds
+                    .Call(ctx => ctx.Target.Value += "!");
+
+                var source = new PublicField<PublicProperty<string>>
+                {
+                    Value = new PublicProperty<string> { Value = "Hello" }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicField<string>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldBe("Hello!");
             }
         }
     }

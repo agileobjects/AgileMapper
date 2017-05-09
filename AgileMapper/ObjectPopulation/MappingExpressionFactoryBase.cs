@@ -42,11 +42,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var basicMapperData = mapperData.WithNoTargetMember();
+            var preMappingCallback = GetMappingCallbackOrNull(CallbackPosition.Before, basicMapperData, mapperData);
+            var postMappingCallback = GetMappingCallbackOrNull(CallbackPosition.After, basicMapperData, mapperData);
 
             mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
-            mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.Before, basicMapperData, mapperData));
+            mappingExpressions.AddUnlessNullOrEmpty(preMappingCallback);
             mappingExpressions.AddRange(GetObjectPopulation(mappingData));
-            mappingExpressions.AddUnlessNullOrEmpty(GetMappingCallbackOrNull(CallbackPosition.After, basicMapperData, mapperData));
+            mappingExpressions.AddUnlessNullOrEmpty(postMappingCallback);
 
             var mappingBlock = GetMappingBlock(mappingExpressions, mapperData);
             var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
