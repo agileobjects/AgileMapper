@@ -257,6 +257,20 @@
         /// </returns>
         public IGlobalConfigSettings LookForDerivedTypesIn(params Assembly[] assemblies)
         {
+            if (assemblies.None())
+            {
+                throw new MappingConfigurationException(
+                    "One or more assemblies must be specified.",
+                    new ArgumentException(nameof(assemblies)));
+            }
+
+            if (assemblies.Any(a => a == null))
+            {
+                throw new MappingConfigurationException(
+                    "All supplied assemblies must be non-null.",
+                    new ArgumentNullException(nameof(assemblies)));
+            }
+
             _mapperContext.DerivedTypes.AddAssemblies(assemblies);
             return this;
         }
