@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -52,6 +53,42 @@
                 var matchingResult = mapper.Map(matchingSource).ToANew<Customer>();
 
                 matchingResult.Address.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldOverwriteAPropertyToNull()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .Over<Address>()
+                    .If(ctx => ctx.Target.Line1 == null)
+                    .MapToNull();
+
+                var nonMatchingSource = new CustomerViewModel
+                {
+                    Id = Guid.NewGuid(),
+                    AddressLine1 = "Places!"
+                };
+                var target = new Customer { Address = new Address { Line1 = "Home!" } };
+
+                mapper.Map(nonMatchingSource).Over(target);
+
+                target.Address.ShouldNotBeNull();
+                target.Address.Line1.ShouldBe("Places!");
+
+                var matchingSource = new CustomerViewModel { Id = Guid.NewGuid() };
+
+                mapper.Map(matchingSource).Over(target);
+
+                target.Address.ShouldBeNull();
+
+                var nullAddressTarget = new Customer();
+
+                mapper.Map(matchingSource).Over(nullAddressTarget);
+
+                target.Address.ShouldBeNull();
             }
         }
     }
