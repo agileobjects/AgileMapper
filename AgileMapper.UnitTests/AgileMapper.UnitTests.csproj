@@ -75,6 +75,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
+    <Compile Include="Configuration\WhenMappingToNull.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringSourceDictionaryMapping.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs" />

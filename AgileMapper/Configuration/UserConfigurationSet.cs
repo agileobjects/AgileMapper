@@ -12,6 +12,7 @@
     internal class UserConfigurationSet
     {
         private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
+        private readonly ICollection<MapToNullCondition> _mapToNullConditions;
         private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
         private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
@@ -24,6 +25,7 @@
         public UserConfigurationSet(MapperContext mapperContext)
         {
             _trackingModeSettings = new List<ObjectTrackingMode>();
+            _mapToNullConditions = new List<MapToNullCondition>();
             _nullCollectionSettings = new List<NullCollectionsSetting>();
             _objectFactories = new List<ConfiguredObjectFactory>();
             Identifiers = new MemberIdentifierSet();
@@ -51,6 +53,18 @@
 
             return _trackingModeSettings.All(tm => !tm.AppliesTo(basicData));
         }
+
+        #endregion
+
+        #region MapToNullConditions
+
+        public void Add(MapToNullCondition condition)
+        {
+            _mapToNullConditions.Add(condition);
+        }
+
+        public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
+            => _mapToNullConditions.FindMatch(mapperData)?.GetConditionOrNull(mapperData);
 
         #endregion
 
