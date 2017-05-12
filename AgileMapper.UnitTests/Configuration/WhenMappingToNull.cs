@@ -22,5 +22,37 @@
                 result.Address.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldRestrictAConfiguredMapToNullConditionBySourceType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<Address>()
+                    .If((o, a) => a.Line1 == "Null!")
+                    .MapToNull();
+
+                var nonMatchingSource = new Customer
+                {
+                    Name = "Jen",
+                    Address = new Address { Line1 = "Null!" }
+                };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Customer>();
+
+                nonMatchingResult.Address.ShouldNotBeNull();
+                nonMatchingResult.Address.Line1.ShouldBe("Null!");
+
+                var matchingSource = new CustomerViewModel
+                {
+                    Name = "Frank",
+                    AddressLine1 = "Null!"
+                };
+                var matchingResult = mapper.Map(matchingSource).ToANew<Customer>();
+
+                matchingResult.Address.ShouldBeNull();
+            }
+        }
     }
 }
