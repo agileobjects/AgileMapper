@@ -41,14 +41,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     : derivedTypeMappings;
             }
 
-            var mappingDecor = GetMappingExtras(mapperData);
+            var mappingExtras = GetMappingExtras(mapperData);
 
             mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
-            mappingExpressions.AddUnlessNullOrEmpty(mappingDecor.PreMappingCallback);
+            mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PreMappingCallback);
             mappingExpressions.AddRange(GetObjectPopulation(mappingData));
-            mappingExpressions.AddUnlessNullOrEmpty(mappingDecor.PostMappingCallback);
+            mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PostMappingCallback);
 
-            var mappingBlock = GetMappingBlock(mappingExpressions, mappingDecor);
+            var mappingBlock = GetMappingBlock(mappingExpressions, mappingExtras);
             var mappingBlockWithTryCatch = WrapInTryCatch(mappingBlock, mapperData);
 
             return mappingBlockWithTryCatch;
