@@ -12,6 +12,7 @@
     internal class UserConfigurationSet
     {
         private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
+        private readonly List<MapToNullCondition> _mapToNullConditions;
         private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
         private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
@@ -24,6 +25,7 @@
         public UserConfigurationSet(MapperContext mapperContext)
         {
             _trackingModeSettings = new List<ObjectTrackingMode>();
+            _mapToNullConditions = new List<MapToNullCondition>();
             _nullCollectionSettings = new List<NullCollectionsSetting>();
             _objectFactories = new List<ConfiguredObjectFactory>();
             Identifiers = new MemberIdentifierSet();
@@ -51,6 +53,24 @@
 
             return _trackingModeSettings.All(tm => !tm.AppliesTo(basicData));
         }
+
+        #endregion
+
+        #region MapToNullConditions
+
+        public void Add(MapToNullCondition condition)
+        {
+            ThrowIfConflictingItemExists(
+                condition,
+                _mapToNullConditions,
+                c => "Type " + c.TargetTypeName + " already has a configured map-to-null condition");
+
+            _mapToNullConditions.Add(condition);
+            _mapToNullConditions.Sort();
+        }
+
+        public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
+            => _mapToNullConditions.FindMatch(mapperData)?.GetConditionOrNull(mapperData);
 
         #endregion
 
@@ -190,13 +210,7 @@
             Func<TConfiguredItem, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            var conflictingIgnoredMember = _ignoredMembers
-                .FirstOrDefault(im => im.ConflictsWith(configuredItem));
-
-            if (conflictingIgnoredMember != null)
-            {
-                throw new MappingConfigurationException(messageFactory.Invoke(configuredItem));
-            }
+            ThrowIfConflictingItemExists(configuredItem, _ignoredMembers, messageFactory);
         }
 
         internal void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
@@ -204,10 +218,20 @@
             Func<TConfiguredItem, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            var conflictingDataSource = _dataSourceFactories
+            ThrowIfConflictingItemExists(configuredItem, _dataSourceFactories, messageFactory);
+        }
+
+        private static void ThrowIfConflictingItemExists<TConfiguredItem, TExistingItem>(
+            TConfiguredItem configuredItem,
+            IEnumerable<TExistingItem> existingItems,
+            Func<TConfiguredItem, string> messageFactory)
+            where TConfiguredItem : UserConfiguredItemBase
+            where TExistingItem : UserConfiguredItemBase
+        {
+            var conflictingItem = existingItems
                 .FirstOrDefault(dsf => dsf.ConflictsWith(configuredItem));
 
-            if (conflictingDataSource != null)
+            if (conflictingItem != null)
             {
                 throw new MappingConfigurationException(messageFactory.Invoke(configuredItem));
             }
