@@ -158,6 +158,29 @@
         }
 
         [Fact]
+        public void ShouldMapCollectionElementNestedPropertiesToNull()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<Address>()
+                    .If((o, a) => a.Line1 == null)
+                    .MapToNull();
+
+                var source = new[]
+                {
+                    new CustomerViewModel { AddressLine1 = null },
+                    new CustomerViewModel { AddressLine1 = "Hello!" }
+                };
+                var result = mapper.Map(source).ToANew<IEnumerable<MysteryCustomer>>();
+
+                result.First().Address.ShouldBeNull();
+                result.Second().Address.ShouldNotBeNull();
+                result.Second().Address.Line1.ShouldBe("Hello!");
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfConditionsAreConfiguredForTheSameType()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
