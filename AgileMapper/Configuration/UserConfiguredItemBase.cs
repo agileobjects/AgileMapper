@@ -8,6 +8,7 @@
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 
     internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
     {
@@ -42,13 +43,15 @@
 
         protected MappingConfigInfo ConfigInfo { get; }
 
+        public string TargetTypeName => ConfigInfo.TargetType.GetFriendlyName();
+
         public QualifiedMember TargetMember { get; }
 
         public bool HasConfiguredCondition => ConfigInfo.HasCondition;
 
         public virtual bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {
-            if (HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition)
+            if (ConditionsAvoidConflict(otherConfiguredItem))
             {
                 return false;
             }
@@ -60,6 +63,9 @@
 
             return false;
         }
+
+        protected virtual bool ConditionsAvoidConflict(UserConfiguredItemBase otherConfiguredItem)
+            => HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition;
 
         protected virtual bool MembersConflict(QualifiedMember otherMember)
             => TargetMember.Matches(otherMember);

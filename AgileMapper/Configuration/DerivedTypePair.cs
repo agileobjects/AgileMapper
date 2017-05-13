@@ -98,7 +98,7 @@
         public override string ToString()
         {
             var rootSourceType = ConfigInfo.SourceType.GetFriendlyName();
-            var rootTargetType = ConfigInfo.TargetType.GetFriendlyName();
+            var rootTargetType = TargetTypeName;
             var derivedSourceType = DerivedSourceType.GetFriendlyName();
             var derivedTargetType = DerivedTargetType.GetFriendlyName();
 

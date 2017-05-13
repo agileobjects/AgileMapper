@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -90,6 +91,28 @@
 
                 target.Address.ShouldBeNull();
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfConditionsAreConfiguredForTheSameType()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .To<Address>()
+                        .If((o, a) => a.Line1 == null)
+                        .MapToNull();
+
+                    mapper.WhenMapping
+                        .To<Address>()
+                        .If((o, a) => a.Line1 == string.Empty)
+                        .MapToNull();
+                }
+            });
+
+            configEx.Message.ShouldContain("already has");
         }
     }
 }

@@ -11,6 +11,8 @@
         {
         }
 
+        protected override bool ConditionsAvoidConflict(UserConfiguredItemBase otherConfiguredItem) => false;
+
         protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {
             mapperData.Context.UsesMappingDataObjectAsParameter =
