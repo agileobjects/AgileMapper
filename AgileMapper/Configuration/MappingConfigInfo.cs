@@ -74,6 +74,9 @@
             return this;
         }
 
+        public bool IsForTargetType(MappingConfigInfo otherConfigInfo)
+            => TargetType.IsAssignableFrom(otherConfigInfo.TargetType);
+
         public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
 
         public bool HasCompatibleTypes(MappingConfigInfo otherConfigInfo)

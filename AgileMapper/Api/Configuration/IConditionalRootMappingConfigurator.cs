@@ -19,5 +19,14 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// </returns>
         MappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
             where TDerivedTarget : TTarget;
+
+        /// <summary>
+        /// Map the target type being configured to null if the preceding condition evaluates to true.
+        /// </summary>
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        MappingConfigContinuation<TSource, TTarget> MapToNull();
     }
 }

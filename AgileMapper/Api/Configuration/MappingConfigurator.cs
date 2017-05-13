@@ -170,6 +170,15 @@
             return derivedTypePair.To<TDerivedTarget>();
         }
 
+        public MappingConfigContinuation<TSource, TTarget> MapToNull()
+        {
+            var condition = new MapToNullCondition(ConfigInfo.ForTargetType<TTarget>());
+
+            ConfigInfo.MapperContext.UserConfigurations.Add(condition);
+
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+        }
+
         public DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
             => new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(ConfigInfo);
 

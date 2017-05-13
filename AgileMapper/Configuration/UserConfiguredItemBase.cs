@@ -8,6 +8,7 @@
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 
     internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
     {
@@ -41,6 +42,8 @@
         }
 
         protected MappingConfigInfo ConfigInfo { get; }
+
+        public string TargetTypeName => ConfigInfo.TargetType.GetFriendlyName();
 
         public QualifiedMember TargetMember { get; }
 
@@ -140,7 +143,17 @@
 
             if (ConfigInfo.HasSameSourceTypeAs(other.ConfigInfo))
             {
-                return 0;
+                if (ConfigInfo.HasSameTargetTypeAs(other.ConfigInfo))
+                {
+                    return 0;
+                }
+
+                if (ConfigInfo.IsForTargetType(other.ConfigInfo))
+                {
+                    return 1;
+                }
+
+                return -1;
             }
 
             if (ConfigInfo.IsForSourceType(other.ConfigInfo))
