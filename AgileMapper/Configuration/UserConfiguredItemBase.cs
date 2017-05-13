@@ -51,7 +51,7 @@
 
         public virtual bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {
-            if (ConditionsAvoidConflict(otherConfiguredItem))
+            if (HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition)
             {
                 return false;
             }
@@ -63,9 +63,6 @@
 
             return false;
         }
-
-        protected virtual bool ConditionsAvoidConflict(UserConfiguredItemBase otherConfiguredItem)
-            => HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition;
 
         protected virtual bool MembersConflict(QualifiedMember otherMember)
             => TargetMember.Matches(otherMember);
@@ -146,7 +143,17 @@
 
             if (ConfigInfo.HasSameSourceTypeAs(other.ConfigInfo))
             {
-                return 0;
+                if (ConfigInfo.HasSameTargetTypeAs(other.ConfigInfo))
+                {
+                    return 0;
+                }
+
+                if (ConfigInfo.IsForTargetType(other.ConfigInfo))
+                {
+                    return 1;
+                }
+
+                return -1;
             }
 
             if (ConfigInfo.IsForSourceType(other.ConfigInfo))

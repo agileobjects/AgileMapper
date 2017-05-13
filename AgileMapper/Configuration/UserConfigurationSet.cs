@@ -12,7 +12,7 @@
     internal class UserConfigurationSet
     {
         private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
-        private readonly ICollection<MapToNullCondition> _mapToNullConditions;
+        private readonly List<MapToNullCondition> _mapToNullConditions;
         private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
         private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
         private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
@@ -66,6 +66,7 @@
                 c => "Type " + c.TargetTypeName + " already has a configured map-to-null condition");
 
             _mapToNullConditions.Add(condition);
+            _mapToNullConditions.Sort();
         }
 
         public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)

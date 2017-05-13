@@ -94,6 +94,43 @@
         }
 
         [Fact]
+        public void ShouldApplyConfiguredConditionsToDerivedTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<Product>()
+                    .If((o, p) => p.Price.Equals(0))
+                    .MapToNull();
+
+                mapper.WhenMapping
+                    .To<MegaProduct>()
+                    .If((o, p) => p.HowMega == 0)
+                    .MapToNull();
+
+                var nonMatchingProductSource = new { Price = 123 };
+                var nonMatchingProductResult = mapper.Map(nonMatchingProductSource).ToANew<Product>();
+
+                nonMatchingProductResult.Price.ShouldBe(123);
+
+                var matchingProductSource = new { Price = 0 };
+                var matchingProductResult = mapper.Map(matchingProductSource).ToANew<Product>();
+
+                matchingProductResult.ShouldBeNull();
+
+                var nonMatchingMegaProductSource = new { HowMega = 0.99 };
+                var nonMatchingMegaProductResult = mapper.Map(nonMatchingMegaProductSource).ToANew<MegaProduct>();
+
+                nonMatchingMegaProductResult.HowMega.ShouldBe(0.99);
+
+                var matchingMegaProductSource = new { HowMega = 0.00 };
+                var matchingMegaProductResult = mapper.Map(matchingMegaProductSource).ToANew<MegaProduct>();
+
+                matchingMegaProductResult.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfConditionsAreConfiguredForTheSameType()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
