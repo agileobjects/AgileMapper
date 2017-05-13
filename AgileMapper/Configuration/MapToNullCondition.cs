@@ -22,6 +22,16 @@
             return otherCondition._targetType == _targetType;
         }
 
+        public override bool AppliesTo(IBasicMapperData mapperData)
+        {
+            if (mapperData.TargetMemberIsEnumerableElement())
+            {
+                return false;
+            }
+
+            return base.AppliesTo(mapperData);
+        }
+
         protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {
             mapperData.Context.UsesMappingDataObjectAsParameter =

@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
@@ -127,6 +129,31 @@
                 var matchingMegaProductResult = mapper.Map(matchingMegaProductSource).ToANew<MegaProduct>();
 
                 matchingMegaProductResult.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldNotMapCollectionElementsToNull()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<Address>()
+                    .If((o, a) => a.Line2 == "Delete me")
+                    .MapToNull();
+
+                var source = new[]
+                {
+                    new Address { Line1 = "Delete me" },
+                    new Address { Line2 = "Delete me" }
+                };
+                var result = mapper.Map(source).ToANew<ICollection<Address>>();
+
+                result.First().ShouldNotBeNull();
+                result.First().Line1.ShouldBe("Delete me");
+
+                result.Second().ShouldNotBeNull();
+                result.Second().Line2.ShouldBe("Delete me");
             }
         }
 
