@@ -54,6 +54,34 @@
             result.Address.ShouldNotBeNull();
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/21
+        [Fact]
+        public void ShouldNotPopulateAMemberWithNoMatchingSource()
+        {
+            var source = new { Name = "Customer!" };
+            var target = new Customer { Name = "No-one", Address = default(Address) };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Name.ShouldBe("Customer!");
+            result.Address.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldNotOverwriteAMemberWithNoMatchingSource()
+        {
+            var source = new { Name = "Scooby" };
+            var target = new MysteryCustomer
+            {
+                Name = "No-one",
+                Address = new Address { Line1 = "Leave me alone!" }
+            };
+            var originalAddress = target.Address;
+            var result = Mapper.Map(source).Over(target);
+
+            result.Name.ShouldBe("Scooby");
+            result.Address.ShouldBeSameAs(originalAddress);
+        }
+
         [Fact]
         public void ShouldApplyAConfiguredConstant()
         {

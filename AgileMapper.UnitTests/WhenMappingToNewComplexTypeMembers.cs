@@ -42,7 +42,7 @@
 
             var result = Mapper.Map(source).ToANew<Customer>();
 
-            result.Address.ShouldNotBeNull();
+            result.Address.ShouldBeNull();
         }
 
         [Fact]

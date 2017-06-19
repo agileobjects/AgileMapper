@@ -76,6 +76,27 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredConstantToANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicField<PublicField<PublicField<string>>>>()
+                    .Map("Deep!")
+                    .To(x => x.Value.Value.Value);
+
+                var source = new PublicProperty<string>();
+                var target = new PublicField<PublicField<PublicField<string>>>();
+                var result = mapper.Map(source).Over(target);
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldNotBeNull();
+                result.Value.Value.Value.ShouldNotBeNull("Deep!");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredMember()
         {
             using (var mapper = Mapper.CreateNew())

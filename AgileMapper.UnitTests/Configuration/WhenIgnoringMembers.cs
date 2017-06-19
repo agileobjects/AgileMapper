@@ -98,23 +98,26 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         {
             using (var mapper = Mapper.CreateNew())
             {
+                var source = new
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Bilbo",
+                    AddressLine1 = "House Street",
+                    AddressLine2 = "Town City"
+                };
+
                 mapper.WhenMapping
-                    .From<PersonViewModel>()
+                    .From(source)
                     .ToANew<Person>()
                     .Ignore(p => p.Name, p => p.Address.Line1);
 
-                var source = new PersonViewModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Bilbo",
-                    AddressLine1 = "House Street"
-                };
                 var matchingResult = mapper.Map(source).ToANew<Person>();
 
-                matchingResult.Id.ShouldBe(source.Id);
+                matchingResult.Id.ToString().ShouldBe(source.Id);
                 matchingResult.Name.ShouldBeNull();
                 matchingResult.Address.ShouldNotBeNull();
                 matchingResult.Address.Line1.ShouldBeNull();
+                matchingResult.Address.Line2.ShouldBe("Town City");
             }
         }
 

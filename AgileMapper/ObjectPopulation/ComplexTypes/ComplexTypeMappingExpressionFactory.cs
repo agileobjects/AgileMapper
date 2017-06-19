@@ -144,11 +144,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             var assignCreatedObject = postCreationCallback != null;
+            var hasMemberPopulations = MemberPopulationsExist(populationsAndCallbacks);
 
             var instanceVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
                 md => _constructionFactory.GetNewObjectCreation(md),
                 mappingData,
-                assignCreatedObject);
+                assignCreatedObject,
+                hasMemberPopulations: hasMemberPopulations);
 
             var instanceVariableAssignment = mapperData.InstanceVariable.AssignTo(instanceVariableValue);
             yield return instanceVariableAssignment;
@@ -257,6 +259,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             mappingData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
         }
+
+        private static bool MemberPopulationsExist(IEnumerable<Expression> populationsAndCallbacks)
+            => populationsAndCallbacks.Any(population => population.NodeType != ExpressionType.Constant);
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;
 

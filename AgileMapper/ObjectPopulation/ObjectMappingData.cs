@@ -75,7 +75,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMapper Mapper
         {
-            get { return _mapper ?? (_mapper = MapperContext.ObjectMapperFactory.Create(this)); }
+            get => _mapper ?? (_mapper = MapperContext.ObjectMapperFactory.Create(this));
             set
             {
                 _mapper = (ObjectMapper<TSource, TTarget>)value;

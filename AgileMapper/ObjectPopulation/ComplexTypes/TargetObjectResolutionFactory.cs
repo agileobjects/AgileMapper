@@ -11,7 +11,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             Func<IObjectMappingData, Expression> constructionFactory,
             IObjectMappingData mappingData,
             bool assignCreatedObject = false,
-            bool assignTargetObject = false)
+            bool assignTargetObject = false,
+            bool hasMemberPopulations = true)
         {
             var mapperData = mappingData.MapperData;
 
@@ -30,6 +31,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return mapperData.TargetObject;
             }
 
+            if (UseNullFallbackValue(mapperData, objectValue, hasMemberPopulations))
+            {
+                objectValue = mapperData.TargetMember.Type.ToDefaultExpression();
+
+                assignCreatedObject =
+                    assignTargetObject =
+                    mapperData.Context.UsesMappingDataObjectAsParameter = false;
+            }
+
             if (assignCreatedObject)
             {
                 mapperData.Context.UsesMappingDataObjectAsParameter = true;
@@ -44,6 +54,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             objectValue = AddExistingTargetCheckIfAppropriate(objectValue, mappingData);
 
             return objectValue;
+        }
+
+        private static bool UseNullFallbackValue(
+            IMemberMapperData mapperData,
+            Expression objectConstruction,
+            bool hasMemberPopulations)
+        {
+            if (hasMemberPopulations ||
+               (objectConstruction.NodeType != ExpressionType.New) ||
+                mapperData.SourceMember.Matches(mapperData.TargetMember))
+            {
+                return false;
+            }
+
+            var objectNewing = (NewExpression)objectConstruction;
+
+            return objectNewing.Arguments.None();
         }
 
         private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
