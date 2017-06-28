@@ -1,26 +1,67 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
 
     internal static class SourceMemberMatcher
     {
-        public static IQualifiedMember GetMatchFor(IChildMemberMappingData rootData)
+        public static IQualifiedMember GetMatchFor(IChildMemberMappingData targetData)
         {
-            var rootSourceMember = rootData.MapperData.SourceMember;
+            var parentSourceMember = targetData.MapperData.SourceMember;
 
-            var matchingMember = GetAllSourceMembers(rootSourceMember, rootData)
-                .FirstOrDefault(sm => IsMatchingMember(sm, rootData.MapperData));
+            IQualifiedMember matchingMember;
 
-            if (matchingMember == null)
+            if (SourceHasSameMemberAsTarget(parentSourceMember, targetData))
             {
-                return null;
+                var matchingSourceMember = GetSourceMembers(
+                    parentSourceMember,
+                    m => m.Name == targetData.MapperData.TargetMember.Name).First();
+
+                matchingMember = parentSourceMember.Append(matchingSourceMember);
+
+                if (!TypesAreCompatible(matchingMember, targetData.MapperData))
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                matchingMember = GetAllSourceMembers(parentSourceMember, targetData)
+                    .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
+
+                if (matchingMember == null)
+                {
+                    return null;
+                }
             }
 
-            return rootData.MapperData
+            return targetData.MapperData
                 .MapperContext
                 .QualifiedMemberFactory
-                .GetFinalSourceMember(matchingMember, rootData.MapperData.TargetMember);
+                .GetFinalSourceMember(matchingMember, targetData.MapperData.TargetMember);
+        }
+
+        private static bool SourceHasSameMemberAsTarget(
+            IQualifiedMember parentSourceMember,
+            IChildMemberMappingData targetData)
+        {
+            return targetData.MapperData.TargetMember.IsReadable &&
+                   targetData.Parent.MapperData.TargetType.IsAssignableFrom(parentSourceMember.Type);
+        }
+
+        private static IEnumerable<Member> GetSourceMembers(
+            IQualifiedMember parentMember,
+            Func<Member, bool> filter)
+        {
+            return GlobalContext
+                .Instance
+                .MemberFinder
+                .GetSourceMembers(parentMember.Type)
+                .Where(filter);
         }
 
         private static IEnumerable<IQualifiedMember> GetAllSourceMembers(
@@ -42,11 +83,9 @@
                 yield return parentMember;
             }
 
-            var relevantSourceMembers = GlobalContext
-                .Instance
-                .MemberFinder
-                .GetSourceMembers(parentMember.Type)
-                .Where(sourceMember => MembersHaveCompatibleTypes(sourceMember, rootData));
+            var relevantSourceMembers = GetSourceMembers(
+                parentMember,
+                sourceMember => MembersHaveCompatibleTypes(sourceMember, rootData));
 
             foreach (var sourceMember in relevantSourceMembers)
             {
@@ -84,8 +123,12 @@
 
         private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMapperData mapperData)
         {
-            return sourceMember.Matches(mapperData.TargetMember) &&
-                   mapperData.MapperContext.ValueConverters.CanConvert(sourceMember.Type, mapperData.TargetMember.Type);
+            return sourceMember.Matches(mapperData.TargetMember) && TypesAreCompatible(sourceMember, mapperData);
+        }
+
+        private static bool TypesAreCompatible(IQualifiedMember sourceMember, IMemberMapperData mapperData)
+        {
+            return mapperData.MapperContext.ValueConverters.CanConvert(sourceMember.Type, mapperData.TargetMember.Type);
         }
     }
 }

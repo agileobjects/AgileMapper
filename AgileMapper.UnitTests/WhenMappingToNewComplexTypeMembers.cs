@@ -153,6 +153,21 @@
             result.Value.ShouldBeNull();
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/22
+        [Fact]
+        public void ShouldMapASourcePropertyToMultipleTargets()
+        {
+            var source = new Country
+            {
+                CurrencyId = 1
+            };
+
+            var result = Mapper.Clone(source);
+
+            result.Currency.ShouldBeNull();
+            result.CurrencyId.ShouldBe(1);
+        }
+
         [Fact]
         public void ShouldAccessAParentContextInAStandaloneMapper()
         {
@@ -238,5 +253,21 @@
 
             result.Value.ShouldBeNull();
         }
+
+        #region Helper Classes
+
+        private class Country
+        {
+            public Currency Currency { get; set; }
+
+            public int CurrencyId { get; set; }
+        }
+
+        private class Currency
+        {
+            public int Id { get; set; }
+        }
+
+        #endregion
     }
 }
