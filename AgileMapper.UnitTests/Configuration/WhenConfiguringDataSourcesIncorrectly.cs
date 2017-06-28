@@ -81,6 +81,28 @@
         }
 
         [Fact]
+        public void ShouldErrorIfDuplicateDataSourceIsConfigured()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<string>>()
+                        .Map((p, x) => p.Id)
+                        .To(x => x.Value);
+
+                    mapper.WhenMapping
+                        .From<Customer>()
+                        .To<PublicField<string>>()
+                        .Map((p, x) => p.Id)
+                        .To(x => x.Value);
+                }
+            });
+        }
+
+        [Fact]
         public void ShouldErrorIfRedundantDataSourceIsConfigured()
         {
             Should.Throw<MappingConfigurationException>(() =>
