@@ -1,13 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Linq;
+    using System;
     using System.Linq.Expressions;
     using Configuration;
     using Members;
 
-    internal class ConfiguredDataSourceFactory : UserConfiguredItemBase
+    internal class ConfiguredDataSourceFactory : UserConfiguredItemBase, IComparable<ConfiguredDataSourceFactory>
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
+        private bool _isClone;
 
         public ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
@@ -41,6 +42,11 @@
                 return true;
             }
 
+            if (_isClone && !otherDataSource._isClone)
+            {
+                return false;
+            }
+
             if (SourceAndTargetTypesAreTheSame(otherDataSource))
             {
                 return true;
@@ -58,6 +64,26 @@
             var value = _dataSourceLambda.GetBody(mapperData);
 
             return new ConfiguredDataSource(configuredCondition, value, mapperData);
+        }
+
+        public ConfiguredDataSourceFactory Clone()
+        {
+            return new ConfiguredDataSourceFactory(ConfigInfo, _dataSourceLambda, TargetMember)
+            {
+                _isClone = true
+            };
+        }
+
+        int IComparable<ConfiguredDataSourceFactory>.CompareTo(ConfiguredDataSourceFactory other)
+        {
+            var compareResult = ((IComparable<UserConfiguredItemBase>)this).CompareTo(other);
+
+            if ((compareResult != 0) || (_isClone == other._isClone))
+            {
+                return compareResult;
+            }
+
+            return _isClone ? 1 : -1;
         }
     }
 }

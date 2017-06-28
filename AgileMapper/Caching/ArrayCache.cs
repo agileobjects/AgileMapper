@@ -13,12 +13,12 @@
         private int _capacity;
         private int _length;
 
-        public ArrayCache()
+        public ArrayCache(int capacity = DefaultCapacity)
         {
-            _capacity = DefaultCapacity;
+            _capacity = capacity;
             _length = 0;
-            _keys = new TKey[DefaultCapacity];
-            _values = new TValue[DefaultCapacity];
+            _keys = new TKey[capacity];
+            _values = new TValue[capacity];
         }
 
         public IEnumerable<TValue> Values
@@ -110,6 +110,21 @@
             return biggerArray;
         }
 
+        //public void CloneTo(ICache<TKey, TValue> otherCache)
+        //{
+        //    for (var i = 0; i < _length; i++)
+        //    {
+        //        var value = _values[i];
+
+        //        if (value is ICloneable cloneable)
+        //        {
+        //            value = (TValue)cloneable.Clone();
+        //        }
+
+        //        otherCache.GetOrAdd(_keys[i], m => value);
+        //    }
+        //}
+
         public void Empty()
         {
             for (var i = 0; i < _length; i++)
@@ -120,5 +135,18 @@
 
             _length = 0;
         }
+
+        //object ICloneable.Clone()
+        //{
+        //    var cache = new ArrayCache<TKey, TValue>(Math.Max(_length, DefaultCapacity));
+
+        //    for (var i = 0; i < _length; i++)
+        //    {
+        //        cache._keys[i] = _keys[i];
+        //        cache._values[i] = _values[i];
+        //    }
+
+        //    return cache;
+        //}
     }
 }

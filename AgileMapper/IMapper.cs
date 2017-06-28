@@ -10,6 +10,12 @@
     public interface IMapper : IDisposable
     {
         /// <summary>
+        /// Creates a clone of this mapper including all user configurations.
+        /// </summary>
+        /// <returns>A cloned copy of this mapper.</returns>
+        IMapper CloneSelf();
+
+        /// <summary>
         /// Create and compile mapping functions for a particular type of mapping of the source type
         /// specified by the type argument.
         /// </summary>

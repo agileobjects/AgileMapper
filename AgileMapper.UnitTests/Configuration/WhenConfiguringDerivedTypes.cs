@@ -25,6 +25,35 @@
         }
 
         [Fact]
+        public void ShouldSetAssembliesToScanGlobally()
+        {
+            using (var mapper1 = Mapper.CreateNew())
+            using (var mapper2 = Mapper.CreateNew())
+            {
+                // Set assembly scanning on mapper1...
+                mapper1.WhenMapping
+                    .LookForDerivedTypesIn(typeof(Dog).Assembly, typeof(Earthworm).Assembly);
+
+                // ...use mapper2 to cache the assembly scan results... 
+                var result1 = mapper2
+                    .Map(new { NumberOfLegs = 4, WoofSound = "AWESOME" })
+                    .OnTo(new Dog() as AnimalBase);
+
+                result1.NumberOfLegs.ShouldBe(4);
+                ((Dog)result1).WoofSound.ShouldBe("AWESOME");
+
+                // ...use mapper1 with a type outside the base type's assembly;
+                // assemblies are cached globally, so the scan settings should be too:
+                var result2 = mapper1
+                    .Map(new { NumberOfLegs = 100, SlitherNoise = "SLITHERRR" })
+                    .OnTo(new Earthworm() as AnimalBase);
+
+                result2.NumberOfLegs.ShouldBe(100);
+                ((Earthworm)result2).SlitherNoise.ShouldBe("SLITHERRR");
+            }
+        }
+
+        [Fact]
         public void ShouldMapACustomTypePair()
         {
             using (var mapper = Mapper.CreateNew())

@@ -271,7 +271,7 @@
                     new ArgumentNullException(nameof(assemblies)));
             }
 
-            _mapperContext.DerivedTypes.AddAssemblies(assemblies);
+            GlobalContext.Instance.DerivedTypes.AddAssemblies(assemblies);
             return this;
         }
 

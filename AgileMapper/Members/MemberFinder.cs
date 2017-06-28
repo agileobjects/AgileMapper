@@ -13,10 +13,10 @@
         private readonly ICache<TypeKey, Member> _idMemberCache;
         private readonly ICache<TypeKey, IEnumerable<Member>> _membersCache;
 
-        public MemberFinder()
+        public MemberFinder(CacheSet cacheSet)
         {
-            _idMemberCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, Member>();
-            _membersCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, IEnumerable<Member>>();
+            _idMemberCache = cacheSet.CreateScoped<TypeKey, Member>();
+            _membersCache = cacheSet.CreateScoped<TypeKey, IEnumerable<Member>>();
         }
 
         public Member GetIdentifierOrNull(TypeKey typeIdKey)

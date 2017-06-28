@@ -34,11 +34,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var otherKey = (RootObjectMapperKey)obj;
 
-            // ObjectMapperFactory stores root mappers in a static, typed cache, 
-            // so MappingTypes checks are unnecessary
-
             // ReSharper disable once PossibleNullReferenceException
-            return (otherKey._ruleSet == _ruleSet) && SourceHasRequiredTypes(otherKey);
+            return TypesMatch(otherKey) &&
+                  (otherKey._ruleSet == _ruleSet) &&
+                   SourceHasRequiredTypes(otherKey);
         }
 
         public override int GetHashCode() => 0;

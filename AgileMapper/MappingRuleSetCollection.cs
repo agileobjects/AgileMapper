@@ -8,39 +8,43 @@ namespace AgileObjects.AgileMapper
 
     internal class MappingRuleSetCollection
     {
+        #region Default Rule Sets
+
+        private static readonly MappingRuleSet _createNew = new MappingRuleSet(
+            Constants.CreateNew,
+            false,
+            CopySourceEnumerablePopulationStrategy.Instance,
+            NullMemberPopulationGuardFactory.Instance,
+            ExistingOrDefaultValueDataSourceFactory.Instance);
+
+        private static readonly MappingRuleSet _merge = new MappingRuleSet(
+            Constants.Merge,
+            true,
+            MergeEnumerablePopulationStrategy.Instance,
+            PreserveExistingValueMemberPopulationGuardFactory.Instance,
+            ExistingOrDefaultValueDataSourceFactory.Instance);
+
+        private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
+            Constants.Overwrite,
+            true,
+            OverwriteEnumerablePopulationStrategy.Instance,
+            NullMemberPopulationGuardFactory.Instance,
+            DefaultValueDataSourceFactory.Instance);
+
+        #endregion
+
         private readonly List<MappingRuleSet> _ruleSets;
 
         public MappingRuleSetCollection()
         {
-            CreateNew = new MappingRuleSet(
-                Constants.CreateNew,
-                false,
-                CopySourceEnumerablePopulationStrategy.Instance,
-                NullMemberPopulationGuardFactory.Instance,
-                ExistingOrDefaultValueDataSourceFactory.Instance);
-
-            Merge = new MappingRuleSet(
-                Constants.Merge,
-                true,
-                MergeEnumerablePopulationStrategy.Instance,
-                PreserveExistingValueMemberPopulationGuardFactory.Instance,
-                ExistingOrDefaultValueDataSourceFactory.Instance);
-
-            Overwrite = new MappingRuleSet(
-                Constants.Overwrite,
-                true,
-                OverwriteEnumerablePopulationStrategy.Instance,
-                NullMemberPopulationGuardFactory.Instance,
-                DefaultValueDataSourceFactory.Instance);
-
             _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite };
         }
 
-        public MappingRuleSet CreateNew { get; }
+        public MappingRuleSet CreateNew => _createNew;
 
-        public MappingRuleSet Merge { get; }
+        public MappingRuleSet Merge => _merge;
 
-        public MappingRuleSet Overwrite { get; set; }
+        public MappingRuleSet Overwrite => _overwrite;
 
         public MappingRuleSet GetByName(string name) => _ruleSets.First(rs => rs.Name == name);
     }

@@ -11,16 +11,16 @@
 
     internal class UserConfigurationSet
     {
-        private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
+        private readonly List<ObjectTrackingMode> _trackingModeSettings;
         private readonly List<MapToNullCondition> _mapToNullConditions;
-        private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
-        private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
-        private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
-        private readonly ICollection<EnumMemberPair> _enumPairings;
-        private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
-        private readonly ICollection<MappingCallbackFactory> _mappingCallbackFactories;
-        private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
-        private readonly ICollection<ExceptionCallback> _exceptionCallbackFactories;
+        private readonly List<NullCollectionsSetting> _nullCollectionSettings;
+        private readonly List<ConfiguredObjectFactory> _objectFactories;
+        private readonly List<ConfiguredIgnoredMember> _ignoredMembers;
+        private readonly List<EnumMemberPair> _enumPairings;
+        private readonly List<ConfiguredDataSourceFactory> _dataSourceFactories;
+        private readonly List<MappingCallbackFactory> _mappingCallbackFactories;
+        private readonly List<ObjectCreationCallbackFactory> _creationCallbackFactories;
+        private readonly List<ExceptionCallback> _exceptionCallbackFactories;
 
         public UserConfigurationSet(MapperContext mapperContext)
         {
@@ -141,6 +141,7 @@
                 dsf => dsf.TargetMember.GetPath() + " already has a configured data source");
 
             _dataSourceFactories.Add(dataSourceFactory);
+            _dataSourceFactories.Sort();
         }
 
         public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
@@ -238,6 +239,20 @@
         }
 
         #endregion
+
+        public void CloneTo(UserConfigurationSet configurations)
+        {
+            configurations._trackingModeSettings.AddRange(_trackingModeSettings);
+            configurations._mapToNullConditions.AddRange(_mapToNullConditions);
+            configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
+            configurations._objectFactories.AddRange(_objectFactories);
+            configurations._ignoredMembers.AddRange(_ignoredMembers);
+            configurations._enumPairings.AddRange(_enumPairings);
+            configurations._dataSourceFactories.AddRange(_dataSourceFactories.Select(dsf => dsf.Clone()));
+            configurations._mappingCallbackFactories.AddRange(_mappingCallbackFactories);
+            configurations._creationCallbackFactories.AddRange(_creationCallbackFactories);
+            configurations._exceptionCallbackFactories.AddRange(_exceptionCallbackFactories);
+        }
 
         public void Reset()
         {

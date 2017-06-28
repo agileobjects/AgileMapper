@@ -120,14 +120,14 @@
                     return;
                 }
 
-                var derivedSourceTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootSourceType);
+                var derivedSourceTypes = GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(rootSourceType);
 
                 if (derivedSourceTypes.None())
                 {
                     return;
                 }
 
-                var derivedTargetTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootTargetType);
+                var derivedTargetTypes = GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(rootTargetType);
 
                 if (derivedTargetTypes.None())
                 {
@@ -167,7 +167,7 @@
 
         private void AddSameRootTypePairs(Type rootType, MapperContext mapperContext)
         {
-            var derivedTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootType);
+            var derivedTypes = GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(rootType);
 
             foreach (var derivedType in derivedTypes)
             {
