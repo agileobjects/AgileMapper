@@ -246,9 +246,9 @@
             configurations._mapToNullConditions.AddRange(_mapToNullConditions);
             configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
             configurations._objectFactories.AddRange(_objectFactories);
-            configurations._ignoredMembers.AddRange(_ignoredMembers);
+            configurations._ignoredMembers.AddRange(_ignoredMembers.SelectClones());
             configurations._enumPairings.AddRange(_enumPairings);
-            configurations._dataSourceFactories.AddRange(_dataSourceFactories.Select(dsf => dsf.Clone()));
+            configurations._dataSourceFactories.AddRange(_dataSourceFactories.SelectClones());
             configurations._mappingCallbackFactories.AddRange(_mappingCallbackFactories);
             configurations._creationCallbackFactories.AddRange(_creationCallbackFactories);
             configurations._exceptionCallbackFactories.AddRange(_exceptionCallbackFactories);

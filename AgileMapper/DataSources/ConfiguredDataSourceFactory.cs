@@ -5,10 +5,12 @@
     using Configuration;
     using Members;
 
-    internal class ConfiguredDataSourceFactory : UserConfiguredItemBase, IComparable<ConfiguredDataSourceFactory>
+    internal class ConfiguredDataSourceFactory :
+        UserConfiguredItemBase,
+        IComparable<ConfiguredDataSourceFactory>,
+        IPotentialClone
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
-        private bool _isClone;
 
         public ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
@@ -35,16 +37,18 @@
                 return false;
             }
 
+            if (IsClone &&
+               (otherConfiguredItem is IPotentialClone otherClone) &&
+               !otherClone.IsClone)
+            {
+                return false;
+            }
+
             var otherDataSource = otherConfiguredItem as ConfiguredDataSourceFactory;
 
             if (otherDataSource == null)
             {
                 return true;
-            }
-
-            if (_isClone && !otherDataSource._isClone)
-            {
-                return false;
             }
 
             if (SourceAndTargetTypesAreTheSame(otherDataSource))
@@ -66,24 +70,34 @@
             return new ConfiguredDataSource(configuredCondition, value, mapperData);
         }
 
-        public ConfiguredDataSourceFactory Clone()
+        #region IPotentialClone Members
+
+        public bool IsClone { get; private set; }
+
+        public IPotentialClone Clone()
         {
             return new ConfiguredDataSourceFactory(ConfigInfo, _dataSourceLambda, TargetMember)
             {
-                _isClone = true
+                IsClone = true
             };
         }
+
+        #endregion
+
+        #region IComparable Members
 
         int IComparable<ConfiguredDataSourceFactory>.CompareTo(ConfiguredDataSourceFactory other)
         {
             var compareResult = ((IComparable<UserConfiguredItemBase>)this).CompareTo(other);
 
-            if ((compareResult != 0) || (_isClone == other._isClone))
+            if ((compareResult != 0) || (IsClone == other.IsClone))
             {
                 return compareResult;
             }
 
-            return _isClone ? 1 : -1;
+            return IsClone ? 1 : -1;
         }
+
+        #endregion
     }
 }

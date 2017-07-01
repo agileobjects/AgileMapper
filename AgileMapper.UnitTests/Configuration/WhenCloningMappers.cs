@@ -90,7 +90,7 @@
 
                         parentMapper.Map(source).Over(target);
 
-                        const int PARENT_MAP_RESULT = 
+                        const int PARENT_MAP_RESULT =
                             SOURCE_VALUE + ORIGINAL_TARGET_VALUE + PARENT_INCREMENT;
 
                         target.Value.ShouldBe(PARENT_MAP_RESULT);
@@ -144,6 +144,38 @@
                     clonedMapper.Map(source2).Over(target);
 
                     target.Value.ShouldBe("18");
+                }
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportIgnoringAParentConfiguredDataSource()
+        {
+            using (var originalMapper = Mapper.CreateNew())
+            {
+                originalMapper.WhenMapping
+                    .From<Address>()
+                    .ToANew<Address>()
+                    .Map((sa, ta) => sa.Line1)
+                    .To(ta => ta.Line2);
+
+                using (var clonedMapper = originalMapper.CloneSelf())
+                {
+                    clonedMapper.WhenMapping
+                        .From<Address>()
+                        .ToANew<Address>()
+                        .Ignore(ta => ta.Line2);
+
+                    var source = new Address { Line1 = "There there" };
+
+                    var originalResult = originalMapper.Map(source).ToANew<Address>();
+
+                    originalResult.Line2.ShouldBe("There there");
+
+                    var clonedResult = clonedMapper.Map(source).ToANew<Address>();
+
+                    clonedResult.Line1.ShouldBe("There there");
+                    clonedResult.Line2.ShouldBeNull();
                 }
             }
         }
