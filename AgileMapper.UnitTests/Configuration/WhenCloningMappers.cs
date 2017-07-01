@@ -92,8 +92,43 @@
 
                         grandChildMapper.Map(source).Over(target);
 
-                        target.Value.ShouldBe(3+ 11 + 3);
+                        target.Value.ShouldBe(3 + 11 + 3);
                     }
+                }
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyConditionalDifferentiatedConfiguration()
+        {
+            using (var parentMapper = Mapper.CreateNew())
+            {
+                parentMapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicProperty<string>>()
+                    .Map(ctx => ctx.Source.Value * 2)
+                    .To(pp => pp.Value);
+
+                using (var clonedMapper = parentMapper.CloneSelf())
+                {
+                    clonedMapper.WhenMapping
+                        .From<PublicField<int>>()
+                        .To<PublicProperty<string>>()
+                        .If((pf, pp) => pf.Value > 5)
+                        .Map(ctx => ctx.Source.Value * 3)
+                        .To(pp => pp.Value);
+
+                    var source1 = new PublicField<int> { Value = 3 };
+                    var source2 = new PublicField<int> { Value = 6 };
+                    var target = new PublicProperty<string>();
+
+                    clonedMapper.Map(source1).Over(target);
+
+                    target.Value.ShouldBe("6");
+
+                    clonedMapper.Map(source2).Over(target);
+
+                    target.Value.ShouldBe("18");
                 }
             }
         }
