@@ -15,45 +15,54 @@
 
             IQualifiedMember matchingMember;
 
-            if (SourceHasSameMemberAsTarget(parentSourceMember, targetData))
+            if (ExactMatchingSourceMemberExists(parentSourceMember, targetData, out matchingMember))
             {
-                var matchingSourceMember = GetSourceMembers(
-                    parentSourceMember,
-                    m => m.Name == targetData.MapperData.TargetMember.Name).First();
-
-                matchingMember = parentSourceMember.Append(matchingSourceMember);
-
-                if (!TypesAreCompatible(matchingMember, targetData.MapperData))
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                matchingMember = GetAllSourceMembers(parentSourceMember, targetData)
-                    .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
-
-                if (matchingMember == null)
-                {
-                    return null;
-                }
+                return GetFinalSourceMember(matchingMember, targetData);
             }
 
-            return targetData.MapperData
-                .MapperContext
-                .QualifiedMemberFactory
-                .GetFinalSourceMember(matchingMember, targetData.MapperData.TargetMember);
+            matchingMember = EnumerateSourceMembers(parentSourceMember, targetData)
+                .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
+
+            if (matchingMember == null)
+            {
+                return null;
+            }
+
+            return GetFinalSourceMember(matchingMember, targetData);
         }
 
-        private static bool SourceHasSameMemberAsTarget(
-            IQualifiedMember parentSourceMember,
+        private static IQualifiedMember GetFinalSourceMember(
+            IQualifiedMember sourceMember,
             IChildMemberMappingData targetData)
         {
-            return targetData.MapperData.TargetMember.IsReadable &&
-                   targetData.Parent.MapperData.TargetType.IsAssignableFrom(parentSourceMember.Type);
+            return targetData
+                .MapperData
+                .MapperContext
+                .QualifiedMemberFactory
+                .GetFinalSourceMember(sourceMember, targetData.MapperData.TargetMember);
         }
 
-        private static IEnumerable<Member> GetSourceMembers(
+        private static bool ExactMatchingSourceMemberExists(
+            IQualifiedMember parentSourceMember,
+            IChildMemberMappingData targetData,
+            out IQualifiedMember matchingMember)
+        {
+            var sourceMember = QuerySourceMembers(
+                parentSourceMember,
+                m => m.Name == targetData.MapperData.TargetMember.Name).FirstOrDefault();
+
+            if ((sourceMember == null) || 
+                !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
+            {
+                matchingMember = null;
+                return false;
+            }
+
+            matchingMember = parentSourceMember.Append(sourceMember);
+            return true;
+        }
+
+        private static IEnumerable<Member> QuerySourceMembers(
             IQualifiedMember parentMember,
             Func<Member, bool> filter)
         {
@@ -64,7 +73,7 @@
                 .Where(filter);
         }
 
-        private static IEnumerable<IQualifiedMember> GetAllSourceMembers(
+        private static IEnumerable<IQualifiedMember> EnumerateSourceMembers(
             IQualifiedMember parentMember,
             IChildMemberMappingData rootData)
         {
@@ -83,7 +92,7 @@
                 yield return parentMember;
             }
 
-            var relevantSourceMembers = GetSourceMembers(
+            var relevantSourceMembers = QuerySourceMembers(
                 parentMember,
                 sourceMember => MembersHaveCompatibleTypes(sourceMember, rootData));
 
@@ -97,7 +106,7 @@
                     continue;
                 }
 
-                foreach (var qualifiedMember in GetAllSourceMembers(childMember, rootData))
+                foreach (var qualifiedMember in EnumerateSourceMembers(childMember, rootData))
                 {
                     yield return qualifiedMember;
                 }
@@ -123,12 +132,12 @@
 
         private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMapperData mapperData)
         {
-            return sourceMember.Matches(mapperData.TargetMember) && TypesAreCompatible(sourceMember, mapperData);
+            return sourceMember.Matches(mapperData.TargetMember) && TypesAreCompatible(sourceMember.Type, mapperData);
         }
 
-        private static bool TypesAreCompatible(IQualifiedMember sourceMember, IMemberMapperData mapperData)
+        private static bool TypesAreCompatible(Type sourceType, IMemberMapperData mapperData)
         {
-            return mapperData.MapperContext.ValueConverters.CanConvert(sourceMember.Type, mapperData.TargetMember.Type);
+            return mapperData.MapperContext.ValueConverters.CanConvert(sourceType, mapperData.TargetMember.Type);
         }
     }
 }
