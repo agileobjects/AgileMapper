@@ -155,7 +155,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/22
         [Fact]
-        public void ShouldMapASourcePropertyToMultipleTargets()
+        public void ShouldUseBestMatchingSourceMemberWhenCloning()
         {
             var source = new Country
             {
@@ -165,6 +165,33 @@
             var result = Mapper.Clone(source);
 
             result.Currency.ShouldBeNull();
+            result.CurrencyId.ShouldBe(1);
+        }
+        [Fact]
+        public void ShouldUseBestMatchingSourceMemberWhenNotCloning()
+        {
+            var source = new
+            {
+                Currency = new { Id = 123 },
+                CurrencyId = 456
+            };
+
+            var result = Mapper.Map(source).ToANew<Country>();
+
+            result.Currency.ShouldNotBeNull();
+            result.Currency.Id.ShouldBe(123);
+            result.CurrencyId.ShouldBe(456);
+        }
+
+        [Fact]
+        public void ShouldMapASourcePropertyToMultipleTargets()
+        {
+            var source = new { CurrencyId = 1 };
+
+            var result = Mapper.Map(source).ToANew<Country>();
+
+            result.Currency.ShouldNotBeNull();
+            result.Currency.Id.ShouldBe(1);
             result.CurrencyId.ShouldBe(1);
         }
 
