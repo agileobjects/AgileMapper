@@ -100,11 +100,11 @@
         {
             ThrowIfConflictingIgnoredMemberExists(
                 ignoredMember,
-                im => "Member " + im.TargetMember.GetPath() + " is already ignored");
+                im => $"Member {im.TargetMember.GetPath()} is already ignored");
 
             ThrowIfConflictingDataSourceExists(
                 ignoredMember,
-                im => "Ignored member " + im.TargetMember.GetPath() + " has a configured data source");
+                im => $"Ignored member {im.TargetMember.GetPath()} has a configured data source");
 
             _ignoredMembers.Add(ignoredMember);
         }

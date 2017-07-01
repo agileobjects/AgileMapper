@@ -217,5 +217,30 @@
                 }
             });
         }
+
+        [Fact]
+        public void ShouldErrorIfRedundantMemberIgnoreIsConfigured()
+        {
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var originalMapper = Mapper.CreateNew())
+                {
+                    originalMapper.WhenMapping
+                        .From<Address>()
+                        .ToANew<Address>()
+                        .Ignore(ta => ta.Line2);
+
+                    using (var clonedMapper = originalMapper.CloneSelf())
+                    {
+                        clonedMapper.WhenMapping
+                            .From<Address>()
+                            .ToANew<Address>()
+                            .Ignore(ta => ta.Line2);
+                    }
+                }
+            });
+
+            ignoreEx.Message.ShouldContain("already ignored");
+        }
     }
 }

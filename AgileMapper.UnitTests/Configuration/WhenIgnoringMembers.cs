@@ -176,7 +176,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldErrorIfRedundantIgnoreIsSpecified()
         {
-            Should.Throw<MappingConfigurationException>(() =>
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -193,6 +193,8 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                         .Ignore(cvm => cvm.Name);
                 }
             });
+
+            ignoreEx.Message.ShouldContain("already ignored");
         }
 
         [Fact]
