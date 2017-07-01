@@ -56,12 +56,18 @@
         {
             using (var parentMapper = Mapper.CreateNew())
             {
-                var source = new { Value = 3 };
+                const int SOURCE_VALUE = 3;
+                const int ORIGINAL_TARGET_VALUE = 2;
+                const int PARENT_INCREMENT = 1;
+                const int CHILD_INCREMENT = 2;
+                const int GRANDCHILD_INCREMENT = 3;
+
+                var source = new { Value = SOURCE_VALUE };
 
                 parentMapper.WhenMapping
                     .From(source)
                     .To<PublicField<int>>()
-                    .Map(ctx => ctx.Source.Value + ctx.Target.Value + 1)
+                    .Map(ctx => ctx.Source.Value + ctx.Target.Value + PARENT_INCREMENT)
                     .To(pf => pf.Value);
 
                 using (var childMapper = parentMapper.CloneSelf())
@@ -69,7 +75,7 @@
                     childMapper.WhenMapping
                         .From(source)
                         .To<PublicField<int>>()
-                        .Map(ctx => ctx.Source.Value + ctx.Target.Value + 2)
+                        .Map(ctx => ctx.Source.Value + ctx.Target.Value + CHILD_INCREMENT)
                         .To(pf => pf.Value);
 
                     using (var grandChildMapper = childMapper.CloneSelf())
@@ -77,22 +83,31 @@
                         grandChildMapper.WhenMapping
                             .From(source)
                             .To<PublicField<int>>()
-                            .Map(ctx => ctx.Source.Value + ctx.Target.Value + 3)
+                            .Map(ctx => ctx.Source.Value + ctx.Target.Value + GRANDCHILD_INCREMENT)
                             .To(pf => pf.Value);
 
-                        var target = new PublicField<int> { Value = 2 };
+                        var target = new PublicField<int> { Value = ORIGINAL_TARGET_VALUE };
 
                         parentMapper.Map(source).Over(target);
 
-                        target.Value.ShouldBe(3 + 2 + 1);
+                        const int PARENT_MAP_RESULT = 
+                            SOURCE_VALUE + ORIGINAL_TARGET_VALUE + PARENT_INCREMENT;
+
+                        target.Value.ShouldBe(PARENT_MAP_RESULT);
 
                         childMapper.Map(source).Over(target);
 
-                        target.Value.ShouldBe(3 + 6 + 2);
+                        const int CHILD_MAP_RESULT =
+                            SOURCE_VALUE + PARENT_MAP_RESULT + CHILD_INCREMENT;
+
+                        target.Value.ShouldBe(CHILD_MAP_RESULT);
+
+                        const int GRANDCHILD_MAP_RESULT =
+                            SOURCE_VALUE + CHILD_MAP_RESULT + GRANDCHILD_INCREMENT;
 
                         grandChildMapper.Map(source).Over(target);
 
-                        target.Value.ShouldBe(3 + 11 + 3);
+                        target.Value.ShouldBe(GRANDCHILD_MAP_RESULT);
                     }
                 }
             }
