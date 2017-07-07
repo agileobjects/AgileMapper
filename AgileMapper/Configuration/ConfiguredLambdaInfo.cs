@@ -111,7 +111,7 @@
         public Type ReturnType { get; }
 
         public bool IsSameAs(ConfiguredLambdaInfo otherLambdaInfo)
-            => _lambda.ToString() == otherLambdaInfo._lambda.ToString();
+            => _lambda.ToString() == otherLambdaInfo?._lambda.ToString();
 
         public Expression GetBody(
             IMemberMapperData mapperData,

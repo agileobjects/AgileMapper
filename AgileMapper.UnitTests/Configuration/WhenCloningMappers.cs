@@ -8,7 +8,7 @@
     public class WhenCloningMappers
     {
         [Fact]
-        public void ShouldApplyClonedConfiguration()
+        public void ShouldCloneAConfiguration()
         {
             using (var baseMapper = Mapper.CreateNew())
             {
@@ -52,7 +52,7 @@
         }
 
         [Fact]
-        public void ShouldSupportDifferentiatingClonedClones()
+        public void ShouldDifferentiateClonedCloneDataSources()
         {
             using (var parentMapper = Mapper.CreateNew())
             {
@@ -114,7 +114,7 @@
         }
 
         [Fact]
-        public void ShouldApplyConditionalDifferentiatedConfiguration()
+        public void ShouldConditionallyDifferentiateDataSources()
         {
             using (var parentMapper = Mapper.CreateNew())
             {
@@ -149,7 +149,7 @@
         }
 
         [Fact]
-        public void ShouldSupportIgnoringAParentConfiguredDataSource()
+        public void ShouldIgnoreAParentConfiguredDataSource()
         {
             using (var originalMapper = Mapper.CreateNew())
             {
@@ -181,7 +181,7 @@
         }
 
         [Fact]
-        public void ShouldSupportConditionallyIgnoringAParentIgnoredMember()
+        public void ShouldConditionallyIgnoreAParentIgnoredMember()
         {
             using (var originalMapper = Mapper.CreateNew())
             {
@@ -240,22 +240,49 @@
                             clonedMapper.WhenMapping
                                 .From<Person>()
                                 .To<PublicField<string>>()
-                                .Map((p, pf) => p.Id)
+                                .Map((p, pf) => p.Id + "!")
                                 .To(pf => pf.Value);
                         }
                         catch (MappingConfigurationException ex)
                         {
-                            ex.ShouldNotBeNull("Configuring first cloned mapper data source failed");
+                            ex.ShouldBeNull("Configuring first cloned mapper data source failed");
                         }
 
                         clonedMapper.WhenMapping
                             .From<Person>()
                             .To<PublicField<string>>()
-                            .Map((p, pf) => p.Id + "!")
+                            .Map((p, pf) => p.Id + "!!")
                             .To(pf => pf.Value);
                     }
                 }
             });
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantDataSourceIsConfigured()
+        {
+            var conflictEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var originalMapper = Mapper.CreateNew())
+                {
+                    originalMapper.WhenMapping
+                        .From<Address>()
+                        .ToANew<Address>()
+                        .Map(ctx => ctx.Source.Line1)
+                        .To(a => a.Line2);
+
+                    using (var clonedMapper = originalMapper.CloneSelf())
+                    {
+                        clonedMapper.WhenMapping
+                            .From<Address>()
+                            .ToANew<Address>()
+                            .Map(ctx => ctx.Source.Line1)
+                            .To(a => a.Line2);
+                    }
+                }
+            });
+
+            conflictEx.Message.ShouldContain("already has that configured data source");
         }
 
         [Fact]
@@ -280,7 +307,7 @@
                 }
             });
 
-            ignoreEx.Message.ShouldContain("already ignored");
+            ignoreEx.Message.ShouldContain("has already been ignored");
         }
     }
 }

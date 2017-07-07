@@ -37,14 +37,15 @@
                 return false;
             }
 
+            var otherDataSource = otherConfiguredItem as ConfiguredDataSourceFactory;
+            var dataSourceLambdasAreTheSame = HasSameDataSourceLambdaAs(otherDataSource);
+
             if (IsClone &&
                (otherConfiguredItem is IPotentialClone otherClone) &&
                !otherClone.IsClone)
             {
-                return false;
+                return (otherDataSource != null) && dataSourceLambdasAreTheSame;
             }
-
-            var otherDataSource = otherConfiguredItem as ConfiguredDataSourceFactory;
 
             if (otherDataSource == null)
             {
@@ -56,11 +57,24 @@
                 return true;
             }
 
-            return _dataSourceLambda.IsSameAs(otherDataSource._dataSourceLambda);
+            return dataSourceLambdasAreTheSame;
+        }
+
+        private bool HasSameDataSourceLambdaAs(ConfiguredDataSourceFactory otherDataSource)
+        {
+            return _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
         }
 
         protected override bool MembersConflict(QualifiedMember otherMember)
             => TargetMember.LeafMember.Equals(otherMember.LeafMember);
+
+        public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            var lambdasAreTheSame = HasSameDataSourceLambdaAs(conflictingDataSource);
+            var conflictIdentifier = lambdasAreTheSame ? "that" : "a";
+
+            return $"{TargetMember.GetPath()} already has {conflictIdentifier} configured data source";
+        }
 
         public IConfiguredDataSource Create(IMemberMapperData mapperData)
         {

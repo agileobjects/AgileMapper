@@ -127,7 +127,7 @@
         [Fact]
         public void ShouldErrorIfConflictingDataSourceIsConfigured()
         {
-            Should.Throw<MappingConfigurationException>(() =>
+            var conflictEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -144,6 +144,8 @@
                         .To(x => x.Value);
                 }
             });
+
+            conflictEx.Message.ShouldContain("already has a configured data source");
         }
 
         [Fact]

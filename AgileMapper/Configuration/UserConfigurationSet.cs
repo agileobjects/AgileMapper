@@ -60,10 +60,7 @@
 
         public void Add(MapToNullCondition condition)
         {
-            ThrowIfConflictingItemExists(
-                condition,
-                _mapToNullConditions,
-                c => "Type " + c.TargetTypeName + " already has a configured map-to-null condition");
+            ThrowIfConflictingItemExists(condition, _mapToNullConditions, (c, cC) => c.GetConflictMessage());
 
             _mapToNullConditions.Add(condition);
             _mapToNullConditions.Sort();
@@ -98,13 +95,8 @@
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
-            ThrowIfConflictingIgnoredMemberExists(
-                ignoredMember,
-                im => $"Member {im.TargetMember.GetPath()} is already ignored");
-
-            ThrowIfConflictingDataSourceExists(
-                ignoredMember,
-                im => $"Ignored member {im.TargetMember.GetPath()} has a configured data source");
+            ThrowIfConflictingIgnoredMemberExists(ignoredMember, (im, cIm) => im.GetConflictMessage(cIm));
+            ThrowIfConflictingDataSourceExists(ignoredMember, (im, cDsf) => im.GetConflictMessage(cDsf));
 
             _ignoredMembers.Add(ignoredMember);
         }
@@ -135,10 +127,7 @@
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
             ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
-
-            ThrowIfConflictingDataSourceExists(
-                dataSourceFactory,
-                dsf => dsf.TargetMember.GetPath() + " already has a configured data source");
+            ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
             _dataSourceFactories.Add(dataSourceFactory);
             _dataSourceFactories.Sort();
@@ -201,14 +190,12 @@
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            ThrowIfConflictingIgnoredMemberExists(
-                configuredItem,
-                ci => "Member " + ci.TargetMember.GetPath() + " has been ignored");
+            ThrowIfConflictingIgnoredMemberExists(configuredItem, (ci, im) => im.GetConflictMessage());
         }
 
         private void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredIgnoredMember, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _ignoredMembers, messageFactory);
@@ -216,7 +203,7 @@
 
         internal void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredDataSourceFactory, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _dataSourceFactories, messageFactory);
@@ -225,17 +212,21 @@
         private static void ThrowIfConflictingItemExists<TConfiguredItem, TExistingItem>(
             TConfiguredItem configuredItem,
             IEnumerable<TExistingItem> existingItems,
-            Func<TConfiguredItem, string> messageFactory)
+            Func<TConfiguredItem, TExistingItem, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
             where TExistingItem : UserConfiguredItemBase
         {
             var conflictingItem = existingItems
                 .FirstOrDefault(dsf => dsf.ConflictsWith(configuredItem));
 
-            if (conflictingItem != null)
+            if (conflictingItem == null)
             {
-                throw new MappingConfigurationException(messageFactory.Invoke(configuredItem));
+                return;
             }
+
+            var conflictMessage = messageFactory.Invoke(configuredItem, conflictingItem);
+
+            throw new MappingConfigurationException(conflictMessage);
         }
 
         #endregion

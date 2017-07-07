@@ -194,7 +194,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 }
             });
 
-            ignoreEx.Message.ShouldContain("already ignored");
+            ignoreEx.Message.ShouldContain("has already been ignored");
         }
 
         [Fact]

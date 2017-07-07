@@ -22,6 +22,9 @@
             return otherCondition._targetType == _targetType;
         }
 
+        public string GetConflictMessage()
+            => $"Type {TargetTypeName} already has a configured map-to-null condition";
+
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
             if (mapperData.TargetMemberIsEnumerableElement())
