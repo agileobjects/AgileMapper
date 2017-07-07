@@ -52,7 +52,7 @@
         }
 
         [Fact]
-        public void ShouldDifferentiateClonedCloneDataSources()
+        public void ShouldDifferentiateCloneDataSources()
         {
             using (var parentMapper = Mapper.CreateNew())
             {
@@ -114,7 +114,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyDifferentiateDataSources()
+        public void ShouldDifferentiateCloneDataSourcesConditionally()
         {
             using (var parentMapper = Mapper.CreateNew())
             {
@@ -181,7 +181,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyIgnoreAParentIgnoredMember()
+        public void ShouldIgnoreAParentIgnoredMemberConditionally()
         {
             using (var originalMapper = Mapper.CreateNew())
             {
