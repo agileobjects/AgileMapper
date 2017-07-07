@@ -275,6 +275,25 @@
             return this;
         }
 
+        /// <summary>
+        /// Ignore all target member(s) of the given <typeparamref name="TMember">Type</typeparamref>. Members will be
+        /// ignored in mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// </summary>
+        /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
+        /// <returns>
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings IgnoreTargetMembersOfType<TMember>()
+        {
+            var configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext);
+
+            var configuredIgnoredMember =
+                new ConfiguredIgnoredMember(configInfo, targetMember => targetMember.HasType<TMember>());
+
+            _mapperContext.UserConfigurations.Add(configuredIgnoredMember);
+            return this;
+        }
+
         MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
 
         #endregion
