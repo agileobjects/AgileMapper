@@ -29,6 +29,12 @@ namespace AgileObjects.AgileMapper.Configuration
         /// <returns>The TargetMemberSelector, to allow addition of further selection criteria.</returns>
         public TargetMemberSelector HasType<TMember>()
         {
+            if (typeof(TMember) == typeof(object))
+            {
+                throw new MappingConfigurationException(
+                    "Ignoring target members of type object would ignore everything!");
+            }
+
             _memberTests.Add(md => typeof(TMember).IsAssignableFrom(md.TargetMember.Type));
             return this;
         }

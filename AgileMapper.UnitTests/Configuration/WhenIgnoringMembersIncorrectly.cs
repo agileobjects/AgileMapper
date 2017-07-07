@@ -172,5 +172,18 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .Ignore(psm => psm.Value);
             }
         }
+
+        [Fact]
+        public void ShouldErrorIfAllMembersAreIgnored()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .IgnoreTargetMembersOfType<object>();
+                }
+            });
+        }
     }
 }
