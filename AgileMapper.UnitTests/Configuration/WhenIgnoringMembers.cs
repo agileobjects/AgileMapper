@@ -187,5 +187,20 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 result.Value2.ShouldBeDefault();
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreComplexTypeMembersByType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersOfType<Address>();
+
+                var source = new { Value = new { Line1 = "Nope" } };
+                var result = mapper.Map(source).ToANew<PublicField<Address>>();
+
+                result.Value.ShouldBeNull();
+            }
+        }
     }
 }
