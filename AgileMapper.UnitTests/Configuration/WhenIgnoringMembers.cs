@@ -202,5 +202,21 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 result.Value.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreDerivedComplexTypeMembersByType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersOfType<PersonViewModel>();
+
+                var source = new { value1 = 123, Value2 = new { Name = "Larry" } };
+                var result = mapper.Map(source).ToANew<PublicTwoFields<int, CustomerViewModel>>();
+
+                result.Value1.ShouldBe(123);
+                result.Value2.ShouldBeNull();
+            }
+        }
     }
 }
