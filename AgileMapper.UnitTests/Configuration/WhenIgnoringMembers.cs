@@ -220,7 +220,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
-        public void ShouldIgnoreSetMethodMembersByMemberType()
+        public void ShouldIgnoreSetMethodsByMemberType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -228,9 +228,28 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .IgnoreTargetMembersWhere(member => member.IsSetMethod);
 
                 var source = new { Value = 123 };
-                var result = mapper.Map(source).ToANew<PublicSetMethod<int>>();
+                var setMethodResult = mapper.Map(source).ToANew<PublicSetMethod<int>>();
+                var fieldResult = mapper.Map(source).ToANew<PublicField<int>>();
 
-                result.Value.ShouldBeDefault();
+                setMethodResult.Value.ShouldBeDefault();
+                fieldResult.Value.ShouldBe(123);
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreFieldsByMemberType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersWhere(member => member.IsField);
+
+                var source = new { Value = 873982 };
+                var setMethodResult = mapper.Map(source).ToANew<PublicSetMethod<long>>();
+                var fieldResult = mapper.Map(source).ToANew<PublicField<long>>();
+
+                fieldResult.Value.ShouldBeDefault();
+                setMethodResult.Value.ShouldBe(873982);
             }
         }
     }

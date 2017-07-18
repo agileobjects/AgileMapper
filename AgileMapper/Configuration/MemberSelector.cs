@@ -19,6 +19,8 @@ namespace AgileObjects.AgileMapper.Configuration
             _targetMember = targetMember;
         }
 
+        public bool IsField => _targetMember.LeafMember.MemberType == MemberType.Field;
+
         public bool IsSetMethod => _targetMember.LeafMember.MemberType == MemberType.SetMethod;
 
         /// <summary>
