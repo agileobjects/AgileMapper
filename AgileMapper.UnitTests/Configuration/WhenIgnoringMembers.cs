@@ -220,19 +220,19 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
-        public void ShouldIgnoreSetMethodsByMemberType()
+        public void ShouldIgnorePropertiesByMemberType()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .IgnoreTargetMembersWhere(member => member.IsSetMethod);
+                    .IgnoreTargetMembersWhere(member => member.IsProperty);
 
-                var source = new { Value = 123 };
-                var setMethodResult = mapper.Map(source).ToANew<PublicSetMethod<int>>();
-                var fieldResult = mapper.Map(source).ToANew<PublicField<int>>();
+                var source = new { Value = "Don't ignore me!" };
+                var propertyResult = mapper.Map(source).ToANew<PublicProperty<string>>();
+                var setMethodResult = mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
-                setMethodResult.Value.ShouldBeDefault();
-                fieldResult.Value.ShouldBe(123);
+                propertyResult.Value.ShouldBeDefault();
+                setMethodResult.Value.ShouldBe("Don't ignore me!");
             }
         }
 
@@ -250,6 +250,23 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 
                 fieldResult.Value.ShouldBeDefault();
                 setMethodResult.Value.ShouldBe(873982);
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSetMethodsByMemberType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersWhere(member => member.IsSetMethod);
+
+                var source = new { Value = 123 };
+                var setMethodResult = mapper.Map(source).ToANew<PublicSetMethod<int>>();
+                var fieldResult = mapper.Map(source).ToANew<PublicField<int>>();
+
+                setMethodResult.Value.ShouldBeDefault();
+                fieldResult.Value.ShouldBe(123);
             }
         }
     }

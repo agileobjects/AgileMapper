@@ -19,9 +19,14 @@ namespace AgileObjects.AgileMapper.Configuration
             _targetMember = targetMember;
         }
 
-        public bool IsField => _targetMember.LeafMember.MemberType == MemberType.Field;
+        public bool IsProperty => TargetMemberIs(MemberType.Property);
 
-        public bool IsSetMethod => _targetMember.LeafMember.MemberType == MemberType.SetMethod;
+        public bool IsField => TargetMemberIs(MemberType.Field);
+
+        public bool IsSetMethod => TargetMemberIs(MemberType.SetMethod);
+
+        private bool TargetMemberIs(MemberType type)
+            => _targetMember.LeafMember.MemberType == type;
 
         /// <summary>
         /// Select target members with the given <typeparamref name="TMember">Type</typeparamref>.
