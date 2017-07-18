@@ -19,10 +19,24 @@ namespace AgileObjects.AgileMapper.Configuration
             _targetMember = targetMember;
         }
 
+        /// <summary>
+        /// Select target members by name.
+        /// </summary>
+        public string Name => _targetMember.Name;
+
+        /// <summary>
+        /// Select all target properties.
+        /// </summary>
         public bool IsProperty => TargetMemberIs(MemberType.Property);
 
+        /// <summary>
+        /// Select all target fields.
+        /// </summary>
         public bool IsField => TargetMemberIs(MemberType.Field);
 
+        /// <summary>
+        /// Select all target set methods.
+        /// </summary>
         public bool IsSetMethod => TargetMemberIs(MemberType.SetMethod);
 
         private bool TargetMemberIs(MemberType type)

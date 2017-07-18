@@ -269,5 +269,21 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 fieldResult.Value.ShouldBe(123);
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreMembersByNameMatching()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersWhere(member => member.Name.Contains("Value2"));
+
+                var source = new { Value1 = "One!", Value2 = "Two!" };
+                var result = mapper.Map(source).ToANew<PublicTwoFields<string, string>>();
+
+                result.Value1.ShouldBe("One!");
+                result.Value2.ShouldBeDefault();
+            }
+        }
     }
 }
