@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.Configuration
 {
+    using System;
     using System.Diagnostics;
 #if NET_STANDARD
     using System.Reflection;
@@ -12,6 +13,7 @@ namespace AgileObjects.AgileMapper.Configuration
     public class TargetMemberSelector
     {
         private readonly QualifiedMember _targetMember;
+        private string _path;
 
         [DebuggerStepThrough]
         internal TargetMemberSelector(QualifiedMember targetMember)
@@ -23,6 +25,20 @@ namespace AgileObjects.AgileMapper.Configuration
         /// Select target members by name.
         /// </summary>
         public string Name => _targetMember.Name;
+
+        /// <summary>
+        /// Select target members by their nested member path.
+        /// </summary>
+        public string Path => _path ?? (_path = GetPath());
+
+        private string GetPath()
+        {
+            var path = _targetMember.GetPath();
+
+            return path.StartsWith("Target.", StringComparison.Ordinal)
+                ? path.Substring("Target.".Length)
+                : path;
+        }
 
         /// <summary>
         /// Select all target properties.

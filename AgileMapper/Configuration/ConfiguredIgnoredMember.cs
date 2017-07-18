@@ -29,5 +29,15 @@ namespace AgileObjects.AgileMapper.Configuration
             return (_memberFilter == null) ||
                     _memberFilter.Invoke(new TargetMemberSelector(mapperData.TargetMember));
         }
+
+        protected override bool MembersConflict(QualifiedMember otherMember)
+        {
+            if (_memberFilter == null)
+            {
+                return base.MembersConflict(otherMember);
+            }
+
+            return _memberFilter.Invoke(new TargetMemberSelector(otherMember));
+        }
     }
 }

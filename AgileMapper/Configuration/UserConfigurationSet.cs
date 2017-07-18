@@ -229,7 +229,7 @@
             where TExistingItem : UserConfiguredItemBase
         {
             var conflictingItem = existingItems
-                .FirstOrDefault(dsf => dsf.ConflictsWith(configuredItem));
+                .FirstOrDefault(ci => ci.ConflictsWith(configuredItem));
 
             if (conflictingItem != null)
             {

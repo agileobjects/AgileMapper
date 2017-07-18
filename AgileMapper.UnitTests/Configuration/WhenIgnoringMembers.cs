@@ -271,7 +271,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
-        public void ShouldIgnoreMembersByNameMatching()
+        public void ShouldIgnoreMembersByNameMatch()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -283,6 +283,30 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 
                 result.Value1.ShouldBe("One!");
                 result.Value2.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreMembersByPathMatch()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new { Address = new Address { Line1 = "ONE!", Line2 = "TWO!" } };
+
+                mapper.WhenMapping
+                    .IgnoreTargetMembersWhere(member =>
+                        member.Path.Equals("Value.Line1", StringComparison.OrdinalIgnoreCase));
+
+                mapper.WhenMapping
+                    .From(source)
+                    .To<PublicField<Address>>()
+                    .Map((s, pf) => s.Address)
+                    .To(pf => pf.Value);
+
+                var result = mapper.Map(source).ToANew<PublicField<Address>>();
+
+                result.Value.Line1.ShouldBeDefault();
+                result.Value.Line2.ShouldBe("TWO!");
             }
         }
     }
