@@ -185,5 +185,22 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 }
             });
         }
+
+        [Fact]
+        public void ShouldErrorIfFilteredMemberIsIgnored()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .IgnoreTargetMembersWhere(member => member.IsField);
+
+                    mapper.WhenMapping
+                        .To<PublicField<int>>()
+                        .Ignore(pf => pf.Value);
+                }
+            });
+        }
     }
 }
