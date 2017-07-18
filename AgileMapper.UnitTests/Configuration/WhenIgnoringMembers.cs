@@ -218,5 +218,20 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 result.Value2.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreSetMethodMembersByMemberType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersWhere(member => member.IsSetMethod);
+
+                var source = new { Value = 123 };
+                var result = mapper.Map(source).ToANew<PublicSetMethod<int>>();
+
+                result.Value.ShouldBeDefault();
+            }
+        }
     }
 }

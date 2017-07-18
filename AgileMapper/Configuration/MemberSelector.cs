@@ -1,9 +1,6 @@
 namespace AgileObjects.AgileMapper.Configuration
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
 #if NET_STANDARD
     using System.Reflection;
 #endif
@@ -14,34 +11,24 @@ namespace AgileObjects.AgileMapper.Configuration
     /// </summary>
     public class TargetMemberSelector
     {
-        private readonly List<Func<IBasicMapperData, bool>> _memberTests;
+        private readonly QualifiedMember _targetMember;
 
         [DebuggerStepThrough]
-        internal TargetMemberSelector()
+        internal TargetMemberSelector(QualifiedMember targetMember)
         {
-            _memberTests = new List<Func<IBasicMapperData, bool>>();
+            _targetMember = targetMember;
         }
+
+        public bool IsSetMethod => _targetMember.LeafMember.MemberType == MemberType.SetMethod;
 
         /// <summary>
         /// Select target members with the given <typeparamref name="TMember">Type</typeparamref>.
         /// </summary>
         /// <typeparam name="TMember">The Type of the target members to select.</typeparam>
         /// <returns>The TargetMemberSelector, to allow addition of further selection criteria.</returns>
-        public TargetMemberSelector HasType<TMember>()
+        public bool HasType<TMember>()
         {
-            if (typeof(TMember) == typeof(object))
-            {
-                throw new MappingConfigurationException(
-                    "Ignoring target members of type object would ignore everything!");
-            }
-
-            _memberTests.Add(md => typeof(TMember).IsAssignableFrom(md.TargetMember.Type));
-            return this;
-        }
-
-        internal bool Matches(IBasicMapperData mapperData)
-        {
-            return _memberTests.All(test => test.Invoke(mapperData));
+            return typeof(TMember).IsAssignableFrom(_targetMember.Type);
         }
     }
 }

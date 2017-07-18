@@ -6,19 +6,17 @@ namespace AgileObjects.AgileMapper.Configuration
 
     internal class ConfiguredIgnoredMember : UserConfiguredItemBase
     {
-        private readonly TargetMemberSelector _memberSelector;
+        private readonly Func<TargetMemberSelector, bool> _memberFilter;
 
         public ConfiguredIgnoredMember(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
             : base(configInfo, targetMemberLambda)
         {
         }
 
-        public ConfiguredIgnoredMember(MappingConfigInfo configInfo, Action<TargetMemberSelector> memberFilter)
+        public ConfiguredIgnoredMember(MappingConfigInfo configInfo, Func<TargetMemberSelector, bool> memberFilter)
             : base(configInfo, QualifiedMember.All)
         {
-            _memberSelector = new TargetMemberSelector();
-
-            memberFilter.Invoke(_memberSelector);
+            _memberFilter = memberFilter;
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
@@ -28,7 +26,8 @@ namespace AgileObjects.AgileMapper.Configuration
                 return false;
             }
 
-            return (_memberSelector == null) || _memberSelector.Matches(mapperData);
+            return (_memberFilter == null) ||
+                    _memberFilter.Invoke(new TargetMemberSelector(mapperData.TargetMember));
         }
     }
 }

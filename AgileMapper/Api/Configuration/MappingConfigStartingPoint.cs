@@ -213,7 +213,7 @@
         /// Map null source collections to null instead of an empty collection, for all source and target types.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings MapNullCollectionsToNull()
         {
@@ -253,7 +253,7 @@
         /// </summary>
         /// <param name="assemblies">The assemblies in which to look for derived types.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings LookForDerivedTypesIn(params Assembly[] assemblies)
         {
@@ -275,24 +275,45 @@
             return this;
         }
 
+        #region Ignoring Members
+
         /// <summary>
         /// Ignore all target member(s) of the given <typeparamref name="TMember">Type</typeparamref>. Members will be
         /// ignored in mappings between all types and MappingRuleSets (create new, overwrite, etc).
         /// </summary>
         /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings IgnoreTargetMembersOfType<TMember>()
         {
-            var configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext);
+            if (typeof(TMember) == typeof(object))
+            {
+                throw new MappingConfigurationException(
+                    "Ignoring target members of type object would ignore everything!");
+            }
 
-            var configuredIgnoredMember =
-                new ConfiguredIgnoredMember(configInfo, targetMember => targetMember.HasType<TMember>());
+            return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
+        }
+
+        /// <summary>
+        /// Ignore all target member(s) matching the given <paramref name="memberFilter"/>. Members will be
+        /// ignored in mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// </summary>
+        /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
+        /// <returns>
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings IgnoreTargetMembersWhere(Func<TargetMemberSelector, bool> memberFilter)
+        {
+            var configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext);
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(configInfo, memberFilter);
 
             _mapperContext.UserConfigurations.Add(configuredIgnoredMember);
             return this;
         }
+
+        #endregion
 
         MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
 
