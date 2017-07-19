@@ -335,11 +335,28 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .IgnoreTargetMembersWhere(member => member.HasAttribute<IgnoreMeAttribute>());
 
-                var source = new { Value = "hgfd" };
+                var source = new { Value1 = "hgfd", Value2 = default(string) };
 
                 var result = mapper.Map(source).ToANew<AttributeHelper>();
 
-                result.Value.ShouldBeNull();
+                result.Value1.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldNotAttemptToIgnoreAttributedConstructorParameters()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersWhere(member => member.HasAttribute<IgnoreMeAttribute>());
+
+                var source = new { Value2 = "hjkhgff" };
+
+                var result = mapper.Map(source).ToANew<AttributeHelper>();
+
+                result.Value1.ShouldBeNull();
+                result.Value2.ShouldBe("hjkhgff");
             }
         }
 
@@ -365,8 +382,15 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 
         public class AttributeHelper
         {
+            public AttributeHelper([IgnoreMe]string value2)
+            {
+                Value2 = value2;
+            }
+
             [IgnoreMe]
-            public string Value { get; set; }
+            public string Value1 { get; set; }
+
+            public string Value2 { get; }
         }
 
         public sealed class IgnoreMeAttribute : Attribute
