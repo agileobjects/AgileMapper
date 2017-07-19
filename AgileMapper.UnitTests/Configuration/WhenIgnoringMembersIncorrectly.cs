@@ -181,7 +181,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldErrorIfConfiguredDataSourceMemberIsFiltered()
         {
-            Should.Throw<MappingConfigurationException>(() =>
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -195,6 +195,8 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                         .IgnoreTargetMembersWhere(member => member.Name == "Name");
                 }
             });
+
+            configEx.Message.ShouldContain("member.Name == \"Name\"");
         }
     }
 }

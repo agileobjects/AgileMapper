@@ -326,5 +326,23 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 result.Value.Line2.ShouldBe("TWO!");
             }
         }
+
+        [Fact]
+        public void ShouldSupportOverlappingIgnoreFilters()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersOfType<Address>()
+                    .AndWhenMapping
+                    .IgnoreTargetMembersWhere(member => member.IsProperty);
+
+                var source = new { Value = new Address { Line1 = "ONE!", Line2 = "TWO!" } };
+
+                var result = mapper.Map(source).ToANew<PublicProperty<Address>>();
+
+                result.Value.ShouldBeNull();
+            }
+        }
     }
 }
