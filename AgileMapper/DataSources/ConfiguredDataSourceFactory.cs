@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Linq;
     using System.Linq.Expressions;
     using Configuration;
     using Members;
@@ -46,11 +45,24 @@
                 return true;
             }
 
-            return _dataSourceLambda.IsSameAs(otherDataSource._dataSourceLambda);
+            return HasSameDataSourceLambdaAs(otherDataSource);
+        }
+
+        private bool HasSameDataSourceLambdaAs(ConfiguredDataSourceFactory otherDataSource)
+        {
+            return _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
         }
 
         protected override bool MembersConflict(QualifiedMember otherMember)
             => TargetMember.LeafMember.Equals(otherMember.LeafMember);
+
+        public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            var lambdasAreTheSame = HasSameDataSourceLambdaAs(conflictingDataSource);
+            var conflictIdentifier = lambdasAreTheSame ? "that" : "a";
+
+            return $"{TargetMember.GetPath()} already has {conflictIdentifier} configured data source";
+        }
 
         public IConfiguredDataSource Create(IMemberMapperData mapperData)
         {

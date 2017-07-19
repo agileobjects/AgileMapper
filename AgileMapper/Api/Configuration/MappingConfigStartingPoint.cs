@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
     using System.Text.RegularExpressions;
     using AgileMapper.Configuration;
@@ -304,7 +305,7 @@
         /// <returns>
         /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings IgnoreTargetMembersWhere(Func<TargetMemberSelector, bool> memberFilter)
+        public IGlobalConfigSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
             var configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext);
             var configuredIgnoredMember = new ConfiguredIgnoredMember(configInfo, memberFilter);

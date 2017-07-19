@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using DataSources;
 
     /// <summary>
     /// Provides options for specifying a target member to which a dictionary configuration should apply.
@@ -58,12 +59,16 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             var configuredKey = CustomDictionaryKey.ForTargetMember(_key, targetMemberLambda, ConfigInfo);
 
             UserConfigurations.ThrowIfConflictingIgnoredMemberExists(configuredKey);
-            UserConfigurations.ThrowIfConflictingDataSourceExists(configuredKey, GetConflictDescription);
+            UserConfigurations.ThrowIfConflictingDataSourceExists(configuredKey, GetConflictMessage);
 
             return RegisterCustomKey(configuredKey, _dictionarySettingsAction);
         }
 
-        private static string GetConflictDescription(CustomDictionaryKey key)
-            => $"Configured dictionary key member {key.TargetMember.GetPath()} has a configured data source";
+        private static string GetConflictMessage(
+            CustomDictionaryKey key,
+            ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            return key.GetConflictMessage(conflictingDataSource);
+        }
     }
 }

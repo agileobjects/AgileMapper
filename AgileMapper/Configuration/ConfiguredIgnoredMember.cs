@@ -2,10 +2,13 @@ namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
     using System.Linq.Expressions;
+    using DataSources;
     using Members;
+    using ReadableExpressions;
 
-    internal class ConfiguredIgnoredMember : UserConfiguredItemBase
+    internal class ConfiguredIgnoredMember : UserConfiguredItemBase, IReverseConflictable
     {
+        private readonly Expression _memberFilterLambda;
         private readonly Func<TargetMemberSelector, bool> _memberFilter;
 
         public ConfiguredIgnoredMember(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
@@ -13,10 +16,30 @@ namespace AgileObjects.AgileMapper.Configuration
         {
         }
 
-        public ConfiguredIgnoredMember(MappingConfigInfo configInfo, Func<TargetMemberSelector, bool> memberFilter)
+        public ConfiguredIgnoredMember(
+            MappingConfigInfo configInfo,
+            Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
             : base(configInfo, QualifiedMember.All)
         {
-            _memberFilter = memberFilter;
+            _memberFilterLambda = memberFilterLambda.Body;
+            _memberFilter = memberFilterLambda.Compile();
+        }
+
+        public string GetConflictMessage() => $"Member {TargetMember.GetPath()} has been ignored";
+
+        public string GetConflictMessage(ConfiguredIgnoredMember conflictingIgnoredMember)
+            => $"Member {TargetMember.GetPath()} has already been ignored";
+
+        public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            if (_memberFilterLambda == null)
+            {
+                return $"Ignored member {TargetMember.GetPath()} has a configured data source";
+            }
+
+            var targetMemberMatcher = _memberFilterLambda.ToReadableString();
+
+            return $"Member ignore pattern '{targetMemberMatcher}' conflicts with a configured data source";
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
@@ -29,6 +52,8 @@ namespace AgileObjects.AgileMapper.Configuration
             return (_memberFilter == null) ||
                     _memberFilter.Invoke(new TargetMemberSelector(mapperData.TargetMember));
         }
+
+        protected override bool HasReverseConflict(UserConfiguredItemBase otherItem) => false;
 
         protected override bool MembersConflict(QualifiedMember otherMember)
         {

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using DataSources;
     using Members;
 
     internal class CustomDictionaryKey : UserConfiguredItemBase
@@ -44,6 +45,11 @@
         }
 
         public string Key { get; }
+
+        public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            return $"Configured dictionary key member {TargetMember.GetPath()} has a configured data source";
+        }
 
         public bool AppliesTo(Member member, IBasicMapperData mapperData)
         {
