@@ -189,6 +189,23 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldIgnoreObjectMembersByType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersOfType<object>();
+
+                var source = new { Value1 = "object?!", Value2 = new { Line1 = "Address!" } };
+                var result = mapper.Map(source).ToANew<PublicTwoFields<object, Address>>();
+
+                result.Value1.ShouldBeNull();
+                result.Value2.ShouldNotBeNull();
+                result.Value2.Line1.ShouldBe("Address!");
+            }
+        }
+
+        [Fact]
         public void ShouldIgnoreComplexTypeMembersByType()
         {
             using (var mapper = Mapper.CreateNew())

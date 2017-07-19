@@ -65,6 +65,11 @@ namespace AgileObjects.AgileMapper.Configuration
         /// <returns>The TargetMemberSelector, to allow addition of further selection criteria.</returns>
         public bool HasType<TMember>()
         {
+            if (typeof(TMember) == typeof(object))
+            {
+                return _targetMember.Type == typeof(object);
+            }
+
             return typeof(TMember).IsAssignableFrom(_targetMember.Type);
         }
     }

@@ -288,12 +288,6 @@
         /// </returns>
         public IGlobalConfigSettings IgnoreTargetMembersOfType<TMember>()
         {
-            if (typeof(TMember) == typeof(object))
-            {
-                throw new MappingConfigurationException(
-                    "Ignoring target members of type object would ignore everything!");
-            }
-
             return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
         }
 
