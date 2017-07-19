@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
 #if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
@@ -190,6 +191,22 @@ namespace AgileObjects.AgileMapper.Members
 
         public MemberType MemberType { get; }
 
+        public bool HasAttribute<TAttribute>()
+        {
+            if (_memberInfo == null)
+            {
+                return false;
+            }
+
+
+            return _memberInfo
+                .GetCustomAttributes(typeof(TAttribute), inherit: true)
+#if NET_STANDARD
+                .ToArray()
+#endif
+                .Any();
+        }
+
         public Expression GetAccess(Expression instance)
         {
             if (!IsReadable)
@@ -212,7 +229,7 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            if (_memberInfo != null)
+            if (_accessFactory != null)
             {
                 return new Member(
                     MemberType,

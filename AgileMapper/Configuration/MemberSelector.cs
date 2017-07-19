@@ -22,12 +22,12 @@ namespace AgileObjects.AgileMapper.Configuration
         }
 
         /// <summary>
-        /// Select target members by name.
+        /// Select target members by name. Constructor parameters will not be selected.
         /// </summary>
         public string Name => _targetMember.Name;
 
         /// <summary>
-        /// Select target members by their nested member path.
+        /// Select target members by their nested member path. Constructor parameters will not be selected.
         /// </summary>
         public string Path => _path ?? (_path = GetPath());
 
@@ -59,10 +59,11 @@ namespace AgileObjects.AgileMapper.Configuration
             => _targetMember.LeafMember.MemberType == type;
 
         /// <summary>
-        /// Select target members with the given <typeparamref name="TMember">Type</typeparamref>.
+        /// Select target members with the given <typeparamref name="TMember">Type</typeparamref>. Constructor
+        /// parameters will not be selected.
         /// </summary>
         /// <typeparam name="TMember">The Type of the target members to select.</typeparam>
-        /// <returns>The TargetMemberSelector, to allow addition of further selection criteria.</returns>
+        /// <returns>This TargetMemberSelector, to allow addition of further selection criteria.</returns>
         public bool HasType<TMember>()
         {
             if (typeof(TMember) == typeof(object))
@@ -72,5 +73,14 @@ namespace AgileObjects.AgileMapper.Configuration
 
             return typeof(TMember).IsAssignableFrom(_targetMember.Type);
         }
+
+        /// <summary>
+        /// Select target members with attributes of the given <typeparamref name="TAttribute">Type</typeparamref>.
+        /// </summary>
+        /// <typeparam name="TAttribute">The Type of attribute of the target members to select.</typeparam>
+        /// <returns>This TargetMemberSelector, to allow addition of further selection criteria.</returns>
+        public bool HasAttribute<TAttribute>()
+            where TAttribute : Attribute
+            => _targetMember.LeafMember.HasAttribute<TAttribute>();
     }
 }

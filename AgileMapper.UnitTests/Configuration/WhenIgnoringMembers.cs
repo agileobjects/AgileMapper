@@ -328,6 +328,22 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldIgnoreMembersByAttribute()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreTargetMembersWhere(member => member.HasAttribute<IgnoreMeAttribute>());
+
+                var source = new { Value = "hgfd" };
+
+                var result = mapper.Map(source).ToANew<AttributeHelper>();
+
+                result.Value.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldSupportOverlappingIgnoreFilters()
         {
             using (var mapper = Mapper.CreateNew())
@@ -344,5 +360,19 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 result.Value.ShouldBeNull();
             }
         }
+
+        #region Helper Classes
+
+        public class AttributeHelper
+        {
+            [IgnoreMe]
+            public string Value { get; set; }
+        }
+
+        public sealed class IgnoreMeAttribute : Attribute
+        {
+        }
+
+        #endregion
     }
 }
