@@ -74,6 +74,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
+    <Compile Include="Configuration\WhenIgnoringMembersByFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersIncorrectly.cs" />
     <Compile Include="Configuration\WhenMappingToNull.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringSourceDictionaryMapping.cs" />
