@@ -74,6 +74,17 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers);
 
         /// <summary>
+        /// Ignore all target member(s) of the given <typeparamref name="TMember">Type</typeparamref> when mapping
+        /// from and to the source and target types being configured.
+        /// </summary>
+        /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>();
+
+        /// <summary>
         /// Configure a custom data source for a particular target member when mapping from and to the source and 
         /// target types being configured. The factory expression is passed a context object containing the current 
         /// mapping's source and target objects.
