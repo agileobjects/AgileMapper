@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Linq.Expressions;
+    using AgileMapper.Configuration;
     using Members;
 
     /// <summary>
@@ -83,6 +84,17 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// target type being configured.
         /// </returns>
         MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>();
+
+        /// <summary>
+        /// Ignore all target member(s) matching the given <paramref name="memberFilter"/> when mapping
+        /// from and to the source and target types being configured.
+        /// </summary>
+        /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter);
 
         /// <summary>
         /// Configure a custom data source for a particular target member when mapping from and to the source and 
