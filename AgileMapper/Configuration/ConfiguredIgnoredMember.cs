@@ -42,6 +42,18 @@ namespace AgileObjects.AgileMapper.Configuration
             return $"Member ignore pattern '{targetMemberMatcher}' conflicts with a configured data source";
         }
 
+        public string GetIgnoreMessage(IQualifiedMember targetMember)
+        {
+            if (_memberFilterLambda == null)
+            {
+                return targetMember.Name + " is ignored";
+            }
+
+            var filter = _memberFilterLambda.ToReadableString();
+
+            return $"{targetMember.Name} is ignored by filter:{Environment.NewLine}{filter}";
+        }
+
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
             if (!base.AppliesTo(mapperData))

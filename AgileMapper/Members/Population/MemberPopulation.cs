@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Diagnostics.CodeAnalysis;
 #endif
     using System.Linq.Expressions;
+    using Configuration;
     using DataSources;
     using Extensions;
     using ReadableExpressions;
@@ -70,8 +71,8 @@ namespace AgileObjects.AgileMapper.Members.Population
             return Expression.AndAlso(populateCondition, populationGuard);
         }
 
-        public static IMemberPopulation IgnoredMember(IMemberMapperData mapperData)
-            => CreateNullMemberPopulation(mapperData, targetMember => targetMember.Name + " is ignored");
+        public static IMemberPopulation IgnoredMember(IMemberMapperData mapperData, ConfiguredIgnoredMember configuredIgnore)
+            => CreateNullMemberPopulation(mapperData, configuredIgnore.GetIgnoreMessage);
 
         public static IMemberPopulation NoDataSource(IMemberMapperData mapperData)
             => CreateNullMemberPopulation(mapperData, targetMember => "No data source for " + targetMember.Name);

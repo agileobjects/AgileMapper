@@ -303,5 +303,20 @@
 
             plan.ShouldNotContain("publicField_String.Value = publicField_String.Value");
         }
+
+        [Fact]
+        public void ShouldIncludeMemberFilterExpressions()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<Address>()
+                    .IgnoreTargetMembersWhere(member => member.IsPropertyMatching(p => p.Name == "Line2"));
+
+                var plan = mapper.GetPlanFor<Address>().ToANew<Address>();
+
+                plan.ShouldContain("member.IsPropertyMatching(p => p.Name == \"Line2\")");
+            }
+        }
     }
 }
