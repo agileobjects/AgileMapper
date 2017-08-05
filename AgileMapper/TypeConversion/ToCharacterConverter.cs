@@ -46,12 +46,8 @@
                 return GetFromStringConversion(sourceValue, targetType);
             }
 
-            var nonNullableType = sourceValue.Type.GetNonNullableType();
-
-            if (nonNullableType.IsEnum())
+            if (sourceValue.Type.GetNonNullableType().IsEnum())
             {
-                // TODO: Nullable enum
-
                 sourceValue = sourceValue.GetConversionTo(typeof(int));
             }
 

@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using TestClasses;
     using Xunit;
 
@@ -71,6 +72,33 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldIgnorePropertiesBySourceTypeAndTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .To<PublicProperty<int>>()
+                    .IgnoreTargetMembersWhere(member => member.IsProperty);
+
+                var matchingSource = new PublicField<string> { Value = "123" };
+                var nonMatchingSource = new { Value = 456 };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicProperty<int>>();
+                matchingResult.Value.ShouldBeDefault();
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicField<int>>();
+                nonMatchingTargetResult.Value.ShouldBe(123);
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<int>>();
+                nonMatchingSourceResult.Value.ShouldBe(456);
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<int>>();
+                nonMatchingResult.Value.ShouldBe(456);
+            }
+        }
+
+        [Fact]
         public void ShouldIgnoreFieldsByMemberTypeAndTargetType()
         {
             using (var mapper = Mapper.CreateNew())
@@ -84,6 +112,77 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 
                 var matchingResult = mapper.Map(new { Value = "5" }).ToANew<PublicField<int>>();
                 matchingResult.Value.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreFieldsBySourceTypeAndTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<long>>()
+                    .To<PublicField<short>>()
+                    .IgnoreTargetMembersWhere(member => member.IsField);
+
+                var matchingSource = new PublicField<long> { Value = 111L };
+                var nonMatchingSource = new { Value = 222L };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<short>>();
+                matchingResult.Value.ShouldBeDefault();
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicField<int>>();
+                nonMatchingTargetResult.Value.ShouldBe(111);
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<PublicField<short>>();
+                nonMatchingSourceResult.Value.ShouldBe(222);
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<int>>();
+                nonMatchingResult.Value.ShouldBe(222);
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSetMethodsByMemberTypeAndTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<PublicSetMethod<DateTime>>()
+                    .IgnoreTargetMembersWhere(member => member.IsSetMethod);
+
+                var nonMatchingResult = mapper.Map(new { Value = 'x' }).ToANew<PublicSetMethod<string>>();
+                nonMatchingResult.Value.ShouldBe("x");
+
+                var matchingResult = mapper.Map(new { Value = DateTime.Now }).ToANew<PublicSetMethod<DateTime>>();
+                matchingResult.Value.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSetMethodsBySourceTypeAndTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicGetMethod<int>>()
+                    .To<PublicSetMethod<int>>()
+                    .IgnoreTargetMembersWhere(member => member.IsSetMethod);
+
+                var matchingSource = new PublicGetMethod<int>(888);
+                var nonMatchingSource = new { Value = 333 };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicSetMethod<int>>();
+                matchingResult.Value.ShouldBeDefault();
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicField<int>>();
+                nonMatchingTargetResult.Value.ShouldBe(888);
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<PublicSetMethod<int>>();
+                nonMatchingSourceResult.Value.ShouldBe(333);
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<int>>();
+                nonMatchingResult.Value.ShouldBe(333);
             }
         }
     }
