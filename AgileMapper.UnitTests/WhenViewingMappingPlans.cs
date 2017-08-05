@@ -250,6 +250,14 @@
         }
 
         [Fact]
+        public void ShouldNotRangeCheckNullableToNonNullableValues()
+        {
+            var plan = Mapper.GetPlanFor<PublicField<int?>>().ToANew<PublicField<int>>();
+
+            plan.ShouldNotContain("int.MinValue");
+        }
+
+        [Fact]
         public void ShouldShowEnumMismatches()
         {
             var plan = Mapper

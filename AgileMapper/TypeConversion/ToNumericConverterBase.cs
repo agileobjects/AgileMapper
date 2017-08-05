@@ -61,8 +61,14 @@
 
         private static Expression GetCheckedNumericConversion(Expression sourceValue, Type targetType)
         {
-            var numericValueIsValid = GetNumericValueValidityCheck(sourceValue, targetType);
             var castSourceValue = sourceValue.GetConversionTo(targetType);
+
+            if (sourceValue.Type.GetNonNullableType() == targetType.GetNonNullableType())
+            {
+                return castSourceValue;
+            }
+
+            var numericValueIsValid = GetNumericValueValidityCheck(sourceValue, targetType);
             var defaultTargetType = targetType.ToDefaultExpression();
             var inRangeValueOrDefault = Expression.Condition(numericValueIsValid, castSourceValue, defaultTargetType);
 
