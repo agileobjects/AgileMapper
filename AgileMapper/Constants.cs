@@ -33,6 +33,14 @@
 
         #region Numeric Types
 
+        public static readonly Type[] UnsignedTypes =
+        {
+            typeof(byte),
+            typeof(ushort),
+            typeof(uint),
+            typeof(ulong)
+        };
+
         public static readonly Type[] WholeNumberNumericTypes =
         {
             typeof(byte),

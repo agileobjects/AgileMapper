@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
-    using System;
     using TestClasses;
     using Xunit;
 
@@ -63,11 +62,28 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .To<PublicProperty<string>>()
                     .IgnoreTargetMembersWhere(member => member.IsProperty);
 
-                var matchingResult = mapper.Map(new { Value = "xyz" }).ToANew<PublicProperty<string>>();
-                matchingResult.Value.ShouldBeDefault();
-
                 var nonMatchingResult = mapper.Map(new { Line1 = "xyz" }).ToANew<Address>();
                 nonMatchingResult.Line1.ShouldBe("xyz");
+
+                var matchingResult = mapper.Map(new { Value = "xyz" }).ToANew<PublicProperty<string>>();
+                matchingResult.Value.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreFieldsByMemberTypeAndTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<PublicField<int>>()
+                    .IgnoreTargetMembersWhere(member => member.IsField);
+
+                var nonMatchingResult = mapper.Map(new { Value = "x" }).ToANew<PublicField<char>>();
+                nonMatchingResult.Value.ShouldBe('x');
+
+                var matchingResult = mapper.Map(new { Value = "5" }).ToANew<PublicField<int>>();
+                matchingResult.Value.ShouldBeDefault();
             }
         }
     }

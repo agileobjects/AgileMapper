@@ -28,7 +28,11 @@ namespace AgileObjects.AgileMapper.DataSources
 
             foreach (var dataSource in dataSources)
             {
-                HasValue = HasValue || dataSource.IsValid;
+                if (dataSource.IsValid)
+                {
+                    HasValue = true;
+                }
+
                 _variables.AddRange(dataSource.Variables);
 
                 if (dataSource.SourceMemberTypeTest != null)

@@ -27,6 +27,6 @@
 
         ParameterExpression InstanceVariable { get; }
 
-        NestedAccessFinder NestedAccessFinder { get; }
+        ExpressionInfoFinder ExpressionInfoFinder { get; }
     }
 }

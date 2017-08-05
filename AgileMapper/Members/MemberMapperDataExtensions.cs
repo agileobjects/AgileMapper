@@ -55,8 +55,13 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData.TargetMember.GetAccess(subjectMapperData.InstanceVariable, mapperData);
         }
 
-        public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)
-            => mapperData.NestedAccessFinder.FindIn(value, targetCanBeNull);
+        public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
+            this IMemberMapperData mapperData,
+            Expression value,
+            bool targetCanBeNull)
+        {
+            return mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull);
+        }
 
         public static bool SourceMemberIsStringKeyedDictionary(
             this IMemberMapperData mapperData,

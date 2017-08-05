@@ -70,7 +70,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ParentObject = Expression.Property(MappingDataObject, "Parent");
             }
 
-            NestedAccessFinder = new NestedAccessFinder(MappingDataObject);
+            ExpressionInfoFinder = new ExpressionInfoFinder(MappingDataObject);
 
             _mapChildMethod = GetMapMethod(MappingDataObject.Type, 4);
             _mapElementMethod = GetMapMethod(MappingDataObject.Type, 3);
@@ -150,6 +150,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression GetMappingDataProperty(Type mappingDataType, string propertyName)
         {
             var property = mappingDataType.GetProperty(propertyName);
+
+            // ReSharper disable once AssignNullToNotNullAttribute
             var propertyAccess = Expression.Property(MappingDataObject, property);
 
             return propertyAccess;
@@ -379,7 +381,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ?? Expression.Variable(TargetType, TargetType.GetVariableNameInCamelCase());
         }
 
-        public NestedAccessFinder NestedAccessFinder { get; }
+        public ExpressionInfoFinder ExpressionInfoFinder { get; }
 
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 

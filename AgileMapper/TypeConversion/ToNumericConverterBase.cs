@@ -79,10 +79,7 @@
                 return numericValueIsInRange;
             }
 
-            var one = GetConstantValue(1, sourceValue);
-            var sourceValueModuloOne = Expression.Modulo(sourceValue, one);
-            var zero = GetConstantValue(0, sourceValue);
-            var moduloOneEqualsZero = Expression.Equal(sourceValueModuloOne, zero);
+            var moduloOneEqualsZero = NumericConversions.GetModuloOneIsZeroCheck(sourceValue);
 
             return Expression.AndAlso(numericValueIsInRange, moduloOneEqualsZero);
         }
@@ -91,15 +88,7 @@
         {
             return sourceValue.Type.IsEnum() ||
                    sourceValue.Type.IsWholeNumberNumeric() ||
-                   !nonNullableTargetType.IsWholeNumberNumeric();
-        }
-
-        private static Expression GetConstantValue(int value, Expression sourceValue)
-        {
-            var constant = value.ToConstantExpression();
-
-            return (sourceValue.Type != typeof(int))
-                ? constant.GetConversionTo(sourceValue.Type) : constant;
+                  !nonNullableTargetType.IsWholeNumberNumeric();
         }
     }
 }
