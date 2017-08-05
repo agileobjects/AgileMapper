@@ -99,6 +99,47 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldIgnorePropertiesBySourceTypeTargetTypeAndPropertyInfoMatcher()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var matchingSource = new { Line2 = "Here" };
+                var nonMatchingSource = new { Line1 = "Where?", Line2 = "There" };
+
+                mapper.WhenMapping
+                    .From(matchingSource)
+                    .To<Address>()
+                    .IgnoreTargetMembersWhere(member =>
+                        member.IsPropertyMatching(p => p.GetSetMethod().Name.EndsWith("Line2")));
+
+                mapper.WhenMapping
+                    .From(matchingSource)
+                    .To<PublicProperty<string>>()
+                    .Map(ctx => ctx.Source.Line2)
+                    .To(pp => pp.Value);
+
+                mapper.WhenMapping
+                    .From(nonMatchingSource)
+                    .To<PublicProperty<string>>()
+                    .Map(ctx => ctx.Source.Line2)
+                    .To(pp => pp.Value);
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<Address>();
+                matchingResult.Line2.ShouldBeDefault();
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicProperty<string>>();
+                nonMatchingTargetResult.Value.ShouldBe("Here");
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<Address>();
+                nonMatchingSourceResult.Line1.ShouldBe("Where?");
+                nonMatchingSourceResult.Line2.ShouldBe("There");
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<string>>();
+                nonMatchingResult.Value.ShouldBe("There");
+            }
+        }
+
+        [Fact]
         public void ShouldIgnoreFieldsByMemberTypeAndTargetType()
         {
             using (var mapper = Mapper.CreateNew())
@@ -143,6 +184,42 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldIgnoreFieldsBySourceTypeTargetTypeAndFieldInfoMatcher()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var field2HashCode = typeof(PublicTwoFields<string, string>)
+                    .GetField("Value2")
+                    .GetHashCode();
+
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, int>>()
+                    .To<PublicTwoFields<string, string>>()
+                    .IgnoreTargetMembersWhere(member =>
+                        member.IsFieldMatching(f => f.GetHashCode() == field2HashCode));
+
+                var matchingSource = new PublicTwoFields<int, int> { Value1 = 111, Value2 = 222 };
+                var nonMatchingSource = new { Value1 = 333, Value2 = 444 };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicTwoFields<string, string>>();
+                matchingResult.Value1.ShouldBe("111");
+                matchingResult.Value2.ShouldBeDefault();
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicTwoFields<string, int>>();
+                nonMatchingTargetResult.Value1.ShouldBe("111");
+                nonMatchingTargetResult.Value2.ShouldBe(222);
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<PublicTwoFields<string, string>>();
+                nonMatchingSourceResult.Value1.ShouldBe("333");
+                nonMatchingSourceResult.Value2.ShouldBe("444");
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicTwoFields<int, string>>();
+                nonMatchingResult.Value1.ShouldBe(333);
+                nonMatchingResult.Value2.ShouldBe("444");
+            }
+        }
+
+        [Fact]
         public void ShouldIgnoreSetMethodsByMemberTypeAndTargetType()
         {
             using (var mapper = Mapper.CreateNew())
@@ -183,6 +260,35 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<int>>();
                 nonMatchingResult.Value.ShouldBe(333);
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSetMethodsBySourceTypeTargetTypeAndMethodInfoMatcher()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicGetMethod<int>>()
+                    .To<PublicSetMethod<int>>()
+                    .IgnoreTargetMembersWhere(member =>
+                        member.IsSetMethodMatching(m =>
+                            m.GetParameters()[0].ParameterType == typeof(int)));
+
+                var matchingSource = new PublicGetMethod<int>(999);
+                var nonMatchingSource = new { Value = 111 };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicSetMethod<int>>();
+                matchingResult.Value.ShouldBeDefault();
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicField<int>>();
+                nonMatchingTargetResult.Value.ShouldBe(999);
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<PublicSetMethod<int>>();
+                nonMatchingSourceResult.Value.ShouldBe(111);
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<int>>();
+                nonMatchingResult.Value.ShouldBe(111);
             }
         }
     }
