@@ -330,7 +330,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData DeclaredTypeMapperData { get; }
 
-        public ICollection<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
+        public IList<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
 
         public int DataSourceIndex { get; set; }
 

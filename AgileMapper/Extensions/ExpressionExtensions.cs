@@ -43,7 +43,7 @@
         [DebuggerStepThrough]
         public static DefaultExpression ToDefaultExpression(this Type type) => Expression.Default(type);
 
-        public static Expression AndTogether(this ICollection<Expression> expressions)
+        public static Expression AndTogether(this IList<Expression> expressions)
         {
             if (expressions.None())
             {

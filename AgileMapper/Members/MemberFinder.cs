@@ -11,12 +11,12 @@
     internal class MemberFinder
     {
         private readonly ICache<TypeKey, Member> _idMemberCache;
-        private readonly ICache<TypeKey, IEnumerable<Member>> _membersCache;
+        private readonly ICache<TypeKey, IList<Member>> _membersCache;
 
         public MemberFinder()
         {
             _idMemberCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, Member>();
-            _membersCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, IEnumerable<Member>>();
+            _membersCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, IList<Member>>();
         }
 
         public Member GetIdentifierOrNull(TypeKey typeIdKey)
@@ -29,7 +29,7 @@
             });
         }
 
-        public IEnumerable<Member> GetSourceMembers(Type sourceType)
+        public IList<Member> GetSourceMembers(Type sourceType)
         {
             return _membersCache.GetOrAdd(TypeKey.ForSourceMembers(sourceType), key =>
             {
@@ -46,7 +46,7 @@
             });
         }
 
-        public IEnumerable<Member> GetTargetMembers(Type targetType)
+        public IList<Member> GetTargetMembers(Type targetType)
         {
             return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
@@ -158,7 +158,7 @@
 
         #endregion
 
-        private static IEnumerable<Member> GetMembers(params IEnumerable<Member>[] members)
+        private static IList<Member> GetMembers(params IEnumerable<Member>[] members)
         {
             var allMembers = members
                 .SelectMany(m => m)

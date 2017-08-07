@@ -17,6 +17,27 @@
         }
 
         [DebuggerStepThrough]
+        public static T First<T>(this IList<T> items) => items[0];
+
+        public static T First<T>(this IList<T> items, Func<T, bool> predicate)
+        {
+            for (int i = 0, n = items.Count; i < n; i++)
+            {
+                var item = items[i];
+
+                if (predicate.Invoke(item))
+                {
+                    return item;
+                }
+            }
+
+            throw new InvalidOperationException("Sequence contains no matching element");
+        }
+
+        [DebuggerStepThrough]
+        public static T Last<T>(this IList<T> items) => items[items.Count - 1];
+
+        [DebuggerStepThrough]
         public static bool Any<T>(this ICollection<T> items) => items.Count > 0;
 
         [DebuggerStepThrough]
@@ -41,7 +62,7 @@
         [DebuggerStepThrough]
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
 
-        public static Expression ReverseChain<T>(this ICollection<T> items)
+        public static Expression ReverseChain<T>(this IList<T> items)
             where T : IConditionallyChainable
         {
             return ReverseChain(
@@ -66,7 +87,7 @@
         }
 
         public static Expression ReverseChain<TItem>(
-            this ICollection<TItem> items,
+            this IList<TItem> items,
             Func<TItem, Expression> seedValueFactory,
             Func<Expression, TItem, Expression> itemValueFactory)
         {
@@ -74,7 +95,7 @@
         }
 
         public static Expression Chain<TItem>(
-            this ICollection<TItem> items,
+            this IList<TItem> items,
             Func<TItem, Expression> seedValueFactory,
             Func<Expression, TItem, Expression> itemValueFactory)
         {
@@ -82,11 +103,11 @@
         }
 
         private static Expression Chain<TItem>(
-            ICollection<TItem> items,
-            Func<ICollection<TItem>, TItem> seedFactory,
+            IList<TItem> items,
+            Func<IList<TItem>, TItem> seedFactory,
             Func<TItem, Expression> seedValueFactory,
             Func<Expression, TItem, Expression> itemValueFactory,
-            Func<ICollection<TItem>, IEnumerable<TItem>> initialOperation)
+            Func<IList<TItem>, IEnumerable<TItem>> initialOperation)
         {
             if (items.None())
             {

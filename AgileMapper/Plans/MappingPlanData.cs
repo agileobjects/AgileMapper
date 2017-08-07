@@ -5,6 +5,7 @@
 #if NET_STANDARD
     using System.Reflection;
 #endif
+    using Extensions;
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
