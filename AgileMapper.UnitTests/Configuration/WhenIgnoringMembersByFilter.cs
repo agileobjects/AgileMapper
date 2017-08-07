@@ -291,5 +291,36 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 nonMatchingResult.Value.ShouldBe(111);
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreMembersBySourceTypeTargetTypeAndNameMatch()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, int>>()
+                    .To<PublicTwoFields<int, int>>()
+                    .IgnoreTargetMembersWhere(member => member.Name.Contains("Value1"));
+
+                var matchingSource = new PublicTwoFields<int, int> { Value1 = 1, Value2 = 2 };
+                var nonMatchingSource = new { Value1 = -1, Value2 = -2 };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicTwoFields<int, int>>();
+                matchingResult.Value1.ShouldBeDefault();
+                matchingResult.Value2.ShouldBe(2);
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicTwoParamCtor<int, int>>();
+                nonMatchingTargetResult.Value1.ShouldBe(1);
+                nonMatchingTargetResult.Value2.ShouldBe(2);
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<PublicTwoFields<int, int>>();
+                nonMatchingSourceResult.Value1.ShouldBe(-1);
+                nonMatchingSourceResult.Value2.ShouldBe(-2);
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicTwoParamCtor<int, int>>();
+                nonMatchingResult.Value1.ShouldBe(-1);
+                nonMatchingResult.Value2.ShouldBe(-2);
+            }
+        }
     }
 }
