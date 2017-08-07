@@ -283,7 +283,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ifSourceVariableIsDerivedTypeThenMap;
         }
 
-        private static ICollection<DerivedTypePair> GetTypePairsFor(
+        private static IList<DerivedTypePair> GetTypePairsFor(
             Type derivedSourceType,
             Type targetType,
             IMemberMapperData mapperData)
@@ -386,7 +386,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public Type DerivedTargetType { get; }
 
-            public ICollection<DerivedTypePair> TypePairs { get; }
+            public IList<DerivedTypePair> TypePairs { get; }
         }
     }
 

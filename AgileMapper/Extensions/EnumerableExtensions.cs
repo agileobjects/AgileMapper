@@ -43,16 +43,15 @@
         [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
-        public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+        public static bool None<T>(this IList<T> items, Func<T, bool> predicate)
         {
-            using (var enumerator = items.GetEnumerator())
+            for (int i = 0, n = items.Count; i < n; i++)
             {
-                while (enumerator.MoveNext())
+                var item = items[i];
+
+                if (predicate.Invoke(item))
                 {
-                    if (predicate.Invoke(enumerator.Current))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -165,13 +164,26 @@
 
         public static T[] Append<T>(this T[] array, T extraItem)
         {
-            var newArray = new T[array.Length + 1];
+            switch (array.Length)
+            {
+                case 0:
+                    return new[] { extraItem };
 
-            array.CopyTo(newArray, 0);
+                case 1:
+                    return new[] { array[0], extraItem };
 
-            newArray[array.Length] = extraItem;
+                case 2:
+                    return new[] { array[0], array[1], extraItem };
 
-            return newArray;
+                default:
+                    var newArray = new T[array.Length + 1];
+
+                    array.CopyTo(newArray, 0);
+
+                    newArray[array.Length] = extraItem;
+
+                    return newArray;
+            }
         }
 
         public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
