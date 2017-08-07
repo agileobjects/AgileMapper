@@ -18,11 +18,6 @@ namespace AgileObjects.AgileMapper.DataSources
             .First(m => (m.Name == "FirstOrDefault") && (m.GetParameters().Length == 2))
             .MakeGenericMethod(typeof(string));
 
-        private static readonly MethodInfo _enumerableNoneMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods()
-            .First(m => (m.Name == "None") && (m.GetParameters().Length == 2))
-            .MakeGenericMethod(typeof(string));
-
         private static readonly MethodInfo _stringStartsWithMethod = typeof(string)
             .GetPublicInstanceMethods()
             .First(m => (m.Name == "StartsWith") && (m.GetParameters().Length == 2));
@@ -134,7 +129,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 targetMemberKey,
                 (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
                 (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.OrdinalIgnoreCase),
-                _enumerableNoneMethod);
+                EnumerableExtensions.EnumerableNoneMethod);
 
             return noKeysStartWithTarget;
         }

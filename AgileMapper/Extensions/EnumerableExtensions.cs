@@ -5,9 +5,16 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
+    using NetStandardPolyfills;
 
     internal static class EnumerableExtensions
     {
+        public static readonly MethodInfo EnumerableNoneMethod = typeof(EnumerableExtensions)
+            .GetPublicStaticMethods()
+            .First(m => (m.Name == "None") && (m.GetParameters().Length == 2))
+            .MakeGenericMethod(typeof(string));
+
         public static void AddUnlessNullOrEmpty(this ICollection<Expression> items, Expression item)
         {
             if ((item != null) && (item != Constants.EmptyExpression))
@@ -42,6 +49,11 @@
 
         [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
+
+        public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+        {
+            return items.All(item => !predicate.Invoke(item));
+        }
 
         public static bool None<T>(this IList<T> items, Func<T, bool> predicate)
         {
