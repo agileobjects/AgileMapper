@@ -354,5 +354,57 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 nonMatchingResult.Value.Line2.ShouldBe("There!");
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreMembersBySourceTypeTargetTypeAndAttribute()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, int>>()
+                    .To<AttributeHelper>()
+                    .IgnoreTargetMembersWhere(member => member.HasAttribute<IgnoreMeAttribute>());
+
+                var matchingSource = new PublicTwoFields<int, int> { Value1 = 10, Value2 = 20 };
+                var nonMatchingSource = new { Value1 = "11", Value2 = "21" };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<AttributeHelper>();
+                matchingResult.Value1.ShouldBeDefault();
+                matchingResult.Value2.ShouldBe("20");
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicTwoFields<string, string>>();
+                nonMatchingTargetResult.Value1.ShouldBe("10");
+                nonMatchingTargetResult.Value2.ShouldBe("20");
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<AttributeHelper>();
+                nonMatchingSourceResult.Value1.ShouldBe("11");
+                nonMatchingSourceResult.Value2.ShouldBe("21");
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicTwoFields<string, string>>();
+                nonMatchingResult.Value1.ShouldBe("11");
+                nonMatchingResult.Value2.ShouldBe("21");
+            }
+        }
+
+        #region Helper Classes
+
+        public class AttributeHelper
+        {
+            public AttributeHelper([IgnoreMe]string value2)
+            {
+                Value2 = value2;
+            }
+
+            [IgnoreMe]
+            public string Value1 { get; set; }
+
+            public string Value2 { get; }
+        }
+
+        public sealed class IgnoreMeAttribute : Attribute
+        {
+        }
+
+        #endregion
     }
 }
