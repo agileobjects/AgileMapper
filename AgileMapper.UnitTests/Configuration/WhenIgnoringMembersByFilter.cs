@@ -322,5 +322,37 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 nonMatchingResult.Value2.ShouldBe(-2);
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreMembersBySourceTypeTargetTypeAndPathMatch()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<Address>>()
+                    .To<PublicProperty<Address>>()
+                    .IgnoreTargetMembersWhere(member =>
+                        member.Path.Equals("Value.Line2", StringComparison.OrdinalIgnoreCase));
+
+                var matchingSource = new PublicField<Address> { Value = new Address { Line1 = "Here", Line2 = "Here!" } };
+                var nonMatchingSource = new { Value = new Address { Line1 = "There", Line2 = "There!" } };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicProperty<Address>>();
+                matchingResult.Value.Line1.ShouldBe("Here");
+                matchingResult.Value.Line2.ShouldBeDefault();
+
+                var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<PublicField<Address>>();
+                nonMatchingTargetResult.Value.Line1.ShouldBe("Here");
+                nonMatchingTargetResult.Value.Line2.ShouldBe("Here!");
+
+                var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<Address>>();
+                nonMatchingSourceResult.Value.Line1.ShouldBe("There");
+                nonMatchingSourceResult.Value.Line2.ShouldBe("There!");
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<Address>>();
+                nonMatchingResult.Value.Line1.ShouldBe("There");
+                nonMatchingResult.Value.Line2.ShouldBe("There!");
+            }
+        }
     }
 }
