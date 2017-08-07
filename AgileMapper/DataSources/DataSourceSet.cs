@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.DataSources
 #if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
 #endif
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using Members;

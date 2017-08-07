@@ -2,7 +2,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using DataSources;
     using Extensions;
     using Members;

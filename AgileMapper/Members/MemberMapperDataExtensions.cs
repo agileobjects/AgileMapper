@@ -126,7 +126,8 @@ namespace AgileObjects.AgileMapper.Members
                     // the RecursionMapperFunc which performs the recursive mapping:
                     return TargetMemberIsRecursionWithin(
                         parentMapperData.TargetMember,
-                        mapperData.TargetMember.LeafMember);
+                        mapperData.TargetMember.LeafMember,
+                        new List<Type>());
                 }
 
                 parentMapperData = parentMapperData.Parent;
@@ -135,7 +136,10 @@ namespace AgileObjects.AgileMapper.Members
             return false;
         }
 
-        private static bool TargetMemberIsRecursionWithin(QualifiedMember parentMember, Member member)
+        private static bool TargetMemberIsRecursionWithin(
+            QualifiedMember parentMember,
+            Member member,
+            ICollection<Type> checkedTypes)
         {
             while (true)
             {
@@ -148,7 +152,7 @@ namespace AgileObjects.AgileMapper.Members
                 var nonSimpleChildMembers = GlobalContext.Instance
                     .MemberFinder
                     .GetTargetMembers(parentMember.Type)
-                    .Where(m => !m.IsSimple)
+                    .Where(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
                     .ToArray();
 
                 if (nonSimpleChildMembers.None())
@@ -165,7 +169,10 @@ namespace AgileObjects.AgileMapper.Members
                     return childMember.IsRecursion;
                 }
 
-                return nonSimpleChildMembers.Any(m => TargetMemberIsRecursionWithin(parentMember.Append(m), member));
+                checkedTypes.Add(parentMember.Type);
+
+                return nonSimpleChildMembers.Any(m =>
+                    TargetMemberIsRecursionWithin(parentMember.Append(m), member, checkedTypes));
             }
         }
 
@@ -375,6 +382,7 @@ namespace AgileObjects.AgileMapper.Members
                     .MakeGenericType(contextTypes[0], contextTypes[1])
                     .GetProperty(propertyName);
 
+            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Property(contextAccess, property);
         }
 

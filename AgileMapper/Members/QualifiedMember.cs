@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
 #if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
 #endif
@@ -210,6 +211,7 @@ namespace AgileObjects.AgileMapper.Members
 
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
+        [DebuggerStepThrough]
         public QualifiedMember Append(Member childMember)
             => _childMemberCache.GetOrAdd(childMember, CreateChildMember);
 
