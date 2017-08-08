@@ -309,5 +309,28 @@
 
             ignoreEx.Message.ShouldContain("has already been ignored");
         }
+
+        [Fact]
+        public void ShouldErrorIfFilteredMemberIsIgnored()
+        {
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var originalMapper = Mapper.CreateNew())
+                {
+                    originalMapper.WhenMapping
+                        .ToANew<Address>()
+                        .IgnoreTargetMembersWhere(member => member.Name == "Line2");
+
+                    using (var clonedMapper = originalMapper.CloneSelf())
+                    {
+                        clonedMapper.WhenMapping
+                            .To<Address>()
+                            .Ignore(a => a.Line2);
+                    }
+                }
+            });
+
+            ignoreEx.Message.ShouldContain("is already ignored by ignore pattern");
+        }
     }
 }

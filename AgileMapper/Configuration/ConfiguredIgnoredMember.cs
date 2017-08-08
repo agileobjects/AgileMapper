@@ -26,9 +26,15 @@ namespace AgileObjects.AgileMapper.Configuration
             _memberFilter = memberFilterLambda.Compile();
         }
 
-        private ConfiguredIgnoredMember(MappingConfigInfo configInfo, QualifiedMember targetMember)
+        private ConfiguredIgnoredMember(
+            MappingConfigInfo configInfo,
+            QualifiedMember targetMember,
+            Expression memberFilterLambda,
+            Func<TargetMemberSelector, bool> memberFilter)
             : base(configInfo, targetMember)
         {
+            _memberFilterLambda = memberFilterLambda;
+            _memberFilter = memberFilter;
         }
 
         public string GetConflictMessage() => $"Member {TargetMember.GetPath()} has been ignored";
@@ -96,7 +102,11 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public IPotentialClone Clone()
         {
-            return new ConfiguredIgnoredMember(ConfigInfo, TargetMember)
+            return new ConfiguredIgnoredMember(
+                ConfigInfo,
+                TargetMember,
+                _memberFilterLambda,
+                _memberFilter)
             {
                 IsClone = true
             };
