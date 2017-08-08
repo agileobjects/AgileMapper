@@ -73,6 +73,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="MapperCloning\WhenCloningMapperMemberIgnores.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersByFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersByGlobalFilter.cs" />
@@ -127,7 +128,7 @@
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
-    <Compile Include="Configuration\WhenCloningMappers.cs" />
+    <Compile Include="MapperCloning\WhenCloningMapperDataSources.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaries.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />

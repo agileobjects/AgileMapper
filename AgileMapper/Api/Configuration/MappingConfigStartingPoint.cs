@@ -204,6 +204,9 @@
         /// Keep track of objects during mappings between all source and target types, in order to short-circuit 
         /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
         /// </summary>
+        /// <returns>
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
         public IGlobalConfigSettings TrackMappedObjects()
         {
             _mapperContext.UserConfigurations.Add(ObjectTrackingMode.TrackAll(_mapperContext));
