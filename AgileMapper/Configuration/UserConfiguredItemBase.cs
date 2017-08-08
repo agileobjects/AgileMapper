@@ -61,7 +61,7 @@
                 return false;
             }
 
-            if (ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo))
+            if (HasCompatibleTypes(otherConfiguredItem))
             {
                 return MembersConflict(otherConfiguredItem);
             }
@@ -73,6 +73,9 @@
         {
             return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
         }
+
+        protected virtual bool HasCompatibleTypes(UserConfiguredItemBase otherConfiguredItem)
+            => ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo);
 
         protected virtual bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
             => TargetMember.Matches(otherConfiguredItem.TargetMember);

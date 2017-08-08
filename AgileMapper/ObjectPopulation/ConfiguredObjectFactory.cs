@@ -38,6 +38,12 @@
 
         public bool UsesMappingDataObjectParameter => _factoryInfo.UsesMappingDataObjectParameter;
 
+        protected override bool HasCompatibleTypes(UserConfiguredItemBase otherConfiguredItem)
+        {
+            return base.HasCompatibleTypes(otherConfiguredItem) &&
+                (((ConfiguredObjectFactory)otherConfiguredItem)._objectType == _objectType);
+        }
+
         public override bool AppliesTo(IBasicMapperData mapperData)
             => _objectType.IsAssignableFrom(mapperData.TargetType) && base.AppliesTo(mapperData);
 

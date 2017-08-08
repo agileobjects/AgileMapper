@@ -49,14 +49,15 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public string GetConflictMessage(ConfiguredIgnoredMember conflictingIgnoredMember)
         {
-            var matcher = TargetMemberMatcher ?? conflictingIgnoredMember.TargetMemberMatcher;
+            string thisFilter = TargetMemberFilter, thatFilter = null;
+            var matcher = thisFilter ?? (thatFilter = conflictingIgnoredMember.TargetMemberFilter);
 
             if (matcher == null)
             {
                 return $"Member {TargetMember.GetPath()} has already been ignored";
             }
 
-            if (TargetMemberMatcher == conflictingIgnoredMember.TargetMemberMatcher)
+            if (thisFilter == (thatFilter ?? conflictingIgnoredMember.TargetMemberFilter))
             {
                 return $"Ignore pattern '{matcher}' has already been configured";
             }
@@ -66,27 +67,29 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
         {
-            if (IsNotMemberFilterIngore)
+            if (HasMemberFilter)
             {
-                return $"Ignored member {TargetMember.GetPath()} has a configured data source";
+                return $"Member ignore pattern '{TargetMemberFilter}' conflicts with a configured data source";
             }
 
-            return $"Member ignore pattern '{TargetMemberMatcher}' conflicts with a configured data source";
+            return $"Ignored member {TargetMember.GetPath()} has a configured data source";
         }
 
         public string GetIgnoreMessage(IQualifiedMember targetMember)
         {
-            if (IsNotMemberFilterIngore)
+            if (HasMemberFilter)
             {
-                return targetMember.Name + " is ignored";
+                return $"{targetMember.Name} is ignored by filter:{Environment.NewLine}{TargetMemberFilter}";
             }
 
-            return $"{targetMember.Name} is ignored by filter:{Environment.NewLine}{TargetMemberMatcher}";
+            return targetMember.Name + " is ignored";
         }
 
-        private string TargetMemberMatcher => _memberFilterLambda?.ToReadableString();
+        private bool HasMemberFilter => _memberFilter != null;
 
-        private bool IsNotMemberFilterIngore => _memberFilter == null;
+        private bool HasNoMemberFilter => !HasMemberFilter;
+
+        private string TargetMemberFilter => _memberFilterLambda?.ToReadableString();
 
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
@@ -95,21 +98,21 @@ namespace AgileObjects.AgileMapper.Configuration
                 return false;
             }
 
-            return (IsNotMemberFilterIngore) ||
-                    _memberFilter.Invoke(new TargetMemberSelector(mapperData.TargetMember));
+            return HasNoMemberFilter ||
+                  _memberFilter.Invoke(new TargetMemberSelector(mapperData.TargetMember));
         }
 
         protected override bool HasReverseConflict(UserConfiguredItemBase otherItem) => false;
 
         protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
         {
-            if (IsNotMemberFilterIngore)
+            if (HasNoMemberFilter)
             {
                 return base.MembersConflict(otherConfiguredItem);
             }
 
             if ((otherConfiguredItem is ConfiguredIgnoredMember otherIgnoredMember) &&
-                (otherIgnoredMember.TargetMemberMatcher == TargetMemberMatcher))
+                (otherIgnoredMember.TargetMemberFilter == TargetMemberFilter))
             {
                 return true;
             }

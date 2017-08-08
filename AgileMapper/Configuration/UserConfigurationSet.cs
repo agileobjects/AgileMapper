@@ -82,7 +82,15 @@
 
         #region ObjectFactories
 
-        public void Add(ConfiguredObjectFactory objectFactory) => _objectFactories.Add(objectFactory);
+        public void Add(ConfiguredObjectFactory objectFactory)
+        {
+            ThrowIfConflictingItemExists(
+                objectFactory,
+                _objectFactories,
+                (of1, of2) => $"An object factory for type {of1.TargetTypeName} has already been configured");
+
+            _objectFactories.Add(objectFactory);
+        }
 
         public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
             => FindMatches(_objectFactories, mapperData).ToArray();
