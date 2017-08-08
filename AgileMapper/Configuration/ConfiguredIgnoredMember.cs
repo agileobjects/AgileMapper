@@ -37,7 +37,15 @@ namespace AgileObjects.AgileMapper.Configuration
             _memberFilter = memberFilter;
         }
 
-        public string GetConflictMessage() => $"Member {TargetMember.GetPath()} has been ignored";
+        public string GetConflictMessage(UserConfiguredItemBase conflictingConfiguredItem)
+        {
+            if (conflictingConfiguredItem is ConfiguredDataSourceFactory conflictingDataSource)
+            {
+                return GetConflictMessage(conflictingDataSource);
+            }
+
+            return $"Member {TargetMember.GetPath()} has been ignored";
+        }
 
         public string GetConflictMessage(ConfiguredIgnoredMember conflictingIgnoredMember)
         {

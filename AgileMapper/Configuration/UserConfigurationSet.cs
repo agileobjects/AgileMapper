@@ -190,7 +190,7 @@
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            ThrowIfConflictingIgnoredMemberExists(configuredItem, (ci, im) => im.GetConflictMessage());
+            ThrowIfConflictingIgnoredMemberExists(configuredItem, (ci, im) => im.GetConflictMessage(ci));
         }
 
         private void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(

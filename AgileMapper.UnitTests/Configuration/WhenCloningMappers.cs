@@ -332,5 +332,30 @@
 
             ignoreEx.Message.ShouldContain("is already ignored by ignore pattern");
         }
+
+        [Fact]
+        public void ShouldErrorIfFilteredMemberDataSourceIsConfigured()
+        {
+            var dataSourceEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var originalMapper = Mapper.CreateNew())
+                {
+                    originalMapper.WhenMapping
+                        .ToANew<Address>()
+                        .IgnoreTargetMembersWhere(member => member.Name == "Line2");
+
+                    using (var clonedMapper = originalMapper.CloneSelf())
+                    {
+                        clonedMapper.WhenMapping
+                            .From<Address>()
+                            .To<Address>()
+                            .Map(ctx => ctx.Source.Line1)
+                            .To(a => a.Line2);
+                    }
+                }
+            });
+
+            dataSourceEx.Message.ShouldContain("conflicts with a configured data source");
+        }
     }
 }
