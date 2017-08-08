@@ -56,12 +56,17 @@ namespace AgileObjects.AgileMapper.Configuration
                 return $"Member {TargetMember.GetPath()} has already been ignored";
             }
 
+            if (TargetMemberMatcher == conflictingIgnoredMember.TargetMemberMatcher)
+            {
+                return $"Ignore pattern '{matcher}' has already been configured";
+            }
+
             return $"Member {TargetMember.GetPath()} is already ignored by ignore pattern '{matcher}'";
         }
 
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
         {
-            if (_memberFilterLambda == null)
+            if (IsNotMemberFilterIngore)
             {
                 return $"Ignored member {TargetMember.GetPath()} has a configured data source";
             }
@@ -71,7 +76,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public string GetIgnoreMessage(IQualifiedMember targetMember)
         {
-            if (_memberFilterLambda == null)
+            if (IsNotMemberFilterIngore)
             {
                 return targetMember.Name + " is ignored";
             }
@@ -81,6 +86,8 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private string TargetMemberMatcher => _memberFilterLambda?.ToReadableString();
 
+        private bool IsNotMemberFilterIngore => _memberFilter == null;
+
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
             if (!base.AppliesTo(mapperData))
@@ -88,20 +95,26 @@ namespace AgileObjects.AgileMapper.Configuration
                 return false;
             }
 
-            return (_memberFilter == null) ||
+            return (IsNotMemberFilterIngore) ||
                     _memberFilter.Invoke(new TargetMemberSelector(mapperData.TargetMember));
         }
 
         protected override bool HasReverseConflict(UserConfiguredItemBase otherItem) => false;
 
-        protected override bool MembersConflict(QualifiedMember otherMember)
+        protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
         {
-            if (_memberFilter == null)
+            if (IsNotMemberFilterIngore)
             {
-                return base.MembersConflict(otherMember);
+                return base.MembersConflict(otherConfiguredItem);
             }
 
-            return _memberFilter.Invoke(new TargetMemberSelector(otherMember));
+            if ((otherConfiguredItem is ConfiguredIgnoredMember otherIgnoredMember) &&
+                (otherIgnoredMember.TargetMemberMatcher == TargetMemberMatcher))
+            {
+                return true;
+            }
+
+            return _memberFilter.Invoke(new TargetMemberSelector(otherConfiguredItem.TargetMember));
         }
 
         #region IPotentialClone Members

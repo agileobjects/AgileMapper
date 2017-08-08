@@ -65,8 +65,8 @@
             return _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
         }
 
-        protected override bool MembersConflict(QualifiedMember otherMember)
-            => TargetMember.LeafMember.Equals(otherMember.LeafMember);
+        protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
+            => TargetMember.LeafMember.Equals(otherConfiguredItem.TargetMember.LeafMember);
 
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
         {

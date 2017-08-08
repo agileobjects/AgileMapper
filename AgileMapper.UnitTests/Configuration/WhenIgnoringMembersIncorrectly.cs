@@ -183,6 +183,24 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldErrorIfDuplicateFilterIsConfigured()
+        {
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .IgnoreTargetMembersWhere(member => member.IsField);
+
+                    mapper.WhenMapping
+                        .IgnoreTargetMembersWhere(member => member.IsField);
+                }
+            });
+
+            ignoreEx.Message.ShouldContain("has already been configured");
+        }
+
+        [Fact]
         public void ShouldErrorIfConfiguredDataSourceMemberIsFiltered()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>

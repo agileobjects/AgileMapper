@@ -144,5 +144,28 @@
 
             ignoreEx.Message.ShouldContain("is already ignored by ignore pattern");
         }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateMemberFilterMemberIsConfigured()
+        {
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var originalMapper = Mapper.CreateNew())
+                {
+                    originalMapper.WhenMapping
+                        .ToANew<Address>()
+                        .IgnoreTargetMembersOfType<string>();
+
+                    using (var clonedMapper = originalMapper.CloneSelf())
+                    {
+                        clonedMapper.WhenMapping
+                            .ToANew<Address>()
+                            .IgnoreTargetMembersOfType<string>();
+                    }
+                }
+            });
+
+            ignoreEx.Message.ShouldContain("has already been configured");
+        }
     }
 }
