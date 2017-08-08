@@ -250,6 +250,14 @@
         }
 
         [Fact]
+        public void ShouldNotRangeCheckNullableToNonNullableValues()
+        {
+            var plan = Mapper.GetPlanFor<PublicField<int?>>().ToANew<PublicField<int>>();
+
+            plan.ShouldNotContain("int.MinValue");
+        }
+
+        [Fact]
         public void ShouldShowEnumMismatches()
         {
             var plan = Mapper
@@ -302,6 +310,21 @@
             var plan = Mapper.GetPlanFor<PublicField<string>>().OnTo<PublicField<string>>();
 
             plan.ShouldNotContain("publicField_String.Value = publicField_String.Value");
+        }
+
+        [Fact]
+        public void ShouldIncludeMemberFilterExpressions()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<Address>()
+                    .IgnoreTargetMembersWhere(member => member.IsPropertyMatching(p => p.Name == "Line2"));
+
+                var plan = mapper.GetPlanFor<Address>().ToANew<Address>();
+
+                plan.ShouldContain("member.IsPropertyMatching(p => p.Name == \"Line2\")");
+            }
         }
     }
 }

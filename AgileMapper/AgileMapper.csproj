@@ -25,14 +25,14 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Company>AgileObjects</Company>
-    <Version>0.11.1</Version>
-    <AssemblyVersion>0.11.1.0</AssemblyVersion>
-    <FileVersion>0.11.1.0</FileVersion>
+    <Version>0.12.0</Version>
+    <AssemblyVersion>0.12.0.0</AssemblyVersion>
+    <FileVersion>0.12.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="0.2.1" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.8.6" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.9.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">

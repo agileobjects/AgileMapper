@@ -15,6 +15,8 @@
     <Authors>Steve Wilkes</Authors>
     <Company>AgileObjects</Company>
     <Version>0.11.1</Version>
+    <AssemblyVersion>0.12.0.0</AssemblyVersion>
+    <FileVersion>0.12.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1.1' ">

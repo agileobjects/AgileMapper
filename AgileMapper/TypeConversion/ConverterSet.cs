@@ -30,6 +30,7 @@
                 new ToNumericConverter<decimal>(toStringConverter),
                 new ToNumericConverter<double>(toStringConverter),
                 new ToNumericConverter<long>(toStringConverter),
+                new ToCharacterConverter(toStringConverter),
                 new ToNumericConverter<short>(toStringConverter),
                 new ToNumericConverter<byte>(toStringConverter),
                 new FallbackNonSimpleTypeValueConverter()

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using AgileMapper.Extensions;
     using Shouldly;
     using TestClasses;
@@ -262,6 +261,16 @@
         }
 
         [Fact]
+        public void ShouldGenerateAMappingPlanForLinkRelationships()
+        {
+            var plan = Mapper.GetPlanFor<Video>().Over<Video>();
+
+            plan.ShouldNotBeNull();
+            plan.ShouldContain("WhenMappingCircularReferences.Video -> WhenMappingCircularReferences.Video");
+            plan.ShouldContain(".MapRecursion(");
+        }
+
+        [Fact]
         public void ShouldGenerateAMappingPlanForAOneToOneRelationship()
         {
             var plan = Mapper
@@ -302,6 +311,47 @@
             public MultipleRecursor[] ChildRecursorArray { get; set; }
 
             public List<MultipleRecursor> ChildRecursors { get; set; }
+        }
+
+        internal class Video
+        {
+            public IEnumerable<VideoPresenter> Presenters { get; set; }
+        }
+
+        internal class VideoPresenter
+        {
+            public Video Video { get; set; }
+
+            public Presenter Presenter { get; set; }
+        }
+
+        internal class Presenter
+        {
+            public IEnumerable<PresenterExpertise> Expertises { get; set; }
+        }
+
+        internal class PresenterExpertise
+        {
+            public Presenter Presenter { get; set; }
+
+            public Expertise Expertise { get; set; }
+        }
+
+        internal class Expertise
+        {
+            public Subject Subject { get; set; }
+        }
+
+        internal class Subject
+        {
+            public IEnumerable<SubjectPresenter> Presenters { get; set; }
+        }
+
+        internal class SubjectPresenter
+        {
+            public Subject Subject { get; set; }
+
+            public Presenter Presenter { get; set; }
         }
 
         #endregion

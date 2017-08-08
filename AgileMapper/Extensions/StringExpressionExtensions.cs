@@ -86,5 +86,13 @@
 
             expressions.Insert(0, currentNamePart.ToConstantExpression());
         }
+
+        public static Expression GetLeftCall(this Expression stringAccess, int numberOfCharacters)
+        {
+            return Expression.Call(
+                typeof(StringExtensions).GetPublicStaticMethod("Left"),
+                stringAccess,
+                numberOfCharacters.ToConstantExpression());
+        }
     }
 }

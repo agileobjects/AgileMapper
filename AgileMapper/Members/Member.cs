@@ -1,6 +1,9 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+#if NET_STANDARD
+    using System.Linq;
+#endif
     using System.Linq.Expressions;
 #if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
@@ -12,7 +15,6 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class Member
     {
-        private readonly MemberInfo _memberInfo;
         private readonly Func<Expression, MemberInfo, Expression> _accessFactory;
 
         private Member(
@@ -31,7 +33,7 @@ namespace AgileObjects.AgileMapper.Members
                   isWriteable,
                   isRoot)
         {
-            _memberInfo = memberInfo;
+            MemberInfo = memberInfo;
         }
 
         private Member(
@@ -162,6 +164,8 @@ namespace AgileObjects.AgileMapper.Members
 
         #endregion
 
+        public MemberInfo MemberInfo { get; }
+
         public string Name { get; }
 
         public string JoiningName { get; }
@@ -190,6 +194,22 @@ namespace AgileObjects.AgileMapper.Members
 
         public MemberType MemberType { get; }
 
+        public bool HasAttribute<TAttribute>()
+        {
+            if (MemberInfo == null)
+            {
+                return false;
+            }
+
+
+            return MemberInfo
+                .GetCustomAttributes(typeof(TAttribute), inherit: true)
+#if NET_STANDARD
+                .ToArray()
+#endif
+                .Any();
+        }
+
         public Expression GetAccess(Expression instance)
         {
             if (!IsReadable)
@@ -202,7 +222,7 @@ namespace AgileObjects.AgileMapper.Members
                 instance = Expression.Convert(instance, DeclaringType);
             }
 
-            return _accessFactory.Invoke(instance, _memberInfo);
+            return _accessFactory.Invoke(instance, MemberInfo);
         }
 
         public Member WithType(Type runtimeType)
@@ -212,12 +232,12 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            if (_memberInfo != null)
+            if (_accessFactory != null)
             {
                 return new Member(
                     MemberType,
                     runtimeType,
-                    _memberInfo,
+                    MemberInfo,
                     _accessFactory,
                     IsWriteable,
                     IsRoot);

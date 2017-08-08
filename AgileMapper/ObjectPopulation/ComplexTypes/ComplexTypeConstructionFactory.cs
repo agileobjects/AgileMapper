@@ -233,7 +233,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             private readonly Expression _construction;
             private readonly ParameterExpression _mappingDataObject;
 
-            public Construction(ICollection<Construction> constructions, ConstructionKey key)
+            public Construction(IList<Construction> constructions, ConstructionKey key)
                 : this(constructions.ReverseChain())
             {
                 UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);

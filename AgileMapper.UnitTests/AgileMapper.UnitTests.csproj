@@ -39,8 +39,8 @@
     <Reference Include="AgileObjects.NetStandardPolyfills, Version=0.2.1.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
       <HintPath>..\packages\AgileObjects.NetStandardPolyfills.0.2.1\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
     </Reference>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=1.8.6.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.8.6\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.9.1.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.9.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
     </Reference>
     <Reference Include="Shouldly, Version=2.8.3.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
       <HintPath>..\packages\Shouldly.2.8.3\lib\net451\Shouldly.dll</HintPath>
@@ -74,12 +74,16 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
+    <Compile Include="Configuration\WhenIgnoringMembersByFilter.cs" />
+    <Compile Include="Configuration\WhenIgnoringMembersByGlobalFilter.cs" />
+    <Compile Include="Configuration\WhenIgnoringMembersIncorrectly.cs" />
     <Compile Include="Configuration\WhenMappingToNull.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringSourceDictionaryMapping.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="TestClasses\Earthworm.cs" />
     <Compile Include="TestClasses\IPublicInterface.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />

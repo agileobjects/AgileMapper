@@ -246,7 +246,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static void CreateSourceMemberTypeTesterIfRequired(
-            ICollection<Expression> typeTests,
+            IList<Expression> typeTests,
             IObjectMappingData mappingData)
         {
             if (typeTests.None())

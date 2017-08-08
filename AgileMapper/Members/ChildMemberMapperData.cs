@@ -34,6 +34,6 @@
 
         public ParameterExpression InstanceVariable => Parent.InstanceVariable;
 
-        public NestedAccessFinder NestedAccessFinder => Parent.NestedAccessFinder;
+        public ExpressionInfoFinder ExpressionInfoFinder => Parent.ExpressionInfoFinder;
     }
 }

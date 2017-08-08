@@ -51,6 +51,11 @@
 
         public virtual bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {
+            if (HasReverseConflict(otherConfiguredItem))
+            {
+                return true;
+            }
+
             if (HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition)
             {
                 return false;
@@ -62,6 +67,11 @@
             }
 
             return false;
+        }
+
+        protected virtual bool HasReverseConflict(UserConfiguredItemBase otherItem)
+        {
+            return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
         }
 
         protected virtual bool MembersConflict(QualifiedMember otherMember)

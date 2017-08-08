@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using NetStandardPolyfills;
@@ -197,6 +198,7 @@
             return (typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>));
         }
 
+        [DebuggerStepThrough]
         public static Type GetNonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
         public static IEnumerable<Type> GetCoercibleNumericTypes(this Type numericType)
@@ -228,6 +230,9 @@
 
         public static bool IsNumeric(this Type type) => Constants.NumericTypes.Contains(type);
 
+        public static bool IsUnsignedNumeric(this Type type)
+            => Constants.UnsignedTypes.Contains(type);
+
         public static bool IsWholeNumberNumeric(this Type type)
             => Constants.WholeNumberNumericTypes.Contains(type);
 
@@ -253,5 +258,7 @@
         public static bool StartsWith(this string value, char character) => value[0] == character;
 
         public static bool EndsWith(this string value, char character) => value[value.Length - 1] == character;
+
+        public static bool CannotBeNull(this Type type) => !type.CanBeNull();
     }
 }

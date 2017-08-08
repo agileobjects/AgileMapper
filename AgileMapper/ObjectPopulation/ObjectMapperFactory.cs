@@ -1,15 +1,15 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Caching;
     using ComplexTypes;
     using Enumerables;
+    using Extensions;
 
     internal class ObjectMapperFactory
     {
-        private readonly IEnumerable<MappingExpressionFactoryBase> _mappingExpressionFactories;
+        private readonly IList<MappingExpressionFactoryBase> _mappingExpressionFactories;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _rootMappersCache;
 
         public ObjectMapperFactory(MapperContext mapperContext)
