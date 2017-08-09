@@ -429,7 +429,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfConflictingFactorySpecified()
+        public void ShouldErrorIfConflictingFactoryConfigured()
         {
             var factoryEx = Should.Throw<MappingConfigurationException>(() =>
             {
