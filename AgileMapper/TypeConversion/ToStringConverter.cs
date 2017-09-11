@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -21,7 +22,12 @@
         {
             if (sourceValue.Type == typeof(byte[]))
             {
-                return GetBase64StringToByteArrayConversion(sourceValue);
+                return GetByteArrayToBase64StringConversion(sourceValue);
+            }
+
+            if (sourceValue.Type == typeof(DateTime))
+            {
+                return GetDateTimeToStringConversion(sourceValue);
             }
 
             var toStringMethod = sourceValue.Type
@@ -39,11 +45,33 @@
             .GetPublicStaticMethods()
             .First(m => (m.Name == "ToBase64String") && m.GetParameters().HasOne());
 
-        private static Expression GetBase64StringToByteArrayConversion(Expression sourceValue)
+        private static Expression GetByteArrayToBase64StringConversion(Expression sourceValue)
         {
             return Expression.Call(_toBase64String, sourceValue);
         }
 
         #endregion
+
+        private static Expression GetDateTimeToStringConversion(Expression sourceValue)
+        {
+            var toStringMethod = sourceValue.Type   
+                .GetPublicInstanceMethods()
+                .Where(m => m.Name == "ToString")
+                .Select(m => new
+                {
+                    Method = m,
+                    Parameters = m.GetParameters()
+                })
+                .First(m => m.Parameters.HasOne() &&
+                           (m.Parameters[0].ParameterType == typeof(IFormatProvider)))
+                .Method;
+
+            var currentCulture = Expression.Property(null, typeof(CultureInfo), "CurrentCulture");
+            var dateTimeFormat = Expression.Property(currentCulture, typeof(CultureInfo), "DateTimeFormat");
+
+            var toStringCall = Expression.Call(sourceValue, toStringMethod, dateTimeFormat);
+
+            return toStringCall;
+        }
     }
 }
