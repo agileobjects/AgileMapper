@@ -13,28 +13,49 @@ namespace AgileObjects.AgileMapper.Members
     internal class DictionarySourceMember : IQualifiedMember
     {
         private readonly IQualifiedMember _wrappedSourceMember;
+        private readonly QualifiedMember _matchedTargetMember;
 
         public DictionarySourceMember(IMemberMapperData mapperData)
             : this(mapperData.SourceMember, mapperData.TargetMember)
         {
         }
 
-        public DictionarySourceMember(IQualifiedMember wrappedSourceMember, QualifiedMember targetMember)
-            : this(wrappedSourceMember, wrappedSourceMember.Type, targetMember)
+        public DictionarySourceMember(IQualifiedMember wrappedSourceMember, QualifiedMember matchedTargetMember)
+            : this(
+                wrappedSourceMember.Type,
+                wrappedSourceMember,
+                matchedTargetMember,
+                wrappedSourceMember.Matches(matchedTargetMember))
         {
         }
 
         private DictionarySourceMember(
+            Type dictionaryType,
             IQualifiedMember wrappedSourceMember,
-            Type sourceType,
-            QualifiedMember matchedTargetMember)
+            QualifiedMember matchedTargetMember,
+            bool isEntireDictionaryMatch,
+            Type keyType = null,
+            Type valueType = null)
         {
             _wrappedSourceMember = wrappedSourceMember;
-            IsEntireDictionaryMatch = wrappedSourceMember.Matches(matchedTargetMember);
-            Type = sourceType;
-            var dictionaryTypes = Type.GetGenericArguments();
-            KeyType = dictionaryTypes[0];
-            EntryMember = new DictionaryEntrySourceMember(dictionaryTypes[1], matchedTargetMember, this);
+            _matchedTargetMember = matchedTargetMember;
+            IsEntireDictionaryMatch = isEntireDictionaryMatch;
+
+            Type = dictionaryType;
+
+            if (keyType == null)
+            {
+                var dictionaryTypes = Type.GetGenericArguments();
+                KeyType = dictionaryTypes[0];
+                ValueType = dictionaryTypes[1];
+            }
+            else
+            {
+                KeyType = keyType;
+                ValueType = valueType;
+            }
+
+            EntryMember = new DictionaryEntrySourceMember(ValueType, matchedTargetMember, this);
             HasObjectEntries = ValueType == typeof(object);
 
             CouldContainSourceInstance =
@@ -45,7 +66,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type KeyType { get; }
 
-        public Type ValueType => EntryMember.Type;
+        public Type ValueType { get; }
 
         public DictionaryEntrySourceMember EntryMember { get; }
 
@@ -73,7 +94,21 @@ namespace AgileObjects.AgileMapper.Members
 
         public IQualifiedMember Append(Member childMember) => EntryMember.Append(childMember);
 
-        public IQualifiedMember RelativeTo(IQualifiedMember otherMember) => this;
+        public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
+        {
+            if (IsEntireDictionaryMatch)
+            {
+                return new DictionarySourceMember(
+                    Type,
+                    _wrappedSourceMember.RelativeTo(otherMember),
+                    _matchedTargetMember,
+                    IsEntireDictionaryMatch,
+                    KeyType,
+                    ValueType);
+            }
+
+            return this;
+        }
 
         public IQualifiedMember WithType(Type runtimeType) => this;
 

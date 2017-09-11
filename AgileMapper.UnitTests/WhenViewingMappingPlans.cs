@@ -223,6 +223,17 @@
             plan.ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/24
+        [Fact]
+        public void ShouldShowDictionaryElementMapping()
+        {
+            var plan = Mapper
+                .GetPlanFor<List<PublicField<Dictionary<int, string>>>>()
+                .ToANew<List<PublicField<Dictionary<int, string>>>>();
+
+            plan.ShouldContain("// Map List<PublicField<Dictionary<int, string>>> -> List<PublicField<Dictionary<int, string>>>");
+        }
+
         [Fact]
         public void ShouldShowObjectTracking()
         {
