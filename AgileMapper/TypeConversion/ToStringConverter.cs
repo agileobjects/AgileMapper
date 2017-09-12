@@ -25,9 +25,11 @@
                 return GetByteArrayToBase64StringConversion(sourceValue);
             }
 
-            if (sourceValue.Type == typeof(DateTime))
+            var nonNullableSourceType = sourceValue.Type.GetNonNullableType();
+
+            if (nonNullableSourceType == typeof(DateTime))
             {
-                return GetDateTimeToStringConversion(sourceValue);
+                return GetDateTimeToStringConversion(sourceValue, nonNullableSourceType);
             }
 
             var toStringMethod = sourceValue.Type
@@ -52,9 +54,9 @@
 
         #endregion
 
-        private static Expression GetDateTimeToStringConversion(Expression sourceValue)
+        private static Expression GetDateTimeToStringConversion(Expression sourceValue, Type nonNullableSourceType)
         {
-            var toStringMethod = sourceValue.Type   
+            var toStringMethod = nonNullableSourceType
                 .GetPublicInstanceMethods()
                 .Where(m => m.Name == "ToString")
                 .Select(m => new
@@ -68,6 +70,11 @@
 
             var currentCulture = Expression.Property(null, typeof(CultureInfo), "CurrentCulture");
             var dateTimeFormat = Expression.Property(currentCulture, typeof(CultureInfo), "DateTimeFormat");
+
+            if (sourceValue.Type != nonNullableSourceType)
+            {
+                sourceValue = Expression.Property(sourceValue, "Value");
+            }
 
             var toStringCall = Expression.Call(sourceValue, toStringMethod, dateTimeFormat);
 
