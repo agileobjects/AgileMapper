@@ -26,8 +26,6 @@
         public override bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
             => _creationTargetType.IsAssignableFrom(mapperData.TargetMember.Type) && base.AppliesTo(callbackPosition, mapperData);
 
-        protected override bool TargetMembersMatch(IBasicMapperData mapperData) => true;
-
         protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {
             var condition = base.GetConditionOrNull(mapperData, position);

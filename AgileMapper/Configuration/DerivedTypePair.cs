@@ -88,8 +88,6 @@
         public override bool AppliesTo(IBasicMapperData mapperData)
             => DerivedSourceType.IsAssignableFrom(mapperData.SourceType) && base.AppliesTo(mapperData);
 
-        protected override bool TargetMembersMatch(IBasicMapperData mapperData) => true;
-
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD
         [ExcludeFromCodeCoverage]

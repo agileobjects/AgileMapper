@@ -93,10 +93,10 @@
         {
             return ConfigInfo.IsFor(mapperData.RuleSet) &&
                 TargetMembersMatch(mapperData) &&
-                ObjectHeirarchyHasMatchingSourceAndTargetTypes(mapperData);
+                MemberPathHasMatchingSourceAndTargetTypes(mapperData);
         }
 
-        protected virtual bool TargetMembersMatch(IBasicMapperData mapperData)
+        private bool TargetMembersMatch(IBasicMapperData mapperData)
         {
             // The order of these checks is significant!
             if ((TargetMember == QualifiedMember.All) || (mapperData.TargetMember == QualifiedMember.All))
@@ -119,7 +119,7 @@
                    mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableFrom(TargetMember.LeafMember.DeclaringType);
         }
 
-        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
+        private bool MemberPathHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
         {
             while (mapperData != null)
             {
