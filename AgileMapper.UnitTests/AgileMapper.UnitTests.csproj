@@ -74,6 +74,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
+    <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersByFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersByGlobalFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersIncorrectly.cs" />

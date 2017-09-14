@@ -56,18 +56,7 @@
 
         private static Expression GetDateTimeToStringConversion(Expression sourceValue, Type nonNullableSourceType)
         {
-            var toStringMethod = nonNullableSourceType
-                .GetPublicInstanceMethods()
-                .Where(m => m.Name == "ToString")
-                .Select(m => new
-                {
-                    Method = m,
-                    Parameters = m.GetParameters()
-                })
-                .First(m => m.Parameters.HasOne() &&
-                           (m.Parameters[0].ParameterType == typeof(IFormatProvider)))
-                .Method;
-
+            var toStringMethod = GetToStringMethodOrNull(sourceValue.Type, typeof(IFormatProvider));
             var currentCulture = Expression.Property(null, typeof(CultureInfo), "CurrentCulture");
             var dateTimeFormat = Expression.Property(currentCulture, typeof(CultureInfo), "DateTimeFormat");
 
@@ -79,6 +68,22 @@
             var toStringCall = Expression.Call(sourceValue, toStringMethod, dateTimeFormat);
 
             return toStringCall;
+        }
+
+        public static MethodInfo GetToStringMethodOrNull(Type sourceType, Type argumentType)
+        {
+            var toStringMethod = sourceType
+                .GetPublicInstanceMethods()
+                .Where(m => m.Name == "ToString")
+                .Select(m => new
+                {
+                    Method = m,
+                    Parameters = m.GetParameters()
+                })
+                .FirstOrDefault(m => m.Parameters.HasOne() && (m.Parameters[0].ParameterType == argumentType))?
+                .Method;
+
+            return toStringMethod;
         }
     }
 }
