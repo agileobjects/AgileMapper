@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using ReadableExpressions.Extensions;
     using TypeConversion;
 
     /// <summary>
@@ -11,6 +12,7 @@
     {
         private readonly MapperContext _mapperContext;
         private readonly Type _sourceType;
+        private bool _isValid;
 
         internal StringFormatSpecifier(MapperContext mapperContext, Type sourceType)
         {
@@ -26,7 +28,19 @@
         /// </param>
         public void FormatUsing(string format)
         {
+            _isValid = true;
             _mapperContext.ValueConverters.Add(new ToFormattedStringConverter(_sourceType, format));
+        }
+
+        internal void ErrorIfInvalid()
+        {
+            if (_isValid)
+            {
+                return;
+            }
+
+            throw new MappingConfigurationException(
+                "No format string specified for custom string mapping from " + _sourceType.GetFriendlyName());
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using AgileMapper.Configuration;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -50,6 +52,21 @@
 
                 result.Value.ShouldBe("1.00");
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfNoFormatSpecified()
+        {
+            var noFormatEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .StringsFrom<double>(c => { });
+                }
+            });
+
+            noFormatEx.Message.ShouldContain("No format string specified");
         }
     }
 }

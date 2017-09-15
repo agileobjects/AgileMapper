@@ -325,6 +325,8 @@
 
             formatSelector.Invoke(formatSpecifier);
 
+            formatSpecifier.ErrorIfInvalid();
+
             return this;
         }
 
