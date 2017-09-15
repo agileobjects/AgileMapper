@@ -56,7 +56,7 @@
 
         private static Expression GetDateTimeToStringConversion(Expression sourceValue, Type nonNullableSourceType)
         {
-            var toStringMethod = GetToStringMethodOrNull(sourceValue.Type, typeof(IFormatProvider));
+            var toStringMethod = GetToStringMethodOrNull(nonNullableSourceType, typeof(IFormatProvider));
             var currentCulture = Expression.Property(null, typeof(CultureInfo), "CurrentCulture");
             var dateTimeFormat = Expression.Property(currentCulture, typeof(CultureInfo), "DateTimeFormat");
 
