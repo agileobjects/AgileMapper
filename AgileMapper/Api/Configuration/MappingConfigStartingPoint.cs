@@ -253,7 +253,7 @@
 
         /// <summary>
         /// Scan the specified <paramref name="assemblies"/> when looking for types derived
-        /// from a source or target type being mapped.
+        /// from any source or target type being mapped.
         /// </summary>
         /// <param name="assemblies">The assemblies in which to look for derived types.</param>
         /// <returns>
@@ -312,6 +312,26 @@
         }
 
         #endregion
+
+        /// <summary>
+        /// Configure a formatting string to use when mapping from the given <typeparamref name="TSourceValue"/>
+        /// to strings, for all source and target types.
+        /// </summary>
+        /// <typeparam name="TSourceValue">The source value type to which to apply a formatting string.</typeparam>
+        /// <param name="formatSelector">An action which supplies the formatting string.</param>
+        /// <returns>
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings StringsFrom<TSourceValue>(Action<StringFormatSpecifier> formatSelector)
+        {
+            var formatSpecifier = new StringFormatSpecifier(_mapperContext, typeof(TSourceValue));
+
+            formatSelector.Invoke(formatSpecifier);
+
+            formatSpecifier.ErrorIfInvalid();
+
+            return this;
+        }
 
         MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
 
