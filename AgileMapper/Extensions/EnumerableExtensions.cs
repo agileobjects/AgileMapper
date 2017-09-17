@@ -212,15 +212,10 @@
                     excludedItemCountsByItem = GetCountsByItem(excludedItems);
                 }
 
-                int count;
-
-                if (excludedItemCountsByItem.TryGetValue(item, out count))
+                if (excludedItemCountsByItem.TryGetValue(item, out var count) && (count > 0))
                 {
-                    if (count > 0)
-                    {
-                        excludedItemCountsByItem[item] = count - 1;
-                        continue;
-                    }
+                    excludedItemCountsByItem[item] = count - 1;
+                    continue;
                 }
 
                 yield return item;
@@ -238,9 +233,7 @@
                     continue;
                 }
 
-                int count;
-
-                if (itemCountsByItem.TryGetValue(item, out count))
+                if (itemCountsByItem.TryGetValue(item, out var count))
                 {
                     itemCountsByItem[item] = count + 1;
                 }

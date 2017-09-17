@@ -13,9 +13,7 @@
         {
             var parentSourceMember = targetData.MapperData.SourceMember;
 
-            IQualifiedMember matchingMember;
-
-            if (ExactMatchingSourceMemberExists(parentSourceMember, targetData, out matchingMember))
+            if (ExactMatchingSourceMemberExists(parentSourceMember, targetData, out var matchingMember))
             {
                 return GetFinalSourceMember(matchingMember, targetData);
             }

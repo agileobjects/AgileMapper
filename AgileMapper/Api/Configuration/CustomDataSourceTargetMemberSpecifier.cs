@@ -61,9 +61,7 @@
 
         private ConfiguredDataSourceFactory CreateFromLambda(LambdaExpression targetMemberLambda)
         {
-            DictionaryTargetMember dictionaryEntryMember;
-
-            if (IsDictionaryEntry(targetMemberLambda, out dictionaryEntryMember))
+            if (IsDictionaryEntry(targetMemberLambda, out var dictionaryEntryMember))
             {
                 return new ConfiguredDictionaryDataSourceFactory(_configInfo, _customValueLambda, dictionaryEntryMember);
             }

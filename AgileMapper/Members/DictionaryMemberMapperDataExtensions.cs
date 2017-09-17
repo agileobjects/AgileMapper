@@ -132,6 +132,7 @@ namespace AgileObjects.AgileMapper.Members
 
             var enumerableIndexProperty = mappingDataType.GetProperty("EnumerableIndex");
 
+            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Property(parentContextAccess, enumerableIndexProperty);
         }
 

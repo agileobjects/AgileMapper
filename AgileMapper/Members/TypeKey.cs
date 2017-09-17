@@ -1,6 +1,9 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
 
     internal class TypeKey
     {
@@ -33,6 +36,11 @@ namespace AgileObjects.AgileMapper.Members
             return (_keyType == otherKey._keyType) && (Type == otherKey.Type);
         }
 
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public override int GetHashCode() => 0;
 
         private enum KeyType { SourceMembers, TargetMembers, TypeId, Parameter }

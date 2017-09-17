@@ -249,9 +249,7 @@
                     return expression;
                 }
 
-                Expression replacement;
-
-                if (_replacementsByTarget.TryGetValue(expression, out replacement))
+                if (_replacementsByTarget.TryGetValue(expression, out var replacement))
                 {
                     return replacement;
                 }

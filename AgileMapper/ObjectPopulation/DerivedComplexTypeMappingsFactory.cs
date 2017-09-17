@@ -30,13 +30,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var derivedTypeMappingExpressions = new List<Expression>();
 
-            bool declaredTypeHasUnconditionalTypePair;
-
             AddDeclaredSourceTypeMappings(
                 derivedTypePairs,
                 declaredTypeMappingData,
                 derivedTypeMappingExpressions,
-                out declaredTypeHasUnconditionalTypePair);
+                out var declaredTypeHasUnconditionalTypePair);
 
             if (declaredTypeHasUnconditionalTypePair && derivedSourceTypes.None())
             {

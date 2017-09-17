@@ -26,9 +26,7 @@
 
         private bool HasUseableSourceDictionary(IMemberMapperData mapperData)
         {
-            DictionarySourceMember dictionarySourceMember;
-
-            if (!mapperData.SourceMemberIsStringKeyedDictionary(out dictionarySourceMember))
+            if (!mapperData.SourceMemberIsStringKeyedDictionary(out var dictionarySourceMember))
             {
                 return false;
             }

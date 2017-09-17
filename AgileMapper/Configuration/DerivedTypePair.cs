@@ -35,7 +35,7 @@
             return new DerivedTypePair(configInfo, typeof(TDerivedSource), typeof(TDerivedTarget));
         }
 
-        // ReSharper disable once UnusedParameter.Local
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static void ThrowIfInvalidSourceType<TDerivedSource>(MappingConfigInfo configInfo)
         {
             if ((configInfo.SourceType == typeof(TDerivedSource)) && !configInfo.HasCondition)

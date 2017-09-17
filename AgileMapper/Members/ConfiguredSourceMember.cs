@@ -95,14 +95,12 @@ namespace AgileObjects.AgileMapper.Members
                 return true;
             }
 
-            var otherQualifiedMember = otherMember as QualifiedMember;
-            if (otherQualifiedMember != null)
+            if (otherMember is QualifiedMember otherQualifiedMember)
             {
                 return _matchedTargetMemberJoinedNames.Match(otherQualifiedMember.JoinedNames);
             }
 
-            var otherConfiguredMember = otherMember as ConfiguredSourceMember;
-            if (otherConfiguredMember != null)
+            if (otherMember is ConfiguredSourceMember otherConfiguredMember)
             {
                 return _matchedTargetMemberJoinedNames.Match(otherConfiguredMember._matchedTargetMemberJoinedNames);
             }

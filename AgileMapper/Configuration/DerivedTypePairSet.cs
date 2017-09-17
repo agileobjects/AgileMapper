@@ -29,10 +29,8 @@
 
             while (parentType != typeof(object))
             {
-                List<DerivedTypePair> typePairs;
-
                 // ReSharper disable once AssignNullToNotNullAttribute
-                if (_typePairsByTargetType.TryGetValue(parentType, out typePairs))
+                if (_typePairsByTargetType.TryGetValue(parentType, out var typePairs))
                 {
                     RemoveConflictingPairIfAppropriate(typePair, typePairs);
 
@@ -77,9 +75,7 @@
                 return _noPairs;
             }
 
-            List<DerivedTypePair> typePairs;
-
-            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out typePairs))
+            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
             {
                 return typePairs.Where(tp => tp.AppliesTo(mapperData)).ToArray();
             }
@@ -110,12 +106,10 @@
                     return;
                 }
 
-                Func<Type, string> derivedTargetTypeNameFactory;
-
                 if (SkipDerivedTypePairsLookup(
                     rootSourceType,
                     rootTargetType,
-                    out derivedTargetTypeNameFactory))
+                    out var derivedTargetTypeNameFactory))
                 {
                     return;
                 }
@@ -290,8 +284,10 @@
 
             public int Compare(DerivedTypePair x, DerivedTypePair y)
             {
+                // ReSharper disable PossibleNullReferenceException
                 var targetTypeX = x.DerivedTargetType;
                 var targetTypeY = y.DerivedTargetType;
+                // ReSharper restore PossibleNullReferenceException
 
                 if (targetTypeX == targetTypeY)
                 {

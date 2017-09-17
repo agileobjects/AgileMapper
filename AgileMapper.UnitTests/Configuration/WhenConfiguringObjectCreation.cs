@@ -476,8 +476,8 @@
             // ReSharper disable once UnusedMember.Local
             public T Value
             {
-                get { throw new NotSupportedException("NO, JUST NO"); }
-                set { _value = value; }
+                get => throw new NotSupportedException("NO, JUST NO");
+                set => _value = value;
             }
         }
 

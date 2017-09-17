@@ -81,9 +81,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return false;
             }
 
-            var dictionaryMember = mappingData.MapperData.TargetMember as DictionaryTargetMember;
-
-            if (dictionaryMember == null)
+            if (!(mappingData.MapperData.TargetMember is DictionaryTargetMember dictionaryMember))
             {
                 return false;
             }
@@ -137,9 +135,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Func<DictionarySourceMember, IObjectMappingData, Expression> assignmentFactory;
 
-            DictionarySourceMember sourceDictionaryMember;
-
-            if (SourceMemberIsDictionary(mapperData, out sourceDictionaryMember))
+            if (SourceMemberIsDictionary(mapperData, out var sourceDictionaryMember))
             {
                 if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
                 {

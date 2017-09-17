@@ -79,16 +79,12 @@ namespace AgileObjects.AgileMapper.Members
 
         public static DictionarySourceMember GetDictionarySourceMemberOrNull(this IMemberMapperData mapperData)
         {
-            var dictionarySourceMember = mapperData.SourceMember as DictionarySourceMember;
-
-            if (dictionarySourceMember != null)
+            if (mapperData.SourceMember is DictionarySourceMember dictionarySourceMember)
             {
                 return dictionarySourceMember;
             }
 
-            var dictionaryEntrySourceMember = mapperData.SourceMember as DictionaryEntrySourceMember;
-
-            if (dictionaryEntrySourceMember == null)
+            if (!(mapperData.SourceMember is DictionaryEntrySourceMember dictionaryEntrySourceMember))
             {
                 return null;
             }

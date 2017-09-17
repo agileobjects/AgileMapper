@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using ReadableExpressions.Extensions;
 
     internal class ToFormattedStringConverter : ValueConverterBase
     {
@@ -17,7 +18,8 @@
 
             if (_toStringMethod == null)
             {
-
+                throw new NotSupportedException(
+                    "No ToString method taking a formatting string exists on type " + sourceValueType.GetFriendlyName());
             }
 
             _sourceValueType = sourceValueType;

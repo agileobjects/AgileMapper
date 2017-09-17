@@ -34,11 +34,9 @@
 
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
         {
-            TValue value;
-
             var currentLength = _length;
 
-            if (TryGetValue(key, 0, out value))
+            if (TryGetValue(key, 0, out var value))
             {
                 return value;
             }

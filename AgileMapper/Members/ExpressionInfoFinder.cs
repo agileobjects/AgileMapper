@@ -65,9 +65,7 @@ namespace AgileObjects.AgileMapper.Members
 
             protected override Expression VisitBinary(BinaryExpression binary)
             {
-                Expression comparedValue;
-
-                if (TryGetNullComparison(binary.Left, binary.Right, binary, out comparedValue) ||
+                if (TryGetNullComparison(binary.Left, binary.Right, binary, out var comparedValue) ||
                     TryGetNullComparison(binary.Right, binary.Left, binary, out comparedValue))
                 {
                     AddExistingNullCheck(comparedValue);

@@ -205,9 +205,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Parent.TryGet(key, out complexType);
             }
 
-            List<object> mappedTargets;
-
-            if (_mappedObjectsBySource.TryGetValue(key, out mappedTargets))
+            if (_mappedObjectsBySource.TryGetValue(key, out var mappedTargets))
             {
                 complexType = (TComplex)mappedTargets.FirstOrDefault(t => t is TComplex);
                 return complexType != null;
@@ -225,9 +223,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            List<object> mappedTargets;
-
-            if (_mappedObjectsBySource.TryGetValue(key, out mappedTargets))
+            if (_mappedObjectsBySource.TryGetValue(key, out var mappedTargets))
             {
                 mappedTargets.Add(complexType);
                 return;

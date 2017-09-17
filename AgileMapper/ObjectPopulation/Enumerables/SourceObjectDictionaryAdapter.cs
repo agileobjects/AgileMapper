@@ -33,15 +33,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             var ifKeyNotFoundShortCircuit = _instanceDictionaryAdapter.GetKeyNotFoundShortCircuit(returnEmpty);
 
-            ParameterExpression untypedEnumerableVariable;
-            var enumerableAssignment = GetUntypedEnumerableAssignment(out untypedEnumerableVariable);
+            var enumerableAssignment = GetUntypedEnumerableAssignment(out var untypedEnumerableVariable);
 
             var enumerableIsNull = untypedEnumerableVariable.GetIsDefaultComparison();
             var ifNotEnumerableReturnEmpty = Expression.IfThen(enumerableIsNull, returnEmpty);
 
-            ParameterExpression typedEnumerableVariable;
             var typedEnumerableAssignment =
-                GetTypedEnumerableAssignment(untypedEnumerableVariable, out typedEnumerableVariable);
+                GetTypedEnumerableAssignment(untypedEnumerableVariable, out var typedEnumerableVariable);
 
             var enumerableIsTyped = typedEnumerableVariable.GetIsNotDefaultComparison();
             var returnTypedEnumerable = Expression.Return(returnLabel, typedEnumerableVariable);

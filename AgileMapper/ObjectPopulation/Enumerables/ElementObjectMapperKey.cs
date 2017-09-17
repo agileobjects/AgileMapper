@@ -30,6 +30,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             return TypesMatch(otherKey) && SourceHasRequiredTypes(otherKey);
         }
 
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public override int GetHashCode() => 0;
 
         #region ExcludeFromCodeCoverage

@@ -1,6 +1,9 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using Members;
 
     internal class DeclaredAndRuntimeTypesKey
@@ -51,6 +54,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ((_targetTypesAreTheSame && otherKey._targetTypesAreTheSame) || RuntimeTargetType == otherKey.RuntimeTargetType);
         }
 
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public override int GetHashCode() => 0;
     }
 }

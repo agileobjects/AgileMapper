@@ -58,9 +58,7 @@ namespace AgileObjects.AgileMapper.Extensions
                     continue;
                 }
 
-                List<TTarget> targetsWithId;
-
-                if (targetsById.TryGetValue(sourceItemId, out targetsWithId))
+                if (targetsById.TryGetValue(sourceItemId, out var targetsWithId))
                 {
                     if (EqualityComparer<TId>.Default.Equals(sourceItemId, default(TId)))
                     {
