@@ -43,12 +43,13 @@
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {
-            if (base.ConflictsWith(otherConfiguredItem))
+            if (!base.ConflictsWith(otherConfiguredItem))
             {
-                return !IsClone;
+                return false;
             }
 
-            return false;
+            return !IsClone || 
+                   _factoryInfo.IsSameAs(((ConfiguredObjectFactory)otherConfiguredItem)._factoryInfo);
         }
 
         protected override bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)

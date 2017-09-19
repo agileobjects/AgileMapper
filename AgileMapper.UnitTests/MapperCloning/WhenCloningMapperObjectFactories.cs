@@ -35,6 +35,29 @@
         }
 
         [Fact]
+        public void ShouldErrorIfRedundantObjectFactoryExpressionIsConfigured()
+        {
+            var factoryEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var originalMapper = Mapper.CreateNew())
+                {
+                    originalMapper.WhenMapping
+                        .InstancesOf<Address>()
+                        .CreateUsing(ctx => new Address { Line1 = "1" });
+
+                    using (var clonedMapper = originalMapper.CloneSelf())
+                    {
+                        clonedMapper.WhenMapping
+                            .InstancesOf<Address>()
+                            .CreateUsing(ctx => new Address { Line1 = "1" });
+                    }
+                }
+            });
+
+            factoryEx.Message.ShouldContain("has already been configured");
+        }
+
+        [Fact]
         public void ShouldErrorIfDuplicateObjectFactoryIsConfigured()
         {
             var factoryEx = Should.Throw<MappingConfigurationException>(() =>
@@ -43,7 +66,7 @@
                 {
                     originalMapper.WhenMapping
                         .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address());
+                        .CreateUsing(ctx => new Address { Line1 = "Original" });
 
                     using (var clonedMapper = originalMapper.CloneSelf())
                     {
@@ -51,7 +74,7 @@
                         {
                             clonedMapper.WhenMapping
                                 .InstancesOf<Address>()
-                                .CreateUsing(ctx => new Address());
+                                .CreateUsing(ctx => new Address { Line1 = "Cloned" });
                         }
                         catch (Exception ex)
                         {

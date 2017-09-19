@@ -111,7 +111,20 @@
         public Type ReturnType { get; }
 
         public bool IsSameAs(ConfiguredLambdaInfo otherLambdaInfo)
-            => _lambda.ToString() == otherLambdaInfo?._lambda.ToString();
+        {
+            if (otherLambdaInfo == null)
+            {
+                return false;
+            }
+
+            if ((_lambda.Body.NodeType == ExpressionType.Invoke) ||
+                (otherLambdaInfo._lambda.Body.NodeType == ExpressionType.Invoke))
+            {
+                return false;
+            }
+
+            return _lambda.ToString() == otherLambdaInfo._lambda.ToString();
+        }
 
         public Expression GetBody(
             IMemberMapperData mapperData,
