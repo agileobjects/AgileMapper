@@ -93,5 +93,12 @@
 
             return conversion;
         }
+
+        public void CloneTo(ConverterSet converterSet)
+        {
+            converterSet._converters.InsertRange(
+                0,
+                _converters.Except(converterSet._converters));
+        }
     }
 }

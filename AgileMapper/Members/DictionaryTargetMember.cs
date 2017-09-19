@@ -185,9 +185,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public override Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
         {
-            ParameterExpression existingValueVariable;
-
-            var tryGetValueCall = GetTryGetValueCall(mapperData, out existingValueVariable);
+            var tryGetValueCall = GetTryGetValueCall(mapperData, out var existingValueVariable);
             var existingValueIsDefault = existingValueVariable.GetIsDefaultComparison();
 
             var valueMissingOrDefault = Expression.OrElse(Expression.Not(tryGetValueCall), existingValueIsDefault);
@@ -197,9 +195,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public override BlockExpression GetAccessChecked(IMemberMapperData mapperData)
         {
-            ParameterExpression existingValueVariable;
-
-            var tryGetValueCall = GetTryGetValueCall(mapperData, out existingValueVariable);
+            var tryGetValueCall = GetTryGetValueCall(mapperData, out var existingValueVariable);
 
             return Expression.Block(new[] { existingValueVariable }, tryGetValueCall);
         }
@@ -232,9 +228,7 @@ namespace AgileObjects.AgileMapper.Members
                 return base.GetPopulation(value, mapperData);
             }
 
-            BlockExpression flattening;
-
-            if (ValueIsFlattening(value, out flattening))
+            if (ValueIsFlattening(value, out var flattening))
             {
                 return flattening;
             }

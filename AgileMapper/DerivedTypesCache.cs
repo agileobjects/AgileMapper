@@ -16,11 +16,11 @@
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
         private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;
 
-        public DerivedTypesCache()
+        public DerivedTypesCache(CacheSet cacheSet)
         {
             _assemblies = new List<Assembly>();
-            _typesByAssembly = GlobalContext.Instance.Cache.CreateScoped<Assembly, IEnumerable<Type>>();
-            _derivedTypesByType = GlobalContext.Instance.Cache.CreateScoped<Type, ICollection<Type>>();
+            _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>();
+            _derivedTypesByType = cacheSet.CreateScoped<Type, ICollection<Type>>();
         }
 
         public void AddAssemblies(Assembly[] assemblies)

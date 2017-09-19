@@ -33,9 +33,7 @@
         {
             var dataSourceIndex = 0;
 
-            IEnumerable<IConfiguredDataSource> configuredDataSources;
-
-            if (DataSourcesAreConfigured(childMappingData.MapperData, out configuredDataSources))
+            if (DataSourcesAreConfigured(childMappingData.MapperData, out var configuredDataSources))
             {
                 foreach (var configuredDataSource in configuredDataSources)
                 {
@@ -50,9 +48,7 @@
                 }
             }
 
-            IEnumerable<IDataSource> maptimeDataSources;
-
-            if (UseMaptimeDataSources(childMappingData, out maptimeDataSources))
+            if (UseMaptimeDataSources(childMappingData, out var maptimeDataSources))
             {
                 foreach (var maptimeDataSource in maptimeDataSources)
                 {

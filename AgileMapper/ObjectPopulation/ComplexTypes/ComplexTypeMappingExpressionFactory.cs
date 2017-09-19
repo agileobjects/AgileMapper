@@ -65,14 +65,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(mapperData);
+
             if (alreadyMappedShortCircuit != null)
             {
                 yield return alreadyMappedShortCircuit;
             }
 
-            ISourceShortCircuitFactory sourceShortCircuitFactory;
-
-            if (TryGetShortCircuitFactory(mapperData, out sourceShortCircuitFactory))
+            if (TryGetShortCircuitFactory(mapperData, out var sourceShortCircuitFactory))
             {
                 yield return sourceShortCircuitFactory.GetShortCircuit(mappingData);
             }

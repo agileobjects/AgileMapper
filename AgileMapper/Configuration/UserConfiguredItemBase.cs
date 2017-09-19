@@ -61,9 +61,9 @@
                 return false;
             }
 
-            if (ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo))
+            if (HasOverlappingTypes(otherConfiguredItem))
             {
-                return MembersConflict(otherConfiguredItem.TargetMember);
+                return MembersConflict(otherConfiguredItem);
             }
 
             return false;
@@ -74,8 +74,11 @@
             return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
         }
 
-        protected virtual bool MembersConflict(QualifiedMember otherMember)
-            => TargetMember.Matches(otherMember);
+        protected virtual bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
+            => ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo);
+
+        protected virtual bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
+            => TargetMember.Matches(otherConfiguredItem.TargetMember);
 
         protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherConfiguredItem)
         {

@@ -280,8 +280,7 @@ namespace AgileObjects.AgileMapper.Members
                 return true;
             }
 
-            var otherQualifiedMember = otherMember as QualifiedMember;
-            if (otherQualifiedMember != null)
+            if (otherMember is QualifiedMember otherQualifiedMember)
             {
                 return JoinedNames.Match(otherQualifiedMember.JoinedNames);
             }

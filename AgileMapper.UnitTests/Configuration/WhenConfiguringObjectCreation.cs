@@ -282,6 +282,48 @@
         // ReSharper restore PossibleNullReferenceException
 
         [Fact]
+        public void ShouldUseConfiguredFactoriesForBaseAndDerivedTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .ToANew<PersonViewModel>()
+                    .CreateInstancesUsing(ctx => new PersonViewModel { Name = "Person!" });
+
+                mapper.WhenMapping
+                    .ToANew<CustomerViewModel>()
+                    .CreateInstancesUsing(ctx => new CustomerViewModel { Name = "Customer!" });
+
+                var source = new { Id = Guid.NewGuid() };
+
+                var personResult = mapper.Map(source).ToANew<PersonViewModel>();
+                personResult.Id.ShouldBe(source.Id);
+                personResult.Name.ShouldBe("Person!");
+
+                var customerResult = mapper.Map(source).ToANew<CustomerViewModel>();
+                customerResult.Id.ShouldBe(source.Id);
+                customerResult.Name.ShouldBe("Customer!");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleAnObjectMappingDataCreationException()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.After.MappingEnds.Call(Console.WriteLine);
+
+                var source = new PublicField<Product> { Value = new Product() };
+
+                var thrownException = Should.Throw<MappingException>(() => mapper.Map(source).ToANew<ExceptionThrower<Product>>());
+
+                thrownException.InnerException.ShouldNotBeNull();
+                // ReSharper disable once PossibleNullReferenceException
+                thrownException.InnerException.Message.ShouldBe(MappingException.NoMappingData);
+            }
+        }
+
+        [Fact]
         public void ShouldWrapAnObjectCreationException()
         {
             Should.Throw<MappingException>(() =>
@@ -387,20 +429,23 @@
         }
 
         [Fact]
-        public void ShouldHandleAnObjectMappingDataCreationException()
+        public void ShouldErrorIfConflictingFactoryConfigured()
         {
-            using (var mapper = Mapper.CreateNew())
+            var factoryEx = Should.Throw<MappingConfigurationException>(() =>
             {
-                mapper.After.MappingEnds.Call(Console.WriteLine);
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .InstancesOf<Address>()
+                        .CreateUsing(ctx => new Address());
 
-                var source = new PublicField<Product> { Value = new Product() };
+                    mapper.WhenMapping
+                        .InstancesOf<Address>()
+                        .CreateUsing(ctx => new Address());
+                }
+            });
 
-                var thrownException = Should.Throw<MappingException>(() => mapper.Map(source).ToANew<ExceptionThrower<Product>>());
-
-                thrownException.InnerException.ShouldNotBeNull();
-                // ReSharper disable once PossibleNullReferenceException
-                thrownException.InnerException.Message.ShouldBe(MappingException.NoMappingData);
-            }
+            factoryEx.Message.ShouldContain("has already been configured");
         }
 
         #region Helper Classes
@@ -431,8 +476,8 @@
             // ReSharper disable once UnusedMember.Local
             public T Value
             {
-                get { throw new NotSupportedException("NO, JUST NO"); }
-                set { _value = value; }
+                get => throw new NotSupportedException("NO, JUST NO");
+                set => _value = value;
             }
         }
 

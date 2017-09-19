@@ -19,9 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            Expression nullMappingBlock;
-
-            if (TargetCannotBeMapped(mappingData, out nullMappingBlock))
+            if (TargetCannotBeMapped(mappingData, out var nullMappingBlock))
             {
                 return nullMappingBlock;
             }
@@ -32,9 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingExpressions = GetShortCircuitReturns(returnNull, mappingData).ToList();
 
-            Expression derivedTypeMappings;
-
-            if (MappingAlwaysBranchesToDerivedType(mappingData, out derivedTypeMappings))
+            if (MappingAlwaysBranchesToDerivedType(mappingData, out var derivedTypeMappings))
             {
                 return mappingExpressions.Any()
                     ? Expression.Block(mappingExpressions.Concat(derivedTypeMappings))

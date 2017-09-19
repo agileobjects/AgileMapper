@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldErrorIfRedundantIgnoreIsSpecified()
         {
-            Should.Throw<MappingConfigurationException>(() =>
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -25,6 +25,8 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                         .Ignore(cvm => cvm.Name);
                 }
             });
+
+            ignoreEx.Message.ShouldContain("has already been ignored");
         }
 
         [Fact]
@@ -164,7 +166,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         [Fact]
         public void ShouldErrorIfFilteredMemberIsIgnored()
         {
-            Should.Throw<MappingConfigurationException>(() =>
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -176,6 +178,26 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                         .Ignore(pf => pf.Value);
                 }
             });
+
+            ignoreEx.Message.ShouldContain("Already ignored by ignore pattern");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateFilterIsConfigured()
+        {
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .IgnoreTargetMembersWhere(member => member.IsField);
+
+                    mapper.WhenMapping
+                        .IgnoreTargetMembersWhere(member => member.IsField);
+                }
+            });
+
+            ignoreEx.Message.ShouldContain("has already been configured");
         }
 
         [Fact]

@@ -30,10 +30,8 @@
         {
             if ((binary.NodeType == ExpressionType.Equal) || (binary.NodeType == ExpressionType.NotEqual))
             {
-                Expression enumMember, enumValue;
-
-                if ((TryGetConvertedEnumMember(binary.Left, out enumMember) &&
-                     TryGetConstantEnumValue(binary.Right, enumMember, out enumValue)) ||
+                if ((TryGetConvertedEnumMember(binary.Left, out var enumMember) &&
+                     TryGetConstantEnumValue(binary.Right, enumMember, out var enumValue)) ||
                     (TryGetConvertedEnumMember(binary.Right, out enumMember) &&
                      TryGetConstantEnumValue(binary.Left, enumMember, out enumValue)))
                 {
@@ -102,6 +100,7 @@
 
             var enumConstant = (ConstantExpression)value;
             var enumMemberName = Enum.GetName(enumType, enumConstant.Value);
+            // ReSharper disable once AssignNullToNotNullAttribute
             enumValue = Expression.Field(null, enumType, enumMemberName);
             return true;
         }

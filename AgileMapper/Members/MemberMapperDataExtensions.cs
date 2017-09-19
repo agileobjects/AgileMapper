@@ -79,16 +79,12 @@ namespace AgileObjects.AgileMapper.Members
 
         public static DictionarySourceMember GetDictionarySourceMemberOrNull(this IMemberMapperData mapperData)
         {
-            var dictionarySourceMember = mapperData.SourceMember as DictionarySourceMember;
-
-            if (dictionarySourceMember != null)
+            if (mapperData.SourceMember is DictionarySourceMember dictionarySourceMember)
             {
                 return dictionarySourceMember;
             }
 
-            var dictionaryEntrySourceMember = mapperData.SourceMember as DictionaryEntrySourceMember;
-
-            if (dictionaryEntrySourceMember == null)
+            if (!(mapperData.SourceMember is DictionaryEntrySourceMember dictionaryEntrySourceMember))
             {
                 return null;
             }
@@ -211,10 +207,10 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.MapperContext.ValueConverters.GetConversion(value, targetType);
 
         public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
-            => mapperData.MapperContext.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
+            => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
 
         public static ICollection<Type> GetDerivedTargetTypes(this IMemberMapperData mapperData)
-            => mapperData.MapperContext.DerivedTypes.GetTypesDerivedFrom(mapperData.TargetType);
+            => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.TargetType);
 
         public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
         {

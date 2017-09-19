@@ -43,9 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return false;
                 }
 
-                var dictionaryTargetMember = mapperData.TargetMember as DictionaryTargetMember;
-
-                if (dictionaryTargetMember == null)
+                if (!(mapperData.TargetMember is DictionaryTargetMember dictionaryTargetMember))
                 {
                     return false;
                 }

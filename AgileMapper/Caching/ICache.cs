@@ -13,5 +13,7 @@
         IEnumerable<TValue> Values { get; }
 
         TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory);
+
+        //void CloneTo(ICache<TKey, TValue> otherCache);
     }
 }

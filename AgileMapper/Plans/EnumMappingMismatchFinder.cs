@@ -86,11 +86,9 @@
 
         protected override Expression VisitBinary(BinaryExpression binary)
         {
-            TargetMemberData targetMemberData;
-
             if ((binary.NodeType == ExpressionType.Assign) &&
                 IsEnum(binary.Left.Type) &&
-                TryGetMatch(binary.Left, out targetMemberData))
+                TryGetMatch(binary.Left, out var targetMemberData))
             {
                 var mismatchWarnings = EnumMappingMismatchSet.For(
                     targetMemberData.TargetMember,

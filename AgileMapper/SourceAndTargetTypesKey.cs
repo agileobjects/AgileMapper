@@ -1,6 +1,9 @@
 namespace AgileObjects.AgileMapper
 {
     using System;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
 
     internal class SourceAndTargetTypesKey
     {
@@ -23,6 +26,11 @@ namespace AgileObjects.AgileMapper
                    (otherKey.TargetType == TargetType);
         }
 
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public override int GetHashCode() => 0;
     }
 }

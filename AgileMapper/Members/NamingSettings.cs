@@ -9,8 +9,8 @@
     {
         public static readonly NamingSettings Default = new NamingSettings();
 
-        private readonly ICollection<Func<Member, string>> _matchingNameFactories;
-        private readonly ICollection<Func<IEnumerable<string>, string>> _joinedNameFactories;
+        private readonly List<Func<Member, string>> _matchingNameFactories;
+        private readonly List<Func<IEnumerable<string>, string>> _joinedNameFactories;
 
         public NamingSettings()
         {
@@ -21,7 +21,7 @@
                 GetIdentifierName
             };
 
-            _joinedNameFactories = new Func<IEnumerable<string>, string>[]
+            _joinedNameFactories = new List<Func<IEnumerable<string>, string>>
             {
                 names => string.Join(string.Empty, names),
                 names => string.Join(".", names)
@@ -143,6 +143,12 @@
             }
 
             return extendedJoinedNames;
+        }
+
+        public void CloneTo(NamingSettings settings)
+        {
+            settings._matchingNameFactories.AddRange(_matchingNameFactories);
+            settings._joinedNameFactories.AddRange(_joinedNameFactories);
         }
     }
 }

@@ -98,5 +98,13 @@
 
         public IEnumerable<Expression> GetElementKeyParts(Expression index, IBasicMapperData mapperData)
             => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyParts(index);
+
+        public void CloneTo(DictionarySettings dictionaries)
+        {
+            dictionaries._configuredFullKeys.AddRange(_configuredFullKeys);
+            dictionaries._configuredMemberKeys.AddRange(_configuredMemberKeys);
+            dictionaries._joiningNameFactories.AddRange(_joiningNameFactories);
+            dictionaries._elementKeyPartFactories.AddRange(_elementKeyPartFactories);
+        }
     }
 }

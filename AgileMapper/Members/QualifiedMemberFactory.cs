@@ -65,6 +65,8 @@ namespace AgileObjects.AgileMapper.Members
             return targetMember;
         }
 
+        #region Key Class
+
         private class QualifiedMemberKey
         {
             public static QualifiedMemberKey ForSource<TSource, TTarget>() => SourceKey<TSource, TTarget>.Instance;
@@ -85,5 +87,7 @@ namespace AgileObjects.AgileMapper.Members
             // ReSharper restore StaticMemberInGenericType
             // ReSharper restore UnusedTypeParameter
         }
+
+        #endregion
     }
 }

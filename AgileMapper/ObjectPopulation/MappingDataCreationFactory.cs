@@ -8,9 +8,7 @@
     {
         public static Expression ForDerivedType(ObjectMapperData childMapperData)
         {
-            Expression asConversion;
-
-            UseAsConversion(childMapperData, out asConversion);
+            UseAsConversion(childMapperData, out var asConversion);
 
             return asConversion;
         }
@@ -34,9 +32,7 @@
             int dataSourceIndex,
             ObjectMapperData childMapperData)
         {
-            Expression asConversion;
-
-            if (UseAsConversion(childMapperData, out asConversion))
+            if (UseAsConversion(childMapperData, out var asConversion))
             {
                 return asConversion;
             }
@@ -60,17 +56,12 @@
             return createCall;
         }
 
-        public static Expression ForElement(MappingValues mappingValues, ObjectMapperData elementMapperData)
-            => ForElement(mappingValues, elementMapperData.Parent.MappingDataObject, elementMapperData);
-
         public static Expression ForElement(
             MappingValues mappingValues,
             Expression enumerableMappingDataObject,
             ObjectMapperData childMapperData)
         {
-            Expression asConversion;
-
-            if (UseAsConversion(childMapperData, out asConversion))
+            if (UseAsConversion(childMapperData, out var asConversion))
             {
                 return asConversion;
             }

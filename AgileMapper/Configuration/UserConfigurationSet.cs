@@ -82,7 +82,15 @@
 
         #region ObjectFactories
 
-        public void Add(ConfiguredObjectFactory objectFactory) => _objectFactories.Add(objectFactory);
+        public void Add(ConfiguredObjectFactory objectFactory)
+        {
+            ThrowIfConflictingItemExists(
+                objectFactory,
+                _objectFactories,
+                (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
+
+            _objectFactories.AddSortFilter(objectFactory);
+        }
 
         public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
             => FindMatches(_objectFactories, mapperData).ToArray();
@@ -129,8 +137,7 @@
             ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
             ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
-            _dataSourceFactories.Add(dataSourceFactory);
-            _dataSourceFactories.Sort();
+            _dataSourceFactories.AddSortFilter(dataSourceFactory);
         }
 
         public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
@@ -190,7 +197,7 @@
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            ThrowIfConflictingIgnoredMemberExists(configuredItem, (ci, im) => im.GetConflictMessage());
+            ThrowIfConflictingIgnoredMemberExists(configuredItem, (ci, im) => im.GetConflictMessage(ci));
         }
 
         private void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(
@@ -230,6 +237,22 @@
         }
 
         #endregion
+
+        public void CloneTo(UserConfigurationSet configurations)
+        {
+            configurations._trackingModeSettings.AddRange(_trackingModeSettings);
+            configurations._mapToNullConditions.AddRange(_mapToNullConditions);
+            configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
+            configurations._objectFactories.AddRange(_objectFactories.SelectClones());
+            configurations._ignoredMembers.AddRange(_ignoredMembers.SelectClones());
+            configurations._enumPairings.AddRange(_enumPairings);
+            Dictionaries.CloneTo(configurations.Dictionaries);
+            configurations._dataSourceFactories.AddRange(_dataSourceFactories.SelectClones());
+            configurations._mappingCallbackFactories.AddRange(_mappingCallbackFactories);
+            configurations._creationCallbackFactories.AddRange(_creationCallbackFactories);
+            configurations._exceptionCallbackFactories.AddRange(_exceptionCallbackFactories);
+            DerivedTypes.CloneTo(configurations.DerivedTypes);
+        }
 
         public void Reset()
         {

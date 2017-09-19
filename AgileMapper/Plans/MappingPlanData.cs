@@ -1,5 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq;
     using System.Linq.Expressions;
 #if NET_STANDARD
@@ -64,9 +67,7 @@
 
         private static IObjectMappingData GetMappingDataFor(ParameterExpression mapCallSubject, IObjectMappingData mappingData)
         {
-            IObjectMappingData matchingMappingData;
-
-            if (TryGetMatchingMappingData(mapCallSubject, mappingData, out matchingMappingData))
+            if (TryGetMatchingMappingData(mapCallSubject, mappingData, out var matchingMappingData))
             {
                 return matchingMappingData;
             }
@@ -120,6 +121,11 @@
             return otherPlanData._mappingTypes.Equals(_mappingTypes);
         }
 
+        #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public override int GetHashCode() => 0;
 
         public string GetDescription()

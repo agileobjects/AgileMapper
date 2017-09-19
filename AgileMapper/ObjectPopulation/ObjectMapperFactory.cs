@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMapperFactory
     {
         private readonly IList<MappingExpressionFactoryBase> _mappingExpressionFactories;
-        private readonly List<ICacheEmptier> _rootCacheEmptiers;
+        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _rootMappersCache;
 
         public ObjectMapperFactory(MapperContext mapperContext)
         {
@@ -22,26 +22,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 new ComplexTypeMappingExpressionFactory(mapperContext)
             };
 
-            _rootCacheEmptiers = new List<ICacheEmptier>();
+            _rootMappersCache = mapperContext.Cache.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();
         }
 
         public ObjectMapper<TSource, TTarget> GetOrCreateRoot<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
             mappingData.MapperKey.MappingData = mappingData;
 
-            var mapper = RootMapperCache<TSource, TTarget>.Mappers.GetOrAdd(
+            var mapper = _rootMappersCache.GetOrAdd(
                 mappingData.MapperKey,
                 key =>
                 {
-                    var mapperToCache = (ObjectMapper<TSource, TTarget>)key.MappingData.Mapper;
+                    var mapperToCache = key.MappingData.Mapper;
 
                     key.MappingData = null;
-                    _rootCacheEmptiers.Add(CacheEmptier<TSource, TTarget>.Instance);
 
                     return mapperToCache;
                 });
 
-            return mapper;
+            return (ObjectMapper<TSource, TTarget>)mapper;
         }
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
@@ -68,43 +67,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingExpressionFactory.Reset();
             }
 
-            foreach (var rootCacheEmptier in _rootCacheEmptiers)
-            {
-                rootCacheEmptier.EmptyCache();
-            }
-
-            _rootCacheEmptiers.Clear();
+            _rootMappersCache.Empty();
         }
-
-        #region Root Mapper Caching
-
-        private static class RootMapperCache<TSource, TTarget>
-        {
-            public static readonly ICache<ObjectMapperKeyBase, ObjectMapper<TSource, TTarget>> Mappers;
-
-            static RootMapperCache()
-            {
-                Mappers = GlobalContext.Instance
-                    .Cache
-                    .CreateScoped<ObjectMapperKeyBase, ObjectMapper<TSource, TTarget>>();
-            }
-        }
-
-        private interface ICacheEmptier
-        {
-            void EmptyCache();
-        }
-
-        private class CacheEmptier<TSource, TTarget> : ICacheEmptier
-        {
-            public static readonly ICacheEmptier Instance = new CacheEmptier<TSource, TTarget>();
-
-            public void EmptyCache()
-            {
-                RootMapperCache<TSource, TTarget>.Mappers.Empty();
-            }
-        }
-
-        #endregion
     }
 }

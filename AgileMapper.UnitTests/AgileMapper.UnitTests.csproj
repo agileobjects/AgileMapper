@@ -76,6 +76,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="MapperCloning\WhenCloningMapperMemberIgnores.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersByFilter.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
+    <Compile Include="MapperCloning\WhenCloningMapperObjectFactories.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="TestClasses\Earthworm.cs" />
     <Compile Include="TestClasses\IPublicInterface.cs" />
@@ -131,6 +133,7 @@
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
+    <Compile Include="MapperCloning\WhenCloningMapperDataSources.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaries.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />

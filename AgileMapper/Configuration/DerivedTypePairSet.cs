@@ -29,10 +29,8 @@
 
             while (parentType != typeof(object))
             {
-                List<DerivedTypePair> typePairs;
-
                 // ReSharper disable once AssignNullToNotNullAttribute
-                if (_typePairsByTargetType.TryGetValue(parentType, out typePairs))
+                if (_typePairsByTargetType.TryGetValue(parentType, out var typePairs))
                 {
                     RemoveConflictingPairIfAppropriate(typePair, typePairs);
 
@@ -77,9 +75,7 @@
                 return _noPairs;
             }
 
-            List<DerivedTypePair> typePairs;
-
-            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out typePairs))
+            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
             {
                 return typePairs.Where(tp => tp.AppliesTo(mapperData)).ToArray();
             }
@@ -110,24 +106,22 @@
                     return;
                 }
 
-                Func<Type, string> derivedTargetTypeNameFactory;
-
                 if (SkipDerivedTypePairsLookup(
                     rootSourceType,
                     rootTargetType,
-                    out derivedTargetTypeNameFactory))
+                    out var derivedTargetTypeNameFactory))
                 {
                     return;
                 }
 
-                var derivedSourceTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootSourceType);
+                var derivedSourceTypes = GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(rootSourceType);
 
                 if (derivedSourceTypes.None())
                 {
                     return;
                 }
 
-                var derivedTargetTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootTargetType);
+                var derivedTargetTypes = GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(rootTargetType);
 
                 if (derivedTargetTypes.None())
                 {
@@ -167,7 +161,7 @@
 
         private void AddSameRootTypePairs(Type rootType, MapperContext mapperContext)
         {
-            var derivedTypes = mapperContext.DerivedTypes.GetTypesDerivedFrom(rootType);
+            var derivedTypes = GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(rootType);
 
             foreach (var derivedType in derivedTypes)
             {
@@ -290,8 +284,10 @@
 
             public int Compare(DerivedTypePair x, DerivedTypePair y)
             {
+                // ReSharper disable PossibleNullReferenceException
                 var targetTypeX = x.DerivedTargetType;
                 var targetTypeY = y.DerivedTargetType;
+                // ReSharper restore PossibleNullReferenceException
 
                 if (targetTypeX == targetTypeY)
                 {
@@ -308,5 +304,17 @@
         }
 
         #endregion
+
+        public void CloneTo(DerivedTypePairSet derivedTypes)
+        {
+            foreach (var targetTypeAndTypePair in _typePairsByTargetType)
+            {
+                derivedTypes._typePairsByTargetType
+                    .Add(targetTypeAndTypePair.Key, targetTypeAndTypePair.Value);
+            }
+
+            // ReSharper disable once InconsistentlySynchronizedField
+            derivedTypes._autoCheckedTypes.AddRange(_autoCheckedTypes);
+        }
     }
 }

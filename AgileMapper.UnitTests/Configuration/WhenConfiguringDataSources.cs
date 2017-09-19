@@ -882,6 +882,33 @@
             }
         }
 
+        [Fact]
+        public void ShouldSupportMultipleDivergedMappers()
+        {
+            using (var mapper1 = Mapper.CreateNew())
+            using (var mapper2 = Mapper.CreateNew())
+            {
+                mapper1.WhenMapping
+                    .From<PublicField<string>>()
+                    .ToANew<PublicProperty<string>>()
+                    .Map((pf, pp) => pf.Value + "?")
+                    .To(pp => pp.Value);
+
+                mapper2.WhenMapping
+                    .From<PublicField<string>>()
+                    .ToANew<PublicProperty<string>>()
+                    .Map((pf, pp) => pf.Value + "!")
+                    .To(pp => pp.Value);
+
+                var source = new PublicField<string> { Value = "Diverged" };
+                var result1 = mapper1.Map(source).ToANew<PublicProperty<string>>();
+                var result2 = mapper2.Map(source).ToANew<PublicProperty<string>>();
+
+                result1.Value.ShouldBe("Diverged?");
+                result2.Value.ShouldBe("Diverged!");
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/14
         [Fact]
         public void ShouldAllowIdAndIdentifierConfiguration()
@@ -910,11 +937,14 @@
             }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
         private class IdTester
         {
             public int ClassId { get; set; }
 
             public int ClassIdentifier { get; set; }
         }
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
     }
 }
