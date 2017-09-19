@@ -82,7 +82,6 @@
             return this;
         }
 
-        // TODO: Code coverage
         IFullMappingConfigurator<TSource, TTarget> IFullMappingSettings<TSource, TTarget>.And => this;
 
         #region Ignoring Members
