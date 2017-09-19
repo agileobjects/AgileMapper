@@ -304,5 +304,17 @@
         }
 
         #endregion
+
+        public void CloneTo(DerivedTypePairSet derivedTypes)
+        {
+            foreach (var targetTypeAndTypePair in _typePairsByTargetType)
+            {
+                derivedTypes._typePairsByTargetType
+                    .Add(targetTypeAndTypePair.Key, targetTypeAndTypePair.Value);
+            }
+
+            // ReSharper disable once InconsistentlySynchronizedField
+            derivedTypes._autoCheckedTypes.AddRange(_autoCheckedTypes);
+        }
     }
 }

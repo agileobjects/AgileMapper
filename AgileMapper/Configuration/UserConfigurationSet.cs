@@ -246,10 +246,12 @@
             configurations._objectFactories.AddRange(_objectFactories.SelectClones());
             configurations._ignoredMembers.AddRange(_ignoredMembers.SelectClones());
             configurations._enumPairings.AddRange(_enumPairings);
+            Dictionaries.CloneTo(configurations.Dictionaries);
             configurations._dataSourceFactories.AddRange(_dataSourceFactories.SelectClones());
             configurations._mappingCallbackFactories.AddRange(_mappingCallbackFactories);
             configurations._creationCallbackFactories.AddRange(_creationCallbackFactories);
             configurations._exceptionCallbackFactories.AddRange(_exceptionCallbackFactories);
+            DerivedTypes.CloneTo(configurations.DerivedTypes);
         }
 
         public void Reset()

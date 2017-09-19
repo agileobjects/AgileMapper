@@ -8,7 +8,7 @@
     public class WhenCloningMapperDataSources
     {
         [Fact]
-        public void ShouldCloneAConfiguration()
+        public void ShouldCloneADataSource()
         {
             using (var baseMapper = Mapper.CreateNew())
             {
