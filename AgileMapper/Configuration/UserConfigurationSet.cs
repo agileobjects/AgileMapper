@@ -87,9 +87,9 @@
             ThrowIfConflictingItemExists(
                 objectFactory,
                 _objectFactories,
-                (of1, of2) => $"An object factory for type {of1.TargetTypeName} has already been configured");
+                (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
 
-            _objectFactories.Add(objectFactory);
+            _objectFactories.AddSortFilter(objectFactory);
         }
 
         public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
@@ -137,8 +137,7 @@
             ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
             ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
-            _dataSourceFactories.Add(dataSourceFactory);
-            _dataSourceFactories.Sort();
+            _dataSourceFactories.AddSortFilter(dataSourceFactory);
         }
 
         public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
@@ -244,7 +243,7 @@
             configurations._trackingModeSettings.AddRange(_trackingModeSettings);
             configurations._mapToNullConditions.AddRange(_mapToNullConditions);
             configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
-            configurations._objectFactories.AddRange(_objectFactories);
+            configurations._objectFactories.AddRange(_objectFactories.SelectClones());
             configurations._ignoredMembers.AddRange(_ignoredMembers.SelectClones());
             configurations._enumPairings.AddRange(_enumPairings);
             configurations._dataSourceFactories.AddRange(_dataSourceFactories.SelectClones());

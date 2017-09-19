@@ -5,5 +5,7 @@
         bool IsClone { get; }
 
         IPotentialClone Clone();
+
+        bool IsReplacementFor(IPotentialClone clonedItem);
     }
 }

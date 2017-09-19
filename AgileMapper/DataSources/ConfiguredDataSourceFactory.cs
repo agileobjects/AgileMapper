@@ -96,6 +96,9 @@
             };
         }
 
+        public bool IsReplacementFor(IPotentialClone clonedDataSourceFactory)
+            => ConflictsWith((ConfiguredDataSourceFactory)clonedDataSourceFactory);
+
         #endregion
 
         #region IComparable Members

@@ -61,7 +61,7 @@
                 return false;
             }
 
-            if (HasCompatibleTypes(otherConfiguredItem))
+            if (HasOverlappingTypes(otherConfiguredItem))
             {
                 return MembersConflict(otherConfiguredItem);
             }
@@ -74,7 +74,7 @@
             return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
         }
 
-        protected virtual bool HasCompatibleTypes(UserConfiguredItemBase otherConfiguredItem)
+        protected virtual bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
             => ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo);
 
         protected virtual bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)

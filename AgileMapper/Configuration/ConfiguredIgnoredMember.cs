@@ -136,6 +136,8 @@ namespace AgileObjects.AgileMapper.Configuration
             };
         }
 
+        public bool IsReplacementFor(IPotentialClone clonedIgnoredMember) => false;
+
         #endregion
     }
 }

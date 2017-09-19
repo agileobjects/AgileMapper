@@ -98,7 +98,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfRedundantIgnoredMemberIsConfigured()
+        public void ShouldErrorIfDuplicateIgnoredMemberIsConfigured()
         {
             var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
             {
