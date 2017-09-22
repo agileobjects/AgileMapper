@@ -12,7 +12,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     internal class EnumerableTypeHelper
     {
         private bool? _isDictionary;
-        private Type _wrapperType;
         private Type _listType;
         private Type _listInterfaceType;
         private Type _collectionType;
@@ -51,15 +50,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Type ElementType { get; }
 
-        public Type WrapperType => GetEnumerableType(ref _wrapperType, typeof(ReadOnlyCollectionWrapper<>));
-
         public Type ListType => GetEnumerableType(ref _listType, typeof(List<>));
 
         public Type ListInterfaceType => GetEnumerableType(ref _listInterfaceType, typeof(IList<>));
 
         public Type CollectionType => GetEnumerableType(ref _collectionType, typeof(Collection<>));
 
-        private Type ReadOnlyCollectionType => GetEnumerableType(ref _readOnlyCollectionType, typeof(ReadOnlyCollection<>));
+        public Type ReadOnlyCollectionType => GetEnumerableType(ref _readOnlyCollectionType, typeof(ReadOnlyCollection<>));
 
         public Type CollectionInterfaceType => GetEnumerableType(ref _collectionInterfaceType, typeof(ICollection<>));
 
@@ -67,6 +64,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private Type GetEnumerableType(ref Type typeField, Type openGenericEnumerableType)
             => typeField ?? (typeField = openGenericEnumerableType.MakeGenericType(ElementType));
+
+        public Expression GetWrapperConstruction(Expression existingItems, Expression newItemsCount)
+        {
+            var wrapperType = typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(ElementType);
+
+            // ReSharper disable once AssignNullToNotNullAttribute
+            return Expression.New(
+                wrapperType.GetConstructor(new[] { ListInterfaceType, typeof(int) }),
+                existingItems,
+                newItemsCount);
+        }
 
         public Expression GetEnumerableConversion(Expression instance)
         {

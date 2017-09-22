@@ -208,7 +208,7 @@
 
             if (enumerableType.IsArray)
             {
-                return Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "EmptyArray");
+                return GetEmptyArray(elementType);
             }
 
             var typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
@@ -216,6 +216,14 @@
             if (typeHelper.IsEnumerableInterface)
             {
                 return Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "Empty");
+            }
+
+            if (typeHelper.IsReadOnlyCollection)
+            {
+                // ReSharper disable once AssignNullToNotNullAttribute
+                return Expression.New(
+                    typeHelper.ReadOnlyCollectionType.GetConstructor(new[] { typeHelper.ListInterfaceType }),
+                    GetEmptyArray(elementType));
             }
 
             var fallbackType = typeHelper.IsCollection
@@ -226,6 +234,9 @@
 
             return Expression.New(fallbackType);
         }
+
+        private static Expression GetEmptyArray(Type elementType)
+             => Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "EmptyArray");
 
         private static Type GetDictionaryType(Type dictionaryType)
         {

@@ -346,14 +346,7 @@
         }
 
         private Expression GetCopyIntoWrapperConstruction()
-        {
-            var constructor = TargetTypeHelper
-                .WrapperType
-                .GetConstructor(new[] { TargetTypeHelper.ListInterfaceType, typeof(int) });
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.New(constructor, MapperData.TargetObject, GetSourceCountAccess());
-        }
+            => TargetTypeHelper.GetWrapperConstruction(MapperData.TargetObject, GetSourceCountAccess());
 
         private Expression GetNonNullEnumerableTargetVariableValue()
         {

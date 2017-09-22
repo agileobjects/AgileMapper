@@ -59,6 +59,22 @@
         }
 
         [Fact]
+        public void ShouldCreateANewObjectReadOnlyCollection()
+        {
+            var source = new PublicField<object[]>
+            {
+                Value = new object[] { 9, new CustomerViewModel { Name = "Boycee" }, default(string) }
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<ReadOnlyCollection<object>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.First().ShouldBe(9);
+            result.Value.Second().ShouldBeOfType<CustomerViewModel>();
+            ((CustomerViewModel)result.Value.Second()).Name.ShouldBe("Boycee");
+            result.Value.Third().ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldCreateANewComplexTypeEnumerable()
         {
             var source = new PublicField<Person[]>
