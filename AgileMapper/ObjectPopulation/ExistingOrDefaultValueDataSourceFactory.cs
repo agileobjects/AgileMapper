@@ -10,11 +10,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly IDataSourceFactory Instance = new ExistingOrDefaultValueDataSourceFactory();
 
         public IDataSource Create(IMemberMapperData mapperData)
-            => new ExistingMemberValueOrEmptyDataSource(mapperData);
+            => new ExistingMemberValueOrDefaultDataSource(mapperData);
 
-        private class ExistingMemberValueOrEmptyDataSource : DataSourceBase
+        private class ExistingMemberValueOrDefaultDataSource : DataSourceBase
         {
-            public ExistingMemberValueOrEmptyDataSource(IMemberMapperData mapperData)
+            public ExistingMemberValueOrDefaultDataSource(IMemberMapperData mapperData)
                 : base(mapperData.SourceMember, GetValue(mapperData), mapperData)
             {
             }

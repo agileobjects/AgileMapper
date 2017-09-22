@@ -290,6 +290,42 @@
         }
 
         [Fact]
+        public void ShouldHandleANonNullReadOnlyNestedArray()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var readOnlyStrings = new[] { "1", "2" };
+
+                mapper.CreateAReadOnlyFieldUsing(readOnlyStrings);
+
+                var source = new PublicField<string[]> { Value = new[] { "3" } };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyField<string[]>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(readOnlyStrings);
+                result.Value.ShouldBe("1", "2");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleANonNullReadOnlyNestedReadOnlyCollection()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var readOnlyInts = new ReadOnlyCollection<int>(new[] { 5, 5, 5 });
+
+                mapper.CreateAReadOnlyPropertyUsing(readOnlyInts);
+
+                var source = new PublicField<string[]> { Value = new[] { "3" } };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<ReadOnlyCollection<int>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(readOnlyInts);
+                result.Value.ShouldBe(5, 5, 5);
+            }
+        }
+
+        [Fact]
         public void ShouldPopulateANonNullReadOnlyNestedEnumerable()
         {
             using (var mapper = Mapper.CreateNew())

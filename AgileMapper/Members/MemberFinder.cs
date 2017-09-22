@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Reflection;
     using Caching;
@@ -82,15 +83,7 @@
         private static bool All(FieldInfo field) => true;
 
         private static bool OnlyTargets(FieldInfo field)
-        {
-            if (field.IsInitOnly)
-            {
-                // Include readonly object fields (except arrays):
-                return !field.FieldType.IsArray && !field.FieldType.IsSimple();
-            }
-
-            return true;
-        }
+            => !field.IsInitOnly || IsUseableReadOnlyTarget(field.FieldType);
 
         #endregion
 
@@ -115,13 +108,24 @@
                 return false;
             }
 
-            if (property.IsWriteable())
+            return property.IsWriteable() || IsUseableReadOnlyTarget(property.PropertyType);
+        }
+
+        private static bool IsUseableReadOnlyTarget(Type memberType)
+        {
+            // Include readonly object type properties (except arrays):
+            if (memberType.IsArray || memberType.IsSimple())
             {
-                return true;
+                return false;
             }
 
-            // Include readonly object type properties (except arrays):
-            return !property.PropertyType.IsArray && !property.PropertyType.IsSimple();
+            if (memberType.IsGenericType() &&
+               (memberType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         #endregion
