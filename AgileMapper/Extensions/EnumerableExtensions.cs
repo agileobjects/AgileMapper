@@ -141,12 +141,12 @@
         {
             var array = new T[items.Count];
 
-            CopyItemsTo(array, items);
+            array.CopyFrom(items);
 
             return array;
         }
 
-        private static void CopyItemsTo<T>(IList<T> array, IList<T> items, int startIndex = 0)
+        public static void CopyFrom<T>(this IList<T> array, IList<T> items, int startIndex = 0)
         {
             for (var i = 0; i < items.Count; i++)
             {
@@ -208,8 +208,8 @@
         {
             var combinedArray = new T[array.Count + extraItems.Count];
 
-            CopyItemsTo(combinedArray, array);
-            CopyItemsTo(combinedArray, extraItems, array.Count);
+            combinedArray.CopyFrom(array);
+            combinedArray.CopyFrom(extraItems, array.Count);
 
             return combinedArray;
         }

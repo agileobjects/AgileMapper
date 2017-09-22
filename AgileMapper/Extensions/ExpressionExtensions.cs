@@ -21,7 +21,7 @@
         private static readonly MethodInfo _linqToArrayMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToArray");
 
-        private static readonly MethodInfo _toListMethod = typeof(Enumerable)
+        private static readonly MethodInfo _linqToListMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToList");
 
         private static readonly MethodInfo _stringEqualsMethod = typeof(string)
@@ -126,7 +126,7 @@
                 .GetPublicInstanceProperties()
                 .First(p =>
                     p.GetIndexParameters().HasOne() &&
-                    (p.GetIndexParameters()[0].ParameterType == indexValue.Type));
+                   (p.GetIndexParameters()[0].ParameterType == indexValue.Type));
 
             return Expression.MakeIndex(indexedExpression, indexer, new[] { indexValue });
         }
@@ -174,8 +174,16 @@
                 : _linqToArrayMethod;
         }
 
+        public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, Type elementType)
+        {
+            var wrapperType = typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(elementType);
+            var toReadOnlyMethod = wrapperType.GetMethod("ToReadOnlyCollection");
+
+            return GetToEnumerableCall(enumerable, toReadOnlyMethod, elementType);
+        }
+
         public static Expression WithToListCall(this Expression enumerable, Type elementType)
-            => GetToEnumerableCall(enumerable, _toListMethod, elementType);
+            => GetToEnumerableCall(enumerable, _linqToListMethod, elementType);
 
         private static Expression GetToEnumerableCall(Expression enumerable, MethodInfo method, Type elementType)
         {

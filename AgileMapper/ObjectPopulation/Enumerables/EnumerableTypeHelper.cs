@@ -3,8 +3,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq.Expressions;
     using Extensions;
-
 #if NET_STANDARD
     using System.Reflection;
 #endif
@@ -16,6 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type _listType;
         private Type _listInterfaceType;
         private Type _collectionType;
+        private Type _readOnlyCollectionType;
         private Type _collectionInterfaceType;
         private Type _enumerableInterfaceType;
 
@@ -36,11 +37,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool IsCollection => CollectionType.IsAssignableFrom(EnumerableType);
 
+        public bool IsReadOnlyCollection => EnumerableType == ReadOnlyCollectionType;
+
         public bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
 
         public bool HasCollectionInterface => CollectionInterfaceType.IsAssignableFrom(EnumerableType);
 
-        public bool IsDeclaredReadOnly => IsArray || IsEnumerableInterface;
+        public bool IsReadOnly => IsArray || IsReadOnlyCollection;
+
+        public bool IsDeclaredReadOnly => IsReadOnly || IsEnumerableInterface;
 
         public Type EnumerableType { get; }
 
@@ -54,11 +59,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Type CollectionType => GetEnumerableType(ref _collectionType, typeof(Collection<>));
 
+        private Type ReadOnlyCollectionType => GetEnumerableType(ref _readOnlyCollectionType, typeof(ReadOnlyCollection<>));
+
         public Type CollectionInterfaceType => GetEnumerableType(ref _collectionInterfaceType, typeof(ICollection<>));
 
         public Type EnumerableInterfaceType => GetEnumerableType(ref _enumerableInterfaceType, typeof(IEnumerable<>));
 
         private Type GetEnumerableType(ref Type typeField, Type openGenericEnumerableType)
             => typeField ?? (typeField = openGenericEnumerableType.MakeGenericType(ElementType));
+
+        public Expression GetEnumerableConversion(Expression instance)
+        {
+            if (IsArray)
+            {
+                return instance.WithToArrayCall(ElementType);
+            }
+
+            if (IsReadOnlyCollection)
+            {
+                return instance.WithToReadOnlyCollectionCall(ElementType);
+            }
+
+            return instance.WithToListCall(ElementType);
+        }
     }
 }

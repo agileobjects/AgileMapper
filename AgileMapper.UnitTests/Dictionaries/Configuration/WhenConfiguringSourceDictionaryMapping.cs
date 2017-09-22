@@ -94,7 +94,7 @@
         }
 
         [Fact]
-        public void ShouldUseACustomMemberNameDictionaryKeyForANestedEnumerableMember()
+        public void ShouldUseACustomMemberNameDictionaryKeyForANestedArrayMember()
         {
             using (var mapper = Mapper.CreateNew())
             {

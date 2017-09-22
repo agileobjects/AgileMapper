@@ -192,7 +192,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredExpressionToAnEnumerable()
+        public void ShouldApplyAConfiguredExpressionToAnArray()
         {
             using (var mapper = Mapper.CreateNew())
             {
