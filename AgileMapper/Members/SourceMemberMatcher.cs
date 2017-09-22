@@ -130,7 +130,7 @@
 
         private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMapperData mapperData)
         {
-            return sourceMember.Matches(mapperData.TargetMember) && TypesAreCompatible(sourceMember.Type, mapperData);
+            return mapperData.TargetMember.Matches(sourceMember) && TypesAreCompatible(sourceMember.Type, mapperData);
         }
 
         private static bool TypesAreCompatible(Type sourceType, IMemberMapperData mapperData)

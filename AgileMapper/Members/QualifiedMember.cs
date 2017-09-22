@@ -150,7 +150,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Name => LeafMember.Name;
 
-        public string RegistrationName { get; }
+        public virtual string RegistrationName { get; }
 
         public ICollection<string> JoinedNames { get; }
 
@@ -204,6 +204,8 @@ namespace AgileObjects.AgileMapper.Members
 
             return true;
         }
+
+        public bool IsCustom { get; set; }
 
         public virtual bool GuardObjectValuePopulations => false;
 
@@ -273,7 +275,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);
 
-        public bool Matches(IQualifiedMember otherMember)
+        public virtual bool Matches(IQualifiedMember otherMember)
         {
             if (otherMember == this)
             {

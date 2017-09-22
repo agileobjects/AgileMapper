@@ -141,12 +141,17 @@
         {
             var array = new T[items.Count];
 
-            for (var i = 0; i < array.Length; i++)
-            {
-                array[i] = items[i];
-            }
+            CopyItemsTo(array, items);
 
             return array;
+        }
+
+        private static void CopyItemsTo<T>(IList<T> array, IList<T> items, int startIndex = 0)
+        {
+            for (var i = 0; i < items.Count; i++)
+            {
+                array[i + startIndex] = items[i];
+            }
         }
 
         public static T[] ToArray<T>(this ICollection<T> items)
@@ -196,6 +201,17 @@
 
                     return newArray;
             }
+        }
+
+        // TODO: Replace uses of Linq Concat
+        public static T[] Append<T>(this IList<T> array, IList<T> extraItems)
+        {
+            var combinedArray = new T[array.Count + extraItems.Count];
+
+            CopyItemsTo(combinedArray, array);
+            CopyItemsTo(combinedArray, extraItems, array.Count);
+
+            return combinedArray;
         }
 
         public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)

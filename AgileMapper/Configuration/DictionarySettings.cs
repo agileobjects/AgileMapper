@@ -36,19 +36,30 @@
         }
 
         public Expression GetFullKeyOrNull(IBasicMapperData mapperData)
+            => GetFullKeyValueOrNull(mapperData)?.ToConstantExpression();
+
+        public string GetFullKeyValueOrNull(IBasicMapperData mapperData)
         {
+            if (mapperData.TargetMember.IsCustom)
+            {
+                return null;
+            }
+
             var matchingKey = FindKeyOrNull(
                 _configuredFullKeys,
                 mapperData.TargetMember.LeafMember,
                 mapperData);
 
-            return matchingKey?.Key.ToConstantExpression();
+            return matchingKey?.Key;
         }
 
         public void AddMemberKey(CustomDictionaryKey customKey)
         {
             _configuredMemberKeys.Add(customKey);
         }
+
+        public string GetMemberKeyOrNull(IBasicMapperData mapperData)
+            => GetMemberKeyOrNull(mapperData.TargetMember.LeafMember, mapperData);
 
         public string GetMemberKeyOrNull(Member member, IBasicMapperData mapperData)
             => FindKeyOrNull(_configuredMemberKeys, member, mapperData)?.Key;

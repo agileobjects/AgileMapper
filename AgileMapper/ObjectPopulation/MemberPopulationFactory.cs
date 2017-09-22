@@ -17,9 +17,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GetTargetMembers(mapperData.TargetType)
                 .Select(tm => mapperData.TargetMember.Append(tm)));
 
-        private readonly Func<IMemberMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
+        private readonly Func<ObjectMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
 
-        public MemberPopulationFactory(Func<IMemberMapperData, IEnumerable<QualifiedMember>> targetMembersFactory)
+        public MemberPopulationFactory(Func<ObjectMapperData, IEnumerable<QualifiedMember>> targetMembersFactory)
         {
             _targetMembersFactory = targetMembersFactory;
         }
@@ -39,8 +39,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (TargetMemberIsUnconditionallyIgnored(
                     childMapperData,
-                    out ConfiguredIgnoredMember configuredIgnore,
-                    out Expression populateCondition))
+                    out var configuredIgnore,
+                    out var populateCondition))
             {
                 return MemberPopulation.IgnoredMember(childMapperData, configuredIgnore);
             }

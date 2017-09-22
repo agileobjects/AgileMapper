@@ -107,6 +107,11 @@
             int dataSourceIndex,
             IChildMemberMappingData mappingData)
         {
+            if (mappingData.MapperData.TargetMember.IsCustom)
+            {
+                yield break;
+            }
+
             var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData);
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, mappingData);
 
