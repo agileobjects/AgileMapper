@@ -18,6 +18,7 @@
 
             if (_toStringMethod == null)
             {
+                // TODO: Test coverage - unformattable source type
                 throw new NotSupportedException(
                     "No ToString method taking a formatting string exists on type " + sourceValueType.GetFriendlyName());
             }

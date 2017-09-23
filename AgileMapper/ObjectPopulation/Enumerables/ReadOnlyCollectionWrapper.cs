@@ -39,6 +39,8 @@
             }
             else if (numberOfNewItems == 0)
             {
+                // TODO: Test coverage - empty existing and source arrays
+                _items = Enumerable<T>.EmptyArray;
                 return;
             }
 
@@ -221,7 +223,7 @@
         /// Returns an array containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.
         /// </summary>
         /// <returns>An array containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.</returns>
-        public T[] ToArray() => _items ?? Enumerable<T>.EmptyArray;
+        public T[] ToArray() => _items;
 
         /// <summary>
         /// Returns a ReadOnlyCollection containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.

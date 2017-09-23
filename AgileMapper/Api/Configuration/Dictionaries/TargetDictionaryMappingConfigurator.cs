@@ -58,6 +58,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
                 return sourceMember;
             }
 
+            // TODO: test coverage - invalid source member expression
             throw new MappingConfigurationException(
                 $"Source member {lambda.Body.ToReadableString()} is not readable.");
         }

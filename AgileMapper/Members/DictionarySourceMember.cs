@@ -96,18 +96,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
-            if (IsEntireDictionaryMatch)
-            {
-                return new DictionarySourceMember(
-                    Type,
-                    _wrappedSourceMember.RelativeTo(otherMember),
-                    _matchedTargetMember,
-                    IsEntireDictionaryMatch,
-                    KeyType,
-                    ValueType);
-            }
-
-            return this;
+            return new DictionarySourceMember(
+                Type,
+                _wrappedSourceMember.RelativeTo(otherMember),
+                _matchedTargetMember,
+                IsEntireDictionaryMatch,
+                KeyType,
+                ValueType);
         }
 
         public IQualifiedMember WithType(Type runtimeType) => this;

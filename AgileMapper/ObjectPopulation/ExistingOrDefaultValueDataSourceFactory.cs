@@ -50,6 +50,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (dictionaryTargetMember.HasEnumerableEntries)
                 {
+                    // TODO: Test coverage - target dictionary with enumerable entries
                     return false;
                 }
 

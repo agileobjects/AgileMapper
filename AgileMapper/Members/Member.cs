@@ -198,9 +198,9 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (MemberInfo == null)
             {
+                // TODO: test coverage - DictionaryEntry?
                 return false;
             }
-
 
             return MemberInfo
                 .GetCustomAttributes(typeof(TAttribute), inherit: true)
@@ -227,11 +227,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public Member WithType(Type runtimeType)
         {
-            if (runtimeType == Type)
-            {
-                return this;
-            }
-
             if (_accessFactory != null)
             {
                 return new Member(

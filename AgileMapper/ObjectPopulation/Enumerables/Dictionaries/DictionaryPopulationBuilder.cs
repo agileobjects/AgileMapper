@@ -27,16 +27,9 @@
 
         public static implicit operator BlockExpression(DictionaryPopulationBuilder builder)
         {
-            var mappingBlock = (BlockExpression)builder._wrappedBuilder;
-
             if (builder._mappingExpressions.None())
             {
-                return mappingBlock;
-            }
-
-            if (mappingBlock != null)
-            {
-                builder._mappingExpressions.InsertRange(0, mappingBlock.Expressions);
+                return builder._wrappedBuilder;
             }
 
             return Expression.Block(builder._mappingExpressions);

@@ -179,20 +179,15 @@ namespace AgileObjects.AgileMapper.Members
                 Expression subject;
                 MemberExpression memberAccess;
 
-                switch (expression.NodeType)
+                if (expression.NodeType == ExpressionType.MemberAccess)
                 {
-                    case ExpressionType.Call:
-                        memberAccess = null;
-                        subject = ((MethodCallExpression)expression).Object;
-                        break;
-
-                    case ExpressionType.MemberAccess:
-                        memberAccess = (MemberExpression)expression;
-                        subject = memberAccess.Expression;
-                        break;
-
-                    default:
-                        return false;
+                    memberAccess = (MemberExpression)expression;
+                    subject = memberAccess.Expression;
+                }
+                else
+                {
+                    memberAccess = null;
+                    subject = ((MethodCallExpression)expression).Object;
                 }
 
                 if (subject == null)
