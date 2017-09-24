@@ -34,12 +34,10 @@
 
             if (hasExistingItems)
             {
-                // ReSharper disable once PossibleNullReferenceException
                 _index = existingItems.Count;
             }
             else if (numberOfNewItems == 0)
             {
-                // TODO: Test coverage - empty existing and source arrays
                 _items = Enumerable<T>.EmptyArray;
                 return;
             }

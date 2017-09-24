@@ -75,6 +75,32 @@
         }
 
         [Fact]
+        public void ShouldMapFromAReadOnlyCollection()
+        {
+            var source = new PublicField<ReadOnlyCollection<string>>
+            {
+                Value = new ReadOnlyCollection<string>(new[] { "R", "A", "T", "M" })
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<object[]>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBe("R", "A", "T", "M");
+        }
+
+        [Fact]
+        public void ShouldMapFromAnEmptyReadOnlyCollection()
+        {
+            var source = new PublicField<ReadOnlyCollection<string>>
+            {
+                Value = new ReadOnlyCollection<string>(Enumerable<string>.EmptyArray)
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<ReadOnlyCollection<string>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeEmpty();
+        }
+
+        [Fact]
         public void ShouldCreateANewComplexTypeEnumerable()
         {
             var source = new PublicField<Person[]>
