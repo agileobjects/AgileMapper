@@ -23,6 +23,17 @@
         }
 
         [Fact]
+        public void ShouldOverwriteARootSimpleTypeReadOnlyCollection()
+        {
+            var source = new[] { '2', '3' };
+            var target = new ReadOnlyCollection<char>(new List<char> { '5', '4' });
+            var result = Mapper.Map(source).Over(target);
+
+            result.ShouldNotBeNull();
+            result.ShouldBe('2', '3');
+        }
+
+        [Fact]
         public void ShouldOverwriteARootSimpleTypeList()
         {
             var source = new List<string> { "I", "Will" };

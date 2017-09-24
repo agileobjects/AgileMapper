@@ -97,6 +97,7 @@
             var result = Mapper.Map(source).ToANew<PublicProperty<ReadOnlyCollection<string>>>();
 
             result.Value.ShouldNotBeNull();
+            result.Value.ShouldNotBeSameAs(source.Value);
             result.Value.ShouldBeEmpty();
         }
 

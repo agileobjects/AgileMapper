@@ -103,6 +103,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mapperData = mappingExtras.MapperData;
 
+            AdjustForSingleExpressionBlockIfApplicable(ref mappingExpressions);
+
             if (mappingExpressions[0].NodeType != ExpressionType.Block)
             {
                 if (mappingExpressions[0].NodeType == ExpressionType.MemberAccess)
@@ -117,7 +119,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     var assignedValue = ((BinaryExpression)objectAssignment).Right;
                     returnExpression = GetReturnExpression(assignedValue, mappingExtras);
 
-                    if (mappingExpressions.Count == 1)
+                    if (mappingExpressions.HasOne())
                     {
                         return returnExpression;
                     }
@@ -135,6 +137,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingBlock = Expression.Block(new[] { mapperData.InstanceVariable }, mappingExpressions);
 
             return mappingBlock;
+        }
+
+        private static void AdjustForSingleExpressionBlockIfApplicable(ref IList<Expression> mappingExpressions)
+        {
+            if (!mappingExpressions.HasOne() || (mappingExpressions[0].NodeType != ExpressionType.Block))
+            {
+                return;
+            }
+
+            var block = (BlockExpression)mappingExpressions[0];
+
+            if (block.Expressions.HasOne())
+            {
+                mappingExpressions = block.Expressions;
+            }
         }
 
         private static Expression GetReturnExpression(Expression returnValue, MappingExtras mappingExtras)

@@ -65,13 +65,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type GetEnumerableType(ref Type typeField, Type openGenericEnumerableType)
             => typeField ?? (typeField = openGenericEnumerableType.MakeGenericType(ElementType));
 
+        public Type WrapperType => typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(ElementType);
+
         public Expression GetWrapperConstruction(Expression existingItems, Expression newItemsCount)
         {
-            var wrapperType = typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(ElementType);
-
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
-                wrapperType.GetConstructor(new[] { ListInterfaceType, typeof(int) }),
+                WrapperType.GetConstructor(new[] { ListInterfaceType, typeof(int) }),
                 existingItems,
                 newItemsCount);
         }

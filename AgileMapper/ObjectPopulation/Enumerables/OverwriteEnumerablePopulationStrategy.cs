@@ -12,7 +12,7 @@
         {
             if (builder.ElementTypesAreSimple)
             {
-                if (mappingData.MapperData.TargetType.IsArray)
+                if (builder.TargetTypeHelper.IsReadOnly)
                 {
                     builder.PopulateTargetVariableFromSourceObjectOnly();
                     return builder;

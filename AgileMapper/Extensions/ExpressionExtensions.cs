@@ -153,33 +153,62 @@
 
         private static MethodInfo GetToArrayConversionMethod(Expression enumerable, Type elementType)
         {
-            var wrapperType = typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(elementType);
+            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
 
-            if (enumerable.Type == wrapperType)
+            if (TryGetWrapperMethod(typeHelper, "ToArray", out var method))
             {
-                return wrapperType.GetMethod("ToArray");
+                return method;
             }
 
-            var listType = typeof(IList<>).MakeGenericType(elementType);
-
-            if (listType.IsAssignableFrom(enumerable.Type))
+            if (typeHelper.HasListInterface)
             {
                 return _listToArrayMethod;
             }
 
-            var collectionType = typeof(ICollection<>).MakeGenericType(elementType);
+            return GetNonListToArrayConversionMethod(typeHelper);
+        }
 
-            return collectionType.IsAssignableFrom(enumerable.Type)
+        private static bool TryGetWrapperMethod(
+            EnumerableTypeHelper typeHelper,
+            string methodName,
+            out MethodInfo method)
+        {
+            var wrapperType = typeHelper.WrapperType;
+
+            if (typeHelper.EnumerableType != wrapperType)
+            {
+                method = null;
+                return false;
+            }
+
+            method = wrapperType.GetMethod(methodName);
+            return true;
+        }
+
+        private static MethodInfo GetNonListToArrayConversionMethod(EnumerableTypeHelper typeHelper)
+        {
+            return typeHelper.HasCollectionInterface
                 ? _collectionToArrayMethod
                 : _linqToArrayMethod;
         }
 
         public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, Type elementType)
         {
-            var wrapperType = typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(elementType);
-            var toReadOnlyMethod = wrapperType.GetMethod("ToReadOnlyCollection");
+            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
 
-            return GetToEnumerableCall(enumerable, toReadOnlyMethod, elementType);
+            if (TryGetWrapperMethod(typeHelper, "ToReadOnlyCollection", out var method))
+            {
+                return GetToEnumerableCall(enumerable, method, elementType);
+            }
+
+            if (typeHelper.HasListInterface)
+            {
+                return GetReadOnlyCollectionCreation(typeHelper, enumerable);
+            }
+
+            var nonListToArrayMethod = GetNonListToArrayConversionMethod(typeHelper);
+
+            return GetToEnumerableCall(enumerable, nonListToArrayMethod, elementType);
         }
 
         public static Expression WithToListCall(this Expression enumerable, Type elementType)
@@ -220,10 +249,7 @@
 
             if (typeHelper.IsReadOnlyCollection)
             {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                return Expression.New(
-                    typeHelper.ReadOnlyCollectionType.GetConstructor(new[] { typeHelper.ListInterfaceType }),
-                    GetEmptyArray(elementType));
+                return GetReadOnlyCollectionCreation(typeHelper, GetEmptyArray(elementType));
             }
 
             var fallbackType = typeHelper.IsCollection
@@ -237,6 +263,14 @@
 
         private static Expression GetEmptyArray(Type elementType)
              => Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "EmptyArray");
+
+        private static Expression GetReadOnlyCollectionCreation(EnumerableTypeHelper typeHelper, Expression list)
+        {
+            // ReSharper disable once AssignNullToNotNullAttribute
+            return Expression.New(
+                typeHelper.ReadOnlyCollectionType.GetConstructor(new[] { typeHelper.ListInterfaceType }),
+                list);
+        }
 
         private static Type GetDictionaryType(Type dictionaryType)
         {
