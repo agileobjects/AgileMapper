@@ -201,6 +201,11 @@
                 return GetToEnumerableCall(enumerable, method, elementType);
             }
 
+            if (typeHelper.IsList)
+            {
+                return Expression.Call(enumerable, typeHelper.ListType.GetMethod("AsReadOnly"));
+            }
+
             if (typeHelper.HasListInterface)
             {
                 return GetReadOnlyCollectionCreation(typeHelper, enumerable);

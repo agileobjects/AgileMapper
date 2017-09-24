@@ -102,7 +102,7 @@
         }
 
         [Fact]
-        public void ShouldOverwriteAnExistingObject()
+        public void ShouldOverwriteAnExistingObjectById()
         {
             var source = new[]
             {
@@ -121,6 +121,28 @@
             result.ShouldBeSameAs(target);
             result.ShouldContain(originalObject);
             result.ShouldBe(p => p.Name, "Lisa", "Bart");
+        }
+
+        [Fact]
+        public void ShouldOverwriteAnExistingObjectByIdInAReadOnlyCollection()
+        {
+            var source = new[]
+            {
+                new CustomerViewModel { Id = Guid.NewGuid(), Name = "Homer" }
+            };
+
+            var target = new ReadOnlyCollection<CustomerViewModel>(new List<CustomerViewModel>
+            {
+                new CustomerViewModel { Id = source.First().Id, Name = "Maggie" }
+            });
+
+            var originalObject = target.First();
+            var result = Mapper.Map(source).Over(target);
+
+            result.ShouldNotBeSameAs(target);
+            result.ShouldHaveSingleItem();
+            result.First().ShouldBeSameAs(originalObject);
+            result.First().Name.ShouldBe("Homer");
         }
 
         [Fact]
