@@ -156,5 +156,18 @@
             result.Value.ShouldBeSameAs(strings);
             result.Value.ShouldBe("One!", "Two!", "Three");
         }
+
+        [Fact]
+        public void ShouldHandleAReadOnlyNestedReadOnlyCollection()
+        {
+            var source = new PublicField<string[]> { Value = new[] { "One!", "Two!" } };
+            var strings = new List<string> { "A", "B", "C" }.AsReadOnly();
+            var target = new PublicReadOnlyField<ReadOnlyCollection<string>>(strings);
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeSameAs(strings);
+            result.Value.ShouldBe("A", "B", "C");
+        }
     }
 }
