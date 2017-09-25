@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -17,8 +18,18 @@
             var result = Mapper.Map(source).OnTo(target);
 
             result.ShouldNotBeNull();
-            result.ShouldNotBeSameAs(source);
-            result.SequenceEqual(target.Concat(source)).ShouldBeTrue();
+            result.ShouldBe(1, 2, 3, 4, 5, 6);
+        }
+
+        [Fact]
+        public void ShouldMergeARootSimpleTypeReadOnlyCollection()
+        {
+            var source = new[] { 2, 3, 4 };
+            var target = new ReadOnlyCollection<string>(new[] { "1", "2" });
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.ShouldNotBeNull();
+            result.ShouldBe("1", "2", "3", "4");
         }
 
         [Fact]
