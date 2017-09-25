@@ -84,11 +84,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                if (this.TargetMemberIsEnumerableElement())
-                {
-                    TargetTypeHasNotYetBeenMapped = TargetTypeWillNotBeMappedAgain = false;
-                }
-                else
+                if (!this.TargetMemberIsEnumerableElement())
                 {
                     TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
                     TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
@@ -353,13 +349,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private bool IsMappedObjectCachingNeeded()
         {
-            if (!TargetTypeHasNotYetBeenMapped || !TargetTypeWillNotBeMappedAgain)
+            if (MapperContext.UserConfigurations.DisableObjectTracking(this))
             {
-                return true;
+                return false;
             }
 
-            return _childMapperDatas.Any(childMapperData => childMapperData.MappedObjectCachingNeeded) ||
-                   Context.NeedsSubMapping;
+            return !TargetTypeHasNotYetBeenMapped || !TargetTypeWillNotBeMappedAgain;
         }
 
         public bool TargetTypeHasNotYetBeenMapped { get; }

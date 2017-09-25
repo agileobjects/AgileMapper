@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using AgileMapper.Extensions;
     using Shouldly;
     using TestClasses;
@@ -257,6 +258,49 @@
                 result.ChildRecursors.First().ShouldBeSameAs(clonedRecursorTwo);
                 result.ChildRecursors.Second().Name.ShouldBe("Root.ChildRecursors[1]");
                 result.ChildRecursors.Third().ShouldBeSameAs(clonedRecursorThree);
+            }
+        }
+
+        [Fact]
+        public void ShouldMapNestedMultiplyRecursiveRelationships()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<PublicField<ReadOnlyCollection<MultipleRecursor>>>()
+                    .TrackMappedObjects();
+
+                var recursorOne = new MultipleRecursor { Name = "One" };
+                var recursorTwo = new MultipleRecursor { Name = "Two" };
+
+                recursorOne.ChildRecursor = recursorTwo;
+                recursorTwo.ChildRecursor = recursorOne;
+
+                var source = new PublicField<MultipleRecursor[]>
+                {
+                    Value = new[] { recursorOne, recursorTwo }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<ReadOnlyCollection<MultipleRecursor>>>();
+
+                result.ShouldNotBeNull();
+                result.ShouldNotBeSameAs(source);
+                result.Value.Count.ShouldBe(2);
+
+                var resultOne = result.Value.First();
+                resultOne.ShouldNotBeSameAs(recursorOne);
+                resultOne.Name.ShouldBe("One");
+                resultOne.ChildRecursor.ShouldNotBeNull();
+                resultOne.ChildRecursor.ShouldNotBeSameAs(recursorTwo);
+
+                var resultTwo = result.Value.Second();
+                resultTwo.ShouldNotBeSameAs(recursorTwo);
+                resultTwo.Name.ShouldBe("Two");
+                resultTwo.ChildRecursor.ShouldNotBeNull();
+                resultTwo.ChildRecursor.ShouldNotBeSameAs(recursorOne);
+
+                resultOne.ChildRecursor.ShouldBeSameAs(resultTwo);
+                resultTwo.ChildRecursor.ShouldBeSameAs(resultOne);
             }
         }
 
