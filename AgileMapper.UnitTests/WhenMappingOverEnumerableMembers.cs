@@ -52,6 +52,24 @@
         }
 
         [Fact]
+        public void ShouldOverwriteAReadOnlyCollection()
+        {
+            var source = new PublicProperty<IEnumerable<decimal>>
+            {
+                Value = new[] { MinValue, MaxValue }
+            };
+
+            var target = new PublicField<ReadOnlyCollection<decimal>>
+            {
+                Value = new ReadOnlyCollection<decimal>(new[] { MinusOne, Zero })
+            };
+
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBe(MinValue, MaxValue);
+        }
+
+        [Fact]
         public void ShouldOverwriteAComplexTypeCollection()
         {
             var source = new PublicField<PublicField<int>[]>

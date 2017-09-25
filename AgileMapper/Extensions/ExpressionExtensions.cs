@@ -212,8 +212,9 @@
             }
 
             var nonListToArrayMethod = GetNonListToArrayConversionMethod(typeHelper);
+            var toArrayCall = GetToEnumerableCall(enumerable, nonListToArrayMethod, elementType);
 
-            return GetToEnumerableCall(enumerable, nonListToArrayMethod, elementType);
+            return GetReadOnlyCollectionCreation(typeHelper, toArrayCall);
         }
 
         public static Expression WithToListCall(this Expression enumerable, Type elementType)
