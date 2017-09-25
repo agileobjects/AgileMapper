@@ -96,6 +96,24 @@
         }
 
         [Fact]
+        public void ShouldMergeARootComplexTypeReadOnlyCollection()
+        {
+            var source = new[]
+            {
+                new Product { ProductId = "Pete" }
+            };
+
+            var target = new ReadOnlyCollection<Product>(new[]
+            {
+                new Product { ProductId = "Kate" }
+            });
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.ShouldBe(p => p.ProductId, "Kate", "Pete");
+        }
+
+        [Fact]
         public void ShouldUpdateAnExistingObject()
         {
             var source = new[]
