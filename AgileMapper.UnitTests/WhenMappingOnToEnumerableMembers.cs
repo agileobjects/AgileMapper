@@ -120,6 +120,34 @@
         }
 
         [Fact]
+        public void ShouldMergeAnIdentifiableComplexTypeReadOnlyCollection()
+        {
+            var source = new PublicProperty<Product[]>
+            {
+                Value = new[]
+                {
+                    new Product { ProductId = "Science", Price = 1000.00 }
+                }
+            };
+
+            var target = new PublicField<ReadOnlyCollection<Product>>
+            {
+                Value = new ReadOnlyCollection<Product>(new List<Product>
+                {
+                    new Product { ProductId = "Science" },
+                    new Product { ProductId = "Magic", Price = 1.00 }
+                })
+            };
+
+            var existingProduct = target.Value.First();
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.First().ShouldBeSameAs(existingProduct);
+            result.Value.First().Price.ShouldBe(1000.00);
+            result.Value.ShouldBe(r => r.ProductId, "Science", "Magic");
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceMember()
         {
             var source = new PublicGetMethod<IEnumerable<byte>>(null);
