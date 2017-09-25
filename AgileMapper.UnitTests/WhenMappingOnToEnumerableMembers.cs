@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -48,6 +49,26 @@
 
             result.Value.ShouldNotBeSameAs(originalArray);
             result.Value.ShouldBe(1, 2, null, 3);
+        }
+
+        [Fact]
+        public void ShouldMergeANullableGuidReadOnlyCollection()
+        {
+            var source = new PublicProperty<ICollection<Guid>>
+            {
+                Value = new List<Guid> { Guid.NewGuid() }
+            };
+
+            var target = new PublicField<ReadOnlyCollection<Guid?>>
+            {
+                Value = new ReadOnlyCollection<Guid?>(new[] { Guid.Empty, default(Guid?), Guid.NewGuid() })
+            };
+
+            var originalCollection = target.Value;
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeSameAs(originalCollection);
+            result.Value.ShouldBe(target.Value.First(), default(Guid?), target.Value.Third(), source.Value.First());
         }
 
         [Fact]
