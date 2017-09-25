@@ -318,6 +318,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (sourceMember.Type == Type)
             {
+                // TODO: Test coverage - source object with a non-simple member of the dictionary value type
                 return this;
             }
 
@@ -362,20 +363,7 @@ namespace AgileObjects.AgileMapper.Members
             return $"[\"{path}\"]: {Type.GetFriendlyName()}";
         }
 
-        private string GetKeyNameOrNull()
-        {
-            if (_key == null)
-            {
-                return null;
-            }
-
-            if (_key.NodeType == ExpressionType.Constant)
-            {
-                return (string)((ConstantExpression)_key).Value;
-            }
-
-            return _key.ToString();
-        }
+        private string GetKeyNameOrNull() => (string)((ConstantExpression)_key)?.Value;
 
         #region Helper Classes
 

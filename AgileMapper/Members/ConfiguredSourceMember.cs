@@ -90,11 +90,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Matches(IQualifiedMember otherMember)
         {
-            if (otherMember == this)
-            {
-                return true;
-            }
-
             if (otherMember is QualifiedMember otherQualifiedMember)
             {
                 return _matchedTargetMemberJoinedNames.Match(otherQualifiedMember.JoinedNames);

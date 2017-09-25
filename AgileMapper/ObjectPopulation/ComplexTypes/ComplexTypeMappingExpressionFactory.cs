@@ -94,12 +94,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetAlreadyMappedObjectShortCircuitOrNull(ObjectMapperData mapperData)
         {
-            if (mapperData.TargetTypeHasNotYetBeenMapped)
-            {
-                return null;
-            }
-
-            if (mapperData.MapperContext.UserConfigurations.DisableObjectTracking(mapperData))
+            if (!mapperData.MappedObjectCachingNeeded || mapperData.TargetTypeHasNotYetBeenMapped)
             {
                 return null;
             }
@@ -180,12 +175,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {
-            if (mapperData.TargetTypeWillNotBeMappedAgain)
-            {
-                return null;
-            }
-
-            if (mapperData.MapperContext.UserConfigurations.DisableObjectTracking(mapperData))
+            if (!mapperData.MappedObjectCachingNeeded || mapperData.TargetTypeWillNotBeMappedAgain)
             {
                 return null;
             }

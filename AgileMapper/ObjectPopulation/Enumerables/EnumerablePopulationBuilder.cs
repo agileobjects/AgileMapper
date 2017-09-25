@@ -346,18 +346,11 @@
         }
 
         private Expression GetCopyIntoWrapperConstruction()
-        {
-            var constructor = TargetTypeHelper
-                .WrapperType
-                .GetConstructor(new[] { TargetTypeHelper.EnumerableInterfaceType, typeof(int) });
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.New(constructor, MapperData.TargetObject, GetSourceCountAccess());
-        }
+            => TargetTypeHelper.GetWrapperConstruction(MapperData.TargetObject, GetSourceCountAccess());
 
         private Expression GetNonNullEnumerableTargetVariableValue()
         {
-            if (TargetTypeHelper.IsArray)
+            if (TargetTypeHelper.IsReadOnly)
             {
                 return GetCopyIntoListConstruction();
             }
@@ -620,7 +613,7 @@
                 return value;
             }
 
-            return value.WithToArrayCall(Context.TargetElementType);
+            return TargetTypeHelper.GetEnumerableConversion(value);
         }
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
@@ -705,9 +698,7 @@
                     return _result;
                 }
 
-                _result = _builder.TargetTypeHelper.IsArray
-                    ? _result.WithToArrayCall(_builder.Context.TargetElementType)
-                    : _result.WithToListCall(_builder.Context.TargetElementType);
+                _result = _builder.TargetTypeHelper.GetEnumerableConversion(_result);
 
                 return _result;
             }

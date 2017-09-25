@@ -317,11 +317,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
         {
-            if (value.Type == typeof(void))
-            {
-                return value;
-            }
-
             return mapperData.TargetMember.GetPopulation(value, mapperData);
         }
 

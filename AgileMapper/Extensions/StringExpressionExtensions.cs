@@ -35,7 +35,7 @@
                 return string.Empty.ToConstantExpression();
             }
 
-            if (expressions.HasOne() && (expressions.First().NodeType == ExpressionType.Constant))
+            if (expressions.HasOne())
             {
                 return expressions.First();
             }
@@ -57,11 +57,6 @@
 
         private static void OptimiseForStringConcat(IList<Expression> expressions)
         {
-            if (expressions.HasOne())
-            {
-                return;
-            }
-
             var currentNamePart = string.Empty;
 
             for (var i = expressions.Count - 1; i >= 0; --i)

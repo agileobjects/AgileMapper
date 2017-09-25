@@ -83,6 +83,7 @@
                 (methodCall.Method.Name != "get_Item") ||
                 !methodCall.Method.DeclaringType.IsDictionary())
             {
+                // TODO: Test coverage - specified, non-dictionary indexed target member
                 entryMember = null;
                 return false;
             }

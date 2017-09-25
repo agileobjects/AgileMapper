@@ -21,7 +21,7 @@
         private static readonly MethodInfo _linqToArrayMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToArray");
 
-        private static readonly MethodInfo _toListMethod = typeof(Enumerable)
+        private static readonly MethodInfo _linqToListMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToList");
 
         private static readonly MethodInfo _stringEqualsMethod = typeof(string)
@@ -126,7 +126,7 @@
                 .GetPublicInstanceProperties()
                 .First(p =>
                     p.GetIndexParameters().HasOne() &&
-                    (p.GetIndexParameters()[0].ParameterType == indexValue.Type));
+                   (p.GetIndexParameters()[0].ParameterType == indexValue.Type));
 
             return Expression.MakeIndex(indexedExpression, indexer, new[] { indexValue });
         }
@@ -153,29 +153,72 @@
 
         private static MethodInfo GetToArrayConversionMethod(Expression enumerable, Type elementType)
         {
-            var wrapperType = typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(elementType);
+            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
 
-            if (enumerable.Type == wrapperType)
+            if (TryGetWrapperMethod(typeHelper, "ToArray", out var method))
             {
-                return wrapperType.GetMethod("ToArray");
+                return method;
             }
 
-            var listType = typeof(IList<>).MakeGenericType(elementType);
-
-            if (listType.IsAssignableFrom(enumerable.Type))
+            if (typeHelper.HasListInterface)
             {
                 return _listToArrayMethod;
             }
 
-            var collectionType = typeof(ICollection<>).MakeGenericType(elementType);
+            return GetNonListToArrayConversionMethod(typeHelper);
+        }
 
-            return collectionType.IsAssignableFrom(enumerable.Type)
+        private static bool TryGetWrapperMethod(
+            EnumerableTypeHelper typeHelper,
+            string methodName,
+            out MethodInfo method)
+        {
+            var wrapperType = typeHelper.WrapperType;
+
+            if (typeHelper.EnumerableType != wrapperType)
+            {
+                method = null;
+                return false;
+            }
+
+            method = wrapperType.GetMethod(methodName);
+            return true;
+        }
+
+        private static MethodInfo GetNonListToArrayConversionMethod(EnumerableTypeHelper typeHelper)
+        {
+            return typeHelper.HasCollectionInterface
                 ? _collectionToArrayMethod
                 : _linqToArrayMethod;
         }
 
+        public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, Type elementType)
+        {
+            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
+
+            if (TryGetWrapperMethod(typeHelper, "ToReadOnlyCollection", out var method))
+            {
+                return GetToEnumerableCall(enumerable, method, elementType);
+            }
+
+            if (typeHelper.IsList)
+            {
+                return Expression.Call(enumerable, typeHelper.ListType.GetMethod("AsReadOnly"));
+            }
+
+            if (typeHelper.HasListInterface)
+            {
+                return GetReadOnlyCollectionCreation(typeHelper, enumerable);
+            }
+
+            var nonListToArrayMethod = GetNonListToArrayConversionMethod(typeHelper);
+            var toArrayCall = GetToEnumerableCall(enumerable, nonListToArrayMethod, elementType);
+
+            return GetReadOnlyCollectionCreation(typeHelper, toArrayCall);
+        }
+
         public static Expression WithToListCall(this Expression enumerable, Type elementType)
-            => GetToEnumerableCall(enumerable, _toListMethod, elementType);
+            => GetToEnumerableCall(enumerable, _linqToListMethod, elementType);
 
         private static Expression GetToEnumerableCall(Expression enumerable, MethodInfo method, Type elementType)
         {
@@ -200,7 +243,7 @@
 
             if (enumerableType.IsArray)
             {
-                return Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "EmptyArray");
+                return GetEmptyArray(elementType);
             }
 
             var typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
@@ -210,6 +253,11 @@
                 return Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "Empty");
             }
 
+            if (typeHelper.IsReadOnlyCollection)
+            {
+                return GetReadOnlyCollectionCreation(typeHelper, GetEmptyArray(elementType));
+            }
+
             var fallbackType = typeHelper.IsCollection
                 ? typeHelper.CollectionType
                 : typeHelper.IsDictionary
@@ -217,6 +265,17 @@
                     : typeHelper.ListType;
 
             return Expression.New(fallbackType);
+        }
+
+        private static Expression GetEmptyArray(Type elementType)
+             => Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "EmptyArray");
+
+        private static Expression GetReadOnlyCollectionCreation(EnumerableTypeHelper typeHelper, Expression list)
+        {
+            // ReSharper disable once AssignNullToNotNullAttribute
+            return Expression.New(
+                typeHelper.ReadOnlyCollectionType.GetConstructor(new[] { typeHelper.ListInterfaceType }),
+                list);
         }
 
         private static Type GetDictionaryType(Type dictionaryType)

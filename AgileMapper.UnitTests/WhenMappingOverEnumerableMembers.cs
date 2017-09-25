@@ -52,6 +52,24 @@
         }
 
         [Fact]
+        public void ShouldOverwriteAReadOnlyCollection()
+        {
+            var source = new PublicProperty<IEnumerable<decimal>>
+            {
+                Value = new[] { MinValue, MaxValue }
+            };
+
+            var target = new PublicField<ReadOnlyCollection<decimal>>
+            {
+                Value = new ReadOnlyCollection<decimal>(new[] { MinusOne, Zero })
+            };
+
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBe(MinValue, MaxValue);
+        }
+
+        [Fact]
         public void ShouldOverwriteAComplexTypeCollection()
         {
             var source = new PublicField<PublicField<int>[]>
@@ -137,6 +155,19 @@
             result.Value.ShouldNotBeNull();
             result.Value.ShouldBeSameAs(strings);
             result.Value.ShouldBe("One!", "Two!", "Three");
+        }
+
+        [Fact]
+        public void ShouldHandleAReadOnlyNestedReadOnlyCollection()
+        {
+            var source = new PublicField<string[]> { Value = new[] { "One!", "Two!" } };
+            var strings = new List<string> { "A", "B", "C" }.AsReadOnly();
+            var target = new PublicReadOnlyField<ReadOnlyCollection<string>>(strings);
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeSameAs(strings);
+            result.Value.ShouldBe("A", "B", "C");
         }
     }
 }
