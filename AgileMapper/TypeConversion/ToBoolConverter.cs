@@ -12,8 +12,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     {
         private static readonly Type[] _supportedSourceTypes = Constants
             .NumericTypes
-            .Concat(typeof(bool), typeof(string), typeof(object), typeof(char))
-            .ToArray();
+            .Append(typeof(bool), typeof(string), typeof(object), typeof(char));
 
         private readonly ToStringConverter _toStringConverter;
 

@@ -58,7 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public Expression Adapt(LoopExpression loop)
         {
             var sourceEnumerableFoundTest = Expression.NotEqual(_builder.SourceValue, _emptyTarget);
-            var assignSourceEnumerableFound = _sourceEnumerableFound.AssignTo(sourceEnumerableFoundTest);
+            var assignSourceEnumerableFound = (Expression)_sourceEnumerableFound.AssignTo(sourceEnumerableFoundTest);
 
             var adaptedLoop = _elementsDictionaryLoopData.Adapt(loop);
 
@@ -68,8 +68,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 DisposeEnumeratorIfNecessary);
 
             return Expression.Block(
-                new[] { _sourceEnumerableFound }.Concat(enumerableLoopBlock.Variables),
-                new[] { assignSourceEnumerableFound }.Concat(enumerableLoopBlock.Expressions));
+                new[] { _sourceEnumerableFound }.Append(enumerableLoopBlock.Variables),
+                new[] { assignSourceEnumerableFound }.Append(enumerableLoopBlock.Expressions));
         }
 
         private Expression GetEnumeratorIfNecessary(Expression getEnumeratorCall)

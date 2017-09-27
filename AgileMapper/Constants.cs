@@ -13,8 +13,6 @@
     {
         public static readonly bool ReflectionNotPermitted = ReflectionExtensions.ReflectionNotPermitted;
 
-        public static readonly string[] EmptyStringArray = Enumerable<string>.EmptyArray;
-
         public static readonly string EnumerableElementName = "[i]";
 
         public static readonly Type[] NoTypeArguments = Enumerable<Type>.EmptyArray;
@@ -54,8 +52,7 @@
         };
 
         public static readonly Type[] NumericTypes = WholeNumberNumericTypes
-            .Concat(typeof(float), typeof(decimal), typeof(double))
-            .ToArray();
+            .Append(typeof(float), typeof(decimal), typeof(double));
 
         public static readonly IDictionary<Type, double> NumericTypeMaxValuesByType = GetValuesByType("MaxValue");
         public static readonly IDictionary<Type, double> NumericTypeMinValuesByType = GetValuesByType("MinValue");

@@ -11,10 +11,9 @@
 
     internal class ToCharacterConverter : ValueConverterBase
     {
-        private static readonly Type[] _handledSourceTypes =
-            Constants.NumericTypes
-                .Concat(typeof(char), typeof(string), typeof(object))
-                .ToArray();
+        private static readonly Type[] _handledSourceTypes = Constants
+            .NumericTypes
+            .Append(typeof(char), typeof(string), typeof(object));
 
         private readonly ToStringConverter _toStringConverter;
 

@@ -300,8 +300,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var derivedTypePairs = mapperData.MapperContext.UserConfigurations
                 .DerivedTypes
-                .GetDerivedTypePairsFor(pairTestMapperData, mapperData.MapperContext)
-                .ToArray();
+                .GetDerivedTypePairsFor(pairTestMapperData, mapperData.MapperContext);
 
             return derivedTypePairs;
         }

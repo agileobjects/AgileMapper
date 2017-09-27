@@ -88,8 +88,7 @@
                 var targetMemberPath = targetMember.GetFriendlyTargetPath(rootMapperData);
 
                 var warningLines = mismatches
-                    .Prepend($"WARNING - enum mismatches mapping {sourceMemberPaths} to {targetMemberPath}:")
-                    .ToArray();
+                    .Prepend($"WARNING - enum mismatches mapping {sourceMemberPaths} to {targetMemberPath}:");
 
                 Warning = string.Join(Environment.NewLine, warningLines);
             }
@@ -132,7 +131,7 @@
 
                 if (unmatchedSourceValues.None() && unmatchedTargetValues.None())
                 {
-                    return Constants.EmptyStringArray;
+                    return Enumerable<string>.EmptyArray;
                 }
 
                 var unmatchedValues = unmatchedSourceValues

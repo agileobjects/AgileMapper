@@ -45,7 +45,7 @@
         public static T Last<T>(this IList<T> items) => items[items.Count - 1];
 
         [DebuggerStepThrough]
-        public static bool Any<T>(this ICollection<T> items) => items.Count > 0;
+        public static bool Any<T>(this ICollection<T> items) => items.Count != 0;
 
         [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
@@ -163,16 +163,13 @@
             return array;
         }
 
-        public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, params T[] extraItems)
-            => items.Concat(extraItems.AsEnumerable());
-
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Where(item => item != null);
 
         public static T[] Prepend<T>(this T[] array, T initialItem)
         {
             var newArray = new T[array.Length + 1];
 
-            array.CopyTo(newArray, 1);
+            newArray.CopyFrom(array, 1);
 
             newArray[0] = initialItem;
 
@@ -195,7 +192,7 @@
                 default:
                     var newArray = new T[array.Length + 1];
 
-                    array.CopyTo(newArray, 0);
+                    newArray.CopyFrom(array);
 
                     newArray[array.Length] = extraItem;
 
@@ -203,7 +200,9 @@
             }
         }
 
-        // TODO: Replace uses of Linq Concat
+        public static T[] Append<T>(this IList<T> array, params T[] extraItems)
+            => Append(array, (IList<T>)extraItems);
+
         public static T[] Append<T>(this IList<T> array, IList<T> extraItems)
         {
             var combinedArray = new T[array.Count + extraItems.Count];

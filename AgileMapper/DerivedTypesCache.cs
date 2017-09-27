@@ -10,8 +10,6 @@
 
     internal class DerivedTypesCache
     {
-        private static readonly Type[] _noTypes = Constants.NoTypeArguments;
-
         private readonly List<Assembly> _assemblies;
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
         private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;
@@ -32,7 +30,7 @@
         {
             if (type.IsSealed() || type.IsFromBcl())
             {
-                return _noTypes;
+                return Constants.NoTypeArguments;
             }
 
             return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
@@ -40,11 +38,11 @@
 
         private ICollection<Type> GetDerivedTypesForType(Type type)
         {
-            var typeAssembly = type.GetAssembly();
+            var typeAssemblies = new[]{ type.GetAssembly() };
 
-            var assemblies = _assemblies.Count > 0
-                ? _assemblies.Concat(typeAssembly).Distinct()
-                : new[] { typeAssembly };
+            var assemblies = _assemblies.Any()
+                ? _assemblies.Concat(typeAssemblies).Distinct()
+                : typeAssemblies;
 
             var assemblyTypes = assemblies
                 .SelectMany(assembly => _typesByAssembly
@@ -52,7 +50,7 @@
 
             var derivedTypes = assemblyTypes.Where(t => t.IsDerivedFrom(type)).ToList();
 
-            if (derivedTypes.Count != 0)
+            if (derivedTypes.Any())
             {
                 derivedTypes.Sort(TypeComparer.MostToLeastDerived);
             }

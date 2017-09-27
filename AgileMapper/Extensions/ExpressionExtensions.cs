@@ -72,7 +72,7 @@
             var variableAssignment = variable.AssignTo(value);
             loopBodyExpressions.Insert(insertIndex, variableAssignment);
 
-            loopBody = loopBody.Update(loopBody.Variables.Concat(variable), loopBodyExpressions);
+            loopBody = loopBody.Update(loopBody.Variables.Append(variable), loopBodyExpressions);
 
             return loop.Update(loop.BreakLabel, loop.ContinueLabel, loopBody);
         }
@@ -232,8 +232,6 @@
             return Expression.Call(typedToEnumerableMethod, enumerable);
         }
 
-        private static readonly Type _typedEnumerable = typeof(Enumerable<>);
-
         public static Expression GetEmptyInstanceCreation(this Type enumerableType, Type elementType = null)
         {
             if (elementType == null)
@@ -250,7 +248,7 @@
 
             if (typeHelper.IsEnumerableInterface)
             {
-                return Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "Empty");
+                return Expression.Field(null, typeof(Enumerable<>).MakeGenericType(elementType), "Empty");
             }
 
             if (typeHelper.IsReadOnlyCollection)
@@ -268,7 +266,7 @@
         }
 
         private static Expression GetEmptyArray(Type elementType)
-             => Expression.Field(null, _typedEnumerable.MakeGenericType(elementType), "EmptyArray");
+             => Expression.Field(null, typeof(Enumerable<>).MakeGenericType(elementType), "EmptyArray");
 
         private static Expression GetReadOnlyCollectionCreation(EnumerableTypeHelper typeHelper, Expression list)
         {

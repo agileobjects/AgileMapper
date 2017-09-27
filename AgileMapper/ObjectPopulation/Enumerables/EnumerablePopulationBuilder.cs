@@ -467,13 +467,13 @@
             {
                 return Expression.Block(
                     new[] { valueVariable },
-                    existingElementValueCheck.Expressions.Concat(mapping));
+                    existingElementValueCheck.Expressions.Append(mapping));
             }
 
             var mappingTryCatch = (TryExpression)mapping;
 
             mapping = mappingTryCatch.Update(
-                Expression.Block(existingElementValueCheck.Expressions.Concat(mappingTryCatch.Body)),
+                Expression.Block(existingElementValueCheck.Expressions.Append(mappingTryCatch.Body)),
                 mappingTryCatch.Handlers,
                 mappingTryCatch.Finally,
                 mappingTryCatch.Fault);
@@ -526,8 +526,8 @@
         {
             var funcTypes = projectionFuncParameters
                 .Select(p => p.Type)
-                .Concat(Context.TargetElementType)
-                .ToArray();
+                .ToArray()
+                .Append(Context.TargetElementType);
 
             var projectionFunc = Expression.Lambda(
                 Expression.GetFuncType(funcTypes),
