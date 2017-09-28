@@ -16,7 +16,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         ISourceDictionaryMappingConfigurator<TFirst, TSecond> ISourceDictionaryMappingConfigContinuation<TFirst, TSecond>.And
             => new SourceDictionaryMappingConfigurator<TFirst, TSecond>(_configInfo.Clone());
 
-        // TODO: Code coverage
         ITargetDictionaryMappingConfigurator<TFirst, TSecond> ITargetDictionaryMappingConfigContinuation<TFirst, TSecond>.And
             => new TargetDictionaryMappingConfigurator<TFirst, TSecond>(_configInfo.Clone());
     }

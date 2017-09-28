@@ -54,7 +54,7 @@
         [Fact]
         public void ShouldOverwriteAReadOnlyCollection()
         {
-            var source = new PublicProperty<IEnumerable<decimal>>
+            var source = new PublicProperty<ICollection<decimal>>
             {
                 Value = new[] { MinValue, MaxValue }
             };

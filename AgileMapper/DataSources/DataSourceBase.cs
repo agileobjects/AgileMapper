@@ -44,8 +44,8 @@
             ProcessMemberAccesses(
                 mapperData,
                 ref value,
-                out IList<Expression> nestedAccesses,
-                out ICollection<ParameterExpression> variables);
+                out var nestedAccesses,
+                out var variables);
 
             Condition = nestedAccesses.GetIsNotDefaultComparisonsOrNull();
             Variables = variables;
@@ -58,7 +58,7 @@
             IMemberMapperData mapperData,
             ref Expression value,
             out IList<Expression> nestedAccesses,
-            out ICollection<ParameterExpression> variables)
+            out IList<ParameterExpression> variables)
         {
             var valueInfo = mapperData.GetExpressionInfoFor(value, targetCanBeNull: false);
             nestedAccesses = valueInfo.NestedAccesses;
@@ -69,22 +69,24 @@
                 return;
             }
 
-            variables = new List<ParameterExpression>();
-            var cacheVariablesByValue = new Dictionary<Expression, Expression>();
-            var valueExpressions = new List<Expression>(valueInfo.MultiInvocations.Count + 1);
+            var numberOfInvocations = valueInfo.MultiInvocations.Count;
+            variables = new ParameterExpression[numberOfInvocations];
+            var cacheVariablesByValue = new Dictionary<Expression, Expression>(numberOfInvocations);
+            var valueExpressions = new Expression[numberOfInvocations + 1];
 
-            foreach (var invocation in valueInfo.MultiInvocations)
+            for (var i = 0; i < numberOfInvocations; i++)
             {
+                var invocation = valueInfo.MultiInvocations[i];
                 var valueVariableName = invocation.Type.GetFriendlyName().ToCamelCase() + "Value";
                 var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
                 var valueVariableValue = invocation.Replace(cacheVariablesByValue);
 
                 cacheVariablesByValue.Add(invocation, valueVariable);
-                variables.Add(valueVariable);
-                valueExpressions.Add(valueVariable.AssignTo(valueVariableValue));
+                variables[i] = valueVariable;
+                valueExpressions[i] = valueVariable.AssignTo(valueVariableValue);
             }
 
-            valueExpressions.Add(value.Replace(cacheVariablesByValue));
+            valueExpressions[numberOfInvocations] = value.Replace(cacheVariablesByValue);
             value = Expression.Block(valueExpressions);
         }
 

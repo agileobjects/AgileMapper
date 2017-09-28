@@ -13,7 +13,7 @@
     internal class DerivedTypePairSet
     {
         private static readonly object _lookupSync = new object();
-        private static readonly DerivedTypePair[] _noPairs = Enumerable<DerivedTypePair>.EmptyArray;
+
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
         private readonly List<SourceAndTargetTypesKey> _autoCheckedTypes;
 
@@ -64,7 +64,7 @@
             }
         }
 
-        public ICollection<DerivedTypePair> GetDerivedTypePairsFor(
+        public IList<DerivedTypePair> GetDerivedTypePairsFor(
             IBasicMapperData mapperData,
             MapperContext mapperContext)
         {
@@ -72,7 +72,7 @@
 
             if (_typePairsByTargetType.None())
             {
-                return _noPairs;
+                return Enumerable<DerivedTypePair>.EmptyArray;
             }
 
             if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
@@ -80,7 +80,7 @@
                 return typePairs.Where(tp => tp.AppliesTo(mapperData)).ToArray();
             }
 
-            return _noPairs;
+            return Enumerable<DerivedTypePair>.EmptyArray;
         }
 
         #region Auto-Registration

@@ -210,7 +210,7 @@
                 sourceValueVariableValue = null;
             }
 
-            var replacementsByTarget = new ExpressionReplacementDictionary
+            var replacementsByTarget = new ExpressionReplacementDictionary(3)
             {
                 [mapperData.SourceObject] = sourceValue,
                 [mapperData.TargetObject] = mappingValues.TargetValue,

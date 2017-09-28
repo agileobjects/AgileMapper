@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Configuration;
     using Extensions;
     using ReadableExpressions.Extensions;
 
@@ -18,8 +19,7 @@
 
             if (_toStringMethod == null)
             {
-                // TODO: Test coverage - unformattable source type
-                throw new NotSupportedException(
+                throw new MappingConfigurationException(
                     "No ToString method taking a formatting string exists on type " + sourceValueType.GetFriendlyName());
             }
 

@@ -122,7 +122,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var typedParentContextAccess = mapperData.GetTypedContextAccess(parentContextAccess, parentMappingTypes);
             var parentTargetAccess = mapperData.GetTargetAccess(parentContextAccess, mapperData.TargetType);
 
-            var replacements = new Dictionary<Expression, Expression>
+            var replacements = new Dictionary<Expression, Expression>(2)
             {
                 [mapValueCall.GetSubject()] = typedParentContextAccess,
                 [mapValueCall.Arguments[1]] = parentTargetAccess

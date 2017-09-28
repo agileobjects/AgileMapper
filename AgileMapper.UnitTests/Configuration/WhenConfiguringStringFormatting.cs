@@ -68,5 +68,20 @@
 
             noFormatEx.Message.ShouldContain("No format string specified");
         }
+
+        [Fact]
+        public void ShouldErrorIfUnformattableTypeSpecified()
+        {
+            var noFormatEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .StringsFrom<PublicField<string>>(c => c.FormatUsing("xxx"));
+                }
+            });
+
+            noFormatEx.Message.ShouldContain("No ToString method");
+        }
     }
 }

@@ -33,7 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (MappingAlwaysBranchesToDerivedType(mappingData, out var derivedTypeMappings))
             {
                 return mappingExpressions.Any()
-                    ? Expression.Block(mappingExpressions.Concat(derivedTypeMappings))
+                    ? Expression.Block(mappingExpressions.Append(derivedTypeMappings))
                     : derivedTypeMappings;
             }
 

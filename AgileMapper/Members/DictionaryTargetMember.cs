@@ -253,7 +253,11 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             var keyedAccess = GetAccess(mapperData.InstanceVariable, mapperData);
-            var convertedValue = mapperData.GetValueConversion(value, ValueType);
+
+            var convertedValue = HasComplexEntries
+                ? GetCheckedValue((BlockExpression)value, keyedAccess, mapperData)
+                : mapperData.GetValueConversion(value, ValueType);
+
             var keyedAssignment = keyedAccess.AssignTo(convertedValue);
 
             return keyedAssignment;
@@ -314,11 +318,22 @@ namespace AgileObjects.AgileMapper.Members
             return expressions;
         }
 
+        private Expression GetCheckedValue(BlockExpression value, Expression keyedAccess, IMemberMapperData mapperData)
+        {
+            var checkedAccess = GetAccessChecked(mapperData);
+            var existingValue = checkedAccess.Variables.First();
+            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValue };
+            var checkedValue = value.Replace(replacements);
+
+            return checkedValue.Update(
+                checkedValue.Variables.Append(existingValue),
+                checkedValue.Expressions.Prepend(checkedAccess.Expressions.First()));
+        }
+
         public DictionaryTargetMember WithTypeOf(Member sourceMember)
         {
             if (sourceMember.Type == Type)
             {
-                // TODO: Test coverage - source object with a non-simple member of the dictionary value type
                 return this;
             }
 

@@ -8,10 +8,9 @@
 
     internal abstract class ToNumericConverterBase : TryParseConverterBase
     {
-        private static readonly Type[] _handledSourceTypes =
-            Constants.NumericTypes
-                .Concat(typeof(string), typeof(char), typeof(object))
-                .ToArray();
+        private static readonly Type[] _handledSourceTypes = Constants
+            .NumericTypes
+            .Append(typeof(string), typeof(char), typeof(object));
 
         protected ToNumericConverterBase(ToStringConverter toStringConverter, Type numericType)
             : base(toStringConverter, numericType)
