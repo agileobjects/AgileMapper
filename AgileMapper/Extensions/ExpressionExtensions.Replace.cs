@@ -27,7 +27,7 @@
             Expression replacement)
             where TExpression : Expression
         {
-            return expression.Replace(new Dictionary<Expression, Expression> { [target] = replacement });
+            return expression.Replace(new Dictionary<Expression, Expression>(1) { [target] = replacement });
         }
 
         public static TExpression Replace<TExpression>(

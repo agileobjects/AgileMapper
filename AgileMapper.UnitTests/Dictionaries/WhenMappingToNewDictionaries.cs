@@ -29,6 +29,16 @@
         }
 
         [Fact]
+        public void ShouldMapAComplexTypeMemberToATypedDictionary()
+        {
+            var source = new PublicProperty<Product> { Value = new Product { ProductId = "xxx" } };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, Product>>();
+
+            result.ContainsKey("Value").ShouldBeTrue();
+            result["Value"].ShouldBeOfType<Product>();
+        }
+
+        [Fact]
         public void ShouldMapASimpleTypeMemberToAConvertibleTypedDictionary()
         {
             var source = new PublicGetMethod<string>("6473");

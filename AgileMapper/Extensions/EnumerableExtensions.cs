@@ -165,11 +165,11 @@
 
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Where(item => item != null);
 
-        public static T[] Prepend<T>(this T[] array, T initialItem)
+        public static T[] Prepend<T>(this IList<T> items, T initialItem)
         {
-            var newArray = new T[array.Length + 1];
+            var newArray = new T[items.Count + 1];
 
-            newArray.CopyFrom(array, 1);
+            newArray.CopyFrom(items, 1);
 
             newArray[0] = initialItem;
 
