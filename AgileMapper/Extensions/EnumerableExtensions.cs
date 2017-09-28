@@ -5,9 +5,16 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
+    using NetStandardPolyfills;
 
     internal static class EnumerableExtensions
     {
+        public static readonly MethodInfo EnumerableNoneMethod = typeof(EnumerableExtensions)
+            .GetPublicStaticMethods()
+            .First(m => (m.Name == "None") && (m.GetParameters().Length == 2))
+            .MakeGenericMethod(typeof(string));
+
         public static void AddUnlessNullOrEmpty(this ICollection<Expression> items, Expression item)
         {
             if ((item != null) && (item != Constants.EmptyExpression))
@@ -17,21 +24,46 @@
         }
 
         [DebuggerStepThrough]
-        public static bool Any<T>(this ICollection<T> items) => items.Count > 0;
+        public static T First<T>(this IList<T> items) => items[0];
+
+        public static T First<T>(this IList<T> items, Func<T, bool> predicate)
+        {
+            for (int i = 0, n = items.Count; i < n; i++)
+            {
+                var item = items[i];
+
+                if (predicate.Invoke(item))
+                {
+                    return item;
+                }
+            }
+
+            throw new InvalidOperationException("Sequence contains no matching element");
+        }
+
+        [DebuggerStepThrough]
+        public static T Last<T>(this IList<T> items) => items[items.Count - 1];
+
+        [DebuggerStepThrough]
+        public static bool Any<T>(this ICollection<T> items) => items.Count != 0;
 
         [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
         public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
         {
-            using (var enumerator = items.GetEnumerator())
+            return items.All(item => !predicate.Invoke(item));
+        }
+
+        public static bool None<T>(this IList<T> items, Func<T, bool> predicate)
+        {
+            for (int i = 0, n = items.Count; i < n; i++)
             {
-                while (enumerator.MoveNext())
+                var item = items[i];
+
+                if (predicate.Invoke(item))
                 {
-                    if (predicate.Invoke(enumerator.Current))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -41,7 +73,7 @@
         [DebuggerStepThrough]
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
 
-        public static Expression ReverseChain<T>(this ICollection<T> items)
+        public static Expression ReverseChain<T>(this IList<T> items)
             where T : IConditionallyChainable
         {
             return ReverseChain(
@@ -66,7 +98,7 @@
         }
 
         public static Expression ReverseChain<TItem>(
-            this ICollection<TItem> items,
+            this IList<TItem> items,
             Func<TItem, Expression> seedValueFactory,
             Func<Expression, TItem, Expression> itemValueFactory)
         {
@@ -74,7 +106,7 @@
         }
 
         public static Expression Chain<TItem>(
-            this ICollection<TItem> items,
+            this IList<TItem> items,
             Func<TItem, Expression> seedValueFactory,
             Func<Expression, TItem, Expression> itemValueFactory)
         {
@@ -82,11 +114,11 @@
         }
 
         private static Expression Chain<TItem>(
-            ICollection<TItem> items,
-            Func<ICollection<TItem>, TItem> seedFactory,
+            IList<TItem> items,
+            Func<IList<TItem>, TItem> seedFactory,
             Func<TItem, Expression> seedValueFactory,
             Func<Expression, TItem, Expression> itemValueFactory,
-            Func<ICollection<TItem>, IEnumerable<TItem>> initialOperation)
+            Func<IList<TItem>, IEnumerable<TItem>> initialOperation)
         {
             if (items.None())
             {
@@ -109,12 +141,17 @@
         {
             var array = new T[items.Count];
 
-            for (var i = 0; i < array.Length; i++)
-            {
-                array[i] = items[i];
-            }
+            array.CopyFrom(items);
 
             return array;
+        }
+
+        public static void CopyFrom<T>(this IList<T> array, IList<T> items, int startIndex = 0)
+        {
+            for (var i = 0; i < items.Count; i++)
+            {
+                array[i + startIndex] = items[i];
+            }
         }
 
         public static T[] ToArray<T>(this ICollection<T> items)
@@ -126,16 +163,13 @@
             return array;
         }
 
-        public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, params T[] extraItems)
-            => items.Concat(extraItems.AsEnumerable());
-
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Where(item => item != null);
 
-        public static T[] Prepend<T>(this T[] array, T initialItem)
+        public static T[] Prepend<T>(this IList<T> items, T initialItem)
         {
-            var newArray = new T[array.Length + 1];
+            var newArray = new T[items.Count + 1];
 
-            array.CopyTo(newArray, 1);
+            newArray.CopyFrom(items, 1);
 
             newArray[0] = initialItem;
 
@@ -144,13 +178,39 @@
 
         public static T[] Append<T>(this T[] array, T extraItem)
         {
-            var newArray = new T[array.Length + 1];
+            switch (array.Length)
+            {
+                case 0:
+                    return new[] { extraItem };
 
-            array.CopyTo(newArray, 0);
+                case 1:
+                    return new[] { array[0], extraItem };
 
-            newArray[array.Length] = extraItem;
+                case 2:
+                    return new[] { array[0], array[1], extraItem };
 
-            return newArray;
+                default:
+                    var newArray = new T[array.Length + 1];
+
+                    newArray.CopyFrom(array);
+
+                    newArray[array.Length] = extraItem;
+
+                    return newArray;
+            }
+        }
+
+        public static T[] Append<T>(this IList<T> array, params T[] extraItems)
+            => Append(array, (IList<T>)extraItems);
+
+        public static T[] Append<T>(this IList<T> array, IList<T> extraItems)
+        {
+            var combinedArray = new T[array.Count + extraItems.Count];
+
+            combinedArray.CopyFrom(array);
+            combinedArray.CopyFrom(extraItems, array.Count);
+
+            return combinedArray;
         }
 
         public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
@@ -167,15 +227,10 @@
                     excludedItemCountsByItem = GetCountsByItem(excludedItems);
                 }
 
-                int count;
-
-                if (excludedItemCountsByItem.TryGetValue(item, out count))
+                if (excludedItemCountsByItem.TryGetValue(item, out var count) && (count > 0))
                 {
-                    if (count > 0)
-                    {
-                        excludedItemCountsByItem[item] = count - 1;
-                        continue;
-                    }
+                    excludedItemCountsByItem[item] = count - 1;
+                    continue;
                 }
 
                 yield return item;
@@ -193,9 +248,7 @@
                     continue;
                 }
 
-                int count;
-
-                if (itemCountsByItem.TryGetValue(item, out count))
+                if (itemCountsByItem.TryGetValue(item, out var count))
                 {
                     itemCountsByItem[item] = count + 1;
                 }

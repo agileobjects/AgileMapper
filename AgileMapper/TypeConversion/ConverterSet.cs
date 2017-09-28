@@ -30,6 +30,7 @@
                 new ToNumericConverter<decimal>(toStringConverter),
                 new ToNumericConverter<double>(toStringConverter),
                 new ToNumericConverter<long>(toStringConverter),
+                new ToCharacterConverter(toStringConverter),
                 new ToNumericConverter<short>(toStringConverter),
                 new ToNumericConverter<byte>(toStringConverter),
                 new FallbackNonSimpleTypeValueConverter()
@@ -91,6 +92,13 @@
                     converter.GetConversionOption(sourceValue, targetType, conversionSoFar));
 
             return conversion;
+        }
+
+        public void CloneTo(ConverterSet converterSet)
+        {
+            converterSet._converters.InsertRange(
+                0,
+                _converters.Except(converterSet._converters));
         }
     }
 }

@@ -112,7 +112,7 @@
             }
         }
 
-        // ReSharper disable once UnusedParameter.Local
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private void ThrowIfDifferingNumbers<TSecondEnum>(ICollection<TSecondEnum> secondEnumMembers)
         {
             if (_firstEnumMembers.Length != secondEnumMembers.Count)

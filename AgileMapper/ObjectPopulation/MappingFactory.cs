@@ -191,7 +191,7 @@
             var useLocalSourceValueVariable =
                 ShouldUseLocalSourceValueVariable(mappingValues.SourceValue, mapping, mapperData);
 
-            Expression sourceValue, sourceValueVariableValue = null;
+            Expression sourceValue, sourceValueVariableValue;
 
             if (useLocalSourceValueVariable)
             {
@@ -202,9 +202,10 @@
             else
             {
                 sourceValue = mappingValues.SourceValue;
+                sourceValueVariableValue = null;
             }
 
-            var replacementsByTarget = new ExpressionReplacementDictionary
+            var replacementsByTarget = new ExpressionReplacementDictionary(3)
             {
                 [mapperData.SourceObject] = sourceValue,
                 [mapperData.TargetObject] = mappingValues.TargetValue,

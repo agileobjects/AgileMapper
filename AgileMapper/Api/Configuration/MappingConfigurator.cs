@@ -84,6 +84,24 @@
 
         IFullMappingConfigurator<TSource, TTarget> IFullMappingSettings<TSource, TTarget>.And => this;
 
+        #region Ignoring Members
+
+        public MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>()
+        {
+            return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
+        }
+
+        public MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter)
+        {
+            var configInfo = ConfigInfo.ForTargetType<TTarget>();
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(configInfo, memberFilter);
+
+            ConfigInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+        }
+
         public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
             var configInfo = ConfigInfo.ForTargetType<TTarget>();
@@ -99,6 +117,8 @@
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
+
+        #endregion
 
         public PreEventMappingConfigStartingPoint<TSource, TTarget> Before
             => new PreEventMappingConfigStartingPoint<TSource, TTarget>(ConfigInfo);

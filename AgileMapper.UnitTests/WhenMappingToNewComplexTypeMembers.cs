@@ -42,7 +42,7 @@
 
             var result = Mapper.Map(source).ToANew<Customer>();
 
-            result.Address.ShouldNotBeNull();
+            result.Address.ShouldBeNull();
         }
 
         [Fact]
@@ -177,6 +177,48 @@
             result.Value.ShouldBeNull();
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/22
+        [Fact]
+        public void ShouldUseBestMatchingSourceMemberWhenCloning()
+        {
+            var source = new Country
+            {
+                CurrencyId = 1
+            };
+
+            var result = Mapper.Clone(source);
+
+            result.Currency.ShouldBeNull();
+            result.CurrencyId.ShouldBe(1);
+        }
+        [Fact]
+        public void ShouldUseBestMatchingSourceMemberWhenNotCloning()
+        {
+            var source = new
+            {
+                Currency = new { Id = 123 },
+                CurrencyId = 456
+            };
+
+            var result = Mapper.Map(source).ToANew<Country>();
+
+            result.Currency.ShouldNotBeNull();
+            result.Currency.Id.ShouldBe(123);
+            result.CurrencyId.ShouldBe(456);
+        }
+
+        [Fact]
+        public void ShouldMapASourcePropertyToMultipleTargets()
+        {
+            var source = new { CurrencyId = 1 };
+
+            var result = Mapper.Map(source).ToANew<Country>();
+
+            result.Currency.ShouldNotBeNull();
+            result.Currency.Id.ShouldBe(1);
+            result.CurrencyId.ShouldBe(1);
+        }
+
         [Fact]
         public void ShouldAccessAParentContextInAStandaloneMapper()
         {
@@ -262,5 +304,21 @@
 
             result.Value.ShouldBeNull();
         }
+
+        #region Helper Classes
+
+        private class Country
+        {
+            public Currency Currency { get; set; }
+
+            public int CurrencyId { get; set; }
+        }
+
+        private class Currency
+        {
+            public int Id { get; set; }
+        }
+
+        #endregion
     }
 }

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
     using System.Text.RegularExpressions;
     using AgileMapper.Configuration;
@@ -203,6 +204,9 @@
         /// Keep track of objects during mappings between all source and target types, in order to short-circuit 
         /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
         /// </summary>
+        /// <returns>
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
         public IGlobalConfigSettings TrackMappedObjects()
         {
             _mapperContext.UserConfigurations.Add(ObjectTrackingMode.TrackAll(_mapperContext));
@@ -213,7 +217,7 @@
         /// Map null source collections to null instead of an empty collection, for all source and target types.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings MapNullCollectionsToNull()
         {
@@ -249,11 +253,11 @@
 
         /// <summary>
         /// Scan the specified <paramref name="assemblies"/> when looking for types derived
-        /// from a source or target type being mapped.
+        /// from any source or target type being mapped.
         /// </summary>
         /// <param name="assemblies">The assemblies in which to look for derived types.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings LookForDerivedTypesIn(params Assembly[] assemblies)
         {
@@ -271,7 +275,61 @@
                     new ArgumentNullException(nameof(assemblies)));
             }
 
-            _mapperContext.DerivedTypes.AddAssemblies(assemblies);
+            GlobalContext.Instance.DerivedTypes.AddAssemblies(assemblies);
+            return this;
+        }
+
+        #region Ignoring Members
+
+        /// <summary>
+        /// Ignore all target member(s) of the given <typeparamref name="TMember">Type</typeparamref>. Members will be
+        /// ignored in mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// </summary>
+        /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
+        /// <returns>
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings IgnoreTargetMembersOfType<TMember>()
+        {
+            return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
+        }
+
+        /// <summary>
+        /// Ignore all target member(s) matching the given <paramref name="memberFilter"/>. Members will be
+        /// ignored in mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// </summary>
+        /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
+        /// <returns>
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
+        {
+            var configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext);
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(configInfo, memberFilter);
+
+            _mapperContext.UserConfigurations.Add(configuredIgnoredMember);
+            return this;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Configure a formatting string to use when mapping from the given <typeparamref name="TSourceValue"/>
+        /// to strings, for all source and target types.
+        /// </summary>
+        /// <typeparam name="TSourceValue">The source value type to which to apply a formatting string.</typeparam>
+        /// <param name="formatSelector">An action which supplies the formatting string.</param>
+        /// <returns>
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings StringsFrom<TSourceValue>(Action<StringFormatSpecifier> formatSelector)
+        {
+            var formatSpecifier = new StringFormatSpecifier(_mapperContext, typeof(TSourceValue));
+
+            formatSelector.Invoke(formatSpecifier);
+
+            formatSpecifier.ErrorIfInvalid();
+
             return this;
         }
 

@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.DataSources
 #if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
 #endif
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using Members;
@@ -28,7 +27,11 @@ namespace AgileObjects.AgileMapper.DataSources
 
             foreach (var dataSource in dataSources)
             {
-                HasValue = HasValue || dataSource.IsValid;
+                if (dataSource.IsValid)
+                {
+                    HasValue = true;
+                }
+
                 _variables.AddRange(dataSource.Variables);
 
                 if (dataSource.SourceMemberTypeTest != null)

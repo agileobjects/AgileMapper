@@ -25,6 +25,8 @@
 
         public ICache<TKey, TValue> CreateNew<TKey, TValue>() => new ArrayCache<TKey, TValue>();
 
+        //public void CloneTo(CacheSet cacheSet) => _cachesByType.CloneTo(cacheSet._cachesByType);
+
         public void Empty()
         {
             foreach (var cache in _cachesByType.Values)

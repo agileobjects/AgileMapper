@@ -1,11 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Linq;
+    using System;
     using System.Linq.Expressions;
     using Configuration;
     using Members;
 
-    internal class ConfiguredDataSourceFactory : UserConfiguredItemBase
+    internal class ConfiguredDataSourceFactory :
+        UserConfiguredItemBase,
+        IComparable<ConfiguredDataSourceFactory>,
+        IPotentialClone
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
 
@@ -35,6 +38,14 @@
             }
 
             var otherDataSource = otherConfiguredItem as ConfiguredDataSourceFactory;
+            var dataSourceLambdasAreTheSame = HasSameDataSourceLambdaAs(otherDataSource);
+
+            if (IsClone &&
+               (otherConfiguredItem is IPotentialClone otherClone) &&
+               !otherClone.IsClone)
+            {
+                return (otherDataSource != null) && dataSourceLambdasAreTheSame;
+            }
 
             if (otherDataSource == null)
             {
@@ -46,11 +57,24 @@
                 return true;
             }
 
-            return _dataSourceLambda.IsSameAs(otherDataSource._dataSourceLambda);
+            return dataSourceLambdasAreTheSame;
         }
 
-        protected override bool MembersConflict(QualifiedMember otherMember)
-            => TargetMember.LeafMember.Equals(otherMember.LeafMember);
+        private bool HasSameDataSourceLambdaAs(ConfiguredDataSourceFactory otherDataSource)
+        {
+            return _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
+        }
+
+        protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
+            => TargetMember.LeafMember.Equals(otherConfiguredItem.TargetMember.LeafMember);
+
+        public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            var lambdasAreTheSame = HasSameDataSourceLambdaAs(conflictingDataSource);
+            var conflictIdentifier = lambdasAreTheSame ? "that" : "a";
+
+            return $"{TargetMember.GetPath()} already has {conflictIdentifier} configured data source";
+        }
 
         public IConfiguredDataSource Create(IMemberMapperData mapperData)
         {
@@ -59,5 +83,38 @@
 
             return new ConfiguredDataSource(configuredCondition, value, mapperData);
         }
+
+        #region IPotentialClone Members
+
+        public bool IsClone { get; private set; }
+
+        public IPotentialClone Clone()
+        {
+            return new ConfiguredDataSourceFactory(ConfigInfo, _dataSourceLambda, TargetMember)
+            {
+                IsClone = true
+            };
+        }
+
+        public bool IsReplacementFor(IPotentialClone clonedDataSourceFactory)
+            => ConflictsWith((ConfiguredDataSourceFactory)clonedDataSourceFactory);
+
+        #endregion
+
+        #region IComparable Members
+
+        int IComparable<ConfiguredDataSourceFactory>.CompareTo(ConfiguredDataSourceFactory other)
+        {
+            var compareResult = ((IComparable<UserConfiguredItemBase>)this).CompareTo(other);
+
+            if ((compareResult != 0) || (IsClone == other.IsClone))
+            {
+                return compareResult;
+            }
+
+            return IsClone ? 1 : -1;
+        }
+
+        #endregion
     }
 }

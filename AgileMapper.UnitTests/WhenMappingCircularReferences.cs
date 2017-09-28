@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Collections.ObjectModel;
     using AgileMapper.Extensions;
     using Shouldly;
     using TestClasses;
@@ -262,6 +262,59 @@
         }
 
         [Fact]
+        public void ShouldMapNestedMultiplyRecursiveRelationships()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<PublicField<ReadOnlyCollection<MultipleRecursor>>>()
+                    .TrackMappedObjects();
+
+                var recursorOne = new MultipleRecursor { Name = "One" };
+                var recursorTwo = new MultipleRecursor { Name = "Two" };
+
+                recursorOne.ChildRecursor = recursorTwo;
+                recursorTwo.ChildRecursor = recursorOne;
+
+                var source = new PublicField<MultipleRecursor[]>
+                {
+                    Value = new[] { recursorOne, recursorTwo }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<ReadOnlyCollection<MultipleRecursor>>>();
+
+                result.ShouldNotBeNull();
+                result.ShouldNotBeSameAs(source);
+                result.Value.Count.ShouldBe(2);
+
+                var resultOne = result.Value.First();
+                resultOne.ShouldNotBeSameAs(recursorOne);
+                resultOne.Name.ShouldBe("One");
+                resultOne.ChildRecursor.ShouldNotBeNull();
+                resultOne.ChildRecursor.ShouldNotBeSameAs(recursorTwo);
+
+                var resultTwo = result.Value.Second();
+                resultTwo.ShouldNotBeSameAs(recursorTwo);
+                resultTwo.Name.ShouldBe("Two");
+                resultTwo.ChildRecursor.ShouldNotBeNull();
+                resultTwo.ChildRecursor.ShouldNotBeSameAs(recursorOne);
+
+                resultOne.ChildRecursor.ShouldBeSameAs(resultTwo);
+                resultTwo.ChildRecursor.ShouldBeSameAs(resultOne);
+            }
+        }
+
+        [Fact]
+        public void ShouldGenerateAMappingPlanForLinkRelationships()
+        {
+            var plan = Mapper.GetPlanFor<Video>().Over<Video>();
+
+            plan.ShouldNotBeNull();
+            plan.ShouldContain("WhenMappingCircularReferences.Video -> WhenMappingCircularReferences.Video");
+            plan.ShouldContain(".MapRecursion(");
+        }
+
+        [Fact]
         public void ShouldGenerateAMappingPlanForAOneToOneRelationship()
         {
             var plan = Mapper
@@ -302,6 +355,47 @@
             public MultipleRecursor[] ChildRecursorArray { get; set; }
 
             public List<MultipleRecursor> ChildRecursors { get; set; }
+        }
+
+        internal class Video
+        {
+            public IEnumerable<VideoPresenter> Presenters { get; set; }
+        }
+
+        internal class VideoPresenter
+        {
+            public Video Video { get; set; }
+
+            public Presenter Presenter { get; set; }
+        }
+
+        internal class Presenter
+        {
+            public IEnumerable<PresenterExpertise> Expertises { get; set; }
+        }
+
+        internal class PresenterExpertise
+        {
+            public Presenter Presenter { get; set; }
+
+            public Expertise Expertise { get; set; }
+        }
+
+        internal class Expertise
+        {
+            public Subject Subject { get; set; }
+        }
+
+        internal class Subject
+        {
+            public IEnumerable<SubjectPresenter> Presenters { get; set; }
+        }
+
+        internal class SubjectPresenter
+        {
+            public Subject Subject { get; set; }
+
+            public Presenter Presenter { get; set; }
         }
 
         #endregion

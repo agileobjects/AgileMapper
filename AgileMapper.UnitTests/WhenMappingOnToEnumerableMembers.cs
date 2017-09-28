@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Shouldly;
     using TestClasses;
@@ -51,6 +52,26 @@
         }
 
         [Fact]
+        public void ShouldMergeANullableGuidReadOnlyCollection()
+        {
+            var source = new PublicProperty<ICollection<Guid>>
+            {
+                Value = new List<Guid> { Guid.NewGuid() }
+            };
+
+            var target = new PublicField<ReadOnlyCollection<Guid?>>
+            {
+                Value = new ReadOnlyCollection<Guid?>(new[] { Guid.Empty, default(Guid?), Guid.NewGuid() })
+            };
+
+            var originalCollection = target.Value;
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeSameAs(originalCollection);
+            result.Value.ShouldBe(target.Value.First(), default(Guid?), target.Value.Third(), source.Value.First());
+        }
+
+        [Fact]
         public void ShouldMergeAComplexTypeCollection()
         {
             var source = new PublicField<PublicField<long>[]>
@@ -96,6 +117,34 @@
             result.Value.Second().ShouldBeSameAs(existingProduct);
             result.Value.Second().Price.ShouldBe(1000.00);
             result.Value.ShouldBe(r => r.ProductId, "Magic", "Science");
+        }
+
+        [Fact]
+        public void ShouldMergeAnIdentifiableComplexTypeReadOnlyCollection()
+        {
+            var source = new PublicProperty<Product[]>
+            {
+                Value = new[]
+                {
+                    new Product { ProductId = "Science", Price = 1000.00 }
+                }
+            };
+
+            var target = new PublicField<ReadOnlyCollection<Product>>
+            {
+                Value = new ReadOnlyCollection<Product>(new List<Product>
+                {
+                    new Product { ProductId = "Science" },
+                    new Product { ProductId = "Magic", Price = 1.00 }
+                })
+            };
+
+            var existingProduct = target.Value.First();
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.First().ShouldBeSameAs(existingProduct);
+            result.Value.First().Price.ShouldBe(1000.00);
+            result.Value.ShouldBe(r => r.ProductId, "Science", "Magic");
         }
 
         [Fact]

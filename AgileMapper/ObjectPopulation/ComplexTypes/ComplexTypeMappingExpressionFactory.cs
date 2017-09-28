@@ -70,9 +70,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 yield return alreadyMappedShortCircuit;
             }
 
-            ISourceShortCircuitFactory sourceShortCircuitFactory;
-
-            if (TryGetShortCircuitFactory(mapperData, out sourceShortCircuitFactory))
+            if (TryGetShortCircuitFactory(mapperData, out var sourceShortCircuitFactory))
             {
                 yield return sourceShortCircuitFactory.GetShortCircuit(mappingData);
             }
@@ -95,12 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetAlreadyMappedObjectShortCircuitOrNull(ObjectMapperData mapperData)
         {
-            if (mapperData.TargetTypeHasNotYetBeenMapped)
-            {
-                return null;
-            }
-
-            if (mapperData.MapperContext.UserConfigurations.DisableObjectTracking(mapperData))
+            if (!mapperData.MappedObjectCachingNeeded || mapperData.TargetTypeHasNotYetBeenMapped)
             {
                 return null;
             }
@@ -145,7 +138,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (mapperData.Context.UseLocalVariable)
             {
-                yield return GetLocalVariableInstantiation(postCreationCallback != null, mappingData);
+                var assignCreatedObject = postCreationCallback != null;
+                var hasMemberPopulations = MemberPopulationsExist(populationsAndCallbacks);
+
+                yield return GetLocalVariableInstantiation(assignCreatedObject, hasMemberPopulations, mappingData);
             }
 
             if (postCreationCallback != null)
@@ -174,12 +170,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {
-            if (mapperData.TargetTypeWillNotBeMappedAgain)
-            {
-                return null;
-            }
-
-            if (mapperData.MapperContext.UserConfigurations.DisableObjectTracking(mapperData))
+            if (!mapperData.MappedObjectCachingNeeded || mapperData.TargetTypeWillNotBeMappedAgain)
             {
                 return null;
             }
@@ -239,7 +230,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static void CreateSourceMemberTypeTesterIfRequired(
-            ICollection<Expression> typeTests,
+            IList<Expression> typeTests,
             IObjectMappingData mappingData)
         {
             if (typeTests.None())
@@ -253,17 +244,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             mappingData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
         }
 
-        private Expression GetLocalVariableInstantiation(bool assignCreatedObject, IObjectMappingData mappingData)
+        private Expression GetLocalVariableInstantiation(bool assignCreatedObject, bool hasMemberPopulations, IObjectMappingData mappingData)
         {
             var localVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
                 md => _constructionFactory.GetNewObjectCreation(md),
                 mappingData,
-                assignCreatedObject);
+                assignCreatedObject,
+                hasMemberPopulations: hasMemberPopulations);
 
             var localVariableAssignment = mappingData.MapperData.LocalVariable.AssignTo(localVariableValue);
 
             return localVariableAssignment;
         }
+
+        private static bool MemberPopulationsExist(IEnumerable<Expression> populationsAndCallbacks)
+            => populationsAndCallbacks.Any(population => population.NodeType != ExpressionType.Constant);
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
 

@@ -5,7 +5,7 @@
 // AgileMapper and AutoMapper perform better with this attribute applied,
 // but ExpressMapper and Mapster throw exceptions - uncomment to test the
 // Agile and Auto at their fastest:
-//[assembly: System.Security.AllowPartiallyTrustedCallers]
+[assembly: System.Security.AllowPartiallyTrustedCallers]
 
 namespace AgileObjects.AgileMapper.PerformanceTester
 {

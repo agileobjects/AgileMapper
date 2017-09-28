@@ -3,8 +3,10 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+#if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
+#endif
     using Extensions;
 
     /// <summary>
@@ -14,20 +16,38 @@
     /// <typeparam name="T">The type of item stored in the collection.</typeparam>
     public class ReadOnlyCollectionWrapper<T> : IList<T>
     {
-        private readonly IEnumerable<T> _existingItems;
-        private readonly T[] _newItems;
+        private static readonly ReadOnlyCollection<T> _emptyReadOnlyCollection = new ReadOnlyCollection<T>(Enumerable<T>.EmptyArray);
+
+        private readonly T[] _items;
         private int _index;
 
         /// <summary>
         /// Initializes a new instance of the ReadOnlyCollectionWrapper{T} class.
         /// </summary>
-        /// <param name="existingItems">The existing items to retain in the final collection.</param>
+        /// <param name="existingItems">
+        /// A read-only IList containing the existing items to retain in the final collection.
+        /// </param>
         /// <param name="numberOfNewItems">The number of new items to be added to the existing items.</param>
-        public ReadOnlyCollectionWrapper(IEnumerable<T> existingItems, int numberOfNewItems)
+        public ReadOnlyCollectionWrapper(IList<T> existingItems, int numberOfNewItems)
         {
-            _existingItems = existingItems;
-            _newItems = new T[numberOfNewItems];
-            _index = 0;
+            var hasExistingItems = existingItems != null;
+
+            if (hasExistingItems)
+            {
+                _index = existingItems.Count;
+            }
+            else if (numberOfNewItems == 0)
+            {
+                _items = Enumerable<T>.EmptyArray;
+                return;
+            }
+
+            _items = new T[_index + numberOfNewItems];
+
+            if (hasExistingItems)
+            {
+                _items.CopyFrom(existingItems);
+            }
         }
 
         #region IList<T> Members
@@ -42,7 +62,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public int IndexOf(T item) => Array.IndexOf(_newItems, item, 0, _newItems.Length);
+        public int IndexOf(T item) => Array.IndexOf(_items, item, 0, _index);
 
         /// <summary>
         /// Inserts an item at the specified index
@@ -54,7 +74,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public void Insert(int index, T item) => ((IList<T>)_newItems).Insert(index, item);
+        public void Insert(int index, T item) => ((IList<T>)_items).Insert(index, item);
 
         /// <summary>
         /// Removes the item at the specified index.
@@ -65,7 +85,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public void RemoveAt(int index) => ((IList<T>)_newItems).RemoveAt(index);
+        public void RemoveAt(int index) => ((IList<T>)_items).RemoveAt(index);
 
         /// <summary>
         /// Gets or sets the element at the specified index.
@@ -79,8 +99,8 @@
         #endregion
         public T this[int index]
         {
-            get { return _newItems[index]; }
-            set { _newItems[index] = value; }
+            get { return _items[index]; }
+            set { _items[index] = value; }
         }
 
         #endregion
@@ -95,7 +115,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public int Count => _newItems.Length + (_existingItems?.Count() ?? 0);
+        public int Count => _items.Length;
 
         /// <summary>
         /// Gets a value indicating whether the collection is read-only.
@@ -113,7 +133,7 @@
         /// <param name="item">The object to add.</param>
         public void Add(T item)
         {
-            _newItems[_index] = item;
+            _items[_index] = item;
             ++_index;
         }
 
@@ -142,7 +162,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public void CopyTo(T[] array, int arrayIndex) => ((ICollection<T>)_newItems).CopyTo(array, arrayIndex);
+        public void CopyTo(T[] array, int arrayIndex) => ((ICollection<T>)_items).CopyTo(array, arrayIndex);
 
         /// <summary>
         /// Removes the first occurrence of a specific object from the collection.
@@ -157,7 +177,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public bool Remove(T item) => ((ICollection<T>)_newItems).Remove(item);
+        public bool Remove(T item) => ((ICollection<T>)_items).Remove(item);
 
         /// <summary>
         /// Removes all items from the collection.
@@ -167,7 +187,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public void Clear() => ((ICollection<T>)_newItems).Clear();
+        public void Clear() => ((ICollection<T>)_items).Clear();
 
         #endregion
 
@@ -182,7 +202,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_newItems).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_items).GetEnumerator();
 
         /// <summary>
         /// Returns an enumerator that iterates through a collection.
@@ -193,7 +213,7 @@
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        IEnumerator IEnumerable.GetEnumerator() => _newItems.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => _items.GetEnumerator();
 
         #endregion
 
@@ -201,14 +221,19 @@
         /// Returns an array containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.
         /// </summary>
         /// <returns>An array containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.</returns>
-        public T[] ToArray()
-        {
-            if (_existingItems == null)
-            {
-                return _newItems;
-            }
+        public T[] ToArray() => _items;
 
-            return _existingItems.Concat(_newItems).ToArray();
+        /// <summary>
+        /// Returns a ReadOnlyCollection containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.
+        /// </summary>
+        /// <returns>
+        /// A ReadOnlyCollection containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.
+        /// </returns>
+        public ReadOnlyCollection<T> ToReadOnlyCollection()
+        {
+            return (_items != null)
+                ? new ReadOnlyCollection<T>(_items)
+                : _emptyReadOnlyCollection;
         }
     }
 }

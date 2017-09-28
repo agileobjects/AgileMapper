@@ -22,9 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            Expression nullMappingBlock;
-
-            if (TargetCannotBeMapped(mappingData, out nullMappingBlock))
+            if (TargetCannotBeMapped(mappingData, out var nullMappingBlock))
             {
                 return nullMappingBlock;
             }
@@ -35,12 +33,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingExpressions = GetShortCircuitReturns(returnNull, mappingData).ToList();
 
-            Expression derivedTypeMappings;
-
-            if (MappingAlwaysBranchesToDerivedType(mappingData, out derivedTypeMappings))
+            if (MappingAlwaysBranchesToDerivedType(mappingData, out var derivedTypeMappings))
             {
                 return mappingExpressions.Any()
-                    ? Expression.Block(mappingExpressions.Concat(derivedTypeMappings))
+                    ? Expression.Block(mappingExpressions.Append(derivedTypeMappings))
                     : derivedTypeMappings;
             }
 
@@ -119,6 +115,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Expression returnExpression;
 
+            AdjustForSingleExpressionBlockIfApplicable(ref mappingExpressions);
+
             if (mappingExpressions[0].NodeType != ExpressionType.Block)
             {
                 if (mappingExpressions[0].NodeType == ExpressionType.MemberAccess)
@@ -138,7 +136,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     var assignedValue = ((BinaryExpression)localVariableAssignment).Right;
                     returnExpression = GetReturnExpression(assignedValue, mappingExtras);
 
-                    if (mappingExpressions.Count == 1)
+                    if (mappingExpressions.HasOne())
                     {
                         return returnExpression;
                     }
@@ -160,6 +158,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 : Expression.Block(mappingExpressions);
 
             return mappingBlock;
+        }
+
+        private static void AdjustForSingleExpressionBlockIfApplicable(ref IList<Expression> mappingExpressions)
+        {
+            if (!mappingExpressions.HasOne() || (mappingExpressions[0].NodeType != ExpressionType.Block))
+            {
+                return;
+            }
+
+            var block = (BlockExpression)mappingExpressions[0];
+
+            if (block.Expressions.HasOne() && block.Variables.None())
+            {
+                mappingExpressions = new List<Expression>(block.Expressions);
+            }
         }
 
         private static Expression GetReturnExpression(Expression returnValue, MappingExtras mappingExtras)

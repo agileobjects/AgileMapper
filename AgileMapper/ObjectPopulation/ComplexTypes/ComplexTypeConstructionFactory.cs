@@ -2,6 +2,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
     using System.Collections.Generic;
+#if !NET_STANDARD
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -26,12 +29,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 var constructions = new List<Construction>();
 
-                bool newingConstructorRequired;
-
                 AddConfiguredConstructions(
                     constructions,
                     key,
-                    out newingConstructorRequired);
+                    out var newingConstructorRequired);
 
                 if (newingConstructorRequired)
                 {
@@ -189,6 +190,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     (otherKey._targetMember == _targetMember);
             }
 
+            #region ExcludeFromCodeCoverage
+#if !NET_STANDARD
+        [ExcludeFromCodeCoverage]
+#endif
+            #endregion
             public override int GetHashCode() => 0;
         }
 
@@ -238,7 +244,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             private readonly Expression _construction;
             private readonly ParameterExpression _mappingDataObject;
 
-            public Construction(ICollection<Construction> constructions, ConstructionKey key)
+            public Construction(IList<Construction> constructions, ConstructionKey key)
                 : this(constructions.ReverseChain())
             {
                 UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);

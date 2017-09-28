@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries.Configuration
 {
+    using System;
     using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
@@ -129,6 +130,32 @@
             });
 
             configEx.Message.ShouldContain("has a configured data source");
+        }
+
+        [Fact]
+        public void ShouldErrorIfAnInvalidSourceMemberIsSpecified()
+        {
+            var configEx = Should.Throw<NotSupportedException>(() =>
+                Mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .ToDictionaries
+                    .MapMember(pf => pf.Value + "!")
+                    .ToFullKey("That won't work"));
+
+            configEx.Message.ShouldContain("Unable to get member access");
+        }
+
+        [Fact]
+        public void ShouldErrorIfAnUnreadableSourceMemberIsSpecified()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping
+                    .From<PublicWriteOnlyProperty<string>>()
+                    .ToDictionaries
+                    .MapMember(pf => pf.Value)
+                    .ToFullKey("That won't work"));
+
+            configEx.Message.ShouldContain("is not readable");
         }
 
         [Fact]

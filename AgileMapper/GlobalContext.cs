@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper
 {
-    using System;
     using Caching;
     using Members;
 
@@ -8,16 +7,17 @@ namespace AgileObjects.AgileMapper
     {
         public static readonly GlobalContext Instance = new GlobalContext();
 
-        private readonly Lazy<MemberFinder> _memberFinderLoader;
-
         private GlobalContext()
         {
             Cache = new CacheSet();
-            _memberFinderLoader = new Lazy<MemberFinder>(() => new MemberFinder(), isThreadSafe: true);
+            MemberFinder = new MemberFinder(Cache);
+            DerivedTypes = new DerivedTypesCache(Cache);
         }
 
         public CacheSet Cache { get; }
 
-        public MemberFinder MemberFinder => _memberFinderLoader.Value;
+        public MemberFinder MemberFinder { get; }
+
+        public DerivedTypesCache DerivedTypes { get; }
     }
 }

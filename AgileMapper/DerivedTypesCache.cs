@@ -10,17 +10,15 @@
 
     internal class DerivedTypesCache
     {
-        private static readonly Type[] _noTypes = Constants.NoTypeArguments;
-
         private readonly List<Assembly> _assemblies;
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
         private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;
 
-        public DerivedTypesCache()
+        public DerivedTypesCache(CacheSet cacheSet)
         {
             _assemblies = new List<Assembly>();
-            _typesByAssembly = GlobalContext.Instance.Cache.CreateScoped<Assembly, IEnumerable<Type>>();
-            _derivedTypesByType = GlobalContext.Instance.Cache.CreateScoped<Type, ICollection<Type>>();
+            _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>();
+            _derivedTypesByType = cacheSet.CreateScoped<Type, ICollection<Type>>();
         }
 
         public void AddAssemblies(Assembly[] assemblies)
@@ -32,7 +30,7 @@
         {
             if (type.IsSealed() || type.IsFromBcl())
             {
-                return _noTypes;
+                return Constants.NoTypeArguments;
             }
 
             return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
@@ -40,11 +38,11 @@
 
         private ICollection<Type> GetDerivedTypesForType(Type type)
         {
-            var typeAssembly = type.GetAssembly();
+            var typeAssemblies = new[]{ type.GetAssembly() };
 
-            var assemblies = _assemblies.Count > 0
-                ? _assemblies.Concat(typeAssembly).Distinct()
-                : new[] { typeAssembly };
+            var assemblies = _assemblies.Any()
+                ? _assemblies.Concat(typeAssemblies).Distinct()
+                : typeAssemblies;
 
             var assemblyTypes = assemblies
                 .SelectMany(assembly => _typesByAssembly
@@ -52,7 +50,7 @@
 
             var derivedTypes = assemblyTypes.Where(t => t.IsDerivedFrom(type)).ToList();
 
-            if (derivedTypes.Count != 0)
+            if (derivedTypes.Any())
             {
                 derivedTypes.Sort(TypeComparer.MostToLeastDerived);
             }

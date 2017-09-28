@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using Extensions;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal abstract class DataSourceBase : IDataSource
     {
@@ -40,14 +41,11 @@
         {
             SourceMember = sourceMember;
 
-            Expression[] nestedAccesses;
-            ICollection<ParameterExpression> variables;
-
-            ProcessNestedAccesses(
+            ProcessMemberAccesses(
                 mapperData,
                 ref value,
-                out nestedAccesses,
-                out variables);
+                out var nestedAccesses,
+                out var variables);
 
             Condition = nestedAccesses.GetIsNotDefaultComparisonsOrNull();
             Variables = variables;
@@ -56,41 +54,41 @@
 
         #region Setup
 
-        private static void ProcessNestedAccesses(
+        private static void ProcessMemberAccesses(
             IMemberMapperData mapperData,
             ref Expression value,
-            out Expression[] nestedAccesses,
-            out ICollection<ParameterExpression> variables)
+            out IList<Expression> nestedAccesses,
+            out IList<ParameterExpression> variables)
         {
-            nestedAccesses = mapperData.GetNestedAccessesIn(value, targetCanBeNull: false);
-            variables = new List<ParameterExpression>();
+            var valueInfo = mapperData.GetExpressionInfoFor(value, targetCanBeNull: false);
+            nestedAccesses = valueInfo.NestedAccesses;
 
-            if (nestedAccesses.None())
+            if (valueInfo.MultiInvocations.None())
             {
+                variables = Enumerable<ParameterExpression>.EmptyArray;
                 return;
             }
 
-            var nestedAccessVariableByNestedAccess = new Dictionary<Expression, Expression>();
+            var numberOfInvocations = valueInfo.MultiInvocations.Count;
+            variables = new ParameterExpression[numberOfInvocations];
+            var cacheVariablesByValue = new Dictionary<Expression, Expression>(numberOfInvocations);
+            var valueExpressions = new Expression[numberOfInvocations + 1];
 
-            for (var i = 0; i < nestedAccesses.Length; i++)
+            for (var i = 0; i < numberOfInvocations; i++)
             {
-                var nestedAccess = nestedAccesses[i];
+                var invocation = valueInfo.MultiInvocations[i];
+                var valueVariableName = invocation.Type.GetFriendlyName().ToCamelCase() + "Value";
+                var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
+                var valueVariableValue = invocation.Replace(cacheVariablesByValue);
 
-                if (CacheValueInVariable(nestedAccess))
-                {
-                    var valueVariable = Expression.Variable(nestedAccess.Type, "accessValue");
-                    nestedAccesses[i] = valueVariable.AssignTo(nestedAccess);
-
-                    nestedAccessVariableByNestedAccess.Add(nestedAccess, valueVariable);
-                    variables.Add(valueVariable);
-                }
+                cacheVariablesByValue.Add(invocation, valueVariable);
+                variables[i] = valueVariable;
+                valueExpressions[i] = valueVariable.AssignTo(valueVariableValue);
             }
 
-            value = value.Replace(nestedAccessVariableByNestedAccess);
+            valueExpressions[numberOfInvocations] = value.Replace(cacheVariablesByValue);
+            value = Expression.Block(valueExpressions);
         }
-
-        private static bool CacheValueInVariable(Expression value)
-            => (value.NodeType == ExpressionType.Call) || (value.NodeType == ExpressionType.Invoke);
 
         #endregion
 

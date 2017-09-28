@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
 #if NET_STANDARD
     using System.Reflection;
@@ -48,7 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             foreach (var mappingLambdaAndKey in MapperData.RequiredMapperFuncsByKey)
             {
                 var mappingLambda = mappingLambdaAndKey.Value;
-                var mappingDataObject = mappingLambda.Parameters.First();
+                var mappingDataObject = mappingLambda.Parameters[0];
                 var mappingDataTypes = mappingDataObject.Type.GetGenericArguments();
 
                 var typesKey = new SourceAndTargetTypesKey(mappingDataTypes[0], mappingDataTypes[1]);

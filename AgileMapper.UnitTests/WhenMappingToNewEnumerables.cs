@@ -92,6 +92,26 @@
         }
 
         [Fact]
+        public void ShouldCreateAReadOnlyCollection()
+        {
+            var source = new[] { 1, 2, 3 };
+            var result = Mapper.Map(source).ToANew<ReadOnlyCollection<int>>();
+
+            result.ShouldNotBeNull();
+            result.ShouldBe(1, 2, 3);
+        }
+
+        [Fact]
+        public void ShouldMapFromAReadOnlyCollection()
+        {
+            var source = new ReadOnlyCollection<long>(new[] { 1, 2, 3L });
+            var result = Mapper.Map(source).ToANew<int[]>();
+
+            result.ShouldNotBeNull();
+            result.ShouldBe(1, 2, 3);
+        }
+
+        [Fact]
         public void ShouldHandleANullComplexTypeElement()
         {
             var source = new List<Product>

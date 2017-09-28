@@ -59,6 +59,49 @@
         }
 
         [Fact]
+        public void ShouldCreateANewObjectReadOnlyCollection()
+        {
+            var source = new PublicField<object[]>
+            {
+                Value = new object[] { 9, new CustomerViewModel { Name = "Boycee" }, default(string) }
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<ReadOnlyCollection<object>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.First().ShouldBe(9);
+            result.Value.Second().ShouldBeOfType<CustomerViewModel>();
+            ((CustomerViewModel)result.Value.Second()).Name.ShouldBe("Boycee");
+            result.Value.Third().ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldMapFromAReadOnlyCollection()
+        {
+            var source = new PublicField<ReadOnlyCollection<string>>
+            {
+                Value = new ReadOnlyCollection<string>(new[] { "R", "A", "T", "M" })
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<object[]>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBe("R", "A", "T", "M");
+        }
+
+        [Fact]
+        public void ShouldMapFromAnEmptyReadOnlyCollection()
+        {
+            var source = new PublicField<ReadOnlyCollection<string>>
+            {
+                Value = new ReadOnlyCollection<string>(Enumerable<string>.EmptyArray)
+            };
+            var result = Mapper.Map(source).ToANew<PublicProperty<ReadOnlyCollection<string>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldNotBeSameAs(source.Value);
+            result.Value.ShouldBeEmpty();
+        }
+
+        [Fact]
         public void ShouldCreateANewComplexTypeEnumerable()
         {
             var source = new PublicField<Person[]>
@@ -192,7 +235,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredExpressionToAnEnumerable()
+        public void ShouldApplyAConfiguredExpressionToAnArray()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -286,6 +329,42 @@
                 result.Value.ShouldNotBeNull();
                 result.Value.ShouldBeSameAs(addresses);
                 result.Value.ShouldBeEmpty();
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleANonNullReadOnlyNestedArray()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var readOnlyStrings = new[] { "1", "2" };
+
+                mapper.CreateAReadOnlyFieldUsing(readOnlyStrings);
+
+                var source = new PublicField<string[]> { Value = new[] { "3" } };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyField<string[]>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(readOnlyStrings);
+                result.Value.ShouldBe("1", "2");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleANonNullReadOnlyNestedReadOnlyCollection()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var readOnlyInts = new ReadOnlyCollection<int>(new[] { 5, 5, 5 });
+
+                mapper.CreateAReadOnlyPropertyUsing(readOnlyInts);
+
+                var source = new PublicField<string[]> { Value = new[] { "3" } };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyProperty<ReadOnlyCollection<int>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBeSameAs(readOnlyInts);
+                result.Value.ShouldBe(5, 5, 5);
             }
         }
 

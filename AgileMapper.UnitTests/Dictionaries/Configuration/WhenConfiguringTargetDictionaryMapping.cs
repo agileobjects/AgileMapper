@@ -223,6 +223,35 @@
         }
 
         [Fact]
+        public void ShouldAllowACustomTargetEntryKey()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomerViewModel>()
+                    .ToDictionaries
+                    .MapMember(mcvm => mcvm.Name)
+                    .ToFullKey("CustomerName")
+                    .And
+                    .If((mcvm, d) => mcvm.Discount > 0.5)
+                    .Map((mcvm, d) => mcvm.Name + " (Big discount!)")
+                    .To(d => d["Name"]);
+
+                var noDiscountSource = new MysteryCustomerViewModel { Name = "Schumer", Discount = 0.0 };
+                var noDiscountResult = mapper.Map(noDiscountSource).ToANew<Dictionary<string, object>>();
+
+                noDiscountResult["CustomerName"].ShouldBe("Schumer");
+                noDiscountResult.ContainsKey("Name").ShouldBeFalse();
+
+                var bigDiscountSource = new MysteryCustomerViewModel { Name = "Silverman", Discount = 0.6 };
+                var bigDiscountResult = mapper.Map(bigDiscountSource).ToANew<Dictionary<string, object>>();
+
+                bigDiscountResult["CustomerName"].ShouldBe("Silverman");
+                bigDiscountResult["Name"].ShouldBe("Silverman (Big discount!)");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyACustomConfiguredMember()
         {
             using (var mapper = Mapper.CreateNew())

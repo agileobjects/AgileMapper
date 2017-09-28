@@ -32,9 +32,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public LambdaExpression GetIdentifierOrNullFor(Type type)
         {
-            LambdaExpression identifier;
-
-            if (_identifierNamesByType.TryGetValue(type, out identifier))
+            if (_identifierNamesByType.TryGetValue(type, out var identifier))
             {
                 return identifier;
             }

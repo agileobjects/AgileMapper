@@ -278,7 +278,7 @@
                 var nonMatchingTarget = new Person { Name = "Fred" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).OnTo(nonMatchingTarget);
 
-                nonMatchingResult.Address.Line2.ShouldBeNull();
+                nonMatchingResult.Address.ShouldBeNull();
                 nonMatchingResult.Name.ShouldBe("Fred");
 
                 var matchingSource = new PersonViewModel { Name = "Betty" };

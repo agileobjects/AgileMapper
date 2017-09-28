@@ -55,8 +55,13 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData.TargetMember.GetAccess(subjectMapperData.TargetInstance, mapperData);
         }
 
-        public static Expression[] GetNestedAccessesIn(this IMemberMapperData mapperData, Expression value, bool targetCanBeNull)
-            => mapperData.NestedAccessFinder.FindIn(value, targetCanBeNull);
+        public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
+            this IMemberMapperData mapperData,
+            Expression value,
+            bool targetCanBeNull)
+        {
+            return mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull);
+        }
 
         public static bool SourceMemberIsStringKeyedDictionary(
             this IMemberMapperData mapperData,
@@ -74,16 +79,12 @@ namespace AgileObjects.AgileMapper.Members
 
         public static DictionarySourceMember GetDictionarySourceMemberOrNull(this IMemberMapperData mapperData)
         {
-            var dictionarySourceMember = mapperData.SourceMember as DictionarySourceMember;
-
-            if (dictionarySourceMember != null)
+            if (mapperData.SourceMember is DictionarySourceMember dictionarySourceMember)
             {
                 return dictionarySourceMember;
             }
 
-            var dictionaryEntrySourceMember = mapperData.SourceMember as DictionaryEntrySourceMember;
-
-            if (dictionaryEntrySourceMember == null)
+            if (!(mapperData.SourceMember is DictionaryEntrySourceMember dictionaryEntrySourceMember))
             {
                 return null;
             }
@@ -121,7 +122,8 @@ namespace AgileObjects.AgileMapper.Members
                     // the RecursionMapperFunc which performs the recursive mapping:
                     return TargetMemberIsRecursionWithin(
                         parentMapperData.TargetMember,
-                        mapperData.TargetMember.LeafMember);
+                        mapperData.TargetMember.LeafMember,
+                        new List<Type>());
                 }
 
                 parentMapperData = parentMapperData.Parent;
@@ -130,7 +132,10 @@ namespace AgileObjects.AgileMapper.Members
             return false;
         }
 
-        private static bool TargetMemberIsRecursionWithin(QualifiedMember parentMember, Member member)
+        private static bool TargetMemberIsRecursionWithin(
+            QualifiedMember parentMember,
+            Member member,
+            ICollection<Type> checkedTypes)
         {
             while (true)
             {
@@ -143,7 +148,7 @@ namespace AgileObjects.AgileMapper.Members
                 var nonSimpleChildMembers = GlobalContext.Instance
                     .MemberFinder
                     .GetTargetMembers(parentMember.Type)
-                    .Where(m => !m.IsSimple)
+                    .Where(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
                     .ToArray();
 
                 if (nonSimpleChildMembers.None())
@@ -160,7 +165,10 @@ namespace AgileObjects.AgileMapper.Members
                     return childMember.IsRecursion;
                 }
 
-                return nonSimpleChildMembers.Any(m => TargetMemberIsRecursionWithin(parentMember.Append(m), member));
+                checkedTypes.Add(parentMember.Type);
+
+                return nonSimpleChildMembers.Any(m =>
+                    TargetMemberIsRecursionWithin(parentMember.Append(m), member, checkedTypes));
             }
         }
 
@@ -199,10 +207,10 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.MapperContext.ValueConverters.GetConversion(value, targetType);
 
         public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
-            => mapperData.MapperContext.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
+            => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
 
         public static ICollection<Type> GetDerivedTargetTypes(this IMemberMapperData mapperData)
-            => mapperData.MapperContext.DerivedTypes.GetTypesDerivedFrom(mapperData.TargetType);
+            => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.TargetType);
 
         public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
         {
@@ -332,11 +340,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
         {
-            if (value.Type == typeof(void))
-            {
-                return value;
-            }
-
             return mapperData.TargetMember.GetPopulation(value, mapperData);
         }
 
@@ -429,6 +432,7 @@ namespace AgileObjects.AgileMapper.Members
                     .MakeGenericType(contextTypes[0], contextTypes[1])
                     .GetProperty(propertyName);
 
+            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Property(contextAccess, property);
         }
 

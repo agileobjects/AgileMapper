@@ -51,21 +51,34 @@
 
         public virtual bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {
+            if (HasReverseConflict(otherConfiguredItem))
+            {
+                return true;
+            }
+
             if (HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition)
             {
                 return false;
             }
 
-            if (ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo))
+            if (HasOverlappingTypes(otherConfiguredItem))
             {
-                return MembersConflict(otherConfiguredItem.TargetMember);
+                return MembersConflict(otherConfiguredItem);
             }
 
             return false;
         }
 
-        protected virtual bool MembersConflict(QualifiedMember otherMember)
-            => TargetMember.Matches(otherMember);
+        protected virtual bool HasReverseConflict(UserConfiguredItemBase otherItem)
+        {
+            return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
+        }
+
+        protected virtual bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
+            => ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo);
+
+        protected virtual bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
+            => TargetMember.Matches(otherConfiguredItem.TargetMember);
 
         protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherConfiguredItem)
         {
@@ -83,10 +96,10 @@
         {
             return ConfigInfo.IsFor(mapperData.RuleSet) &&
                 TargetMembersMatch(mapperData) &&
-                ObjectHeirarchyHasMatchingSourceAndTargetTypes(mapperData);
+                MemberPathHasMatchingSourceAndTargetTypes(mapperData);
         }
 
-        protected virtual bool TargetMembersMatch(IBasicMapperData mapperData)
+        private bool TargetMembersMatch(IBasicMapperData mapperData)
         {
             // The order of these checks is significant!
             if ((TargetMember == QualifiedMember.All) || (mapperData.TargetMember == QualifiedMember.All))
@@ -109,7 +122,7 @@
                    mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableFrom(TargetMember.LeafMember.DeclaringType);
         }
 
-        private bool ObjectHeirarchyHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
+        private bool MemberPathHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
         {
             while (mapperData != null)
             {

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Reflection;
     using Caching;
@@ -11,12 +12,12 @@
     internal class MemberFinder
     {
         private readonly ICache<TypeKey, Member> _idMemberCache;
-        private readonly ICache<TypeKey, IEnumerable<Member>> _membersCache;
+        private readonly ICache<TypeKey, IList<Member>> _membersCache;
 
-        public MemberFinder()
+        public MemberFinder(CacheSet cacheSet)
         {
-            _idMemberCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, Member>();
-            _membersCache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, IEnumerable<Member>>();
+            _idMemberCache = cacheSet.CreateScoped<TypeKey, Member>();
+            _membersCache = cacheSet.CreateScoped<TypeKey, IList<Member>>();
         }
 
         public Member GetIdentifierOrNull(TypeKey typeIdKey)
@@ -29,7 +30,7 @@
             });
         }
 
-        public IEnumerable<Member> GetSourceMembers(Type sourceType)
+        public IList<Member> GetSourceMembers(Type sourceType)
         {
             return _membersCache.GetOrAdd(TypeKey.ForSourceMembers(sourceType), key =>
             {
@@ -46,7 +47,7 @@
             });
         }
 
-        public IEnumerable<Member> GetTargetMembers(Type targetType)
+        public IList<Member> GetTargetMembers(Type targetType)
         {
             return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
@@ -82,15 +83,7 @@
         private static bool All(FieldInfo field) => true;
 
         private static bool OnlyTargets(FieldInfo field)
-        {
-            if (field.IsInitOnly)
-            {
-                // Include readonly object fields (except arrays):
-                return !field.FieldType.IsArray && !field.FieldType.IsSimple();
-            }
-
-            return true;
-        }
+            => !field.IsInitOnly || IsUseableReadOnlyTarget(field.FieldType);
 
         #endregion
 
@@ -115,13 +108,24 @@
                 return false;
             }
 
-            if (property.IsWriteable())
+            return property.IsWriteable() || IsUseableReadOnlyTarget(property.PropertyType);
+        }
+
+        private static bool IsUseableReadOnlyTarget(Type memberType)
+        {
+            // Include readonly object type properties (except arrays):
+            if (memberType.IsArray || memberType.IsSimple())
             {
-                return true;
+                return false;
             }
 
-            // Include readonly object type properties (except arrays):
-            return !property.PropertyType.IsArray && !property.PropertyType.IsSimple();
+            if (memberType.IsGenericType() &&
+               (memberType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         #endregion
@@ -158,7 +162,7 @@
 
         #endregion
 
-        private static IEnumerable<Member> GetMembers(params IEnumerable<Member>[] members)
+        private static IList<Member> GetMembers(params IEnumerable<Member>[] members)
         {
             var allMembers = members
                 .SelectMany(m => m)

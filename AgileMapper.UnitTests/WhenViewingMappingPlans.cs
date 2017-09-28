@@ -223,6 +223,17 @@
             plan.ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/24
+        [Fact]
+        public void ShouldShowDictionaryElementMapping()
+        {
+            var plan = Mapper
+                .GetPlanFor<List<PublicField<Dictionary<int, string>>>>()
+                .ToANew<List<PublicField<Dictionary<int, string>>>>();
+
+            plan.ShouldContain("// Map List<PublicField<Dictionary<int, string>>> -> List<PublicField<Dictionary<int, string>>>");
+        }
+
         [Fact]
         public void ShouldShowObjectTracking()
         {
@@ -247,6 +258,14 @@
             var numberOfObjectToProductPlans = Regex.Matches(plan, "// Map object -> Product").Count;
 
             numberOfObjectToProductPlans.ShouldBe(1);
+        }
+
+        [Fact]
+        public void ShouldNotRangeCheckNullableToNonNullableValues()
+        {
+            var plan = Mapper.GetPlanFor<PublicField<int?>>().ToANew<PublicField<int>>();
+
+            plan.ShouldNotContain("int.MinValue");
         }
 
         [Fact]
@@ -302,6 +321,21 @@
             var plan = Mapper.GetPlanFor<PublicField<string>>().OnTo<PublicField<string>>();
 
             plan.ShouldNotContain("publicField_String.Value = publicField_String.Value");
+        }
+
+        [Fact]
+        public void ShouldIncludeMemberFilterExpressions()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<Address>()
+                    .IgnoreTargetMembersWhere(member => member.IsPropertyMatching(p => p.Name == "Line2"));
+
+                var plan = mapper.GetPlanFor<Address>().ToANew<Address>();
+
+                plan.ShouldContain("member.IsPropertyMatching(p => p.Name == \"Line2\")");
+            }
         }
     }
 }

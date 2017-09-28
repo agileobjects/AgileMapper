@@ -22,7 +22,6 @@
             RootMembersSource = new RootMembersSource(QualifiedMemberFactory);
             ObjectMapperFactory = new ObjectMapperFactory(this);
             ObjectFlattener = new ObjectFlattener();
-            DerivedTypes = new DerivedTypesCache();
             UserConfigurations = new UserConfigurationSet(this);
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
@@ -42,13 +41,23 @@
 
         public ObjectFlattener ObjectFlattener { get; }
 
-        public DerivedTypesCache DerivedTypes { get; }
-
         public UserConfigurationSet UserConfigurations { get; }
 
         public ConverterSet ValueConverters { get; }
 
         public MappingRuleSetCollection RuleSets { get; }
+
+        public MapperContext Clone()
+        {
+            var context = new MapperContext();
+
+            //Cache.CloneTo(context.Cache);
+            NamingSettings.CloneTo(context.NamingSettings);
+            UserConfigurations.CloneTo(context.UserConfigurations);
+            ValueConverters.CloneTo(context.ValueConverters);
+
+            return context;
+        }
 
         public void Reset()
         {

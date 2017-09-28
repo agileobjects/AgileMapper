@@ -39,6 +39,8 @@ namespace AgileObjects.AgileMapper.Members
             _createDictionaryChildMembers = HasObjectEntries || HasSimpleEntries;
         }
 
+        public override string RegistrationName => GetKeyNameOrNull() ?? base.RegistrationName;
+
         public Type KeyType { get; }
 
         public Type ValueType { get; }
@@ -120,6 +122,18 @@ namespace AgileObjects.AgileMapper.Members
             };
         }
 
+        public override bool Matches(IQualifiedMember otherMember)
+        {
+            var matches = base.Matches(otherMember);
+
+            if (_key == null)
+            {
+                return matches;
+            }
+
+            return GetKeyNameOrNull() == otherMember.Name;
+        }
+
         public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)
         {
             if (this == _rootDictionaryMember)
@@ -132,7 +146,7 @@ namespace AgileObjects.AgileMapper.Members
                 return Type.ToDefaultExpression();
             }
 
-            return GetIndexAccess(mapperData);
+            return GetKeyedAccess(mapperData);
         }
 
         private bool ReturnNullAccess()
@@ -150,13 +164,13 @@ namespace AgileObjects.AgileMapper.Members
             return true;
         }
 
-        private Expression GetIndexAccess(IMemberMapperData mapperData)
+        private Expression GetKeyedAccess(IMemberMapperData mapperData)
         {
-            var index = GetKey(mapperData);
+            var key = GetKey(mapperData);
             var dictionaryAccess = GetDictionaryAccess(mapperData);
-            var indexAccess = dictionaryAccess.GetIndexAccess(index);
+            var keyedAccess = dictionaryAccess.GetIndexAccess(key);
 
-            return indexAccess;
+            return keyedAccess;
         }
 
         private Expression GetKey(IMemberMapperData mapperData)
@@ -185,9 +199,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public override Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
         {
-            ParameterExpression existingValueVariable;
-
-            var tryGetValueCall = GetTryGetValueCall(mapperData, out existingValueVariable);
+            var tryGetValueCall = GetTryGetValueCall(mapperData, out var existingValueVariable);
             var existingValueIsDefault = existingValueVariable.GetIsDefaultComparison();
 
             var valueMissingOrDefault = Expression.OrElse(Expression.Not(tryGetValueCall), existingValueIsDefault);
@@ -197,9 +209,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public override BlockExpression GetAccessChecked(IMemberMapperData mapperData)
         {
-            ParameterExpression existingValueVariable;
-
-            var tryGetValueCall = GetTryGetValueCall(mapperData, out existingValueVariable);
+            var tryGetValueCall = GetTryGetValueCall(mapperData, out var existingValueVariable);
 
             return Expression.Block(new[] { existingValueVariable }, tryGetValueCall);
         }
@@ -208,16 +218,21 @@ namespace AgileObjects.AgileMapper.Members
         {
             var dictionaryAccess = GetDictionaryAccess(mapperData);
             var tryGetValueMethod = dictionaryAccess.Type.GetMethod("TryGetValue");
-            var index = GetKey(mapperData);
+            var key = GetKey(mapperData);
             valueVariable = Expression.Variable(ValueType, "existingValue");
 
             var tryGetValueCall = Expression.Call(
                 dictionaryAccess,
                 tryGetValueMethod,
-                index,
+                key,
                 valueVariable);
 
             return tryGetValueCall;
+        }
+
+        public void SetCustomKey(string key)
+        {
+            _key = key.ToConstantExpression();
         }
 
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
@@ -232,18 +247,20 @@ namespace AgileObjects.AgileMapper.Members
                 return base.GetPopulation(value, mapperData);
             }
 
-            BlockExpression flattening;
-
-            if (ValueIsFlattening(value, out flattening))
+            if (ValueIsFlattening(value, out var flattening))
             {
                 return flattening;
             }
 
-            var indexAccess = this.GetAccess(mapperData);
-            var convertedValue = mapperData.GetValueConversion(value, ValueType);
-            var indexAssignment = indexAccess.AssignTo(convertedValue);
+            var keyedAccess = this.GetAccess(mapperData);
 
-            return indexAssignment;
+            var convertedValue = HasComplexEntries
+                ? GetCheckedValue((BlockExpression)value, keyedAccess, mapperData)
+                : mapperData.GetValueConversion(value, ValueType);
+
+            var keyedAssignment = keyedAccess.AssignTo(convertedValue);
+
+            return keyedAssignment;
         }
 
         private bool ValueIsFlattening(Expression value, out BlockExpression flattening)
@@ -301,6 +318,18 @@ namespace AgileObjects.AgileMapper.Members
             return expressions;
         }
 
+        private Expression GetCheckedValue(BlockExpression value, Expression keyedAccess, IMemberMapperData mapperData)
+        {
+            var checkedAccess = GetAccessChecked(mapperData);
+            var existingValue = checkedAccess.Variables.First();
+            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValue };
+            var checkedValue = value.Replace(replacements);
+
+            return checkedValue.Update(
+                checkedValue.Variables.Append(existingValue),
+                checkedValue.Expressions.Prepend(checkedAccess.Expressions.First()));
+        }
+
         public DictionaryTargetMember WithTypeOf(Member sourceMember)
         {
             if (sourceMember.Type == Type)
@@ -344,10 +373,12 @@ namespace AgileObjects.AgileMapper.Members
                 return base.ToString();
             }
 
-            var path = GetPath().Substring("Target.".Length);
+            var path = GetKeyNameOrNull() ?? GetPath().Substring("Target.".Length);
 
-            return "[\"" + path + "\"]: " + Type.GetFriendlyName();
+            return $"[\"{path}\"]: {Type.GetFriendlyName()}";
         }
+
+        private string GetKeyNameOrNull() => (string)((ConstantExpression)_key)?.Value;
 
         #region Helper Classes
 

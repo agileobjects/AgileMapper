@@ -11,16 +11,16 @@
 
     internal class UserConfigurationSet
     {
-        private readonly ICollection<ObjectTrackingMode> _trackingModeSettings;
+        private readonly List<ObjectTrackingMode> _trackingModeSettings;
         private readonly List<MapToNullCondition> _mapToNullConditions;
-        private readonly ICollection<NullCollectionsSetting> _nullCollectionSettings;
-        private readonly ICollection<ConfiguredObjectFactory> _objectFactories;
-        private readonly ICollection<ConfiguredIgnoredMember> _ignoredMembers;
-        private readonly ICollection<EnumMemberPair> _enumPairings;
-        private readonly ICollection<ConfiguredDataSourceFactory> _dataSourceFactories;
-        private readonly ICollection<MappingCallbackFactory> _mappingCallbackFactories;
-        private readonly ICollection<ObjectCreationCallbackFactory> _creationCallbackFactories;
-        private readonly ICollection<ExceptionCallback> _exceptionCallbackFactories;
+        private readonly List<NullCollectionsSetting> _nullCollectionSettings;
+        private readonly List<ConfiguredObjectFactory> _objectFactories;
+        private readonly List<ConfiguredIgnoredMember> _ignoredMembers;
+        private readonly List<EnumMemberPair> _enumPairings;
+        private readonly List<ConfiguredDataSourceFactory> _dataSourceFactories;
+        private readonly List<MappingCallbackFactory> _mappingCallbackFactories;
+        private readonly List<ObjectCreationCallbackFactory> _creationCallbackFactories;
+        private readonly List<ExceptionCallback> _exceptionCallbackFactories;
 
         public UserConfigurationSet(MapperContext mapperContext)
         {
@@ -60,10 +60,7 @@
 
         public void Add(MapToNullCondition condition)
         {
-            ThrowIfConflictingItemExists(
-                condition,
-                _mapToNullConditions,
-                c => "Type " + c.TargetTypeName + " already has a configured map-to-null condition");
+            ThrowIfConflictingItemExists(condition, _mapToNullConditions, (c, cC) => c.GetConflictMessage());
 
             _mapToNullConditions.Add(condition);
             _mapToNullConditions.Sort();
@@ -85,7 +82,15 @@
 
         #region ObjectFactories
 
-        public void Add(ConfiguredObjectFactory objectFactory) => _objectFactories.Add(objectFactory);
+        public void Add(ConfiguredObjectFactory objectFactory)
+        {
+            ThrowIfConflictingItemExists(
+                objectFactory,
+                _objectFactories,
+                (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
+
+            _objectFactories.AddSortFilter(objectFactory);
+        }
 
         public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
             => FindMatches(_objectFactories, mapperData).ToArray();
@@ -98,13 +103,8 @@
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
-            ThrowIfConflictingIgnoredMemberExists(
-                ignoredMember,
-                im => "Member " + im.TargetMember.GetPath() + " is already ignored");
-
-            ThrowIfConflictingDataSourceExists(
-                ignoredMember,
-                im => "Ignored member " + im.TargetMember.GetPath() + " has a configured data source");
+            ThrowIfConflictingIgnoredMemberExists(ignoredMember, (im, cIm) => im.GetConflictMessage(cIm));
+            ThrowIfConflictingDataSourceExists(ignoredMember, (im, cDsf) => im.GetConflictMessage(cDsf));
 
             _ignoredMembers.Add(ignoredMember);
         }
@@ -135,12 +135,9 @@
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
             ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
+            ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
-            ThrowIfConflictingDataSourceExists(
-                dataSourceFactory,
-                dsf => dsf.TargetMember.GetPath() + " already has a configured data source");
-
-            _dataSourceFactories.Add(dataSourceFactory);
+            _dataSourceFactories.AddSortFilter(dataSourceFactory);
         }
 
         public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
@@ -195,21 +192,19 @@
 
         private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
             where TItem : UserConfiguredItemBase
-            => items.Where(im => im.AppliesTo(mapperData)).OrderBy(im => im);
+            => items.Where(item => item.AppliesTo(mapperData)).OrderBy(im => im);
 
         #region Conflict Handling
 
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            ThrowIfConflictingIgnoredMemberExists(
-                configuredItem,
-                ci => "Member " + ci.TargetMember.GetPath() + " has been ignored");
+            ThrowIfConflictingIgnoredMemberExists(configuredItem, (ci, im) => im.GetConflictMessage(ci));
         }
 
         private void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredIgnoredMember, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _ignoredMembers, messageFactory);
@@ -217,7 +212,7 @@
 
         internal void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredDataSourceFactory, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _dataSourceFactories, messageFactory);
@@ -226,20 +221,40 @@
         private static void ThrowIfConflictingItemExists<TConfiguredItem, TExistingItem>(
             TConfiguredItem configuredItem,
             IEnumerable<TExistingItem> existingItems,
-            Func<TConfiguredItem, string> messageFactory)
+            Func<TConfiguredItem, TExistingItem, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
             where TExistingItem : UserConfiguredItemBase
         {
             var conflictingItem = existingItems
                 .FirstOrDefault(dsf => dsf.ConflictsWith(configuredItem));
 
-            if (conflictingItem != null)
+            if (conflictingItem == null)
             {
-                throw new MappingConfigurationException(messageFactory.Invoke(configuredItem));
+                return;
             }
+
+            var conflictMessage = messageFactory.Invoke(configuredItem, conflictingItem);
+
+            throw new MappingConfigurationException(conflictMessage);
         }
 
         #endregion
+
+        public void CloneTo(UserConfigurationSet configurations)
+        {
+            configurations._trackingModeSettings.AddRange(_trackingModeSettings);
+            configurations._mapToNullConditions.AddRange(_mapToNullConditions);
+            configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
+            configurations._objectFactories.AddRange(_objectFactories.SelectClones());
+            configurations._ignoredMembers.AddRange(_ignoredMembers.SelectClones());
+            configurations._enumPairings.AddRange(_enumPairings);
+            Dictionaries.CloneTo(configurations.Dictionaries);
+            configurations._dataSourceFactories.AddRange(_dataSourceFactories.SelectClones());
+            configurations._mappingCallbackFactories.AddRange(_mappingCallbackFactories);
+            configurations._creationCallbackFactories.AddRange(_creationCallbackFactories);
+            configurations._exceptionCallbackFactories.AddRange(_exceptionCallbackFactories);
+            DerivedTypes.CloneTo(configurations.DerivedTypes);
+        }
 
         public void Reset()
         {

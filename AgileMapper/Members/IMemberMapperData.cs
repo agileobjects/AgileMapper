@@ -27,6 +27,6 @@
 
         Expression TargetInstance { get; }
 
-        NestedAccessFinder NestedAccessFinder { get; }
+        ExpressionInfoFinder ExpressionInfoFinder { get; }
     }
 }

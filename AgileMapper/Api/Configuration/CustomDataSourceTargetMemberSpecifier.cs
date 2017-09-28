@@ -61,9 +61,7 @@
 
         private ConfiguredDataSourceFactory CreateFromLambda(LambdaExpression targetMemberLambda)
         {
-            DictionaryTargetMember dictionaryEntryMember;
-
-            if (IsDictionaryEntry(targetMemberLambda, out dictionaryEntryMember))
+            if (IsDictionaryEntry(targetMemberLambda, out var dictionaryEntryMember))
             {
                 return new ConfiguredDictionaryDataSourceFactory(_configInfo, _customValueLambda, dictionaryEntryMember);
             }
@@ -85,6 +83,7 @@
                 (methodCall.Method.Name != "get_Item") ||
                 !methodCall.Method.DeclaringType.IsDictionary())
             {
+                // TODO: Test coverage - specified, non-dictionary indexed target member
                 entryMember = null;
                 return false;
             }

@@ -36,19 +36,30 @@
         }
 
         public Expression GetFullKeyOrNull(IBasicMapperData mapperData)
+            => GetFullKeyValueOrNull(mapperData)?.ToConstantExpression();
+
+        public string GetFullKeyValueOrNull(IBasicMapperData mapperData)
         {
+            if (mapperData.TargetMember.IsCustom)
+            {
+                return null;
+            }
+
             var matchingKey = FindKeyOrNull(
                 _configuredFullKeys,
                 mapperData.TargetMember.LeafMember,
                 mapperData);
 
-            return matchingKey?.Key.ToConstantExpression();
+            return matchingKey?.Key;
         }
 
         public void AddMemberKey(CustomDictionaryKey customKey)
         {
             _configuredMemberKeys.Add(customKey);
         }
+
+        public string GetMemberKeyOrNull(IBasicMapperData mapperData)
+            => GetMemberKeyOrNull(mapperData.TargetMember.LeafMember, mapperData);
 
         public string GetMemberKeyOrNull(Member member, IBasicMapperData mapperData)
             => FindKeyOrNull(_configuredMemberKeys, member, mapperData)?.Key;
@@ -98,5 +109,13 @@
 
         public IEnumerable<Expression> GetElementKeyParts(Expression index, IBasicMapperData mapperData)
             => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyParts(index);
+
+        public void CloneTo(DictionarySettings dictionaries)
+        {
+            dictionaries._configuredFullKeys.AddRange(_configuredFullKeys);
+            dictionaries._configuredMemberKeys.AddRange(_configuredMemberKeys);
+            dictionaries._joiningNameFactories.AddRange(_joiningNameFactories);
+            dictionaries._elementKeyPartFactories.AddRange(_elementKeyPartFactories);
+        }
     }
 }

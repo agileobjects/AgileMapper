@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Configuration;
     using DataSources;
     using Members;
     using Members.Population;
@@ -16,9 +17,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GetTargetMembers(mapperData.TargetType)
                 .Select(tm => mapperData.TargetMember.Append(tm)));
 
-        private readonly Func<IMemberMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
+        private readonly Func<ObjectMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
 
-        public MemberPopulationFactory(Func<IMemberMapperData, IEnumerable<QualifiedMember>> targetMembersFactory)
+        public MemberPopulationFactory(Func<ObjectMapperData, IEnumerable<QualifiedMember>> targetMembersFactory)
         {
             _targetMembersFactory = targetMembersFactory;
         }
@@ -36,11 +37,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 
-            Expression populateCondition;
-
-            if (TargetMemberIsUnconditionallyIgnored(childMapperData, out populateCondition))
+            if (TargetMemberIsUnconditionallyIgnored(
+                    childMapperData,
+                    out var configuredIgnore,
+                    out var populateCondition))
             {
-                return MemberPopulation.IgnoredMember(childMapperData);
+                return MemberPopulation.IgnoredMember(childMapperData, configuredIgnore);
             }
 
             var childMappingData = mappingData.GetChildMappingData(childMapperData);
@@ -56,9 +58,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool TargetMemberIsUnconditionallyIgnored(
             IMemberMapperData mapperData,
+            out ConfiguredIgnoredMember configuredIgnore,
             out Expression populateCondition)
         {
-            var configuredIgnore = mapperData
+            configuredIgnore = mapperData
                 .MapperContext
                 .UserConfigurations
                 .GetMemberIgnoreOrNull(mapperData);

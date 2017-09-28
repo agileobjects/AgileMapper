@@ -8,10 +8,9 @@
 
     internal abstract class ToNumericConverterBase : TryParseConverterBase
     {
-        private static readonly Type[] _handledSourceTypes =
-            Constants.NumericTypes
-                .Concat(typeof(string), typeof(char), typeof(object))
-                .ToArray();
+        private static readonly Type[] _handledSourceTypes = Constants
+            .NumericTypes
+            .Append(typeof(string), typeof(char), typeof(object));
 
         protected ToNumericConverterBase(ToStringConverter toStringConverter, Type numericType)
             : base(toStringConverter, numericType)
@@ -61,8 +60,14 @@
 
         private static Expression GetCheckedNumericConversion(Expression sourceValue, Type targetType)
         {
-            var numericValueIsValid = GetNumericValueValidityCheck(sourceValue, targetType);
             var castSourceValue = sourceValue.GetConversionTo(targetType);
+
+            if (sourceValue.Type.GetNonNullableType() == targetType.GetNonNullableType())
+            {
+                return castSourceValue;
+            }
+
+            var numericValueIsValid = GetNumericValueValidityCheck(sourceValue, targetType);
             var defaultTargetType = targetType.ToDefaultExpression();
             var inRangeValueOrDefault = Expression.Condition(numericValueIsValid, castSourceValue, defaultTargetType);
 
@@ -79,10 +84,7 @@
                 return numericValueIsInRange;
             }
 
-            var one = GetConstantValue(1, sourceValue);
-            var sourceValueModuloOne = Expression.Modulo(sourceValue, one);
-            var zero = GetConstantValue(0, sourceValue);
-            var moduloOneEqualsZero = Expression.Equal(sourceValueModuloOne, zero);
+            var moduloOneEqualsZero = NumericConversions.GetModuloOneIsZeroCheck(sourceValue);
 
             return Expression.AndAlso(numericValueIsInRange, moduloOneEqualsZero);
         }
@@ -91,15 +93,7 @@
         {
             return sourceValue.Type.IsEnum() ||
                    sourceValue.Type.IsWholeNumberNumeric() ||
-                   !nonNullableTargetType.IsWholeNumberNumeric();
-        }
-
-        private static Expression GetConstantValue(int value, Expression sourceValue)
-        {
-            var constant = value.ToConstantExpression();
-
-            return (sourceValue.Type != typeof(int))
-                ? constant.GetConversionTo(sourceValue.Type) : constant;
+                  !nonNullableTargetType.IsWholeNumberNumeric();
         }
     }
 }

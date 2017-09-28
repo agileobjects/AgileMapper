@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
 #if !NET_STANDARD
     using System.Diagnostics.CodeAnalysis;
 #endif
@@ -149,7 +150,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public string Name => LeafMember.Name;
 
-        public string RegistrationName { get; }
+        public virtual string RegistrationName { get; }
 
         public ICollection<string> JoinedNames { get; }
 
@@ -204,12 +205,15 @@ namespace AgileObjects.AgileMapper.Members
             return true;
         }
 
+        public bool IsCustom { get; set; }
+
         public virtual bool GuardObjectValuePopulations => false;
 
         IQualifiedMember IQualifiedMember.GetElementMember() => this.GetElementMember();
 
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
 
+        [DebuggerStepThrough]
         public QualifiedMember Append(Member childMember)
             => _childMemberCache.GetOrAdd(childMember, CreateChildMember);
 
@@ -271,15 +275,14 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);
 
-        public bool Matches(IQualifiedMember otherMember)
+        public virtual bool Matches(IQualifiedMember otherMember)
         {
             if (otherMember == this)
             {
                 return true;
             }
 
-            var otherQualifiedMember = otherMember as QualifiedMember;
-            if (otherQualifiedMember != null)
+            if (otherMember is QualifiedMember otherQualifiedMember)
             {
                 return JoinedNames.Match(otherQualifiedMember.JoinedNames);
             }

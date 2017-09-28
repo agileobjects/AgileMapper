@@ -8,21 +8,19 @@
     {
         public static Expression For(Expression sourceValue, Type nonNullableTargetType)
         {
-            Expression maxValueComparisonLeftSide, maxValueComparisonRightSide;
             GetMaximumValueComparisonOperands(
                 sourceValue,
                 sourceValue.Type,
                 nonNullableTargetType,
-                out maxValueComparisonLeftSide,
-                out maxValueComparisonRightSide);
+                out Expression maxValueComparisonLeftSide,
+                out Expression maxValueComparisonRightSide);
 
-            Expression minValueComparisonLeftSide, minValueComparisonRightSide;
             GetMinimumValueComparisonOperands(
                 sourceValue,
                 sourceValue.Type,
                 nonNullableTargetType,
-                out minValueComparisonLeftSide,
-                out minValueComparisonRightSide);
+                out Expression minValueComparisonLeftSide,
+                out Expression minValueComparisonRightSide);
 
             var sourceValueIsLessThanOrEqualToMaxValue =
                 Expression.LessThanOrEqual(maxValueComparisonLeftSide, maxValueComparisonRightSide);

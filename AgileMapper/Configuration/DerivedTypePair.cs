@@ -35,7 +35,7 @@
             return new DerivedTypePair(configInfo, typeof(TDerivedSource), typeof(TDerivedTarget));
         }
 
-        // ReSharper disable once UnusedParameter.Local
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static void ThrowIfInvalidSourceType<TDerivedSource>(MappingConfigInfo configInfo)
         {
             if ((configInfo.SourceType == typeof(TDerivedSource)) && !configInfo.HasCondition)
@@ -87,8 +87,6 @@
 
         public override bool AppliesTo(IBasicMapperData mapperData)
             => DerivedSourceType.IsAssignableFrom(mapperData.SourceType) && base.AppliesTo(mapperData);
-
-        protected override bool TargetMembersMatch(IBasicMapperData mapperData) => true;
 
         #region ExcludeFromCodeCoverage
 #if !NET_STANDARD

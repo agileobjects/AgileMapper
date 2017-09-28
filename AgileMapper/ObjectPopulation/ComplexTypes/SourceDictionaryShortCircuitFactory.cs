@@ -2,7 +2,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using DataSources;
     using Extensions;
     using Members;
@@ -22,9 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return false;
             }
 
-            DictionarySourceMember dictionarySourceMember;
-
-            if (!mapperData.SourceMemberIsStringKeyedDictionary(out dictionarySourceMember))
+            if (!mapperData.SourceMemberIsStringKeyedDictionary(out var dictionarySourceMember))
             {
                 return false;
             }
@@ -122,7 +122,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var typedParentContextAccess = mapperData.GetTypedContextAccess(parentContextAccess, parentMappingTypes);
             var parentTargetAccess = mapperData.GetTargetAccess(parentContextAccess, mapperData.TargetType);
 
-            var replacements = new Dictionary<Expression, Expression>
+            var replacements = new Dictionary<Expression, Expression>(2)
             {
                 [mapValueCall.GetSubject()] = typedParentContextAccess,
                 [mapValueCall.Arguments[1]] = parentTargetAccess

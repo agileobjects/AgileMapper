@@ -101,6 +101,8 @@
 
         MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(_mapperContext);
 
+        IMapper IMapper.CloneSelf() => new Mapper(_mapperContext.Clone());
+
         TSource IMapper.Clone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
 
         dynamic IMapper.Flatten<TSource>(TSource source) => _mapperContext.ObjectFlattener.Flatten(source);
