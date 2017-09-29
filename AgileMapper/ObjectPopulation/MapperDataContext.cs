@@ -12,11 +12,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool? _isMappingDataObjectNeeded;
 
         public MapperDataContext(IMemberMapperData childMapperData)
-            : this(
-                childMapperData.Parent,
-                IsForStandaloneMapping(childMapperData),
-                childMapperData.Parent.Context.IsForDerivedType)
         {
+            _mapperData = childMapperData.Parent;
+            IsStandalone = IsForStandaloneMapping(childMapperData);
+            IsForDerivedType = _mapperData.Context.IsForDerivedType;
         }
 
         private static bool IsForStandaloneMapping(IBasicMapperData mapperData)
@@ -30,17 +29,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapperData = mapperData;
             IsStandalone = isStandalone;
             IsForDerivedType = isForDerivedType;
-            UseLocalVariable = ShouldUseLocalVariable();
+            UseLocalVariable = isForDerivedType || ShouldUseLocalVariable(mapperData);
         }
 
-        private bool ShouldUseLocalVariable()
+        private static bool ShouldUseLocalVariable(IMemberMapperData mapperData)
         {
-            if (IsForDerivedType)
-            {
-                return true;
-            }
-
-            if (_mapperData.TargetMember.IsComplex && _mapperData.TargetIsDefinitelyPopulated())
+            if (mapperData.TargetMember.IsComplex && mapperData.TargetIsDefinitelyPopulated())
             {
                 return false;
             }
