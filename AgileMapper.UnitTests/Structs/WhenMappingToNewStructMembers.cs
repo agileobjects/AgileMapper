@@ -29,5 +29,16 @@
             result.Value.ShouldNotBeNull();
             result.Value.Value.ShouldBe(800);
         }
+
+        [Fact]
+        public void ShouldHandleNoMatchingSourceForNestedCtorParameter()
+        {
+            var source = new { Value = new { Hello = "123" } };
+            var result = Mapper.Map(source).ToANew<PublicField<PublicCtorStruct<short>>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBeDefault();
+            result.Value.Value.ShouldBeDefault();
+        }
     }
 }

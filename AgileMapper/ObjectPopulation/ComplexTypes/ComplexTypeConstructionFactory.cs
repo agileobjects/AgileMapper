@@ -45,11 +45,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     return null;
                 }
 
-                var compositeConstruction = new Construction(constructions, key);
+                var construction = Construction.For(constructions, key);
 
                 key.MappingData = null;
 
-                return compositeConstruction;
+                return construction;
             });
 
             if (objectCreation == null)
@@ -242,13 +242,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private class Construction : IConditionallyChainable
         {
             private readonly Expression _construction;
-            private readonly ParameterExpression _mappingDataObject;
+            private ParameterExpression _mappingDataObject;
 
-            public Construction(IList<Construction> constructions, ConstructionKey key)
+            private Construction(IList<Construction> constructions)
                 : this(constructions.ReverseChain())
             {
                 UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);
-                _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
             }
 
             public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
@@ -263,12 +262,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 Condition = condition;
             }
 
+            #region Factory Methods
+
             public static Construction Parameterless(Type type)
             {
                 var parameterlessNew = Expression.New(type);
 
                 return new Construction(parameterlessNew);
             }
+
+            public static Construction For(IList<Construction> constructions, ConstructionKey key)
+            {
+                var construction = constructions.HasOne()
+                    ? constructions.First()
+                    : new Construction(constructions);
+
+                return construction.With(key);
+            }
+
+            private Construction With(ConstructionKey key)
+            {
+                _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
+                return this;
+            }
+
+            #endregion
 
             public Expression PreCondition => null;
 
