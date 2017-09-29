@@ -47,6 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                 var construction = Construction.For(constructions, key);
 
+                key.AddSourceMemberTypeTesterIfRequired();
                 key.MappingData = null;
 
                 return construction;
@@ -164,7 +165,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Helper Classes
 
-        private class ConstructionKey
+        private class ConstructionKey : SourceMemberTypeDependentKeyBase
         {
             private readonly MappingRuleSet _ruleSet;
             private readonly IQualifiedMember _sourceMember;
@@ -178,8 +179,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 _targetMember = mappingData.MapperData.TargetMember;
             }
 
-            public IObjectMappingData MappingData { get; set; }
-
             public override bool Equals(object obj)
             {
                 var otherKey = (ConstructionKey)obj;
@@ -187,7 +186,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 // ReSharper disable once PossibleNullReferenceException
                 return (otherKey._ruleSet == _ruleSet) &&
                     (otherKey._sourceMember == _sourceMember) &&
-                    (otherKey._targetMember == _targetMember);
+                    (otherKey._targetMember == _targetMember) &&
+                     SourceHasRequiredTypes(otherKey);
             }
 
             #region ExcludeFromCodeCoverage

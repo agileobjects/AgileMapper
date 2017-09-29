@@ -159,6 +159,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 yield return population;
             }
+
+            mappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(mappingData);
         }
 
         private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)
@@ -186,8 +188,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)
         {
-            var sourceMemberTypeTests = new List<Expression>();
-
             foreach (var memberPopulation in MemberPopulationFactory.Default.Create(mappingData))
             {
                 if (!memberPopulation.IsSuccessful)
@@ -211,14 +211,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 {
                     yield return postPopulationCallback;
                 }
-
-                if (memberPopulation.SourceMemberTypeTest != null)
-                {
-                    sourceMemberTypeTests.Add(memberPopulation.SourceMemberTypeTest);
-                }
             }
-
-            CreateSourceMemberTypeTesterIfRequired(sourceMemberTypeTests, mappingData);
         }
 
         private static Expression GetPopulationCallbackOrNull(
@@ -227,21 +220,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IObjectMappingData mappingData)
         {
             return GetMappingCallbackOrNull(position, memberPopulation.MapperData, mappingData.MapperData);
-        }
-
-        private static void CreateSourceMemberTypeTesterIfRequired(
-            IList<Expression> typeTests,
-            IObjectMappingData mappingData)
-        {
-            if (typeTests.None())
-            {
-                return;
-            }
-
-            var typeTest = typeTests.AndTogether();
-            var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, Parameters.MappingData);
-
-            mappingData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
         }
 
         private Expression GetLocalVariableInstantiation(bool assignCreatedObject, bool hasMemberPopulations, IObjectMappingData mappingData)
