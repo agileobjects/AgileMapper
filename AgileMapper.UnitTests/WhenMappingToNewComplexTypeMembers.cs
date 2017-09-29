@@ -65,17 +65,6 @@
         }
 
         [Fact]
-        public void ShouldMapToANestedStructConstructor()
-        {
-            var source = new { Value = new { Value = "800" } };
-            var result = Mapper.Map(source).ToANew<PublicPropertyStruct<PublicCtorStruct<int>>>();
-
-            result.ShouldNotBeNull();
-            result.Value.ShouldNotBeNull();
-            result.Value.Value.ShouldBe(800);
-        }
-
-        [Fact]
         public void ShouldHandleNoMatchingSourceForNestedCtorParameter()
         {
             var source = new { Value = new { Hello = "There" } };
@@ -83,19 +72,6 @@
 
             result.ShouldNotBeNull();
             result.Value.ShouldBeNull();
-        }
-
-        [Fact]
-        public void ShouldMapToANestedConstructorlessStruct()
-        {
-            var source = new { Value = new { Value1 = "Hello", Value2 = "Goodbye" } };
-
-            var result = Mapper
-                .Map(source)
-                .ToANew<PublicField<PublicTwoFieldsStruct<string, string>>>();
-
-            result.Value.Value1.ShouldBe("Hello");
-            result.Value.Value2.ShouldBe("Goodbye");
         }
 
         [Fact]
@@ -309,13 +285,16 @@
 
         private class Country
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public Currency Currency { get; set; }
 
             public int CurrencyId { get; set; }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Currency
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public int Id { get; set; }
         }
 
