@@ -167,6 +167,7 @@
             result.Currency.ShouldBeNull();
             result.CurrencyId.ShouldBe(1);
         }
+
         [Fact]
         public void ShouldUseBestMatchingSourceMemberWhenNotCloning()
         {

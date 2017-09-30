@@ -102,6 +102,10 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
             => mapperData.TargetMember.LeafMember.IsEnumerableElement();
 
+        [DebuggerStepThrough]
+        public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)
+            => mapperData.TargetMember.IsComplex && mapperData.TargetMember.Type.IsValueType();
+
         public static bool TargetMemberEverRecurses(this IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsRecursion)

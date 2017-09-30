@@ -76,21 +76,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
         {
-            if (value.Type.IsValueType())
+            var mapperData = mappingData.MapperData;
+
+            if (mapperData.TargetMemberIsUserStruct())
             {
                 // A user-defined struct will always be populated, but we can 
                 // happily overwrite it because it should never represent an 
                 // entity. We may as well use the existing value if it has a
                 // parameterless constructor, though:
-                return value.Type.IsConstructorless() ? mappingData.MapperData.TargetObject : value;
+                return value.Type.IsConstructorless() ? mapperData.TargetObject : value;
             }
 
-            if (mappingData.MapperData.TargetIsDefinitelyUnpopulated())
+            if (mapperData.TargetIsDefinitelyUnpopulated())
             {
                 return value;
             }
 
-            return Expression.Coalesce(mappingData.MapperData.TargetObject, value);
+            return Expression.Coalesce(mapperData.TargetObject, value);
         }
     }
 }

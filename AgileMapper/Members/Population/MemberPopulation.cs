@@ -120,9 +120,15 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         private Expression GetReadOnlyMemberPopulation()
         {
+            var dataSourcesValue = _dataSources.GetValueExpression();
+
+            if (MapperData.TargetMemberIsUserStruct())
+            {
+                return dataSourcesValue;
+            }
+
             var targetMemberAccess = MapperData.GetTargetMemberAccess();
             var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
-            var dataSourcesValue = _dataSources.GetValueExpression();
 
             if (dataSourcesValue.NodeType != ExpressionType.Conditional)
             {
@@ -142,6 +148,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 #endif
         #endregion
         public override string ToString()
-            => MapperData.TargetMember + " (" + _dataSources.Count() + " data source(s))";
+            => $"{MapperData.TargetMember} ({_dataSources.Count()} data source(s))";
     }
 }

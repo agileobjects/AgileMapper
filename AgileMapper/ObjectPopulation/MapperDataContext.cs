@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return true;
                 }
 
-                if (_mapperData.TargetType.IsValueType())
+                if (_mapperData.TargetMemberIsUserStruct())
                 {
                     return false;
                 }

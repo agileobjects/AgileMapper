@@ -31,7 +31,7 @@
         {
             var condition = base.GetConditionOrNull(mapperData, position);
 
-            if ((CallbackPosition != CallbackPosition.After) || mapperData.TargetType.IsValueType())
+            if ((CallbackPosition != CallbackPosition.After) || mapperData.TargetMemberIsUserStruct())
             {
                 return condition;
             }

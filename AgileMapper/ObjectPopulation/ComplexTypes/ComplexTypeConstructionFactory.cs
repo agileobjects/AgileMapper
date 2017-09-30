@@ -107,7 +107,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (greediestAvailableConstructor == null)
             {
-                if (mapperData.TargetInstance.Type.IsValueType())
+                if (mapperData.TargetMemberIsUserStruct())
                 {
                     constructions.Add(Construction.Parameterless(mapperData.TargetInstance.Type));
                 }
