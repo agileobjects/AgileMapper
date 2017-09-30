@@ -121,12 +121,6 @@ namespace AgileObjects.AgileMapper.Members.Population
         private Expression GetReadOnlyMemberPopulation()
         {
             var dataSourcesValue = _dataSources.GetValueExpression();
-
-            if (MapperData.TargetMemberIsUserStruct())
-            {
-                return dataSourcesValue;
-            }
-
             var targetMemberAccess = MapperData.GetTargetMemberAccess();
             var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
 
@@ -137,7 +131,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             var valueTernary = (ConditionalExpression)dataSourcesValue;
             var populationTest = Expression.AndAlso(targetMemberNotNull, valueTernary.Test);
-            var population = Expression.IfThen(populationTest, valueTernary.IfTrue);
+            Expression population = Expression.IfThen(populationTest, valueTernary.IfTrue);
 
             return population;
         }

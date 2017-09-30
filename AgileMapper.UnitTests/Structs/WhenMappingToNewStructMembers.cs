@@ -76,5 +76,23 @@
 
             unconstructableResult.ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldHandleADefaultValueReadOnlyNestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.CreateAReadOnlyFieldUsing(default(PublicPropertyStruct<int>));
+
+                var source = new PublicField<PublicField<string>>
+                {
+                    Value = new PublicField<string> { Value = "6482" }
+
+                };
+                var result = mapper.Map(source).ToANew<PublicReadOnlyField<PublicPropertyStruct<int>>>();
+
+                result.Value.ShouldBeDefault();
+            }
+        }
     }
 }
