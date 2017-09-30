@@ -44,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
             mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PreMappingCallback);
-            mappingExpressions.AddRange(GetObjectPopulation(mappingData));
+            mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
             mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PostMappingCallback);
 
             var mappingBlock = GetMappingBlock(mappingExpressions, mappingExtras);

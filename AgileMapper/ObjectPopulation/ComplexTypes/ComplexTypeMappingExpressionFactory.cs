@@ -131,10 +131,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var postCreationCallback = GetCreationCallbackOrNull(CallbackPosition.After, mapperData);
             var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToArray();
 
-            if (preCreationCallback != null)
-            {
-                yield return preCreationCallback;
-            }
+            yield return preCreationCallback;
 
             if (mapperData.Context.UseLocalVariable)
             {
@@ -144,16 +141,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 yield return GetLocalVariableInstantiation(assignCreatedObject, hasMemberPopulations, mappingData);
             }
 
-            if (postCreationCallback != null)
-            {
-                yield return postCreationCallback;
-            }
+            yield return postCreationCallback;
 
-            var registrationCall = GetObjectRegistrationCallOrNull(mapperData);
-            if (registrationCall != null)
-            {
-                yield return registrationCall;
-            }
+            yield return GetObjectRegistrationCallOrNull(mapperData);
 
             foreach (var population in populationsAndCallbacks)
             {

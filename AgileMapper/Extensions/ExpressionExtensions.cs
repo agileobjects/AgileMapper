@@ -247,13 +247,8 @@
             return Expression.Call(typedToEnumerableMethod, enumerable);
         }
 
-        public static Expression GetEmptyInstanceCreation(this Type enumerableType, Type elementType = null)
+        public static Expression GetEmptyInstanceCreation(this Type enumerableType, Type elementType)
         {
-            if (elementType == null)
-            {
-                elementType = enumerableType.GetEnumerableElementType();
-            }
-
             if (enumerableType.IsArray)
             {
                 return GetEmptyArray(elementType);

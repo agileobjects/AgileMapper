@@ -320,6 +320,11 @@ namespace AgileObjects.AgileMapper.Members
 
         private Expression GetCheckedValue(BlockExpression value, Expression keyedAccess, IMemberMapperData mapperData)
         {
+            if (mapperData.SourceMember.IsEnumerable)
+            {
+                return value;
+            }
+
             var checkedAccess = GetAccessChecked(mapperData);
             var existingValue = checkedAccess.Variables.First();
             var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValue };

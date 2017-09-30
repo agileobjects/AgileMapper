@@ -270,19 +270,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)
         {
-            var newDictionary = mappingData.MapperData.TargetType.GetEmptyInstanceCreation();
+            var valueType = mappingData.MapperData.EnumerablePopulationBuilder.TargetTypeHelper.ElementType;
+            var newDictionary = mappingData.MapperData.TargetType.GetEmptyInstanceCreation(valueType);
 
             return GetDictionaryAssignment(newDictionary, mappingData);
         }
 
         private static Expression GetDictionaryAssignment(Expression value, IObjectMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
+
+            if (mapperData.TargetMember.IsReadOnly)
+            {
+                return null;
+            }
+
             var valueResolution = TargetObjectResolutionFactory.GetObjectResolution(
                 md => value,
                 mappingData,
-                assignTargetObject: mappingData.MapperData.HasMapperFuncs);
+                assignTargetObject: mapperData.HasMapperFuncs);
 
-            return mappingData.MapperData.TargetInstance.AssignTo(valueResolution);
+            return mapperData.TargetInstance.AssignTo(valueResolution);
         }
 
         private Expression GetDictionaryPopulation(IObjectMappingData mappingData)

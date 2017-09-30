@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetCouldBePopulated(this IMemberMapperData mapperData)
             => !TargetIsDefinitelyUnpopulated(mapperData);
 
-        public static bool TargetIsDefinitelyPopulated(this IMemberMapperData mapperData)
+        public static bool TargetIsDefinitelyPopulated(this IBasicMapperData mapperData)
             => mapperData.IsRoot && mapperData.RuleSet.RootHasPopulatedTarget;
 
         public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)

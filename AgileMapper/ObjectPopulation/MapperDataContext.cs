@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using Extensions;
     using Members;
-    using NetStandardPolyfills;
 
     internal class MapperDataContext
     {
@@ -12,29 +11,43 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool? _isMappingDataObjectNeeded;
 
         public MapperDataContext(IMemberMapperData childMapperData)
+            : this(
+                childMapperData.Parent,
+                IsForStandaloneMapping(childMapperData),
+                childMapperData.Parent.Context.IsForDerivedType,
+                childMapperData)
         {
-            _mapperData = childMapperData.Parent;
-            IsStandalone = IsForStandaloneMapping(childMapperData);
-            IsForDerivedType = _mapperData.Context.IsForDerivedType;
         }
 
         private static bool IsForStandaloneMapping(IBasicMapperData mapperData)
             => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();
 
-        public MapperDataContext(
+        public MapperDataContext(ObjectMapperData mapperData, bool isStandalone, bool isForDerivedType)
+            : this(mapperData, isStandalone, isForDerivedType, mapperData)
+        {
+        }
+
+        private MapperDataContext(
             ObjectMapperData mapperData,
             bool isStandalone,
-            bool isForDerivedType)
+            bool isForDerivedType,
+            IBasicMapperData basicMapperData)
         {
             _mapperData = mapperData;
             IsStandalone = isStandalone;
             IsForDerivedType = isForDerivedType;
-            UseLocalVariable = isForDerivedType || ShouldUseLocalVariable(mapperData);
+            UseLocalVariable = isForDerivedType || ShouldUseLocalVariable(basicMapperData);
         }
 
-        private static bool ShouldUseLocalVariable(IMemberMapperData mapperData)
+        private static bool ShouldUseLocalVariable(IBasicMapperData mapperData)
         {
-            if (mapperData.TargetMember.IsComplex && mapperData.TargetIsDefinitelyPopulated())
+            if (mapperData.TargetMember.IsSimple)
+            {
+                return false;
+            }
+
+            if (mapperData.TargetMember.IsComplex &&
+               (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated()))
             {
                 return false;
             }
