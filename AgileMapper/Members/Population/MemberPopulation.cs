@@ -124,16 +124,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             var targetMemberAccess = MapperData.GetTargetMemberAccess();
             var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
 
-            if (dataSourcesValue.NodeType != ExpressionType.Conditional)
-            {
-                return Expression.IfThen(targetMemberNotNull, dataSourcesValue);
-            }
-
-            var valueTernary = (ConditionalExpression)dataSourcesValue;
-            var populationTest = Expression.AndAlso(targetMemberNotNull, valueTernary.Test);
-            Expression population = Expression.IfThen(populationTest, valueTernary.IfTrue);
-
-            return population;
+            return Expression.IfThen(targetMemberNotNull, dataSourcesValue);
         }
 
         #region ExcludeFromCodeCoverage

@@ -63,11 +63,6 @@
 
         public static implicit operator BlockExpression(EnumerablePopulationBuilder builder)
         {
-            if (builder._populationExpressions.None())
-            {
-                return null;
-            }
-
             var variables = new List<ParameterExpression>(2);
 
             if (builder._sourceVariable != null)
