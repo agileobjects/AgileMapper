@@ -97,19 +97,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var mapperData = key.MappingData.MapperData;
 
-            var greediestAvailableConstructor = mapperData.TargetInstance.Type
+            var constructors = mapperData.TargetInstance.Type
                 .GetPublicInstanceConstructors()
-                .Where(IsNotCopyConstructor)
-                .Select(ctor => CreateConstructorData(ctor, key))
-                .Where(ctor => ctor.CanBeConstructed)
-                .OrderByDescending(ctor => ctor.NumberOfParameters)
-                .FirstOrDefault();
+                .ToArray();
+
+            var greediestAvailableConstructor = constructors.Any()
+                ? constructors
+                    .Where(IsNotCopyConstructor)
+                    .Select(ctor => CreateConstructorData(ctor, key))
+                    .Where(ctor => ctor.CanBeConstructed)
+                    .OrderByDescending(ctor => ctor.NumberOfParameters)
+                    .FirstOrDefault()
+                : null;
 
             if (greediestAvailableConstructor == null)
             {
-                if (mapperData.TargetMemberIsUserStruct())
+                if (constructors.None() && mapperData.TargetMemberIsUserStruct())
                 {
-                    constructions.Add(Construction.Parameterless(mapperData.TargetInstance.Type));
+                    constructions.Add(Construction.NewStruct(mapperData.TargetInstance.Type));
                 }
 
                 return;
@@ -192,7 +197,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             #region ExcludeFromCodeCoverage
 #if !NET_STANDARD
-        [ExcludeFromCodeCoverage]
+            [ExcludeFromCodeCoverage]
 #endif
             #endregion
             public override int GetHashCode() => 0;
@@ -264,7 +269,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             #region Factory Methods
 
-            public static Construction Parameterless(Type type)
+            public static Construction NewStruct(Type type)
             {
                 var parameterlessNew = Expression.New(type);
 

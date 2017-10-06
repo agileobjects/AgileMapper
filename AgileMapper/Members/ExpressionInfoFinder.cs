@@ -25,8 +25,6 @@ namespace AgileObjects.AgileMapper.Members
 
         private class ExpressionInfoFinderInstance : ExpressionVisitor
         {
-            private static readonly Expression[] _noMemberAccesses = Enumerable<Expression>.EmptyArray;
-
             private readonly Expression _mappingDataObject;
             private readonly ICollection<Expression> _stringMemberAccessSubjects;
             private readonly ICollection<Expression> _allInvocations;
@@ -53,7 +51,7 @@ namespace AgileObjects.AgileMapper.Members
                 Visit(expression);
 
                 var nestedAccesses = _nestedAccessesByPath.None()
-                    ? _noMemberAccesses
+                    ? Enumerable<Expression>.EmptyArray
                     : _nestedAccessesByPath.Values.Reverse().ToArray();
 
                 var multiInvocations = _multiInvocations

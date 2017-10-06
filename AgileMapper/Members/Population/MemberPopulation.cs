@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         public static IMemberPopulation WithRegistration(
             IChildMemberMappingData mappingData,
             DataSourceSet dataSources,
-            Expression populateCondition = null)
+            Expression populateCondition)
         {
             var memberPopulation = WithoutRegistration(mappingData, dataSources, populateCondition);
             var mapperData = memberPopulation.MapperData;
@@ -70,6 +70,9 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             return Expression.AndAlso(populateCondition, populationGuard);
         }
+
+        public static IMemberPopulation Unmappable(IMemberMapperData mapperData, string reason)
+            => CreateNullMemberPopulation(mapperData, targetMember => $"No way to populate {targetMember.Name} ({reason})");
 
         public static IMemberPopulation IgnoredMember(IMemberMapperData mapperData, ConfiguredIgnoredMember configuredIgnore)
             => CreateNullMemberPopulation(mapperData, configuredIgnore.GetIgnoreMessage);

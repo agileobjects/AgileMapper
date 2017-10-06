@@ -210,6 +210,18 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
             => mapperData.MapperContext.ValueConverters.GetConversion(value, targetType);
 
+        public static Expression GetMappingCallbackOrNull(
+            this IBasicMapperData basicData,
+            CallbackPosition callbackPosition,
+            IMemberMapperData mapperData)
+        {
+            return mapperData
+                .MapperContext
+                .UserConfigurations
+                .GetCallbackOrNull(callbackPosition, basicData, mapperData);
+        }
+
+
         public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
             => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
 

@@ -10,12 +10,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using Members;
     using NetStandardPolyfills;
+    using static CallbackPosition;
 
     internal abstract class MappingExpressionFactoryBase
     {
-        private const CallbackPosition Before = CallbackPosition.Before;
-        private const CallbackPosition After = CallbackPosition.After;
-
         public abstract bool IsFor(IObjectMappingData mappingData);
 
         public Expression Create(IObjectMappingData mappingData)
@@ -80,8 +78,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static MappingExtras GetMappingExtras(ObjectMapperData mapperData)
         {
             var basicMapperData = mapperData.WithNoTargetMember();
-            var preMappingCallback = GetMappingCallbackOrNull(Before, basicMapperData, mapperData);
-            var postMappingCallback = GetMappingCallbackOrNull(After, basicMapperData, mapperData);
+            var preMappingCallback = basicMapperData.GetMappingCallbackOrNull(Before, mapperData);
+            var postMappingCallback = basicMapperData.GetMappingCallbackOrNull(After, mapperData);
             var mapToNullCondition = GetMapToNullConditionOrNull(mapperData);
 
             return new MappingExtras(
@@ -89,14 +87,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 preMappingCallback,
                 postMappingCallback,
                 mapToNullCondition);
-        }
-
-        protected static Expression GetMappingCallbackOrNull(
-            CallbackPosition callbackPosition,
-            IBasicMapperData basicData,
-            IMemberMapperData mapperData)
-        {
-            return mapperData.MapperContext.UserConfigurations.GetCallbackOrNull(callbackPosition, basicData, mapperData);
         }
 
         private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)

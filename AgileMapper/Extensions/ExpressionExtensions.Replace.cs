@@ -186,10 +186,10 @@
             private Expression ReplaceIn(MemberExpression memberAccess) => ReplaceIn(memberAccess, ma => ma.Update(Replace(ma.Expression)));
 
             private Expression ReplaceIn(MemberInitExpression memberInit)
-                => ReplaceIn(memberInit, mi => mi.Update(ReplaceIn(mi.NewExpression), mi.Bindings.Select(ReplaceIn)));
+                => ReplaceIn(memberInit, mi => mi.Update(ReplaceInNew(mi.NewExpression), mi.Bindings.Select(ReplaceIn)));
 
             private Expression ReplaceIn(ListInitExpression listInit)
-                => ReplaceIn(listInit, li => li.Update(ReplaceIn(li.NewExpression), ReplaceIn(li.Initializers)));
+                => ReplaceIn(listInit, li => li.Update(ReplaceInNew(li.NewExpression), ReplaceIn(li.Initializers)));
 
             private Expression ReplaceIn(LoopExpression loop) => ReplaceIn(loop, l => l.Update(l.BreakLabel, l.ContinueLabel, Replace(l.Body)));
 
@@ -216,14 +216,13 @@
             private IEnumerable<ElementInit> ReplaceIn(IEnumerable<ElementInit> initializers)
                 => initializers.Select(init => init.Update(init.Arguments.Select(Replace)));
 
-            private NewExpression ReplaceIn(NewExpression newing)
-            {
-                if (newing.Arguments.None())
-                {
-                    return newing;
-                }
+            private Expression ReplaceIn(NewExpression newing) => ReplaceIn(newing, ReplaceInNew);
 
-                return (NewExpression)ReplaceIn(newing, nw => nw.Update(nw.Arguments.Select(Replace)));
+            private NewExpression ReplaceInNew(NewExpression newing)
+            {
+                return newing.Arguments.None()
+                    ? newing
+                    : newing.Update(newing.Arguments.Select(Replace));
             }
 
             private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, na => na.Update(na.Expressions.Select(Replace)));

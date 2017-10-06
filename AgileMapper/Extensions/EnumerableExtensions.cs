@@ -163,6 +163,7 @@
             return array;
         }
 
+        [DebuggerStepThrough]
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Where(item => item != null);
 
         public static T[] Prepend<T>(this IList<T> items, T initialItem)

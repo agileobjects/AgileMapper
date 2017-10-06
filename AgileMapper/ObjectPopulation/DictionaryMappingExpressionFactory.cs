@@ -286,9 +286,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var valueResolution = TargetObjectResolutionFactory.GetObjectResolution(
-                md => value,
+                value,
                 mappingData,
-                assignTargetObject: mapperData.HasMapperFuncs);
+                mapperData.HasMapperFuncs);
 
             return mapperData.TargetInstance.AssignTo(valueResolution);
         }

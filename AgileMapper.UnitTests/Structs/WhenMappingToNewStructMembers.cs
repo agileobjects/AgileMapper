@@ -78,11 +78,11 @@
         }
 
         [Fact]
-        public void ShouldHandleADefaultValueReadOnlyNestedMember()
+        public void ShouldIgnoreAReadOnlyStructMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.CreateAReadOnlyFieldUsing(default(PublicPropertyStruct<int>));
+                mapper.CreateAReadOnlyFieldUsing(new PublicPropertyStruct<int>());
 
                 var source = new PublicField<PublicField<string>>
                 {
@@ -91,7 +91,7 @@
                 };
                 var result = mapper.Map(source).ToANew<PublicReadOnlyField<PublicPropertyStruct<int>>>();
 
-                result.Value.ShouldBeDefault();
+                result.Value.Value.ShouldBeDefault();
             }
         }
     }

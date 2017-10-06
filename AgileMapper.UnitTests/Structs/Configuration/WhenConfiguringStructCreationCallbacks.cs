@@ -37,14 +37,13 @@
                     .CreatingInstancesOf<PublicPropertyStruct<int>>()
                     .Call((s, t, p) => createdStruct = p);
 
-                var nonMatchingSource = new { Value = "12345" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<int>>();
+                var source = new { Value = "12345" };
+                var nonMatchingResult = mapper.Map(source).ToANew<PublicField<int>>();
 
                 createdStruct.ShouldBeDefault();
                 nonMatchingResult.Value.ShouldBe(12345);
 
-                var matchingSource = new Person();
-                var matchingResult = mapper.Map(matchingSource).ToANew<PublicPropertyStruct<int>>();
+                var matchingResult = mapper.Map(source).ToANew<PublicPropertyStruct<int>>();
 
                 createdStruct.ShouldNotBeNull();
                 createdStruct.ShouldBe(matchingResult);

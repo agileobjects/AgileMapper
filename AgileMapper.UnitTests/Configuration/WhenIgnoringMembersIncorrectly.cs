@@ -149,7 +149,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 }
             });
 
-            configurationEx.Message.ShouldContain("not writeable");
+            configurationEx.Message.ShouldContain("not mappable");
         }
 
         [Fact]

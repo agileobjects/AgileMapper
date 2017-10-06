@@ -185,11 +185,9 @@
         {
             type = type.GetNonNullableType();
 
-            switch (type.GetTypeCode())
+            if (type.GetTypeCode() == NetStandardTypeCode.Object)
             {
-                case NetStandardTypeCode.DBNull:
-                case NetStandardTypeCode.Object:
-                    return type == typeof(Guid);
+                return type == typeof(Guid);
             }
 
             return true;
@@ -206,9 +204,6 @@
 
             return (typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>));
         }
-
-        public static bool IsConstructorless(this Type structType)
-            => structType.GetPublicInstanceConstructors().ToArray().None();
 
         [DebuggerStepThrough]
         public static Type GetNonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;

@@ -1,19 +1,33 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using Members;
-    using NetStandardPolyfills;
 
     internal static class TargetObjectResolutionFactory
     {
         public static Expression GetObjectResolution(
-            Func<IObjectMappingData, Expression> constructionFactory,
+            Expression construction,
             IObjectMappingData mappingData,
+            bool assignTargetObject = false)
+        {
+            return GetObjectResolution(
+                (md, mps) => construction,
+                mappingData,
+                Enumerable<Expression>.EmptyArray,
+                false,
+                assignTargetObject);
+        }
+
+        public static Expression GetObjectResolution(
+            Func<IObjectMappingData, IList<Expression>, Expression> constructionFactory,
+            IObjectMappingData mappingData,
+            IList<Expression> memberPopulations,
             bool assignCreatedObject = false,
-            bool assignTargetObject = false,
-            bool hasMemberPopulations = true)
+            bool assignTargetObject = false)
         {
             var mapperData = mappingData.MapperData;
 
@@ -22,7 +36,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return mapperData.TargetObject;
             }
 
-            var objectValue = constructionFactory.Invoke(mappingData);
+            var objectValue = constructionFactory.Invoke(mappingData, memberPopulations);
 
             if (objectValue == null)
             {
@@ -32,24 +46,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return mapperData.TargetObject;
             }
 
-            if (UseNullFallbackValue(mapperData, objectValue, hasMemberPopulations))
+            if (UseNullFallbackValue(mapperData, objectValue, memberPopulations))
             {
                 objectValue = mapperData.TargetMember.Type.ToDefaultExpression();
-
-                assignCreatedObject =
-                    assignTargetObject =
-                    mapperData.Context.UsesMappingDataObjectAsParameter = false;
+                mapperData.Context.UsesMappingDataObjectAsParameter = false;
             }
-
-            if (assignCreatedObject)
+            else
             {
-                mapperData.Context.UsesMappingDataObjectAsParameter = true;
-                objectValue = mapperData.CreatedObject.AssignTo(objectValue);
-            }
+                if (assignCreatedObject)
+                {
+                    mapperData.Context.UsesMappingDataObjectAsParameter = true;
+                    objectValue = mapperData.CreatedObject.AssignTo(objectValue);
+                }
 
-            if (assignTargetObject || mapperData.Context.UsesMappingDataObjectAsParameter)
-            {
-                objectValue = mapperData.TargetObject.AssignTo(objectValue);
+                if (assignTargetObject || mapperData.Context.UsesMappingDataObjectAsParameter)
+                {
+                    objectValue = mapperData.TargetObject.AssignTo(objectValue);
+                }
             }
 
             objectValue = AddExistingTargetCheckIfAppropriate(objectValue, mappingData);
@@ -60,11 +73,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private static bool UseNullFallbackValue(
             IMemberMapperData mapperData,
             Expression objectConstruction,
-            bool hasMemberPopulations)
+            IList<Expression> memberPopulations)
         {
-            if (hasMemberPopulations ||
-               (objectConstruction.NodeType != ExpressionType.New) ||
-                mapperData.SourceMember.Matches(mapperData.TargetMember))
+            if (memberPopulations == null)
+            {
+                return false;
+            }
+
+            if ((objectConstruction.NodeType != ExpressionType.New) ||
+                 MemberPopulationsExist(memberPopulations) ||
+                 mapperData.SourceMember.Matches(mapperData.TargetMember))
             {
                 return false;
             }
@@ -74,25 +92,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return objectNewing.Arguments.None();
         }
 
+        private static bool MemberPopulationsExist(IEnumerable<Expression> populationsAndCallbacks)
+            => populationsAndCallbacks.Any(population => population.NodeType != ExpressionType.Constant);
+
         private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.TargetMemberIsUserStruct())
-            {
-                // A user-defined struct will always be populated, but we can 
-                // happily overwrite it because it should never represent an 
-                // entity. We may as well use the existing value if it has a
-                // parameterless constructor, though:
-                return value.Type.IsConstructorless() ? mapperData.TargetObject : value;
-            }
-
-            if (mapperData.TargetIsDefinitelyUnpopulated())
+            if (mapperData.TargetMemberIsUserStruct() ||
+                mapperData.TargetIsDefinitelyUnpopulated())
             {
                 return value;
             }
 
             return Expression.Coalesce(mapperData.TargetObject, value);
         }
+
+
     }
 }

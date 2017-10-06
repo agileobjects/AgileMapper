@@ -8,6 +8,7 @@
     using Caching;
     using Extensions;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class MemberFinder
     {
@@ -51,8 +52,8 @@
         {
             return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
-                var fields = GetFields(key.Type, OnlyTargets);
-                var properties = GetProperties(key.Type, OnlyTargets);
+                var fields = GetFields(key.Type, All);
+                var properties = GetProperties(key.Type, All);
                 var methods = GetMethods(key.Type, OnlyCallableSetters, Member.SetMethod);
 
                 var constructorParameterNames = key.Type
@@ -97,6 +98,8 @@
                 .Select(Member.Property);
         }
 
+        private static bool All(PropertyInfo property) => true;
+
         private static bool OnlyGettable(PropertyInfo property) => property.IsReadable();
 
         private static bool OnlyTargets(PropertyInfo property)
@@ -113,8 +116,7 @@
 
         private static bool IsUseableReadOnlyTarget(Type memberType)
         {
-            // Include readonly object type properties (except arrays):
-            if (memberType.IsArray || memberType.IsSimple())
+            if (memberType.IsArray || memberType.IsValueType() || memberType.IsNullableType())
             {
                 return false;
             }
