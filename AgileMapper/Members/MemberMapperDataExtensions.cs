@@ -103,6 +103,10 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.TargetMember.LeafMember.IsEnumerableElement();
 
         [DebuggerStepThrough]
+        public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)
+            => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping;
+
+        [DebuggerStepThrough]
         public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)
             => mapperData.TargetMember.IsComplex && mapperData.TargetMember.Type.IsValueType();
 
@@ -183,7 +187,7 @@ namespace AgileObjects.AgileMapper.Members
 
             Expression emptyEnumerable;
 
-            if (targetMember.IsReadable)
+            if (mapperData.TargetMemberHasInitAccessibleValue())
             {
                 var existingValue = mapperData.GetTargetMemberAccess();
 

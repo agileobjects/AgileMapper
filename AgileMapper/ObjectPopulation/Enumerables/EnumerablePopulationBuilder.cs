@@ -286,6 +286,11 @@
 
         private Expression GetTargetVariableValue()
         {
+            if (!MapperData.TargetMemberHasInitAccessibleValue())
+            {
+                return TargetTypeHelper.GetEmptyInstanceCreation();
+            }
+
             if (_sourceAdapter.UseReadOnlyTargetWrapper)
             {
                 return GetCopyIntoWrapperConstruction();
@@ -320,9 +325,7 @@
                 return nonNullTargetVariableValue;
             }
 
-            var nullTargetVariableType = nonNullTargetVariableValue.Type.IsInterface()
-                ? TargetTypeHelper.ListType
-                : nonNullTargetVariableValue.Type;
+            var nullTargetVariableType = GetNullTargetVariableType(nonNullTargetVariableValue.Type);
 
             var nullTargetVariableValue = SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
                 ? Expression.New(nullTargetVariableType)
@@ -376,6 +379,13 @@
             return Expression.New(
                 TargetTypeHelper.ListType.GetConstructor(new[] { TargetTypeHelper.EnumerableInterfaceType }),
                 MapperData.TargetObject);
+        }
+
+        private Type GetNullTargetVariableType(Type nonNullTargetVariableType)
+        {
+            return nonNullTargetVariableType.IsInterface()
+                ? TargetTypeHelper.ListType
+                : nonNullTargetVariableType;
         }
 
         private bool TargetCouldBeUnusable()

@@ -271,6 +271,16 @@
         }
 
         [Fact]
+        public void ShouldMapFromAnEnumerableToAWriteOnlyTarget()
+        {
+            var source = new PublicField<IEnumerable<int>> { Value = new[] { 1, 2, 3 } };
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<List<string>>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBe("1", "2", "3");
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceMemberForAWriteOnlyTarget()
         {
             var source = new PublicField<ICollection<int?>> { Value = null };

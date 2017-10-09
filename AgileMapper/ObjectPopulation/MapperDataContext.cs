@@ -84,21 +84,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool UseLocalVariable { get; }
 
-        public bool UseMappingTryCatch
+        public bool UseMappingTryCatch => _mapperData.IsRoot || !IsPartOfUserStructMapping;
+
+        public bool IsPartOfUserStructMapping
         {
             get
             {
-                if (_mapperData.IsRoot)
+                var mapperData = _mapperData;
+
+                while (mapperData != null)
                 {
-                    return true;
+                    if (mapperData.TargetMemberIsUserStruct())
+                    {
+                        return true;
+                    }
+
+                    mapperData = mapperData.Parent;
                 }
 
-                if (_mapperData.TargetMemberIsUserStruct())
-                {
-                    return false;
-                }
-
-                return _mapperData.Parent.Context.UseMappingTryCatch;
+                return false;
             }
         }
 
