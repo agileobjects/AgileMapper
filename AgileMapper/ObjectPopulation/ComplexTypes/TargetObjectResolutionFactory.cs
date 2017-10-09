@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return GetObjectResolution(
                 (md, mps) => construction,
                 mappingData,
-                Enumerable<Expression>.EmptyArray,
+                null,
                 false,
                 assignTargetObject);
         }

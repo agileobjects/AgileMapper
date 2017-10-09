@@ -2,13 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Reflection;
     using Caching;
     using Extensions;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal class MemberFinder
     {
@@ -83,9 +81,6 @@
 
         private static bool All(FieldInfo field) => true;
 
-        private static bool OnlyTargets(FieldInfo field)
-            => !field.IsInitOnly || IsUseableReadOnlyTarget(field.FieldType);
-
         #endregion
 
         #region Properties
@@ -101,34 +96,6 @@
         private static bool All(PropertyInfo property) => true;
 
         private static bool OnlyGettable(PropertyInfo property) => property.IsReadable();
-
-        private static bool OnlyTargets(PropertyInfo property)
-        {
-            if (!property.IsReadable())
-            {
-                // TODO: Test coverage: set-only properties
-                // Ignore set-only properties:
-                return false;
-            }
-
-            return property.IsWriteable() || IsUseableReadOnlyTarget(property.PropertyType);
-        }
-
-        private static bool IsUseableReadOnlyTarget(Type memberType)
-        {
-            if (memberType.IsArray || memberType.IsValueType() || memberType.IsNullableType())
-            {
-                return false;
-            }
-
-            if (memberType.IsGenericType() &&
-               (memberType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)))
-            {
-                return false;
-            }
-
-            return true;
-        }
 
         #endregion
 
