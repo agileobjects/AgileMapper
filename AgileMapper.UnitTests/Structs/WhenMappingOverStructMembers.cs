@@ -22,6 +22,17 @@
         }
 
         [Fact]
+        public void ShouldHandleNoMatchingSourceMember()
+        {
+            var source = new { Value1 = "You" };
+            var target = new PublicTwoFieldsStruct<string, int> { Value1 = "kjd", Value2 = 527 };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value1.ShouldBe("You");
+            result.Value2.ShouldBe(527);
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredConstant()
         {
             using (var mapper = Mapper.CreateNew())
