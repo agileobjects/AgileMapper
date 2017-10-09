@@ -20,5 +20,24 @@
             result.ShouldBeSameAs(target);
             result.Value.ShouldBeDefault();
         }
+
+        [Fact]
+        public void ShouldApplyAConfiguredConstant()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .Over<PublicPropertyStruct<int>>()
+                    .Map("123")
+                    .To(pps => pps.Value);
+
+                var source = new PublicField<string> { Value = "456" };
+                var target = new PublicPropertyStruct<int> { Value = 789 };
+                var result = mapper.Map(source).Over(target);
+
+                result.Value.ShouldBe(123);
+            }
+        }
     }
 }

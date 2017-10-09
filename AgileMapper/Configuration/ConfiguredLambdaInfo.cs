@@ -106,6 +106,8 @@
 
         #endregion
 
+        public bool HasConstantValue => _lambda.Body.NodeType == ExpressionType.Constant;
+
         public bool UsesMappingDataObjectParameter => _parametersSwapper.NumberOfParameters == 1;
 
         public Type ReturnType { get; }
