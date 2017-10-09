@@ -52,6 +52,18 @@
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
+            if (member.LeafMember.IsRoot)
+            {
+                reason = null;
+                return false;
+            }
+
+            if (IsStructNonSimpleMember(member))
+            {
+                reason = member.Type.GetFriendlyName() + " member on a struct";
+                return true;
+            }
+
             if (member.LeafMember.MemberType == MemberType.SetMethod)
             {
                 reason = null;
@@ -92,6 +104,16 @@
 
             reason = null;
             return false;
+        }
+
+        private static bool IsStructNonSimpleMember(QualifiedMember member)
+        {
+            if (member.IsSimple || member.Type.IsValueType())
+            {
+                return false;
+            }
+
+            return member.MemberChain[member.MemberChain.Length - 2].Type.IsValueType();
         }
 
         public static Expression GetAccess(this QualifiedMember member, IMemberMapperData mapperData)
