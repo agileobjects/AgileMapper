@@ -43,11 +43,17 @@
                     .Map("123")
                     .To(pps => pps.Value);
 
-                var source = new PublicField<string> { Value = "456" };
-                var target = new PublicPropertyStruct<int> { Value = 789 };
+                var source = new PublicField<PublicField<string>>
+                {
+                    Value = new PublicField<string> { Value = "456" }
+                };
+                var target = new PublicField<PublicPropertyStruct<int>>
+                {
+                    Value = new PublicPropertyStruct<int> { Value = 789 }
+                };
                 var result = mapper.Map(source).Over(target);
 
-                result.Value.ShouldBe(123);
+                result.Value.Value.ShouldBe(123);
             }
         }
     }

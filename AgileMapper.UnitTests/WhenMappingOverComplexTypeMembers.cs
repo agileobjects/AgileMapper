@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
-    using System;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -80,44 +79,6 @@
 
             result.Name.ShouldBe("Scooby");
             result.Address.ShouldBeSameAs(originalAddress);
-        }
-
-        [Fact]
-        public void ShouldApplyAConfiguredConstant()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Person>()
-                    .Over<Person>()
-                    .Map("Big Timmy")
-                    .To(x => x.Name);
-
-                var source = new Person { Name = "Alice" };
-                var target = new Person { Name = "Frank" };
-                var result = mapper.Map(source).Over(target);
-
-                result.Name.ShouldBe("Big Timmy");
-            }
-        }
-
-        [Fact]
-        public void ShouldApplyAConfiguredExpression()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Customer>()
-                    .Over<Person>()
-                    .Map(ctx => ctx.Source.Id)
-                    .To(x => x.Name);
-
-                var source = new Customer { Id = Guid.NewGuid() };
-                var target = new Person();
-                var result = mapper.Map(source).Over(target);
-
-                result.Name.ShouldBe(source.Id.ToString());
-            }
         }
 
         [Fact]

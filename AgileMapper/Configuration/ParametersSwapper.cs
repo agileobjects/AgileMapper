@@ -264,6 +264,11 @@ namespace AgileObjects.AgileMapper.Configuration
 
             private static bool ConvertCreatedObjectType(Type neededCreatedObjectType, SwapArgs swapArgs)
             {
+                if ((swapArgs.Lambda.Parameters.Count == 3) && (neededCreatedObjectType == typeof(int?)))
+                {
+                    return false;
+                }
+
                 var actualCreatedObjectType = swapArgs.MapperData.CreatedObject.Type;
 
                 return (neededCreatedObjectType != actualCreatedObjectType) && actualCreatedObjectType.IsValueType();
