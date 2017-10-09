@@ -60,12 +60,12 @@
                 mapper.WhenMapping
                     .From<PublicPropertyStruct<string>>()
                     .To<Customer>()
+                    .Map(ctx => ctx.Source.Value)
+                    .To(c => c.Name)
+                    .And
                     .After
                     .CreatingTargetInstances
-                    .Call(ctx => ++creationCount)
-                    .And
-                    .Map(ctx => ctx.Source.Value)
-                    .To(c => c.Name);
+                    .Call(ctx => ++creationCount);
 
                 var nonMatchingSource = new { Name = "Goldblum" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Customer>();
@@ -98,7 +98,7 @@
                 var nonMatchingSource = new { Value = "8765" };
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicCtorStruct<long>>();
 
-                createdStruct.Value.ShouldBeDefault();
+                createdStruct.ShouldBeDefault();
                 nonMatchingResult.Value.ShouldBe(8765);
 
                 var matchingSource = new PublicPropertyStruct<int> { Value = 5678 };

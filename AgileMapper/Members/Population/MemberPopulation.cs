@@ -97,6 +97,25 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public bool IsSuccessful => _dataSources.HasValue;
 
+        public Expression GetBinding()
+        {
+            if (!IsSuccessful)
+            {
+                return _dataSources.GetValueExpression();
+            }
+
+            var bindingValue = _dataSources.GetValueExpression();
+
+            if (_dataSources.Variables.Any())
+            {
+                bindingValue = Expression.Block(_dataSources.Variables, bindingValue);
+            }
+
+            var binding = MapperData.GetTargetMemberPopulation(bindingValue);
+
+            return binding;
+        }
+
         public Expression GetPopulation()
         {
             if (!IsSuccessful)

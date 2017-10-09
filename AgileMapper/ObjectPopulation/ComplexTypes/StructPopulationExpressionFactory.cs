@@ -16,12 +16,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IMemberPopulation memberPopulation,
             IObjectMappingData mappingData)
         {
-            yield return memberPopulation.GetPopulation();
+            yield return memberPopulation.GetBinding();
         }
 
         protected override Expression GetNewObjectCreation(IObjectMappingData mappingData, IList<Expression> memberPopulations)
         {
             var objectCreation = base.GetNewObjectCreation(mappingData, memberPopulations);
+
+            if (memberPopulations.None())
+            {
+                return objectCreation;
+            }
 
             var objectNewings = NewExpressionFinder.FindIn(objectCreation);
             var memberBindings = GetMemberBindingsFrom(memberPopulations);
@@ -48,16 +53,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 var population = memberPopulations[i];
 
-                switch (population.NodeType)
+                if (population.NodeType != ExpressionType.Assign)
                 {
-                    case ExpressionType.Assign:
-                        var assignment = (BinaryExpression)population;
-                        var assignedMember = (MemberExpression)assignment.Left;
-                        var memberAssignment = Expression.Bind(assignedMember.Member, assignment.Right);
-                        memberBindings.Add(memberAssignment);
-                        memberPopulations.RemoveAt(i);
-                        continue;
+                    continue;
                 }
+
+                var assignment = (BinaryExpression)population;
+                var assignedMember = (MemberExpression)assignment.Left;
+                var memberBinding = Expression.Bind(assignedMember.Member, assignment.Right);
+
+                memberBindings.Add(memberBinding);
+                memberPopulations.RemoveAt(i);
             }
 
             return memberBindings;

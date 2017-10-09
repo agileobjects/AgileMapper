@@ -86,8 +86,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return localVariableAssignment;
         }
 
-        protected virtual Expression GetNewObjectCreation(IObjectMappingData mappingData, IList<Expression> memberPopulations)
-            => _constructionFactory.GetNewObjectCreation(mappingData);
+        protected virtual Expression GetNewObjectCreation(
+            IObjectMappingData mappingData,
+            IList<Expression> memberPopulations)
+        {
+            return _constructionFactory.GetNewObjectCreation(mappingData);
+        }
 
         #region Object Registration
 

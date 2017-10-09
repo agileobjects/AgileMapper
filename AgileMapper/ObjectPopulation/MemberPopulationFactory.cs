@@ -26,11 +26,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
         {
-            var memberPopulations = _targetMembersFactory
+            return _targetMembersFactory
                 .Invoke(mappingData.MapperData)
                 .Select(tm => Create(tm, mappingData));
-
-            return memberPopulations;
         }
 
         private static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
