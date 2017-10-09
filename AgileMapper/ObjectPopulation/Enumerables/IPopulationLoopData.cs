@@ -26,6 +26,7 @@
             Func<TLoopData, IObjectMappingData, Expression> elementPopulationFactory)
             where TLoopData : IPopulationLoopData
         {
+            // TODO: Not all enumerable mappings require the Counter
             var breakLoop = Expression.Break(Expression.Label(typeof(void), "Break"));
 
             var elementPopulation = elementPopulationFactory.Invoke(loopData, mappingData);
