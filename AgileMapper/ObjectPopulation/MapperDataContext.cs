@@ -47,7 +47,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             if (mapperData.TargetMember.IsComplex &&
-               (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated()))
+               (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated()) &&
+               !mapperData.TargetMemberIsUserStruct())
             {
                 return false;
             }

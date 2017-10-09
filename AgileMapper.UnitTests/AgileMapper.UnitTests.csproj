@@ -91,7 +91,8 @@
     <Compile Include="MapperCloning\WhenCloningMapperObjectFactories.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
-    <Compile Include="Structs\WhenMappingToNewStructEnumerableMembers.cs" />
+    <Compile Include="Structs\WhenMappingOverStructs.cs" />
+    <Compile Include="Structs\WhenMappingToUnmappableStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructs.cs" />
     <Compile Include="TestClasses\Earthworm.cs" />
