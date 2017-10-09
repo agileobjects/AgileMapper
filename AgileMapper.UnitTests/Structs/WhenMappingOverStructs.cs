@@ -37,5 +37,14 @@
             result.Value1.ShouldBeNull();
             result.Value2.ShouldBeDefault();
         }
+
+        [Fact]
+        public void ShouldHandleANullSourceObject()
+        {
+            var target = new PublicPropertyStruct<Guid>();
+            var result = Mapper.Map(default(PublicField<string>)).Over(target);
+
+            result.ShouldBe(target);
+        }
     }
 }
