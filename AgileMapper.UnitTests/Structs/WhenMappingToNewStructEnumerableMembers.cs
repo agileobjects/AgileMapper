@@ -9,6 +9,20 @@
     public class WhenMappingToUnmappableStructMembers
     {
         [Fact]
+        public void ShouldIgnoreAMemberComplexType()
+        {
+            var source = new PublicTwoFields<Guid, Address>
+            {
+                Value1 = Guid.NewGuid(),
+                Value2 = new Address { Line1 = "One", Line2 = "Two" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicTwoFieldsStruct<string, Address>>();
+
+            result.Value1.ShouldBe(source.Value1.ToString());
+            result.Value2.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldIgnoreAMemberArray()
         {
             var guid = Guid.NewGuid();
