@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IMemberPopulation memberPopulation,
             IObjectMappingData mappingData)
         {
-            yield return memberPopulation.GetBinding();
+            yield return memberPopulation.GetPopulation();
         }
 
         protected override Expression GetNewObjectCreation(IObjectMappingData mappingData, IList<Expression> memberPopulations)

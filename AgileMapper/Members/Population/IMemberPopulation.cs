@@ -8,8 +8,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         bool IsSuccessful { get; }
 
-        Expression GetBinding();
-
         Expression GetPopulation();
     }
 }
