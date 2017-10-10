@@ -91,6 +91,7 @@
     <Compile Include="MapperCloning\WhenCloningMapperObjectFactories.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
+    <Compile Include="Structs\Configuration\WhenConfiguringStructMappingCallbacks.cs" />
     <Compile Include="Structs\WhenMappingOnToStructMembers.cs" />
     <Compile Include="Structs\WhenMappingOnToStructs.cs" />
     <Compile Include="Structs\WhenMappingOverStructMembers.cs" />
