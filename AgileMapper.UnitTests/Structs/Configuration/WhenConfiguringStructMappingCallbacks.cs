@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using AgileMapper.Configuration;
+    using AgileMapper.Extensions;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -19,11 +20,37 @@
                 mapper.Before.MappingBegins
                     .Call((s, t) => mappedTypes.Add(t.GetType()));
 
-                mapper.Map(new { Value = "Bernie" }).Over(new PublicTwoFieldsStruct<int, int>());
+                mapper.Map(new { Value = "Bernie" }).OnTo(new PublicTwoFieldsStruct<int, int>());
                 mapper.Map(new PublicPropertyStruct<int>()).Over(new PublicPropertyStruct<int>());
 
                 mappedTypes.ShouldNotBeEmpty();
                 mappedTypes.ShouldBe(typeof(PublicTwoFieldsStruct<int, int>), typeof(PublicPropertyStruct<int>));
+            }
+        }
+
+        [Fact]
+        public void ShouldExecuteAGlobalPostMappingCallback()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var mappedTargets = new List<object>();
+
+                mapper.After.MappingEnds
+                    .Call((s, t) => mappedTargets.Add(t));
+
+                var source = new { Value = "Doobey Do" };
+
+                mapper.Map(source).Over(new PublicPropertyStruct<string>());
+                mapper.Map(source).Over(new PublicPropertyStruct<int>());
+
+                mappedTargets.ShouldNotBeEmpty();
+                mappedTargets.Count.ShouldBe(2);
+
+                mappedTargets.First().ShouldBeOfType<PublicPropertyStruct<string>>();
+                ((PublicPropertyStruct<string>)mappedTargets.First()).Value.ShouldBe("Doobey Do");
+
+                mappedTargets.Second().ShouldBeOfType<PublicPropertyStruct<int>>();
+                ((PublicPropertyStruct<int>)mappedTargets.Second()).Value.ShouldBeDefault();
             }
         }
 
