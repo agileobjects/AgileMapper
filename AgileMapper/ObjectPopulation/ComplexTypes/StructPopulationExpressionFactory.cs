@@ -28,9 +28,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return objectCreation;
             }
 
-            var objectNewings = NewExpressionFinder.FindIn(objectCreation);
             var memberBindings = GetMemberBindingsFrom(memberPopulations);
 
+            if (memberBindings.None())
+            {
+                return objectCreation;
+            }
+
+            var objectNewings = NewExpressionFinder.FindIn(objectCreation);
             var newingReplacements = new Dictionary<Expression, Expression>(objectNewings.Count);
 
             foreach (var objectNewing in objectNewings)

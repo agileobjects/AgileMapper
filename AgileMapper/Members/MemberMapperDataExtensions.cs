@@ -26,7 +26,10 @@ namespace AgileObjects.AgileMapper.Members
             => !TargetIsDefinitelyUnpopulated(mapperData);
 
         public static bool TargetIsDefinitelyPopulated(this IBasicMapperData mapperData)
-            => mapperData.IsRoot && mapperData.RuleSet.RootHasPopulatedTarget;
+        {
+            return mapperData.RuleSet.RootHasPopulatedTarget &&
+                  (mapperData.IsRoot || mapperData.TargetMemberIsUserStruct());
+        }
 
         public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)
             => mapperData.Context.IsForNewElement || (mapperData.IsRoot && !mapperData.RuleSet.RootHasPopulatedTarget);
