@@ -39,5 +39,14 @@
 
             result.Value.ShouldBe(6372.00m);
         }
+
+        [Fact]
+        public void ShouldHandleANullSourceObject()
+        {
+            var target = new PublicPropertyStruct<int> { Value = 123 };
+            var result = Mapper.Map(default(PublicField<int>)).OnTo(target);
+
+            result.ShouldBe(target);
+        }
     }
 }
