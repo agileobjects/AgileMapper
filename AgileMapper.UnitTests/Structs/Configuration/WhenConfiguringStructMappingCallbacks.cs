@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Structs.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
@@ -8,6 +9,24 @@
 
     public class WhenConfiguringStructMappingCallbacks
     {
+        [Fact]
+        public void ShouldExecuteAGlobalPreMappingCallback()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var mappedTypes = new List<Type>();
+
+                mapper.Before.MappingBegins
+                    .Call((s, t) => mappedTypes.Add(t.GetType()));
+
+                mapper.Map(new { Value = "Bernie" }).Over(new PublicTwoFieldsStruct<int, int>());
+                mapper.Map(new PublicPropertyStruct<int>()).Over(new PublicPropertyStruct<int>());
+
+                mappedTypes.ShouldNotBeEmpty();
+                mappedTypes.ShouldBe(typeof(PublicTwoFieldsStruct<int, int>), typeof(PublicPropertyStruct<int>));
+            }
+        }
+
         [Fact]
         public void ShouldErrorIfPreMemberMappingCallbackIsConfigured()
         {
