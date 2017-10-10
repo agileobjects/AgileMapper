@@ -104,14 +104,11 @@ namespace AgileObjects.AgileMapper.Members.Population
                 return _dataSources.GetValueExpression();
             }
 
-            if (MapperData.Context.IsPartOfUserStructMapping)
-            {
-                return GetBinding();
-            }
-
-            var population = MapperData.TargetMember.IsReadOnly
-                ? GetReadOnlyMemberPopulation()
-                : _dataSources.GetPopulationExpression(MapperData);
+            var population = MapperData.Context.IsPartOfUserStructMapping
+                ? GetBinding()
+                : MapperData.TargetMember.IsReadOnly
+                    ? GetReadOnlyMemberPopulation()
+                    : _dataSources.GetPopulationExpression(MapperData);
 
             if (_dataSources.Variables.Any())
             {
