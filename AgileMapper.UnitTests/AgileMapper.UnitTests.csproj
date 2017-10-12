@@ -98,6 +98,7 @@
     <Compile Include="Structs\WhenMappingOnToStructs.cs" />
     <Compile Include="Structs\WhenMappingOverStructMembers.cs" />
     <Compile Include="Structs\WhenMappingOverStructs.cs" />
+    <Compile Include="Structs\WhenMappingToStructEnumerables.cs" />
     <Compile Include="Structs\WhenMappingToUnmappableStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructs.cs" />

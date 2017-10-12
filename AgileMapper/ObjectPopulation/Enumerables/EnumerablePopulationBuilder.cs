@@ -123,6 +123,12 @@
                 return false;
             }
 
+            if ((Context.SourceElementType.IsValueType()) ||
+                (Context.TargetElementType.IsValueType()))
+            {
+                return false;
+            }
+
             var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
             var sourceElementId = GetIdentifierOrNull(Context.SourceElementType, _sourceElementParameter, MapperData, typeIdsCache);
 
