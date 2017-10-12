@@ -34,6 +34,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Shouldly, Version=2.8.3.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
       <HintPath>..\packages\Shouldly.2.8.3\lib\net451\Shouldly.dll</HintPath>
@@ -74,16 +80,13 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AgileMapper.snk" />
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AgileMapper.Net40\AgileMapper.Net40.csproj">
-      <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
-      <Name>AgileMapper.Net40</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
       <Project>{049e1ee5-48ce-441a-b166-3cf6bec17957}</Project>
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
@@ -91,6 +94,10 @@
     <ProjectReference Include="..\AgileMapper.UnitTests\AgileMapper.UnitTests.csproj">
       <Project>{a3f2d405-8c0b-4033-9ec5-1b64007593fb}</Project>
       <Name>AgileMapper.UnitTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
+      <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
+      <Name>AgileMapper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

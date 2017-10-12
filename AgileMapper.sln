@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05AB6D17-6066-41D5-8E79-31C342DFC2DC}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,10 +17,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.PerformanceTester", "AgileMapper.PerformanceTester\AgileMapper.PerformanceTester.csproj", "{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.NonParallel", "AgileMapper.UnitTests.NonParallel\AgileMapper.UnitTests.NonParallel.csproj", "{254D5970-FCEF-4386-8E5E-2028B765982B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.Net40", "AgileMapper.Net40\AgileMapper.Net40.csproj", "{4E101600-EBEF-4E1F-9EC3-D6070F7417DD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Polyfills", "AgileMapper.UnitTests.Polyfills\AgileMapper.UnitTests.Polyfills.csproj", "{59F266BB-9EFB-430A-9FFE-4C5F88D330F0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper", "AgileMapper\AgileMapper.csproj", "{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}"
 EndProject
@@ -44,14 +40,6 @@ Global
 		{254D5970-FCEF-4386-8E5E-2028B765982B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{254D5970-FCEF-4386-8E5E-2028B765982B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{254D5970-FCEF-4386-8E5E-2028B765982B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4E101600-EBEF-4E1F-9EC3-D6070F7417DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E101600-EBEF-4E1F-9EC3-D6070F7417DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4E101600-EBEF-4E1F-9EC3-D6070F7417DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4E101600-EBEF-4E1F-9EC3-D6070F7417DD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{59F266BB-9EFB-430A-9FFE-4C5F88D330F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{59F266BB-9EFB-430A-9FFE-4C5F88D330F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{59F266BB-9EFB-430A-9FFE-4C5F88D330F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{59F266BB-9EFB-430A-9FFE-4C5F88D330F0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -63,5 +51,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C39E9BDB-0077-445C-8F09-801CAE1AF8AB}
 	EndGlobalSection
 EndGlobal

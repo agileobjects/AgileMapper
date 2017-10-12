@@ -36,6 +36,12 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="AgileObjects.NetStandardPolyfills, Version=0.2.1.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
       <HintPath>..\packages\AgileObjects.NetStandardPolyfills.0.2.1\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
@@ -212,6 +218,7 @@
     <Compile Include="Members\WhenMatchingSourceToTargetMembers.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AgileMapper.snk" />
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -221,13 +228,13 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AgileMapper.Net40\AgileMapper.Net40.csproj">
-      <Project>{4e101600-ebef-4e1f-9ec3-d6070f7417dd}</Project>
-      <Name>AgileMapper.Net40</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
       <Project>{049e1ee5-48ce-441a-b166-3cf6bec17957}</Project>
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
+      <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
+      <Name>AgileMapper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
