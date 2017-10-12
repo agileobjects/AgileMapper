@@ -3,9 +3,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
@@ -81,6 +81,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private static bool SourceObjectCouldBeNull(IMemberMapperData mapperData)
         {
             if (mapperData.Context.IsForDerivedType)
+            {
+                return false;
+            }
+
+            if (mapperData.SourceType.IsValueType())
             {
                 return false;
             }
