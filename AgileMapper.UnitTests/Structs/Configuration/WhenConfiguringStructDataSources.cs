@@ -70,5 +70,45 @@
                 result.Third().Value.ShouldBe(33 * 2);
             }
         }
+
+        [Fact]
+        public void ShouldApplyAConfiguredConstant()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicPropertyStruct<string>>()
+                    .To<PublicPropertyStruct<string>>()
+                    .Map("-- CONFIGURED --")
+                    .To(pps => pps.Value);
+
+                var source = new PublicPropertyStruct<string> { Value = "Mapped!" };
+                var result = mapper.Map(source).ToANew<PublicPropertyStruct<string>>();
+
+                result.Value.ShouldBe("-- CONFIGURED --");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomer>()
+                    .To<PublicTwoFieldsStruct<Guid, string>>()
+                    .Map(ctx => ctx.Source.Id)
+                    .To(pfs => pfs.Value1)
+                    .And
+                    .Map(ctx => ctx.Source.Name)
+                    .To(pfs => pfs.Value2);
+
+                var source = new MysteryCustomer { Id = Guid.NewGuid(), Name = "Gyles" };
+                var result = mapper.Map(source).ToANew<PublicTwoFieldsStruct<Guid, string>>();
+
+                result.Value1.ShouldBe(source.Id);
+                result.Value2.ShouldBe("Gyles");
+            }
+        }
     }
 }
