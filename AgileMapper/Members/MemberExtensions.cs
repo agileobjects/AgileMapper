@@ -2,11 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal static class MemberExtensions
@@ -47,6 +49,69 @@
 
             return path;
         }
+
+        public static bool IsUnmappable(this QualifiedMember member, out string reason)
+        {
+            if (IsStructNonSimpleMember(member))
+            {
+                reason = member.Type.GetFriendlyName() + " member on a struct";
+                return true;
+            }
+
+            if (member.LeafMember.MemberType == MemberType.SetMethod)
+            {
+                reason = null;
+                return false;
+            }
+
+            if (!member.IsReadable)
+            {
+                reason = "write-only member";
+                return true;
+            }
+
+            if (!member.IsReadOnly)
+            {
+                reason = null;
+                return false;
+            }
+
+            if (member.Type.IsArray)
+            {
+                reason = "readonly array";
+                return true;
+            }
+
+            if (member.IsSimple || member.Type.IsValueType())
+            {
+                reason = "readonly " + ((member.IsComplex) ? "struct" : member.Type.GetFriendlyName());
+                return true;
+            }
+
+            if (member.IsEnumerable &&
+                member.Type.IsGenericType() &&
+               (member.Type.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)))
+            {
+                reason = "readonly ReadOnlyCollection";
+                return true;
+            }
+
+            reason = null;
+            return false;
+        }
+
+        private static bool IsStructNonSimpleMember(QualifiedMember member)
+        {
+            if (member.IsSimple || member.Type.IsValueType())
+            {
+                return false;
+            }
+
+            return member.MemberChain[member.MemberChain.Length - 2].Type.IsValueType();
+        }
+
+        public static Expression GetAccess(this QualifiedMember member, IMemberMapperData mapperData)
+            => member.GetAccess(mapperData.TargetInstance, mapperData);
 
         public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, IMemberMapperData mapperData)
         {

@@ -55,6 +55,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type { get; }
 
+        public Type ElementType => _childMembers.First().ElementType;
+
         public bool IsEnumerable { get; }
 
         public string Name => _matchedTargetMember.Name;

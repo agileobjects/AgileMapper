@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Reflection;
     using Caching;
@@ -51,8 +50,8 @@
         {
             return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
-                var fields = GetFields(key.Type, OnlyTargets);
-                var properties = GetProperties(key.Type, OnlyTargets);
+                var fields = GetFields(key.Type, All);
+                var properties = GetProperties(key.Type, All);
                 var methods = GetMethods(key.Type, OnlyCallableSetters, Member.SetMethod);
 
                 var constructorParameterNames = key.Type
@@ -82,9 +81,6 @@
 
         private static bool All(FieldInfo field) => true;
 
-        private static bool OnlyTargets(FieldInfo field)
-            => !field.IsInitOnly || IsUseableReadOnlyTarget(field.FieldType);
-
         #endregion
 
         #region Properties
@@ -97,36 +93,9 @@
                 .Select(Member.Property);
         }
 
+        private static bool All(PropertyInfo property) => true;
+
         private static bool OnlyGettable(PropertyInfo property) => property.IsReadable();
-
-        private static bool OnlyTargets(PropertyInfo property)
-        {
-            if (!property.IsReadable())
-            {
-                // TODO: Test coverage: set-only properties
-                // Ignore set-only properties:
-                return false;
-            }
-
-            return property.IsWriteable() || IsUseableReadOnlyTarget(property.PropertyType);
-        }
-
-        private static bool IsUseableReadOnlyTarget(Type memberType)
-        {
-            // Include readonly object type properties (except arrays):
-            if (memberType.IsArray || memberType.IsSimple())
-            {
-                return false;
-            }
-
-            if (memberType.IsGenericType() &&
-               (memberType.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)))
-            {
-                return false;
-            }
-
-            return true;
-        }
 
         #endregion
 

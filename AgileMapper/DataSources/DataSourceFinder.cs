@@ -136,6 +136,11 @@
 
             yield return matchingSourceMemberDataSource;
 
+            if (mappingData.MapperData.TargetMember.IsReadOnly)
+            {
+                yield break;
+            }
+
             if (matchingSourceMemberDataSource.IsConditional)
             {
                 yield return GetFallbackDataSourceFor(mappingData);

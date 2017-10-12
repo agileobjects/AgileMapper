@@ -28,9 +28,9 @@
 
             var result = Mapper.Map(source).OnTo(target);
 
-            result.Address.Line1.ShouldNotBeNull(source.Address.Line1);
-            result.Address.Line1.ShouldBe(target.Address.Line1);
-            result.Address.Line2.ShouldBe(source.Address.Line2);
+            result.Address.Line1.ShouldNotBe("Over here!");
+            result.Address.Line1.ShouldBe("Over there!");
+            result.Address.Line2.ShouldBe("Yes, here!");
         }
 
         [Fact]

@@ -192,7 +192,7 @@ namespace AgileObjects.AgileMapper.Members
                 dictionaryMapperData = dictionaryMapperData.Parent;
             }
 
-            return dictionaryMapperData.InstanceVariable;
+            return dictionaryMapperData.TargetInstance;
         }
 
         public override bool CheckExistingElementValue => !HasObjectEntries && !HasSimpleEntries;
@@ -252,7 +252,7 @@ namespace AgileObjects.AgileMapper.Members
                 return flattening;
             }
 
-            var keyedAccess = GetAccess(mapperData.InstanceVariable, mapperData);
+            var keyedAccess = this.GetAccess(mapperData);
 
             var convertedValue = HasComplexEntries
                 ? GetCheckedValue((BlockExpression)value, keyedAccess, mapperData)
@@ -320,6 +320,11 @@ namespace AgileObjects.AgileMapper.Members
 
         private Expression GetCheckedValue(BlockExpression value, Expression keyedAccess, IMemberMapperData mapperData)
         {
+            if (mapperData.SourceMember.IsEnumerable)
+            {
+                return value;
+            }
+
             var checkedAccess = GetAccessChecked(mapperData);
             var existingValue = checkedAccess.Variables.First();
             var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValue };

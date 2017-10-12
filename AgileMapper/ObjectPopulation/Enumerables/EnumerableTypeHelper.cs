@@ -5,6 +5,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.ObjectModel;
     using System.Linq.Expressions;
     using Extensions;
+    using NetStandardPolyfills;
+
 #if NET_STANDARD
     using System.Reflection;
 #endif
@@ -66,6 +68,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             => typeField ?? (typeField = openGenericEnumerableType.MakeGenericType(ElementType));
 
         public Type WrapperType => typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(ElementType);
+
+        public Expression GetEmptyInstanceCreation()
+        {
+            if (IsReadOnly || EnumerableType.IsInterface())
+            {
+                return Expression.New(ListType);
+            }
+
+            return EnumerableType.GetEmptyInstanceCreation(ElementType);
+        }
 
         public Expression GetWrapperConstruction(Expression existingItems, Expression newItemsCount)
         {

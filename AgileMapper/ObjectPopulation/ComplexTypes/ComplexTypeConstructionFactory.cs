@@ -45,11 +45,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     return null;
                 }
 
-                var compositeConstruction = new Construction(constructions, key);
+                var construction = Construction.For(constructions, key);
 
+                key.AddSourceMemberTypeTesterIfRequired();
                 key.MappingData = null;
 
-                return compositeConstruction;
+                return construction;
             });
 
             if (objectCreation == null)
@@ -96,16 +97,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var mapperData = key.MappingData.MapperData;
 
-            var greediestAvailableConstructor = mapperData.InstanceVariable.Type
+            var constructors = mapperData.TargetInstance.Type
                 .GetPublicInstanceConstructors()
-                .Where(IsNotCopyConstructor)
-                .Select(ctor => CreateConstructorData(ctor, key))
-                .Where(ctor => ctor.CanBeConstructed)
-                .OrderByDescending(ctor => ctor.NumberOfParameters)
-                .FirstOrDefault();
+                .ToArray();
+
+            var greediestAvailableConstructor = constructors.Any()
+                ? constructors
+                    .Where(IsNotCopyConstructor)
+                    .Select(ctor => CreateConstructorData(ctor, key))
+                    .Where(ctor => ctor.CanBeConstructed)
+                    .OrderByDescending(ctor => ctor.NumberOfParameters)
+                    .FirstOrDefault()
+                : null;
 
             if (greediestAvailableConstructor == null)
             {
+                if (constructors.None() && mapperData.TargetMemberIsUserStruct())
+                {
+                    constructions.Add(Construction.NewStruct(mapperData.TargetInstance.Type));
+                }
+
                 return;
             }
 
@@ -159,7 +170,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Helper Classes
 
-        private class ConstructionKey
+        private class ConstructionKey : SourceMemberTypeDependentKeyBase
         {
             private readonly MappingRuleSet _ruleSet;
             private readonly IQualifiedMember _sourceMember;
@@ -173,8 +184,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 _targetMember = mappingData.MapperData.TargetMember;
             }
 
-            public IObjectMappingData MappingData { get; set; }
-
             public override bool Equals(object obj)
             {
                 var otherKey = (ConstructionKey)obj;
@@ -182,12 +191,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 // ReSharper disable once PossibleNullReferenceException
                 return (otherKey._ruleSet == _ruleSet) &&
                     (otherKey._sourceMember == _sourceMember) &&
-                    (otherKey._targetMember == _targetMember);
+                    (otherKey._targetMember == _targetMember) &&
+                     SourceHasRequiredTypes(otherKey);
             }
 
             #region ExcludeFromCodeCoverage
 #if !NET_STANDARD
-        [ExcludeFromCodeCoverage]
+            [ExcludeFromCodeCoverage]
 #endif
             #endregion
             public override int GetHashCode() => 0;
@@ -237,13 +247,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private class Construction : IConditionallyChainable
         {
             private readonly Expression _construction;
-            private readonly ParameterExpression _mappingDataObject;
+            private ParameterExpression _mappingDataObject;
 
-            public Construction(IList<Construction> constructions, ConstructionKey key)
+            private Construction(IList<Construction> constructions)
                 : this(constructions.ReverseChain())
             {
                 UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);
-                _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
             }
 
             public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
@@ -257,6 +266,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 _construction = construction;
                 Condition = condition;
             }
+
+            #region Factory Methods
+
+            public static Construction NewStruct(Type type)
+            {
+                var parameterlessNew = Expression.New(type);
+
+                return new Construction(parameterlessNew);
+            }
+
+            public static Construction For(IList<Construction> constructions, ConstructionKey key)
+            {
+                var construction = constructions.HasOne()
+                    ? constructions.First()
+                    : new Construction(constructions);
+
+                return construction.With(key);
+            }
+
+            private Construction With(ConstructionKey key)
+            {
+                _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
+                return this;
+            }
+
+            #endregion
 
             public Expression PreCondition => null;
 

@@ -26,13 +26,19 @@
         {
             var targetMember = lambda.Body.ToTargetMember(MapperContext.Default);
 
-            if (targetMember != null)
+            if (targetMember == null)
             {
-                return targetMember;
+                throw new MappingConfigurationException(
+                    $"Target member {lambda.Body.ToReadableString()} is not writeable");
             }
 
-            throw new MappingConfigurationException(
-                $"Target member {lambda.Body.ToReadableString()} is not writeable.");
+            if (targetMember.IsUnmappable(out var reason))
+            {
+                throw new MappingConfigurationException(
+                    $"Target member {lambda.Body.ToReadableString()} is not mappable ({reason})");
+            }
+
+            return targetMember;
         }
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)

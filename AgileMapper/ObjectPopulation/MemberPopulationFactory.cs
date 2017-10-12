@@ -26,16 +26,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
         {
-            var memberPopulations = _targetMembersFactory
+            return _targetMembersFactory
                 .Invoke(mappingData.MapperData)
                 .Select(tm => Create(tm, mappingData));
-
-            return memberPopulations;
         }
 
         private static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
+
+            if (targetMember.IsUnmappable(out var reason))
+            {
+                return MemberPopulation.Unmappable(childMapperData, reason);
+            }
 
             if (TargetMemberIsUnconditionallyIgnored(
                     childMapperData,

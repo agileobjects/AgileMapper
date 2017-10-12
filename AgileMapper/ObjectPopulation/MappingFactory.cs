@@ -167,11 +167,6 @@
         {
             var mapper = mappingData.Mapper;
 
-            if (mapper.MappingExpression.NodeType != ExpressionType.Try)
-            {
-                return mapper.MappingExpression;
-            }
-
             if (mapper.MapperData.Context.UsesMappingDataObject)
             {
                 return UseLocalSourceValueVariable(

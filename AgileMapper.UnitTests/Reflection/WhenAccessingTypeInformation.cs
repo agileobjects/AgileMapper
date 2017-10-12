@@ -41,9 +41,21 @@
         #region IsComplex
 
         [Fact]
-        public void ShouldEvaluateAComplexTypeAsComplex()
+        public void ShouldEvaluateAClassAsComplex()
         {
             typeof(Person).IsComplex().ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldEvaluateAStructAsComplex()
+        {
+            typeof(PublicCtorStruct<>).IsComplex().ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldEvaluateAnInterfaceAsComplex()
+        {
+            typeof(IPublicInterface<>).IsComplex().ShouldBeTrue();
         }
 
         [Fact]

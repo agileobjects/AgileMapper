@@ -1,24 +1,29 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
     using Extensions;
     using Members;
-    using Members.Population;
+    using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
         private readonly ComplexTypeConstructionFactory _constructionFactory;
+        private readonly PopulationExpressionFactoryBase _structPopulationFactory;
+        private readonly PopulationExpressionFactoryBase _classPopulationFactory;
         private readonly IEnumerable<ISourceShortCircuitFactory> _shortCircuitFactories;
 
         public ComplexTypeMappingExpressionFactory(MapperContext mapperContext)
         {
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
+            _structPopulationFactory = new StructPopulationExpressionFactory(_constructionFactory);
+            _classPopulationFactory = new ClassPopulationExpressionFactory(_constructionFactory);
 
             _shortCircuitFactories = new[]
             {
@@ -65,7 +70,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(mapperData);
-
             if (alreadyMappedShortCircuit != null)
             {
                 yield return alreadyMappedShortCircuit;
@@ -80,6 +84,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private static bool SourceObjectCouldBeNull(IMemberMapperData mapperData)
         {
             if (mapperData.Context.IsForDerivedType)
+            {
+                return false;
+            }
+
+            if (mapperData.SourceType.IsValueType())
             {
                 return false;
             }
@@ -105,11 +114,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 mapperData.EntryPointMapperData.MappingDataObject,
                 tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
                 mapperData.SourceObject,
-                mapperData.InstanceVariable);
+                mapperData.TargetInstance);
 
             var ifTryGetReturn = Expression.IfThen(
                 tryGetCall,
-                Expression.Return(mapperData.ReturnLabelTarget, mapperData.InstanceVariable));
+                Expression.Return(mapperData.ReturnLabelTarget, mapperData.TargetInstance));
 
             return ifTryGetReturn;
         }
@@ -127,132 +136,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            var mapperData = mappingData.MapperData;
-            var preCreationCallback = GetCreationCallbackOrNull(CallbackPosition.Before, mapperData);
-            var postCreationCallback = GetCreationCallbackOrNull(CallbackPosition.After, mapperData);
-            var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToArray();
+            var expressionFactory = mappingData.MapperData.TargetMemberIsUserStruct()
+                ? _structPopulationFactory
+                : _classPopulationFactory;
 
-            if (preCreationCallback != null)
-            {
-                yield return preCreationCallback;
-            }
-
-            var assignCreatedObject = postCreationCallback != null;
-            var hasMemberPopulations = MemberPopulationsExist(populationsAndCallbacks);
-
-            var instanceVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
-                md => _constructionFactory.GetNewObjectCreation(md),
-                mappingData,
-                assignCreatedObject,
-                hasMemberPopulations: hasMemberPopulations);
-
-            var instanceVariableAssignment = mapperData.InstanceVariable.AssignTo(instanceVariableValue);
-            yield return instanceVariableAssignment;
-
-            if (postCreationCallback != null)
-            {
-                yield return postCreationCallback;
-            }
-
-            var registrationCall = GetObjectRegistrationCallOrNull(mapperData);
-            if (registrationCall != null)
-            {
-                yield return registrationCall;
-            }
-
-            foreach (var population in populationsAndCallbacks)
-            {
-                yield return population;
-            }
+            return expressionFactory.GetPopulation(mappingData);
         }
 
-        private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)
-            => mapperData.MapperContext.UserConfigurations.GetCreationCallbackOrNull(callbackPosition, mapperData);
-
-        #region Object Registration
-
-        private static readonly MethodInfo _registerMethod = typeof(IObjectMappingDataUntyped).GetMethod("Register");
-
-        private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
-        {
-            if (!mapperData.MappedObjectCachingNeeded || mapperData.TargetTypeWillNotBeMappedAgain)
-            {
-                return null;
-            }
-
-            return Expression.Call(
-                mapperData.EntryPointMapperData.MappingDataObject,
-                _registerMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
-                mapperData.SourceObject,
-                mapperData.InstanceVariable);
-        }
-
-        #endregion
-
-        private static IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)
-        {
-            var sourceMemberTypeTests = new List<Expression>();
-
-            foreach (var memberPopulation in MemberPopulationFactory.Default.Create(mappingData))
-            {
-                if (!memberPopulation.IsSuccessful)
-                {
-                    yield return memberPopulation.GetPopulation();
-                    continue;
-                }
-
-                var prePopulationCallback = GetPopulationCallbackOrNull(CallbackPosition.Before, memberPopulation, mappingData);
-
-                if (prePopulationCallback != null)
-                {
-                    yield return prePopulationCallback;
-                }
-
-                yield return memberPopulation.GetPopulation();
-
-                var postPopulationCallback = GetPopulationCallbackOrNull(CallbackPosition.After, memberPopulation, mappingData);
-
-                if (postPopulationCallback != null)
-                {
-                    yield return postPopulationCallback;
-                }
-
-                if (memberPopulation.SourceMemberTypeTest != null)
-                {
-                    sourceMemberTypeTests.Add(memberPopulation.SourceMemberTypeTest);
-                }
-            }
-
-            CreateSourceMemberTypeTesterIfRequired(sourceMemberTypeTests, mappingData);
-        }
-
-        private static Expression GetPopulationCallbackOrNull(
-            CallbackPosition position,
-            IMemberPopulation memberPopulation,
-            IObjectMappingData mappingData)
-        {
-            return GetMappingCallbackOrNull(position, memberPopulation.MapperData, mappingData.MapperData);
-        }
-
-        private static void CreateSourceMemberTypeTesterIfRequired(
-            IList<Expression> typeTests,
-            IObjectMappingData mappingData)
-        {
-            if (typeTests.None())
-            {
-                return;
-            }
-
-            var typeTest = typeTests.AndTogether();
-            var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, Parameters.MappingData);
-
-            mappingData.MapperKey.AddSourceMemberTypeTester(typeTestLambda.Compile());
-        }
-
-        private static bool MemberPopulationsExist(IEnumerable<Expression> populationsAndCallbacks)
-            => populationsAndCallbacks.Any(population => population.NodeType != ExpressionType.Constant);
-
-        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.InstanceVariable;
+        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
 
         public override void Reset() => _constructionFactory.Reset();
     }

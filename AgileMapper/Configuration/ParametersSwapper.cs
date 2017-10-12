@@ -151,7 +151,7 @@ namespace AgileObjects.AgileMapper.Configuration
             params Func<MappingContextInfo, Expression>[] parameterFactories)
         {
             var contextInfo = GetAppropriateMappingContext(
-                new[] { swapArgs.Lambda.Parameters[0].Type, swapArgs.Lambda.Parameters[1].Type },
+                swapArgs.Lambda.Parameters.Select(p => p.Type).ToArray(),
                 swapArgs);
 
             return swapArgs.Lambda.ReplaceParametersWith(parameterFactories.Select(f => f.Invoke(contextInfo)).ToArray());
@@ -197,20 +197,30 @@ namespace AgileObjects.AgileMapper.Configuration
         public static Expression UseTargetMember(IMemberMapperData mapperData, Expression contextAccess, Type targetType)
             => mapperData.GetTargetAccess(contextAccess, targetType);
 
-        public static Expression UseInstanceVariable(IMemberMapperData mapperData, Expression contextAccess, Type targetType)
+        public static Expression UseTargetInstance(IMemberMapperData mapperData, Expression contextAccess, Type targetType)
         {
             if (!contextAccess.Type.IsGenericType())
             {
                 return UseTargetMember(mapperData, contextAccess, targetType);
             }
 
-            var instanceVariableAccess = mapperData
+            var targetInstanceAccess = mapperData
                 .GetAppropriateMappingContext(contextAccess.Type.GetGenericArguments())
-                .InstanceVariable;
+                .TargetInstance;
 
-            return targetType.IsAssignableFrom(instanceVariableAccess.Type)
-                ? instanceVariableAccess
-                : instanceVariableAccess.GetConversionTo(targetType);
+            return ConvertTargetType(targetType, targetInstanceAccess)
+                ? targetInstanceAccess.GetConversionTo(targetType)
+                : targetInstanceAccess;
+        }
+
+        private static bool ConvertTargetType(Type targetType, Expression targetInstanceAccess)
+        {
+            if (targetType.IsAssignableFrom(targetInstanceAccess.Type))
+            {
+                return targetInstanceAccess.Type.IsValueType();
+            }
+
+            return true;
         }
 
         public Expression Swap(
@@ -234,13 +244,38 @@ namespace AgileObjects.AgileMapper.Configuration
 
             public MappingContextInfo(SwapArgs swapArgs, Expression contextAccess, Type[] contextTypes)
             {
+                var contextSourceType = contextTypes[0];
+                var contextTargetType = contextTypes[1];
+                var sourceAccess = swapArgs.MapperData.GetSourceAccess(contextAccess, contextSourceType);
+                var targetAccess = swapArgs.TargetValueFactory.Invoke(swapArgs.MapperData, contextAccess, contextTargetType);
+
                 ContextTypes = contextTypes;
-                CreatedObject = swapArgs.MapperData.CreatedObject;
-                SourceAccess = swapArgs.MapperData.GetSourceAccess(contextAccess, contextTypes[0]);
-                TargetAccess = swapArgs.TargetValueFactory.Invoke(swapArgs.MapperData, contextAccess, contextTypes[1]);
+                CreatedObject = GetCreatedObject(swapArgs, contextTypes);
+                SourceAccess = GetValueAccess(sourceAccess, contextSourceType);
+                TargetAccess = GetValueAccess(targetAccess, contextTargetType);
                 Index = swapArgs.MapperData.EnumerableIndex;
                 Parent = swapArgs.MapperData.ParentObject;
                 MappingDataAccess = swapArgs.MapperData.GetTypedContextAccess(contextAccess, contextTypes);
+            }
+
+            private static Expression GetCreatedObject(SwapArgs swapArgs, ICollection<Type> contextTypes)
+            {
+                var neededCreatedObjectType = contextTypes.Last();
+                var createdObject = swapArgs.MapperData.CreatedObject;
+
+                if ((contextTypes.Count == 3) && (neededCreatedObjectType == typeof(int?)))
+                {
+                    return createdObject;
+                }
+
+                return GetValueAccess(createdObject, neededCreatedObjectType);
+            }
+
+            private static Expression GetValueAccess(Expression valueAccess, Type neededAccessType)
+            {
+                return (neededAccessType != valueAccess.Type) && valueAccess.Type.IsValueType()
+                    ? valueAccess.GetConversionTo(neededAccessType)
+                    : valueAccess;
             }
 
             public Type[] ContextTypes { get; }

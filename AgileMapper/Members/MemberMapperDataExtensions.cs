@@ -25,8 +25,11 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetCouldBePopulated(this IMemberMapperData mapperData)
             => !TargetIsDefinitelyUnpopulated(mapperData);
 
-        public static bool TargetIsDefinitelyPopulated(this IMemberMapperData mapperData)
-            => mapperData.IsRoot && mapperData.RuleSet.RootHasPopulatedTarget;
+        public static bool TargetIsDefinitelyPopulated(this IBasicMapperData mapperData)
+        {
+            return mapperData.RuleSet.RootHasPopulatedTarget &&
+                  (mapperData.IsRoot || mapperData.TargetMemberIsUserStruct());
+        }
 
         public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)
             => mapperData.Context.IsForNewElement || (mapperData.IsRoot && !mapperData.RuleSet.RootHasPopulatedTarget);
@@ -48,11 +51,11 @@ namespace AgileObjects.AgileMapper.Members
                 return mapperData.TargetObject;
             }
 
-            var subjectMapperData = mapperData.TargetMember.LeafMember.DeclaringType == mapperData.InstanceVariable.Type
+            var subjectMapperData = mapperData.TargetMember.LeafMember.DeclaringType == mapperData.TargetInstance.Type
                 ? mapperData
                 : mapperData.Parent;
 
-            return mapperData.TargetMember.GetAccess(subjectMapperData.InstanceVariable, mapperData);
+            return mapperData.TargetMember.GetAccess(subjectMapperData.TargetInstance, mapperData);
         }
 
         public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
@@ -101,6 +104,14 @@ namespace AgileObjects.AgileMapper.Members
         [DebuggerStepThrough]
         public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
             => mapperData.TargetMember.LeafMember.IsEnumerableElement();
+
+        [DebuggerStepThrough]
+        public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)
+            => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping;
+
+        [DebuggerStepThrough]
+        public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)
+            => mapperData.TargetMember.IsComplex && mapperData.TargetMember.Type.IsValueType();
 
         public static bool TargetMemberEverRecurses(this IMemberMapperData mapperData)
         {
@@ -179,7 +190,7 @@ namespace AgileObjects.AgileMapper.Members
 
             Expression emptyEnumerable;
 
-            if (targetMember.IsReadable)
+            if (mapperData.TargetMemberHasInitAccessibleValue())
             {
                 var existingValue = mapperData.GetTargetMemberAccess();
 
@@ -205,6 +216,18 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
             => mapperData.MapperContext.ValueConverters.GetConversion(value, targetType);
+
+        public static Expression GetMappingCallbackOrNull(
+            this IBasicMapperData basicData,
+            CallbackPosition callbackPosition,
+            IMemberMapperData mapperData)
+        {
+            return mapperData
+                .MapperContext
+                .UserConfigurations
+                .GetCallbackOrNull(callbackPosition, basicData, mapperData);
+        }
+
 
         public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
             => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
@@ -298,7 +321,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (contextAccess == mapperData.MappingDataObject)
             {
-                return mapperData.MappingDataObject;
+                return GetFinalContextAccess(contextAccess, contextTypes);
             }
 
             if (contextAccess.Type.IsGenericType())
@@ -308,8 +331,31 @@ namespace AgileObjects.AgileMapper.Members
                 if (contextTypes[0].IsAssignableFrom(contextAccessTypes[0]) &&
                     contextTypes[1].IsAssignableFrom(contextAccessTypes[1]))
                 {
-                    return contextAccess;
+                    return GetFinalContextAccess(contextAccess, contextTypes, contextAccessTypes);
                 }
+            }
+
+            return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
+        }
+
+        private static Expression GetFinalContextAccess(
+            Expression contextAccess,
+            Type[] contextTypes,
+            Type[] contextAccessTypes = null)
+        {
+            if ((contextAccessTypes == null) && !contextAccess.Type.IsGenericType())
+            {
+                return contextAccess;
+            }
+
+            if (contextAccessTypes == null)
+            {
+                contextAccessTypes = contextAccess.Type.GetGenericArguments();
+            }
+
+            if (contextAccessTypes.None(t => t.IsValueType()))
+            {
+                return contextAccess;
             }
 
             return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
@@ -323,23 +369,59 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 
-        private static readonly MethodInfo _mappingDataAsMethod = typeof(IMappingData).GetMethod("As");
-        private static readonly MethodInfo _objectMappingDataAsMethod = typeof(IObjectMappingDataUntyped).GetMethod("As");
-
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
         {
-            var method = (subject.Type == typeof(IMappingData))
-                ? _mappingDataAsMethod
-                : _objectMappingDataAsMethod;
+            if (subject.Type.IsGenericType() &&
+                subject.Type.GetGenericArguments().SequenceEqual(contextTypes))
+            {
+                return subject;
+            }
 
-            return Expression.Call(subject, method.MakeGenericMethod(contextTypes));
+            if (subject.Type == typeof(IMappingData))
+            {
+                return GetAsCall(subject, typeof(IMappingData).GetMethod("As"), contextTypes);
+            }
+
+            var sourceIsStruct = contextTypes[0].IsValueType();
+
+            if (sourceIsStruct)
+            {
+                return GetAsCall(subject, subject.Type.GetMethod("WithTargetType"), contextTypes[1]);
+            }
+
+            var targetIsStruct = contextTypes[1].IsValueType();
+
+            if (targetIsStruct)
+            {
+                return GetAsCall(subject, subject.Type.GetMethod("WithSourceType"), contextTypes[0]);
+            }
+
+            return GetAsCall(subject, typeof(IObjectMappingDataUntyped).GetMethod("As"), contextTypes);
         }
 
-        public static Expression GetSourceAccess(this IMemberMapperData mapperData, Expression contextAccess, Type sourceType)
-            => GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
+        private static Expression GetAsCall(
+            Expression subject,
+            MethodInfo asMethod,
+            params Type[] typeArguments)
+        {
+            return Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments));
+        }
 
-        public static Expression GetTargetAccess(this IMemberMapperData mapperData, Expression contextAccess, Type targetType)
-            => GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
+        public static Expression GetSourceAccess(
+            this IMemberMapperData mapperData,
+            Expression contextAccess,
+            Type sourceType)
+        {
+            return GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
+        }
+
+        public static Expression GetTargetAccess(
+            this IMemberMapperData mapperData,
+            Expression contextAccess,
+            Type targetType)
+        {
+            return GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
+        }
 
         private static Expression GetAccess(
             IMemberMapperData mapperData,

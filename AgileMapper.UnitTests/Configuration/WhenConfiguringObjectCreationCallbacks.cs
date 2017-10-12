@@ -18,59 +18,62 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                var createdInstance = default(PublicProperty<int>);
+                var createdInstance = default(object);
 
                 mapper.After
                     .CreatingInstances
-                    .Call(ctx => createdInstance = (PublicProperty<int>)ctx.CreatedObject);
+                    .Call(ctx => createdInstance = ctx.CreatedObject);
 
                 var source = new PublicField<int>();
                 var result = mapper.Map(source).ToANew<PublicProperty<int>>();
 
                 createdInstance.ShouldNotBeNull();
-                createdInstance.ShouldBe(result);
+                createdInstance.ShouldBeOfType<PublicProperty<int>>();
+                createdInstance.ShouldBeSameAs(result);
             }
         }
 
         [Fact]
         public void ShouldWrapAnObjectCreatedCallbackException()
         {
-            Should.Throw<MappingException>(() =>
+            var createdEx = Should.Throw<MappingException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.After
                         .CreatingInstances
-                        .Call(ctx => { throw new InvalidOperationException(); });
+                        .Call(ctx => throw new InvalidOperationException());
 
                     mapper.Map(new PublicProperty<int>()).ToANew<PublicField<int>>();
                 }
             });
+
+            createdEx.ShouldNotBeNull();
+            createdEx.Message.ShouldContain("mapping PublicProperty<int> -> PublicField<int>");
         }
 
         [Fact]
         public void ShouldWrapANestedObjectCreatingCallbackException()
         {
-            var exception = Should.Throw<MappingException>(() =>
+            var createdEx = Should.Throw<MappingException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper
-                        .After
+                    mapper.After
                         .CreatingInstancesOf<Address>()
-                        .Call(ctx => { throw new InvalidOperationException("OH NO"); });
+                        .Call(ctx => throw new InvalidOperationException("OH NO"));
 
                     mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToANew<Person>();
                 }
             });
 
-            exception.InnerException.ShouldNotBeNull();
-            exception.InnerException.ShouldBeOfType<MappingException>();
+            createdEx.InnerException.ShouldNotBeNull();
+            createdEx.InnerException.ShouldBeOfType<MappingException>();
             // ReSharper disable once PossibleNullReferenceException
-            exception.InnerException.InnerException.ShouldNotBeNull();
-            exception.InnerException.InnerException.ShouldBeOfType<InvalidOperationException>();
+            createdEx.InnerException.InnerException.ShouldNotBeNull();
+            createdEx.InnerException.InnerException.ShouldBeOfType<InvalidOperationException>();
             // ReSharper disable once PossibleNullReferenceException
-            exception.InnerException.InnerException.Message.ShouldBe("OH NO");
+            createdEx.InnerException.InnerException.Message.ShouldBe("OH NO");
         }
 
         [Fact]

@@ -167,6 +167,7 @@
             result.Currency.ShouldBeNull();
             result.CurrencyId.ShouldBe(1);
         }
+
         [Fact]
         public void ShouldUseBestMatchingSourceMemberWhenNotCloning()
         {
@@ -285,13 +286,16 @@
 
         private class Country
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public Currency Currency { get; set; }
 
             public int CurrencyId { get; set; }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Currency
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public int Id { get; set; }
         }
 

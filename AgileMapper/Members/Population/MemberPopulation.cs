@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         public static IMemberPopulation WithRegistration(
             IChildMemberMappingData mappingData,
             DataSourceSet dataSources,
-            Expression populateCondition = null)
+            Expression populateCondition)
         {
             var memberPopulation = WithoutRegistration(mappingData, dataSources, populateCondition);
             var mapperData = memberPopulation.MapperData;
@@ -71,6 +71,9 @@ namespace AgileObjects.AgileMapper.Members.Population
             return Expression.AndAlso(populateCondition, populationGuard);
         }
 
+        public static IMemberPopulation Unmappable(IMemberMapperData mapperData, string reason)
+            => CreateNullMemberPopulation(mapperData, targetMember => $"No way to populate {targetMember.Name} ({reason})");
+
         public static IMemberPopulation IgnoredMember(IMemberMapperData mapperData, ConfiguredIgnoredMember configuredIgnore)
             => CreateNullMemberPopulation(mapperData, configuredIgnore.GetIgnoreMessage);
 
@@ -94,8 +97,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public bool IsSuccessful => _dataSources.HasValue;
 
-        public Expression SourceMemberTypeTest => _dataSources.SourceMemberTypeTest;
-
         public Expression GetPopulation()
         {
             if (!IsSuccessful)
@@ -103,9 +104,11 @@ namespace AgileObjects.AgileMapper.Members.Population
                 return _dataSources.GetValueExpression();
             }
 
-            var population = MapperData.TargetMember.IsReadOnly
-                ? GetReadOnlyMemberPopulation()
-                : _dataSources.GetPopulationExpression(MapperData);
+            var population = MapperData.Context.IsPartOfUserStructMapping
+                ? GetBinding()
+                : MapperData.TargetMember.IsReadOnly
+                    ? GetReadOnlyMemberPopulation()
+                    : _dataSources.GetPopulationExpression(MapperData);
 
             if (_dataSources.Variables.Any())
             {
@@ -120,22 +123,21 @@ namespace AgileObjects.AgileMapper.Members.Population
             return population;
         }
 
+        private Expression GetBinding()
+        {
+            var bindingValue = _dataSources.GetValueExpression();
+            var binding = MapperData.GetTargetMemberPopulation(bindingValue);
+
+            return binding;
+        }
+
         private Expression GetReadOnlyMemberPopulation()
         {
+            var dataSourcesValue = _dataSources.GetValueExpression();
             var targetMemberAccess = MapperData.GetTargetMemberAccess();
             var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
-            var dataSourcesValue = _dataSources.GetValueExpression();
 
-            if (dataSourcesValue.NodeType != ExpressionType.Conditional)
-            {
-                return Expression.IfThen(targetMemberNotNull, dataSourcesValue);
-            }
-
-            var valueTernary = (ConditionalExpression)dataSourcesValue;
-            var populationTest = Expression.AndAlso(targetMemberNotNull, valueTernary.Test);
-            var population = Expression.IfThen(populationTest, valueTernary.IfTrue);
-
-            return population;
+            return Expression.IfThen(targetMemberNotNull, dataSourcesValue);
         }
 
         #region ExcludeFromCodeCoverage
@@ -144,6 +146,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 #endif
         #endregion
         public override string ToString()
-            => MapperData.TargetMember + " (" + _dataSources.Count() + " data source(s))";
+            => $"{MapperData.TargetMember} ({_dataSources.Count()} data source(s))";
     }
 }

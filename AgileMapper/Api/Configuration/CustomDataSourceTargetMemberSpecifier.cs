@@ -20,17 +20,19 @@
     public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
-        private readonly ConfiguredLambdaInfo _customValueLambda;
+        private readonly LambdaExpression _customValueLambda;
+        private readonly ConfiguredLambdaInfo _customValueLambdaInfo;
 
         internal CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo, LambdaExpression customValueLambda)
-            : this(configInfo, ConfiguredLambdaInfo.For(customValueLambda))
+            : this(configInfo, default(ConfiguredLambdaInfo))
         {
+            _customValueLambda = customValueLambda;
         }
 
         internal CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo, ConfiguredLambdaInfo customValueLambda)
         {
             _configInfo = configInfo;
-            _customValueLambda = customValueLambda;
+            _customValueLambdaInfo = customValueLambda;
         }
 
         /// <summary>
@@ -44,7 +46,7 @@
         /// </returns>
         public MappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
-            => RegisterDataSource<TTargetValue>(() => CreateFromLambda(targetMember));
+            => RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetMember));
 
         /// <summary>
         /// Apply the configuration to the given <paramref name="targetSetMethod"/>.
@@ -57,16 +59,18 @@
         /// </returns>
         public MappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
-            => RegisterDataSource<TTargetValue>(() => CreateFromLambda(targetSetMethod));
+            => RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetSetMethod));
 
-        private ConfiguredDataSourceFactory CreateFromLambda(LambdaExpression targetMemberLambda)
+        private ConfiguredDataSourceFactory CreateFromLambda<TTargetValue>(LambdaExpression targetMemberLambda)
         {
+            var valueLambda = GetValueLambda<TTargetValue>();
+
             if (IsDictionaryEntry(targetMemberLambda, out var dictionaryEntryMember))
             {
-                return new ConfiguredDictionaryDataSourceFactory(_configInfo, _customValueLambda, dictionaryEntryMember);
+                return new ConfiguredDictionaryDataSourceFactory(_configInfo, valueLambda, dictionaryEntryMember);
             }
 
-            return new ConfiguredDataSourceFactory(_configInfo, _customValueLambda, targetMemberLambda);
+            return new ConfiguredDataSourceFactory(_configInfo, valueLambda, targetMemberLambda);
         }
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
@@ -106,6 +110,34 @@
             return true;
         }
 
+        private ConfiguredLambdaInfo GetValueLambda<TTargetValue>()
+        {
+            if (_customValueLambdaInfo != null)
+            {
+                return _customValueLambdaInfo;
+            }
+
+            if ((_customValueLambda.Body.NodeType != ExpressionType.Constant) ||
+                (typeof(TTargetValue) == typeof(object)) ||
+                 typeof(TTargetValue).IsAssignableFrom(_customValueLambda.ReturnType))
+            {
+                return ConfiguredLambdaInfo.For(_customValueLambda);
+            }
+
+            var convertedConstantValue = _configInfo
+                .MapperContext
+                .ValueConverters
+                .GetConversion(_customValueLambda.Body, typeof(TTargetValue));
+
+            var valueLambda = Expression.Lambda<Func<TTargetValue>>(convertedConstantValue);
+            var valueFunc = valueLambda.Compile();
+            var value = valueFunc.Invoke().ToConstantExpression(typeof(TTargetValue));
+            var constantValueLambda = Expression.Lambda<Func<TTargetValue>>(value);
+            var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda);
+
+            return valueLambdaInfo;
+        }
+
         /// <summary>
         /// Apply the configuration to the constructor parameter with the type specified by the type argument.
         /// </summary>
@@ -129,10 +161,10 @@
             => RegisterDataSource<object>(() => CreateForCtorParam(parameterName));
 
         private ConfiguredDataSourceFactory CreateForCtorParam<TParam>()
-            => CreateForCtorParam(GetUniqueConstructorParameterOrThrow<TParam>());
+            => CreateForCtorParam<TParam>(GetUniqueConstructorParameterOrThrow<TParam>());
 
         private ConfiguredDataSourceFactory CreateForCtorParam(string name)
-            => CreateForCtorParam(GetUniqueConstructorParameterOrThrow<AnyParameterType>(name));
+            => CreateForCtorParam<object>(GetUniqueConstructorParameterOrThrow<AnyParameterType>(name));
 
         private static ParameterInfo GetUniqueConstructorParameterOrThrow<TParam>(string name = null)
         {
@@ -192,7 +224,7 @@
                 typeof(TTarget).GetFriendlyName()));
         }
 
-        private ConfiguredDataSourceFactory CreateForCtorParam(ParameterInfo parameter)
+        private ConfiguredDataSourceFactory CreateForCtorParam<TParam>(ParameterInfo parameter)
         {
             var memberChain = new[]
             {
@@ -200,9 +232,10 @@
                 Member.ConstructorParameter(parameter)
             };
 
+            var valueLambda = GetValueLambda<TParam>();
             var constructorParameter = QualifiedMember.From(memberChain, _configInfo.MapperContext);
 
-            return new ConfiguredDataSourceFactory(_configInfo, _customValueLambda, constructorParameter);
+            return new ConfiguredDataSourceFactory(_configInfo, valueLambda, constructorParameter);
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(
@@ -210,12 +243,12 @@
         {
             _configInfo.ThrowIfSourceTypeUnconvertible<TTargetValue>();
 
-            _configInfo.ForTargetType<TTarget>();
+            var configInfo = _configInfo.ForTargetType<TTarget>();
             var configuredDataSourceFactory = factoryFactory.Invoke();
 
-            _configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);
+            configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);
 
-            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+            return new MappingConfigContinuation<TSource, TTarget>(configInfo);
         }
 
         private struct AnyParameterType { }

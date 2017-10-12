@@ -90,6 +90,18 @@
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
     <Compile Include="MapperCloning\WhenCloningMapperObjectFactories.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
+    <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
+    <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />
+    <Compile Include="Structs\Configuration\WhenConfiguringStructMappingCallbacks.cs" />
+    <Compile Include="Structs\Dictionaries\WhenMappingFromDictionariesToStructs.cs" />
+    <Compile Include="Structs\WhenMappingOnToStructMembers.cs" />
+    <Compile Include="Structs\WhenMappingOnToStructs.cs" />
+    <Compile Include="Structs\WhenMappingOverStructMembers.cs" />
+    <Compile Include="Structs\WhenMappingOverStructs.cs" />
+    <Compile Include="Structs\WhenMappingToStructEnumerables.cs" />
+    <Compile Include="Structs\WhenMappingToUnmappableStructMembers.cs" />
+    <Compile Include="Structs\WhenMappingToNewStructMembers.cs" />
+    <Compile Include="Structs\WhenMappingToNewStructs.cs" />
     <Compile Include="TestClasses\Earthworm.cs" />
     <Compile Include="TestClasses\IPublicInterface.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />
@@ -125,10 +137,13 @@
     <Compile Include="TestClasses\OrderUs.cs" />
     <Compile Include="TestClasses\PaymentTypeUk.cs" />
     <Compile Include="TestClasses\PaymentTypeUs.cs" />
+    <Compile Include="TestClasses\PublicCtorStruct.cs" />
     <Compile Include="TestClasses\PublicFactoryMethod.cs" />
     <Compile Include="TestClasses\PublicImplementation.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
+    <Compile Include="TestClasses\PublicPropertyStruct.cs" />
     <Compile Include="TestClasses\PublicTwoFields.cs" />
+    <Compile Include="TestClasses\PublicTwoFieldsStruct.cs" />
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
@@ -214,6 +229,7 @@
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

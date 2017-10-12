@@ -306,13 +306,10 @@ namespace AgileObjects.AgileMapper.Members
         public virtual BlockExpression GetAccessChecked(IMemberMapperData mapperData) => null;
 
         public virtual Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
-            => GetAccess(mapperData).GetIsDefaultComparison();
-
-        private Expression GetAccess(IMemberMapperData mapperData)
-            => GetAccess(mapperData.InstanceVariable, mapperData);
+            => this.GetAccess(mapperData).GetIsDefaultComparison();
 
         public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
-            => LeafMember.GetPopulation(mapperData.InstanceVariable, value);
+            => LeafMember.GetPopulation(mapperData.TargetInstance, value);
 
         public virtual void MapCreating(IQualifiedMember sourceMember)
         {

@@ -232,6 +232,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappedObjectsBySource[key] = new List<object> { complexType };
         }
 
+        public IObjectMappingData<TNewSource, TTarget> WithSourceType<TNewSource>()
+            where TNewSource : class
+        {
+            return As(Source as TNewSource, Target);
+        }
+
+        public IObjectMappingData<TSource, TNewTarget> WithTargetType<TNewTarget>()
+            where TNewTarget : class
+        {
+            return As(Source, Target as TNewTarget);
+        }
+
         public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType)
         {
             var typesKey = new SourceAndTargetTypesKey(newSourceType, newTargetType);
@@ -256,9 +268,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             where TNewSource : class
             where TNewTarget : class
         {
+            return As(Source as TNewSource, Target as TNewTarget);
+        }
+
+        private IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>(
+            TNewSource typedSource,
+            TNewTarget typedTarget)
+        {
             return new ObjectMappingData<TNewSource, TNewTarget>(
-                Source as TNewSource,
-                Target as TNewTarget,
+                typedSource,
+                typedTarget,
                 GetEnumerableIndex(),
                 MapperKey.WithTypes<TNewSource, TNewTarget>(),
                 MappingContext,

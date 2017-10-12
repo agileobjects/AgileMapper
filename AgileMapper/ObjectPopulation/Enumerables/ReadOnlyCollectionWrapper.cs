@@ -18,7 +18,8 @@
     {
         private static readonly ReadOnlyCollection<T> _emptyReadOnlyCollection = new ReadOnlyCollection<T>(Enumerable<T>.EmptyArray);
 
-        private readonly T[] _items;
+        private readonly int _numberOfNewItems;
+        private T[] _items;
         private int _index;
 
         /// <summary>
@@ -30,6 +31,8 @@
         /// <param name="numberOfNewItems">The number of new items to be added to the existing items.</param>
         public ReadOnlyCollectionWrapper(IList<T> existingItems, int numberOfNewItems)
         {
+            _numberOfNewItems = numberOfNewItems;
+
             var hasExistingItems = existingItems != null;
 
             if (hasExistingItems)
@@ -182,12 +185,11 @@
         /// <summary>
         /// Removes all items from the collection.
         /// </summary>
-        #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
-        public void Clear() => ((ICollection<T>)_items).Clear();
+        public void Clear()
+        {
+            _items = new T[_numberOfNewItems];
+            _index = 0;
+        }
 
         #endregion
 

@@ -23,7 +23,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<TSource, TTarget> To<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<TSource, TTarget> To<TTarget>()
             => new MappingConfigurator<TSource, TTarget>(_configInfo.ForAllRuleSets());
 
         /// <summary>
@@ -32,7 +32,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<TSource, TTarget> ToANew<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<TSource, TTarget> ToANew<TTarget>()
             => UsingRuleSet<TTarget>(Constants.CreateNew);
 
         /// <summary>
@@ -41,7 +41,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<TSource, TTarget> OnTo<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<TSource, TTarget> OnTo<TTarget>()
             => UsingRuleSet<TTarget>(Constants.Merge);
 
         /// <summary>
@@ -50,10 +50,10 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<TSource, TTarget> Over<TTarget>() where TTarget : class
+        public IFullMappingConfigurator<TSource, TTarget> Over<TTarget>()
             => UsingRuleSet<TTarget>(Constants.Overwrite);
 
-        private MappingConfigurator<TSource, TTarget> UsingRuleSet<TTarget>(string name) where TTarget : class
+        private MappingConfigurator<TSource, TTarget> UsingRuleSet<TTarget>(string name)
             => new MappingConfigurator<TSource, TTarget>(_configInfo.ForRuleSet(name));
 
         /// <summary>

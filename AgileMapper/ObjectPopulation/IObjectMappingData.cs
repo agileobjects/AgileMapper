@@ -93,5 +93,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSourceElement sourceElement,
             TTargetElement targetElement,
             int enumerableIndex);
+
+        /// <summary>
+        /// Gets the <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
+        /// <see cref="IObjectMappingData{TNewSource, TTarget}"/>.
+        /// </summary>
+        /// <typeparam name="TNewSource">The type of source object being mapped in the current context.</typeparam>
+        /// <returns>
+        /// The <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
+        /// <see cref="IObjectMappingData{TNewSource, TTarget}"/>.
+        /// </returns>
+        IObjectMappingData<TNewSource, TTarget> WithSourceType<TNewSource>()
+            where TNewSource : class;
+
+        /// <summary>
+        /// Gets the <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
+        /// <see cref="IObjectMappingData{TSource, TNewTarget}"/>.
+        /// </summary>
+        /// <typeparam name="TNewTarget">The type of target object being mapped in the current context.</typeparam>
+        /// <returns>
+        /// The <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
+        /// <see cref="IObjectMappingData{TSource, TNewTarget}"/>.
+        /// </returns>
+        IObjectMappingData<TSource, TNewTarget> WithTargetType<TNewTarget>()
+            where TNewTarget : class;
     }
 }

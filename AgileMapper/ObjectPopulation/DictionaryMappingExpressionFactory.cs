@@ -208,7 +208,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var cloneConstructor = GetDictionaryCloneConstructor(mapperData.TargetMember.Type);
             var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
             var cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject, comparer);
-            var assignment = mapperData.InstanceVariable.AssignTo(cloneDictionary);
+            var assignment = mapperData.TargetInstance.AssignTo(cloneDictionary);
 
             return assignment;
         }
@@ -270,19 +270,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)
         {
-            var newDictionary = mappingData.MapperData.TargetType.GetEmptyInstanceCreation();
+            var valueType = mappingData.MapperData.EnumerablePopulationBuilder.TargetTypeHelper.ElementType;
+            var newDictionary = mappingData.MapperData.TargetType.GetEmptyInstanceCreation(valueType);
 
             return GetDictionaryAssignment(newDictionary, mappingData);
         }
 
         private static Expression GetDictionaryAssignment(Expression value, IObjectMappingData mappingData)
         {
-            var valueResolution = TargetObjectResolutionFactory.GetObjectResolution(
-                md => value,
-                mappingData,
-                assignTargetObject: mappingData.MapperData.HasMapperFuncs);
+            var mapperData = mappingData.MapperData;
 
-            return mappingData.MapperData.InstanceVariable.AssignTo(valueResolution);
+            if (mapperData.TargetMember.IsReadOnly)
+            {
+                return null;
+            }
+
+            var valueResolution = TargetObjectResolutionFactory.GetObjectResolution(
+                value,
+                mappingData,
+                mapperData.HasMapperFuncs);
+
+            return mapperData.TargetInstance.AssignTo(valueResolution);
         }
 
         private Expression GetDictionaryPopulation(IObjectMappingData mappingData)
@@ -324,6 +332,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)
-            => mapperData.InstanceVariable;
+            => mapperData.TargetInstance;
     }
 }

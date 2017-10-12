@@ -15,9 +15,7 @@
             {
                 var mappedNames = new List<string>();
 
-                mapper
-                    .Before
-                    .MappingBegins
+                mapper.Before.MappingBegins
                     .Call((s, t) => mappedNames.AddRange(new[] { ((Person)s).Name, ((PersonViewModel)t).Name }));
 
                 var source = new Person { Name = "Bernie" };
@@ -36,9 +34,7 @@
             {
                 var mappedNames = new List<string>();
 
-                mapper
-                    .After
-                    .MappingEnds
+                mapper.After.MappingEnds
                     .If((s, t) => t.GetType() != typeof(Address))
                     .Call(ctx => mappedNames.AddRange(new[] { ((PersonViewModel)ctx.Source).Name, ((Person)ctx.Target).Name }));
 

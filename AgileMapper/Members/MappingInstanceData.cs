@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
+    using System.Reflection;
+
     internal class MappingInstanceData<TSource, TTarget> : IMappingData<TSource, TTarget>, IMappingData
     {
         private readonly IMappingData _parent;
@@ -31,9 +33,25 @@
 
         public int? EnumerableIndex { get; }
 
-        T IMappingData.GetSource<T>() => Source as T;
+        T IMappingData.GetSource<T>()
+        {
+            if (typeof(TSource).IsAssignableFrom(typeof(T)))
+            {
+                return (T)((object)Source);
+            }
 
-        T IMappingData.GetTarget<T>() => Target as T;
+            return default(T);
+        }
+
+        T IMappingData.GetTarget<T>()
+        {
+            if (typeof(TTarget).IsAssignableFrom(typeof(T)))
+            {
+                return (T)((object)Target);
+            }
+
+            return default(T);
+        }
 
         public int? GetEnumerableIndex() => EnumerableIndex ?? _parent?.GetEnumerableIndex();
 

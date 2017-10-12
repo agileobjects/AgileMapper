@@ -70,41 +70,49 @@
         }
 
         [Fact]
-        public void ShouldIgnoreANonPublicField()
-        {
-            var member = MemberFinder
-                .GetTargetMembers(typeof(InternalField<List<byte>>))
-                .FirstOrDefault(m => m.Name == "Value");
-
-            member.ShouldBeNull();
-        }
-
-        [Fact]
-        public void ShouldIgnoreAPublicReadOnlyArrayField()
+        public void ShouldFindAPublicReadOnlyArrayField()
         {
             var member = MemberFinder
                 .GetTargetMembers(typeof(PublicReadOnlyField<byte[]>))
                 .FirstOrDefault(m => m.Name == "Value");
 
-            member.ShouldBeNull();
+            member.ShouldNotBeNull();
+            member.Type.ShouldBe(typeof(byte[]));
+            member.ElementType.ShouldBe(typeof(byte));
+            member.IsWriteable.ShouldBeFalse();
         }
 
         [Fact]
-        public void ShouldIgnoreAPublicReadOnlySimpleTypeProperty()
+        public void ShouldFindAPublicReadOnlySimpleTypeProperty()
         {
             var member = MemberFinder
                 .GetTargetMembers(typeof(PublicReadOnlyProperty<long>))
                 .FirstOrDefault(m => m.Name == "Value");
 
-            member.ShouldBeNull();
+            member.ShouldNotBeNull();
+            member.Type.ShouldBe(typeof(long));
+            member.IsWriteable.ShouldBeFalse();
         }
 
         [Fact]
-        public void ShouldIgnoreAReadOnlyArrayProperty()
+        public void ShouldFindAReadOnlyArrayProperty()
         {
             var member = MemberFinder
                 .GetTargetMembers(typeof(PublicReadOnlyProperty<long[]>))
                 .FirstOrDefault(m => m.Name.StartsWith("Value"));
+
+            member.ShouldNotBeNull();
+            member.Type.ShouldBe(typeof(long[]));
+            member.ElementType.ShouldBe(typeof(long));
+            member.IsWriteable.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldIgnoreANonPublicField()
+        {
+            var member = MemberFinder
+                .GetTargetMembers(typeof(InternalField<List<byte>>))
+                .FirstOrDefault(m => m.Name == "Value");
 
             member.ShouldBeNull();
         }

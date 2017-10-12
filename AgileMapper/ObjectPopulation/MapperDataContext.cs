@@ -14,21 +14,46 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             : this(
                 childMapperData.Parent,
                 IsForStandaloneMapping(childMapperData),
-                childMapperData.Parent.Context.IsForDerivedType)
+                childMapperData.Parent.Context.IsForDerivedType,
+                childMapperData)
         {
         }
 
         private static bool IsForStandaloneMapping(IBasicMapperData mapperData)
             => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();
 
-        public MapperDataContext(
+        public MapperDataContext(ObjectMapperData mapperData, bool isStandalone, bool isForDerivedType)
+            : this(mapperData, isStandalone, isForDerivedType, mapperData)
+        {
+        }
+
+        private MapperDataContext(
             ObjectMapperData mapperData,
             bool isStandalone,
-            bool isForDerivedType)
+            bool isForDerivedType,
+            IBasicMapperData basicMapperData)
         {
             _mapperData = mapperData;
             IsStandalone = isStandalone;
             IsForDerivedType = isForDerivedType;
+            UseLocalVariable = isForDerivedType || ShouldUseLocalVariable(basicMapperData);
+        }
+
+        private static bool ShouldUseLocalVariable(IBasicMapperData mapperData)
+        {
+            if (mapperData.TargetMember.IsSimple)
+            {
+                return false;
+            }
+
+            if (mapperData.TargetMember.IsComplex &&
+               (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated()) &&
+               !mapperData.TargetMemberIsUserStruct())
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsStandalone { get; }
@@ -52,18 +77,34 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private void BubbleMappingNeededToParent()
         {
-            if (_mapperData.IsRoot)
-            {
-                return;
-            }
-
-            if (_mapperData.TargetMemberIsEnumerableElement())
+            if (!_mapperData.IsRoot)
             {
                 _mapperData.Parent.Context.SubMappingNeeded();
-                return;
             }
+        }
 
-            _mapperData.Parent.Context.SubMappingNeeded();
+        public bool UseLocalVariable { get; }
+
+        public bool UseMappingTryCatch => _mapperData.IsRoot || !IsPartOfUserStructMapping;
+
+        public bool IsPartOfUserStructMapping
+        {
+            get
+            {
+                var mapperData = _mapperData;
+
+                while (mapperData != null)
+                {
+                    if (mapperData.TargetMemberIsUserStruct())
+                    {
+                        return true;
+                    }
+
+                    mapperData = mapperData.Parent;
+                }
+
+                return false;
+            }
         }
 
         public bool UsesMappingDataObjectAsParameter

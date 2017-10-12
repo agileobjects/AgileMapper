@@ -112,7 +112,22 @@
                 return Expression.Property(expression, "HasValue");
             }
 
-            return Expression.NotEqual(expression, ToDefaultExpression(expression.Type));
+            var typeDefault = expression.Type.ToDefaultExpression();
+
+            if (!expression.Type.IsValueType() || !expression.Type.IsComplex())
+            {
+                return Expression.NotEqual(expression, typeDefault);
+            }
+
+            var objectEquals = typeof(object).GetPublicStaticMethod("Equals");
+
+            var objectEqualsCall = Expression.Call(
+                null,
+                objectEquals,
+                expression.GetConversionTo(typeof(object)),
+                typeDefault.GetConversionTo(typeof(object)));
+
+            return Expression.IsFalse(objectEqualsCall);
         }
 
         public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)
@@ -232,13 +247,8 @@
             return Expression.Call(typedToEnumerableMethod, enumerable);
         }
 
-        public static Expression GetEmptyInstanceCreation(this Type enumerableType, Type elementType = null)
+        public static Expression GetEmptyInstanceCreation(this Type enumerableType, Type elementType)
         {
-            if (elementType == null)
-            {
-                elementType = enumerableType.GetEnumerableElementType();
-            }
-
             if (enumerableType.IsArray)
             {
                 return GetEmptyArray(elementType);
