@@ -91,8 +91,10 @@
 
         private static bool NonWholeNumberCheckIsNotRequired(Expression sourceValue, Type nonNullableTargetType)
         {
-            return sourceValue.Type.IsEnum() ||
-                   sourceValue.Type.IsWholeNumberNumeric() ||
+            var sourceType = sourceValue.Type.GetNonNullableType();
+
+            return sourceType.IsEnum() ||
+                   sourceType.IsWholeNumberNumeric() ||
                   !nonNullableTargetType.IsWholeNumberNumeric();
         }
     }
