@@ -36,8 +36,8 @@
     <Reference Include="AgileObjects.NetStandardPolyfills, Version=0.2.1.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
       <HintPath>..\packages\AgileObjects.NetStandardPolyfills.0.2.1\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
     </Reference>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=1.9.2.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.9.2\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.9.3.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.9.3\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
