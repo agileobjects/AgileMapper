@@ -93,6 +93,7 @@
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructMappingCallbacks.cs" />
+    <Compile Include="Structs\Dictionaries\WhenMappingFromDictionariesToStructs.cs" />
     <Compile Include="Structs\WhenMappingOnToStructMembers.cs" />
     <Compile Include="Structs\WhenMappingOnToStructs.cs" />
     <Compile Include="Structs\WhenMappingOverStructMembers.cs" />
@@ -227,6 +228,7 @@
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
