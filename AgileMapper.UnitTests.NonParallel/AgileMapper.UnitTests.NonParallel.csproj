@@ -80,7 +80,6 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AgileMapper.snk" />
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
