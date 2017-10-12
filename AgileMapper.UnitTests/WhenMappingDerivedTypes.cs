@@ -271,6 +271,40 @@
         }
 
         [Fact]
+        public void ShouldMapADerivedTypeToAStruct()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomer>()
+                    .ToANew<PublicPropertyStruct<string>>()
+                    .Map((mc, pps) => mc.Name)
+                    .To(pps => pps.Value);
+
+                Customer customer = new MysteryCustomer { Id = Guid.NewGuid(), Name = "Mystery!" };
+                var customerResult = mapper.Map(customer).ToANew<PublicPropertyStruct<string>>();
+
+                customerResult.Value.ShouldBe("Mystery!");
+            }
+
+            var source = new MysteryCustomer { Discount = 0.2m };
+            var result = Mapper.Map(source).ToANew<PersonViewModel>();
+
+            result.ShouldBeOfType<MysteryCustomerViewModel>();
+            ((MysteryCustomerViewModel)result).Discount.ShouldBe(0.2);
+        }
+
+        [Fact]
+        public void ShouldMapDerivedTypesToTheSameTargetType()
+        {
+            var source = new MysteryCustomer { Id = Guid.NewGuid(), Name = "Customer!" };
+            var result = Mapper.Map(source).ToANew<PersonDto>();
+
+            result.Id.ShouldBe(source.Id.ToString());
+            result.Name.ShouldBe("Customer!");
+        }
+
+        [Fact]
         public void ShouldCreateADerivedTypeForARequestedParentType()
         {
             var source = new MysteryCustomer { Discount = 0.2m };
@@ -322,5 +356,19 @@
             result.Value2.ShouldHaveSingleItem();
             result.Value2.First().Name.ShouldBe("Mr Faff");
         }
+
+        #region Helper Classes
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
+        private class PersonDto
+        {
+            public string Id { get; set; }
+
+            public string Name { get; set; }
+        }
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
+
+        #endregion
     }
 }

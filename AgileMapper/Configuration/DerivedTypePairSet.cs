@@ -125,7 +125,6 @@
 
                 if (derivedTargetTypes.None())
                 {
-                    // TODO: Test coverage - derived source types but no derived target types
                     return;
                 }
 
@@ -236,6 +235,11 @@
             if (type.IsInterface())
             {
                 return type;
+            }
+
+            if (type.IsValueType())
+            {
+                return typeof(ValueType);
             }
 
             var parentType = type;

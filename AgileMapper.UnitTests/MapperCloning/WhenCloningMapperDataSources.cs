@@ -18,6 +18,9 @@
                     .Map((s, t) => s.Value1 * 2)
                     .To(t => t.Value1);
 
+                // Populate the derived types cache so it can be cloned:
+                baseMapper.GetPlanFor<Customer>().ToANew<CustomerViewModel>();
+
                 using (var childMapper1 = baseMapper.CloneSelf())
                 using (var childMapper2 = baseMapper.CloneSelf())
                 {
