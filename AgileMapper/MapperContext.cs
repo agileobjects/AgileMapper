@@ -13,6 +13,8 @@
     {
         internal static readonly MapperContext Default = new MapperContext(NamingSettings.Default);
 
+        private ObjectFlattener _objectFlattener;
+
         public MapperContext(NamingSettings namingSettings = null)
         {
             Cache = new CacheSet();
@@ -21,7 +23,6 @@
             QualifiedMemberFactory = new QualifiedMemberFactory(this);
             RootMembersSource = new RootMembersSource(QualifiedMemberFactory);
             ObjectMapperFactory = new ObjectMapperFactory(this);
-            ObjectFlattener = new ObjectFlattener();
             UserConfigurations = new UserConfigurationSet(this);
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
@@ -39,7 +40,7 @@
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
-        public ObjectFlattener ObjectFlattener { get; }
+        public ObjectFlattener ObjectFlattener => _objectFlattener ?? (_objectFlattener = new ObjectFlattener());
 
         public UserConfigurationSet UserConfigurations { get; }
 

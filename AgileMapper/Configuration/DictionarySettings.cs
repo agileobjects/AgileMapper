@@ -117,5 +117,13 @@
             dictionaries._joiningNameFactories.AddRange(_joiningNameFactories);
             dictionaries._elementKeyPartFactories.AddRange(_elementKeyPartFactories);
         }
+
+        public void Reset()
+        {
+            _configuredFullKeys.Clear();
+            _configuredMemberKeys.Clear();
+            _joiningNameFactories.Clear();
+            _elementKeyPartFactories.Clear();
+        }
     }
 }

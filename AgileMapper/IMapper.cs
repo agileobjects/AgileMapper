@@ -69,6 +69,6 @@
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
         /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        ITargetTypeSelector Map<TSource>(TSource source);
+        ITargetTypeSelector<TSource> Map<TSource>(TSource source);
     }
 }

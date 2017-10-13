@@ -24,7 +24,14 @@
         /// Creates an instance implementing IMapper with which to perform mappings.
         /// </summary>
         /// <returns>A new instance implementing IMapper.</returns>
-        public static IMapper CreateNew() => new Mapper(new MapperContext());
+        public static IMapper CreateNew()
+        {
+            var mapper = new Mapper(new MapperContext());
+
+            MapperCache.Add(mapper);
+
+            return mapper;
+        }
 
         #endregion
 
@@ -93,7 +100,7 @@
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
         /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        public static ITargetTypeSelector Map<TSource>(TSource source) => _default.Map(source);
+        public static ITargetTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
 
         internal static void ResetDefaultInstance() => _default.Dispose();
 
@@ -107,7 +114,8 @@
 
         dynamic IMapper.Flatten<TSource>(TSource source) => _mapperContext.ObjectFlattener.Flatten(source);
 
-        ITargetTypeSelector IMapper.Map<TSource>(TSource source) => new MappingExecutor<TSource>(source, _mapperContext);
+        ITargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
+            => new MappingExecutor<TSource>(source, _mapperContext);
 
         #region IDisposable Members
 
@@ -117,5 +125,13 @@
         public void Dispose() => _mapperContext.Reset();
 
         #endregion
+    }
+
+    internal static class MapperCache
+    {
+        public static void Add(IMapper mapper)
+        {
+
+        }
     }
 }

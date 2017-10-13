@@ -12,35 +12,49 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class MemberIdentifierSet
     {
-        private readonly Dictionary<Type, LambdaExpression> _identifierNamesByType;
+        private readonly Dictionary<Type, LambdaExpression> _identifierLambdasByType;
 
         public MemberIdentifierSet()
         {
-            _identifierNamesByType = new Dictionary<Type, LambdaExpression>();
+            _identifierLambdasByType = new Dictionary<Type, LambdaExpression>();
         }
 
         public void Add(Type type, LambdaExpression idMember)
         {
-            if (_identifierNamesByType.ContainsKey(type))
+            if (_identifierLambdasByType.ContainsKey(type))
             {
                 throw new MappingConfigurationException(
                     $"An identifier has already been configured for type '{type.GetFriendlyName()}'");
             }
 
-            _identifierNamesByType.Add(type, idMember);
+            _identifierLambdasByType.Add(type, idMember);
         }
 
         public LambdaExpression GetIdentifierOrNullFor(Type type)
         {
-            if (_identifierNamesByType.TryGetValue(type, out var identifier))
+            if (_identifierLambdasByType.TryGetValue(type, out var identifier))
             {
                 return identifier;
             }
 
-            var matchingKey = _identifierNamesByType.Keys
+            var matchingKey = _identifierLambdasByType.Keys
                 .FirstOrDefault(idType => idType.IsAssignableFrom(type));
 
-            return (matchingKey != null) ? _identifierNamesByType[matchingKey] : null;
+            return (matchingKey != null) ? _identifierLambdasByType[matchingKey] : null;
+        }
+
+        public void CloneTo(MemberIdentifierSet identifiers)
+        {
+            foreach (var idTypeAndLambdaPair in _identifierLambdasByType)
+            {
+                identifiers._identifierLambdasByType
+                    .Add(idTypeAndLambdaPair.Key, idTypeAndLambdaPair.Value);
+            }
+        }
+
+        public void Reset()
+        {
+            _identifierLambdasByType.Clear();
         }
     }
 }

@@ -37,7 +37,8 @@
 
         #endregion
 
-        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
+        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
+            Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
             new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
 

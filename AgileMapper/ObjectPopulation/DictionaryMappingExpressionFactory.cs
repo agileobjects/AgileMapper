@@ -28,8 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var configuredDataSourceFactories = mapperData.MapperContext
                 .UserConfigurations
-                .DataSourceFactories
-                .OfType<ConfiguredDictionaryDataSourceFactory>()
+                .QueryDataSourceFactories<ConfiguredDictionaryDataSourceFactory>()
                 .Where(dsf => dsf.IsFor(mapperData))
                 .ToArray();
 
