@@ -30,7 +30,7 @@
         {
             ThrowIfInvalidSourceType<TDerivedSource>(configInfo);
             ThrowIfInvalidTargetType<TTarget, TDerivedTarget>();
-            ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(configInfo.ForTargetType<TTarget>());
+            ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(configInfo);
 
             return new DerivedTypePair(configInfo, typeof(TDerivedSource), typeof(TDerivedTarget));
         }

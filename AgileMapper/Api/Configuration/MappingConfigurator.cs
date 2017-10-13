@@ -12,7 +12,7 @@
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
         {
-            ConfigInfo = configInfo;
+            ConfigInfo = configInfo.ForTargetType<TTarget>();
         }
 
         protected MappingConfigInfo ConfigInfo { get; }
@@ -59,9 +59,7 @@
 
         public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
-            var exceptionCallback = new ExceptionCallback(
-                ConfigInfo.ForTargetType<TTarget>(),
-                callback.ToConstantExpression());
+            var exceptionCallback = new ExceptionCallback(ConfigInfo, callback.ToConstantExpression());
 
             ConfigInfo.MapperContext.UserConfigurations.Add(exceptionCallback);
             return this;
@@ -69,7 +67,7 @@
 
         public IFullMappingSettings<TSource, TTarget> TrackMappedObjects()
         {
-            var trackingMode = new ObjectTrackingMode(ConfigInfo.ForTargetType<TTarget>());
+            var trackingMode = new ObjectTrackingMode(ConfigInfo);
 
             ConfigInfo.MapperContext.UserConfigurations.Add(trackingMode);
             return this;
@@ -77,7 +75,7 @@
 
         public IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull()
         {
-            var nullSetting = new NullCollectionsSetting(ConfigInfo.ForTargetType<TTarget>());
+            var nullSetting = new NullCollectionsSetting(ConfigInfo);
 
             ConfigInfo.MapperContext.UserConfigurations.Add(nullSetting);
             return this;
@@ -95,8 +93,7 @@
         public MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            var configInfo = ConfigInfo.ForTargetType<TTarget>();
-            var configuredIgnoredMember = new ConfiguredIgnoredMember(configInfo, memberFilter);
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
 
             ConfigInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
 
@@ -105,12 +102,10 @@
 
         public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
-            var configInfo = ConfigInfo.ForTargetType<TTarget>();
-
             foreach (var targetMember in targetMembers)
             {
                 var configuredIgnoredMember =
-                    new ConfiguredIgnoredMember(configInfo, targetMember);
+                    new ConfiguredIgnoredMember(ConfigInfo, targetMember);
 
                 ConfigInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
                 ConfigInfo.NegateCondition();
@@ -193,7 +188,7 @@
 
         public MappingConfigContinuation<TSource, TTarget> MapToNull()
         {
-            var condition = new MapToNullCondition(ConfigInfo.ForTargetType<TTarget>());
+            var condition = new MapToNullCondition(ConfigInfo);
 
             ConfigInfo.MapperContext.UserConfigurations.Add(condition);
 

@@ -54,9 +54,7 @@
                 .ForSourceType<TSource>()
                 .ForTargetType<TTarget>();
 
-            var configurator = new MappingConfigurator<TSource, TTarget>(configInfo);
-
-            configuration.Invoke(configurator);
+            configuration.Invoke(new MappingConfigurator<TSource, TTarget>(configInfo));
 
             return target;
         }

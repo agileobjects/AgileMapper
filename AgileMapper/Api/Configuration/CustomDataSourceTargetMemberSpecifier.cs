@@ -242,13 +242,9 @@
             Func<ConfiguredDataSourceFactory> factoryFactory)
         {
             _configInfo.ThrowIfSourceTypeUnconvertible<TTargetValue>();
+            _configInfo.MapperContext.UserConfigurations.Add(factoryFactory.Invoke());
 
-            var configInfo = _configInfo.ForTargetType<TTarget>();
-            var configuredDataSourceFactory = factoryFactory.Invoke();
-
-            configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);
-
-            return new MappingConfigContinuation<TSource, TTarget>(configInfo);
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
 
         private struct AnyParameterType { }

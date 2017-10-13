@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         public FactorySpecifier(MappingConfigInfo configInfo)
         {
-            _configInfo = configInfo.ForTargetType<TTarget>();
+            _configInfo = configInfo;
         }
 
         public void Using(Expression<Func<IMappingData<TSource, TTarget>, TObject>> factory)
