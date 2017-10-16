@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
-    using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
@@ -40,6 +39,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             return Expression.Block(ifEnumeratorReturnResult, returnElementsResult);
         }
+
+        public bool NeedsContinueTarget { get; set; }
 
         public LabelTarget ContinueLoopTarget { get; }
 

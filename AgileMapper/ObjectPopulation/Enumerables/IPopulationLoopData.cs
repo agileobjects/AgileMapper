@@ -6,6 +6,8 @@
 
     internal interface IPopulationLoopData
     {
+        bool NeedsContinueTarget { get; set; }
+
         LabelTarget ContinueLoopTarget { get; }
 
         Expression LoopExitCheck { get; }
@@ -36,7 +38,10 @@
                 elementPopulation,
                 Expression.PreIncrementAssign(builder.Counter));
 
-            var populationLoop = Expression.Loop(loopBody, breakLoop.Target, loopData.ContinueLoopTarget);
+            var populationLoop = loopData.NeedsContinueTarget
+                ? Expression.Loop(loopBody, breakLoop.Target, loopData.ContinueLoopTarget)
+                : Expression.Loop(loopBody, breakLoop.Target);
+
             var adaptedLoop = loopData.Adapt(populationLoop);
 
             var population = Expression.Block(

@@ -28,6 +28,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 : builder.Context.GetSourceParameterFor(builder.SourceTypeHelper.ElementType);
         }
 
+        public bool NeedsContinueTarget { get; set; }
+
         public LabelTarget ContinueLoopTarget { get; }
 
         public Expression LoopExitCheck { get; }

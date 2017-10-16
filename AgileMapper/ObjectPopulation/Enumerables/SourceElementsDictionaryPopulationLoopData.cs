@@ -113,6 +113,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Expression GetNoKeysWithMatchingStartQuery()
             => _dictionaryVariables.GetNoKeysWithMatchingStartQuery(_targetElementKey);
 
+        public bool NeedsContinueTarget { get; set; }
+
         public LabelTarget ContinueLoopTarget { get; }
 
         public Expression LoopExitCheck { get; }
