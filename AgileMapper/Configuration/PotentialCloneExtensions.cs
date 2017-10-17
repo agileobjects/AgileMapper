@@ -43,5 +43,21 @@
             cloneableItems.Add(newItem);
             cloneableItems.Sort();
         }
+
+        public static bool ConflictWith<TItem>(this IEnumerable<TItem> items, IEnumerable<TItem> otherItems)
+            where TItem : UserConfiguredItemBase
+        {
+            return (items != null) &&
+                   (otherItems != null) &&
+                    otherItems.Any(otherItem => items.GetConflictingItemOrNull(otherItem) != null);
+        }
+
+        public static TItem GetConflictingItemOrNull<TItem>(
+            this IEnumerable<TItem> items,
+            UserConfiguredItemBase item)
+            where TItem : UserConfiguredItemBase
+        {
+            return items?.FirstOrDefault(ci => ci.ConflictsWith(item));
+        }
     }
 }

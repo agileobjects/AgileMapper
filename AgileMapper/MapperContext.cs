@@ -2,6 +2,7 @@
 {
     using Caching;
     using Configuration;
+    using Configuration.Inline;
     using DataSources;
     using Flattening;
     using Members;
@@ -14,6 +15,7 @@
         internal static readonly MapperContext Default = new MapperContext(NamingSettings.Default);
 
         private ObjectFlattener _objectFlattener;
+        private InlineMapperSet _inlineMappers;
 
         public MapperContext(NamingSettings namingSettings = null)
         {
@@ -42,11 +44,23 @@
 
         public ObjectFlattener ObjectFlattener => _objectFlattener ?? (_objectFlattener = new ObjectFlattener());
 
+        public InlineMapperSet InlineMappers => _inlineMappers ?? (_inlineMappers = new InlineMapperSet(this));
+
         public UserConfigurationSet UserConfigurations { get; }
 
         public ConverterSet ValueConverters { get; }
 
         public MappingRuleSetCollection RuleSets { get; }
+
+        public bool ConflictsWith(MapperContext mapperContext)
+        {
+            return UserConfigurations.ConflictWith(mapperContext.UserConfigurations);
+        }
+
+        public void Merge(MapperContext mapperContext)
+        {
+            UserConfigurations.Merge(mapperContext.UserConfigurations);
+        }
 
         public MapperContext Clone()
         {

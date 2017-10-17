@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api
 {
     using System;
+    using System.Linq.Expressions;
     using Configuration;
 
     /// <summary>
@@ -17,15 +18,16 @@
         TResult ToANew<TResult>();
 
         /// <summary>
-        /// Perform a new object mapping using the given <paramref name="configuration"/>.
+        /// Perform a new object mapping using the given <paramref name="configurations"/>.
         /// </summary>
         /// <typeparam name="TResult">The type of object to create from the specified source object.</typeparam>
-        /// <param name="configuration">
-        /// A mapping configuration, if required. If supplied, the mapping will be configured by the combination of
-        /// this inline <paramref name="configuration"/> and any configuration set up via the Mapper.WhenMapping API.
+        /// <param name="configurations">
+        /// One or more mapping configurations, if required. If supplied, the mapping will be configured by the combination 
+        /// of these inline <paramref name="configurations"/> and any configuration already set up via the Mapper.WhenMapping 
+        /// API.
         /// </param>
         /// <returns>The result of the new object mapping.</returns>
-        TResult ToANew<TResult>(Action<IFullMappingConfigurator<TSource, TResult>> configuration);
+        TResult ToANew<TResult>(params Expression<Action<IFullMappingConfigurator<TSource, TResult>>>[] configurations);
 
         /// <summary>
         /// Perform an OnTo (merge) mapping.

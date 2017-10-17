@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
     using Configuration;
@@ -30,34 +31,40 @@
 
         public MappingRuleSet RuleSet { get; private set; }
 
+        #region Inline Configuration
+
+        public TResult ToANew<TResult>(Expression<Action<IFullMappingConfigurator<TSource, TResult>>>[] configurations)
+            => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations);
+
+        private TTarget PerformMapping<TTarget>(
+            MappingRuleSet ruleSet,
+            TTarget target,
+            Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations)
+        {
+            if (_source == null)
+            {
+                return target;
+            }
+
+            RuleSet = ruleSet;
+
+            var inlineMappingExecutor = MapperContext
+                .InlineMappers
+                .GetExecutorFor(configurations, this);
+
+            return inlineMappingExecutor.Invoke(_source, target, this);
+        }
+
+        #endregion
+
         public TResult ToANew<TResult>()
             => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
-
-        public TResult ToANew<TResult>(Action<IFullMappingConfigurator<TSource, TResult>> configuration)
-            => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configuration);
 
         public TTarget OnTo<TTarget>(TTarget existing)
             => PerformMapping(MapperContext.RuleSets.Merge, existing);
 
         public TTarget Over<TTarget>(TTarget existing)
             => PerformMapping(MapperContext.RuleSets.Overwrite, existing);
-
-        private TTarget PerformMapping<TTarget>(
-            MappingRuleSet ruleSet,
-            TTarget target,
-            Action<IFullMappingConfigurator<TSource, TTarget>> configuration)
-        {
-            var mapperContext = new MapperContext();
-
-            var configInfo = new MappingConfigInfo(mapperContext)
-                .ForRuleSet(ruleSet)
-                .ForSourceType<TSource>()
-                .ForTargetType<TTarget>();
-
-            configuration.Invoke(new MappingConfigurator<TSource, TTarget>(configInfo));
-
-            return target;
-        }
 
         private TTarget PerformMapping<TTarget>(MappingRuleSet ruleSet, TTarget target)
         {
@@ -68,6 +75,11 @@
 
             RuleSet = ruleSet;
 
+            return PerformMapping(target);
+        }
+
+        public TTarget PerformMapping<TTarget>(TTarget target)
+        {
             if (SkipTypeChecks<TTarget>())
             {
                 // Optimise for the most common scenario:
