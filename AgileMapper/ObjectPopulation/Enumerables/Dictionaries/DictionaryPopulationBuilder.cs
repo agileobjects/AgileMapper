@@ -89,6 +89,8 @@
 
         private Expression AssignDictionaryEntry(IPopulationLoopData loopData, IObjectMappingData mappingData)
         {
+            loopData.NeedsContinueTarget = true;
+
             var dictionaryEntryMember = _targetDictionaryMember.GetElementMember();
 
             return AssignDictionaryEntry(loopData, dictionaryEntryMember, mappingData);
