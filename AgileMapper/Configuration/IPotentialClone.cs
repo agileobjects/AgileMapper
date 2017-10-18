@@ -4,6 +4,8 @@
     {
         bool IsClone { get; }
 
+        bool IsInlineConfiguration { get; set; }
+
         IPotentialClone Clone();
 
         bool IsReplacementFor(IPotentialClone clonedItem);

@@ -9,12 +9,11 @@
         public static IList<T> CloneItems<T>(this IList<T> cloneableItems)
             where T : IPotentialClone
         {
-            var clonedItems = new T[cloneableItems.Count];
+            var clonedItems = new List<T>(cloneableItems.Count);
 
-            for (var i = 0; i < cloneableItems.Count; i++)
-            {
-                clonedItems[i] = (T)cloneableItems[i].Clone();
-            }
+            clonedItems.AddRange(cloneableItems
+                .Where(item => !item.IsInlineConfiguration)
+                .Select(t => (T)t.Clone()));
 
             return clonedItems;
         }
@@ -35,8 +34,8 @@
 
             if (replacedItem != null)
             {
-                cloneableItems.RemoveAt(replacedItem.Index);
-                cloneableItems.Insert(replacedItem.Index, newItem);
+                var insertIndex = (replacedItem.Index == 0) ? 0 : replacedItem.Index - 1;
+                cloneableItems.Insert(insertIndex, newItem);
                 return;
             }
 

@@ -38,8 +38,18 @@
 
         #region Inline Configuration
 
-        public TResult ToANew<TResult>(Expression<Action<IFullMappingConfigurator<TSource, TResult>>>[] configurations)
-            => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations);
+        public TResult ToANew<TResult>(
+            Expression<Action<IFullMappingConfigurator<TSource, TResult>>>[] configurations)
+        {
+            return PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations);
+        }
+
+        public TTarget Over<TTarget>(
+            TTarget existing,
+            Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations)
+        {
+            return PerformMapping(MapperContext.RuleSets.Overwrite, existing, configurations);
+        }
 
         private TTarget PerformMapping<TTarget>(
             MappingRuleSet ruleSet,

@@ -22,17 +22,25 @@
         private readonly MappingConfigInfo _configInfo;
         private readonly LambdaExpression _customValueLambda;
         private readonly ConfiguredLambdaInfo _customValueLambdaInfo;
+        private readonly bool _isForInlineConfig;
 
-        internal CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo, LambdaExpression customValueLambda)
-            : this(configInfo, default(ConfiguredLambdaInfo))
+        internal CustomDataSourceTargetMemberSpecifier(
+            MappingConfigInfo configInfo,
+            LambdaExpression customValueLambda,
+            bool isForInlineConfig)
+            : this(configInfo, default(ConfiguredLambdaInfo), isForInlineConfig)
         {
             _customValueLambda = customValueLambda;
         }
 
-        internal CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo, ConfiguredLambdaInfo customValueLambda)
+        internal CustomDataSourceTargetMemberSpecifier(
+            MappingConfigInfo configInfo,
+            ConfiguredLambdaInfo customValueLambda,
+            bool isForInlineConfig)
         {
             _configInfo = configInfo;
             _customValueLambdaInfo = customValueLambda;
+            _isForInlineConfig = isForInlineConfig;
         }
 
         /// <summary>
@@ -70,7 +78,11 @@
                 return new ConfiguredDictionaryDataSourceFactory(_configInfo, valueLambda, dictionaryEntryMember);
             }
 
-            return new ConfiguredDataSourceFactory(_configInfo, valueLambda, targetMemberLambda);
+            return new ConfiguredDataSourceFactory(
+                _configInfo, 
+                valueLambda, 
+                targetMemberLambda,
+                _isForInlineConfig);
         }
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)

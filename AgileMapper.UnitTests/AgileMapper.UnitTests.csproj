@@ -83,7 +83,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\Inline\WhenConfiguringMappingInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
     <Compile Include="MapperCloning\WhenCloningMapperMemberIgnores.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />

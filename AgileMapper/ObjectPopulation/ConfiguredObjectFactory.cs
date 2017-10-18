@@ -48,7 +48,7 @@
                 return false;
             }
 
-            return !IsClone || 
+            return !IsClone ||
                    _factoryInfo.IsSameAs(((ConfiguredObjectFactory)otherConfiguredItem)._factoryInfo);
         }
 
@@ -66,6 +66,8 @@
         #region IPotentialClone Members
 
         public bool IsClone { get; private set; }
+
+        public bool IsInlineConfiguration { get; set; }
 
         public IPotentialClone Clone()
         {

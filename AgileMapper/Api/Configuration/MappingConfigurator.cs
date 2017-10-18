@@ -10,12 +10,15 @@
         IFullMappingConfigurator<TSource, TTarget>,
         IConditionalRootMappingConfigurator<TSource, TTarget>
     {
-        public MappingConfigurator(MappingConfigInfo configInfo)
+        public MappingConfigurator(MappingConfigInfo configInfo, bool forInlineConfiguration = false)
         {
             ConfigInfo = configInfo.ForTargetType<TTarget>();
+            IsForInlineConfig = forInlineConfiguration;
         }
 
         protected MappingConfigInfo ConfigInfo { get; }
+
+        private bool IsForInlineConfig { get; }
 
         #region If Overloads
 
@@ -129,7 +132,8 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+                valueFactoryExpression,
+                IsForInlineConfig);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
@@ -137,7 +141,8 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+                valueFactoryExpression,
+                IsForInlineConfig);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
@@ -145,7 +150,8 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+                valueFactoryExpression,
+                IsForInlineConfig);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
@@ -159,7 +165,8 @@
             return (valueLambdaInfo != null)
                 ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                     ConfigInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
-                    valueLambdaInfo)
+                    valueLambdaInfo,
+                    IsForInlineConfig)
                 : GetConstantValueTargetMemberSpecifier(value);
         }
 
@@ -173,7 +180,8 @@
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 ConfigInfo.ForSourceValueType(valueConstant.Type),
-                valueLambda);
+                valueLambda,
+                IsForInlineConfig);
         }
 
         #endregion

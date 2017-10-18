@@ -58,7 +58,9 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
                 .ForSourceType<TSource>()
                 .ForTargetType<TTarget>();
 
-            var configurator = new MappingConfigurator<TSource, TTarget>(configInfo);
+            var configurator = new MappingConfigurator<TSource, TTarget>(
+                configInfo,
+                forInlineConfiguration: true);
 
             foreach (var configuration in _configurations)
             {
