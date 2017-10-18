@@ -1,8 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System;
+    using System.Diagnostics;
     using System.Linq.Expressions;
     using AgileMapper.Members;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -16,11 +18,17 @@
 
             using (var mapper = Mapper.CreateNew())
             {
+                var timer = Stopwatch.StartNew();
+
                 var result1 = mapper
                     .Map(source1)
                     .ToANew<PublicField<int>>(c => c
                         .Map(ctx => ctx.Source.Value * 2)
                         .To(pf => pf.Value));
+
+                var result1Duration = timer.ElapsedTicks;
+
+                timer.Restart();
 
                 var result2 = mapper
                     .Map(source2)
@@ -28,44 +36,60 @@
                         .Map(ctx => ctx.Source.Value * 2)
                         .To(pf => pf.Value));
 
+                var result2Duration = timer.ElapsedTicks;
+
+                timer.Stop();
+
                 result1.Value.ShouldBe(source1.Value * 2);
                 result2.Value.ShouldBe(source2.Value * 2);
+
+                // Better-than-nothing check on inline MapperContext caching:
+                result1Duration.ShouldBeGreaterThan(result2Duration);
             }
         }
 
         [Fact]
-        public void ShouldExtendMapperConfiguration()
+        public void ShouldApplyInlineDataSourceFunctions()
         {
-            var source = new PublicProperty<int> { Value = 2 };
+            Func<PublicField<string>, PublicField<string>, string> sourceYes =
+                (s, t) => s.Value + "? Yes!";
+
+            Func<PublicField<string>, PublicField<string>, string> sourceNo =
+                (s, t) => s.Value + "? No!";
+
+            var source1 = new PublicField<string> { Value = "One" };
+            var source2 = new PublicField<string> { Value = "Two" };
 
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping
-                    .From<PublicProperty<int>>()
-                    .To<PublicTwoFields<long, long>>()
-                    .Map((pp, ptf) => pp.Value)
-                    .To(ptf => ptf.Value1);      // Configure Value -> Value1
+                var result1Yes = mapper
+                    .Map(source1)
+                    .OnTo(new PublicField<string>(), c => c
+                        .Map(sourceYes)
+                        .To(pf => pf.Value));
 
-                var result1 = mapper
-                    .Map(source)
-                    .ToANew<PublicTwoFields<long, long>>(c => c
-                        .Map((pp, ptf) => pp.Value)
-                        .To(ptf => ptf.Value2)); // Add Value -> Value2
+                var result1No = mapper
+                    .Map(source1)
+                    .OnTo(new PublicField<string>(), c => c
+                        .Map(sourceNo)
+                        .To(pf => pf.Value));
 
-                result1.Value1.ShouldBe(source.Value);
-                result1.Value2.ShouldBe(source.Value);
+                var result2Yes = mapper
+                    .Map(source2)
+                    .OnTo(new PublicField<string>(), c => c
+                        .Map(sourceYes)
+                        .To(pf => pf.Value));
 
-                var result2 = mapper
-                    .Map(source)
-                    .ToANew<PublicTwoFields<long, long>>(c => c
-                        .Map((pp, ptf) => pp.Value * 2)
-                        .To(ptf => ptf.Value1)   // Overwrite Value -> Value1
-                        .And
-                        .Map((pp, ptf) => pp.Value * 3)
-                        .To(ptf => ptf.Value2)); // Add Value -> Value2m
+                var result2No = mapper
+                    .Map(source2)
+                    .OnTo(new PublicField<string>(), c => c
+                        .Map(sourceNo)
+                        .To(pf => pf.Value));
 
-                result2.Value1.ShouldBe(source.Value * 2);
-                result2.Value2.ShouldBe(source.Value * 3);
+                result1Yes.Value.ShouldBe("One? Yes!");
+                result1No.Value.ShouldBe("One? No!");
+                result2Yes.Value.ShouldBe("Two? Yes!");
+                result2No.Value.ShouldBe("Two? No!");
             }
         }
 
@@ -204,6 +228,42 @@
 
                 result2.Name.ShouldBe("Bob, Over there");
                 result2.AddressLine1.ShouldBe("Over there");
+            }
+        }
+
+        [Fact]
+        public void ShouldExtendMapperConfiguration()
+        {
+            var source = new PublicProperty<int> { Value = 2 };
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<int>>()
+                    .To<PublicTwoFields<long, long>>()
+                    .Map((pp, ptf) => pp.Value)
+                    .To(ptf => ptf.Value1);      // Configure Value -> Value1
+
+                var result1 = mapper
+                    .Map(source)
+                    .ToANew<PublicTwoFields<long, long>>(c => c
+                        .Map((pp, ptf) => pp.Value)
+                        .To(ptf => ptf.Value2)); // Add Value -> Value2
+
+                result1.Value1.ShouldBe(source.Value);
+                result1.Value2.ShouldBe(source.Value);
+
+                var result2 = mapper
+                    .Map(source)
+                    .ToANew<PublicTwoFields<long, long>>(c => c
+                        .Map((pp, ptf) => pp.Value * 2)
+                        .To(ptf => ptf.Value1)   // Overwrite Value -> Value1
+                        .And
+                        .Map((pp, ptf) => pp.Value * 3)
+                        .To(ptf => ptf.Value2)); // Add Value -> Value2m
+
+                result2.Value1.ShouldBe(source.Value * 2);
+                result2.Value2.ShouldBe(source.Value * 3);
             }
         }
 

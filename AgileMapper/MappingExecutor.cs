@@ -44,6 +44,13 @@
             return PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations);
         }
 
+        public TTarget OnTo<TTarget>(
+            TTarget existing,
+            Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations)
+        {
+            return PerformMapping(MapperContext.RuleSets.Merge, existing, configurations);
+        }
+
         public TTarget Over<TTarget>(
             TTarget existing,
             Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations)
