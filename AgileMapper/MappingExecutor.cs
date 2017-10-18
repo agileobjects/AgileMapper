@@ -4,7 +4,6 @@
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
-    using Configuration;
     using Extensions;
     using Members;
     using ObjectPopulation;
@@ -25,6 +24,12 @@
         {
             RuleSet = ruleSet;
             MapperContext = mapperContext;
+        }
+
+        public MappingExecutor(TSource source, MappingRuleSet ruleSet, MapperContext mapperContext)
+            : this(source, mapperContext)
+        {
+            RuleSet = ruleSet;
         }
 
         public MapperContext MapperContext { get; }

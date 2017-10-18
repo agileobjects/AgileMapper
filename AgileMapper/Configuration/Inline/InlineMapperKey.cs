@@ -40,25 +40,9 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 
             var inlineMapperContext = CreateConfiguredInlineMapperContext();
 
-            Expression executorCall;
-
-            if (_initiatingExecutor.MapperContext.ConflictsWith(inlineMapperContext))
-            {
-                var ruleSet = _initiatingExecutor.RuleSet.ToConstantExpression();
-                //var mapperContext = mergedCloneMapperContext.ToConstantExpression();
-                //var inlineMappingExecutor = new MappingExecutor<TSource>(, mergedCloneMapperContext);
-
-                executorCall = null;
-            }
-            else
-            {
-                _initiatingExecutor.MapperContext.Merge(inlineMapperContext);
-
-                // The MapperContext on the initiating MappingExecutor is compatible with the 
-                // supplied inline configurations. We can therefore just call PerformMapping
-                // to continue the mapping on the initiating MappingExecutor:
-                executorCall = GetInitiatingExecutorCall(executorParameter, targetParameter);
-            }
+            var executorCall = _initiatingExecutor.MapperContext.ConflictsWith(inlineMapperContext)
+                ? GetNewExecutorCall(inlineMapperContext, sourceParameter, targetParameter)
+                : GetInitiatingExecutorCall(inlineMapperContext, executorParameter, targetParameter);
 
             var executorLambda = Expression.Lambda<InlineMappingExecutor<TSource, TTarget>>(
                 executorCall,
@@ -88,15 +72,50 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
             return inlineMapperContext;
         }
 
-        private static Expression GetInitiatingExecutorCall(Expression executorParameter, Expression targetParameter)
+        private Expression GetNewExecutorCall(
+            MapperContext inlineMapperContext,
+            Expression sourceParameter,
+            Expression targetParameter)
         {
-            var performMappingMethod = executorParameter
+            var ruleSet = _initiatingExecutor.RuleSet.ToConstantExpression();
+
+            var mergedInlineMapperContext = _initiatingExecutor
+                .MapperContext
+                .Clone()
+                .Merge(inlineMapperContext)
+                .ToConstantExpression();
+
+            var newExecutor = Expression.New(
+                typeof(MappingExecutor<TSource>).GetConstructors().Last(),
+                sourceParameter,
+                ruleSet,
+                mergedInlineMapperContext);
+
+            return GetExecutorCall(newExecutor, targetParameter);
+        }
+
+        private Expression GetInitiatingExecutorCall(
+            MapperContext inlineMapperContext,
+            Expression executorParameter,
+            Expression targetParameter)
+        {
+            _initiatingExecutor.MapperContext.Merge(inlineMapperContext);
+
+            // The MapperContext on the initiating MappingExecutor is compatible with the 
+            // supplied inline configurations. We can therefore just call PerformMapping
+            // to continue the mapping on the initiating MappingExecutor:
+            return GetExecutorCall(executorParameter, targetParameter);
+        }
+
+        private static Expression GetExecutorCall(Expression executor, Expression targetParameter)
+        {
+            var performMappingMethod = executor
                 .Type
                 .GetMethod("PerformMapping")
                 .MakeGenericMethod(typeof(TTarget));
 
             return Expression.Call(
-                executorParameter,
+                executor,
                 performMappingMethod,
                 targetParameter);
         }
