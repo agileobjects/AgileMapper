@@ -22,7 +22,6 @@
                         .Map(ctx => ctx.Source.Value * 2)
                         .To(pf => pf.Value));
 
-
                 var result2 = mapper
                     .Map(source2)
                     .ToANew<PublicField<int>>(c => c
@@ -31,6 +30,42 @@
 
                 result1.Value.ShouldBe(source1.Value * 2);
                 result2.Value.ShouldBe(source2.Value * 2);
+            }
+        }
+
+        [Fact]
+        public void ShouldExtendMapperConfiguration()
+        {
+            var source1 = new PublicProperty<int> { Value = 2 };
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<int>>()
+                    .To<PublicTwoFields<long, long>>()
+                    .Map((pp, ptf) => pp.Value)
+                    .To(ptf => ptf.Value1);
+
+                var result1 = mapper
+                    .Map(source1)
+                    .ToANew<PublicTwoFields<long, long>>(c => c
+                        .Map((pp, ptf) => pp.Value)
+                        .To(ptf => ptf.Value2)); // Add a Value2 data source
+
+                result1.Value1.ShouldBe(source1.Value);
+                result1.Value2.ShouldBe(source1.Value);
+
+                var result2 = mapper
+                    .Map(source1)
+                    .ToANew<PublicTwoFields<long, long>>(c => c
+                        .Map((pp, ptf) => pp.Value * 2)
+                        .To(ptf => ptf.Value1)   // Overwrite the Value1 data source
+                        .And
+                        .Map((pp, ptf) => pp.Value * 3)
+                        .To(ptf => ptf.Value2)); // Add a Value2 data source
+
+                result2.Value1.ShouldBe(source1.Value * 2);
+                result2.Value2.ShouldBe(source1.Value * 3);
             }
         }
 
