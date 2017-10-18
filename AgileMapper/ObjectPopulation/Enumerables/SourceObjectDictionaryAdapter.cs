@@ -1,9 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Collections;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
@@ -111,7 +108,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             => Builder.MapperData.GetMapCall(sourceParameter);
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

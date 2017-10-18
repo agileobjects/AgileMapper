@@ -2,9 +2,6 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using System.Linq.Expressions;
 #if NET_STANDARD
     using System.Reflection;
@@ -367,7 +364,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -424,7 +421,7 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
             [ExcludeFromCodeCoverage]
 #endif
             #endregion

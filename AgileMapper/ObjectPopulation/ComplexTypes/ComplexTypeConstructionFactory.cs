@@ -2,9 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
     using System.Collections.Generic;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -196,7 +193,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
             [ExcludeFromCodeCoverage]
 #endif
             #endregion

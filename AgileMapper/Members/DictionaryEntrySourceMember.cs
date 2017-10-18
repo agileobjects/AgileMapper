@@ -1,9 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using System.Linq.Expressions;
     using Extensions;
     using ReadableExpressions.Extensions;
@@ -113,7 +110,7 @@ namespace AgileObjects.AgileMapper.Members
         public Expression GetQualifiedAccess(IMemberMapperData mapperData) => _childMembers.GetQualifiedAccess(mapperData);
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

@@ -1,8 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using Members;
     using Members.Sources;
     using ReadableExpressions.Extensions;
@@ -41,17 +38,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
         public override int GetHashCode() => 0;
 
-        #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+        #region ToString
+#if DEBUG
         [ExcludeFromCodeCoverage]
-#endif
-        #endregion
         public override string ToString()
         {
             var sourceTypeName = MappingTypes.SourceType.GetFriendlyName();
@@ -59,5 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return $"{_ruleSet.Name}: {sourceTypeName} -> {targetTypeName}";
         }
+#endif
+        #endregion
     }
 }

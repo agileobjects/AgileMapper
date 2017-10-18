@@ -8,10 +8,6 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
     using Extensions;
     using Members;
 
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
-
     internal class InlineMapperKey<TSource, TTarget> : IInlineMapperKey
     {
         private readonly Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] _configurations;
@@ -146,7 +142,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
         }
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

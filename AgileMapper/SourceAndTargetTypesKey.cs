@@ -1,9 +1,6 @@
 namespace AgileObjects.AgileMapper
 {
     using System;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
 
     internal class SourceAndTargetTypesKey
     {
@@ -27,7 +24,7 @@ namespace AgileObjects.AgileMapper
         }
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

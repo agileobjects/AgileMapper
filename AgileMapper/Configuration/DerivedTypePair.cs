@@ -1,9 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using System.Globalization;
     using System.Linq;
 #if NET_STANDARD
@@ -88,11 +85,9 @@
         public override bool AppliesTo(IBasicMapperData mapperData)
             => DerivedSourceType.IsAssignableFrom(mapperData.SourceType) && base.AppliesTo(mapperData);
 
-        #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+        #region ToString
+#if DEBUG
         [ExcludeFromCodeCoverage]
-#endif
-        #endregion
         public override string ToString()
         {
             var rootSourceType = ConfigInfo.SourceType.GetFriendlyName();
@@ -102,5 +97,7 @@
 
             return $"{rootSourceType} -> {rootTargetType} > {derivedSourceType} -> {derivedTargetType}";
         }
+#endif
+        #endregion
     }
 }
