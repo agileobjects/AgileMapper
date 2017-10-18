@@ -32,7 +32,7 @@
             RuleSet = ruleSet;
         }
 
-        public MapperContext MapperContext { get; }
+        public MapperContext MapperContext { get; private set; }
 
         public MappingRuleSet RuleSet { get; private set; }
 
@@ -62,12 +62,9 @@
             }
 
             RuleSet = ruleSet;
+            MapperContext = MapperContext.InlineMappers.GetContextFor(configurations, this);
 
-            var inlineMappingExecutor = MapperContext
-                .InlineMappers
-                .GetExecutorFor(configurations, this);
-
-            return inlineMappingExecutor.Invoke(_source, target);
+            return PerformMapping(target);
         }
 
         #endregion
@@ -93,7 +90,7 @@
             return PerformMapping(target);
         }
 
-        public TTarget PerformMapping<TTarget>(TTarget target)
+        private TTarget PerformMapping<TTarget>(TTarget target)
         {
             if (SkipTypeChecks<TTarget>())
             {

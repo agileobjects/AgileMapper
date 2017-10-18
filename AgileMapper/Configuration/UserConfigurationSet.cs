@@ -247,11 +247,6 @@
 
         #endregion
 
-        public void Merge(UserConfigurationSet configurations)
-        {
-            configurations._dataSourceFactories?.CopyTo(DataSourceFactories);
-        }
-
         public void CloneTo(UserConfigurationSet configurations)
         {
             _trackingModeSettings?.CopyTo(configurations.TrackingModeSettings);

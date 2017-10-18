@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.Configuration.Inline
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Members;
@@ -13,6 +12,6 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 
         IList<LambdaExpression> Configurations { get; }
 
-        MulticastDelegate CreateExecutor();
+        MapperContext CreateInlineMapperContext();
     }
 }

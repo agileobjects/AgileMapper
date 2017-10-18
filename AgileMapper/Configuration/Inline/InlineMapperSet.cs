@@ -7,22 +7,24 @@
 
     internal class InlineMapperSet
     {
-        private readonly ICache<IInlineMapperKey, MulticastDelegate> _inlineExecutorsCache;
+        private readonly ICache<IInlineMapperKey, MapperContext> _inlineContextsCache;
 
-        public InlineMapperSet(MapperContext mapperContext)
+        public InlineMapperSet(MapperContext parentMapperContext)
         {
-            _inlineExecutorsCache = mapperContext.Cache.CreateScoped<IInlineMapperKey, MulticastDelegate>();
+            _inlineContextsCache = parentMapperContext.Cache.CreateScoped<IInlineMapperKey, MapperContext>();
         }
 
-        public InlineMappingExecutor<TSource, TTarget> GetExecutorFor<TSource, TTarget>(
+        public MapperContext GetContextFor<TSource, TTarget>(
             Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations,
-            MappingExecutor<TSource> mappingExecutor)
+            MappingExecutor<TSource> initiatingExecutor)
         {
-            var inlineExecutor = _inlineExecutorsCache.GetOrAdd(
-                new InlineMapperKey<TSource, TTarget>(configurations, mappingExecutor),
-                k => k.CreateExecutor());
+            var key = new InlineMapperKey<TSource, TTarget>(configurations, initiatingExecutor);
 
-            return (InlineMappingExecutor<TSource, TTarget>)inlineExecutor;
+            var inlineMapperContext = _inlineContextsCache.GetOrAdd(
+                key,
+                k => k.CreateInlineMapperContext());
+
+            return inlineMapperContext;
         }
     }
 }

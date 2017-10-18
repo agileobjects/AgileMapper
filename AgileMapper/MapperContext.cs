@@ -52,12 +52,6 @@
 
         public MappingRuleSetCollection RuleSets { get; }
 
-        public MapperContext Merge(MapperContext mapperContext)
-        {
-            UserConfigurations.Merge(mapperContext.UserConfigurations);
-            return this;
-        }
-
         public MapperContext Clone()
         {
             var context = new MapperContext();

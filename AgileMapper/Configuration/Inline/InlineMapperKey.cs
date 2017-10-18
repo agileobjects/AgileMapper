@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using System.Reflection;
     using Api.Configuration;
     using Extensions;
     using Members;
@@ -28,55 +27,18 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
         // ReSharper disable once CoVariantArrayConversion
         public IList<LambdaExpression> Configurations => _configurations;
 
-        public MulticastDelegate CreateExecutor()
+        public MapperContext CreateInlineMapperContext()
         {
-            var sourceParameter = Parameters.Create<TSource>("source");
-            var targetParameter = Parameters.Create<TTarget>("target");
-
-            var executorCall = GetNewExecutorCall(sourceParameter, targetParameter);
-
-            var executorLambda = Expression.Lambda<InlineMappingExecutor<TSource, TTarget>>(
-                executorCall,
-                sourceParameter,
-                targetParameter);
-
-            return executorLambda.Compile();
-        }
-
-        private Expression GetNewExecutorCall(Expression source, Expression target)
-        {
-            var ruleSet = _initiatingExecutor
-                .RuleSet
-                .ToConstantExpression();
-
-            var inlineMapperContext = CreateConfiguredInlineMapperContext();
-
-            var mergedInlineMapperContext = _initiatingExecutor
+            var inlineMapperContext = _initiatingExecutor
                 .MapperContext
-                .Clone()
-                .Merge(inlineMapperContext)
-                .ToConstantExpression();
-
-            var newExecutor = Expression.New(
-                typeof(MappingExecutor<TSource>).GetConstructors().Last(),
-                source,
-                ruleSet,
-                mergedInlineMapperContext);
-
-            return GetExecutorCall(newExecutor, target);
-        }
-
-        private MapperContext CreateConfiguredInlineMapperContext()
-        {
-            var inlineMapperContext = new MapperContext();
+                .Clone();
 
             var configInfo = new MappingConfigInfo(inlineMapperContext)
                 .ForRuleSet(_initiatingExecutor.RuleSet)
                 .ForSourceType<TSource>()
                 .ForTargetType<TTarget>();
 
-            var configurator = new MappingConfigurator<TSource, TTarget>(
-                configInfo);
+            var configurator = new MappingConfigurator<TSource, TTarget>(configInfo);
 
             foreach (var configuration in _configurations)
             {
@@ -84,19 +46,6 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
             }
 
             return inlineMapperContext;
-        }
-
-        private static Expression GetExecutorCall(Expression executor, Expression target)
-        {
-            var performMappingMethod = executor
-                .Type
-                .GetMethod("PerformMapping")
-                .MakeGenericMethod(typeof(TTarget));
-
-            return Expression.Call(
-                executor,
-                performMappingMethod,
-                target);
         }
 
         public override bool Equals(object obj)
