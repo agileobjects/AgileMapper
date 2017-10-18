@@ -67,7 +67,7 @@
                 .InlineMappers
                 .GetExecutorFor(configurations, this);
 
-            return inlineMappingExecutor.Invoke(_source, target, this);
+            return inlineMappingExecutor.Invoke(_source, target);
         }
 
         #endregion

@@ -9,7 +9,7 @@
     public class WhenConfiguringDataSourcesInline
     {
         [Fact]
-        public void ShouldSupportInlineDataSourceExpressionConfig()
+        public void ShouldApplyInlineDataSourceExpressions()
         {
             var source1 = new PublicProperty<int> { Value = 1 };
             var source2 = new PublicProperty<int> { Value = 2 };
@@ -36,7 +36,7 @@
         [Fact]
         public void ShouldExtendMapperConfiguration()
         {
-            var source1 = new PublicProperty<int> { Value = 2 };
+            var source = new PublicProperty<int> { Value = 2 };
 
             using (var mapper = Mapper.CreateNew())
             {
@@ -44,33 +44,33 @@
                     .From<PublicProperty<int>>()
                     .To<PublicTwoFields<long, long>>()
                     .Map((pp, ptf) => pp.Value)
-                    .To(ptf => ptf.Value1);
+                    .To(ptf => ptf.Value1);      // Configure Value -> Value1
 
                 var result1 = mapper
-                    .Map(source1)
+                    .Map(source)
                     .ToANew<PublicTwoFields<long, long>>(c => c
                         .Map((pp, ptf) => pp.Value)
-                        .To(ptf => ptf.Value2)); // Add a Value2 data source
+                        .To(ptf => ptf.Value2)); // Add Value -> Value2
 
-                result1.Value1.ShouldBe(source1.Value);
-                result1.Value2.ShouldBe(source1.Value);
+                result1.Value1.ShouldBe(source.Value);
+                result1.Value2.ShouldBe(source.Value);
 
                 var result2 = mapper
-                    .Map(source1)
+                    .Map(source)
                     .ToANew<PublicTwoFields<long, long>>(c => c
                         .Map((pp, ptf) => pp.Value * 2)
-                        .To(ptf => ptf.Value1)   // Overwrite the Value1 data source
+                        .To(ptf => ptf.Value1)   // Overwrite Value -> Value1
                         .And
                         .Map((pp, ptf) => pp.Value * 3)
-                        .To(ptf => ptf.Value2)); // Add a Value2 data source
+                        .To(ptf => ptf.Value2)); // Add Value -> Value2m
 
-                result2.Value1.ShouldBe(source1.Value * 2);
-                result2.Value2.ShouldBe(source1.Value * 3);
+                result2.Value1.ShouldBe(source.Value * 2);
+                result2.Value2.ShouldBe(source.Value * 3);
             }
         }
 
         [Fact]
-        public void ShouldSupportMultipleInlineDataSourceExpressionConfig()
+        public void ShouldApplyMultipleInlineDataSourceExpressions()
         {
             var source1 = new PublicProperty<int> { Value = 2 };
             var source2 = new PublicProperty<int> { Value = 4 };
@@ -100,7 +100,7 @@
         }
 
         [Fact]
-        public void ShouldSupportInlineConstantDataSourceExpressionConfig()
+        public void ShouldApplyInlineConstantDataSourceExpressions()
         {
             var source1 = new PublicProperty<string> { Value = "Yes" };
             var source2 = new PublicProperty<string> { Value = "No" };
@@ -126,7 +126,7 @@
         }
 
         [Fact]
-        public void ShouldSupportDifferingInlineDelegateDataSourceConfig()
+        public void ShouldApplyDifferingInlineDelegateDataSources()
         {
             var source1 = new PublicProperty<int> { Value = 1 };
             var source2 = new PublicProperty<int> { Value = 2 };
@@ -153,7 +153,7 @@
         }
 
         [Fact]
-        public void ShouldSupportDifferingInlineConstantDataSourceConfig()
+        public void ShouldApplyDifferingInlineConstantDataSources()
         {
             var source1 = new PublicProperty<int> { Value = 1 };
             var source2 = new PublicProperty<int> { Value = 2 };
@@ -179,7 +179,36 @@
         }
 
         [Fact]
-        public void ShouldSupportDifferingRuleSetInlineDataSourceMemberConfig()
+        public void ShouldApplyDifferingInlineDataSourceFunctions()
+        {
+            Func<IMappingData<MysteryCustomer, MysteryCustomerViewModel>, string> nameConcatLine1 =
+                ctx => ctx.Source.Name + ", " + ctx.Source.Address.Line1;
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new MysteryCustomer { Name = "Bob", Address = new Address { Line1 = "Over there" } };
+
+                var result1 = mapper
+                    .Map(source)
+                    .ToANew<MysteryCustomerViewModel>(c => c
+                        .Map(nameConcatLine1)
+                        .To(mcvm => mcvm.AddressLine1));
+
+                result1.AddressLine1.ShouldBe("Bob, Over there");
+
+                var result2 = mapper
+                    .Map(source)
+                    .ToANew<MysteryCustomerViewModel>(c => c
+                        .Map(nameConcatLine1)
+                        .To(mcvm => mcvm.Name));
+
+                result2.Name.ShouldBe("Bob, Over there");
+                result2.AddressLine1.ShouldBe("Over there");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyDifferingRuleSetInlineDataSourceMemberConfig()
         {
             var source1 = new PublicProperty<int> { Value = 1 };
             var source2 = new PublicProperty<int> { Value = 2 };
@@ -205,7 +234,7 @@
         }
 
         [Fact]
-        public void ShouldSupportDifferingTargetTypeInlineDataSourceMemberConfig()
+        public void ShouldApplyDifferingTargetTypeInlineDataSourceMemberConfig()
         {
             var source1 = new PublicProperty<int> { Value = 1 };
             var source2 = new PublicProperty<int> { Value = 2 };

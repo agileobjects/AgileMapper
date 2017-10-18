@@ -30,23 +30,40 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 
         public MulticastDelegate CreateExecutor()
         {
-            var executorParameter = Parameters.Create<MappingExecutor<TSource>>("executor");
             var sourceParameter = Parameters.Create<TSource>("source");
             var targetParameter = Parameters.Create<TTarget>("target");
 
-            var inlineMapperContext = CreateConfiguredInlineMapperContext();
-
-            var executorCall = _initiatingExecutor.MapperContext.ConflictsWith(inlineMapperContext)
-                ? GetNewExecutorCall(inlineMapperContext, sourceParameter, targetParameter)
-                : GetInitiatingExecutorCall(inlineMapperContext, executorParameter, targetParameter);
+            var executorCall = GetNewExecutorCall(sourceParameter, targetParameter);
 
             var executorLambda = Expression.Lambda<InlineMappingExecutor<TSource, TTarget>>(
                 executorCall,
                 sourceParameter,
-                targetParameter,
-                executorParameter);
+                targetParameter);
 
             return executorLambda.Compile();
+        }
+
+        private Expression GetNewExecutorCall(Expression source, Expression target)
+        {
+            var ruleSet = _initiatingExecutor
+                .RuleSet
+                .ToConstantExpression();
+
+            var inlineMapperContext = CreateConfiguredInlineMapperContext();
+
+            var mergedInlineMapperContext = _initiatingExecutor
+                .MapperContext
+                .Clone()
+                .Merge(inlineMapperContext)
+                .ToConstantExpression();
+
+            var newExecutor = Expression.New(
+                typeof(MappingExecutor<TSource>).GetConstructors().Last(),
+                source,
+                ruleSet,
+                mergedInlineMapperContext);
+
+            return GetExecutorCall(newExecutor, target);
         }
 
         private MapperContext CreateConfiguredInlineMapperContext()
@@ -59,8 +76,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
                 .ForTargetType<TTarget>();
 
             var configurator = new MappingConfigurator<TSource, TTarget>(
-                configInfo,
-                forInlineConfiguration: true);
+                configInfo);
 
             foreach (var configuration in _configurations)
             {
@@ -70,42 +86,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
             return inlineMapperContext;
         }
 
-        private Expression GetNewExecutorCall(
-            MapperContext inlineMapperContext,
-            Expression sourceParameter,
-            Expression targetParameter)
-        {
-            var ruleSet = _initiatingExecutor.RuleSet.ToConstantExpression();
-
-            var mergedInlineMapperContext = _initiatingExecutor
-                .MapperContext
-                .Clone()
-                .Merge(inlineMapperContext)
-                .ToConstantExpression();
-
-            var newExecutor = Expression.New(
-                typeof(MappingExecutor<TSource>).GetConstructors().Last(),
-                sourceParameter,
-                ruleSet,
-                mergedInlineMapperContext);
-
-            return GetExecutorCall(newExecutor, targetParameter);
-        }
-
-        private Expression GetInitiatingExecutorCall(
-            MapperContext inlineMapperContext,
-            Expression executorParameter,
-            Expression targetParameter)
-        {
-            _initiatingExecutor.MapperContext.Merge(inlineMapperContext);
-
-            // The MapperContext on the initiating MappingExecutor is compatible with the 
-            // supplied inline configurations. We can therefore just call PerformMapping
-            // to continue the mapping on the initiating MappingExecutor:
-            return GetExecutorCall(executorParameter, targetParameter);
-        }
-
-        private static Expression GetExecutorCall(Expression executor, Expression targetParameter)
+        private static Expression GetExecutorCall(Expression executor, Expression target)
         {
             var performMappingMethod = executor
                 .Type
@@ -115,7 +96,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
             return Expression.Call(
                 executor,
                 performMappingMethod,
-                targetParameter);
+                target);
         }
 
         public override bool Equals(object obj)

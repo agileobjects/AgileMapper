@@ -47,7 +47,7 @@
             TargetMember = targetMember;
         }
 
-        protected MappingConfigInfo ConfigInfo { get; }
+        public MappingConfigInfo ConfigInfo { get; }
 
         public string TargetTypeName => ConfigInfo.TargetType.GetFriendlyName();
 

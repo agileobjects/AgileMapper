@@ -232,7 +232,8 @@
             where TConfiguredItem : UserConfiguredItemBase
             where TExistingItem : UserConfiguredItemBase
         {
-            var conflictingItem = existingItems.GetConflictingItemOrNull(configuredItem);
+            var conflictingItem = existingItems?
+                .FirstOrDefault(ci => ci.ConflictsWith(configuredItem));
 
             if (conflictingItem == null)
             {
@@ -245,11 +246,6 @@
         }
 
         #endregion
-
-        public bool ConflictWith(UserConfigurationSet configurations)
-        {
-            return configurations._dataSourceFactories.ConflictWith(_dataSourceFactories);
-        }
 
         public void Merge(UserConfigurationSet configurations)
         {

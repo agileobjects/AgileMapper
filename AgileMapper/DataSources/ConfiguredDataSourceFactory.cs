@@ -24,12 +24,10 @@
         public ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo dataSourceLambda,
-            LambdaExpression targetMemberLambda,
-            bool isForInlineConfig)
+            LambdaExpression targetMemberLambda)
             : base(configInfo, targetMemberLambda)
         {
             _dataSourceLambda = dataSourceLambda;
-            IsInlineConfiguration = isForInlineConfig;
         }
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
@@ -89,8 +87,6 @@
         #region IPotentialClone Members
 
         public bool IsClone { get; private set; }
-
-        public bool IsInlineConfiguration { get; set; }
 
         public IPotentialClone Clone()
         {

@@ -124,8 +124,6 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public bool IsClone { get; private set; }
 
-        public bool IsInlineConfiguration { get; set; }
-
         public IPotentialClone Clone()
         {
             return new ConfiguredIgnoredMember(

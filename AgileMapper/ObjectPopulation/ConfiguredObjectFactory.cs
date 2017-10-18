@@ -67,8 +67,6 @@
 
         public bool IsClone { get; private set; }
 
-        public bool IsInlineConfiguration { get; set; }
-
         public IPotentialClone Clone()
         {
             return new ConfiguredObjectFactory(ConfigInfo, _objectType, _factoryInfo)

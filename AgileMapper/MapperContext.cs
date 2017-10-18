@@ -52,11 +52,6 @@
 
         public MappingRuleSetCollection RuleSets { get; }
 
-        public bool ConflictsWith(MapperContext mapperContext)
-        {
-            return UserConfigurations.ConflictWith(mapperContext.UserConfigurations);
-        }
-
         public MapperContext Merge(MapperContext mapperContext)
         {
             UserConfigurations.Merge(mapperContext.UserConfigurations);
@@ -67,7 +62,6 @@
         {
             var context = new MapperContext();
 
-            //Cache.CloneTo(context.Cache);
             NamingSettings.CloneTo(context.NamingSettings);
             UserConfigurations.CloneTo(context.UserConfigurations);
             ValueConverters.CloneTo(context.ValueConverters);

@@ -1,7 +1,4 @@
 namespace AgileObjects.AgileMapper.Configuration.Inline
 {
-    internal delegate TTarget InlineMappingExecutor<TSource, TTarget>(
-        TSource source,
-        TTarget target,
-        MappingExecutor<TSource> initiatingExecutor);
+    internal delegate TTarget InlineMappingExecutor<in TSource, TTarget>(TSource source, TTarget target);
 }
