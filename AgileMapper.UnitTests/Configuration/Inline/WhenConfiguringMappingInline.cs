@@ -46,11 +46,11 @@
                 var result2 = mapper
                     .Map(source2)
                     .ToANew<PublicField<int>>(c => c
-                        .Map(ctx => ctx.Source.Value - int.Parse("1"))
+                        .Map(ctx => ctx.Source.Value + 1)
                         .To(pf => pf.Value));
 
                 result1.Value.ShouldBe(source1.Value + 2);
-                result2.Value.ShouldBe(source2.Value - 1);
+                result2.Value.ShouldBe(source2.Value + 1);
             }
         }
     }

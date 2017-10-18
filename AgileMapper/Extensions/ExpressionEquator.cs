@@ -37,6 +37,7 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.MemberAccess:
                         return AreEqual((MemberExpression)x, (MemberExpression)y);
 
+                    case ExpressionType.Add:
                     case ExpressionType.Multiply:
                         return AreEqual((BinaryExpression)x, (BinaryExpression)y);
 
@@ -49,7 +50,7 @@ namespace AgileObjects.AgileMapper.Extensions
                         continue;
                 }
 
-                return false;
+                throw new NotImplementedException("Unable to equate Expressions of type " + x.NodeType);
             }
         }
 
