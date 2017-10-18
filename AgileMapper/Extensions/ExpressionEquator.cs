@@ -90,7 +90,7 @@ namespace AgileObjects.AgileMapper.Extensions
                    AllEqual(x.Arguments, y.Arguments);
         }
 
-        private bool AreEqual(MemberExpression x, MemberExpression y)
+        private static bool AreEqual(MemberExpression x, MemberExpression y)
         {
             if (ReferenceEquals(x.Member, y.Member))
             {
