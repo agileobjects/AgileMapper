@@ -92,7 +92,7 @@
                 member.Type.IsGenericType() &&
                (member.Type.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)))
             {
-                reason = "readonly ReadOnlyCollection";
+                reason = "readonly " + member.Type.GetFriendlyName();
                 return true;
             }
 

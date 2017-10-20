@@ -2,6 +2,7 @@
 {
     using Api;
     using Api.Configuration;
+    using Plans;
 
     /// <summary>
     /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
@@ -35,7 +36,17 @@
 
         #endregion
 
-        PlanTargetTypeSelector<TSource> IMapper.GetPlanFor<TSource>()
+        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+
+        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
+
+        IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+
+        IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
+
+        string IMapper.GetPlansInCache() => MappingPlanSet.For(_mapperContext);
+
+        private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
             => new PlanTargetTypeSelector<TSource>(_mapperContext);
 
         PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(_mapperContext);
@@ -45,15 +56,61 @@
         #region Static Access Methods
 
         /// <summary>
+        /// Create and compile mapping functions for a particular type of mapping of the source type specified by 
+        /// the given <paramref name="exampleInstance"/>. Use this overload for anonymous types.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the given <paramref name="exampleInstance"/>.</typeparam>
+        /// <param name="exampleInstance">
+        /// An instance specifying the source type for which a mapping plan should be created.
+        /// </param>
+        /// <returns>
+        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// should be cached.
+        /// </returns>
+        public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
+
+        /// <summary>
         /// Create and compile mapping functions for a particular type of mapping of the source type
         /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// A PlanTargetTypeSelector with which to specify the type of mapping the functions for which should 
-        /// be cached.
+        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// should be cached.
         /// </returns>
-        public static PlanTargetTypeSelector<TSource> GetPlanFor<TSource>() => _default.GetPlanFor<TSource>();
+        public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>() => _default.GetPlanFor<TSource>();
+
+        /// <summary>
+        /// Create and compile mapping functions for mapping from the source type specified by the given 
+        /// <paramref name="exampleInstance"/>, for all mapping types (create new, merge, overwrite). Use this 
+        /// overload for anonymous types.
+        /// </summary>
+        /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
+        /// <param name="exampleInstance">
+        /// An instance specifying the source type for which a mapping plan should be created.
+        /// </param>
+        /// <returns>
+        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// should be cached.
+        /// </returns>
+        public static IPlanTargetTypeSelector GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
+
+        /// <summary>
+        /// Create and compile mapping functions for the source type specified by the type argument, for all
+        /// mapping types (create new, merge, overwrite).
+        /// </summary>
+        /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
+        /// <returns>
+        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// should be cached.
+        /// </returns>
+        public static IPlanTargetTypeSelector GetPlansFor<TSource>() => _default.GetPlansFor<TSource>();
+
+        /// <summary>
+        /// Returns mapping plans for all mapping functions currently cached by the default <see cref="IMapper"/>.
+        /// </summary>
+        /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>
+        public static string GetPlansInCache() => _default.GetPlansInCache();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source

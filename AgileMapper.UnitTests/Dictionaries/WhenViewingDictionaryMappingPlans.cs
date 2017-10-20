@@ -11,7 +11,7 @@
         [Fact]
         public void ShouldShowATargetObjectMappingPlan()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<Dictionary<string, string>>()
                 .ToANew<CustomerViewModel>();
 
@@ -25,7 +25,7 @@
         [Fact]
         public void ShouldShowATargetComplexTypeCollectionMappingPlan()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<Dictionary<string, object>>()
                 .ToANew<Collection<Address>>();
 
@@ -39,7 +39,7 @@
         [Fact]
         public void ShouldShowASourceObjectMappingPlan()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<MysteryCustomer>()
                 .ToANew<Dictionary<string, object>>();
 
@@ -51,7 +51,7 @@
         [Fact]
         public void ShouldShowASourceComplexTypeEnumerableMappingPlan()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<IEnumerable<CustomerViewModel>>()
                 .ToANew<Dictionary<string, string>>();
 
