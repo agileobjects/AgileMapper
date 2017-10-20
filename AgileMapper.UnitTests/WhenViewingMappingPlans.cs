@@ -55,8 +55,10 @@
                     .OnTo<Customer>();
 
                 plan.ShouldContain("Map AnonymousType<string, string> -> Customer");
-                plan.ShouldContain("customer.Name = sourceF__AnonymousType29_String_String.Name;");
-                plan.ShouldContain("address.Line1 = sourceF__AnonymousType29_String_String.AddressLine1;");
+                plan.ShouldContain("customer.Name = sourceF__AnonymousType");
+                plan.ShouldContain("_String_String.Name;");
+                plan.ShouldContain("address.Line1 = sourceF__AnonymousType");
+                plan.ShouldContain("_String_String.AddressLine1;");
             }
         }
 
