@@ -20,6 +20,69 @@
         }
 
         [Fact]
+        public void ShouldSupportAnonymousSourceTypesFromTheStaticApi()
+        {
+            var plan = Mapper
+                .GetPlanFor(new { Name = default(string), Discount = default(int) })
+                .ToANew<MysteryCustomer>();
+
+            plan.ShouldContain("Map AnonymousType<string, int> -> MysteryCustomer");
+            plan.ShouldContain("mysteryCustomer.Name = fatsiToMcData.Source.Name;");
+            plan.ShouldContain("mysteryCustomer.Discount = (decimal)fatsiToMcData.Source.Discount;");
+            plan.ShouldContain("// No data source for Report");
+        }
+
+        [Fact]
+        public void ShouldSupportAnonymousSourceTypesFromTheInstanceApi()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var plan = mapper
+                    .GetPlanFor(new { Name = default(string), AddressLine1 = default(string) })
+                    .OnTo<Customer>();
+
+                plan.ShouldContain("Map AnonymousType<string, string> -> Customer");
+                plan.ShouldContain("customer.Name = sourceF__AnonymousType29_String_String.Name;");
+                plan.ShouldContain("address.Line1 = sourceF__AnonymousType29_String_String.AddressLine1;");
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportStructsFromTheStaticApi()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicTwoFieldsStruct<int, int>>()
+                .Over<PublicTwoFieldsStruct<string, string>>();
+
+            plan.ShouldContain("publicTwoFieldsStruct_String_String.Value1 = ptfsiiToPtfsssData.Source.Value1.ToString();");
+        }
+
+        [Fact]
+        public void ShouldSupportStructMergePlansFromTheStaticApi()
+        {
+            var plan = Mapper
+                .GetPlanFor<PublicTwoFieldsStruct<int, int>>()
+                .OnTo<PublicTwoFieldsStruct<string, string>>();
+
+            plan.ShouldContain("publicTwoFieldsStruct_String_String.Value1 = ptfsiiToPtfsssData.Source.Value1.ToString();");
+        }
+
+        [Fact]
+        public void ShouldSupportStructsFromTheInstanceApi()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var plan = mapper
+                    .GetPlanFor<PublicPropertyStruct<string>>()
+                    .ToANew<PublicCtorStruct<string>>();
+
+                plan.ShouldContain("Map PublicPropertyStruct<string> -> PublicCtorStruct<string>");
+                plan.ShouldContain("return new PublicCtorStruct");
+                plan.ShouldContain("ppssToPcssData.Source.Value");
+            }
+        }
+
+        [Fact]
         public void ShouldIncludeAComplexTypeMemberMapping()
         {
             var plan = Mapper

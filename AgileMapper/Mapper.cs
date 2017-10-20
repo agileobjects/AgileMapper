@@ -28,6 +28,8 @@
 
         #endregion
 
+        PlanTargetTypeSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
+
         PlanTargetTypeSelector<TSource> IMapper.GetPlanFor<TSource>()
             => new PlanTargetTypeSelector<TSource>(_mapperContext);
 
@@ -36,6 +38,20 @@
         PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(_mapperContext);
 
         #region Static Access Methods
+
+        /// <summary>
+        /// Create and compile mapping functions for a particular type of mapping of the source type specified by 
+        /// the given <paramref name="exampleInstance"/>. Use this overload for anonymous types.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the given <paramref name="exampleInstance"/>.</typeparam>
+        /// <param name="exampleInstance">
+        /// An instance specifying the source type for which a mapping plan should be created.
+        /// </param>
+        /// <returns>
+        /// A PlanTargetTypeSelector with which to specify the type of mapping the functions for which should 
+        /// be cached.
+        /// </returns>
+        public static PlanTargetTypeSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for a particular type of mapping of the source type

@@ -22,7 +22,7 @@
         /// </summary>
         /// <typeparam name="TResult">The type of object for which to create the mapping plans.</typeparam>
         /// <returns>A string mapping plan showing the functions to be executed during a mapping.</returns>
-        public string ToANew<TResult>() where TResult : class
+        public string ToANew<TResult>()
             => GetMappingPlan<TResult>(_mapperContext.RuleSets.CreateNew);
 
         /// <summary>
@@ -31,7 +31,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The type of object for which to create the mapping plans.</typeparam>
         /// <returns>A string mapping plan showing the functions to be executed during a mapping.</returns>
-        public string OnTo<TTarget>() where TTarget : class
+        public string OnTo<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Merge);
 
         /// <summary>
@@ -40,7 +40,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The type of object for which to create the mapping plans.</typeparam>
         /// <returns>A string mapping plan showing the functions to be executed during a mapping.</returns>
-        public string Over<TTarget>() where TTarget : class
+        public string Over<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Overwrite);
 
         private string GetMappingPlan<TTarget>(MappingRuleSet ruleSet)
