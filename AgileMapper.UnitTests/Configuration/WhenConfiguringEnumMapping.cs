@@ -36,7 +36,7 @@
                 mapper.WhenMapping
                     .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check);
 
-                var plan = mapper
+                string plan = mapper
                     .GetPlanFor<PublicTwoFields<PaymentTypeUk, PaymentTypeUs>>()
                     .OnTo<PublicTwoFields<PaymentTypeUs, PaymentTypeUk>>();
 
