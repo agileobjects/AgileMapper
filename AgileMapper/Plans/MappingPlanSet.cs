@@ -5,24 +5,25 @@
     using System.Linq;
 
     /// <summary>
-    /// Contains details of the mapping plan for a mapping between a particular source and target type,
-    /// for all mapping types (create new, merge, overwrite).
+    /// Contains sets of details of mapping plans for mappings between a particular source and target types,
+    /// for particular mapping types (create new, merge, overwrite).
     /// </summary>
-    /// <typeparam name="TSource">
-    /// The type of source object from which the mapping described by the
-    /// <see cref="MappingPlanSet{TSource,TTarget}"/> is performed.
-    /// </typeparam>
-    /// <typeparam name="TTarget">
-    /// The type of target object to which the mapping described by the
-    /// <see cref="MappingPlanSet{TSource,TTarget}"/> is performed.
-    /// </typeparam>
-    public class MappingPlanSet<TSource, TTarget>
+    public class MappingPlanSet
     {
-        private readonly IEnumerable<MappingPlan<TSource, TTarget>> _mappingPlans;
+        private readonly IEnumerable<IMappingPlan> _mappingPlans;
 
-        internal MappingPlanSet(IEnumerable<MappingPlan<TSource, TTarget>> mappingPlans)
+        internal MappingPlanSet(IEnumerable<IMappingPlan> mappingPlans)
         {
             _mappingPlans = mappingPlans;
+        }
+
+        internal static MappingPlanSet For(MapperContext mapperContext)
+        {
+            return new MappingPlanSet(mapperContext
+                .ObjectMapperFactory
+                .RootMappers
+                .Select(mapper => new CachedMapperMappingPlan(mapper))
+                .ToArray());
         }
 
         /// <summary>
@@ -33,17 +34,17 @@
         /// <returns>
         /// The string representation of the <paramref name="mappingPlans">MappingPlanSet</paramref>.
         /// </returns>
-        public static implicit operator string(MappingPlanSet<TSource, TTarget> mappingPlans)
+        public static implicit operator string(MappingPlanSet mappingPlans)
         {
             return string.Join(
                 Environment.NewLine + Environment.NewLine,
-                mappingPlans._mappingPlans.Select(plan => (string)plan));
+                mappingPlans._mappingPlans.Select(plan => plan.ToString()));
         }
 
         /// <summary>
-        /// Returns the string representation of the <see cref="MappingPlanSet{TSource,TTarget}"/>.
+        /// Returns the string representation of the <see cref="MappingPlanSet"/>.
         /// </summary>
-        /// <returns>The string representation of the <see cref="MappingPlanSet{TSource,TTarget}"/>.</returns>
+        /// <returns>The string representation of the <see cref="MappingPlanSet"/>.</returns>
         public override string ToString() => this;
     }
 }

@@ -484,5 +484,22 @@
                 plan.ShouldContain("readonly int");
             }
         }
+
+        [Fact]
+        public void ShouldShowAllCachedMappingPlans()
+        {
+            Mapper.GetPlanFor<PublicField<string>>().ToANew<PublicProperty<int>>();
+            Mapper.GetPlanFor<Customer>().ToANew<CustomerViewModel>();
+            Mapper.GetPlansFor<MegaProduct>().To<ProductDtoMega>();
+
+            var plan = Mapper.GetPlansInCache();
+
+            plan.ShouldContain("PublicField<string> -> PublicProperty<int>");
+            plan.ShouldContain("Customer -> CustomerViewModel");
+            plan.ShouldContain("MegaProduct -> ProductDtoMega");
+            plan.ShouldContain("Rule set: CreateNew");
+            plan.ShouldContain("Rule set: Merge");
+            plan.ShouldContain("Rule set: Overwrite");
+        }
     }
 }

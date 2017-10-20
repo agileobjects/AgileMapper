@@ -3,6 +3,7 @@
     using System;
     using Api;
     using Api.Configuration;
+    using Plans;
 
     /// <summary>
     /// Provides mapping and mapping configuration services.
@@ -14,17 +15,6 @@
         /// </summary>
         /// <returns>A cloned copy of this mapper.</returns>
         IMapper CloneSelf();
-
-        /// <summary>
-        /// Create and compile mapping functions for the source type specified by the type argument, for all
-        /// mapping types (create new, merge, overwrite).
-        /// </summary>
-        /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
-        /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
-        /// should be cached.
-        /// </returns>
-        IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for a particular type of mapping of the source type specified by 
@@ -50,6 +40,23 @@
         /// should be cached.
         /// </returns>
         IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>();
+
+        /// <summary>
+        /// Create and compile mapping functions for the source type specified by the type argument, for all
+        /// mapping types (create new, merge, overwrite).
+        /// </summary>
+        /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
+        /// <returns>
+        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// should be cached.
+        /// </returns>
+        IPlanTargetTypeSelector GetPlansFor<TSource>();
+
+        /// <summary>
+        /// Returns mapping plans for all mapping functions currently cached by the <see cref="IMapper"/>.
+        /// </summary>
+        /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>
+        string GetPlansInCache();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source

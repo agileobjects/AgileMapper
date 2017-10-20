@@ -19,7 +19,7 @@
     /// The type of target object to which the mapping described by the
     /// <see cref="MappingPlan{TSource,TTarget}"/> is performed.
     /// </typeparam>
-    public class MappingPlan<TSource, TTarget>
+    public class MappingPlan<TSource, TTarget> : IMappingPlan
     {
         private readonly List<MappingPlanData> _generatedPlanData;
 
