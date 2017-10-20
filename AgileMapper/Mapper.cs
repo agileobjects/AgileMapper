@@ -33,6 +33,8 @@
 
         IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
 
+        IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+
         IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
         string IMapper.GetPlansInCache() => MappingPlanSet.For(_mapperContext);
@@ -70,6 +72,21 @@
         /// should be cached.
         /// </returns>
         public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>() => _default.GetPlanFor<TSource>();
+
+        /// <summary>
+        /// Create and compile mapping functions for mapping from the source type specified by the given 
+        /// <paramref name="exampleInstance"/>, for all mapping types (create new, merge, overwrite). Use this 
+        /// overload for anonymous types.
+        /// </summary>
+        /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
+        /// <param name="exampleInstance">
+        /// An instance specifying the source type for which a mapping plan should be created.
+        /// </param>
+        /// <returns>
+        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// should be cached.
+        /// </returns>
+        public static IPlanTargetTypeSelector GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for the source type specified by the type argument, for all

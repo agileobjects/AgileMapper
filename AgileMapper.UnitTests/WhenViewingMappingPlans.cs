@@ -490,7 +490,7 @@
         {
             Mapper.GetPlanFor<PublicField<string>>().ToANew<PublicProperty<int>>();
             Mapper.GetPlanFor<Customer>().ToANew<CustomerViewModel>();
-            Mapper.GetPlansFor<MegaProduct>().To<ProductDtoMega>();
+            Mapper.GetPlansFor(new MegaProduct()).To<ProductDtoMega>();
 
             var plan = Mapper.GetPlansInCache();
 

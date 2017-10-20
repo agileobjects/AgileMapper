@@ -3,7 +3,6 @@
     using System;
     using Api;
     using Api.Configuration;
-    using Plans;
 
     /// <summary>
     /// Provides mapping and mapping configuration services.
@@ -40,6 +39,21 @@
         /// should be cached.
         /// </returns>
         IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>();
+
+        /// <summary>
+        /// Create and compile mapping functions for mapping from the source type specified by the given 
+        /// <paramref name="exampleInstance"/>, for all mapping types (create new, merge, overwrite). Use this 
+        /// overload for anonymous types.
+        /// </summary>
+        /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
+        /// <param name="exampleInstance">
+        /// An instance specifying the source type for which a mapping plan should be created.
+        /// </param>
+        /// <returns>
+        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// should be cached.
+        /// </returns>
+        IPlanTargetTypeSelector GetPlansFor<TSource>(TSource exampleInstance);
 
         /// <summary>
         /// Create and compile mapping functions for the source type specified by the type argument, for all
