@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Text.RegularExpressions;
     using Shouldly;
     using TestClasses;
@@ -410,6 +411,77 @@
                 var plan = mapper.GetPlanFor<Address>().ToANew<Address>();
 
                 plan.ShouldContain("member.IsPropertyMatching(p => p.Name == \"Line2\")");
+            }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableStructComplexTypeMemberDetails()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var plan = mapper
+                    .GetPlanFor<PublicTwoFields<Person, string>>()
+                    .ToANew<PublicTwoFieldsStruct<Person, int>>();
+
+                plan.ShouldContain("int.TryParse(ptfpsToPtfspiData.Source.Value2");
+                plan.ShouldContain("Person member on a struct");
+            }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableReadOnlyArrayMemberDetails()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string[]>>()
+                    .To<PublicReadOnlyField<int[]>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToCtor<int[]>();
+
+                var plan = mapper
+                    .GetPlanFor<PublicField<string[]>>()
+                    .ToANew<PublicReadOnlyField<int[]>>();
+
+                plan.ShouldContain("readonly array");
+            }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableReadOnlyReadOnlyCollectionMemberDetails()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string[]>>()
+                    .To<PublicReadOnlyField<ReadOnlyCollection<int>>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToCtor("readOnlyValue");
+
+                var plan = mapper
+                    .GetPlanFor<PublicField<string[]>>()
+                    .ToANew<PublicReadOnlyField<ReadOnlyCollection<int>>>();
+
+                plan.ShouldContain("readonly ReadOnlyCollection<int>");
+            }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableReadOnlyIntMemberDetails()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .To<PublicReadOnlyField<int>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToCtor("readOnlyValue");
+
+                var plan = mapper
+                    .GetPlanFor<PublicField<string>>()
+                    .ToANew<PublicReadOnlyField<int>>();
+
+                plan.ShouldContain("readonly int");
             }
         }
     }
