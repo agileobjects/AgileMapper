@@ -40,6 +40,8 @@ namespace AgileObjects.AgileMapper
             _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite };
         }
 
+        public IEnumerable<MappingRuleSet> All => _ruleSets;
+
         public MappingRuleSet CreateNew => _createNew;
 
         public MappingRuleSet Merge => _merge;

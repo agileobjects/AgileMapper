@@ -20,6 +20,18 @@
         }
 
         [Fact]
+        public void ShouldGenerateAllRuleSets()
+        {
+            Mapper
+                .GetPlansFor<PublicField<string>>()
+                .To<PublicProperty<string>>();
+
+            //plan.ShouldContain("Rule Set: CreateNew");
+            //plan.ShouldContain("Rule Set: Merge");
+            //plan.ShouldContain("Rule Set: Overwrite");
+        }
+
+        [Fact]
         public void ShouldSupportAnonymousSourceTypesFromTheStaticApi()
         {
             var plan = Mapper

@@ -28,9 +28,13 @@
 
         #endregion
 
-        PlanTargetTypeSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
+        IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
-        PlanTargetTypeSelector<TSource> IMapper.GetPlanFor<TSource>()
+        IPlanTargetTypeAndRuleSetSelector IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+
+        IPlanTargetTypeAndRuleSetSelector IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
+
+        private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
             => new PlanTargetTypeSelector<TSource>(_mapperContext);
 
         PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(_mapperContext);
@@ -38,6 +42,17 @@
         PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(_mapperContext);
 
         #region Static Access Methods
+
+        /// <summary>
+        /// Create and compile mapping functions for the source type specified by the type argument, for all
+        /// mapping types (create new, merge, overwrite).
+        /// </summary>
+        /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
+        /// <returns>
+        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// should be cached.
+        /// </returns>
+        public static IPlanTargetTypeSelector GetPlansFor<TSource>() => _default.GetPlansFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for a particular type of mapping of the source type specified by 
@@ -48,10 +63,10 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// A PlanTargetTypeSelector with which to specify the type of mapping the functions for which should 
-        /// be cached.
+        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// should be cached.
         /// </returns>
-        public static PlanTargetTypeSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
+        public static IPlanTargetTypeAndRuleSetSelector GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for a particular type of mapping of the source type
@@ -59,10 +74,10 @@
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// A PlanTargetTypeSelector with which to specify the type of mapping the functions for which should 
-        /// be cached.
+        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// should be cached.
         /// </returns>
-        public static PlanTargetTypeSelector<TSource> GetPlanFor<TSource>() => _default.GetPlanFor<TSource>();
+        public static IPlanTargetTypeAndRuleSetSelector GetPlanFor<TSource>() => _default.GetPlanFor<TSource>();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source
