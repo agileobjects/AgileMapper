@@ -96,9 +96,16 @@
 
         public void CloneTo(ConverterSet converterSet)
         {
+            if (_converters.Count == converterSet._converters.Count)
+            {
+                return;
+            }
+
+            var numberOfCustomConverters = _converters.Count - converterSet._converters.Count;
+
             converterSet._converters.InsertRange(
                 0,
-                _converters.Except(converterSet._converters));
+                _converters.Take(numberOfCustomConverters));
         }
     }
 }
