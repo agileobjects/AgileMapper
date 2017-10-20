@@ -22,13 +22,13 @@
         [Fact]
         public void ShouldGenerateAllRuleSets()
         {
-            Mapper
+            var plan = Mapper
                 .GetPlansFor<PublicField<string>>()
                 .To<PublicProperty<string>>();
 
-            //plan.ShouldContain("Rule Set: CreateNew");
-            //plan.ShouldContain("Rule Set: Merge");
-            //plan.ShouldContain("Rule Set: Overwrite");
+            plan.ShouldContain("Rule Set: CreateNew");
+            plan.ShouldContain("Rule Set: Merge");
+            plan.ShouldContain("Rule Set: Overwrite");
         }
 
         [Fact]
