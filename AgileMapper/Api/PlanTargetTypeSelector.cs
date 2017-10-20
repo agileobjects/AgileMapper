@@ -3,7 +3,7 @@
     using System.Linq;
     using Plans;
 
-    internal class PlanTargetTypeSelector<TSource> : IPlanTargetTypeSelector, IPlanTargetTypeAndRuleSetSelector
+    internal class PlanTargetTypeSelector<TSource> : IPlanTargetTypeSelector<TSource>, IPlanTargetTypeAndRuleSetSelector<TSource>
     {
         private readonly MapperContext _mapperContext;
 
@@ -12,7 +12,7 @@
             _mapperContext = mapperContext;
         }
 
-        public string To<TTarget>()
+        public MappingPlanSet<TSource, TTarget> To<TTarget>()
         {
             return new MappingPlanSet<TSource, TTarget>(
                 _mapperContext
@@ -22,13 +22,13 @@
                     .ToArray());
         }
 
-        public string ToANew<TResult>()
+        public MappingPlan<TSource, TResult> ToANew<TResult>()
             => GetMappingPlan<TResult>(_mapperContext.RuleSets.CreateNew);
 
-        public string OnTo<TTarget>()
+        public MappingPlan<TSource, TTarget> OnTo<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Merge);
 
-        public string Over<TTarget>()
+        public MappingPlan<TSource, TTarget> Over<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Overwrite);
 
         private MappingPlan<TSource, TTarget> GetMappingPlan<TTarget>(MappingRuleSet ruleSet)

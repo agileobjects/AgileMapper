@@ -307,7 +307,7 @@
         [Fact]
         public void ShouldGenerateAMappingPlanForLinkRelationships()
         {
-            var plan = Mapper.GetPlanFor<Video>().Over<Video>();
+            string plan = Mapper.GetPlanFor<Video>().Over<Video>();
 
             plan.ShouldNotBeNull();
             plan.ShouldContain("WhenMappingCircularReferences.Video -> WhenMappingCircularReferences.Video");
@@ -317,7 +317,7 @@
         [Fact]
         public void ShouldGenerateAMappingPlanForAOneToOneRelationship()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<Parent>()
                 .ToANew<Parent>();
 
