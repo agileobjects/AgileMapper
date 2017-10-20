@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class MappingTypes
     {
-        private MappingTypes(
+        public MappingTypes(
             Type sourceType,
             Type targetType,
             bool runtimeTypesAreTheSame,
@@ -20,13 +20,11 @@ namespace AgileObjects.AgileMapper.Members
 
         #region Factory Method
 
-        public static MappingTypes Fixed<TSource, TTarget>() => MappingTypesCache<TSource, TTarget>.Instance;
-
         public static MappingTypes For<TSource, TTarget>(TSource source, TTarget target)
         {
-            if (MappingTypesCache<TSource, TTarget>.SkipTypesCheck)
+            if (MappingTypes<TSource, TTarget>.SkipTypesCheck)
             {
-                return Fixed<TSource, TTarget>();
+                return MappingTypes<TSource, TTarget>.Fixed;
             }
 
             var runtimeSourceTypeNeeded = TypeInfo<TSource>.RuntimeTypeNeeded;
@@ -78,7 +76,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if (!runtimeTypesNeeded)
             {
-                return Fixed<TSource, TTarget>();
+                return MappingTypes<TSource, TTarget>.Fixed;
             }
 
             var isEnumerable = TypeInfo<TTarget>.IsEnumerable ||
@@ -121,17 +119,17 @@ namespace AgileObjects.AgileMapper.Members
                 RuntimeTypesAreTheSame,
                 IsEnumerable);
         }
+    }
 
-        private static class MappingTypesCache<TSource, TTarget>
-        {
-            public static readonly bool SkipTypesCheck =
-                !(TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded);
+    internal static class MappingTypes<TSource, TTarget>
+    {
+        public static readonly bool SkipTypesCheck =
+            !(TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded);
 
-            public static readonly MappingTypes Instance = new MappingTypes(
-                typeof(TSource),
-                typeof(TTarget),
-                true, // <- runtimeTypesAreTheSame
-                TypeInfo<TTarget>.IsEnumerable);
-        }
+        public static readonly MappingTypes Fixed = new MappingTypes(
+            typeof(TSource),
+            typeof(TTarget),
+            true, // <- runtimeTypesAreTheSame
+            TypeInfo<TTarget>.IsEnumerable);
     }
 }

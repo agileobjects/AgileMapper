@@ -68,7 +68,7 @@
                 _source,
                 target,
                 null, // <- No enumerable index because we're at the root
-                new RootObjectMapperKey(MappingTypes.Fixed<TSource, TTarget>(), this),
+                new RootObjectMapperKey(MappingTypes<TSource, TTarget>.Fixed, this),
                 this,
                 parent: null);
         }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Text.RegularExpressions;
     using Shouldly;
     using TestClasses;
@@ -12,7 +13,7 @@
         [Fact]
         public void ShouldIncludeASimpleTypeMemberMapping()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicField<string>>()
                 .ToANew<PublicProperty<string>>();
 
@@ -20,9 +21,84 @@
         }
 
         [Fact]
+        public void ShouldGenerateAllRuleSets()
+        {
+            string plan = Mapper
+                .GetPlansFor<PublicField<string>>()
+                .To<PublicProperty<string>>();
+
+            plan.ShouldContain("Rule Set: CreateNew");
+            plan.ShouldContain("Rule Set: Merge");
+            plan.ShouldContain("Rule Set: Overwrite");
+        }
+
+        [Fact]
+        public void ShouldSupportAnonymousSourceTypesFromTheStaticApi()
+        {
+            string plan = Mapper
+                .GetPlanFor(new { Name = default(string), Discount = default(int) })
+                .ToANew<MysteryCustomer>();
+
+            plan.ShouldContain("Map AnonymousType<string, int> -> MysteryCustomer");
+            plan.ShouldContain("mysteryCustomer.Name = fatsiToMcData.Source.Name;");
+            plan.ShouldContain("mysteryCustomer.Discount = (decimal)fatsiToMcData.Source.Discount;");
+            plan.ShouldContain("// No data source for Report");
+        }
+
+        [Fact]
+        public void ShouldSupportAnonymousSourceTypesFromTheInstanceApi()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                string plan = mapper
+                    .GetPlanFor(new { Name = default(string), AddressLine1 = default(string) })
+                    .OnTo<Customer>();
+
+                plan.ShouldContain("Map AnonymousType<string, string> -> Customer");
+                plan.ShouldContain("customer.Name = sourceF__AnonymousType29_String_String.Name;");
+                plan.ShouldContain("address.Line1 = sourceF__AnonymousType29_String_String.AddressLine1;");
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportStructsFromTheStaticApi()
+        {
+            string plan = Mapper
+                .GetPlanFor<PublicTwoFieldsStruct<int, int>>()
+                .Over<PublicTwoFieldsStruct<string, string>>();
+
+            plan.ShouldContain("publicTwoFieldsStruct_String_String.Value1 = ptfsiiToPtfsssData.Source.Value1.ToString();");
+        }
+
+        [Fact]
+        public void ShouldSupportStructMergePlansFromTheStaticApi()
+        {
+            string plan = Mapper
+                .GetPlanFor<PublicTwoFieldsStruct<int, int>>()
+                .OnTo<PublicTwoFieldsStruct<string, string>>();
+
+            plan.ShouldContain("publicTwoFieldsStruct_String_String.Value1 = ptfsiiToPtfsssData.Source.Value1.ToString();");
+        }
+
+        [Fact]
+        public void ShouldSupportStructsFromTheInstanceApi()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                string plan = mapper
+                    .GetPlanFor<PublicPropertyStruct<string>>()
+                    .ToANew<PublicCtorStruct<string>>();
+
+                plan.ShouldContain("Map PublicPropertyStruct<string> -> PublicCtorStruct<string>");
+                plan.ShouldContain("return new PublicCtorStruct");
+                plan.ShouldContain("ppssToPcssData.Source.Value");
+            }
+        }
+
+        [Fact]
         public void ShouldIncludeAComplexTypeMemberMapping()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PersonViewModel>()
                 .ToANew<Person>();
 
@@ -33,7 +109,7 @@
         [Fact]
         public void ShouldIncludeASimpleTypeEnumerableMemberMapping()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicProperty<int[]>>()
                 .ToANew<PublicField<IEnumerable<int>>>();
 
@@ -47,7 +123,7 @@
         [Fact]
         public void ShouldIncludeASimpleTypeMemberConversion()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicProperty<Guid>>()
                 .ToANew<PublicField<string>>();
 
@@ -66,7 +142,7 @@
                     .Map((p, pvm) => p.Title + " " + p.Name)
                     .To(pvm => pvm.Name);
 
-                var plan = mapper
+                string plan = mapper
                     .GetPlanFor<Person>()
                     .Over<PersonViewModel>();
 
@@ -77,7 +153,7 @@
         [Fact]
         public void ShouldIncludeARootComplexTypeEnumerableMapping()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<IEnumerable<Person>>()
                 .OnTo<IEnumerable<PersonViewModel>>();
 
@@ -88,7 +164,7 @@
         [Fact]
         public void ShouldIncludeAComplexTypeEnumerableMemberMapping()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<IList<PersonViewModel>>()
                 .Over<IEnumerable<Person>>();
 
@@ -104,7 +180,7 @@
         [Fact]
         public void ShouldIncludeAMemberWithNoDataSource()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PersonViewModel>()
                 .OnTo<Person>();
 
@@ -121,7 +197,7 @@
                     .To<PersonViewModel>()
                     .Ignore(pvm => pvm.AddressLine1);
 
-                var plan = mapper
+                string plan = mapper
                     .GetPlanFor<Person>()
                     .ToANew<PersonViewModel>();
 
@@ -141,7 +217,7 @@
                     .Map((pf, pp) => pf.Value.Value)
                     .To(pp => pp.Value);
 
-                var plan = mapper
+                string plan = mapper
                     .GetPlanFor<PublicField<PublicField<string>>>()
                     .ToANew<PublicProperty<string>>();
 
@@ -153,7 +229,7 @@
         [Fact]
         public void ShouldShowInlineMappers()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicField<PublicField<PublicField<int>>>>()
                 .ToANew<PublicField<PublicSealed<PublicSealed<long>>>>();
 
@@ -165,7 +241,7 @@
         [Fact]
         public void ShouldShowMapChildCalls()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicProperty<object>>()
                 .ToANew<PublicSetMethod<Customer>>();
 
@@ -178,7 +254,7 @@
         [Fact]
         public void ShouldShowNestedMapChildCalls()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicProperty<PublicField<object>>>()
                 .ToANew<PublicSetMethod<PublicProperty<Order>>>();
 
@@ -201,7 +277,7 @@
                     .To(ptf => ptf.Value1);
 
 
-                var plan = mapper
+                string plan = mapper
                     .GetPlanFor<PublicProperty<string>>()
                     .ToANew<PublicTwoFields<string, object>>();
 
@@ -214,7 +290,7 @@
         [Fact]
         public void ShouldShowMapElementCalls()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicProperty<object[]>>()
                 .ToANew<PublicSetMethod<ICollection<Product>>>();
 
@@ -227,7 +303,7 @@
         [Fact]
         public void ShouldShowDictionaryElementMapping()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<List<PublicField<Dictionary<int, string>>>>()
                 .ToANew<List<PublicField<Dictionary<int, string>>>>();
 
@@ -241,7 +317,7 @@
             {
                 mapper.WhenMapping.TrackMappedObjects();
 
-                var plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
+                string plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
 
                 plan.ShouldContain("pToPData.TryGet(sourceChild.EldestParent, out parent)");
                 plan.ShouldContain("pToPData.Register(sourceChild.EldestParent, parent)");
@@ -251,7 +327,7 @@
         [Fact]
         public void ShouldNotDuplicateChildMappingPlans()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicTwoFields<object, object>>()
                 .ToANew<PublicTwoParamCtor<Product, Product>>();
 
@@ -263,7 +339,7 @@
         [Fact]
         public void ShouldNotRangeCheckNullableToNonNullableValues()
         {
-            var plan = Mapper.GetPlanFor<PublicField<int?>>().ToANew<PublicField<int>>();
+            string plan = Mapper.GetPlanFor<PublicField<int?>>().ToANew<PublicField<int>>();
 
             plan.ShouldNotContain("int.MinValue");
         }
@@ -271,7 +347,7 @@
         [Fact]
         public void ShouldShowEnumMismatches()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<OrderUs>()
                 .ToANew<OrderUk>();
 
@@ -293,7 +369,7 @@
                     .If((s, o) => s.Value1 == PaymentTypeUk.Cheque)
                     .Map((s, o) => s.Value2).To(o => o.PaymentType);
 
-                var plan = mapper
+                string plan = mapper
                     .GetPlanFor<PublicTwoFields<PaymentTypeUk, PaymentTypeUs>>()
                     .ToANew<OrderUs>();
 
@@ -307,7 +383,7 @@
         [Fact]
         public void ShouldShowNestedEnumMismatches()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicField<OrderUs>>()
                 .ToANew<PublicProperty<OrderUk>>();
 
@@ -318,7 +394,7 @@
         [Fact]
         public void ShouldNotAssignATargetMemberToItself()
         {
-            var plan = Mapper.GetPlanFor<PublicField<string>>().OnTo<PublicField<string>>();
+            string plan = Mapper.GetPlanFor<PublicField<string>>().OnTo<PublicField<string>>();
 
             plan.ShouldNotContain("publicField_String.Value = publicField_String.Value");
         }
@@ -332,10 +408,98 @@
                     .To<Address>()
                     .IgnoreTargetMembersWhere(member => member.IsPropertyMatching(p => p.Name == "Line2"));
 
-                var plan = mapper.GetPlanFor<Address>().ToANew<Address>();
+                string plan = mapper.GetPlanFor<Address>().ToANew<Address>();
 
                 plan.ShouldContain("member.IsPropertyMatching(p => p.Name == \"Line2\")");
             }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableStructComplexTypeMemberDetails()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                string plan = mapper
+                    .GetPlanFor<PublicTwoFields<Person, string>>()
+                    .ToANew<PublicTwoFieldsStruct<Person, int>>();
+
+                plan.ShouldContain("int.TryParse(ptfpsToPtfspiData.Source.Value2");
+                plan.ShouldContain("Person member on a struct");
+            }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableReadOnlyArrayMemberDetails()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string[]>>()
+                    .To<PublicReadOnlyField<int[]>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToCtor<int[]>();
+
+                string plan = mapper
+                    .GetPlanFor<PublicField<string[]>>()
+                    .ToANew<PublicReadOnlyField<int[]>>();
+
+                plan.ShouldContain("readonly array");
+            }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableReadOnlyReadOnlyCollectionMemberDetails()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string[]>>()
+                    .To<PublicReadOnlyField<ReadOnlyCollection<int>>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToCtor("readOnlyValue");
+
+                string plan = mapper
+                    .GetPlanFor<PublicField<string[]>>()
+                    .ToANew<PublicReadOnlyField<ReadOnlyCollection<int>>>();
+
+                plan.ShouldContain("readonly ReadOnlyCollection<int>");
+            }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableReadOnlyIntMemberDetails()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .To<PublicReadOnlyField<int>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToCtor("readOnlyValue");
+
+                string plan = mapper
+                    .GetPlanFor<PublicField<string>>()
+                    .ToANew<PublicReadOnlyField<int>>();
+
+                plan.ShouldContain("readonly int");
+            }
+        }
+
+        [Fact]
+        public void ShouldShowAllCachedMappingPlans()
+        {
+            Mapper.GetPlanFor<PublicField<string>>().ToANew<PublicProperty<int>>();
+            Mapper.GetPlanFor<Customer>().ToANew<CustomerViewModel>();
+            Mapper.GetPlansFor(new MegaProduct()).To<ProductDtoMega>();
+
+            var plan = Mapper.GetPlansInCache();
+
+            plan.ShouldContain("PublicField<string> -> PublicProperty<int>");
+            plan.ShouldContain("Customer -> CustomerViewModel");
+            plan.ShouldContain("MegaProduct -> ProductDtoMega");
+            plan.ShouldContain("Rule set: CreateNew");
+            plan.ShouldContain("Rule set: Merge");
+            plan.ShouldContain("Rule set: Overwrite");
         }
     }
 }

@@ -11,8 +11,6 @@
     using Extensions;
     using Members;
     using ObjectPopulation;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
 
     internal class MappingPlanData
     {
@@ -128,29 +126,6 @@
         #endregion
         public override int GetHashCode() => 0;
 
-        public string GetDescription()
-        {
-            var lambda = GetFinalMappingLambda();
-
-            var sourceType = _mappingTypes.SourceType.GetFriendlyName();
-            var targetType = _mappingTypes.TargetType.GetFriendlyName();
-
-            return $@"
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// Map {sourceType} -> {targetType}
-// Rule Set: {_mappingData.MappingContext.RuleSet.Name}
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-{lambda.ToReadableString()}".TrimStart();
-        }
-
-        private Expression GetFinalMappingLambda()
-        {
-            var lambdaWithEnumMismatches = EnumMappingMismatchFinder.Process(Lambda, _mappingData);
-
-            return lambdaWithEnumMismatches;
-        }
+        public string GetDescription() => MappingPlanFunction.For(Lambda, _mappingData.MapperData);
     }
 }

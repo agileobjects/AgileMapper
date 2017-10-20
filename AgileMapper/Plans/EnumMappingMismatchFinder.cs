@@ -25,18 +25,16 @@
             _assignmentReplacements = new Dictionary<Expression, Expression>();
         }
 
-        public static Expression Process(Expression lambda, IObjectMappingData mappingData)
+        public static Expression Process(Expression lambda, ObjectMapperData mapperData)
         {
-            var targetMemberDatas = GetAllTargetMemberDatas(mappingData);
+            var targetMemberDatas = GetAllTargetMemberDatas(mapperData);
 
             if (targetMemberDatas.None())
             {
                 return lambda;
             }
 
-            var finder = new EnumMappingMismatchFinder(
-                mappingData.MapperData,
-                targetMemberDatas);
+            var finder = new EnumMappingMismatchFinder(mapperData, targetMemberDatas);
 
             finder.Visit(lambda);
 
@@ -45,8 +43,8 @@
             return updatedLambda;
         }
 
-        private static TargetMemberData[] GetAllTargetMemberDatas(IObjectMappingData mappingData)
-            => EnumerateTargetMemberDatas(mappingData.MapperData).ToArray();
+        private static TargetMemberData[] GetAllTargetMemberDatas(ObjectMapperData mapperData)
+            => EnumerateTargetMemberDatas(mapperData).ToArray();
 
         private static IEnumerable<TargetMemberData> EnumerateTargetMemberDatas(ObjectMapperData mapperData)
         {

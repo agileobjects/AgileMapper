@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperKey = new ChildObjectMapperKey(
                 targetMemberRegistrationName,
                 dataSourceIndex,
-                MappingTypes.Fixed<TSource, TTarget>());
+                MappingTypes<TSource, TTarget>.Fixed);
 
             var mappingData = CreateMappingData(source, target, enumerableIndex, mapperKey, parent);
 
@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int enumerableIndex,
             IObjectMappingDataUntyped parent)
         {
-            var mapperKey = new ElementObjectMapperKey(MappingTypes.Fixed<TSourceElement, TTargetElement>());
+            var mapperKey = new ElementObjectMapperKey(MappingTypes<TSourceElement, TTargetElement>.Fixed);
 
             var mappingData = CreateMappingData(sourceElement, targetElement, enumerableIndex, mapperKey, parent);
 
