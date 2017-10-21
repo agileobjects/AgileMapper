@@ -150,6 +150,28 @@
                 return 0;
             }
 
+            if (ConfigInfo.HasSameSourceTypeAs(other.ConfigInfo))
+            {
+                if (ConfigInfo.HasSameTargetTypeAs(other.ConfigInfo))
+                {
+                    return GetConditionOrder(other) ?? 0;
+                }
+
+                return ConfigInfo.IsForTargetType(other.ConfigInfo) ? 1 : -1;
+            }
+
+            if (ConfigInfo.IsForSourceType(other.ConfigInfo))
+            {
+                // Derived source type
+                return 1;
+            }
+
+            // Unrelated source and target types
+            return GetConditionOrder(other) ?? -1;
+        }
+
+        private int? GetConditionOrder(UserConfiguredItemBase other)
+        {
             if (!HasConfiguredCondition && other.HasConfiguredCondition)
             {
                 return 1;
@@ -160,27 +182,7 @@
                 return -1;
             }
 
-            if (ConfigInfo.HasSameSourceTypeAs(other.ConfigInfo))
-            {
-                if (ConfigInfo.HasSameTargetTypeAs(other.ConfigInfo))
-                {
-                    return 0;
-                }
-
-                if (ConfigInfo.IsForTargetType(other.ConfigInfo))
-                {
-                    return 1;
-                }
-
-                return -1;
-            }
-
-            if (ConfigInfo.IsForSourceType(other.ConfigInfo))
-            {
-                return 1;
-            }
-
-            return -1;
+            return null;
         }
     }
 }

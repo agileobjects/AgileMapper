@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .If((c, cvm) => c.Name == "Frank")
                     .Ignore(cvm => cvm.Name);
 
-                var personResult = mapper.Map(new Person { Name = "Matt" }).ToANew<PersonViewModel>();
+                var personResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
                 var matchingCustomerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
                 var nonMatchingCustomerResult = mapper.Map(new Customer { Name = "Frank" }).ToANew<CustomerViewModel>();
 
@@ -70,6 +70,14 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .From<Customer>()
                     .To<CustomerViewModel>()
                     .Ignore(cvm => cvm.Name);
+
+                var matchingPersonResult = mapper.Map(new Person { Name = "Frank" }).ToANew<PersonViewModel>();
+                var nonMatchingPersonResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
+                var customerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
+
+                matchingPersonResult.Name.ShouldBeNull();
+                nonMatchingPersonResult.Name.ShouldBe("Dennis");
+                customerResult.Name.ShouldBeNull();
             }
         }
 

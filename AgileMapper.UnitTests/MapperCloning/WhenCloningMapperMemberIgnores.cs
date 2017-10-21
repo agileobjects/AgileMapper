@@ -103,14 +103,13 @@
         }
 
         [Fact]
-        public void ShouldErrorIfDuplicateIgnoredMemberIsConfigured()
+        public void ShouldErrorIfRedundantIgnoredMemberIsConfigured()
         {
             var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var originalMapper = Mapper.CreateNew())
                 {
                     originalMapper.WhenMapping
-                        .From<Address>()
                         .ToANew<Address>()
                         .Ignore(ta => ta.Line2);
 
