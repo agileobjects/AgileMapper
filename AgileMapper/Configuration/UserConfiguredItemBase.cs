@@ -62,14 +62,10 @@
                 return true;
             }
 
-            if (HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition)
+            if (HasOverlappingTypes(otherConfiguredItem) &&
+                MembersConflict(otherConfiguredItem))
             {
-                return false;
-            }
-
-            if (HasOverlappingTypes(otherConfiguredItem))
-            {
-                return MembersConflict(otherConfiguredItem);
+                return ConditionsDoNotNegateConflict(otherConfiguredItem);
             }
 
             return false;
@@ -80,16 +76,21 @@
             return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
         }
 
-        protected virtual bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
-            => ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo);
+        protected virtual bool HasOverlappingTypes(UserConfiguredItemBase otherItem)
+            => ConfigInfo.HasCompatibleTypes(otherItem.ConfigInfo);
 
-        protected virtual bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
-            => TargetMember.Matches(otherConfiguredItem.TargetMember);
+        protected virtual bool MembersConflict(UserConfiguredItemBase otherItem)
+            => TargetMember.Matches(otherItem.TargetMember);
 
-        protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherConfiguredItem)
+        protected virtual bool ConditionsDoNotNegateConflict(UserConfiguredItemBase otherItem)
         {
-            return ConfigInfo.HasSameSourceTypeAs(otherConfiguredItem.ConfigInfo) &&
-                   ConfigInfo.HasSameTargetTypeAs(otherConfiguredItem.ConfigInfo);
+            return !(HasConfiguredCondition || otherItem.HasConfiguredCondition);
+        }
+
+        protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherItem)
+        {
+            return ConfigInfo.HasSameSourceTypeAs(otherItem.ConfigInfo) &&
+                   ConfigInfo.HasSameTargetTypeAs(otherItem.ConfigInfo);
         }
 
         public Expression GetConditionOrNull(IMemberMapperData mapperData)

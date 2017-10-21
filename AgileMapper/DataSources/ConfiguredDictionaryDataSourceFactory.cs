@@ -30,5 +30,11 @@
 
         public bool Matches(QualifiedMember targetMember)
             => targetMember.Matches(TargetDictionaryEntryMember);
+
+        protected override bool MembersConflict(UserConfiguredItemBase otherItem)
+        {
+            return otherItem is ConfiguredDictionaryDataSourceFactory otherDictionaryItem &&
+                   TargetDictionaryEntryMember.LeafMember.Equals(otherDictionaryItem.TargetDictionaryEntryMember.LeafMember);
+        }
     }
 }
