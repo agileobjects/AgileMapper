@@ -40,6 +40,7 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.Add:
                     case ExpressionType.Equal:
                     case ExpressionType.Multiply:
+                    case ExpressionType.NotEqual:
                         return AreEqual((BinaryExpression)x, (BinaryExpression)y);
 
                     case ExpressionType.NewArrayInit:
