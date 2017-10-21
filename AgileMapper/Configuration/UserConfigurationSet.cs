@@ -115,7 +115,7 @@
             ThrowIfConflictingIgnoredMemberExists(ignoredMember, (im, cIm) => im.GetConflictMessage(cIm));
             ThrowIfConflictingDataSourceExists(ignoredMember, (im, cDsf) => im.GetConflictMessage(cDsf));
 
-            IgnoredMembers.Add(ignoredMember);
+            IgnoredMembers.AddSortFilter(ignoredMember);
         }
 
         public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IBasicMapperData mapperData)

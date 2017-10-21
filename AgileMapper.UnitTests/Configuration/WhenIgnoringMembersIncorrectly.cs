@@ -44,6 +44,14 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .To<CustomerViewModel>()
                     .If((c, cvm) => c.Name == "Frank")
                     .Ignore(cvm => cvm.Name);
+
+                var personResult = mapper.Map(new Person { Name = "Matt" }).ToANew<PersonViewModel>();
+                var matchingCustomerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
+                var nonMatchingCustomerResult = mapper.Map(new Customer { Name = "Frank" }).ToANew<CustomerViewModel>();
+
+                personResult.Name.ShouldBeNull();
+                matchingCustomerResult.Name.ShouldBe("Mac");
+                nonMatchingCustomerResult.Name.ShouldBeNull();
             }
         }
 
