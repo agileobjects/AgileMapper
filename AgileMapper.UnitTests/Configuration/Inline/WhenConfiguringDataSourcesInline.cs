@@ -170,7 +170,7 @@
         }
 
         [Fact]
-        public void ShouldApplyDifferingInlineConstantDataSources()
+        public void ShouldApplyDifferingInlineConstantDataSourcesConditionally()
         {
             var source1 = new PublicProperty<int> { Value = 1 };
             var source2 = new PublicProperty<int> { Value = 2 };
@@ -180,6 +180,7 @@
                 var result1 = mapper
                     .Map(source1)
                     .ToANew<PublicField<int>>(c => c
+                        .If(ctx => ctx.Source.Value > 0)
                         .Map(ctx => ctx.Source.Value + 2)
                         .To(pf => pf.Value));
 
@@ -187,6 +188,7 @@
                 var result2 = mapper
                     .Map(source2)
                     .ToANew<PublicField<int>>(c => c
+                        .If(ctx => ctx.Source.Value > 0)
                         .Map(ctx => ctx.Source.Value + 1)
                         .To(pf => pf.Value));
 
