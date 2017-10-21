@@ -38,8 +38,12 @@ namespace AgileObjects.AgileMapper.Extensions
                         return AreEqual((MemberExpression)x, (MemberExpression)y);
 
                     case ExpressionType.Add:
+                    case ExpressionType.Equal:
                     case ExpressionType.Multiply:
                         return AreEqual((BinaryExpression)x, (BinaryExpression)y);
+
+                    case ExpressionType.NewArrayInit:
+                        return AreEqual((NewArrayExpression)x, (NewArrayExpression)y);
 
                     case ExpressionType.Parameter:
                         return AreEqual((ParameterExpression)x, (ParameterExpression)y);
@@ -110,6 +114,11 @@ namespace AgileObjects.AgileMapper.Extensions
         private static bool AreEqual(ParameterExpression x, ParameterExpression y)
         {
             return (x.Type == y.Type) && (x.Name == y.Name);
+        }
+
+        private bool AreEqual(NewArrayExpression x, NewArrayExpression y)
+        {
+            return (x.Type == y.Type) && AllEqual(x.Expressions, y.Expressions);
         }
 
         public int GetHashCode(Expression obj) => 0;

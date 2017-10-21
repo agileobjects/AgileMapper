@@ -10,8 +10,6 @@
 
     internal class MappingExecutor<TSource> : ITargetTypeSelector<TSource>, IMappingContext
     {
-        private static readonly bool _runtimeSourceTypeNeeded = TypeInfo<TSource>.RuntimeTypeNeeded;
-
         private readonly TSource _source;
 
         public MappingExecutor(TSource source, MapperContext mapperContext)
@@ -114,7 +112,7 @@
         }
 
         private static bool SkipTypeChecks<TTarget>()
-            => !(_runtimeSourceTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded);
+            => !(TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded);
 
         private ObjectMappingData<TSource, TTarget> CreateTypedRootMappingData<TTarget>(TTarget target)
         {

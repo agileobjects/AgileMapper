@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System;
-    using System.Diagnostics;
     using System.Linq.Expressions;
     using AgileMapper.Members;
     using Shouldly;
@@ -18,17 +17,11 @@
 
             using (var mapper = Mapper.CreateNew())
             {
-                var timer = Stopwatch.StartNew();
-
                 var result1 = mapper
                     .Map(source1)
                     .ToANew<PublicField<int>>(c => c
                         .Map(ctx => ctx.Source.Value * 2)
                         .To(pf => pf.Value));
-
-                var result1Duration = timer.ElapsedTicks;
-
-                timer.Restart();
 
                 var result2 = mapper
                     .Map(source2)
@@ -36,15 +29,10 @@
                         .Map(ctx => ctx.Source.Value * 2)
                         .To(pf => pf.Value));
 
-                var result2Duration = timer.ElapsedTicks;
-
-                timer.Stop();
-
                 result1.Value.ShouldBe(source1.Value * 2);
                 result2.Value.ShouldBe(source2.Value * 2);
 
-                // Better-than-nothing check on inline MapperContext caching:
-                result1Duration.ShouldBeGreaterThan(result2Duration);
+                mapper.InlineContexts().ShouldHaveSingleItem();
             }
         }
 
@@ -90,6 +78,8 @@
                 result1No.Value.ShouldBe("One? No!");
                 result2Yes.Value.ShouldBe("Two? Yes!");
                 result2No.Value.ShouldBe("Two? No!");
+
+                mapper.InlineContexts().Count.ShouldBe(2);
             }
         }
 

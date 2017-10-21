@@ -12,11 +12,9 @@
     {
         private static readonly IMapper _default = CreateNew();
 
-        private readonly MapperContext _mapperContext;
-
-        private Mapper(MapperContext mapperContext)
+        private Mapper(MapperContext context)
         {
-            _mapperContext = mapperContext;
+            Context = context;
         }
 
         #region Factory Methods
@@ -36,6 +34,8 @@
 
         #endregion
 
+        internal MapperContext Context { get; }
+
         IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
         IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
@@ -44,14 +44,14 @@
 
         IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
-        string IMapper.GetPlansInCache() => MappingPlanSet.For(_mapperContext);
+        string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
 
         private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
-            => new PlanTargetTypeSelector<TSource>(_mapperContext);
+            => new PlanTargetTypeSelector<TSource>(Context);
 
-        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(_mapperContext);
+        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
 
-        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(_mapperContext);
+        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(Context);
 
         #region Static Access Methods
 
@@ -163,23 +163,23 @@
 
         #endregion
 
-        MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(_mapperContext);
+        MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(Context);
 
-        IMapper IMapper.CloneSelf() => new Mapper(_mapperContext.Clone());
+        IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 
         TSource IMapper.Clone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
 
-        dynamic IMapper.Flatten<TSource>(TSource source) => _mapperContext.ObjectFlattener.Flatten(source);
+        dynamic IMapper.Flatten<TSource>(TSource source) => Context.ObjectFlattener.Flatten(source);
 
         ITargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
-            => new MappingExecutor<TSource>(source, _mapperContext);
+            => new MappingExecutor<TSource>(source, Context);
 
         #region IDisposable Members
 
         /// <summary>
         /// Removes the mapper's cached data.
         /// </summary>
-        public void Dispose() => _mapperContext.Reset();
+        public void Dispose() => Context.Reset();
 
         #endregion
     }

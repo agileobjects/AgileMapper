@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration.Inline
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Api.Configuration;
     using Caching;
@@ -13,6 +14,8 @@
         {
             _inlineContextsCache = parentMapperContext.Cache.CreateScoped<IInlineMapperKey, MapperContext>();
         }
+
+        public IEnumerable<MapperContext> InlineContexts => _inlineContextsCache.Values;
 
         public MapperContext GetContextFor<TSource, TTarget>(
             Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations,
