@@ -86,7 +86,8 @@
     <Compile Include="Configuration\Inline\InlineMappingExtensions.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
-    <Compile Include="MapperCloning\WhenCloningMapperMemberIgnores.cs" />
+    <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
+    <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersByFilter.cs" />
@@ -98,7 +99,7 @@
     <Compile Include="Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs" />
     <Compile Include="Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
-    <Compile Include="MapperCloning\WhenCloningMapperObjectFactories.cs" />
+    <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />
@@ -158,7 +159,7 @@
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
-    <Compile Include="MapperCloning\WhenCloningMapperDataSources.cs" />
+    <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaries.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />

@@ -5,7 +5,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenCloningMapperMemberIgnores
+    public class WhenCloningMemberIgnores
     {
         [Fact]
         public void ShouldIgnoreAParentConfiguredDataSource()

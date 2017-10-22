@@ -6,7 +6,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenCloningMapperObjectFactories
+    public class WhenCloningObjectFactories
     {
         [Fact]
         public void ShouldAllowOverridingAConfiguredFactory()
