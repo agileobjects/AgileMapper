@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
+    using System;
     using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
@@ -7,6 +8,24 @@
 
     public class WhenConfiguringDataSourcesInlineIncorrectly
     {
+        [Fact]
+        public void ShouldErrorIfUnconvertibleConstantSpecifiedInline()
+        {
+            var inlineConfigEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .Map(new PublicField<DateTime> { Value = DateTime.Now })
+                        .ToANew<PublicField<DateTime>>(cfg => cfg
+                            .Map((decimal?)63762m)
+                            .To(pf => pf.Value));
+                }
+            });
+
+            inlineConfigEx.Message.ShouldContain("Unable to convert configured decimal? ");
+        }
+
         [Fact]
         public void ShouldErrorIfDuplicateDataSourceIsConfiguredInline()
         {
@@ -71,7 +90,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfMissingConstructorParameterNameSpecified()
+        public void ShouldErrorIfMissingConstructorParameterNameSpecifiedInline()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {

@@ -44,11 +44,16 @@
 
         public void ThrowIfUnconvertible(Type sourceType, Type targetType)
         {
-            if (!CanConvert(sourceType, targetType))
+            if (CanConvert(sourceType, targetType))
             {
-                throw new MappingConfigurationException(
-                    $"Unable to convert configured {sourceType.Name} to target type {targetType.Name}");
+                return;
             }
+
+            var sourceTypeName = sourceType.GetFriendlyName();
+            var targetTypeName = targetType.GetFriendlyName();
+
+            throw new MappingConfigurationException(
+                $"Unable to convert configured {sourceTypeName} to target type {targetTypeName}");
         }
 
         public bool CanConvert(Type sourceType, Type targetType)
