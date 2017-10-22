@@ -41,6 +41,7 @@ namespace AgileObjects.AgileMapper.Extensions
                         return AreEqual((MemberExpression)x, (MemberExpression)y);
 
                     case ExpressionType.Add:
+                    case ExpressionType.Divide:
                     case ExpressionType.Equal:
                     case ExpressionType.GreaterThan:
                     case ExpressionType.GreaterThanOrEqual:
