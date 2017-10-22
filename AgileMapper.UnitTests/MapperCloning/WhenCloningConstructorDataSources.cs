@@ -9,15 +9,15 @@
         [Fact]
         public void ShouldCloneAConstructorDataSource()
         {
-            using (var baseMapper = Mapper.CreateNew())
+            using (var originalMapper = Mapper.CreateNew())
             {
-                baseMapper.WhenMapping
+                originalMapper.WhenMapping
                     .From<PublicTwoFieldsStruct<Guid, long>>()
                     .To<PublicTwoParamCtor<string, int>>()
                     .Map("Hello there!")
                     .ToCtor<string>();
 
-                using (var clonedMapper = baseMapper.CloneSelf())
+                using (var clonedMapper = originalMapper.CloneSelf())
                 {
                     clonedMapper.WhenMapping
                         .From<PublicTwoFieldsStruct<Guid, long>>()
@@ -35,6 +35,36 @@
 
                     result.Value1.ShouldBe("Hello there!");
                     result.Value2.ShouldBe(4);
+                }
+            }
+        }
+
+        [Fact]
+        public void ShouldReplaceAClonedConstructorDataSource()
+        {
+            using (var originalMapper = Mapper.CreateNew())
+            {
+                originalMapper.WhenMapping
+                    .From<PublicProperty<int>>()
+                    .To<PublicCtor<string>>()
+                    .Map((s, t) => s.Value * 2)
+                    .ToCtor<string>();
+
+                using (var clonedMapper = originalMapper.CloneSelf())
+                {
+                    clonedMapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .ToANew<PublicCtor<string>>()
+                        .Map((s, t) => s.Value * 3)
+                        .ToCtor<string>();
+
+                    var source = new PublicProperty<int> { Value = 2 };
+
+                    var originalResult = originalMapper.Map(source).ToANew<PublicCtor<string>>();
+                    var clonedResult = clonedMapper.Map(source).ToANew<PublicCtor<string>>();
+
+                    originalResult.Value.ShouldBe(4);
+                    clonedResult.Value.ShouldBe(6);
                 }
             }
         }
