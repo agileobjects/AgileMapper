@@ -43,6 +43,7 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.Add:
                     case ExpressionType.Equal:
                     case ExpressionType.GreaterThan:
+                    case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
                     case ExpressionType.Multiply:
                     case ExpressionType.NotEqual:

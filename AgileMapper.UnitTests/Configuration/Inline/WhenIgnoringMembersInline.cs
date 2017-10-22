@@ -122,6 +122,44 @@
                 mapper.InlineContexts().Count.ShouldBe(2);
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreMembersUsingAnInlineMemberTypeFilter()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(new ProductDto { ProductId = "Inline", Price = 10.00m })
+                    .Over(new Product { ProductId = "Outline", Price = 9.99 }, cfg => cfg
+                        .IgnoreTargetMembersOfType<double>());
+
+                result.ProductId.ShouldBe("Inline");
+                result.Price.ShouldBe(9.99);
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreMembersUsingAnInlinePropertyMatcherFilter()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result1 = mapper
+                    .Map(new ProductDto { ProductId = "Inline", Price = 10.00m })
+                    .Over(new Product { ProductId = "Outline", Price = 9.99 }, cfg => cfg
+                        .IgnoreTargetMembersWhere(m => m.IsPropertyMatching(pi => pi.Name.Length < 6)));
+
+                result1.ProductId.ShouldBe("Inline");
+                result1.Price.ShouldBe(9.99);
+
+                var result2 = mapper
+                    .Map(new ProductDto { ProductId = "Inline", Price = 1.00m })
+                    .Over(new Product { ProductId = "Outline" }, cfg => cfg
+                        .IgnoreTargetMembersWhere(m => m.IsPropertyMatching(pi => pi.Name.Length < 6)));
+
+                result2.ProductId.ShouldBe("Inline");
+                result2.Price.ShouldBeDefault();
+            }
+        }
     }
 
     #region Helper Classes

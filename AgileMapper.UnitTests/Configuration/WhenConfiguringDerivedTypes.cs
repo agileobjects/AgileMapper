@@ -64,11 +64,13 @@
                     .Map<MegaProduct>()
                     .To<ProductDtoMega>();
 
-                Product source = new MegaProduct { ProductId = "PrettyDarnMega", HowMega = 1.00m };
+                Product source = new MegaProduct { ProductId = "PrettyDarnMega", Price = 0.99, HowMega = 1.00m };
+
                 var result = mapper.Map(source).ToANew<ProductDto>();
 
                 result.ShouldBeOfType<ProductDtoMega>();
                 result.ProductId.ShouldBe("PrettyDarnMega");
+                result.Price.ShouldBe(0.99m);
                 ((ProductDtoMega)result).HowMega.ShouldBe("1.00");
             }
         }

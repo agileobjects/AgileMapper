@@ -3,5 +3,7 @@
     internal class ProductDto
     {
         public string ProductId { get; set; }
+
+        public decimal Price { get; set; }
     }
 }
