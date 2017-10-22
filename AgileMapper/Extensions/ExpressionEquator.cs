@@ -26,6 +26,9 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.Constant:
                         return AreEqual((ConstantExpression)x, (ConstantExpression)y);
 
+                    case ExpressionType.Convert:
+                        return AreEqual((UnaryExpression)x, (UnaryExpression)y);
+
                     case ExpressionType.Index:
                         return AreEqual((IndexExpression)x, (IndexExpression)y);
 
@@ -40,6 +43,7 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.Add:
                     case ExpressionType.Equal:
                     case ExpressionType.GreaterThan:
+                    case ExpressionType.LessThanOrEqual:
                     case ExpressionType.Multiply:
                     case ExpressionType.NotEqual:
                         return AreEqual((BinaryExpression)x, (BinaryExpression)y);
@@ -88,6 +92,11 @@ namespace AgileObjects.AgileMapper.Extensions
         private static bool AreEqual(ConstantExpression x, ConstantExpression y)
         {
             return x.Value.Equals(y.Value);
+        }
+
+        private bool AreEqual(UnaryExpression x, UnaryExpression y)
+        {
+            return (x.Type == y.Type) && Equals(x.Operand, y.Operand);
         }
 
         private bool AreEqual(IndexExpression x, IndexExpression y)

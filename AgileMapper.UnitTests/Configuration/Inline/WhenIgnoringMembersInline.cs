@@ -75,6 +75,53 @@
                 mapper.InlineContexts().ShouldHaveSingleItem();
             }
         }
+
+        [Fact]
+        public void ShouldExtendMapperConfiguration()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<int, int>>()
+                    .To<PublicTwoFields<long, long>>()
+                    .If((sptf, tptf) => sptf.Value1 < 5)
+                    .Ignore(ptf => ptf.Value1);      // Ignore target.Value1 if source.Value1 < 5
+
+                var result1 = mapper
+                    .Map(new PublicTwoFieldsStruct<int, int> { Value1 = 4, Value2 = 8 })
+                    .OnTo(new PublicTwoFields<long, long>(), c => c
+                        .If((sptf, tptf) => sptf.Value2 <= 10)
+                        .Ignore(ptf => ptf.Value2)); // Ignore target.Value2 if source.Value2 <= 10
+
+                result1.Value1.ShouldBeDefault();
+                result1.Value2.ShouldBeDefault();
+
+                var result2 = mapper
+                    .Map(new PublicTwoFieldsStruct<int, int> { Value1 = 5, Value2 = 7 })
+                    .OnTo(new PublicTwoFields<long, long>(), c => c
+                        .If((sptf, tptf) => sptf.Value2 <= 10)
+                        .Ignore(ptf => ptf.Value2)); // Ignore target.Value2 if source.Value2 <= 10
+
+                result2.Value1.ShouldBe(5);
+                result2.Value2.ShouldBeDefault();
+
+                mapper.InlineContexts().ShouldHaveSingleItem();
+
+                var result3 = mapper
+                    .Map(new PublicTwoFieldsStruct<int, int> { Value1 = 5, Value2 = 11 })
+                    .OnTo(new PublicTwoFields<long, long>(), c => c
+                        .If((sptf, tptf) => sptf.Value1 >= 3)
+                        .Ignore(ptf => ptf.Value1) // Ignore target.Value1 if source.Value1 >= 3
+                        .And
+                        .If((sptf, tptf) => sptf.Value2 <= 10)
+                        .Ignore(ptf => ptf.Value2)); // Ignore target.Value2 if source.Value2 < 10
+
+                result3.Value1.ShouldBeDefault();
+                result3.Value2.ShouldBe(11);
+
+                mapper.InlineContexts().Count.ShouldBe(2);
+            }
+        }
     }
 
     #region Helper Classes

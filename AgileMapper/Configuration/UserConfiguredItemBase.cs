@@ -65,7 +65,7 @@
             if (HasOverlappingTypes(otherConfiguredItem) &&
                 MembersConflict(otherConfiguredItem))
             {
-                return ConditionsDoNotNegateConflict(otherConfiguredItem);
+                return !(HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition);
             }
 
             return false;
@@ -81,11 +81,6 @@
 
         protected virtual bool MembersConflict(UserConfiguredItemBase otherItem)
             => TargetMember.Matches(otherItem.TargetMember);
-
-        protected virtual bool ConditionsDoNotNegateConflict(UserConfiguredItemBase otherItem)
-        {
-            return !(HasConfiguredCondition || otherItem.HasConfiguredCondition);
-        }
 
         protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherItem)
         {
