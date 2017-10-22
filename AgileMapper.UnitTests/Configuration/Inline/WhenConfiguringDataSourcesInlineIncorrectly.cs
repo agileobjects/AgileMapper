@@ -72,6 +72,51 @@
         }
 
         [Fact]
+        public void ShouldErrorIfRedundantDataSourceIsConfiguredInline()
+        {
+            var inlineConfigEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<string>>()
+                        .Map((p, pf) => p.Id)
+                        .To(pf => pf.Value);
+
+                    mapper
+                        .Map(new Customer { Id = Guid.NewGuid() })
+                        .Over(new PublicField<string>(), cfg => cfg
+                            .Map((c, pf) => c.Id)
+                            .To(pf => pf.Value));
+                }
+            });
+
+            inlineConfigEx.Message.ShouldContain("already has that configured data source");
+        }
+
+        [Fact]
+        public void ShouldErrorIfConflictingDataSourceIsConfigured()
+        {
+            var conflictEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .Map(new Customer { Id = Guid.NewGuid() })
+                        .Over(new PublicField<Guid>(), cfg => cfg
+                            .Map((c, pf) => c.Id)
+                            .To(pf => pf.Value)
+                            .And
+                            .Map((c, pf) => c.Name)
+                            .To(pf => pf.Value));
+                }
+            });
+
+            conflictEx.Message.ShouldContain("already has a configured data source");
+        }
+
+        [Fact]
         public void ShouldErrorIfMissingConstructorParameterTypeSpecifiedInline()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
