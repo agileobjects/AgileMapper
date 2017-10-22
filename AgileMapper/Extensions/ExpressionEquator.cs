@@ -23,6 +23,9 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.Call:
                         return AreEqual((MethodCallExpression)x, (MethodCallExpression)y);
 
+                    case ExpressionType.Conditional:
+                        return AreEqual((ConditionalExpression)x, (ConditionalExpression)y);
+
                     case ExpressionType.Constant:
                         return AreEqual((ConstantExpression)x, (ConstantExpression)y);
 
@@ -91,6 +94,12 @@ namespace AgileObjects.AgileMapper.Extensions
             return ReferenceEquals(x.Method, y.Method) &&
                    (((x.Object == null) && (y.Object == null)) || ((x.Object != null) && Equals(x.Object, y.Object))) &&
                    AllEqual(x.Arguments, y.Arguments);
+        }
+
+        private bool AreEqual(ConditionalExpression x, ConditionalExpression y)
+        {
+            return (x.Type == y.Type) && Equals(x.Test, y.Test) && 
+                    Equals(x.IfTrue, y.IfTrue) && Equals(x.IfFalse, y.IfFalse);
         }
 
         private static bool AreEqual(ConstantExpression x, ConstantExpression y)

@@ -51,5 +51,34 @@
                 result2.Value2.ShouldBe(4);
             }
         }
+
+        [Fact]
+        public void ShouldReplaceAConfiguredConstructorDataSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<long>>()
+                    .To<PublicCtor<string>>()
+                    .Map((s, t) => s.Value * 2)
+                    .ToCtor<string>();
+
+                var moreThanTwoResult = mapper
+                    .Map(new PublicProperty<long> { Value = 3 })
+                    .ToANew<PublicCtor<string>>(cfg => cfg
+                        .Map((s, t) => s.Value > 2 ? 2 : 1)
+                        .ToCtor<string>());
+
+                moreThanTwoResult.Value.ShouldBe("2");
+
+                var lessThanTwoResult = mapper
+                    .Map(new PublicProperty<long> { Value = 0 })
+                    .ToANew<PublicCtor<string>>(cfg => cfg
+                        .Map((s, t) => s.Value > 2 ? 2 : 1)
+                        .ToCtor<string>());
+
+                lessThanTwoResult.Value.ShouldBe("1");
+            }
+        }
     }
 }
