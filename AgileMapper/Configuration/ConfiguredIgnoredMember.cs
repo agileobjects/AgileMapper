@@ -112,9 +112,9 @@ namespace AgileObjects.AgileMapper.Configuration
             }
 
             if ((otherConfiguredItem is ConfiguredIgnoredMember otherIgnoredMember) &&
-                (otherIgnoredMember.TargetMemberFilter == TargetMemberFilter))
+                otherIgnoredMember.HasMemberFilter)
             {
-                return true;
+                return otherIgnoredMember.TargetMemberFilter == TargetMemberFilter;
             }
 
             return _memberFilter.Invoke(new TargetMemberSelector(otherConfiguredItem.TargetMember));

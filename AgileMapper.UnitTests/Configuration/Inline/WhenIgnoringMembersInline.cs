@@ -77,7 +77,7 @@
         }
 
         [Fact]
-        public void ShouldExtendMapperConfiguration()
+        public void ShouldExtendMemberIgnoreConfiguration()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -157,6 +157,34 @@
                         .IgnoreTargetMembersWhere(m => m.IsPropertyMatching(pi => pi.Name.Length < 6)));
 
                 result2.ProductId.ShouldBe("Inline");
+                result2.Price.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldExtendMemberFilterConfiguration()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<ProductDto>()
+                    .To<Product>()
+                    .IgnoreTargetMembersWhere(m => m.Name.Length <= 5);
+
+                var result1 = mapper
+                    .Map(new ProductDto { ProductId = "Inline", Price = 10.00m })
+                    .ToANew<Product>(cfg => cfg
+                        .IgnoreTargetMembersWhere(m => m.Name.Length - 1 >= 8));
+
+                result1.ProductId.ShouldBeDefault();
+                result1.Price.ShouldBeDefault();
+
+                var result2 = mapper
+                    .Map(new ProductDto { ProductId = "Inline", Price = 1.00m })
+                    .ToANew<Product>(cfg => cfg
+                        .IgnoreTargetMembersWhere(m => m.Name.Length - 1 >= 8));
+
+                result2.ProductId.ShouldBeDefault();
                 result2.Price.ShouldBeDefault();
             }
         }

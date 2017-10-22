@@ -43,10 +43,12 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.Add:
                     case ExpressionType.Equal:
                     case ExpressionType.GreaterThan:
+                    case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
                     case ExpressionType.Multiply:
                     case ExpressionType.NotEqual:
+                    case ExpressionType.Subtract:
                         return AreEqual((BinaryExpression)x, (BinaryExpression)y);
 
                     case ExpressionType.NewArrayInit:
