@@ -51,5 +51,41 @@
 
             inlineConfigEx.Message.ShouldContain("Ignored member Target.Value has a configured data source");
         }
+
+        [Fact]
+        public void ShouldErrorIfMissingConstructorParameterTypeSpecifiedInline()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .Map(new PublicProperty<int> { Value = 2 })
+                        .ToANew<PublicCtorStruct<int>>(cfg => cfg
+                            .Map((s, t, i) => i)
+                            .ToCtor<long>());
+                }
+            });
+
+            configurationException.Message.ShouldContain("No constructor parameter of type");
+        }
+
+        [Fact]
+        public void ShouldErrorIfMissingConstructorParameterNameSpecified()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .Map(new PublicProperty<int> { Value = 2 })
+                        .ToANew<PublicCtorStruct<int>>(cfg => cfg
+                            .Map((s, t, i) => i)
+                            .ToCtor("Value"));
+                }
+            });
+
+            configurationException.Message.ShouldContain("No constructor parameter named");
+        }
     }
 }

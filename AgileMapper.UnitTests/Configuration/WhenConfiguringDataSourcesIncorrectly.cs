@@ -183,5 +183,69 @@
                 }
             });
         }
+
+        [Fact]
+        public void ShouldErrorIfMissingConstructorParameterTypeSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicCtor<Guid>>()
+                        .Map(Guid.NewGuid())
+                        .ToCtor<string>());
+
+                configurationException.Message.ShouldContain("No constructor parameter of type");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfMissingConstructorParameterNameSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicCtor<Guid>>()
+                        .Map(Guid.NewGuid())
+                        .ToCtor("boing"));
+
+                configurationException.Message.ShouldContain("No constructor parameter named");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfNonUniqueConstructorParameterTypeSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicTwoParamCtor<DateTime, DateTime>>()
+                        .Map(DateTime.Today)
+                        .ToCtor<DateTime>());
+
+                configurationException.Message.ShouldContain("Multiple constructor parameters");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfUnconvertibleConstructorValueConstantSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicCtor<Guid>>()
+                        .Map(DateTime.Today)
+                        .ToCtor<Guid>());
+
+                configurationException.Message.ShouldContain("Unable to convert");
+            }
+        }
     }
 }
