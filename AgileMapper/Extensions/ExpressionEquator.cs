@@ -3,7 +3,9 @@ namespace AgileObjects.AgileMapper.Extensions
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+#if NET_STANDARD
     using System.Reflection;
+#endif
 
     internal class ExpressionEquator : IEqualityComparer<Expression>
     {
@@ -55,6 +57,12 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.Subtract:
                         return AreEqual((BinaryExpression)x, (BinaryExpression)y);
 
+                    case ExpressionType.MemberInit:
+                        return AreEqual((MemberInitExpression)x, (MemberInitExpression)y);
+
+                    case ExpressionType.New:
+                        return AreEqual((NewExpression)x, (NewExpression)y);
+
                     case ExpressionType.NewArrayInit:
                         return AreEqual((NewArrayExpression)x, (NewArrayExpression)y);
 
@@ -98,7 +106,7 @@ namespace AgileObjects.AgileMapper.Extensions
 
         private bool AreEqual(ConditionalExpression x, ConditionalExpression y)
         {
-            return (x.Type == y.Type) && Equals(x.Test, y.Test) && 
+            return (x.Type == y.Type) && Equals(x.Test, y.Test) &&
                     Equals(x.IfTrue, y.IfTrue) && Equals(x.IfFalse, y.IfFalse);
         }
 
@@ -125,6 +133,7 @@ namespace AgileObjects.AgileMapper.Extensions
                 return true;
             }
 
+            // ReSharper disable once PossibleNullReferenceException
             return (x.Member.Name == y.Member.Name) &&
                     y.Member.DeclaringType.IsAssignableFrom(x.Member.DeclaringType);
         }
@@ -138,6 +147,85 @@ namespace AgileObjects.AgileMapper.Extensions
         private static bool AreEqual(ParameterExpression x, ParameterExpression y)
         {
             return (x.Type == y.Type) && (x.Name == y.Name);
+        }
+
+        private bool AreEqual(MemberInitExpression x, MemberInitExpression y)
+        {
+            return Equals(x.NewExpression, y.NewExpression) &&
+                   AllEqual(x.Bindings, y.Bindings);
+        }
+
+        private bool AllEqual(IList<MemberBinding> xBindings, IList<MemberBinding> yBindings)
+        {
+            if (xBindings.Count != yBindings.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < xBindings.Count; i++)
+            {
+                var x = xBindings[i];
+                var y = yBindings[i];
+
+                if ((x.BindingType != y.BindingType) || !ReferenceEquals(x.Member, y.Member))
+                {
+                    return false;
+                }
+
+                switch (x.BindingType)
+                {
+                    case MemberBindingType.Assignment:
+                        if (Equals(((MemberAssignment)x).Expression, ((MemberAssignment)y).Expression))
+                        {
+                            continue;
+                        }
+                        return false;
+
+                    case MemberBindingType.MemberBinding:
+                        if (AllEqual(((MemberMemberBinding)x).Bindings, ((MemberMemberBinding)y).Bindings))
+                        {
+                            continue;
+                        }
+                        return false;
+
+                    case MemberBindingType.ListBinding:
+                        if (AreEqual((MemberListBinding)x, (MemberListBinding)y))
+                        {
+                            continue;
+                        }
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool AreEqual(MemberListBinding x, MemberListBinding y)
+        {
+            if (x.Initializers.Count != y.Initializers.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < x.Initializers.Count; i++)
+            {
+                var xInitialiser = x.Initializers[i];
+                var yInitialiser = y.Initializers[i];
+
+                if (!ReferenceEquals(xInitialiser.AddMethod, yInitialiser.AddMethod) ||
+                    !AllEqual(xInitialiser.Arguments, yInitialiser.Arguments))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool AreEqual(NewExpression x, NewExpression y)
+        {
+            return (x.Type == y.Type) && ReferenceEquals(x.Constructor, y.Constructor) &&
+                    AllEqual(x.Arguments, y.Arguments);
         }
 
         private bool AreEqual(NewArrayExpression x, NewArrayExpression y)

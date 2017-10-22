@@ -56,32 +56,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
-        public void ShouldNotErrorIfRedundantIgnoreConflictsWithConditionalIgnore()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Person>()
-                    .To<PersonViewModel>()
-                    .If((p, pvm) => p.Name == "Frank")
-                    .Ignore(pvm => pvm.Name);
-
-                mapper.WhenMapping
-                    .From<Customer>()
-                    .To<CustomerViewModel>()
-                    .Ignore(cvm => cvm.Name);
-
-                var matchingPersonResult = mapper.Map(new Person { Name = "Frank" }).ToANew<PersonViewModel>();
-                var nonMatchingPersonResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
-                var customerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
-
-                matchingPersonResult.Name.ShouldBeNull();
-                nonMatchingPersonResult.Name.ShouldBe("Dennis");
-                customerResult.Name.ShouldBeNull();
-            }
-        }
-
-        [Fact]
         public void ShouldErrorIfConfiguredDataSourceMemberIsIgnored()
         {
             Should.Throw<MappingConfigurationException>(() =>
@@ -100,40 +74,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                         .Ignore(cvm => cvm.Name);
                 }
             });
-        }
-
-        [Fact]
-        public void ShouldNotErrorIfSamePathIgnoredMembersHaveDifferentSourceTypes()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicField<int>>()
-                    .To<PublicProperty<int>>()
-                    .Ignore(x => x.Value);
-
-                mapper.WhenMapping
-                    .From<PublicGetMethod<int>>()
-                    .To<PublicProperty<int>>()
-                    .Ignore(x => x.Value);
-            }
-        }
-
-        [Fact]
-        public void ShouldNotErrorIfSamePathIgnoredMembersHaveDifferentTargetTypes()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Person>()
-                    .To<PersonViewModel>()
-                    .Ignore(x => x.Name);
-
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .To<Person>()
-                    .Ignore(x => x.Name);
-            }
         }
 
         [Fact]
@@ -166,17 +106,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
             });
 
             configurationEx.Message.ShouldContain("not mappable");
-        }
-
-        [Fact]
-        public void ShouldNotErrorIfReadOnlyComplexTypeMemberSpecified()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .To<PublicReadOnlyProperty<Address>>()
-                    .Ignore(psm => psm.Value);
-            }
         }
 
         [Fact]
