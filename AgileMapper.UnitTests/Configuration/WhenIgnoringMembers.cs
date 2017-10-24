@@ -217,6 +217,32 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
         }
 
         [Fact]
+        public void ShouldSupportRedundantConditionalIgnoreConflictingWithIgnore()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PersonViewModel>()
+                    .Ignore(pvm => pvm.Name);
+
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .To<CustomerViewModel>()
+                    .If((c, cvm) => c.Name == "Frank")
+                    .Ignore(cvm => cvm.Name);
+
+                var personResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
+                var matchingCustomerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
+                var nonMatchingCustomerResult = mapper.Map(new Customer { Name = "Frank" }).ToANew<CustomerViewModel>();
+
+                personResult.Name.ShouldBeNull();
+                matchingCustomerResult.Name.ShouldBe("Mac");
+                nonMatchingCustomerResult.Name.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldSupportSamePathIgnoredMembersWithDifferentSourceTypes()
         {
             using (var mapper = Mapper.CreateNew())

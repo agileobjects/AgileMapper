@@ -26,5 +26,45 @@
 
             inlineConfigEx.Message.ShouldContain("Ignored member Target.Value has a configured data source");
         }
+
+        [Fact]
+        public void ShouldErrorIfFilteredMemberIsIgnoredInline()
+        {
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .IgnoreTargetMembersWhere(member => member.IsField);
+
+                    mapper
+                        .Map(new PublicField<long> { Value = 123 })
+                        .ToANew<PublicField<int>>(cfg => cfg
+                            .Ignore(pf => pf.Value));
+                }
+            });
+
+            ignoreEx.Message.ShouldContain("Already ignored by ignore pattern");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateFilterIsConfiguredInline()
+        {
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .IgnoreTargetMembersWhere(m => m.IsPropertyMatching(pi => pi.CanWrite));
+
+                    mapper
+                        .Map(new PublicField<long> { Value = 123 })
+                        .ToANew<PublicField<int>>(cfg => cfg
+                            .IgnoreTargetMembersWhere(m => m.IsPropertyMatching(pi => pi.CanWrite)));
+                }
+            });
+
+            ignoreEx.Message.ShouldContain("has already been configured");
+        }
     }
 }

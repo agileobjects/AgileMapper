@@ -34,6 +34,7 @@
                 }
             }
         }
+
         [Fact]
         public void ShouldReplaceMemberAndListInitialisation()
         {
