@@ -171,7 +171,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             while (parent != null)
             {
-                if (!parent.TargetTypeHasNotYetBeenMapped)
+                if (parent.TargetTypeHasBeenMappedBefore)
                 {
                     return false;
                 }
@@ -221,7 +221,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             while (parent != null)
             {
-                if (!parent.TargetTypeWillNotBeMappedAgain)
+                if (parent.TargetTypeWillBeMappedAgain)
                 {
                     return false;
                 }
@@ -284,12 +284,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private bool IsMappedObjectCachingNeeded()
         {
-            if (MapperContext.UserConfigurations.MaintainIdentityIntegrity(this))
+            if (MapperContext.UserConfigurations.CachedMappedObjects(this))
             {
-                return false;
+                return TargetTypeHasBeenMappedBefore || TargetTypeWillBeMappedAgain;
             }
 
-            return !TargetTypeHasNotYetBeenMapped || !TargetTypeWillNotBeMappedAgain;
+            return false;
         }
 
         #endregion
@@ -370,7 +370,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
+        private bool TargetTypeHasBeenMappedBefore => TargetTypeHasNotYetBeenMapped;
+
         public bool TargetTypeHasNotYetBeenMapped { get; }
+
+        private bool TargetTypeWillBeMappedAgain => !TargetTypeWillNotBeMappedAgain;
 
         public bool TargetTypeWillNotBeMappedAgain { get; }
 

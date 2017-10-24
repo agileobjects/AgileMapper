@@ -66,11 +66,15 @@
             return this;
         }
 
-        public IFullMappingSettings<TSource, TTarget> MaintainIdentityIntegrity()
-        {
-            var integrityMode = new IdentityIntegrityMode(ConfigInfo.ForTargetType<TTarget>());
+        public IFullMappingSettings<TSource, TTarget> MaintainIdentityIntegrity() => SetMappedObjectCaching(cache: true);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(integrityMode);
+        public IFullMappingSettings<TSource, TTarget> DisableObjectTracking() => SetMappedObjectCaching(cache: false);
+
+        private IFullMappingSettings<TSource, TTarget> SetMappedObjectCaching(bool cache)
+        {
+            var settings = new MappedObjectCachingSettings(ConfigInfo.ForTargetType<TTarget>(), cache);
+
+            ConfigInfo.MapperContext.UserConfigurations.Add(settings);
             return this;
         }
 

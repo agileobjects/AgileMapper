@@ -201,15 +201,33 @@
         #endregion
 
         /// <summary>
-        /// Keep track of objects during mappings between all source and target types, in order to short-circuit 
-        /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
+        /// Ensure 1-to-1 relationships between source and mapped objects by tracking and reusing mapped objects if 
+        /// they appear more than once in a source object tree. Mapped objects are automatically tracked in object 
+        /// trees with circular relationships - unless <see cref="DisableObjectTracking"/> is called - so configuring 
+        /// this option is not necessary when mapping circular relationships.
         /// </summary>
         /// <returns>
-        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings MaintainIdentityIntegrity()
         {
-            _mapperContext.UserConfigurations.Add(IdentityIntegrityMode.MaintainAll(_mapperContext));
+            _mapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheAll(_mapperContext));
+            return this;
+        }
+
+        /// <summary>
+        /// Disable tracking of objects during circular relationship mapping between all source and target types. 
+        /// Mapped objects are tracked by default when mapping circular relationships to prevent stack overflows 
+        /// if two objects in a source object tree hold references to each other, and to ensure 1-to-1 relationships 
+        /// between source and mapped objects. If you are confident that each object in a source object tree appears 
+        /// only once, disabling object tracking will increase mapping performance.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings DisableObjectTracking()
+        {
+            _mapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheNone(_mapperContext));
             return this;
         }
 

@@ -11,7 +11,7 @@
 
     internal class UserConfigurationSet
     {
-        private readonly List<IdentityIntegrityMode> _identityIntegritySettings;
+        private readonly List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
         private readonly List<MapToNullCondition> _mapToNullConditions;
         private readonly List<NullCollectionsSetting> _nullCollectionSettings;
         private readonly List<ConfiguredObjectFactory> _objectFactories;
@@ -24,7 +24,7 @@
 
         public UserConfigurationSet(MapperContext mapperContext)
         {
-            _identityIntegritySettings = new List<IdentityIntegrityMode>();
+            _mappedObjectCachingSettings = new List<MappedObjectCachingSettings>();
             _mapToNullConditions = new List<MapToNullCondition>();
             _nullCollectionSettings = new List<NullCollectionsSetting>();
             _objectFactories = new List<ConfiguredObjectFactory>();
@@ -41,17 +41,23 @@
 
         #region Tracking Modes
 
-        public void Add(IdentityIntegrityMode integrityMode) => _identityIntegritySettings.Add(integrityMode);
-
-        public bool MaintainIdentityIntegrity(IBasicMapperData basicData)
+        public void Add(MappedObjectCachingSettings settings)
         {
-            if (_identityIntegritySettings.None())
+            _mappedObjectCachingSettings.Add(settings);
+        }
+
+        public bool CachedMappedObjects(IBasicMapperData basicData)
+        {
+            if (_mappedObjectCachingSettings.None())
             {
-                // Identity integrity switched off by default:
-                return true;
+                // Mapped object caching switched off by default:
+                return false;
             }
 
-            return _identityIntegritySettings.All(tm => !tm.AppliesTo(basicData));
+            var applicableSettings = _mappedObjectCachingSettings
+                .FirstOrDefault(tm => tm.AppliesTo(basicData));
+
+            return (applicableSettings != null) && applicableSettings.Cache;
         }
 
         #endregion
@@ -242,7 +248,7 @@
 
         public void CloneTo(UserConfigurationSet configurations)
         {
-            configurations._identityIntegritySettings.AddRange(_identityIntegritySettings);
+            configurations._mappedObjectCachingSettings.AddRange(_mappedObjectCachingSettings);
             configurations._mapToNullConditions.AddRange(_mapToNullConditions);
             configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
             configurations._objectFactories.AddRange(_objectFactories.SelectClones());
