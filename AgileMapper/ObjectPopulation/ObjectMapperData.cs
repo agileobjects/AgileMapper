@@ -346,7 +346,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IQualifiedMember SourceMember { get; }
 
         public bool MappedObjectCachingNeeded
-            => _mappedObjectCachingNeeded ?? (_mappedObjectCachingNeeded = IsMappedObjectCachingNeeded()).Value;
+        {
+            get => _mappedObjectCachingNeeded ?? (_mappedObjectCachingNeeded = IsMappedObjectCachingNeeded()).Value;
+            set
+            {
+                _mappedObjectCachingNeeded = value;
+
+                if (!IsRoot)
+                {
+                    Parent.MappedObjectCachingNeeded = value;
+                }
+            }
+        }
 
         private bool IsMappedObjectCachingNeeded()
         {

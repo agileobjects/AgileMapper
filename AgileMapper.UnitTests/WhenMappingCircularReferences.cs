@@ -11,12 +11,10 @@
     public class WhenMappingCircularReferences
     {
         [Fact]
-        public void ShouldMapToANewOneToOneRelationshipWithGlobalObjectTracking()
+        public void ShouldMapToANewOneToOneRelationship()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping.TrackMappedObjects();
-
                 var sourceParent = new Parent { EldestChild = new Child() };
                 sourceParent.EldestChild.EldestParent = sourceParent;
 
@@ -28,15 +26,10 @@
         }
 
         [Fact]
-        public void ShouldMapOnToAOneToOneRelationshipWithTypedObjectTracking()
+        public void ShouldMapOnToAOneToOneRelationship()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping
-                    .From<Parent>()
-                    .To<Parent>()
-                    .TrackMappedObjects();
-
                 var sourceParent = new Parent { EldestChild = new Child() };
                 sourceParent.EldestChild.EldestParent = sourceParent;
 
@@ -51,15 +44,10 @@
         }
 
         [Fact]
-        public void ShouldMapOverAOneToOneRelationshipWithTypedObjectTracking()
+        public void ShouldMapOverAOneToOneRelationship()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping
-                    .From<Parent>()
-                    .Over<Parent>()
-                    .TrackMappedObjects();
-
                 var sourceParent = new Parent { EldestChild = new Child() };
                 sourceParent.EldestChild.EldestParent = sourceParent;
 
@@ -78,8 +66,6 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping.TrackMappedObjects();
-
                 var pilot = new Pilot
                 {
                     Name = "Walls",
@@ -119,8 +105,6 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping.TrackMappedObjects();
-
                 var source = new Order
                 {
                     DateCreated = DateTime.Now,
@@ -146,8 +130,6 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping.TrackMappedObjects();
-
                 var jack = new FacebookUser { Name = "Jack" };
                 var rose = new FacebookUser { Name = "Rose" };
                 var brock = new FacebookUser { Name = "Brock" };
@@ -177,8 +159,6 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping.TrackMappedObjects();
-
                 var recursorOne = new MultipleRecursor { Name = "One" };
                 var recursorTwo = new MultipleRecursor { Name = "Two" };
 
@@ -266,10 +246,6 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping
-                    .To<PublicField<ReadOnlyCollection<MultipleRecursor>>>()
-                    .TrackMappedObjects();
-
                 var recursorOne = new MultipleRecursor { Name = "One" };
                 var recursorTwo = new MultipleRecursor { Name = "Two" };
 
