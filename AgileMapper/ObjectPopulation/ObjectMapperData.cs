@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
-        private bool? _mappedObjectCachingNeeded;
+        private bool _mappedObjectCachingNeeded;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -93,6 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
+            _mappedObjectCachingNeeded = IsMappedObjectCachingNeeded();
 
             if (isForStandaloneMapping)
             {
@@ -152,6 +153,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var propertyAccess = Expression.Property(MappingDataObject, property);
 
             return propertyAccess;
+        }
+
+        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
+        {
+            return mappingDataType
+                .GetPublicInstanceMethods()
+                .First(m => (m.Name == "Map") && (m.GetParameters().Length == numberOfArguments));
         }
 
         private bool IsTargetTypeFirstMapping(ObjectMapperData parent)
@@ -274,11 +282,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
+        private bool IsMappedObjectCachingNeeded()
         {
-            return mappingDataType
-                .GetPublicInstanceMethods()
-                .First(m => (m.Name == "Map") && (m.GetParameters().Length == numberOfArguments));
+            if (MapperContext.UserConfigurations.MaintainIdentityIntegrity(this))
+            {
+                return false;
+            }
+
+            return !TargetTypeHasNotYetBeenMapped || !TargetTypeWillNotBeMappedAgain;
         }
 
         #endregion
@@ -347,26 +358,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool MappedObjectCachingNeeded
         {
-            get => _mappedObjectCachingNeeded ?? (_mappedObjectCachingNeeded = IsMappedObjectCachingNeeded()).Value;
+            get => _mappedObjectCachingNeeded;
             set
             {
-                _mappedObjectCachingNeeded = value;
+                _mappedObjectCachingNeeded = _mappedObjectCachingNeeded || value;
 
                 if (!IsRoot)
                 {
-                    Parent.MappedObjectCachingNeeded = value;
+                    Parent.MappedObjectCachingNeeded = _mappedObjectCachingNeeded;
                 }
             }
-        }
-
-        private bool IsMappedObjectCachingNeeded()
-        {
-            if (MapperContext.UserConfigurations.DisableObjectTracking(this))
-            {
-                return false;
-            }
-
-            return !TargetTypeHasNotYetBeenMapped || !TargetTypeWillNotBeMappedAgain;
         }
 
         public bool TargetTypeHasNotYetBeenMapped { get; }

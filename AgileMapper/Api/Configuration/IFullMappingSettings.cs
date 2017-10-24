@@ -35,14 +35,14 @@
         IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback);
 
         /// <summary>
-        /// Keep track of objects during a mapping from and to the source and target types being configured, in order 
-        /// to short-circuit circular relationships and ensure 1-to-1 relationships between source and mapped objects.
+        /// Ensure 1-to-1 relationships between source and mapped objects during a mapping from and to the source and 
+        /// target types being configured by reusing mapped objects when they appear more than once in a souce object tree.
         /// </summary>
         /// <returns>
-        /// An IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
-        /// target types being configured.
+        /// An <see cref="IFullMappingSettings{TSource, TTarget}"/> with which to configure further settings for the source 
+        /// and target types being configured.
         /// </returns>
-        IFullMappingSettings<TSource, TTarget> TrackMappedObjects();
+        IFullMappingSettings<TSource, TTarget> MaintainIdentityIntegrity();
 
         /// <summary>
         /// Map null source collections to null instead of an empty collection, for the source and target types 

@@ -11,7 +11,7 @@
 
     internal class UserConfigurationSet
     {
-        private readonly List<ObjectTrackingMode> _trackingModeSettings;
+        private readonly List<IdentityIntegrityMode> _identityIntegritySettings;
         private readonly List<MapToNullCondition> _mapToNullConditions;
         private readonly List<NullCollectionsSetting> _nullCollectionSettings;
         private readonly List<ConfiguredObjectFactory> _objectFactories;
@@ -24,7 +24,7 @@
 
         public UserConfigurationSet(MapperContext mapperContext)
         {
-            _trackingModeSettings = new List<ObjectTrackingMode>();
+            _identityIntegritySettings = new List<IdentityIntegrityMode>();
             _mapToNullConditions = new List<MapToNullCondition>();
             _nullCollectionSettings = new List<NullCollectionsSetting>();
             _objectFactories = new List<ConfiguredObjectFactory>();
@@ -41,17 +41,17 @@
 
         #region Tracking Modes
 
-        public void Add(ObjectTrackingMode trackingMode) => _trackingModeSettings.Add(trackingMode);
+        public void Add(IdentityIntegrityMode integrityMode) => _identityIntegritySettings.Add(integrityMode);
 
-        public bool DisableObjectTracking(IBasicMapperData basicData)
+        public bool MaintainIdentityIntegrity(IBasicMapperData basicData)
         {
-            if (_trackingModeSettings.None())
+            if (_identityIntegritySettings.None())
             {
-                // Object tracking switched off by default:
+                // Identity integrity switched off by default:
                 return true;
             }
 
-            return _trackingModeSettings.All(tm => !tm.AppliesTo(basicData));
+            return _identityIntegritySettings.All(tm => !tm.AppliesTo(basicData));
         }
 
         #endregion
@@ -242,7 +242,7 @@
 
         public void CloneTo(UserConfigurationSet configurations)
         {
-            configurations._trackingModeSettings.AddRange(_trackingModeSettings);
+            configurations._identityIntegritySettings.AddRange(_identityIntegritySettings);
             configurations._mapToNullConditions.AddRange(_mapToNullConditions);
             configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
             configurations._objectFactories.AddRange(_objectFactories.SelectClones());

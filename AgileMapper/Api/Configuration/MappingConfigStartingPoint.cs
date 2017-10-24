@@ -207,9 +207,9 @@
         /// <returns>
         /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings TrackMappedObjects()
+        public IGlobalConfigSettings MaintainIdentityIntegrity()
         {
-            _mapperContext.UserConfigurations.Add(ObjectTrackingMode.TrackAll(_mapperContext));
+            _mapperContext.UserConfigurations.Add(IdentityIntegrityMode.MaintainAll(_mapperContext));
             return this;
         }
 

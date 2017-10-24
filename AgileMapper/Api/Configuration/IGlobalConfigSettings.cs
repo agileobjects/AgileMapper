@@ -105,13 +105,13 @@
         #endregion
 
         /// <summary>
-        /// Keep track of objects during mappings between all source and target types, in order to short-circuit 
-        /// circular relationships and ensure a 1-to-1 relationship between source and mapped objects.
+        /// Ensure 1-to-1 relationships between source and mapped objects by reusing mapped objects 
+        /// when they appear more than once in a souce object tree.
         /// </summary>
         /// <returns>
         /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings TrackMappedObjects();
+        IGlobalConfigSettings MaintainIdentityIntegrity();
 
         /// <summary>
         /// Map null source collections to null instead of an empty collection, for all source and target types.

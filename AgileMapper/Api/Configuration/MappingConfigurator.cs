@@ -66,11 +66,11 @@
             return this;
         }
 
-        public IFullMappingSettings<TSource, TTarget> TrackMappedObjects()
+        public IFullMappingSettings<TSource, TTarget> MaintainIdentityIntegrity()
         {
-            var trackingMode = new ObjectTrackingMode(ConfigInfo.ForTargetType<TTarget>());
+            var integrityMode = new IdentityIntegrityMode(ConfigInfo.ForTargetType<TTarget>());
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(trackingMode);
+            ConfigInfo.MapperContext.UserConfigurations.Add(integrityMode);
             return this;
         }
 
