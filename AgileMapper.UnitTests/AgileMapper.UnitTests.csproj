@@ -87,6 +87,7 @@
     <Compile Include="Configuration\Inline\WhenConfiguringConstructorDataSourcesInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInlineIncorrectly.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringObjectCreationInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
