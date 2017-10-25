@@ -83,6 +83,8 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\WhenConfiguringObjectTracking.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectTrackingIncorrectly.cs" />
     <Compile Include="MapperCloning\WhenCloningMapperMemberIgnores.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />

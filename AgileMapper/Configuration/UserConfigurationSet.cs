@@ -39,11 +39,17 @@
             DerivedTypes = new DerivedTypePairSet();
         }
 
-        #region Tracking Modes
+        #region Mapped Object Caching Settings
 
         public void Add(MappedObjectCachingSettings settings)
         {
+            ThrowIfConflictingItemExists(
+                settings,
+                _mappedObjectCachingSettings,
+                (s, conflicting) => conflicting.GetConflictMessage(s));
+
             _mappedObjectCachingSettings.Add(settings);
+            _mappedObjectCachingSettings.Sort();
         }
 
         public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
