@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System;
+    using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -120,6 +121,26 @@
                 result2.Value2.Price.ShouldBe(1.01);
 
                 mapper.InlineContexts().ShouldHaveSingleItem();
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateTargetInstanceFactoryIsConfigured()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .Over<Product>()
+                    .CreateInstancesUsing(ctx => new Product { ProductId = "La la la" });
+
+                var factoryEx = Should.Throw<MappingConfigurationException>(() =>
+                {
+                    mapper.WhenMapping
+                        .Over<Product>()
+                        .CreateInstancesUsing(ctx => new Product { ProductId = "La la la" });
+                });
+
+                factoryEx.Message.ShouldContain("already been configured");
             }
         }
     }
