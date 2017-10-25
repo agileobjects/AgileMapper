@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using AgileMapper.Extensions;
     using Shouldly;
     using TestClasses;
@@ -277,6 +278,64 @@
             result.ChildRecursors.First().ShouldBeSameAs(clonedRecursorTwo);
             result.ChildRecursors.Second().Name.ShouldBe("Root.ChildRecursors[1]");
             result.ChildRecursors.Third().ShouldBeSameAs(clonedRecursorThree);
+        }
+
+        [Fact]
+        public void ShouldMapToANewLinkRelationship()
+        {
+            var titchmarsh = new Presenter();
+
+            var gardening = new Subject
+            {
+                Presenters = new[]
+                {
+                    new SubjectPresenter { Presenter = titchmarsh }
+                }
+            };
+
+            gardening.Presenters.First().Subject = gardening;
+
+            titchmarsh.Expertises = new[]
+            {
+                new PresenterExpertise
+                {
+                    Expertise = new Expertise { Subject = gardening },
+                    Presenter = titchmarsh
+                }
+            };
+
+            var flowersAndStuff = new Video
+            {
+                Presenters = new[]
+                {
+                    new VideoPresenter
+                    {
+                        Presenter = titchmarsh
+                    }
+                }
+            };
+
+            flowersAndStuff.Presenters.First().Video = flowersAndStuff;
+
+            var moreFlowersAndStuff = Mapper.Clone(flowersAndStuff);
+
+            moreFlowersAndStuff.ShouldNotBeSameAs(flowersAndStuff);
+
+            moreFlowersAndStuff.Presenters.ShouldHaveSingleItem();
+            moreFlowersAndStuff.Presenters.First().ShouldNotBeSameAs(flowersAndStuff.Presenters.First());
+
+            moreFlowersAndStuff.Presenters.First().Video.ShouldBeSameAs(moreFlowersAndStuff);
+
+            var moreTitchmarsh = moreFlowersAndStuff.Presenters.First().Presenter;
+            moreTitchmarsh.ShouldNotBeSameAs(titchmarsh);
+            moreTitchmarsh.Expertises.ShouldHaveSingleItem();
+            moreTitchmarsh.Expertises.First().Presenter.ShouldBeSameAs(moreTitchmarsh);
+
+            var moreGardening = moreTitchmarsh.Expertises.First().Expertise.Subject;
+            moreGardening.ShouldNotBeSameAs(gardening);
+            moreGardening.Presenters.ShouldHaveSingleItem();
+            moreGardening.Presenters.First().Presenter.ShouldBeSameAs(moreTitchmarsh);
+            moreGardening.Presenters.First().Subject.ShouldBeSameAs(moreGardening);
         }
 
         [Fact]
