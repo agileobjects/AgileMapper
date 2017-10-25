@@ -46,18 +46,24 @@
             _mappedObjectCachingSettings.Add(settings);
         }
 
-        public bool CachedMappedObjects(IBasicMapperData basicData)
+        public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
         {
             if (_mappedObjectCachingSettings.None())
             {
-                // Mapped object caching switched off by default:
-                return false;
+                return MappedObjectCachingMode.AutoDetect;
             }
 
             var applicableSettings = _mappedObjectCachingSettings
                 .FirstOrDefault(tm => tm.AppliesTo(basicData));
 
-            return (applicableSettings != null) && applicableSettings.Cache;
+            if (applicableSettings == null)
+            {
+                return MappedObjectCachingMode.AutoDetect;
+            }
+
+            return applicableSettings.Cache
+                ? MappedObjectCachingMode.Cache
+                : MappedObjectCachingMode.DoNotCache;
         }
 
         #endregion

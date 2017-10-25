@@ -97,7 +97,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {
-            if (!mapperData.MappedObjectCachingNeeded || mapperData.TargetTypeWillNotBeMappedAgain)
+            if (!mapperData.CacheMappedObjects || mapperData.TargetTypeWillNotBeMappedAgain)
             {
                 return null;
             }

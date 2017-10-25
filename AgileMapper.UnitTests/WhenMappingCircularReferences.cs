@@ -62,6 +62,22 @@
         }
 
         [Fact]
+        public void ShouldMapToAOneToOneRelationshipWithGlobalObjectTrackingDisabled()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.DisableObjectTracking();
+
+                var sourceParent = new Parent { EldestChild = new Child() };
+
+                var result = mapper.Map(sourceParent).ToANew<Parent>();
+
+                result.EldestChild.ShouldNotBeNull();
+                result.EldestChild.EldestParent.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldMapToANewOneToManyViaIntermediateRelationship()
         {
             using (var mapper = Mapper.CreateNew())
@@ -97,6 +113,49 @@
                 clonedPilot.Qualifications.TrainedAeroplanes.Second().ShouldNotBeSameAs(f16);
                 clonedPilot.Qualifications.TrainedAeroplanes.Second().Model.ShouldBe("F16");
                 clonedPilot.Qualifications.TrainedAeroplanes.Second().Pilot.ShouldBe(clonedPilot);
+            }
+        }
+
+        [Fact]
+        public void ShouldMapToANewOneToManyViaIntermediateRelationshipWithObjectTrackingDisabled()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .ToANew<Aeroplane>()
+                    .DisableObjectTracking();
+
+                var pilot = new Pilot
+                {
+                    Name = "Walls",
+                    Qualifications = new PilotQualifications
+                    {
+                        TrainedAeroplanes = new List<Aeroplane>
+                        {
+                            new Aeroplane { Model = "Concorde" },
+                            new Aeroplane { Model = "F16" }
+                        }
+                    }
+                };
+
+                var clonedPilot = mapper.Clone(pilot);
+
+                clonedPilot.ShouldNotBeSameAs(pilot);
+                clonedPilot.Name.ShouldBe("Walls");
+                clonedPilot.Qualifications.ShouldNotBeNull();
+                clonedPilot.Qualifications.ShouldNotBeSameAs(pilot.Qualifications);
+                clonedPilot.Qualifications.TrainedAeroplanes.ShouldNotBeNull();
+                clonedPilot.Qualifications.TrainedAeroplanes.Count.ShouldBe(2);
+
+                var concorde = pilot.Qualifications.TrainedAeroplanes.First();
+                clonedPilot.Qualifications.TrainedAeroplanes.First().ShouldNotBeSameAs(concorde);
+                clonedPilot.Qualifications.TrainedAeroplanes.First().Model.ShouldBe("Concorde");
+                clonedPilot.Qualifications.TrainedAeroplanes.First().Pilot.ShouldBeNull();
+
+                var f16 = pilot.Qualifications.TrainedAeroplanes.Second();
+                clonedPilot.Qualifications.TrainedAeroplanes.Second().ShouldNotBeSameAs(f16);
+                clonedPilot.Qualifications.TrainedAeroplanes.Second().Model.ShouldBe("F16");
+                clonedPilot.Qualifications.TrainedAeroplanes.Second().Pilot.ShouldBeNull();
             }
         }
 

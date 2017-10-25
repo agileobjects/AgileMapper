@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
-        private bool _mappedObjectCachingNeeded;
+        private MappedObjectCachingMode _mappedObjectCachingMode;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -93,7 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
-            _mappedObjectCachingNeeded = IsMappedObjectCachingNeeded();
+            _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
 
             if (isForStandaloneMapping)
             {
@@ -282,15 +282,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private bool IsMappedObjectCachingNeeded()
-        {
-            if (MapperContext.UserConfigurations.CachedMappedObjects(this))
-            {
-                return TargetTypeHasBeenMappedBefore || TargetTypeWillBeMappedAgain;
-            }
+        //private MappedObjectCachingMode GetMappedObjectCachingMode()
+        //{
+        //    return MapperContext
+        //        .UserConfigurations
+        //        .CacheMappedObjects(this);
 
-            return false;
-        }
+        //    //if ()
+        //    //{
+        //    //    return TargetTypeHasBeenMappedBefore || TargetTypeWillBeMappedAgain;
+        //    //}
+
+        //    //return false;
+        //}
 
         #endregion
 
@@ -356,21 +360,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IQualifiedMember SourceMember { get; }
 
-        public bool MappedObjectCachingNeeded
+        public bool CacheMappedObjects
         {
-            get => _mappedObjectCachingNeeded;
+            get => _mappedObjectCachingMode == MappedObjectCachingMode.Cache;
             set
             {
-                _mappedObjectCachingNeeded = _mappedObjectCachingNeeded || value;
+                if (_mappedObjectCachingMode == MappedObjectCachingMode.DoNotCache)
+                {
+                    return;
+                }
+
+                if (value == false)
+                {
+                    _mappedObjectCachingMode = MappedObjectCachingMode.DoNotCache;
+                    return;
+                }
+
+                _mappedObjectCachingMode = MappedObjectCachingMode.Cache;
 
                 if (!IsRoot)
                 {
-                    Parent.MappedObjectCachingNeeded = _mappedObjectCachingNeeded;
+                    Parent.CacheMappedObjects = true;
                 }
             }
         }
 
-        private bool TargetTypeHasBeenMappedBefore => TargetTypeHasNotYetBeenMapped;
+        private bool TargetTypeHasBeenMappedBefore => !TargetTypeHasNotYetBeenMapped;
 
         public bool TargetTypeHasNotYetBeenMapped { get; }
 
