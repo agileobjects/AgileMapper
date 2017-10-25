@@ -282,20 +282,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        //private MappedObjectCachingMode GetMappedObjectCachingMode()
-        //{
-        //    return MapperContext
-        //        .UserConfigurations
-        //        .CacheMappedObjects(this);
-
-        //    //if ()
-        //    //{
-        //    //    return TargetTypeHasBeenMappedBefore || TargetTypeWillBeMappedAgain;
-        //    //}
-
-        //    //return false;
-        //}
-
         #endregion
 
         #region Factory Method
