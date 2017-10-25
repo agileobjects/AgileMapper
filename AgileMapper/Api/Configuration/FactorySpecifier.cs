@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
                 string[] validSignatures =
                 {
-                    "Func<" + objectTypeName + ">",
+                    $"Func<{objectTypeName}>",
                     $"Func<{contextTypeName}, {objectTypeName}>",
                     $"Func<{sourceTypeName}, {targetTypeName}, {objectTypeName}>",
                     $"Func<{sourceTypeName}, {targetTypeName}, int?, {objectTypeName}>"
@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
                     CultureInfo.InvariantCulture,
                     "Unable to create objects of type {0} using factory {1}: valid function signatures are {2}",
                     objectTypeName,
-                    factory,
+                    typeof(TFactory).GetFriendlyName(),
                     string.Join(", ", validSignatures)));
             }
 

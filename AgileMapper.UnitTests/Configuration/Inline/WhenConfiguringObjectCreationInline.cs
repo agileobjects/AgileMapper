@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
+    using System;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -76,6 +77,49 @@
                 result.Address.ShouldNotBeNull();
                 result.Address.Line1.ShouldBe("Line 1!");
                 result.Address.Line2.ShouldBe("Line 2?!");
+            }
+        }
+
+        [Fact]
+        public void ShouldExtendTargetInstanceFactories()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .OnTo<Product>()
+                    .CreateInstancesUsing(ctx => new Product { ProductId = ctx.Source.GetType().Name });
+
+                Func<ProductDto> dtoFactory = () => new ProductDto { ProductId = "Product DTO" };
+
+                var result1 = mapper
+                    .Map(new PublicTwoFields<Product, ProductDto>
+                    {
+                        Value1 = new Product { Price = 9.99 },
+                        Value2 = new ProductDto { Price = 0.99m }
+                    })
+                    .OnTo(new PublicTwoFields<ProductDto, Product>(), cfg => cfg
+                        .CreateInstancesOf<ProductDto>().Using(dtoFactory));
+
+                result1.Value1.ProductId.ShouldBe("Product DTO");
+                result1.Value1.Price.ShouldBe(9.99m);
+                result1.Value2.ProductId.ShouldBe("ProductDto");
+                result1.Value2.Price.ShouldBe(0.99);
+
+                var result2 = mapper
+                    .Map(new PublicTwoFields<Product, ProductDto>
+                    {
+                        Value1 = new Product { Price = 6.66 },
+                        Value2 = new ProductDto { Price = 1.01m }
+                    })
+                    .OnTo(new PublicTwoFields<ProductDto, Product>(), cfg => cfg
+                        .CreateInstancesOf<ProductDto>().Using(dtoFactory));
+
+                result2.Value1.ProductId.ShouldBe("Product DTO");
+                result2.Value1.Price.ShouldBe(6.66m);
+                result2.Value2.ProductId.ShouldBe("ProductDto");
+                result2.Value2.Price.ShouldBe(1.01);
+
+                mapper.InlineContexts().ShouldHaveSingleItem();
             }
         }
     }

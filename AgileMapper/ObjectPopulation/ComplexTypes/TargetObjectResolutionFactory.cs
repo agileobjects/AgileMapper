@@ -107,7 +107,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             return Expression.Coalesce(mapperData.TargetObject, value);
         }
-
-
     }
 }
