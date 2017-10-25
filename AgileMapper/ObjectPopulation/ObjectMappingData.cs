@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {
-        private readonly Dictionary<object, List<object>> _mappedObjectsBySource;
+        private Dictionary<object, List<object>> _mappedObjectsBySource;
         private ObjectMapper<TSource, TTarget> _mapper;
         private ObjectMapperData _mapperData;
 
@@ -60,11 +60,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             _mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
-
-            if (MapperData.CacheMappedObjects)
-            {
-                _mappedObjectsBySource = new Dictionary<object, List<object>>(13);
-            }
         }
 
         public IMappingContext MappingContext { get; }
@@ -99,6 +94,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool IsPartOfDerivedTypeMapping => DeclaredTypeMappingData != null;
 
         public IObjectMappingData DeclaredTypeMappingData { get; }
+
+        private Dictionary<object, List<object>> MappedObjectsBySource
+            => _mappedObjectsBySource ?? (_mappedObjectsBySource = new Dictionary<object, List<object>>(13));
 
         private ChildMemberMappingData<TSource, TTarget> _childMappingData;
 
@@ -205,7 +203,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Parent.TryGet(key, out complexType);
             }
 
-            if (_mappedObjectsBySource.TryGetValue(key, out var mappedTargets))
+            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
             {
                 complexType = (TComplex)mappedTargets.FirstOrDefault(t => t is TComplex);
                 return complexType != null;
@@ -223,7 +221,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            if (_mappedObjectsBySource.TryGetValue(key, out var mappedTargets))
+            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
             {
                 mappedTargets.Add(complexType);
                 return;

@@ -38,7 +38,13 @@
 
         public void Add(MappedObjectCachingSettings settings)
         {
+            ThrowIfConflictingItemExists(
+                settings,
+                _mappedObjectCachingSettings,
+                (s, conflicting) => conflicting.GetConflictMessage(s));
+
             MappedObjectCachingSettings.Add(settings);
+            _mappedObjectCachingSettings.Sort();
         }
 
         public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)

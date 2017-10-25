@@ -92,6 +92,8 @@
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectTracking.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectTrackingIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
     <Compile Include="Configuration\WhenIgnoringMembersByFilter.cs" />

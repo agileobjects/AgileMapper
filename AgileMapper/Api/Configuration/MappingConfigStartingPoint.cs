@@ -211,7 +211,7 @@
         /// </returns>
         public IGlobalConfigSettings MaintainIdentityIntegrity()
         {
-            _mapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheAll(_mapperContext));
+            _mapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheAll);
             return this;
         }
 
@@ -227,7 +227,7 @@
         /// </returns>
         public IGlobalConfigSettings DisableObjectTracking()
         {
-            _mapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheNone(_mapperContext));
+            _mapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheNone);
             return this;
         }
 
