@@ -37,21 +37,21 @@
         #region Inline Configuration
 
         public TResult ToANew<TResult>(
-            Expression<Action<IFullMappingConfigurator<TSource, TResult>>>[] configurations)
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
         {
             return PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations);
         }
 
         public TTarget OnTo<TTarget>(
             TTarget existing,
-            Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations)
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
             return PerformMapping(MapperContext.RuleSets.Merge, existing, configurations);
         }
 
         public TTarget Over<TTarget>(
             TTarget existing,
-            Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations)
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
             return PerformMapping(MapperContext.RuleSets.Overwrite, existing, configurations);
         }
@@ -59,7 +59,7 @@
         private TTarget PerformMapping<TTarget>(
             MappingRuleSet ruleSet,
             TTarget target,
-            Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations)
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
             if (_source == null)
             {

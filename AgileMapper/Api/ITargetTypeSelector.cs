@@ -26,7 +26,7 @@
         /// <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping API.
         /// </param>
         /// <returns>The result of the new object mapping.</returns>
-        TResult ToANew<TResult>(params Expression<Action<IFullMappingConfigurator<TSource, TResult>>>[] configurations);
+        TResult ToANew<TResult>(params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations);
 
         /// <summary>
         /// Perform an OnTo (merge) mapping.
@@ -48,7 +48,7 @@
         /// <returns>The mapped object.</returns>
         TTarget OnTo<TTarget>(
             TTarget existing,
-            params Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations);
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations);
 
         /// <summary>
         /// Perform an Over (overwrite) mapping.
@@ -70,6 +70,6 @@
         /// <returns>The mapped object.</returns>
         TTarget Over<TTarget>(
             TTarget existing,
-            params Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations);
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations);
     }
 }

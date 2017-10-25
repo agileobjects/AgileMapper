@@ -62,7 +62,9 @@
                 .DerivedTypes
                 .GetDerivedTypePairsFor(mapperData, configInfo.MapperContext)
                 .FirstOrDefault(tp =>
-                    !tp.HasConfiguredCondition && (tp.DerivedTargetType == typeof(TDerivedTarget)));
+                    !tp.HasConfiguredCondition &&
+                    (tp.DerivedSourceType == typeof(TDerivedSource)) &&
+                    (tp.DerivedTargetType == typeof(TDerivedTarget)));
 
             if (matchingAutoTypePairing != null)
             {

@@ -18,7 +18,7 @@
         public IEnumerable<MapperContext> InlineContexts => _inlineContextsCache.Values;
 
         public MapperContext GetContextFor<TSource, TTarget>(
-            Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations,
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations,
             MappingExecutor<TSource> initiatingExecutor)
         {
             var key = new InlineMapperKey<TSource, TTarget>(configurations, initiatingExecutor);

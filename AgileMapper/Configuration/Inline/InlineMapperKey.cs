@@ -9,11 +9,11 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 
     internal class InlineMapperKey<TSource, TTarget> : IInlineMapperKey
     {
-        private readonly Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] _configurations;
+        private readonly Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] _configurations;
         private readonly MappingExecutor<TSource> _initiatingExecutor;
 
         public InlineMapperKey(
-            Expression<Action<IFullMappingConfigurator<TSource, TTarget>>>[] configurations,
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations,
             MappingExecutor<TSource> initiatingExecutor)
         {
             _configurations = configurations;

@@ -7,7 +7,7 @@
     using Members;
 
     internal class MappingConfigurator<TSource, TTarget> :
-        IFullMappingConfigurator<TSource, TTarget>,
+        IFullMappingInlineConfigurator<TSource, TTarget>,
         IConditionalRootMappingConfigurator<TSource, TTarget>
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
@@ -16,6 +16,13 @@
         }
 
         protected MappingConfigInfo ConfigInfo { get; }
+
+        #region IFullMappingInlineConfigurator Members
+
+        MappingConfigStartingPoint IFullMappingInlineConfigurator<TSource, TTarget>.WhenMapping
+            => new MappingConfigStartingPoint(ConfigInfo.MapperContext);
+
+        #endregion
 
         #region If Overloads
 
