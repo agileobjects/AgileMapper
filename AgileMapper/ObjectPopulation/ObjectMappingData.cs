@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             _mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
 
-            if (MapperData.MappedObjectCachingNeeded)
+            if (MapperData.CacheMappedObjects)
             {
                 _mappedObjectsBySource = new Dictionary<object, List<object>>(13);
             }

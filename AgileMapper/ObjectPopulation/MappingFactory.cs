@@ -54,6 +54,8 @@
 
             if (childMapperData.TargetMemberEverRecurses())
             {
+                childMapperData.CacheMappedObjects = childMapperData.SourceIsNotFlatObject();
+
                 var mapRecursionCall = GetMapRecursionCallFor(
                     childMappingData,
                     mappingValues.SourceValue,

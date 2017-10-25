@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
-        private bool? _mappedObjectCachingNeeded;
+        private MappedObjectCachingMode _mappedObjectCachingMode;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -93,6 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
+            _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
 
             if (isForStandaloneMapping)
             {
@@ -154,6 +155,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return propertyAccess;
         }
 
+        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
+        {
+            return mappingDataType
+                .GetPublicInstanceMethods()
+                .First(m => (m.Name == "Map") && (m.GetParameters().Length == numberOfArguments));
+        }
+
         private bool IsTargetTypeFirstMapping(ObjectMapperData parent)
         {
             if (IsRoot)
@@ -163,7 +171,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             while (parent != null)
             {
-                if (!parent.TargetTypeHasNotYetBeenMapped)
+                if (parent.TargetTypeHasBeenMappedBefore)
                 {
                     return false;
                 }
@@ -213,7 +221,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             while (parent != null)
             {
-                if (!parent.TargetTypeWillNotBeMappedAgain)
+                if (parent.TargetTypeWillBeMappedAgain)
                 {
                     return false;
                 }
@@ -272,13 +280,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             return false;
-        }
-
-        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
-        {
-            return mappingDataType
-                .GetPublicInstanceMethods()
-                .First(m => (m.Name == "Map") && (m.GetParameters().Length == numberOfArguments));
         }
 
         #endregion
@@ -345,20 +346,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IQualifiedMember SourceMember { get; }
 
-        public bool MappedObjectCachingNeeded
-            => _mappedObjectCachingNeeded ?? (_mappedObjectCachingNeeded = IsMappedObjectCachingNeeded()).Value;
-
-        private bool IsMappedObjectCachingNeeded()
+        public bool CacheMappedObjects
         {
-            if (MapperContext.UserConfigurations.DisableObjectTracking(this))
+            get => _mappedObjectCachingMode == MappedObjectCachingMode.Cache;
+            set
             {
-                return false;
-            }
+                if (_mappedObjectCachingMode == MappedObjectCachingMode.DoNotCache)
+                {
+                    return;
+                }
 
-            return !TargetTypeHasNotYetBeenMapped || !TargetTypeWillNotBeMappedAgain;
+                if (value == false)
+                {
+                    _mappedObjectCachingMode = MappedObjectCachingMode.DoNotCache;
+                    return;
+                }
+
+                _mappedObjectCachingMode = MappedObjectCachingMode.Cache;
+
+                if (!IsRoot)
+                {
+                    Parent.CacheMappedObjects = true;
+                }
+            }
         }
 
+        private bool TargetTypeHasBeenMappedBefore => !TargetTypeHasNotYetBeenMapped;
+
         public bool TargetTypeHasNotYetBeenMapped { get; }
+
+        private bool TargetTypeWillBeMappedAgain => !TargetTypeWillNotBeMappedAgain;
 
         public bool TargetTypeWillNotBeMappedAgain { get; }
 

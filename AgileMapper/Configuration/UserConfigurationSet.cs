@@ -11,7 +11,7 @@
 
     internal class UserConfigurationSet
     {
-        private readonly List<ObjectTrackingMode> _trackingModeSettings;
+        private readonly List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
         private readonly List<MapToNullCondition> _mapToNullConditions;
         private readonly List<NullCollectionsSetting> _nullCollectionSettings;
         private readonly List<ConfiguredObjectFactory> _objectFactories;
@@ -24,7 +24,7 @@
 
         public UserConfigurationSet(MapperContext mapperContext)
         {
-            _trackingModeSettings = new List<ObjectTrackingMode>();
+            _mappedObjectCachingSettings = new List<MappedObjectCachingSettings>();
             _mapToNullConditions = new List<MapToNullCondition>();
             _nullCollectionSettings = new List<NullCollectionsSetting>();
             _objectFactories = new List<ConfiguredObjectFactory>();
@@ -41,17 +41,29 @@
 
         #region Tracking Modes
 
-        public void Add(ObjectTrackingMode trackingMode) => _trackingModeSettings.Add(trackingMode);
-
-        public bool DisableObjectTracking(IBasicMapperData basicData)
+        public void Add(MappedObjectCachingSettings settings)
         {
-            if (_trackingModeSettings.None())
+            _mappedObjectCachingSettings.Add(settings);
+        }
+
+        public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
+        {
+            if (_mappedObjectCachingSettings.None())
             {
-                // Object tracking switched off by default:
-                return true;
+                return MappedObjectCachingMode.AutoDetect;
             }
 
-            return _trackingModeSettings.All(tm => !tm.AppliesTo(basicData));
+            var applicableSettings = _mappedObjectCachingSettings
+                .FirstOrDefault(tm => tm.AppliesTo(basicData));
+
+            if (applicableSettings == null)
+            {
+                return MappedObjectCachingMode.AutoDetect;
+            }
+
+            return applicableSettings.Cache
+                ? MappedObjectCachingMode.Cache
+                : MappedObjectCachingMode.DoNotCache;
         }
 
         #endregion
@@ -242,7 +254,7 @@
 
         public void CloneTo(UserConfigurationSet configurations)
         {
-            configurations._trackingModeSettings.AddRange(_trackingModeSettings);
+            configurations._mappedObjectCachingSettings.AddRange(_mappedObjectCachingSettings);
             configurations._mapToNullConditions.AddRange(_mapToNullConditions);
             configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
             configurations._objectFactories.AddRange(_objectFactories.SelectClones());

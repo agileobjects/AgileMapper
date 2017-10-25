@@ -7,6 +7,7 @@
     {
         public override void Initialise()
         {
+            Mapper.WhenMapping.DisableObjectTracking();
         }
 
         protected override Foo Clone(Foo foo)

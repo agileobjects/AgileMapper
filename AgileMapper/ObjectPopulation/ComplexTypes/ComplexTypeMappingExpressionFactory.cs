@@ -103,7 +103,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetAlreadyMappedObjectShortCircuitOrNull(ObjectMapperData mapperData)
         {
-            if (!mapperData.MappedObjectCachingNeeded || mapperData.TargetTypeHasNotYetBeenMapped)
+            if (!mapperData.CacheMappedObjects || mapperData.TargetTypeHasNotYetBeenMapped)
             {
                 return null;
             }
