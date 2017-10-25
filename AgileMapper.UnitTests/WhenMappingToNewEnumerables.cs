@@ -76,7 +76,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping.TrackMappedObjects();
+                mapper.WhenMapping.MaintainIdentityIntegrity();
 
                 var viewModel = new CustomerViewModel { Name = "Dave", AddressLine1 = "View model!" };
                 var source = new List<PersonViewModel> { viewModel, viewModel };

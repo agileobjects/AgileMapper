@@ -317,8 +317,6 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping.TrackMappedObjects();
-
                 string plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
 
                 plan.ShouldContain("pToPData.TryGet(sourceChild.EldestParent, out parent)");

@@ -161,7 +161,7 @@
                     .To<Person>()
                     .PassExceptionsTo(ctx => thrownException = ctx.Exception)
                     .And
-                    .TrackMappedObjects();
+                    .MaintainIdentityIntegrity();
 
                 mapper.After
                     .CreatingInstances

@@ -29,21 +29,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperData.ReturnLabelTarget,
                 mapperData.TargetType.ToDefaultExpression());
 
-            var mappingExpressions = GetShortCircuitReturns(returnNull, mappingData).ToList();
-
             if (MappingAlwaysBranchesToDerivedType(mappingData, out var derivedTypeMappings))
             {
-                return mappingExpressions.Any()
-                    ? Expression.Block(mappingExpressions.Append(derivedTypeMappings))
+                var shortCircuitReturns = GetShortCircuitReturns(returnNull, mappingData).ToArray();
+
+                return shortCircuitReturns.Any()
+                    ? Expression.Block(shortCircuitReturns.Append(derivedTypeMappings))
                     : derivedTypeMappings;
             }
 
             var mappingExtras = GetMappingExtras(mapperData);
+            var mappingExpressions = new List<Expression>();
 
             mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
             mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PreMappingCallback);
             mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
             mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PostMappingCallback);
+
+            mappingExpressions.InsertRange(0, GetShortCircuitReturns(returnNull, mappingData));
 
             var mappingBlock = GetMappingBlock(mappingExpressions, mappingExtras);
 

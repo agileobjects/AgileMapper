@@ -65,11 +65,15 @@
             return this;
         }
 
-        public IFullMappingSettings<TSource, TTarget> TrackMappedObjects()
-        {
-            var trackingMode = new ObjectTrackingMode(ConfigInfo);
+        public IFullMappingSettings<TSource, TTarget> MaintainIdentityIntegrity() => SetMappedObjectCaching(cache: true);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(trackingMode);
+        public IFullMappingSettings<TSource, TTarget> DisableObjectTracking() => SetMappedObjectCaching(cache: false);
+
+        private IFullMappingSettings<TSource, TTarget> SetMappedObjectCaching(bool cache)
+        {
+            var settings = new MappedObjectCachingSettings(ConfigInfo, cache);
+
+            ConfigInfo.MapperContext.UserConfigurations.Add(settings);
             return this;
         }
 
