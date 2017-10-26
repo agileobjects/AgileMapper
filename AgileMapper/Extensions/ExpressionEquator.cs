@@ -112,7 +112,7 @@ namespace AgileObjects.AgileMapper.Extensions
 
         private static bool AreEqual(ConstantExpression x, ConstantExpression y)
         {
-            return x.Value.Equals(y.Value);
+            return ReferenceEquals(x.Value, y.Value) || x.Value.Equals(y.Value);
         }
 
         private bool AreEqual(UnaryExpression x, UnaryExpression y)

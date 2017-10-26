@@ -51,6 +51,24 @@
         }
 
         [Fact]
+        public void ShouldExecuteAPreMappingCallbackInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var mappedNames = new List<string>();
+
+                mapper
+                    .Map(new Person { Name = "Bernie" })
+                    .Over(new PersonViewModel { Name = "Hillary" }, cfg => cfg
+                        .Before.MappingBegins
+                        .Call((s, t) => mappedNames.AddRange(new[] { s.Name, t.Name })));
+
+                mappedNames.ShouldNotBeEmpty();
+                mappedNames.ShouldBe("Bernie", "Hillary");
+            }
+        }
+
+        [Fact]
         public void ShouldExecuteAPostMappingCallbackConditionallyInline()
         {
             using (var mapper = Mapper.CreateNew())
@@ -111,11 +129,70 @@
             }
         }
 
+        [Fact]
+        public void ShouldExecuteAPostMemberMappingCallbackConditionallyInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var mappedAddress = default(Address);
+                var callbackCalled = false;
+
+                var nullAddressNullNameSource = new Person();
+                var nullAddressNullNameResult = mapper.Clone(nullAddressNullNameSource, cfg => cfg
+                    .After
+                    .Mapping(p => p.Address)
+                    .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
+                    .Call((s, t) => SetVariable(t.Address, out mappedAddress).SetVariable(true, out callbackCalled)));
+
+                nullAddressNullNameResult.Address.ShouldBeNull();
+                mappedAddress.ShouldBeNull();
+                callbackCalled.ShouldBeFalse();
+
+                var nullAddressWithNameSource = new Person { Name = "David" };
+                var nullAddressWithNameResult = mapper.Clone(nullAddressWithNameSource, cfg => cfg
+                    .After
+                    .Mapping(p => p.Address)
+                    .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
+                    .Call((s, t) => SetVariable(t.Address, out mappedAddress).SetVariable(true, out callbackCalled)));
+
+                nullAddressWithNameResult.Address.ShouldBeNull();
+                mappedAddress.ShouldBeNull();
+                callbackCalled.ShouldBeTrue();
+
+                callbackCalled = false;
+
+                var nullLine1WithNameSource = new Person { Name = "Brent", Address = new Address { Line2 = "City" } };
+                var nullLine1WithNameResult = mapper.Clone(nullLine1WithNameSource, cfg => cfg
+                    .After
+                    .Mapping(p => p.Address)
+                    .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
+                    .Call((s, t) => SetVariable(t.Address, out mappedAddress).SetVariable(true, out callbackCalled)));
+
+                nullLine1WithNameResult.Address.ShouldNotBeNull();
+                mappedAddress.ShouldBeNull();
+                callbackCalled.ShouldBeFalse();
+
+                var withLine1WithNameSource = new Person { Name = "Chris", Address = new Address { Line1 = "Town" } };
+                var withLine1WithNameResult = mapper.Clone(withLine1WithNameSource, cfg => cfg
+                    .After
+                    .Mapping(p => p.Address)
+                    .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
+                    .Call((s, t) => SetVariable(t.Address, out mappedAddress).SetVariable(true, out callbackCalled)));
+
+                withLine1WithNameResult.Address.ShouldNotBeNull();
+                mappedAddress.ShouldNotBeNull();
+                callbackCalled.ShouldBeTrue();
+
+                mapper.InlineContexts().ShouldHaveSingleItem();
+            }
+        }
+
         #region Helper Members
 
-        private static void SetVariable<T>(T valueToSet, out T valueCollector)
+        private WhenConfiguringCallbacksInline SetVariable<T>(T valueToSet, out T valueCollector)
         {
             valueCollector = valueToSet;
+            return this;
         }
 
         private static void FallOver(string message) => throw new InvalidOperationException(message);
