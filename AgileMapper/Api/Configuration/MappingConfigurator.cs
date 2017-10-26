@@ -26,9 +26,12 @@
         IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingInlineConfigurator<TSource, TTarget>.LookForDerivedTypesIn(
             params Assembly[] assemblies)
         {
-            GlobalContext.Instance.DerivedTypes.AddAssemblies(assemblies);
+            MappingConfigStartingPoint.SetDerivedTypeAssemblies(assemblies);
             return this;
         }
+
+        EnumPairSpecifier<TSource, TTarget, TFirstEnum> IFullMappingInlineConfigurator<TSource, TTarget>.PairEnum<TFirstEnum>(TFirstEnum enumMember)
+            => EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, new[] { enumMember });
 
         #endregion
 

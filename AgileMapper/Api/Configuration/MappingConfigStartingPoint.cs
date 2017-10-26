@@ -16,12 +16,19 @@
     /// </summary>
     public class MappingConfigStartingPoint : IGlobalConfigSettings
     {
-        private readonly MapperContext _mapperContext;
+        private readonly MappingConfigInfo _configInfo;
 
         internal MappingConfigStartingPoint(MapperContext mapperContext)
+            : this(new MappingConfigInfo(mapperContext))
         {
-            _mapperContext = mapperContext;
         }
+
+        internal MappingConfigStartingPoint(MappingConfigInfo configInfo)
+        {
+            _configInfo = configInfo;
+        }
+
+        private MapperContext MapperContext => _configInfo.MapperContext;
 
         #region Global Settings
 
@@ -49,11 +56,9 @@
         /// </returns>
         public IGlobalConfigSettings PassExceptionsTo(Action<IMappingExceptionData> callback)
         {
-            var exceptionCallback = new ExceptionCallback(
-                MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext),
-                callback.ToConstantExpression());
+            var exceptionCallback = new ExceptionCallback(GlobalConfigInfo, callback.ToConstantExpression());
 
-            _mapperContext.UserConfigurations.Add(exceptionCallback);
+            MapperContext.UserConfigurations.Add(exceptionCallback);
             return this;
         }
 
@@ -194,7 +199,7 @@
 
         private IGlobalConfigSettings UseNamePatterns(IEnumerable<string> patterns)
         {
-            _mapperContext.NamingSettings.AddNameMatchers(patterns);
+            MapperContext.NamingSettings.AddNameMatchers(patterns);
             return this;
         }
 
@@ -211,7 +216,7 @@
         /// </returns>
         public IGlobalConfigSettings MaintainIdentityIntegrity()
         {
-            _mapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheAll);
+            MapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheAll);
             return this;
         }
 
@@ -227,7 +232,7 @@
         /// </returns>
         public IGlobalConfigSettings DisableObjectTracking()
         {
-            _mapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheNone);
+            MapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheNone);
             return this;
         }
 
@@ -239,7 +244,7 @@
         /// </returns>
         public IGlobalConfigSettings MapNullCollectionsToNull()
         {
-            _mapperContext.UserConfigurations.Add(NullCollectionsSetting.AlwaysMapToNull(_mapperContext));
+            MapperContext.UserConfigurations.Add(new NullCollectionsSetting(GlobalConfigInfo));
             return this;
         }
 
@@ -253,7 +258,7 @@
         /// An EnumPairSpecifier with which to specify the enum member to which the given <paramref name="enumMember"/> 
         /// should be paired.
         /// </returns>
-        public EnumPairSpecifier<TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember) where TFirstEnum : struct
+        public EnumPairSpecifier<object, object, TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember) where TFirstEnum : struct
             => PairEnums(enumMember);
 
         /// <summary>
@@ -266,8 +271,11 @@
         /// An EnumPairSpecifier with which to specify the set of enum members to which the given <paramref name="enumMembers"/> 
         /// should be paired.
         /// </returns>
-        public EnumPairSpecifier<TFirstEnum> PairEnums<TFirstEnum>(params TFirstEnum[] enumMembers) where TFirstEnum : struct
-            => EnumPairSpecifier<TFirstEnum>.For(_mapperContext, enumMembers);
+        public EnumPairSpecifier<object, object, TFirstEnum> PairEnums<TFirstEnum>(params TFirstEnum[] enumMembers)
+            where TFirstEnum : struct
+        {
+            return EnumPairSpecifier<object, object, TFirstEnum>.For(GlobalConfigInfo, enumMembers);
+        }
 
         /// <summary>
         /// Scan the given <paramref name="assemblies"/> when looking for types derived from any source or 
@@ -279,8 +287,27 @@
         /// </returns>
         public IGlobalConfigSettings LookForDerivedTypesIn(params Assembly[] assemblies)
         {
-            GlobalContext.Instance.DerivedTypes.AddAssemblies(assemblies);
+            SetDerivedTypeAssemblies(assemblies);
             return this;
+        }
+
+        internal static void SetDerivedTypeAssemblies(Assembly[] assemblies)
+        {
+            if (assemblies.None())
+            {
+                throw new MappingConfigurationException(
+                    "One or more assemblies must be specified.",
+                    new ArgumentException(nameof(assemblies)));
+            }
+
+            if (assemblies.Any(a => a == null))
+            {
+                throw new MappingConfigurationException(
+                    "All supplied assemblies must be non-null.",
+                    new ArgumentNullException(nameof(assemblies)));
+            }
+
+            GlobalContext.Instance.DerivedTypes.AddAssemblies(assemblies);
         }
 
         #region Ignoring Members
@@ -308,10 +335,9 @@
         /// </returns>
         public IGlobalConfigSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            var configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(_mapperContext);
-            var configuredIgnoredMember = new ConfiguredIgnoredMember(configInfo, memberFilter);
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(GlobalConfigInfo, memberFilter);
 
-            _mapperContext.UserConfigurations.Add(configuredIgnoredMember);
+            MapperContext.UserConfigurations.Add(configuredIgnoredMember);
             return this;
         }
 
@@ -328,7 +354,7 @@
         /// </returns>
         public IGlobalConfigSettings StringsFrom<TSourceValue>(Action<StringFormatSpecifier> formatSelector)
         {
-            var formatSpecifier = new StringFormatSpecifier(_mapperContext, typeof(TSourceValue));
+            var formatSpecifier = new StringFormatSpecifier(MapperContext, typeof(TSourceValue));
 
             formatSelector.Invoke(formatSpecifier);
 
@@ -339,6 +365,9 @@
 
         MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
 
+        private MappingConfigInfo GlobalConfigInfo =>
+            _configInfo.ForAllRuleSets().ForAllSourceTypes().ForAllTargetTypes();
+
         #endregion
 
         /// <summary>
@@ -347,7 +376,7 @@
         /// <typeparam name="TObject">The type of object to which the configuration will apply.</typeparam>
         /// <returns>An InstanceConfigurator with which to complete the configuration.</returns>
         public InstanceConfigurator<TObject> InstancesOf<TObject>() where TObject : class
-            => new InstanceConfigurator<TObject>(_mapperContext);
+            => new InstanceConfigurator<TObject>(GlobalConfigInfo);
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, T} instances.
@@ -362,7 +391,7 @@
         /// </typeparam>
         /// <returns>A DictionaryConfigurator with which to continue the configuration.</returns>
         public DictionaryConfigurator<TValue> DictionariesWithValueType<TValue>()
-            => new DictionaryConfigurator<TValue>(MappingConfigInfo.AllSourceTypes(_mapperContext));
+            => new DictionaryConfigurator<TValue>(_configInfo.ForAllSourceTypes());
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the given 
@@ -431,7 +460,7 @@
         private TargetTypeSpecifier<TSource> GetTargetTypeSpecifier<TSource>(
             Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)
         {
-            var configInfo = configInfoConfigurator.Invoke(new MappingConfigInfo(_mapperContext));
+            var configInfo = configInfoConfigurator.Invoke(_configInfo);
 
             return new TargetTypeSpecifier<TSource>(configInfo);
         }

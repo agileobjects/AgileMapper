@@ -11,31 +11,35 @@
     /// <summary>
     /// Provides options for specifying the enum member to which the configured enum member should be paired.
     /// </summary>
+    /// <typeparam name="TSource">The source type being configured.</typeparam>
+    /// <typeparam name="TTarget">The target type being configured.</typeparam>
     /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
-    public class EnumPairSpecifier<TFirstEnum>
+    public class EnumPairSpecifier<TSource, TTarget, TFirstEnum>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly TFirstEnum[] _firstEnumMembers;
 
         private EnumPairSpecifier(
-            MapperContext mapperContext,
+            MappingConfigInfo configInfo,
             TFirstEnum[] firstEnumMembers)
         {
-            _configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext);
+            _configInfo = configInfo;
             _firstEnumMembers = firstEnumMembers;
         }
 
         #region Factory Method
 
-        internal static EnumPairSpecifier<TFirstEnum> For(
-            MapperContext mapperContext,
+        internal static EnumPairSpecifier<TSource, TTarget, TFirstEnum> For(
+            MappingConfigInfo configInfo,
             TFirstEnum[] firstEnumMembers)
         {
             ThrowIfNotEnumType<TFirstEnum>();
             ThrowIfEmpty(firstEnumMembers);
 
-            return new EnumPairSpecifier<TFirstEnum>(mapperContext, firstEnumMembers);
+            return new EnumPairSpecifier<TSource, TTarget, TFirstEnum>(configInfo, firstEnumMembers);
         }
+
+        private MapperContext MapperContext => _configInfo.MapperContext;
 
         private static void ThrowIfNotEnumType<T>()
         {
@@ -61,7 +65,9 @@
         /// </summary>
         /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
         /// <param name="secondEnumMember">The second enum member in the pair.</param>
-        public void With<TSecondEnum>(TSecondEnum secondEnumMember) where TSecondEnum : struct
+        /// <returns>A MappingConfigContinuation with which to configure other aspects of mapping.</returns>
+        public MappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(TSecondEnum secondEnumMember)
+            where TSecondEnum : struct
             => With(new[] { secondEnumMember });
 
         /// <summary>
@@ -70,7 +76,9 @@
         /// </summary>
         /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
         /// <param name="secondEnumMembers">The second set of enum members in the pairs.</param>
-        public void With<TSecondEnum>(params TSecondEnum[] secondEnumMembers) where TSecondEnum : struct
+        /// <returns>A MappingConfigContinuation with which to configure other aspects of mapping.</returns>
+        public MappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(params TSecondEnum[] secondEnumMembers)
+            where TSecondEnum : struct
         {
             ThrowIfNotEnumType<TSecondEnum>();
             ThrowIfSameTypes<TSecondEnum>();
@@ -87,12 +95,14 @@
                 var firstToSecondPairing = EnumMemberPair.For(firstEnumMember, secondEnumMember);
                 var secondToFirstPairing = EnumMemberPair.For(secondEnumMember, firstEnumMember);
 
-                _configInfo.MapperContext.ValueConverters.Add(firstToSecondPairing.ValueConverter);
-                _configInfo.MapperContext.ValueConverters.Add(secondToFirstPairing.ValueConverter);
+                MapperContext.ValueConverters.Add(firstToSecondPairing.ValueConverter);
+                MapperContext.ValueConverters.Add(secondToFirstPairing.ValueConverter);
 
-                _configInfo.MapperContext.UserConfigurations.Add(firstToSecondPairing);
-                _configInfo.MapperContext.UserConfigurations.Add(secondToFirstPairing);
+                MapperContext.UserConfigurations.Add(firstToSecondPairing);
+                MapperContext.UserConfigurations.Add(secondToFirstPairing);
             }
+
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
 
         private static void ThrowIfSameTypes<TSecondEnum>()
@@ -127,8 +137,7 @@
             var firstEnumMemberName = firstEnumMember.ToString();
             var secondEnumMemberName = secondEnumMember.ToString();
 
-            var relevantPairings = _configInfo
-                .MapperContext
+            var relevantPairings = MapperContext
                 .UserConfigurations
                 .GetEnumPairingsFor(typeof(TFirstEnum), typeof(TSecondEnum))
                 .ToArray();
