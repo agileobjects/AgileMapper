@@ -1,11 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using System.Text.RegularExpressions;
     using AgileMapper.Configuration;
     using Dictionaries;
     using Extensions;
@@ -85,7 +83,10 @@
         /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings UseNamePrefixes(params string[] prefixes)
-            => UseNamePatterns(prefixes.Select(p => "^" + p + "(.+)$"));
+        {
+            MapperContext.NamingSettings.AddNamePrefixes(prefixes);
+            return this;
+        }
 
         /// <summary>
         /// Expect members of all source and target types to potentially have the given name <paramref name="suffix"/>.
@@ -106,7 +107,10 @@
         /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings UseNameSuffixes(params string[] suffixes)
-            => UseNamePatterns(suffixes.Select(s => "^(.+)" + s + "$"));
+        {
+            MapperContext.NamingSettings.AddNameSuffixes(suffixes);
+            return this;
+        }
 
         /// <summary>
         /// Expect members of all source and target types to potentially match the given name <paramref name="pattern"/>.
@@ -121,9 +125,6 @@
         /// </returns>
         public IGlobalConfigSettings UseNamePattern(string pattern) => UseNamePatterns(pattern);
 
-        private static readonly Regex _patternChecker =
-            new Regex(@"^\^(?<Prefix>[^(]+){0,1}\(\.\+\)(?<Suffix>[^$]+){0,1}\$$");
-
         /// <summary>
         /// Expect members of all source and target types to potentially match the given name <paramref name="patterns"/>.
         /// The patterns will be used to find the part of a name which should be used to match a source and target member.
@@ -136,68 +137,6 @@
         /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         public IGlobalConfigSettings UseNamePatterns(params string[] patterns)
-        {
-            if (patterns.None())
-            {
-                throw new ArgumentException("No naming patterns supplied", nameof(patterns));
-            }
-
-            for (var i = 0; i < patterns.Length; i++)
-            {
-                var pattern = patterns[i];
-
-                if (pattern == null)
-                {
-                    throw new ArgumentNullException(nameof(patterns), "Naming patterns cannot be null");
-                }
-
-                if (pattern.Contains(Environment.NewLine))
-                {
-                    throw CreateConfigurationException(pattern);
-                }
-
-                if (!pattern.StartsWith('^'))
-                {
-                    patterns[i] = pattern = "^" + pattern;
-                }
-
-                if (!pattern.EndsWith('$'))
-                {
-                    patterns[i] = pattern = pattern + "$";
-                }
-
-                ThrowIfPatternIsInvalid(pattern);
-            }
-
-            return UseNamePatterns(patterns.AsEnumerable());
-        }
-
-        private static void ThrowIfPatternIsInvalid(string pattern)
-        {
-            var match = _patternChecker.Match(pattern);
-
-            if (!match.Success)
-            {
-                throw CreateConfigurationException(pattern);
-            }
-
-            var prefix = match.Groups["Prefix"].Value;
-            var suffix = match.Groups["Suffix"].Value;
-
-            if (string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(suffix))
-            {
-                throw CreateConfigurationException(pattern);
-            }
-        }
-
-        private static Exception CreateConfigurationException(string pattern)
-        {
-            return new MappingConfigurationException(
-                "Name pattern '" + pattern + "' is not valid. " +
-                "Please specify a regular expression pattern in the format '^{prefix}(.+){suffix}$'");
-        }
-
-        private IGlobalConfigSettings UseNamePatterns(IEnumerable<string> patterns)
         {
             MapperContext.NamingSettings.AddNameMatchers(patterns);
             return this;

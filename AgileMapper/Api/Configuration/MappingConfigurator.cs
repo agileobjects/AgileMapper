@@ -18,17 +18,38 @@
 
         protected MappingConfigInfo ConfigInfo { get; }
 
+        protected MapperContext MapperContext => ConfigInfo.MapperContext;
+
         #region IFullMappingInlineConfigurator Members
 
-        MappingConfigStartingPoint IFullMappingInlineConfigurator<TSource, TTarget>.WhenMapping
-            => new MappingConfigStartingPoint(ConfigInfo.MapperContext);
+        public MappingConfigStartingPoint WhenMapping
+            => new MappingConfigStartingPoint(MapperContext);
 
-        IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingInlineConfigurator<TSource, TTarget>.LookForDerivedTypesIn(
-            params Assembly[] assemblies)
+        public IFullMappingInlineConfigurator<TSource, TTarget> LookForDerivedTypesIn(params Assembly[] assemblies)
         {
             MappingConfigStartingPoint.SetDerivedTypeAssemblies(assemblies);
             return this;
         }
+
+        #region Naming
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePrefixes(params string[] prefixes)
+        {
+            MapperContext.NamingSettings.AddNamePrefixes(prefixes);
+            return this;
+        }
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNameSuffixes(params string[] suffixes)
+        {
+            MapperContext.NamingSettings.AddNameSuffixes(suffixes);
+            return this;
+        }
+
+        #endregion
 
         #endregion
 
@@ -76,7 +97,7 @@
         {
             var exceptionCallback = new ExceptionCallback(ConfigInfo, callback.ToConstantExpression());
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(exceptionCallback);
+            MapperContext.UserConfigurations.Add(exceptionCallback);
             return this;
         }
 
@@ -88,7 +109,7 @@
         {
             var settings = new MappedObjectCachingSettings(ConfigInfo, cache);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(settings);
+            MapperContext.UserConfigurations.Add(settings);
             return this;
         }
 
@@ -96,7 +117,7 @@
         {
             var nullSetting = new NullCollectionsSetting(ConfigInfo);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(nullSetting);
+            MapperContext.UserConfigurations.Add(nullSetting);
             return this;
         }
 
@@ -118,7 +139,7 @@
         {
             var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+            MapperContext.UserConfigurations.Add(configuredIgnoredMember);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
@@ -130,7 +151,7 @@
                 var configuredIgnoredMember =
                     new ConfiguredIgnoredMember(ConfigInfo, targetMember);
 
-                ConfigInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+                MapperContext.UserConfigurations.Add(configuredIgnoredMember);
                 ConfigInfo.NegateCondition();
             }
 
@@ -213,7 +234,7 @@
         {
             var condition = new MapToNullCondition(ConfigInfo);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(condition);
+            MapperContext.UserConfigurations.Add(condition);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }

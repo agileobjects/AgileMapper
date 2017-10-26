@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using Configuration;
+    using Extensions;
 
     internal class NamingSettings
     {
@@ -46,8 +48,16 @@
             return null;
         }
 
-        public void AddNameMatchers(IEnumerable<string> patterns)
+        public void AddNamePrefixes(IEnumerable<string> prefixes)
+            => AddNameMatchers(prefixes.Select(p => "^" + p + "(.+)$").ToArray());
+
+        public void AddNameSuffixes(IEnumerable<string> suffixes)
+            => AddNameMatchers(suffixes.Select(s => "^(.+)" + s + "$").ToArray());
+
+        public void AddNameMatchers(IList<string> patterns)
         {
+            ValidatePatterns(patterns);
+
             foreach (var pattern in patterns)
             {
                 var nameMatcher = new Regex(pattern, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -59,6 +69,69 @@
                     .ElementAtOrDefault(1)?
                     .Value);
             }
+        }
+
+        private static void ValidatePatterns(IList<string> patterns)
+        {
+            if (patterns.None())
+            {
+                throw new ArgumentException("No naming patterns supplied", nameof(patterns));
+            }
+
+            for (var i = 0; i < patterns.Count; i++)
+            {
+                var pattern = patterns[i];
+
+                if (pattern == null)
+                {
+                    throw new ArgumentNullException(nameof(patterns), "Naming patterns cannot be null");
+                }
+
+                if (pattern.Contains(Environment.NewLine))
+                {
+                    throw CreateConfigurationException(pattern);
+                }
+
+                if (!pattern.StartsWith('^'))
+                {
+                    patterns[i] = pattern = "^" + pattern;
+                }
+
+                if (!pattern.EndsWith('$'))
+                {
+                    patterns[i] = pattern = pattern + "$";
+                }
+
+                ThrowIfPatternIsInvalid(pattern);
+            }
+        }
+
+        private static readonly Regex _patternChecker =
+            new Regex(@"^\^(?<Prefix>[^(]+){0,1}\(\.\+\)(?<Suffix>[^$]+){0,1}\$$");
+
+        private static void ThrowIfPatternIsInvalid(string pattern)
+        {
+            var match = _patternChecker.Match(pattern);
+
+            if (!match.Success)
+            {
+                throw CreateConfigurationException(pattern);
+            }
+
+            var prefix = match.Groups["Prefix"].Value;
+            var suffix = match.Groups["Suffix"].Value;
+
+            if (string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(suffix))
+            {
+                throw CreateConfigurationException(pattern);
+            }
+        }
+
+        private static Exception CreateConfigurationException(string pattern)
+        {
+            return new MappingConfigurationException(
+                "Name pattern '" + pattern + "' is not valid. " +
+                "Please specify a regular expression pattern in the format '^{prefix}(.+){suffix}$'");
         }
 
         public string[] GetMatchingNamesFor(Member member) => EnumerateMatchingNames(member).ToArray();
