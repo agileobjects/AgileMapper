@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System.Linq;
+    using MoreTestClasses;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -103,6 +104,21 @@
                 result3.Second().Price.ShouldBe(99.99m);
 
                 mapper.InlineContexts().Count.ShouldBe(2);
+            }
+        }
+
+        [Fact]
+        public void ShouldScanConfiguredAssembliesInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(new { NumberOfLegs = 100, SlitherNoise = "ththtth" })
+                    .Over(new Earthworm() as AnimalBase, cgf => cgf
+                        .LookForDerivedTypesIn(typeof(Dog).Assembly, typeof(Earthworm).Assembly));
+
+                result.NumberOfLegs.ShouldBe(100);
+                ((Earthworm)result).SlitherNoise.ShouldBe("ththtth");
             }
         }
     }

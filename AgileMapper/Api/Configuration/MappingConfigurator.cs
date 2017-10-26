@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
     using AgileMapper.Configuration;
     using Extensions;
     using Members;
@@ -21,6 +22,13 @@
 
         MappingConfigStartingPoint IFullMappingInlineConfigurator<TSource, TTarget>.WhenMapping
             => new MappingConfigStartingPoint(ConfigInfo.MapperContext);
+
+        IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingInlineConfigurator<TSource, TTarget>.LookForDerivedTypesIn(
+            params Assembly[] assemblies)
+        {
+            GlobalContext.Instance.DerivedTypes.AddAssemblies(assemblies);
+            return this;
+        }
 
         #endregion
 

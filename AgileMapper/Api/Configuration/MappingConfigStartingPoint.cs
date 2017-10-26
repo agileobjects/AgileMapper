@@ -270,8 +270,8 @@
             => EnumPairSpecifier<TFirstEnum>.For(_mapperContext, enumMembers);
 
         /// <summary>
-        /// Scan the specified <paramref name="assemblies"/> when looking for types derived
-        /// from any source or target type being mapped.
+        /// Scan the given <paramref name="assemblies"/> when looking for types derived from any source or 
+        /// target type being mapped.
         /// </summary>
         /// <param name="assemblies">The assemblies in which to look for derived types.</param>
         /// <returns>
@@ -279,20 +279,6 @@
         /// </returns>
         public IGlobalConfigSettings LookForDerivedTypesIn(params Assembly[] assemblies)
         {
-            if (assemblies.None())
-            {
-                throw new MappingConfigurationException(
-                    "One or more assemblies must be specified.",
-                    new ArgumentException(nameof(assemblies)));
-            }
-
-            if (assemblies.Any(a => a == null))
-            {
-                throw new MappingConfigurationException(
-                    "All supplied assemblies must be non-null.",
-                    new ArgumentNullException(nameof(assemblies)));
-            }
-
             GlobalContext.Instance.DerivedTypes.AddAssemblies(assemblies);
             return this;
         }

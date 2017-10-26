@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using Caching;
+    using Configuration;
     using Extensions;
     using NetStandardPolyfills;
 
@@ -23,6 +24,20 @@
 
         public void AddAssemblies(Assembly[] assemblies)
         {
+            if (assemblies.None())
+            {
+                throw new MappingConfigurationException(
+                    "One or more assemblies must be specified.",
+                    new ArgumentException(nameof(assemblies)));
+            }
+
+            if (assemblies.Any(a => a == null))
+            {
+                throw new MappingConfigurationException(
+                    "All supplied assemblies must be non-null.",
+                    new ArgumentNullException(nameof(assemblies)));
+            }
+
             _assemblies.AddRange(assemblies.Except(_assemblies));
         }
 
@@ -38,7 +53,7 @@
 
         private ICollection<Type> GetDerivedTypesForType(Type type)
         {
-            var typeAssemblies = new[]{ type.GetAssembly() };
+            var typeAssemblies = new[] { type.GetAssembly() };
 
             var assemblies = _assemblies.Any()
                 ? _assemblies.Concat(typeAssemblies).Distinct()
