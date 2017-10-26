@@ -137,8 +137,7 @@
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        public static TSource Clone<TSource>(TSource source) where TSource : class
-            => _default.Clone(source);
+        public static TSource Clone<TSource>(TSource source) => _default.Clone(source);
 
         /// <summary>
         /// Flattens the given <paramref name="source"/> object so it has only value-type or string members

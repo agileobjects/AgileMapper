@@ -96,7 +96,7 @@
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        TSource Clone<TSource>(TSource source) where TSource : class;
+        TSource Clone<TSource>(TSource source);
 
         /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
