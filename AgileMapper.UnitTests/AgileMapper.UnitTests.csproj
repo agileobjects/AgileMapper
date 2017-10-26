@@ -93,6 +93,7 @@
     <Compile Include="Configuration\Inline\WhenConfiguringNameMatchingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringObjectCreationInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringStringFormattingInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringTypeIdentifiersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
