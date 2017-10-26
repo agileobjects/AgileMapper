@@ -10,10 +10,6 @@
         {
             TestThenReset(() =>
             {
-                Mapper.WhenMapping
-                    .From<PublicPropertyStruct<string>>()
-                    .To<PublicPropertyStruct<string>>();
-
                 var result = Mapper
                     .Clone(new PublicPropertyStruct<string> { Value = "Instance fun!" }, cfg => cfg
                         .Map("Static fun!")
