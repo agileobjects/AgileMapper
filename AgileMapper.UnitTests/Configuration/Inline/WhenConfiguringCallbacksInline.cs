@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System;
+    using System.Collections.Generic;
     using AgileMapper.Members;
     using Shouldly;
     using TestClasses;
@@ -20,7 +21,7 @@
                         .And
                         .After
                         .CreatingInstances
-                        .Call(ctx => FallOver()));
+                        .Call(ctx => FallOver("BANG")));
 
                 result.ShouldBeNull();
             }
@@ -39,15 +40,47 @@
                         .PassExceptionsTo(ctx => SetContext(ctx, out thrownData))
                         .And
                         .After.CreatingInstances
-                        .Call(ctx => FallOver()));
+                        .Call(ctx => FallOver("BOOM")));
 
                 thrownData.ShouldNotBeNull();
                 thrownData.Source.ShouldBeOfType<Person>();
                 thrownData.Target.ShouldBeOfType<PersonViewModel>();
                 thrownData.Exception.ShouldNotBeNull();
-                thrownData.Exception.Message.ShouldBe("BANG");
+                thrownData.Exception.Message.ShouldBe("BOOM");
             }
         }
+
+        [Fact]
+        public void ShouldExecuteAPostMappingCallbackConditionallyInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var mappedNames = new List<string>();
+
+                mapper
+                    .Map(new PersonViewModel { Name = "Bernie", AddressLine1 = "Narnia" })
+                    .Over(new Person { Name = "Hillary" }, cfg => cfg
+                        .After
+                        .MappingEnds
+                        .If((s, t) => t.GetType() != typeof(Address))
+                        .Call(ctx => mappedNames.AddRange(new[] { ctx.Source.Name, ctx.Target.Name })));
+
+                mappedNames.ShouldNotBeEmpty();
+                mappedNames.ShouldBe("Bernie", "Bernie");
+
+                mapper
+                    .Map(new PersonViewModel { Name = "Bernie", AddressLine1 = "Narnia" })
+                    .Over(new Person { Name = "Hillary" }, cfg => cfg
+                        .After
+                        .MappingEnds
+                        .If((s, t) => t.GetType() != typeof(Address))
+                        .Call(ctx => mappedNames.AddRange(new[] { ctx.Source.Name })));
+
+                mappedNames.ShouldBe("Bernie", "Bernie", "Bernie");
+            }
+        }
+
+        #region Helper Members
 
         private static void SetContext(
             IMappingExceptionData<Person, PersonViewModel> thrownData,
@@ -56,6 +89,8 @@
             outData = thrownData;
         }
 
-        private static void FallOver() => throw new InvalidOperationException("BANG");
+        private static void FallOver(string message) => throw new InvalidOperationException(message);
+
+        #endregion
     }
 }

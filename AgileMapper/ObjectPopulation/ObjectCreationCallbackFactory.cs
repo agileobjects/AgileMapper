@@ -8,7 +8,6 @@
     using Configuration;
     using Extensions;
     using Members;
-    using NetStandardPolyfills;
 
     internal class ObjectCreationCallbackFactory : MappingCallbackFactory
     {
@@ -26,6 +25,9 @@
 
         public override bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
             => _creationTargetType.IsAssignableFrom(mapperData.TargetMember.Type) && base.AppliesTo(callbackPosition, mapperData);
+
+        protected override bool MemberPathMatches(IBasicMapperData mapperData)
+             => MemberPathHasMatchingSourceAndTargetTypes(mapperData);
 
         protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {

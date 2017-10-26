@@ -24,6 +24,9 @@
         public virtual bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
             => (CallbackPosition == callbackPosition) && base.AppliesTo(mapperData);
 
+        protected override bool MemberPathMatches(IBasicMapperData mapperData)
+            => ConfigInfo.HasCompatibleTypes(mapperData);
+
         public Expression Create(IMemberMapperData mapperData)
         {
             mapperData.Context.UsesMappingDataObjectAsParameter =

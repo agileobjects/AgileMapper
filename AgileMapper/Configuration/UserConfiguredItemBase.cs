@@ -97,8 +97,8 @@
         public virtual bool AppliesTo(IBasicMapperData mapperData)
         {
             return ConfigInfo.IsFor(mapperData.RuleSet) &&
-                TargetMembersMatch(mapperData) &&
-                MemberPathHasMatchingSourceAndTargetTypes(mapperData);
+                   TargetMembersMatch(mapperData) &&
+                   MemberPathMatches(mapperData);
         }
 
         private bool TargetMembersMatch(IBasicMapperData mapperData)
@@ -124,7 +124,10 @@
                    mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableFrom(TargetMember.LeafMember.DeclaringType);
         }
 
-        private bool MemberPathHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
+        protected virtual bool MemberPathMatches(IBasicMapperData mapperData)
+            => MemberPathHasMatchingSourceAndTargetTypes(mapperData);
+
+        protected bool MemberPathHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
         {
             while (mapperData != null)
             {
