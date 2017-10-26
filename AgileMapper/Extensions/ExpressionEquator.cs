@@ -31,7 +31,12 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.Constant:
                         return AreEqual((ConstantExpression)x, (ConstantExpression)y);
 
+                    case ExpressionType.ArrayLength:
                     case ExpressionType.Convert:
+                    case ExpressionType.Negate:
+                    case ExpressionType.NegateChecked:
+                    case ExpressionType.Not:
+                    case ExpressionType.TypeAs:
                         return AreEqual((UnaryExpression)x, (UnaryExpression)y);
 
                     case ExpressionType.Index:
@@ -42,19 +47,35 @@ namespace AgileObjects.AgileMapper.Extensions
                         y = ((LambdaExpression)y).Body;
                         continue;
 
+                    case ExpressionType.ListInit:
+                        return AreEqual((ListInitExpression)x, (ListInitExpression)y);
+
                     case ExpressionType.MemberAccess:
                         return AreEqual((MemberExpression)x, (MemberExpression)y);
 
                     case ExpressionType.Add:
+                    case ExpressionType.AddChecked:
+                    case ExpressionType.And:
+                    case ExpressionType.AndAlso:
+                    case ExpressionType.ArrayIndex:
+                    case ExpressionType.Coalesce:
                     case ExpressionType.Divide:
                     case ExpressionType.Equal:
+                    case ExpressionType.ExclusiveOr:
                     case ExpressionType.GreaterThan:
                     case ExpressionType.GreaterThanOrEqual:
+                    case ExpressionType.LeftShift:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
+                    case ExpressionType.Modulo:
                     case ExpressionType.Multiply:
+                    case ExpressionType.MultiplyChecked:
                     case ExpressionType.NotEqual:
+                    case ExpressionType.Or:
+                    case ExpressionType.OrElse:
+                    case ExpressionType.RightShift:
                     case ExpressionType.Subtract:
+                    case ExpressionType.SubtractChecked:
                         return AreEqual((BinaryExpression)x, (BinaryExpression)y);
 
                     case ExpressionType.MemberInit:
@@ -63,6 +84,7 @@ namespace AgileObjects.AgileMapper.Extensions
                     case ExpressionType.New:
                         return AreEqual((NewExpression)x, (NewExpression)y);
 
+                    case ExpressionType.NewArrayBounds:
                     case ExpressionType.NewArrayInit:
                         return AreEqual((NewArrayExpression)x, (NewArrayExpression)y);
 
@@ -73,6 +95,9 @@ namespace AgileObjects.AgileMapper.Extensions
                         x = ((UnaryExpression)x).Operand;
                         y = ((UnaryExpression)y).Operand;
                         continue;
+
+                    case ExpressionType.TypeIs:
+                        return AreEqual((TypeBinaryExpression)x, (TypeBinaryExpression)y);
                 }
 
                 throw new NotImplementedException("Unable to equate Expressions of type " + x.NodeType);
@@ -126,6 +151,34 @@ namespace AgileObjects.AgileMapper.Extensions
                    AllEqual(x.Arguments, y.Arguments);
         }
 
+        private bool AreEqual(ListInitExpression x, ListInitExpression y)
+        {
+            return (x.Type == y.Type) && Equals(x.NewExpression, y.NewExpression) &&
+                    AllEqual(x.Initializers, y.Initializers);
+        }
+
+        private bool AllEqual(IList<ElementInit> xInitializers, IList<ElementInit> yInitializers)
+        {
+            if (xInitializers.Count != yInitializers.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < xInitializers.Count; i++)
+            {
+                var x = xInitializers[i];
+                var y = yInitializers[i];
+
+                if (!ReferenceEquals(x.AddMethod, y.AddMethod) ||
+                    !AllEqual(x.Arguments, y.Arguments))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static bool AreEqual(MemberExpression x, MemberExpression y)
         {
             if (ReferenceEquals(x.Member, y.Member))
@@ -142,11 +195,6 @@ namespace AgileObjects.AgileMapper.Extensions
         {
             return ReferenceEquals(x.Method, y.Method) &&
                    Equals(x.Left, y.Left) && Equals(x.Right, y.Right);
-        }
-
-        private static bool AreEqual(ParameterExpression x, ParameterExpression y)
-        {
-            return (x.Type == y.Type) && (x.Name == y.Name);
         }
 
         private bool AreEqual(MemberInitExpression x, MemberInitExpression y)
@@ -177,21 +225,21 @@ namespace AgileObjects.AgileMapper.Extensions
                     case MemberBindingType.Assignment:
                         if (Equals(((MemberAssignment)x).Expression, ((MemberAssignment)y).Expression))
                         {
-                            continue;
+                            break;
                         }
                         return false;
 
                     case MemberBindingType.MemberBinding:
                         if (AllEqual(((MemberMemberBinding)x).Bindings, ((MemberMemberBinding)y).Bindings))
                         {
-                            continue;
+                            break;
                         }
                         return false;
 
                     case MemberBindingType.ListBinding:
                         if (AreEqual((MemberListBinding)x, (MemberListBinding)y))
                         {
-                            continue;
+                            break;
                         }
                         return false;
                 }
@@ -232,6 +280,14 @@ namespace AgileObjects.AgileMapper.Extensions
         {
             return (x.Type == y.Type) && AllEqual(x.Expressions, y.Expressions);
         }
+
+        private static bool AreEqual(ParameterExpression x, ParameterExpression y)
+        {
+            return (x.Type == y.Type) && (x.Name == y.Name);
+        }
+
+        private bool AreEqual(TypeBinaryExpression x, TypeBinaryExpression y)
+            => (x.TypeOperand == y.TypeOperand) && Equals(x.Expression, y.Expression);
 
         public int GetHashCode(Expression obj) => 0;
     }

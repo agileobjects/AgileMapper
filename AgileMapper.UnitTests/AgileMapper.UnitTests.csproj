@@ -98,6 +98,7 @@
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
     <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
+    <Compile Include="Extensions\WhenEquatingExpressions.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectTracking.cs" />
