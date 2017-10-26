@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
+    using AgileMapper.Configuration;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -43,7 +45,7 @@
         }
 
         [Fact]
-        public void ShouldHandleACustomSuffix()
+        public void ShouldHandleACustomSuffixInline()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -57,7 +59,7 @@
         }
 
         [Fact]
-        public void ShouldHandleMultipleCustomSuffixes()
+        public void ShouldHandleMultipleCustomSuffixesInline()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -70,6 +72,78 @@
 
                 result.Value.ShouldBe("12345");
             }
+        }
+
+        [Fact]
+        public void ShouldHandleACustomNamingPatternInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(new { _abcValuexyz_ = 999 })
+                    .ToANew<PublicField<string>>(cfg => cfg
+                        .UseNamePattern("^_abc(.+)xyz_$"));
+
+                result.Value.ShouldBe("999");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleCustomNamingPatternsInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(new { __Value__ = 456 })
+                    .ToANew<PublicField<int>>(cfg => cfg
+                        .UseNamePatterns("^_abc(.+)xyz_$", "^__(.+)__$"));
+
+                result.Value.ShouldBe(456);
+            }
+        }
+
+        [Fact]
+        public void ShouldExtendMatchingPatternsInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.UseNamePrefix("_p");
+
+                var result1 = mapper
+                    .Map(new { _pValue1 = "Prefix!", Value2Str_ = "Suffix!" })
+                    .ToANew<PublicTwoFields<string, string>>(cfg => cfg
+                        .UseNameSuffix("Str_"));
+
+                result1.Value1.ShouldBe("Prefix!");
+                result1.Value2.ShouldBe("Suffix!");
+
+                var result2 = mapper
+                    .Map(new { _pValue1 = "Prefix!", Value2__ = "Suffix again!" })
+                    .ToANew<PublicTwoFields<string, string>>(cfg => cfg
+                        .UseNameSuffix("__"));
+
+                result2.Value1.ShouldBe("Prefix!");
+                result2.Value2.ShouldBe("Suffix again!");
+
+                mapper.InlineContexts().Count.ShouldBe(2);
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfInlinePatternHasNoPrefixOrSuffix()
+        {
+            var patternEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper
+                        .Map(new { __Value__ = 456 })
+                        .ToANew<PublicField<int>>(cfg => cfg
+                            .UseNamePattern("(.+)"));
+                }
+            });
+
+            patternEx.Message.ShouldContain("Name pattern '^(.+)$' is not valid.");
         }
     }
 }

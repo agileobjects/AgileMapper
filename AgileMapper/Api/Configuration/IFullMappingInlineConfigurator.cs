@@ -71,6 +71,36 @@
         /// </returns>
         IFullMappingInlineConfigurator<TSource, TTarget> UseNameSuffixes(params string[] suffixes);
 
+        /// <summary>
+        /// Expect members of the source and target types being mapped to potentially match the given name 
+        /// <paramref name="pattern"/>. The pattern will be used to find the part of a name which should be used to match a 
+        /// source and target member.
+        /// </summary>
+        /// <param name="pattern">
+        /// The Regex pattern to check against source and target member names. The pattern is expected to start with the 
+        /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
+        /// </param>
+        /// <returns>
+        /// This <see cref="IFullMappingInlineConfigurator{TSource, TTarget}"/> with which to configure further 
+        /// settings for the source and target types being mapped.
+        /// </returns>
+        IFullMappingInlineConfigurator<TSource, TTarget> UseNamePattern(string pattern);
+
+        /// <summary>
+        /// Expect members of the source and target types being mapped to potentially match the given name 
+        /// <paramref name="patterns"/>. The patterns will be used to find the part of a name which should be used to match a 
+        /// source and target member.
+        /// </summary>
+        /// <param name="patterns">
+        /// The Regex patterns to check against source and target member names. Each pattern is expected to start with the 
+        /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
+        /// </param>
+        /// <returns>
+        /// This <see cref="IFullMappingInlineConfigurator{TSource, TTarget}"/> with which to configure further 
+        /// settings for the source and target types being mapped.
+        /// </returns>
+        IFullMappingInlineConfigurator<TSource, TTarget> UseNamePatterns(params string[] patterns);
+
         #endregion
     }
 }

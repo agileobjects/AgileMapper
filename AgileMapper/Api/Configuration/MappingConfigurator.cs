@@ -49,6 +49,14 @@
             return this;
         }
 
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePattern(string pattern) => UseNamePatterns(pattern);
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePatterns(params string[] patterns)
+        {
+            MapperContext.NamingSettings.AddNameMatchers(patterns);
+            return this;
+        }
+
         #endregion
 
         #endregion
