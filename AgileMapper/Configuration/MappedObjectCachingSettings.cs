@@ -38,7 +38,14 @@ namespace AgileObjects.AgileMapper.Configuration
             {
                 var otherSettings = (MappedObjectCachingSettings)otherItem;
 
-                return (otherSettings.Cache == Cache);
+                if ((this == CacheNone) || (otherSettings == CacheNone) ||
+                    (this == CacheAll) || (otherSettings == CacheAll))
+                {
+                    return (otherSettings.Cache == Cache);
+                }
+
+                // Settings have overlapping, non-global source and target types
+                return true;
             }
 
             return false;
@@ -48,7 +55,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             if (conflicting == this)
             {
-                return GetRedundantSettingsConflictMessage();
+                return GetRedundantSettingsConflictMessage(conflicting);
             }
 
             if ((this == CacheAll) && (conflicting == CacheNone))
@@ -65,14 +72,23 @@ namespace AgileObjects.AgileMapper.Configuration
             var targetType = ConfigInfo.TargetType.GetFriendlyName();
             var typeSettings = $" when mapping {sourceType} -> {targetType}";
 
-            return GetRedundantSettingsConflictMessage(typeSettings);
+            return GetRedundantSettingsConflictMessage(conflicting, typeSettings);
         }
 
-        private string GetRedundantSettingsConflictMessage(string typeSettings = null)
+        private string GetRedundantSettingsConflictMessage(
+            MappedObjectCachingSettings conflicting,
+            string typeSettings = null)
         {
-            return Cache
-                ? "Identity integrity is already configured" + typeSettings
-                : "Object tracking is already disabled" + typeSettings;
+            if (Cache == conflicting.Cache)
+            {
+                return Cache
+                    ? "Identity integrity is already configured" + typeSettings
+                    : "Object tracking is already disabled" + typeSettings;
+            }
+
+            return conflicting.Cache
+                ? $"Identity integrity cannot be configured{typeSettings} with object tracking disabled"
+                : $"Object tracking cannot be disabled{typeSettings} with identity integrity configured";
         }
     }
 }

@@ -92,6 +92,7 @@
     <Compile Include="Configuration\Inline\WhenConfiguringEnumMappingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringNameMatchingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringObjectCreationInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringObjectTrackingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringStringFormattingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringTypeIdentifiersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
