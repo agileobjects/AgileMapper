@@ -30,9 +30,6 @@
             return this;
         }
 
-        EnumPairSpecifier<TSource, TTarget, TFirstEnum> IFullMappingInlineConfigurator<TSource, TTarget>.PairEnum<TFirstEnum>(TFirstEnum enumMember)
-            => EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, new[] { enumMember });
-
         #endregion
 
         #region If Overloads
@@ -102,6 +99,10 @@
             ConfigInfo.MapperContext.UserConfigurations.Add(nullSetting);
             return this;
         }
+
+        public EnumPairSpecifier<TSource, TTarget, TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember)
+            where TFirstEnum : struct
+            => EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, new[] { enumMember });
 
         IFullMappingConfigurator<TSource, TTarget> IFullMappingSettings<TSource, TTarget>.And => this;
 
