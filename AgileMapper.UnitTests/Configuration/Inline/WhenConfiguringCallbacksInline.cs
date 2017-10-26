@@ -37,7 +37,7 @@
                 mapper
                     .Map(new Person())
                     .ToANew<PersonViewModel>(cfg => cfg
-                        .PassExceptionsTo(ctx => SetContext(ctx, out thrownData))
+                        .PassExceptionsTo(ctx => SetVariable(ctx, out thrownData))
                         .And
                         .After.CreatingInstances
                         .Call(ctx => FallOver("BOOM")));
@@ -80,13 +80,42 @@
             }
         }
 
+        [Fact]
+        public void ShouldExecuteAPreMemberMappingCallbackConditionallyInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var mappedTargetId = default(Guid);
+
+                var noIdSource = new Person { Name = "Dawn" };
+
+                mapper.Clone(noIdSource, cfg => cfg
+                    .Before
+                    .Mapping(p => p.Address)
+                    .If(ctx => ctx.Target.Id != default(Guid))
+                    .Call((s, t) => SetVariable(t.Id, out mappedTargetId)));
+
+                mappedTargetId.ShouldBeDefault();
+
+                var idSource = new Person { Id = Guid.NewGuid() };
+
+                mapper.Clone(idSource, cfg => cfg
+                    .Before
+                    .Mapping(p => p.Address)
+                    .If(ctx => ctx.Target.Id != default(Guid))
+                    .Call((s, t) => SetVariable(t.Id, out mappedTargetId)));
+
+                mappedTargetId.ShouldBe(idSource.Id);
+
+                mapper.InlineContexts().ShouldHaveSingleItem();
+            }
+        }
+
         #region Helper Members
 
-        private static void SetContext(
-            IMappingExceptionData<Person, PersonViewModel> thrownData,
-            out IMappingExceptionData<Person, PersonViewModel> outData)
+        private static void SetVariable<T>(T valueToSet, out T valueCollector)
         {
-            outData = thrownData;
+            valueCollector = valueToSet;
         }
 
         private static void FallOver(string message) => throw new InvalidOperationException(message);

@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using System;
+    using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
     using Plans;
@@ -168,6 +170,13 @@
         IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 
         TSource IMapper.Clone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
+
+        TSource IMapper.Clone<TSource>(
+            TSource source,
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations)
+        {
+            return ((IMapper)this).Map(source).ToANew(configurations);
+        }
 
         dynamic IMapper.Flatten<TSource>(TSource source) => Context.ObjectFlattener.Flatten(source);
 
