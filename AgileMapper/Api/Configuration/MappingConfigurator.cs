@@ -2,20 +2,64 @@
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
     using AgileMapper.Configuration;
     using Extensions;
     using Members;
 
     internal class MappingConfigurator<TSource, TTarget> :
-        IFullMappingConfigurator<TSource, TTarget>,
+        IFullMappingInlineConfigurator<TSource, TTarget>,
         IConditionalRootMappingConfigurator<TSource, TTarget>
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
         {
-            ConfigInfo = configInfo;
+            ConfigInfo = configInfo.ForTargetType<TTarget>();
         }
 
         protected MappingConfigInfo ConfigInfo { get; }
+
+        protected MapperContext MapperContext => ConfigInfo.MapperContext;
+
+        #region IFullMappingInlineConfigurator Members
+
+        public MappingConfigStartingPoint WhenMapping
+            => new MappingConfigStartingPoint(MapperContext);
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> LookForDerivedTypesIn(params Assembly[] assemblies)
+        {
+            MappingConfigStartingPoint.SetDerivedTypeAssemblies(assemblies);
+            return this;
+        }
+
+        #region Naming
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePrefixes(params string[] prefixes)
+        {
+            MapperContext.NamingSettings.AddNamePrefixes(prefixes);
+            return this;
+        }
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNameSuffixes(params string[] suffixes)
+        {
+            MapperContext.NamingSettings.AddNameSuffixes(suffixes);
+            return this;
+        }
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePattern(string pattern) => UseNamePatterns(pattern);
+
+        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePatterns(params string[] patterns)
+        {
+            MapperContext.NamingSettings.AddNameMatchers(patterns);
+            return this;
+        }
+
+        #endregion
+
+        #endregion
 
         #region If Overloads
 
@@ -37,7 +81,8 @@
 
         #endregion
 
-        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
+        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
+            Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
             new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
 
@@ -58,11 +103,9 @@
 
         public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
-            var exceptionCallback = new ExceptionCallback(
-                ConfigInfo.ForTargetType<TTarget>(),
-                callback.ToConstantExpression());
+            var exceptionCallback = new ExceptionCallback(ConfigInfo, callback.ToConstantExpression());
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(exceptionCallback);
+            MapperContext.UserConfigurations.Add(exceptionCallback);
             return this;
         }
 
@@ -72,19 +115,23 @@
 
         private IFullMappingSettings<TSource, TTarget> SetMappedObjectCaching(bool cache)
         {
-            var settings = new MappedObjectCachingSettings(ConfigInfo.ForTargetType<TTarget>(), cache);
+            var settings = new MappedObjectCachingSettings(ConfigInfo, cache);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(settings);
+            MapperContext.UserConfigurations.Add(settings);
             return this;
         }
 
         public IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull()
         {
-            var nullSetting = new NullCollectionsSetting(ConfigInfo.ForTargetType<TTarget>());
+            var nullSetting = new NullCollectionsSetting(ConfigInfo);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(nullSetting);
+            MapperContext.UserConfigurations.Add(nullSetting);
             return this;
         }
+
+        public EnumPairSpecifier<TSource, TTarget, TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember)
+            where TFirstEnum : struct
+            => EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, new[] { enumMember });
 
         IFullMappingConfigurator<TSource, TTarget> IFullMappingSettings<TSource, TTarget>.And => this;
 
@@ -98,24 +145,21 @@
         public MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            var configInfo = ConfigInfo.ForTargetType<TTarget>();
-            var configuredIgnoredMember = new ConfiguredIgnoredMember(configInfo, memberFilter);
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+            MapperContext.UserConfigurations.Add(configuredIgnoredMember);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
         public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
-            var configInfo = ConfigInfo.ForTargetType<TTarget>();
-
             foreach (var targetMember in targetMembers)
             {
                 var configuredIgnoredMember =
-                    new ConfiguredIgnoredMember(configInfo, targetMember);
+                    new ConfiguredIgnoredMember(ConfigInfo, targetMember);
 
-                ConfigInfo.MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+                MapperContext.UserConfigurations.Add(configuredIgnoredMember);
                 ConfigInfo.NegateCondition();
             }
 
@@ -196,9 +240,9 @@
 
         public MappingConfigContinuation<TSource, TTarget> MapToNull()
         {
-            var condition = new MapToNullCondition(ConfigInfo.ForTargetType<TTarget>());
+            var condition = new MapToNullCondition(ConfigInfo);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(condition);
+            MapperContext.UserConfigurations.Add(condition);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }

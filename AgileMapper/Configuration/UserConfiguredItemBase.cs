@@ -47,7 +47,7 @@
             TargetMember = targetMember;
         }
 
-        protected MappingConfigInfo ConfigInfo { get; }
+        public MappingConfigInfo ConfigInfo { get; }
 
         public string TargetTypeName => ConfigInfo.TargetType.GetFriendlyName();
 
@@ -62,14 +62,10 @@
                 return true;
             }
 
-            if (HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition)
+            if (HasOverlappingTypes(otherConfiguredItem) &&
+                MembersConflict(otherConfiguredItem))
             {
-                return false;
-            }
-
-            if (HasOverlappingTypes(otherConfiguredItem))
-            {
-                return MembersConflict(otherConfiguredItem);
+                return !(HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition);
             }
 
             return false;
@@ -80,16 +76,16 @@
             return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
         }
 
-        protected virtual bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
-            => ConfigInfo.HasCompatibleTypes(otherConfiguredItem.ConfigInfo);
+        protected virtual bool HasOverlappingTypes(UserConfiguredItemBase otherItem)
+            => ConfigInfo.HasCompatibleTypes(otherItem.ConfigInfo);
 
-        protected virtual bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
-            => TargetMember.Matches(otherConfiguredItem.TargetMember);
+        protected virtual bool MembersConflict(UserConfiguredItemBase otherItem)
+            => TargetMember.Matches(otherItem.TargetMember);
 
-        protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherConfiguredItem)
+        protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherItem)
         {
-            return ConfigInfo.HasSameSourceTypeAs(otherConfiguredItem.ConfigInfo) &&
-                   ConfigInfo.HasSameTargetTypeAs(otherConfiguredItem.ConfigInfo);
+            return ConfigInfo.HasSameSourceTypeAs(otherItem.ConfigInfo) &&
+                   ConfigInfo.HasSameTargetTypeAs(otherItem.ConfigInfo);
         }
 
         public Expression GetConditionOrNull(IMemberMapperData mapperData)
@@ -101,8 +97,8 @@
         public virtual bool AppliesTo(IBasicMapperData mapperData)
         {
             return ConfigInfo.IsFor(mapperData.RuleSet) &&
-                TargetMembersMatch(mapperData) &&
-                MemberPathHasMatchingSourceAndTargetTypes(mapperData);
+                   TargetMembersMatch(mapperData) &&
+                   MemberPathMatches(mapperData);
         }
 
         private bool TargetMembersMatch(IBasicMapperData mapperData)
@@ -128,7 +124,10 @@
                    mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableFrom(TargetMember.LeafMember.DeclaringType);
         }
 
-        private bool MemberPathHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
+        protected virtual bool MemberPathMatches(IBasicMapperData mapperData)
+            => MemberPathHasMatchingSourceAndTargetTypes(mapperData);
+
+        protected bool MemberPathHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
         {
             while (mapperData != null)
             {
@@ -150,6 +149,28 @@
                 return 0;
             }
 
+            if (ConfigInfo.HasSameSourceTypeAs(other.ConfigInfo))
+            {
+                if (ConfigInfo.HasSameTargetTypeAs(other.ConfigInfo))
+                {
+                    return GetConditionOrder(other) ?? 0;
+                }
+
+                return ConfigInfo.IsForTargetType(other.ConfigInfo) ? 1 : -1;
+            }
+
+            if (ConfigInfo.IsForSourceType(other.ConfigInfo))
+            {
+                // Derived source type
+                return 1;
+            }
+
+            // Unrelated source and target types
+            return GetConditionOrder(other) ?? -1;
+        }
+
+        private int? GetConditionOrder(UserConfiguredItemBase other)
+        {
             if (!HasConfiguredCondition && other.HasConfiguredCondition)
             {
                 return 1;
@@ -160,27 +181,7 @@
                 return -1;
             }
 
-            if (ConfigInfo.HasSameSourceTypeAs(other.ConfigInfo))
-            {
-                if (ConfigInfo.HasSameTargetTypeAs(other.ConfigInfo))
-                {
-                    return 0;
-                }
-
-                if (ConfigInfo.IsForTargetType(other.ConfigInfo))
-                {
-                    return 1;
-                }
-
-                return -1;
-            }
-
-            if (ConfigInfo.IsForSourceType(other.ConfigInfo))
-            {
-                return 1;
-            }
-
-            return -1;
+            return null;
         }
     }
 }

@@ -13,9 +13,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     {
         private readonly MappingConfigInfo _configInfo;
 
-        internal InstanceConfigurator(MapperContext mapperContext)
+        internal InstanceConfigurator(MappingConfigInfo configInfo)
         {
-            _configInfo = MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext);
+            _configInfo = configInfo;
         }
 
         /// <summary>

@@ -3,9 +3,6 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using System.Linq;
     using System.Linq.Expressions;
     using Caching;
@@ -299,7 +296,7 @@ namespace AgileObjects.AgileMapper.Members
         public virtual bool CheckExistingElementValue => false;
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -316,7 +313,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

@@ -112,9 +112,9 @@ namespace AgileObjects.AgileMapper.Configuration
             }
 
             if ((otherConfiguredItem is ConfiguredIgnoredMember otherIgnoredMember) &&
-                (otherIgnoredMember.TargetMemberFilter == TargetMemberFilter))
+                otherIgnoredMember.HasMemberFilter)
             {
-                return true;
+                return otherIgnoredMember.TargetMemberFilter == TargetMemberFilter;
             }
 
             return _memberFilter.Invoke(new TargetMemberSelector(otherConfiguredItem.TargetMember));
@@ -136,7 +136,20 @@ namespace AgileObjects.AgileMapper.Configuration
             };
         }
 
-        public bool IsReplacementFor(IPotentialClone clonedIgnoredMember) => false;
+        public bool IsReplacementFor(IPotentialClone clonedItem)
+        {
+            if (HasMemberFilter)
+            {
+                return false;
+            }
+
+            var clonedIgnoredMember = (ConfiguredIgnoredMember)clonedItem;
+
+            return clonedIgnoredMember.HasNoMemberFilter &&
+                   ConfigInfo.HasSameSourceTypeAs(clonedIgnoredMember.ConfigInfo) &&
+                   ConfigInfo.HasSameTargetTypeAs(clonedIgnoredMember.ConfigInfo) &&
+                   MembersConflict(clonedIgnoredMember);
+        }
 
         #endregion
     }

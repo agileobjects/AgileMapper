@@ -113,6 +113,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             => CreateConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
 
         private static ISourceDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(MappingConfigInfo configInfo)
-            => new SourceDictionaryMappingConfigurator<TValue, TTarget>(configInfo.ForTargetType<TTarget>());
+            => new SourceDictionaryMappingConfigurator<TValue, TTarget>(configInfo);
     }
 }

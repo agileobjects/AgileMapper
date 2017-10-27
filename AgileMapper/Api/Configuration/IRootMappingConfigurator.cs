@@ -55,11 +55,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class;
 
         /// <summary>
-        /// Configure a factory to use to create instance of the type specified by the type argument.
+        /// Configure a factory to use to create instances of the type specified by the type argument.
         /// </summary>
         /// <typeparam name="TObject">The type of object the creation of which is to be configured.</typeparam>
         /// <returns>
-        /// A IFactorySpecifier with which to configure the factory for the type specified by the type argument.
+        /// An IFactorySpecifier with which to configure the factory for the type specified by the type argument.
         /// </returns>
         IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class;
 

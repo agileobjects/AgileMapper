@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using System;
+    using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
     using Plans;
@@ -12,11 +14,9 @@
     {
         private static readonly IMapper _default = CreateNew();
 
-        private readonly MapperContext _mapperContext;
-
-        private Mapper(MapperContext mapperContext)
+        private Mapper(MapperContext context)
         {
-            _mapperContext = mapperContext;
+            Context = context;
         }
 
         #region Factory Methods
@@ -25,9 +25,18 @@
         /// Creates an instance implementing IMapper with which to perform mappings.
         /// </summary>
         /// <returns>A new instance implementing IMapper.</returns>
-        public static IMapper CreateNew() => new Mapper(new MapperContext());
+        public static IMapper CreateNew()
+        {
+            var mapper = new Mapper(new MapperContext());
+
+            MapperCache.Add(mapper);
+
+            return mapper;
+        }
 
         #endregion
+
+        internal MapperContext Context { get; }
 
         IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
@@ -37,14 +46,14 @@
 
         IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
-        string IMapper.GetPlansInCache() => MappingPlanSet.For(_mapperContext);
+        string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
 
         private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
-            => new PlanTargetTypeSelector<TSource>(_mapperContext);
+            => new PlanTargetTypeSelector<TSource>(Context);
 
-        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(_mapperContext);
+        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
 
-        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(_mapperContext);
+        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(Context);
 
         #region Static Access Methods
 
@@ -128,8 +137,24 @@
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        public static TSource Clone<TSource>(TSource source) where TSource : class
-            => _default.Clone(source);
+        public static TSource Clone<TSource>(TSource source) => _default.Clone(source);
+
+        /// <summary>
+        /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
+        /// </summary>
+        /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
+        /// <param name="configurations">
+        /// One or more mapping configurations. The mapping will be configured by combining these inline 
+        /// <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping API.
+        /// </param>
+        /// <param name="source">The object to deep clone.</param>
+        /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
+        public static TSource Clone<TSource>(
+            TSource source,
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations)
+        {
+            return _default.Clone(source, configurations);
+        }
 
         /// <summary>
         /// Flattens the given <paramref name="source"/> object so it has only value-type or string members
@@ -150,29 +175,45 @@
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
         /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        public static ITargetTypeSelector Map<TSource>(TSource source) => _default.Map(source);
+        public static ITargetTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
 
         internal static void ResetDefaultInstance() => _default.Dispose();
 
         #endregion
 
-        MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(_mapperContext);
+        MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(Context);
 
-        IMapper IMapper.CloneSelf() => new Mapper(_mapperContext.Clone());
+        IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 
         TSource IMapper.Clone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
 
-        dynamic IMapper.Flatten<TSource>(TSource source) => _mapperContext.ObjectFlattener.Flatten(source);
+        TSource IMapper.Clone<TSource>(
+            TSource source,
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations)
+        {
+            return ((IMapper)this).Map(source).ToANew(configurations);
+        }
 
-        ITargetTypeSelector IMapper.Map<TSource>(TSource source) => new MappingExecutor<TSource>(source, _mapperContext);
+        dynamic IMapper.Flatten<TSource>(TSource source) => Context.ObjectFlattener.Flatten(source);
+
+        ITargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
+            => new MappingExecutor<TSource>(source, Context);
 
         #region IDisposable Members
 
         /// <summary>
         /// Removes the mapper's cached data.
         /// </summary>
-        public void Dispose() => _mapperContext.Reset();
+        public void Dispose() => Context.Reset();
 
         #endregion
+    }
+
+    internal static class MapperCache
+    {
+        public static void Add(IMapper mapper)
+        {
+
+        }
     }
 }

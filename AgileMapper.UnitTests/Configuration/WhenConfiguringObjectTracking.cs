@@ -13,8 +13,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .MaintainIdentityIntegrity()
                     .AndWhenMapping
                     .From<Product>()
@@ -43,8 +42,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
+                mapper.WhenMapping
                     .DisableObjectTracking()
                     .AndWhenMapping
                     .From<Product>()

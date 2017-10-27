@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
 
@@ -95,7 +96,21 @@
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        TSource Clone<TSource>(TSource source) where TSource : class;
+        TSource Clone<TSource>(TSource source);
+
+        /// <summary>
+        /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
+        /// </summary>
+        /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
+        /// <param name="configurations">
+        /// One or more mapping configurations. The mapping will be configured by combining these inline 
+        /// <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping API.
+        /// </param>
+        /// <param name="source">The object to deep clone.</param>
+        /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
+        TSource Clone<TSource>(
+            TSource source,
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations);
 
         /// <summary>
         /// Flattens the given <paramref name="source"/> object so it has only value-type or string members
@@ -115,6 +130,6 @@
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
         /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        ITargetTypeSelector Map<TSource>(TSource source);
+        ITargetTypeSelector<TSource> Map<TSource>(TSource source);
     }
 }

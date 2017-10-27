@@ -3,8 +3,8 @@
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
-    using AgileObjects.NetStandardPolyfills;
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
 
     internal class CallbackSpecifier<TSource, TTarget> :
@@ -18,7 +18,7 @@
             CallbackPosition callbackPosition,
             QualifiedMember targetMember)
             : this(
-                  MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext),
+                  MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext).ForTargetType<TTarget>(),
                   callbackPosition,
                   targetMember)
         {
@@ -65,7 +65,7 @@
             var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget));
 
             var creationCallbackFactory = new MappingCallbackFactory(
-                ConfigInfo.ForTargetType<TTarget>(),
+                ConfigInfo,
                 CallbackPosition,
                 callbackLambda,
                 _targetMember);

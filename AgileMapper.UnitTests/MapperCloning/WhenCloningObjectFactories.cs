@@ -1,15 +1,16 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.MapperCloning
 {
     using System;
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
 
-    public class WhenCloningMapperObjectFactories
+    public class WhenCloningObjectFactories
     {
         [Fact]
-        public void ShouldAllowOverridingAConfiguredFactory()
+        public void ShouldOverrideAConfiguredFactory()
         {
             using (var originalMapper = Mapper.CreateNew())
             {
@@ -30,6 +31,42 @@
                     var clonedResult = clonedMapper.Map(new { Line1 = "Blah blah" }).ToANew<Address>();
                     clonedResult.Line1.ShouldBe("Blah blah");
                     clonedResult.Line2.ShouldBe("Cloned!");
+                }
+            }
+        }
+
+        [Fact]
+        public void ShouldReplaceMemberAndListInitialisation()
+        {
+            using (var originalMapper = Mapper.CreateNew())
+            {
+                originalMapper.WhenMapping
+                    .InstancesOf<PublicTwoParamCtor<Address, List<string>>>()
+                    .CreateUsing(ctx => new PublicTwoParamCtor<Address, List<string>>(new Address(), new List<string>())
+                    {
+                        Value1 = { Line1 = "Line 1!" },
+                        Value2 = { "One", "Two", "Three" }
+                    });
+
+                using (var clonedMapper = originalMapper.CloneSelf())
+                {
+                    clonedMapper.WhenMapping
+                        .InstancesOf<PublicTwoParamCtor<Address, List<string>>>()
+                        .CreateUsing(ctx => new PublicTwoParamCtor<Address, List<string>>(new Address(), new List<string>())
+                        {
+                            Value1 = { Line1 = "Line 1!" },
+                            Value2 = { "Four", "Five", "Six" }
+                        });
+
+                    var originalResult = originalMapper.Map(new { }).ToANew<PublicTwoParamCtor<Address, List<string>>>();
+                    originalResult.Value1.Line1.ShouldBe("Line 1!");
+                    originalResult.Value1.Line2.ShouldBeNull();
+                    originalResult.Value2.ShouldBe("One", "Two", "Three");
+
+                    var clonedResult = clonedMapper.Map(new { }).ToANew<PublicTwoParamCtor<Address, List<string>>>();
+                    clonedResult.Value1.Line1.ShouldBe("Line 1!");
+                    clonedResult.Value1.Line2.ShouldBeNull();
+                    clonedResult.Value2.ShouldBe("Four", "Five", "Six");
                 }
             }
         }

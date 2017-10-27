@@ -28,11 +28,8 @@
 
         #region Factory Methods
 
-        public static MappingConfigInfo AllSourceTypes(MapperContext mapperContext)
-            => new MappingConfigInfo(mapperContext).ForAllSourceTypes();
-
         public static MappingConfigInfo AllRuleSetsAndSourceTypes(MapperContext mapperContext)
-            => AllSourceTypes(mapperContext).ForAllRuleSets();
+            => new MappingConfigInfo(mapperContext).ForAllSourceTypes().ForAllRuleSets();
 
         public static MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes(MapperContext mapperContext)
             => AllRuleSetsAndSourceTypes(mapperContext).ForAllTargetTypes();

@@ -108,11 +108,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return null;
             }
 
-            var tryGetMethod = typeof(IObjectMappingDataUntyped).GetMethod("TryGet");
+            // ReSharper disable once PossibleNullReferenceException
+            var tryGetMethod = typeof(IObjectMappingDataUntyped).GetMethod("TryGet")
+                .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             var tryGetCall = Expression.Call(
                 mapperData.EntryPointMapperData.MappingDataObject,
-                tryGetMethod.MakeGenericMethod(mapperData.SourceType, mapperData.TargetType),
+                tryGetMethod,
                 mapperData.SourceObject,
                 mapperData.TargetInstance);
 

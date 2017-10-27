@@ -12,7 +12,7 @@
         IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
         public InstanceCreationCallbackSpecifier(CallbackPosition callbackPosition, MapperContext mapperContext)
-            : this(callbackPosition, MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext))
+            : this(callbackPosition, MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext).ForTargetType<TTarget>())
         {
         }
 
@@ -104,7 +104,7 @@
             var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TObject));
 
             var creationCallbackFactory = new ObjectCreationCallbackFactory(
-                ConfigInfo.ForTargetType<TTarget>(),
+                ConfigInfo,
                 typeof(TObject),
                 CallbackPosition,
                 callbackLambda);

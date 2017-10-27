@@ -1,9 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using System.Globalization;
     using System.Linq;
 #if NET_STANDARD
@@ -30,7 +27,7 @@
         {
             ThrowIfInvalidSourceType<TDerivedSource>(configInfo);
             ThrowIfInvalidTargetType<TTarget, TDerivedTarget>();
-            ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(configInfo.ForTargetType<TTarget>());
+            ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(configInfo);
 
             return new DerivedTypePair(configInfo, typeof(TDerivedSource), typeof(TDerivedTarget));
         }
@@ -65,7 +62,9 @@
                 .DerivedTypes
                 .GetDerivedTypePairsFor(mapperData, configInfo.MapperContext)
                 .FirstOrDefault(tp =>
-                    !tp.HasConfiguredCondition && (tp.DerivedTargetType == typeof(TDerivedTarget)));
+                    !tp.HasConfiguredCondition &&
+                    (tp.DerivedSourceType == typeof(TDerivedSource)) &&
+                    (tp.DerivedTargetType == typeof(TDerivedTarget)));
 
             if (matchingAutoTypePairing != null)
             {
@@ -88,11 +87,9 @@
         public override bool AppliesTo(IBasicMapperData mapperData)
             => DerivedSourceType.IsAssignableFrom(mapperData.SourceType) && base.AppliesTo(mapperData);
 
-        #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+        #region ToString
+#if DEBUG
         [ExcludeFromCodeCoverage]
-#endif
-        #endregion
         public override string ToString()
         {
             var rootSourceType = ConfigInfo.SourceType.GetFriendlyName();
@@ -102,5 +99,7 @@
 
             return $"{rootSourceType} -> {rootTargetType} > {derivedSourceType} -> {derivedTargetType}";
         }
+#endif
+        #endregion
     }
 }

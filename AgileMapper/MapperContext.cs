@@ -2,6 +2,7 @@
 {
     using Caching;
     using Configuration;
+    using Configuration.Inline;
     using DataSources;
     using Flattening;
     using Members;
@@ -13,6 +14,9 @@
     {
         internal static readonly MapperContext Default = new MapperContext(NamingSettings.Default);
 
+        private ObjectFlattener _objectFlattener;
+        private InlineMapperSet _inlineMappers;
+
         public MapperContext(NamingSettings namingSettings = null)
         {
             Cache = new CacheSet();
@@ -21,7 +25,6 @@
             QualifiedMemberFactory = new QualifiedMemberFactory(this);
             RootMembersSource = new RootMembersSource(QualifiedMemberFactory);
             ObjectMapperFactory = new ObjectMapperFactory(this);
-            ObjectFlattener = new ObjectFlattener();
             UserConfigurations = new UserConfigurationSet(this);
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
@@ -39,7 +42,9 @@
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
-        public ObjectFlattener ObjectFlattener { get; }
+        public ObjectFlattener ObjectFlattener => _objectFlattener ?? (_objectFlattener = new ObjectFlattener());
+
+        public InlineMapperSet InlineMappers => _inlineMappers ?? (_inlineMappers = new InlineMapperSet(this));
 
         public UserConfigurationSet UserConfigurations { get; }
 
@@ -51,7 +56,6 @@
         {
             var context = new MapperContext();
 
-            //Cache.CloneTo(context.Cache);
             NamingSettings.CloneTo(context.NamingSettings);
             UserConfigurations.CloneTo(context.UserConfigurations);
             ValueConverters.CloneTo(context.ValueConverters);

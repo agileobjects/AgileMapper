@@ -1,11 +1,10 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using Members;
     using Members.Sources;
+#if DEBUG
     using ReadableExpressions.Extensions;
+#endif
 
     internal class ElementObjectMapperKey : ObjectMapperKeyBase
     {
@@ -31,17 +30,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         }
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
         public override int GetHashCode() => 0;
 
-        #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+        #region ToString
+#if DEBUG
         [ExcludeFromCodeCoverage]
-#endif
-        #endregion
         public override string ToString()
         {
             var sourceTypeName = MappingTypes.SourceType.GetFriendlyName();
@@ -49,5 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             return $"[{sourceTypeName}] -> [{targetTypeName}]";
         }
+#endif
+        #endregion
     }
 }

@@ -146,11 +146,14 @@
             return array;
         }
 
-        public static void CopyFrom<T>(this IList<T> array, IList<T> items, int startIndex = 0)
+        public static void CopyTo<T>(this IList<T> sourceList, List<T> targetList, int startIndex = 0)
+            => targetList.AddRange(sourceList);
+
+        public static void CopyFrom<T>(this IList<T> targetList, IList<T> sourceList, int startIndex = 0)
         {
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < sourceList.Count; i++)
             {
-                array[i + startIndex] = items[i];
+                targetList[i + startIndex] = sourceList[i];
             }
         }
 

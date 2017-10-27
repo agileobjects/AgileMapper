@@ -5,7 +5,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenCloningMapperDataSources
+    public class WhenCloningDataSources
     {
         [Fact]
         public void ShouldCloneADataSource()

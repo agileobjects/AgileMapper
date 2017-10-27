@@ -38,7 +38,7 @@
 
         private ICollection<Type> GetDerivedTypesForType(Type type)
         {
-            var typeAssemblies = new[]{ type.GetAssembly() };
+            var typeAssemblies = new[] { type.GetAssembly() };
 
             var assemblies = _assemblies.Any()
                 ? _assemblies.Concat(typeAssemblies).Distinct()

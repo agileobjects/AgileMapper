@@ -34,6 +34,8 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
+                    .From<PublicTwoFields<PaymentTypeUk, PaymentTypeUs>>()
+                    .To<PublicTwoFields<PaymentTypeUs, PaymentTypeUk>>()
                     .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check);
 
                 string plan = mapper

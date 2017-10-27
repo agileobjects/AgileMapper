@@ -15,6 +15,15 @@
         }
 
         [Fact]
+        public void ShouldCloneAStruct()
+        {
+            var result = Mapper.Clone(new PublicPropertyStruct<int> { Value = 123 });
+
+            result.ShouldNotBeDefault();
+            result.Value.ShouldBe(123);
+        }
+
+        [Fact]
         public void ShouldMapFromAnAnonymousTypeToAStruct()
         {
             var source = new { Value = "Hello struct!" };

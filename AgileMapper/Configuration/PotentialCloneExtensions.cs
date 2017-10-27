@@ -6,10 +6,17 @@
 
     internal static class PotentialCloneExtensions
     {
-        public static IEnumerable<T> SelectClones<T>(this IEnumerable<T> cloneableItems)
+        public static IList<T> CloneItems<T>(this IList<T> cloneableItems)
             where T : IPotentialClone
         {
-            return cloneableItems.Select(item => item.Clone()).Cast<T>();
+            var clonedItems = new T[cloneableItems.Count];
+
+            for (var i = 0; i < cloneableItems.Count; i++)
+            {
+                clonedItems[i] = (T)cloneableItems[i].Clone();
+            }
+
+            return clonedItems;
         }
 
         public static void AddSortFilter<T>(this List<T> cloneableItems, T newItem)

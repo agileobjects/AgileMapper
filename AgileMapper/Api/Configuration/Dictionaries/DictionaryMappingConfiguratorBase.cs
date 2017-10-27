@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         : MappingConfigurator<TSource, TTarget>
     {
         protected DictionaryMappingConfiguratorBase(MappingConfigInfo configInfo)
-            : base(configInfo.ForTargetType<TTarget>())
+            : base(configInfo)
         {
         }
 

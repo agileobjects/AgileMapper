@@ -1,9 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
 
     internal class TypeKey
     {
@@ -37,7 +34,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

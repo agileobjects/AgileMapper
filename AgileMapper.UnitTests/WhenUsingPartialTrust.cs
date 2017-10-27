@@ -97,6 +97,7 @@
 
                 var helperType = typeof(MappingHelper);
 
+                // ReSharper disable once AssignNullToNotNullAttribute
                 var helper = (MappingHelper)partialTrustDomain
                     .CreateInstanceAndUnwrap(helperType.Assembly.FullName, helperType.FullName);
 

@@ -171,5 +171,109 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 result.Second().Value.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreAReadOnlyComplexTypeMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<PublicReadOnlyProperty<Address>>()
+                    .Ignore(psm => psm.Value);
+
+                var source = new PublicField<Address> { Value = new Address { Line1 = "Use this!" } };
+                var target = new PublicReadOnlyProperty<Address>(new Address { Line1 = "Ignore this!" });
+
+                mapper.Map(source).Over(target);
+
+                target.Value.Line1.ShouldBe("Ignore this!");
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportRedundantIgnoreConflictingWithConditionalIgnore()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PersonViewModel>()
+                    .If((p, pvm) => p.Name == "Frank")
+                    .Ignore(pvm => pvm.Name);
+
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .To<CustomerViewModel>()
+                    .Ignore(cvm => cvm.Name);
+
+                var matchingPersonResult = mapper.Map(new Person { Name = "Frank" }).ToANew<PersonViewModel>();
+                var nonMatchingPersonResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
+                var customerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
+
+                matchingPersonResult.Name.ShouldBeNull();
+                nonMatchingPersonResult.Name.ShouldBe("Dennis");
+                customerResult.Name.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportRedundantConditionalIgnoreConflictingWithIgnore()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PersonViewModel>()
+                    .Ignore(pvm => pvm.Name);
+
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .To<CustomerViewModel>()
+                    .If((c, cvm) => c.Name == "Frank")
+                    .Ignore(cvm => cvm.Name);
+
+                var personResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
+                var matchingCustomerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
+                var nonMatchingCustomerResult = mapper.Map(new Customer { Name = "Frank" }).ToANew<CustomerViewModel>();
+
+                personResult.Name.ShouldBeNull();
+                matchingCustomerResult.Name.ShouldBe("Mac");
+                nonMatchingCustomerResult.Name.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportSamePathIgnoredMembersWithDifferentSourceTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicProperty<int>>()
+                    .Ignore(x => x.Value);
+
+                mapper.WhenMapping
+                    .From<PublicGetMethod<int>>()
+                    .To<PublicProperty<int>>()
+                    .Ignore(x => x.Value);
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportSamePathIgnoredMembersWithDifferentTargetTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PersonViewModel>()
+                    .Ignore(x => x.Name);
+
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .To<Person>()
+                    .Ignore(x => x.Name);
+            }
+        }
     }
 }

@@ -48,7 +48,7 @@
                 return false;
             }
 
-            return !IsClone || 
+            return !IsClone ||
                    _factoryInfo.IsSameAs(((ConfiguredObjectFactory)otherConfiguredItem)._factoryInfo);
         }
 
@@ -59,7 +59,7 @@
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-            => _objectType.IsAssignableFrom(mapperData.TargetType) && base.AppliesTo(mapperData);
+            => mapperData.TargetType.IsAssignableFrom(_objectType) && base.AppliesTo(mapperData);
 
         public Expression Create(IMemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
 

@@ -23,13 +23,17 @@
         private readonly LambdaExpression _customValueLambda;
         private readonly ConfiguredLambdaInfo _customValueLambdaInfo;
 
-        internal CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo, LambdaExpression customValueLambda)
+        internal CustomDataSourceTargetMemberSpecifier(
+            MappingConfigInfo configInfo,
+            LambdaExpression customValueLambda)
             : this(configInfo, default(ConfiguredLambdaInfo))
         {
             _customValueLambda = customValueLambda;
         }
 
-        internal CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo, ConfiguredLambdaInfo customValueLambda)
+        internal CustomDataSourceTargetMemberSpecifier(
+            MappingConfigInfo configInfo,
+            ConfiguredLambdaInfo customValueLambda)
         {
             _configInfo = configInfo;
             _customValueLambdaInfo = customValueLambda;
@@ -70,7 +74,10 @@
                 return new ConfiguredDictionaryDataSourceFactory(_configInfo, valueLambda, dictionaryEntryMember);
             }
 
-            return new ConfiguredDataSourceFactory(_configInfo, valueLambda, targetMemberLambda);
+            return new ConfiguredDataSourceFactory(
+                _configInfo,
+                valueLambda,
+                targetMemberLambda);
         }
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
@@ -242,13 +249,9 @@
             Func<ConfiguredDataSourceFactory> factoryFactory)
         {
             _configInfo.ThrowIfSourceTypeUnconvertible<TTargetValue>();
+            _configInfo.MapperContext.UserConfigurations.Add(factoryFactory.Invoke());
 
-            var configInfo = _configInfo.ForTargetType<TTarget>();
-            var configuredDataSourceFactory = factoryFactory.Invoke();
-
-            configInfo.MapperContext.UserConfigurations.Add(configuredDataSourceFactory);
-
-            return new MappingConfigContinuation<TSource, TTarget>(configInfo);
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
 
         private struct AnyParameterType { }

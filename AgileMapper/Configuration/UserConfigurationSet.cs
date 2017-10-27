@@ -11,35 +11,30 @@
 
     internal class UserConfigurationSet
     {
-        private readonly List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
-        private readonly List<MapToNullCondition> _mapToNullConditions;
-        private readonly List<NullCollectionsSetting> _nullCollectionSettings;
-        private readonly List<ConfiguredObjectFactory> _objectFactories;
-        private readonly List<ConfiguredIgnoredMember> _ignoredMembers;
-        private readonly List<EnumMemberPair> _enumPairings;
-        private readonly List<ConfiguredDataSourceFactory> _dataSourceFactories;
-        private readonly List<MappingCallbackFactory> _mappingCallbackFactories;
-        private readonly List<ObjectCreationCallbackFactory> _creationCallbackFactories;
-        private readonly List<ExceptionCallback> _exceptionCallbackFactories;
+        private readonly MapperContext _mapperContext;
+        private List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
+        private List<MapToNullCondition> _mapToNullConditions;
+        private List<NullCollectionsSetting> _nullCollectionsSettings;
+        private List<ConfiguredObjectFactory> _objectFactories;
+        private MemberIdentifierSet _identifiers;
+        private List<ConfiguredIgnoredMember> _ignoredMembers;
+        private List<EnumMemberPair> _enumPairings;
+        private DictionarySettings _dictionaries;
+        private List<ConfiguredDataSourceFactory> _dataSourceFactories;
+        private List<MappingCallbackFactory> _mappingCallbackFactories;
+        private List<ObjectCreationCallbackFactory> _creationCallbackFactories;
+        private List<ExceptionCallback> _exceptionCallbackFactories;
+        private DerivedTypePairSet _derivedTypes;
 
         public UserConfigurationSet(MapperContext mapperContext)
         {
-            _mappedObjectCachingSettings = new List<MappedObjectCachingSettings>();
-            _mapToNullConditions = new List<MapToNullCondition>();
-            _nullCollectionSettings = new List<NullCollectionsSetting>();
-            _objectFactories = new List<ConfiguredObjectFactory>();
-            Identifiers = new MemberIdentifierSet();
-            _ignoredMembers = new List<ConfiguredIgnoredMember>();
-            _enumPairings = new List<EnumMemberPair>();
-            Dictionaries = new DictionarySettings(mapperContext);
-            _dataSourceFactories = new List<ConfiguredDataSourceFactory>();
-            _mappingCallbackFactories = new List<MappingCallbackFactory>();
-            _creationCallbackFactories = new List<ObjectCreationCallbackFactory>();
-            _exceptionCallbackFactories = new List<ExceptionCallback>();
-            DerivedTypes = new DerivedTypePairSet();
+            _mapperContext = mapperContext;
         }
 
         #region Mapped Object Caching Settings
+
+        private List<MappedObjectCachingSettings> MappedObjectCachingSettings
+            => _mappedObjectCachingSettings ?? (_mappedObjectCachingSettings = new List<MappedObjectCachingSettings>());
 
         public void Add(MappedObjectCachingSettings settings)
         {
@@ -48,13 +43,13 @@
                 _mappedObjectCachingSettings,
                 (s, conflicting) => conflicting.GetConflictMessage(s));
 
-            _mappedObjectCachingSettings.Add(settings);
+            MappedObjectCachingSettings.Add(settings);
             _mappedObjectCachingSettings.Sort();
         }
 
         public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
         {
-            if (_mappedObjectCachingSettings.None())
+            if (MappedObjectCachingSettings.None())
             {
                 return MappedObjectCachingMode.AutoDetect;
             }
@@ -76,12 +71,17 @@
 
         #region MapToNullConditions
 
+        private List<MapToNullCondition> MapToNullConditions
+            => _mapToNullConditions ?? (_mapToNullConditions = new List<MapToNullCondition>());
+
         public void Add(MapToNullCondition condition)
         {
-            ThrowIfConflictingItemExists(condition, _mapToNullConditions, (c, cC) => c.GetConflictMessage());
+            var conditions = MapToNullConditions;
 
-            _mapToNullConditions.Add(condition);
-            _mapToNullConditions.Sort();
+            ThrowIfConflictingItemExists(condition, conditions, (c, cC) => c.GetConflictMessage());
+
+            conditions.Add(condition);
+            conditions.Sort();
         }
 
         public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
@@ -89,16 +89,22 @@
 
         #endregion
 
-        #region Null Collections
+        #region NullCollectionSettings
 
-        public void Add(NullCollectionsSetting setting) => _nullCollectionSettings.Add(setting);
+        private List<NullCollectionsSetting> NullCollectionsSettings
+            => _nullCollectionsSettings ?? (_nullCollectionsSettings = new List<NullCollectionsSetting>());
+
+        public void Add(NullCollectionsSetting setting) => NullCollectionsSettings.Add(setting);
 
         public bool MapToNullCollections(IBasicMapperData basicData)
-            => _nullCollectionSettings.Any(s => s.AppliesTo(basicData));
+            => (_nullCollectionsSettings != null) && !_nullCollectionsSettings.None(s => s.AppliesTo(basicData));
 
         #endregion
 
         #region ObjectFactories
+
+        private List<ConfiguredObjectFactory> ObjectFactories
+            => _objectFactories ?? (_objectFactories = new List<ConfiguredObjectFactory>());
 
         public void Add(ConfiguredObjectFactory objectFactory)
         {
@@ -107,24 +113,27 @@
                 _objectFactories,
                 (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
 
-            _objectFactories.AddSortFilter(objectFactory);
+            ObjectFactories.AddSortFilter(objectFactory);
         }
 
         public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
-            => FindMatches(_objectFactories, mapperData).ToArray();
+            => _objectFactories.FindMatches(mapperData).ToArray();
 
         #endregion
 
-        public MemberIdentifierSet Identifiers { get; }
+        public MemberIdentifierSet Identifiers => _identifiers ?? (_identifiers = new MemberIdentifierSet());
 
-        #region Ignored Members
+        #region IgnoredMembers
+
+        private List<ConfiguredIgnoredMember> IgnoredMembers
+            => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredIgnoredMember>());
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
             ThrowIfConflictingIgnoredMemberExists(ignoredMember, (im, cIm) => im.GetConflictMessage(cIm));
             ThrowIfConflictingDataSourceExists(ignoredMember, (im, cDsf) => im.GetConflictMessage(cDsf));
 
-            _ignoredMembers.Add(ignoredMember);
+            IgnoredMembers.AddSortFilter(ignoredMember);
         }
 
         public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IBasicMapperData mapperData)
@@ -132,85 +141,83 @@
 
         #endregion
 
-        #region Enum Pairing
+        #region EnumPairing
 
-        public void Add(EnumMemberPair enumPairing)
-        {
-            _enumPairings.Add(enumPairing);
-        }
+        private List<EnumMemberPair> EnumPairings
+            => _enumPairings ?? (_enumPairings = new List<EnumMemberPair>());
+
+        public void Add(EnumMemberPair enumPairing) => EnumPairings.Add(enumPairing);
 
         public IEnumerable<EnumMemberPair> GetEnumPairingsFor(Type sourceType, Type targetType)
-            => _enumPairings.Where(ep => ep.IsFor(sourceType, targetType));
+            => _enumPairings?.Where(ep => ep.IsFor(sourceType, targetType)) ?? Enumerable<EnumMemberPair>.Empty;
 
         #endregion
 
-        public DictionarySettings Dictionaries { get; }
+        public DictionarySettings Dictionaries =>
+            _dictionaries ?? (_dictionaries = new DictionarySettings(_mapperContext));
 
         #region DataSources
 
-        public IEnumerable<ConfiguredDataSourceFactory> DataSourceFactories => _dataSourceFactories;
+        public IEnumerable<TFactory> QueryDataSourceFactories<TFactory>()
+            where TFactory : ConfiguredDataSourceFactory
+        {
+            return _dataSourceFactories?.OfType<TFactory>() ?? Enumerable<TFactory>.Empty;
+        }
+
+        private List<ConfiguredDataSourceFactory> DataSourceFactories
+            => _dataSourceFactories ?? (_dataSourceFactories = new List<ConfiguredDataSourceFactory>());
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
             ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
             ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
-            _dataSourceFactories.AddSortFilter(dataSourceFactory);
+            DataSourceFactories.AddSortFilter(dataSourceFactory);
         }
 
         public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
-            => FindMatches(_dataSourceFactories, mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
+            => _dataSourceFactories.FindMatches(mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
 
         #endregion
 
-        #region Callbacks
+        #region MappingCallbacks
 
-        public void Add(MappingCallbackFactory callbackFactory) => _mappingCallbackFactories.Add(callbackFactory);
+        private List<MappingCallbackFactory> MappingCallbackFactories
+            => _mappingCallbackFactories ?? (_mappingCallbackFactories = new List<MappingCallbackFactory>());
+
+        public void Add(MappingCallbackFactory callbackFactory) => MappingCallbackFactories.Add(callbackFactory);
 
         public Expression GetCallbackOrNull(
             CallbackPosition position,
             IBasicMapperData basicData,
             IMemberMapperData mapperData)
         {
-            if (_mappingCallbackFactories.None())
-            {
-                return null;
-            }
-
-            return _mappingCallbackFactories
-                .FirstOrDefault(f => f.AppliesTo(position, basicData))?.Create(mapperData);
+            return _mappingCallbackFactories?.FirstOrDefault(f => f.AppliesTo(position, basicData))?.Create(mapperData);
         }
 
-        public void Add(ObjectCreationCallbackFactory callbackFactory) => _creationCallbackFactories.Add(callbackFactory);
+        private List<ObjectCreationCallbackFactory> CreationCallbackFactories
+            => _creationCallbackFactories ?? (_creationCallbackFactories = new List<ObjectCreationCallbackFactory>());
+
+        public void Add(ObjectCreationCallbackFactory callbackFactory) => CreationCallbackFactories.Add(callbackFactory);
 
         public Expression GetCreationCallbackOrNull(CallbackPosition position, IMemberMapperData mapperData)
-        {
-            if (_creationCallbackFactories.None())
-            {
-                return null;
-            }
-
-            return _creationCallbackFactories
-                .FirstOrDefault(f => f.AppliesTo(position, mapperData))?
-                .Create(mapperData);
-        }
+            => _creationCallbackFactories?.FirstOrDefault(f => f.AppliesTo(position, mapperData))?.Create(mapperData);
 
         #endregion
 
         #region ExceptionCallbacks
 
-        public void Add(ExceptionCallback callback) => _exceptionCallbackFactories.Add(callback);
+        private List<ExceptionCallback> ExceptionCallbackFactories
+            => _exceptionCallbackFactories ?? (_exceptionCallbackFactories = new List<ExceptionCallback>());
+
+        public void Add(ExceptionCallback callback) => ExceptionCallbackFactories.Add(callback);
 
         public Expression GetExceptionCallbackOrNull(IBasicMapperData mapperData)
-            => _exceptionCallbackFactories.FindMatch(mapperData)?.Callback;
+            => _exceptionCallbackFactories?.FindMatch(mapperData)?.Callback;
 
         #endregion
 
-        public DerivedTypePairSet DerivedTypes { get; }
-
-        private static IEnumerable<TItem> FindMatches<TItem>(IEnumerable<TItem> items, IBasicMapperData mapperData)
-            where TItem : UserConfiguredItemBase
-            => items.Where(item => item.AppliesTo(mapperData)).OrderBy(im => im);
+        public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet());
 
         #region Conflict Handling
 
@@ -243,8 +250,8 @@
             where TConfiguredItem : UserConfiguredItemBase
             where TExistingItem : UserConfiguredItemBase
         {
-            var conflictingItem = existingItems
-                .FirstOrDefault(dsf => dsf.ConflictsWith(configuredItem));
+            var conflictingItem = existingItems?
+                .FirstOrDefault(ci => ci.ConflictsWith(configuredItem));
 
             if (conflictingItem == null)
             {
@@ -260,29 +267,36 @@
 
         public void CloneTo(UserConfigurationSet configurations)
         {
-            configurations._mappedObjectCachingSettings.AddRange(_mappedObjectCachingSettings);
-            configurations._mapToNullConditions.AddRange(_mapToNullConditions);
-            configurations._nullCollectionSettings.AddRange(_nullCollectionSettings);
-            configurations._objectFactories.AddRange(_objectFactories.SelectClones());
-            configurations._ignoredMembers.AddRange(_ignoredMembers.SelectClones());
-            configurations._enumPairings.AddRange(_enumPairings);
-            Dictionaries.CloneTo(configurations.Dictionaries);
-            configurations._dataSourceFactories.AddRange(_dataSourceFactories.SelectClones());
-            configurations._mappingCallbackFactories.AddRange(_mappingCallbackFactories);
-            configurations._creationCallbackFactories.AddRange(_creationCallbackFactories);
-            configurations._exceptionCallbackFactories.AddRange(_exceptionCallbackFactories);
-            DerivedTypes.CloneTo(configurations.DerivedTypes);
+            _mappedObjectCachingSettings?.CopyTo(configurations.MappedObjectCachingSettings);
+            _mapToNullConditions?.CopyTo(configurations.MapToNullConditions);
+            _nullCollectionsSettings?.CopyTo(configurations.NullCollectionsSettings);
+            _objectFactories?.CloneItems().CopyTo(configurations.ObjectFactories);
+            _identifiers?.CloneTo(configurations.Identifiers);
+            _ignoredMembers?.CloneItems().CopyTo(configurations.IgnoredMembers);
+            _enumPairings?.CopyTo(configurations._enumPairings);
+            _dictionaries?.CloneTo(configurations.Dictionaries);
+            _dataSourceFactories?.CloneItems().CopyTo(configurations.DataSourceFactories);
+            _mappingCallbackFactories?.CopyTo(configurations.MappingCallbackFactories);
+            _creationCallbackFactories?.CopyTo(configurations.CreationCallbackFactories);
+            _exceptionCallbackFactories?.CopyTo(configurations.ExceptionCallbackFactories);
+            _derivedTypes?.CloneTo(configurations.DerivedTypes);
         }
 
         public void Reset()
         {
-            _objectFactories.Clear();
-            _ignoredMembers.Clear();
-            _dataSourceFactories.Clear();
-            _mappingCallbackFactories.Clear();
-            _creationCallbackFactories.Clear();
-            _exceptionCallbackFactories.Clear();
-            DerivedTypes.Reset();
+            _mappedObjectCachingSettings?.Clear();
+            _mapToNullConditions?.Clear();
+            _nullCollectionsSettings?.Clear();
+            _objectFactories?.Clear();
+            _identifiers?.Reset();
+            _ignoredMembers?.Clear();
+            _enumPairings?.Clear();
+            _dictionaries?.Reset();
+            _dataSourceFactories?.Clear();
+            _mappingCallbackFactories?.Clear();
+            _creationCallbackFactories?.Clear();
+            _exceptionCallbackFactories?.Clear();
+            _derivedTypes?.Reset();
         }
     }
 }

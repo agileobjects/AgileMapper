@@ -2,9 +2,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Linq;
-#if !NET_STANDARD
-    using System.Diagnostics.CodeAnalysis;
-#endif
     using System.Linq.Expressions;
     using Configuration;
     using DataSources;
@@ -141,7 +138,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         }
 
         #region ExcludeFromCodeCoverage
-#if !NET_STANDARD
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
