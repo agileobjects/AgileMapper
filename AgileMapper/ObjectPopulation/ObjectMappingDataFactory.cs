@@ -16,6 +16,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private static readonly IObjectMappingDataFactoryBridge _bridge = new ObjectMappingDataFactory();
 
+        public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
+            TSource source,
+            TTarget target,
+            IMappingContext mappingContext)
+        {
+            return new ObjectMappingData<TSource, TTarget>(
+                source,
+                target,
+                null, // <- No enumerable index because we're at the root
+                new RootObjectMapperKey(MappingTypes<TSource, TTarget>.Fixed, mappingContext),
+                mappingContext,
+                parent: null);
+        }
+
         public static IObjectMappingData ForRoot<TSource, TTarget>(
             TSource source,
             TTarget target,

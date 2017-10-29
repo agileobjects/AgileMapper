@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.UnitTests.Members
 {
     using AgileMapper.Members;
+    using ObjectPopulation;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -15,7 +16,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var targetMember = TargetMemberFor<PublicProperty<byte>>(x => x.Value);
 
             var mappingContext = new MappingExecutor<TwoValues>(DefaultMapperContext.RuleSets.CreateNew, DefaultMapperContext);
-            var rootMappingData = mappingContext.CreateRootMappingData(source, target);
+            var rootMappingData = ObjectMappingDataFactory.ForRoot(source, target, mappingContext);
             var rootMapperData = rootMappingData.MapperData;
 
             var childMapperData = new ChildMemberMapperData(targetMember, rootMapperData);

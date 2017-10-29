@@ -2,7 +2,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using Members;
     using Members.Sources;
+#if DEBUG
     using ReadableExpressions.Extensions;
+#endif
 
     internal class RootObjectMapperKey : ObjectMapperKeyBase
     {
@@ -37,14 +39,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                    SourceHasRequiredTypes(otherKey);
         }
 
-        #region ExcludeFromCodeCoverage
+#region ExcludeFromCodeCoverage
 #if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
-        #endregion
+#endregion
         public override int GetHashCode() => 0;
 
-        #region ToString
+#region ToString
 #if DEBUG
         [ExcludeFromCodeCoverage]
         public override string ToString()
@@ -55,6 +57,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return $"{_ruleSet.Name}: {sourceTypeName} -> {targetTypeName}";
         }
 #endif
-        #endregion
+#endregion
     }
 }

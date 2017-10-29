@@ -5,7 +5,6 @@
     using Api;
     using Api.Configuration;
     using Extensions;
-    using Members;
     using ObjectPopulation;
 
     internal class MappingExecutor<TSource> : ITargetTypeSelector<TSource>, IMappingContext
@@ -97,38 +96,19 @@
 
         private TTarget PerformMapping<TTarget>(TTarget target)
         {
-            if (SkipTypeChecks<TTarget>())
+            if (TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded)
             {
-                // Optimise for the most common scenario:
-                var typedRootMappingData = CreateTypedRootMappingData(target);
+                var rootMappingData = ObjectMappingDataFactory.ForRoot(_source, target, this);
+                var result = rootMappingData.MapStart();
 
-                return typedRootMappingData.MapStart();
+                return (TTarget)result;
             }
 
-            var rootMappingData = CreateRootMappingData(target);
-            var result = rootMappingData.MapStart();
+            // Optimise for the most common scenario:
+            var typedRootMappingData = ObjectMappingDataFactory
+                .ForRootFixedTypes(_source, target, this);
 
-            return (TTarget)result;
+            return typedRootMappingData.MapStart();
         }
-
-        private static bool SkipTypeChecks<TTarget>()
-            => !(TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded);
-
-        private ObjectMappingData<TSource, TTarget> CreateTypedRootMappingData<TTarget>(TTarget target)
-        {
-            return new ObjectMappingData<TSource, TTarget>(
-                _source,
-                target,
-                null, // <- No enumerable index because we're at the root
-                new RootObjectMapperKey(MappingTypes<TSource, TTarget>.Fixed, this),
-                this,
-                parent: null);
-        }
-
-        private IObjectMappingData CreateRootMappingData<TTarget>(TTarget target)
-            => CreateRootMappingData(_source, target);
-
-        public IObjectMappingData CreateRootMappingData<TDataSource, TDataTarget>(TDataSource source, TDataTarget target)
-            => ObjectMappingDataFactory.ForRoot(source, target, this);
     }
 }

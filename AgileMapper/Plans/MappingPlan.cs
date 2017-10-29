@@ -27,8 +27,8 @@
         {
             _generatedPlanData = new List<MappingPlanData>();
 
-            var rootMappingData = mappingContext
-                .CreateRootMappingData(default(TSource), default(TTarget));
+            var rootMappingData = ObjectMappingDataFactory
+                .ForRootFixedTypes(default(TSource), default(TTarget), mappingContext);
 
             var rootPlanData = new MappingPlanData(rootMappingData);
 
