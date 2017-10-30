@@ -17,7 +17,6 @@
         private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", true, null, null, null);
 
-        private MappingRuleSet _mappingRuleSet;
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
 
@@ -100,22 +99,24 @@
             return false;
         }
 
+        public MappingRuleSet RuleSet { get; private set; }
+
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 
         public MappingConfigInfo ForRuleSet(string ruleSetName)
         {
-            _mappingRuleSet = MapperContext.RuleSets.GetByName(ruleSetName);
+            RuleSet = MapperContext.RuleSets.GetByName(ruleSetName);
             return this;
         }
 
         public MappingConfigInfo ForRuleSet(MappingRuleSet ruleSet)
         {
-            _mappingRuleSet = ruleSet;
+            RuleSet = ruleSet;
             return this;
         }
 
         public bool IsFor(MappingRuleSet mappingRuleSet)
-            => (_mappingRuleSet == _allRuleSets) || (mappingRuleSet == _mappingRuleSet);
+            => (RuleSet == _allRuleSets) || (mappingRuleSet == _allRuleSets) || (mappingRuleSet == RuleSet);
 
         public Type SourceValueType { get; private set; }
 
@@ -213,7 +214,7 @@
                 .From(Member.RootTarget(TargetType), MapperContext);
 
             return new BasicMapperData(
-                _mappingRuleSet,
+                RuleSet,
                 SourceType,
                 TargetType,
                 dummyTargetMember);
@@ -226,7 +227,7 @@
                 SourceType = SourceType,
                 TargetType = TargetType,
                 SourceValueType = SourceValueType,
-                _mappingRuleSet = _mappingRuleSet
+                RuleSet = RuleSet
             };
         }
 

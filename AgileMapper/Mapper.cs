@@ -42,9 +42,9 @@
 
         IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
 
-        IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
-        IPlanTargetTypeSelector IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
+        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
         string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
 
@@ -95,7 +95,7 @@
         /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeSelector GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
+        public static IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for the source type specified by the type argument, for all
@@ -106,7 +106,7 @@
         /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeSelector GetPlansFor<TSource>() => _default.GetPlansFor<TSource>();
+        public static IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>() => _default.GetPlansFor<TSource>();
 
         /// <summary>
         /// Returns mapping plans for all mapping functions currently cached by the default <see cref="IMapper"/>.

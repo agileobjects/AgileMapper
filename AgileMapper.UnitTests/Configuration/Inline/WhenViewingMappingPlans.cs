@@ -91,7 +91,7 @@
                     .ToANew<Address>(cfg => cfg
                         .IgnoreTargetMembersWhere(m => m.IsPropertyMatching(p => p.Name == "Line2")));
 
-                plan.ShouldContain("member.IsPropertyMatching(p => p.Name == \"Line2\")");
+                plan.ShouldContain("m.IsPropertyMatching(p => p.Name == \"Line2\")");
 
                 var result = mapper
                     .Clone(new Customer { Address = new Address { Line1 = "1", Line2 = "2" } });
@@ -99,6 +99,31 @@
                 result.Address.ShouldNotBeNull();
                 result.Address.Line1.ShouldBe("1");
                 result.Address.Line2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyInlinePlansConfigurationToAllRuleSets()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                string plan = mapper
+                    .GetPlansFor<Product>()
+                    .To<ProductDto>(cfg => cfg
+                        .Map((p, dto) => p.ProductId + " DTO")
+                        .To(dto => dto.ProductId));
+
+                plan.ShouldContain("ProductId + \" DTO\"");
+
+                var source = new Product { ProductId = "BOOM" };
+
+                var createResult = mapper.Map(source).ToANew<ProductDto>();
+                var updateResult = mapper.Map(source).Over(new ProductDto { ProductId = "ID!" });
+                var mergeResult = mapper.Map(source).OnTo(new ProductDto());
+
+                createResult.ProductId.ShouldBe("BOOM DTO");
+                updateResult.ProductId.ShouldBe("BOOM DTO");
+                mergeResult.ProductId.ShouldBe("BOOM DTO");
             }
         }
     }

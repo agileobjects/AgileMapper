@@ -8,7 +8,9 @@
     using Configuration;
     using Plans;
 
-    internal class PlanTargetTypeSelector<TSource> : IPlanTargetTypeSelector, IPlanTargetTypeAndRuleSetSelector<TSource>
+    internal class PlanTargetTypeSelector<TSource> :
+        IPlanTargetTypeSelector<TSource>,
+        IPlanTargetTypeAndRuleSetSelector<TSource>
     {
         private readonly MapperContext _mapperContext;
 
@@ -17,13 +19,16 @@
             _mapperContext = mapperContext;
         }
 
-        public MappingPlanSet To<TTarget>()
+        public MappingPlanSet To<TTarget>() => To<TTarget>(configurations: null);
+
+        public MappingPlanSet To<TTarget>(
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
             return new MappingPlanSet(
                 _mapperContext
                     .RuleSets
                     .All
-                    .Select(rs => GetMappingPlan<TTarget>(rs))
+                    .Select(rs => GetMappingPlan(rs, configurations))
                     .ToArray());
         }
 

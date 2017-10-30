@@ -9,6 +9,9 @@
     /// Provides options to create and compile mapping functions for a particular type of mapping from the 
     /// source type being configured to a specified target type.
     /// </summary>
+    /// <typeparam name="TSource">
+    /// The type of source object from which the mapping function to be created will be performed.
+    /// </typeparam>
     public interface IPlanTargetTypeAndRuleSetSelector<TSource>
     {
         /// <summary>

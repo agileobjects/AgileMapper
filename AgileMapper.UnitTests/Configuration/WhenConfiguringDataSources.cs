@@ -874,11 +874,38 @@
 
                 var source = new PublicProperty<int> { Value = 64738 };
 
-                var toNewResult = mapper.Map(source).ToANew<PublicProperty<long>>();
-                var overwriteResult = mapper.Map(source).Over(new PublicProperty<long>());
+                var createResult = mapper.Map(source).ToANew<PublicProperty<long>>();
+                var updateResult = mapper.Map(source).Over(new PublicProperty<long>());
 
-                toNewResult.Value.ShouldBe(9999);
-                overwriteResult.Value.ShouldBe(source.Value);
+                createResult.Value.ShouldBe(9999);
+                updateResult.Value.ShouldBe(source.Value);
+            }
+        }
+
+        [Fact]
+        public void ShouldDifferentiateConfigurationByMappingRuleSet()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<int>>()
+                    .ToANew<PublicProperty<long>>()
+                    .Map(999)
+                    .To(x => x.Value);
+
+                mapper.WhenMapping
+                    .From<PublicProperty<int>>()
+                    .Over<PublicProperty<long>>()
+                    .Map(999)
+                    .To(x => x.Value);
+
+                var source = new PublicProperty<int> { Value = 6478 };
+
+                var createResult = mapper.Map(source).ToANew<PublicProperty<long>>();
+                var updateResult = mapper.Map(source).Over(new PublicProperty<long>());
+
+                createResult.Value.ShouldBe(999);
+                updateResult.Value.ShouldBe(999);
             }
         }
 

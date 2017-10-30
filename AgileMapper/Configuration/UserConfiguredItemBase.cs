@@ -62,7 +62,8 @@
                 return true;
             }
 
-            if (HasOverlappingTypes(otherConfiguredItem) &&
+            if (HasOverlappingRuleSets(otherConfiguredItem) &&
+                HasOverlappingTypes(otherConfiguredItem) &&
                 MembersConflict(otherConfiguredItem))
             {
                 return !(HasConfiguredCondition || otherConfiguredItem.HasConfiguredCondition);
@@ -74,6 +75,12 @@
         protected virtual bool HasReverseConflict(UserConfiguredItemBase otherItem)
         {
             return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
+        }
+
+        private bool HasOverlappingRuleSets(UserConfiguredItemBase otherItem)
+        {
+            return ConfigInfo.IsFor(otherItem.ConfigInfo.RuleSet) ||
+                   otherItem.ConfigInfo.IsFor(ConfigInfo.RuleSet);
         }
 
         protected virtual bool HasOverlappingTypes(UserConfiguredItemBase otherItem)
