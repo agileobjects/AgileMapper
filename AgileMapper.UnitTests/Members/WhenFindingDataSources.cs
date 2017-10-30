@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var target = new PublicProperty<byte>();
             var targetMember = TargetMemberFor<PublicProperty<byte>>(x => x.Value);
 
-            var mappingContext = new MappingExecutor<TwoValues>(DefaultMapperContext.RuleSets.CreateNew, DefaultMapperContext);
+            var mappingContext = new SimpleMappingContext(DefaultMapperContext.RuleSets.CreateNew, DefaultMapperContext);
             var rootMappingData = ObjectMappingDataFactory.ForRoot(source, target, mappingContext);
             var rootMapperData = rootMappingData.MapperData;
 

@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
+    using AgileMapper.Configuration;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -124,6 +125,48 @@
                 createResult.ProductId.ShouldBe("BOOM DTO");
                 updateResult.ProductId.ShouldBe("BOOM DTO");
                 mergeResult.ProductId.ShouldBe("BOOM DTO");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfConflictingDataSourcesConfiguredInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configEx = Should.Throw<MappingConfigurationException>(() =>
+                {
+                    mapper
+                        .GetPlansFor<Product>()
+                        .To<ProductDto>(cfg => cfg
+                            .Map((p, dto) => p.ProductId + " DTO")
+                            .To(dto => dto.ProductId)
+                            .And
+                            .Map((p, dto) => p.ProductId + " DTO!")
+                            .To(dto => dto.ProductId));
+                });
+
+                configEx.Message.ShouldContain("already has a configured data source");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateIgnoredMembersConfiguredInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var configEx = Should.Throw<MappingConfigurationException>(() =>
+                {
+                    mapper.WhenMapping
+                        .From<Product>().To<ProductDto>()
+                        .Ignore(dto => dto.ProductId);
+
+                    mapper
+                        .GetPlanFor<Product>()
+                        .ToANew<ProductDto>(cfg => cfg
+                            .Ignore(dto => dto.ProductId));
+                });
+
+                configEx.Message.ShouldContain("has already been ignored");
             }
         }
     }

@@ -57,11 +57,12 @@
             MappingRuleSet ruleSet,
             IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations = null)
         {
-            var planContext = new MappingExecutor<TSource>(ruleSet, _mapperContext);
+            var planContext = new SimpleMappingContext(ruleSet, _mapperContext);
 
             if (configurations != null)
             {
-                InlineMappingConfigurator<TSource, TTarget>.ConfigureMapperContext(configurations, planContext);
+                InlineMappingConfigurator<TSource, TTarget>
+                    .ConfigureMapperContext(configurations, planContext);
             }
 
             return new MappingPlan<TSource, TTarget>(planContext);
