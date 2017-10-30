@@ -30,6 +30,10 @@
         public MappingPlan<TSource, TResult> ToANew<TResult>()
             => GetMappingPlan<TResult>(_mapperContext.RuleSets.CreateNew);
 
+        public MappingPlan<TSource, TResult> ToANew<TResult>(
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
+            => GetMappingPlan(_mapperContext.RuleSets.CreateNew, configurations);
+
         public MappingPlan<TSource, TTarget> OnTo<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Merge);
 

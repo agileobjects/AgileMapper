@@ -26,5 +26,26 @@
                 result.Name.ShouldBe("Count Dooko");
             }
         }
+
+        [Fact]
+        public void ShouldApplyAnIgnoredMemberConfiguredInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                string plan = mapper
+                    .GetPlanFor<Person>()
+                    .ToANew<PersonViewModel>(cfg => cfg
+                        .Ignore(pvm => pvm.AddressLine1));
+
+                plan.ShouldContain("// AddressLine1 is ignored");
+
+                var result = mapper
+                    .Map(new Customer { Name = "Luke", Address = new Address { Line1 = "Far, Far Away" } })
+                    .ToANew<PersonViewModel>();
+
+                result.Name.ShouldBe("Luke");
+                result.AddressLine1.ShouldBeNull();
+            }
+        }
     }
 }
