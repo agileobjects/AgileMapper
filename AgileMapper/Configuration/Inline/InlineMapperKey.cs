@@ -29,23 +29,8 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 
         public MapperContext CreateInlineMapperContext()
         {
-            var inlineMapperContext = _initiatingExecutor
-                .MapperContext
-                .Clone();
-
-            var configInfo = new MappingConfigInfo(inlineMapperContext)
-                .ForRuleSet(_initiatingExecutor.RuleSet)
-                .ForSourceType<TSource>()
-                .ForTargetType<TTarget>();
-
-            var configurator = new MappingConfigurator<TSource, TTarget>(configInfo);
-
-            foreach (var configuration in _configurations)
-            {
-                configuration.Compile().Invoke(configurator);
-            }
-
-            return inlineMapperContext;
+            return InlineMappingConfigurator<TSource, TTarget>
+                .ConfigureInlineMapperContext(_configurations, _initiatingExecutor);
         }
 
         public override bool Equals(object obj)

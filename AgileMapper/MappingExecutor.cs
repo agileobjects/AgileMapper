@@ -17,18 +17,6 @@
             MapperContext = mapperContext;
         }
 
-        public MappingExecutor(MappingRuleSet ruleSet, MapperContext mapperContext)
-        {
-            RuleSet = ruleSet;
-            MapperContext = mapperContext;
-        }
-
-        public MappingExecutor(TSource source, MappingRuleSet ruleSet, MapperContext mapperContext)
-            : this(source, mapperContext)
-        {
-            RuleSet = ruleSet;
-        }
-
         public MapperContext MapperContext { get; private set; }
 
         public MappingRuleSet RuleSet { get; private set; }

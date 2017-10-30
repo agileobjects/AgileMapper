@@ -98,6 +98,8 @@
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
     <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
+    <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
+    <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
     <Compile Include="Extensions\WhenEquatingExpressions.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
@@ -115,6 +117,7 @@
     <Compile Include="Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
     <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
+    <Compile Include="MappingExtensions.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />
