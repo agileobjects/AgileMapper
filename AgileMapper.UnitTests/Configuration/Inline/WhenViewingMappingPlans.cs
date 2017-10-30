@@ -80,5 +80,26 @@
                 result.AddressLine1.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldApplyMemberFilterExpressionsConfiguredInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                string plan = mapper
+                    .GetPlanFor<Address>()
+                    .ToANew<Address>(cfg => cfg
+                        .IgnoreTargetMembersWhere(m => m.IsPropertyMatching(p => p.Name == "Line2")));
+
+                plan.ShouldContain("member.IsPropertyMatching(p => p.Name == \"Line2\")");
+
+                var result = mapper
+                    .Clone(new Customer { Address = new Address { Line1 = "1", Line2 = "2" } });
+
+                result.Address.ShouldNotBeNull();
+                result.Address.Line1.ShouldBe("1");
+                result.Address.Line2.ShouldBeNull();
+            }
+        }
     }
 }
