@@ -37,6 +37,10 @@
         public MappingPlan<TSource, TTarget> OnTo<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Merge);
 
+        public MappingPlan<TSource, TTarget> OnTo<TTarget>(
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
+            => GetMappingPlan(_mapperContext.RuleSets.Merge, configurations);
+
         public MappingPlan<TSource, TTarget> Over<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Overwrite);
 

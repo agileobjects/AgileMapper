@@ -47,5 +47,38 @@
                 result.AddressLine1.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldCombineApiAndInlineConfiguration()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .OnTo<CustomerViewModel>()
+                    .Map((c, cvm) => c.Title + " " + c.Name)
+                    .To(cvm => cvm.Name);
+
+                string plan = mapper
+                    .GetPlanFor<Customer>()
+                    .OnTo<CustomerViewModel>(cfg => cfg
+                        .Ignore(cvm => cvm.AddressLine1));
+
+                plan.ShouldContain("cToCvmData.Target.Name = sourceCustomer.Title + \" \" + sourceCustomer.Name");
+                plan.ShouldContain("// AddressLine1 is ignored");
+
+                var result = mapper
+                    .Map(new Customer
+                    {
+                        Title = Title.Dr,
+                        Name = "Vader",
+                        Address = new Address { Line1 = "Far, Far Away" }
+                    })
+                    .OnTo(new CustomerViewModel());
+
+                result.Name.ShouldBe("Dr Vader");
+                result.AddressLine1.ShouldBeNull();
+            }
+        }
     }
 }
