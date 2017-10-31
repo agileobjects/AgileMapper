@@ -117,6 +117,7 @@
     <Compile Include="Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
     <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
+    <Compile Include="MapperCloning\WhenCloningStringFormatting.cs" />
     <Compile Include="MappingExtensions.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
