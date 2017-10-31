@@ -32,28 +32,28 @@
                     .ToArray());
         }
 
-        public MappingPlan<TSource, TResult> ToANew<TResult>()
+        public MappingPlan ToANew<TResult>()
             => GetMappingPlan<TResult>(_mapperContext.RuleSets.CreateNew);
 
-        public MappingPlan<TSource, TResult> ToANew<TResult>(
+        public MappingPlan ToANew<TResult>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
             => GetMappingPlan(_mapperContext.RuleSets.CreateNew, configurations);
 
-        public MappingPlan<TSource, TTarget> OnTo<TTarget>()
+        public MappingPlan OnTo<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Merge);
 
-        public MappingPlan<TSource, TTarget> OnTo<TTarget>(
+        public MappingPlan OnTo<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
             => GetMappingPlan(_mapperContext.RuleSets.Merge, configurations);
 
-        public MappingPlan<TSource, TTarget> Over<TTarget>()
+        public MappingPlan Over<TTarget>()
             => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Overwrite);
 
-        public MappingPlan<TSource, TTarget> Over<TTarget>(
+        public MappingPlan Over<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
             => GetMappingPlan(_mapperContext.RuleSets.Overwrite, configurations);
 
-        private MappingPlan<TSource, TTarget> GetMappingPlan<TTarget>(
+        private MappingPlan GetMappingPlan<TTarget>(
             MappingRuleSet ruleSet,
             IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations = null)
         {
@@ -65,7 +65,7 @@
                     .ConfigureMapperContext(configurations, planContext);
             }
 
-            return new MappingPlan<TSource, TTarget>(planContext);
+            return MappingPlan.For<TSource, TTarget>(planContext);
         }
     }
 }

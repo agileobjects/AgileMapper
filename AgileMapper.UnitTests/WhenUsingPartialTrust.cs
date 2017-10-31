@@ -179,7 +179,7 @@
 
         public void TestMappingPlan()
         {
-            var plan = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicTwoFields<object, object[]>>()
                 .Over<PublicTwoFields<Customer, IEnumerable<Customer>>>();
 
@@ -187,9 +187,10 @@
                 "// Map PublicTwoFields<object, object[]> -> PublicTwoFields<Customer, IEnumerable<Customer>>",
                 plan);
 
-            Assert.Contains("// Map object -> Customer", plan);
-            Assert.Contains("// Map object -> Address", plan);
             Assert.Contains("// Rule Set: Overwrite", plan);
+            Assert.Contains("ptfooaToPtfccData.Map(", plan);
+            Assert.Contains("\"Value1\"", plan);
+            Assert.Contains("customers.Add(oaToCsData.Map(objectArray[i]", plan);
         }
     }
 }

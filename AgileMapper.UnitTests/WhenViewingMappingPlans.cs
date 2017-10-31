@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using Shouldly;
     using TestClasses;
@@ -188,9 +189,8 @@
                 .ToANew<PublicSetMethod<Customer>>();
 
             plan.ShouldContain("// Map PublicProperty<object> -> PublicSetMethod<Customer>");
-            plan.ShouldContain("// Map object -> Customer");
-            plan.ShouldContain("// Map object -> Address");
             plan.ShouldContain("ppoToPsmcData.Map(");
+            plan.ShouldContain("\"SetValue\"");
         }
 
         [Fact]
@@ -202,8 +202,8 @@
 
             plan.ShouldContain("// Map PublicProperty<PublicField<object>> -> PublicSetMethod<PublicProperty<Order>>");
             plan.ShouldNotContain("// Map PublicField<object> -> PublicProperty<Order>");
-            plan.ShouldContain("// Map object -> Order");
             plan.ShouldContain("pfoToPpoData.Map(");
+            plan.ShouldContain("\"Value\"");
         }
 
         [Fact]
@@ -214,7 +214,6 @@
                 .ToANew<PublicSetMethod<ICollection<Product>>>();
 
             plan.ShouldContain("// Map PublicProperty<object[]> -> PublicSetMethod<ICollection<Product>>");
-            plan.ShouldContain("// Map object -> Product");
             plan.ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
         }
 
@@ -242,15 +241,13 @@
         }
 
         [Fact]
-        public void ShouldNotDuplicateChildMappingPlans()
+        public void ShouldNotIncludeChildObjectToTargetMappingPlans()
         {
             string plan = Mapper
                 .GetPlanFor<PublicTwoFields<object, object>>()
                 .ToANew<PublicTwoParamCtor<Product, Product>>();
 
-            var numberOfObjectToProductPlans = Regex.Matches(plan, "// Map object -> Product").Count;
-
-            numberOfObjectToProductPlans.ShouldBe(1);
+            Regex.Matches(plan, "// Map object -> Product").Cast<Match>().ShouldBeEmpty();
         }
 
         [Fact]

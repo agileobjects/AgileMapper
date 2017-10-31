@@ -20,11 +20,10 @@
         /// </summary>
         /// <typeparam name="TResult">The type of object for which to create the mapping plan.</typeparam>
         /// <returns>
-        /// A <see cref="MappingPlan{TSource,TTarget}"/> object detailing the function to be executed 
-        /// during a mapping. To see a string representation of the function assign the result to a string
-        /// variable, or call .ToString().
+        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping. To see 
+        /// a string representation of the function assign the result to a string variable, or call .ToString().
         /// </returns>
-        MappingPlan<TSource, TResult> ToANew<TResult>();
+        MappingPlan ToANew<TResult>();
 
         /// <summary>
         /// Create and compile mapping functions for a create new mapping from the source type being 
@@ -36,11 +35,10 @@
         /// <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping API.
         /// </param>
         /// <returns>
-        /// A <see cref="MappingPlan{TSource,TTarget}"/> object detailing the function to be executed 
-        /// during a mapping. To see a string representation of the function assign the result to a string
-        /// variable, or call .ToString().
+        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping. To see 
+        /// a string representation of the function assign the result to a string variable, or call .ToString().
         /// </returns>
-        MappingPlan<TSource, TResult> ToANew<TResult>(
+        MappingPlan ToANew<TResult>(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations);
 
         /// <summary>
@@ -49,11 +47,10 @@
         /// </summary>
         /// <typeparam name="TTarget">The type of object for which to create the mapping plan.</typeparam>
         /// <returns>
-        /// A <see cref="MappingPlan{TSource,TTarget}"/> detailing the function to be executed during a mapping. 
-        /// To see a string representation of the function, assign the result to an explitly-typed string variable, 
-        /// or call .ToString().
+        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping. To see 
+        /// a string representation of the function assign the result to a string variable, or call .ToString().
         /// </returns>
-        MappingPlan<TSource, TTarget> OnTo<TTarget>();
+        MappingPlan OnTo<TTarget>();
 
         /// <summary>
         /// Create and compile mapping functions for an OnTo (merge) mapping from the source type being 
@@ -65,11 +62,10 @@
         /// <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping API.
         /// </param>
         /// <returns>
-        /// A <see cref="MappingPlan{TSource,TTarget}"/> detailing the function to be executed during a mapping. 
-        /// To see a string representation of the function, assign the result to an explitly-typed string variable, 
-        /// or call .ToString().
+        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping. To see 
+        /// a string representation of the function assign the result to a string variable, or call .ToString().
         /// </returns>
-        MappingPlan<TSource, TTarget> OnTo<TTarget>(
+        MappingPlan OnTo<TTarget>(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations);
 
         /// <summary>
@@ -78,11 +74,10 @@
         /// </summary>
         /// <typeparam name="TTarget">The type of object for which to create the mapping plan.</typeparam>
         /// <returns>
-        /// A <see cref="MappingPlan{TSource,TTarget}"/> detailing the function to be executed during a mapping. 
-        /// To see a string representation of the function, assign the result to an explitly-typed string variable, 
-        /// or call .ToString().
+        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping. To see 
+        /// a string representation of the function assign the result to a string variable, or call .ToString().
         /// </returns>
-        MappingPlan<TSource, TTarget> Over<TTarget>();
+        MappingPlan Over<TTarget>();
 
         /// <summary>
         /// Create and compile mapping functions for an Over (overwrite) mapping from the source type being 
@@ -94,11 +89,10 @@
         /// <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping API.
         /// </param>
         /// <returns>
-        /// A <see cref="MappingPlan{TSource,TTarget}"/> detailing the function to be executed during a mapping. 
-        /// To see a string representation of the function, assign the result to an explitly-typed string variable, 
-        /// or call .ToString().
+        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping. To see 
+        /// a string representation of the function assign the result to a string variable, or call .ToString().
         /// </returns>
-        MappingPlan<TSource, TTarget> Over<TTarget>(
+        MappingPlan Over<TTarget>(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations);
     }
 }

@@ -22,7 +22,7 @@
             return new MappingPlanSet(mapperContext
                 .ObjectMapperFactory
                 .RootMappers
-                .Select(mapper => new CachedMapperMappingPlan(mapper))
+                .Select(mapper => new MappingPlan(mapper))
                 .ToArray());
         }
 
@@ -30,7 +30,7 @@
         /// Converts the given <paramref name="mappingPlans">MappingPlanSet</paramref> to its string 
         /// representation.
         /// </summary>
-        /// <param name="mappingPlans">The <see cref="MappingPlan{TSource,TTarget}"/> to convert.</param>
+        /// <param name="mappingPlans">The <see cref="MappingPlanSet"/> to convert.</param>
         /// <returns>
         /// The string representation of the <paramref name="mappingPlans">MappingPlanSet</paramref>.
         /// </returns>
