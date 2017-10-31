@@ -46,17 +46,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public static IObjectMappingData ForChild(
-            string targetMemberRegistrationName,
-            int dataSourceIndex,
-            IObjectMappingData parent)
-        {
-            var sourceMember = parent.MapperData.GetSourceMemberFor(targetMemberRegistrationName, dataSourceIndex);
-            var targetMember = parent.MapperData.GetTargetMemberFor(targetMemberRegistrationName);
-
-            return ForChild(sourceMember, targetMember, dataSourceIndex, parent);
-        }
-
-        public static IObjectMappingData ForChild(
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             int dataSourceIndex,

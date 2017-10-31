@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq.Expressions;
 #if NET_STANDARD
     using System.Reflection;
@@ -92,8 +91,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression MappingExpression => MappingLambda.Body;
 
         public ObjectMapperData MapperData { get; }
-
-        public IEnumerable<IObjectMapper> SubMappers => _subMappersByKey?.Values ?? Enumerable<IObjectMapper>.Empty;
 
         public object Map(IObjectMappingData mappingData) => Map((ObjectMappingData<TSource, TTarget>)mappingData);
 
