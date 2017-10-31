@@ -2,6 +2,8 @@
 {
     internal class Child
     {
+        public string Name { get; set; }
+
         public Parent EldestParent { get; set; }
     }
 }
