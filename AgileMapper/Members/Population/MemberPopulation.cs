@@ -75,11 +75,18 @@ namespace AgileObjects.AgileMapper.Members.Population
             => CreateNullMemberPopulation(mapperData, configuredIgnore.GetIgnoreMessage);
 
         public static IMemberPopulation NoDataSource(IMemberMapperData mapperData)
-            => CreateNullMemberPopulation(mapperData, targetMember => "No data source for " + targetMember.Name);
+            => CreateNullMemberPopulation(mapperData, GetNoDataSourceMessage);
+
+        private static string GetNoDataSourceMessage(QualifiedMember targetMember)
+        {
+            return targetMember.IsSimple
+                ? "No data source for " + targetMember.Name
+                : $"No data source for {targetMember.Name} or any of its child members";
+        }
 
         private static IMemberPopulation CreateNullMemberPopulation(
             IMemberMapperData mapperData,
-            Func<IQualifiedMember, string> commentFactory)
+            Func<QualifiedMember, string> commentFactory)
         {
             return new MemberPopulation(
                 mapperData,

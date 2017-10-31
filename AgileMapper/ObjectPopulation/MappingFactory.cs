@@ -169,6 +169,11 @@
         {
             var mapper = mappingData.Mapper;
 
+            if (mapper.IsNullObject)
+            {
+                return Constants.EmptyExpression;
+            }
+
             if (mapper.MapperData.Context.UsesMappingDataObject)
             {
                 return UseLocalSourceValueVariable(

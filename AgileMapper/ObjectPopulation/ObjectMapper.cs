@@ -10,9 +10,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {
+        public static readonly ObjectMapper<TSource, TTarget> Unmappable = new ObjectMapper<TSource, TTarget>();
+
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapperFunc> _recursionMappingFuncsByKey;
+
+        private ObjectMapper()
+        {
+        }
 
         public ObjectMapper(
             Expression<MapperFunc<TSource, TTarget>> mappingLambda,
@@ -80,6 +86,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #endregion
 
         public LambdaExpression MappingLambda { get; }
+
+        public bool IsNullObject => this == Unmappable;
 
         public Expression MappingExpression => MappingLambda.Body;
 

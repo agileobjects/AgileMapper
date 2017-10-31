@@ -304,6 +304,16 @@
         }
 
         [Fact]
+        public void ShouldIncludeUnmappableNoChildDataSourcesComplexTypeMemberDetails()
+        {
+            string plan = Mapper
+                .GetPlanFor(new { Int = default(int) })
+                .ToANew<PublicField<Address>>();
+
+            plan.ShouldContain("No data source for Value or any of its child members");
+        }
+
+        [Fact]
         public void ShouldShowAllCachedMappingPlans()
         {
             using (var mapper = Mapper.CreateNew())

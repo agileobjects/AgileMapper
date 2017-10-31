@@ -50,6 +50,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingExpressionFactory = _mappingExpressionFactories.First(mef => mef.IsFor(mappingData));
             var mappingExpression = mappingExpressionFactory.Create(mappingData);
 
+            if (mappingExpression.NodeType == ExpressionType.Default)
+            {
+                return ObjectMapper<TSource, TTarget>.Unmappable;
+            }
+
             mappingExpression = MappingFactory
                 .UseLocalSourceValueVariableIfAppropriate(mappingExpression, mappingData.MapperData);
 

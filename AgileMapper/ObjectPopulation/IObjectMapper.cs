@@ -5,6 +5,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal interface IObjectMapper : IObjectMapperFunc
     {
+        bool IsNullObject { get; }
+
         Expression MappingExpression { get; }
 
         LambdaExpression MappingLambda { get; }

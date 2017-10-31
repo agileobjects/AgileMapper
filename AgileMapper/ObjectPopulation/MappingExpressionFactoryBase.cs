@@ -46,6 +46,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
             mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PostMappingCallback);
 
+            if (NothingIsBeingMapped(mappingExpressions))
+            {
+                return mapperData.IsRoot ? mapperData.TargetObject : Constants.EmptyExpression;
+            }
+
             mappingExpressions.InsertRange(0, GetShortCircuitReturns(returnNull, mappingData));
 
             var mappingBlock = GetMappingBlock(mappingExpressions, mappingExtras);
@@ -96,6 +101,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             => mapperData.MapperContext.UserConfigurations.GetMapToNullConditionOrNull(mapperData);
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
+
+        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions)
+        {
+            return mappingExpressions.None() ||
+                  (mappingExpressions[0].NodeType == ExpressionType.Assign) &&
+                   ((BinaryExpression)mappingExpressions[0]).Right.NodeType == ExpressionType.Default;
+        }
 
         private Expression GetMappingBlock(IList<Expression> mappingExpressions, MappingExtras mappingExtras)
         {

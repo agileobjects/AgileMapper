@@ -97,15 +97,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
         {
-            var mapperData = mappingData.MapperData;
-
-            if (mapperData.TargetMemberIsUserStruct() ||
-                mapperData.TargetIsDefinitelyUnpopulated())
+            if ((value.NodeType == ExpressionType.Default) ||
+                 mappingData.MapperData.TargetMemberIsUserStruct() ||
+                 mappingData.MapperData.TargetIsDefinitelyUnpopulated())
             {
                 return value;
             }
 
-            return Expression.Coalesce(mapperData.TargetObject, value);
+            return Expression.Coalesce(mappingData.MapperData.TargetObject, value);
         }
     }
 }
