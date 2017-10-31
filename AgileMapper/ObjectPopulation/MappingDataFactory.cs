@@ -23,9 +23,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IObjectMappingDataUntyped parent)
         {
             var mapperKey = new ChildObjectMapperKey(
+                MappingTypes<TSource, TTarget>.Fixed,
                 targetMemberRegistrationName,
-                dataSourceIndex,
-                MappingTypes<TSource, TTarget>.Fixed);
+                dataSourceIndex);
 
             var mappingData = CreateMappingData(source, target, enumerableIndex, mapperKey, parent);
 

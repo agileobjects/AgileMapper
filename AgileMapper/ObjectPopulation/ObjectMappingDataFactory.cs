@@ -96,12 +96,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         object IObjectMappingDataFactoryBridge.ForChild<TSource, TTarget>(object childMembersSource, object parent)
         {
-            return ForChild(
+            var mapperKey = new ChildObjectMapperKey(
+                MappingTypes.For(default(TSource), default(TTarget)),
+                (IChildMembersSource)childMembersSource);
+
+            var parentMappingData = (IObjectMappingData)parent;
+
+            return Create(
                 default(TSource),
                 default(TTarget),
                 default(int?),
-                (IChildMembersSource)childMembersSource,
-                (IObjectMappingData)parent);
+                mapperKey,
+                parentMappingData.MappingContext,
+                parentMappingData);
         }
 
         public static IObjectMappingData ForChild<TSource, TTarget>(
@@ -112,24 +119,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex,
             IObjectMappingData parent)
         {
-            var membersSource = new MemberLookupsChildMembersSource(parent, targetMemberRegistrationName, dataSourceIndex);
-
-            return ForChild(
-                source,
-                target,
-                enumerableIndex,
-                membersSource,
-                parent);
-        }
-
-        private static IObjectMappingData ForChild<TSource, TTarget>(
-            TSource source,
-            TTarget target,
-            int? enumerableIndex,
-            IChildMembersSource membersSource,
-            IObjectMappingData parent)
-        {
-            var mapperKey = new ChildObjectMapperKey(MappingTypes.For(source, target), membersSource);
+            var mapperKey = new ChildObjectMapperKey(
+                MappingTypes.For(source, target),
+                targetMemberRegistrationName,
+                dataSourceIndex);
 
             return Create(
                 source,
