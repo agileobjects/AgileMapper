@@ -90,7 +90,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     var factory = group.First();
                     var targetMember = factory.TargetDictionaryEntryMember;
 
-                    targetMember.IsCustom = targetMembersFromSource.None(factory.Matches);
+                    targetMember.IsCustom = targetMembersFromSource.None(
+                        sourceMember => sourceMember.RegistrationName == targetMember.Name);
 
                     return targetMember.IsCustom ? targetMember : null;
                 })

@@ -140,7 +140,7 @@
         {
             if (member.IsRoot)
             {
-                yield return "Root";
+                yield return Constants.RootMemberName;
                 yield break;
             }
 
@@ -177,8 +177,16 @@
 
         public ICollection<string> ExtendJoinedNames(ICollection<string> parentJoinedNames, string[] names)
         {
+            var firstParentJoinedName = parentJoinedNames.First();
+
+            if (parentJoinedNames.HasOne() && (firstParentJoinedName == Constants.RootMemberName))
+            {
+                // Don't bother to prepend 'Root' as a joined name:
+                return names;
+            }
+
             var isElementMember = (names.Length == 1) && (names[0] == Constants.EnumerableElementName);
-            var wasElementMember = parentJoinedNames.First().EndsWith(Constants.EnumerableElementName, StringComparison.Ordinal);
+            var wasElementMember = firstParentJoinedName.EndsWith(Constants.EnumerableElementName, StringComparison.Ordinal);
 
             var numberOfExtendedJoinedNames = isElementMember
                 ? parentJoinedNames.Count

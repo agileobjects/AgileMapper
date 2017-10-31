@@ -13,6 +13,7 @@
     {
         public static readonly bool ReflectionNotPermitted = ReflectionExtensions.ReflectionNotPermitted;
 
+        public static readonly string RootMemberName = "Root";
         public static readonly string EnumerableElementName = "[i]";
 
         public static readonly Type[] NoTypeArguments = Enumerable<Type>.EmptyArray;

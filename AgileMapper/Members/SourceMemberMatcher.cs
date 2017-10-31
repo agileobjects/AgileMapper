@@ -47,9 +47,11 @@
         {
             var sourceMember = QuerySourceMembers(
                 parentSourceMember,
-                m => m.Name == targetData.MapperData.TargetMember.Name).FirstOrDefault();
+                m => targetData.MapperData.TargetMember.LeafMember.Equals(m) ||
+                     targetData.MapperData.TargetMember.JoinedNames.Match(new[] { m.Name }))
+                .FirstOrDefault();
 
-            if ((sourceMember == null) || 
+            if ((sourceMember == null) ||
                 !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
             {
                 matchingMember = null;

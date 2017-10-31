@@ -313,6 +313,21 @@
             }
         }
 
+        [Fact]
+        public void ShouldHandleANullSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(default(PersonViewModel))
+                    .ToANew<Person>(cfg => cfg
+                        .Map((pvm, p) => "Named: " + pvm.Name)
+                        .To(p => p.Name));
+
+                result.ShouldBeNull();
+            }
+        }
+
         #region Helper Members
 
         private static Expression<Func<IMappingData<PublicProperty<int>, PublicField<int>>, object>> SubtractOne =>

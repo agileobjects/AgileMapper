@@ -10,6 +10,7 @@
     using Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using static System.StringComparison;
 
     internal static class MemberExtensions
     {
@@ -32,12 +33,12 @@
                 return rootTypeName;
             }
 
-            if (memberPath.StartsWith(rootMember.Name, StringComparison.Ordinal))
+            if (memberPath.StartsWith(rootMember.Name, Ordinal))
             {
                 return rootTypeName + memberPath.Substring(rootMember.Name.Length);
             }
 
-            var rootMemberNameIndex = memberPath.IndexOf("." + rootMember.Name + ".", StringComparison.Ordinal);
+            var rootMemberNameIndex = memberPath.IndexOf("." + rootMember.Name + ".", Ordinal);
 
             if (rootMemberNameIndex == -1)
             {
@@ -132,18 +133,33 @@
             return mapperContext.NamingSettings.ExtendJoinedNames(parentJoinedNames, memberMatchingNames);
         }
 
-        public static bool CouldMatch(this IEnumerable<string> memberNames, IEnumerable<string> otherMemberNames)
+        public static bool CouldMatch(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
         {
+            if (otherMemberNames.HasOne() && (otherMemberNames.First() == Constants.RootMemberName) ||
+                memberNames.HasOne() && (memberNames.First() == Constants.RootMemberName))
+            {
+                return true;
+            }
+
             return otherMemberNames
-                .Any(otherJoinedName => memberNames
-                    .Any(joinedName => otherJoinedName.StartsWith(joinedName, StringComparison.OrdinalIgnoreCase)));
+                .Any(otherJoinedName => (otherJoinedName == Constants.RootMemberName) || memberNames
+                    .Any(joinedName => (joinedName == Constants.RootMemberName) || otherJoinedName.StartsWith(joinedName, OrdinalIgnoreCase)));
         }
 
-        public static bool Match(this IEnumerable<string> memberNames, IEnumerable<string> otherMemberNames)
+        public static bool Match(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
         {
-            return memberNames
-                .Intersect(otherMemberNames, StringComparer.OrdinalIgnoreCase)
-                .Any();
+            if (!memberNames.HasOne())
+            {
+                return memberNames
+                    .Intersect(otherMemberNames, StringComparer.OrdinalIgnoreCase)
+                    .Any();
+            }
+
+            var memberName = memberNames.First();
+
+            return otherMemberNames.HasOne()
+                ? memberName.Equals(otherMemberNames.First(), OrdinalIgnoreCase)
+                : otherMemberNames.Any(otherMemberName => otherMemberName.Equals(memberName, OrdinalIgnoreCase));
         }
 
         public static TMember GetElementMember<TMember>(this TMember enumerableMember)

@@ -25,11 +25,9 @@
                 return false;
             }
 
-            return Matches(mapperData.TargetMember) && base.AppliesTo(mapperData);
+            return mapperData.TargetMember.Matches(TargetDictionaryEntryMember) && 
+                   base.AppliesTo(mapperData);
         }
-
-        public bool Matches(QualifiedMember targetMember)
-            => targetMember.Matches(TargetDictionaryEntryMember);
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {

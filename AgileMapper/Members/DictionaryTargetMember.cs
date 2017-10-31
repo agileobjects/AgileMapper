@@ -121,11 +121,9 @@ namespace AgileObjects.AgileMapper.Members
 
         public override bool Matches(IQualifiedMember otherMember)
         {
-            var matches = base.Matches(otherMember);
-
             if (_key == null)
             {
-                return matches;
+                return base.Matches(otherMember);
             }
 
             return GetKeyNameOrNull() == otherMember.Name;

@@ -65,6 +65,15 @@
             result.Address.ShouldBeNull();
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/34
+        [Fact]
+        public void ShouldNotPopulateAMemberWithANullSource()
+        {
+            var result = Mapper.Map(new RockModel()).Over(new PaperModel());
+
+            result.Paper.ShouldBeNull();
+        }
+
         [Fact]
         public void ShouldNotOverwriteAMemberWithNoMatchingSource()
         {
@@ -135,5 +144,37 @@
 
             result.Value.ShouldBeNull();
         }
+
+        #region Helper Classes
+
+        internal class PaperModel
+        {
+            public int Id { get; set; }
+
+            public int? PaperId { get; set; }
+
+            public Paper Paper { get; set; }
+        }
+
+        internal class RockModel
+        {
+            public int Id { get; set; }
+
+            public int? RockId { get; set; }
+
+            public Rock Rock { get; set; }
+        }
+
+        internal class Rock
+        {
+            public int Id { get; set; }
+        }
+
+        internal class Paper
+        {
+            public int Id { get; set; }
+        }
+
+        #endregion
     }
 }
