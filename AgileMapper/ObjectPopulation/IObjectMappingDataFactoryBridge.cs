@@ -26,15 +26,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// </summary>
         /// <typeparam name="TSource">The type of source element object being mapped from.</typeparam>
         /// <typeparam name="TTarget">The type of target element object being mapped to.</typeparam>
-        /// <param name="membersSource">
-        /// An object providing access to objects describing the element members being mapped
-        /// from and to.
-        /// </param>
         /// <param name="parent">
         /// An object representing the parent <see cref="IObjectMappingData{TSource, TTarget}"/>.
         /// </param>
         /// <returns>An element <see cref="IObjectMappingData{TSource, TTarget}"/> instance.</returns>
-        object ForElement<TSource, TTarget>(object membersSource, object parent);
+        object ForElement<TSource, TTarget>(object parent);
 
         /// <summary>
         /// Creates an <see cref="IObjectMappingData{TSource, TTarget}"/> instance.
