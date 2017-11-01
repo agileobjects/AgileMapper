@@ -25,12 +25,12 @@
         }
 
         [Fact]
-        public void ShouldNotCountARootChildParentMemberAsRecursive()
+        public void ShouldCountARootChildParentMemberAsRecursive()
         {
             var rootChildParentMember = TargetMemberFor<Parent>(
                 p => p.EldestChild.EldestParent);
 
-            rootChildParentMember.IsRecursion.ShouldBeFalse();
+            rootChildParentMember.IsRecursion.ShouldBeTrue();
         }
 
         [Fact]

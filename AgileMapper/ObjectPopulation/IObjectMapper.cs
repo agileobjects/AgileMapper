@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System.Collections.Generic;
     using System.Linq.Expressions;
 
     internal interface IObjectMapper : IObjectMapperFunc
@@ -8,8 +9,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression MappingExpression { get; }
 
-        LambdaExpression MappingLambda { get; }
-
         ObjectMapperData MapperData { get; }
+
+        IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs { get; }
     }
 }

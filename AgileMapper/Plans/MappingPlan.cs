@@ -1,9 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
-    using System.Linq.Expressions;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using ObjectPopulation;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
 
     /// <summary>
     /// Contains details of the mapping plan for a mapping between a particular source and target type,
@@ -11,11 +11,21 @@
     /// </summary>
     public class MappingPlan : IMappingPlan
     {
-        private readonly IObjectMapper _mapper;
+        private readonly List<IMappingPlanFunction> _mappingPlanFunctions;
 
         internal MappingPlan(IObjectMapper cachedMapper)
         {
-            _mapper = cachedMapper;
+            _mappingPlanFunctions = new List<IMappingPlanFunction>
+            {
+                new RootMapperMappingPlanFunction(cachedMapper)
+            };
+
+            if (cachedMapper.MapperData.HasMapperFuncs)
+            {
+                _mappingPlanFunctions.AddRange(cachedMapper
+                    .RecursionMapperFuncs
+                    .Select(mf => new RecursionMapperMappingPlanFunction(mf)));
+            }
         }
 
         internal static MappingPlan For<TSource, TTarget>(IMappingContext mappingContext)
@@ -33,29 +43,9 @@
         /// <returns>The string representation of the given <paramref name="mappingPlan"/>.</returns>
         public static implicit operator string(MappingPlan mappingPlan)
         {
-            var mapperData = mappingPlan._mapper.MapperData;
-
-            var lambda = GetFinalMappingLambda(mappingPlan._mapper.MappingLambda, mapperData);
-
-            var sourceType = mapperData.SourceType.GetFriendlyName();
-            var targetType = mapperData.TargetType.GetFriendlyName();
-
-            return $@"
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// Map {sourceType} -> {targetType}
-// Rule Set: {mapperData.RuleSet.Name}
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-{lambda.ToReadableString()}".TrimStart();
-        }
-
-        private static Expression GetFinalMappingLambda(Expression lambda, ObjectMapperData mapperData)
-        {
-            var lambdaWithEnumMismatches = EnumMappingMismatchFinder.Process(lambda, mapperData);
-
-            return lambdaWithEnumMismatches;
+            return string.Join(
+                Environment.NewLine + Environment.NewLine,
+                mappingPlan._mappingPlanFunctions.Select(pd => pd.GetDescription()));
         }
 
         /// <summary>

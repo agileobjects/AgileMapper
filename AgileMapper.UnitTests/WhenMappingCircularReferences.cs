@@ -151,21 +151,21 @@
         [Fact]
         public void ShouldMapToANewOneToManyRelationship()
         {
-            var source = new Order
+            var order = new Order
             {
                 DateCreated = DateTime.Now,
                 Items = new List<OrderItem>
                 {
-                    new OrderItem {ProductId = "Grass"},
-                    new OrderItem {ProductId = "Flowers"}
+                    new OrderItem { ProductId = "Grass" },
+                    new OrderItem { ProductId = "Flowers" }
                 }
             };
 
-            source.Items.ForEach(item => item.Order = source);
+            order.Items.ForEach(item => item.Order = order);
 
-            var result = Mapper.Clone(source);
+            var result = Mapper.Clone(order);
 
-            result.ShouldNotBeSameAs(source);
+            result.ShouldNotBeSameAs(order);
             result.Items.ShouldBe(item => item.ProductId, "Grass", "Flowers");
             result.Items.ShouldAllBe(item => item.Order == result);
         }

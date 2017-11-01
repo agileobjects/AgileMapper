@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
 #if NET_STANDARD
     using System.Reflection;
@@ -13,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
-        private readonly ICache<ObjectMapperKeyBase, IObjectMapperFunc> _recursionMappingFuncsByKey;
+        private readonly ICache<ObjectMapperKeyBase, IRecursionMapperFunc> _recursionMappingFuncsByKey;
 
         private ObjectMapper()
         {
@@ -46,9 +47,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private ICache<ObjectMapperKeyBase, IObjectMapperFunc> CreateRecursionMapperFuncs()
+        private ICache<ObjectMapperKeyBase, IRecursionMapperFunc> CreateRecursionMapperFuncs()
         {
-            var cache = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapperFunc>();
+            var cache = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRecursionMapperFunc>();
 
             foreach (var mappingLambdaAndKey in MapperData.RequiredMapperFuncsByKey)
             {
@@ -65,7 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                     var mapperFuncCreation = Expression.New(mapperFuncType.GetConstructors()[0], lambdaParameter);
 
-                    var mapperCreationLambda = Expression.Lambda<Func<LambdaExpression, IObjectMapperFunc>>(
+                    var mapperCreationLambda = Expression.Lambda<Func<LambdaExpression, IRecursionMapperFunc>>(
                         mapperFuncCreation,
                         lambdaParameter);
 
@@ -91,6 +92,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression MappingExpression => MappingLambda.Body;
 
         public ObjectMapperData MapperData { get; }
+
+        public IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs => _recursionMappingFuncsByKey.Values;
 
         public object Map(IObjectMappingData mappingData) => Map((ObjectMappingData<TSource, TTarget>)mappingData);
 

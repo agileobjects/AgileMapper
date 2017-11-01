@@ -229,14 +229,22 @@
         }
 
         [Fact]
-        public void ShouldShowObjectTracking()
+        public void ShouldShowObjectTrackingAndRecursionFuncs()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 string plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
 
-                plan.ShouldContain("pToPData.TryGet(sourceParent2, out parent)");
-                plan.ShouldContain("pToPData.Register(sourceParent2, parent)");
+                plan.ShouldContain("pToPData.Register(sourceParent, parent)");
+                plan.ShouldContain("pToPData.Register(sourceParent.EldestChild, child)");
+
+                plan.ShouldContain("Recursion Mapper");
+
+                plan.ShouldContain("Parent -> Parent");
+                plan.ShouldContain("pToPData2.TryGet(pToPData2.Source, out parent)");
+
+                plan.ShouldContain("Child -> Child");
+                plan.ShouldContain("cToCData2.TryGet(cToCData2.Source, out child)");
             }
         }
 
