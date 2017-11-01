@@ -284,25 +284,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #region Factory Method
 
         public static ObjectMapperData For<TSource, TTarget>(IObjectMappingData mappingData)
-        {
+        {   
             var membersSource = mappingData.MapperKey.GetMembersSource(mappingData.Parent);
             var sourceMember = membersSource.GetSourceMember<TSource, TTarget>().WithType(typeof(TSource));
             var targetMember = membersSource.GetTargetMember<TSource, TTarget>().WithType(typeof(TTarget));
+
             int? dataSourceIndex;
             ObjectMapperData parentMapperData;
-            bool isForStandaloneMapping;
 
             if (mappingData.IsRoot)
             {
                 dataSourceIndex = null;
                 parentMapperData = null;
-                isForStandaloneMapping = true;
             }
             else
             {
                 dataSourceIndex = (membersSource as IChildMembersSource)?.DataSourceIndex;
                 parentMapperData = mappingData.Parent.MapperData;
-                isForStandaloneMapping = mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
             }
 
             return new ObjectMapperData(
@@ -312,7 +310,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 dataSourceIndex,
                 mappingData.DeclaredTypeMappingData?.MapperData,
                 parentMapperData,
-                isForStandaloneMapping);
+                mappingData.IsStandalone());
         }
 
         #endregion
