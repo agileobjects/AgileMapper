@@ -121,7 +121,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
-            return dictionaryMember.HasObjectEntries && !mappingData.MapperData.Context.IsStandalone;
+            return dictionaryMember.HasObjectEntries && !mappingData.IsStandalone();
         }
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)

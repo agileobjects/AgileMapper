@@ -12,6 +12,9 @@ namespace AgileObjects.AgileMapper.Members
 
     internal static class MemberMapperDataExtensions
     {
+        public static bool IsStandalone(this IObjectMappingData mappingData)
+            => mappingData.IsRoot || mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
+
         public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
             while (!mapperData.IsRoot)

@@ -11,17 +11,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ChildObjectMapperKey(MappingTypes mappingTypes, IChildMembersSource childMembersSource)
             : this(
-                  childMembersSource.TargetMemberRegistrationName,
-                  childMembersSource.DataSourceIndex,
-                  mappingTypes)
+                mappingTypes,
+                childMembersSource.TargetMemberRegistrationName,
+                childMembersSource.DataSourceIndex)
         {
             _childMemberSource = childMembersSource;
         }
 
         public ChildObjectMapperKey(
+            MappingTypes mappingTypes,
             string targetMemberRegistrationName,
-            int dataSourceIndex,
-            MappingTypes mappingTypes)
+            int dataSourceIndex)
             : base(mappingTypes)
         {
             _targetMemberRegistrationName = targetMemberRegistrationName;
@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return (_childMemberSource != null)
                 ? new ChildObjectMapperKey(newMappingTypes, _childMemberSource)
-                : new ChildObjectMapperKey(_targetMemberRegistrationName, _dataSourceIndex, newMappingTypes);
+                : new ChildObjectMapperKey(newMappingTypes, _targetMemberRegistrationName, _dataSourceIndex);
         }
 
         public override bool Equals(object obj)

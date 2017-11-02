@@ -9,10 +9,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         Expression MappingExpression { get; }
 
-        LambdaExpression MappingLambda { get; }
-
         ObjectMapperData MapperData { get; }
 
-        IEnumerable<IObjectMapper> SubMappers { get; }
+        IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs { get; }
     }
 }

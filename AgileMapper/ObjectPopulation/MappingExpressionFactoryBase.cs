@@ -113,11 +113,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingExtras.MapperData;
 
-            if (mappingExpressions.None())
-            {
-                goto CreateFullMappingBlock;
-            }
-
             Expression returnExpression;
 
             AdjustForSingleExpressionBlockIfApplicable(ref mappingExpressions);

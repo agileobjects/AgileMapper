@@ -46,17 +46,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public static IObjectMappingData ForChild(
-            string targetMemberRegistrationName,
-            int dataSourceIndex,
-            IObjectMappingData parent)
-        {
-            var sourceMember = parent.MapperData.GetSourceMemberFor(targetMemberRegistrationName, dataSourceIndex);
-            var targetMember = parent.MapperData.GetTargetMemberFor(targetMemberRegistrationName);
-
-            return ForChild(sourceMember, targetMember, dataSourceIndex, parent);
-        }
-
-        public static IObjectMappingData ForChild(
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             int dataSourceIndex,
@@ -96,12 +85,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         object IObjectMappingDataFactoryBridge.ForChild<TSource, TTarget>(object childMembersSource, object parent)
         {
-            return ForChild(
+            var mapperKey = new ChildObjectMapperKey(
+                MappingTypes.For(default(TSource), default(TTarget)),
+                (IChildMembersSource)childMembersSource);
+
+            var parentMappingData = (IObjectMappingData)parent;
+
+            return Create(
                 default(TSource),
                 default(TTarget),
                 default(int?),
-                (IChildMembersSource)childMembersSource,
-                (IObjectMappingData)parent);
+                mapperKey,
+                parentMappingData.MappingContext,
+                parentMappingData);
         }
 
         public static IObjectMappingData ForChild<TSource, TTarget>(
@@ -112,24 +108,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex,
             IObjectMappingData parent)
         {
-            var membersSource = new MemberLookupsChildMembersSource(parent, targetMemberRegistrationName, dataSourceIndex);
-
-            return ForChild(
-                source,
-                target,
-                enumerableIndex,
-                membersSource,
-                parent);
-        }
-
-        private static IObjectMappingData ForChild<TSource, TTarget>(
-            TSource source,
-            TTarget target,
-            int? enumerableIndex,
-            IChildMembersSource membersSource,
-            IObjectMappingData parent)
-        {
-            var mapperKey = new ChildObjectMapperKey(MappingTypes.For(source, target), membersSource);
+            var mapperKey = new ChildObjectMapperKey(
+                MappingTypes.For(source, target),
+                targetMemberRegistrationName,
+                dataSourceIndex);
 
             return Create(
                 source,
@@ -142,21 +124,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public static IObjectMappingData ForElement(IObjectMappingData parent)
         {
-            var sourceElementMember = parent.MapperData.SourceMember.GetElementMember();
-            var targetElementMember = parent.MapperData.TargetMember.GetElementMember();
+            var sourceElementType = parent.MapperData.SourceMember.GetElementMember().Type;
+            var targetElementType = parent.MapperData.TargetMember.GetElementMember().Type;
 
-            var membersSource = new FixedMembersMembersSource(sourceElementMember, targetElementMember);
-
-            return ForElement(sourceElementMember.Type, targetElementMember.Type, membersSource, parent);
+            return ForElement(sourceElementType, targetElementType, parent);
         }
 
-        public static IObjectMappingData ForElement(Type sourceElementType, Type targetElementType, IObjectMappingData parent)
-            => ForElement(sourceElementType, targetElementType, new ElementMembersSource(parent), parent);
-
-        private static IObjectMappingData ForElement(
+        public static IObjectMappingData ForElement(
             Type sourceElementType,
             Type targetElementType,
-            IMembersSource elementMembersSource,
             IObjectMappingData parent)
         {
             var key = new ForElementCallerKey(sourceElementType, targetElementType);
@@ -164,7 +140,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
                 var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
-                var membersSourceParameter = Expression.Parameter(typeof(object), "membersSource");
                 var parentParameter = Expression.Parameter(typeof(object), "parent");
 
                 var typedForElementMethod = bridgeParameter.Type
@@ -174,29 +149,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var typedForElementCall = Expression.Call(
                     bridgeParameter,
                     typedForElementMethod,
-                    membersSourceParameter,
                     parentParameter);
 
-                var typedForElementLambda = Expression.Lambda<Func<IObjectMappingDataFactoryBridge, object, object, object>>(
+                var typedForElementLambda = Expression.Lambda<Func<IObjectMappingDataFactoryBridge, object, object>>(
                     typedForElementCall,
                     bridgeParameter,
-                    membersSourceParameter,
                     parentParameter);
 
                 return typedForElementLambda.Compile();
             });
 
-            return (IObjectMappingData)typedForElementCaller.Invoke(_bridge, elementMembersSource, parent);
+            return (IObjectMappingData)typedForElementCaller.Invoke(_bridge, parent);
         }
 
-        object IObjectMappingDataFactoryBridge.ForElement<TSource, TTarget>(object membersSource, object parent)
+        object IObjectMappingDataFactoryBridge.ForElement<TSource, TTarget>(object parent)
         {
             var mappingData = (IObjectMappingData)parent;
             var source = mappingData.GetSource<TSource>();
             var target = mappingData.GetTarget<TTarget>();
             var index = mappingData.GetEnumerableIndex().GetValueOrDefault();
 
-            return ForElement(source, target, index, (IMembersSource)membersSource, mappingData);
+            return ForElement(source, target, index, mappingData);
         }
 
         public static IObjectMappingData ForElement<TSource, TTarget>(
@@ -205,24 +178,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int enumerableIndex,
             IObjectMappingData parent)
         {
-            var membersSource = new ElementMembersSource(parent);
-
-            return ForElement(
-                source,
-                target,
-                enumerableIndex,
-                membersSource,
-                parent);
-        }
-
-        private static IObjectMappingData ForElement<TSource, TTarget>(
-            TSource source,
-            TTarget target,
-            int enumerableIndex,
-            IMembersSource membersSource,
-            IObjectMappingData parent)
-        {
-            var mapperKey = new ElementObjectMapperKey(MappingTypes.For(source, target), membersSource);
+            var mapperKey = new ElementObjectMapperKey(MappingTypes.For(source, target));
 
             return Create(
                 source,

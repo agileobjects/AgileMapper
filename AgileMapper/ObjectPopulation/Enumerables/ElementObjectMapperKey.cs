@@ -10,8 +10,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     {
         private IMembersSource _membersSource;
 
-        public ElementObjectMapperKey(MappingTypes mappingTypes, IMembersSource membersSource = null)
+        public ElementObjectMapperKey(MappingTypes mappingTypes)
             : base(mappingTypes)
+        {
+        }
+
+        private ElementObjectMapperKey(MappingTypes mappingTypes, IMembersSource membersSource)
+            : this(mappingTypes)
         {
             _membersSource = membersSource;
         }

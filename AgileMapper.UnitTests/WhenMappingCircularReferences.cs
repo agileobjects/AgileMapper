@@ -151,21 +151,21 @@
         [Fact]
         public void ShouldMapToANewOneToManyRelationship()
         {
-            var source = new Order
+            var order = new Order
             {
                 DateCreated = DateTime.Now,
                 Items = new List<OrderItem>
                 {
-                    new OrderItem {ProductId = "Grass"},
-                    new OrderItem {ProductId = "Flowers"}
+                    new OrderItem { ProductId = "Grass" },
+                    new OrderItem { ProductId = "Flowers" }
                 }
             };
 
-            source.Items.ForEach(item => item.Order = source);
+            order.Items.ForEach(item => item.Order = order);
 
-            var result = Mapper.Clone(source);
+            var result = Mapper.Clone(order);
 
-            result.ShouldNotBeSameAs(source);
+            result.ShouldNotBeSameAs(order);
             result.Items.ShouldBe(item => item.ProductId, "Grass", "Flowers");
             result.Items.ShouldAllBe(item => item.Order == result);
         }
@@ -372,6 +372,42 @@
 
             resultOne.ChildRecursor.ShouldBeSameAs(resultTwo);
             resultTwo.ChildRecursor.ShouldBeSameAs(resultOne);
+        }
+
+        [Fact]
+        public void ShouldUseConfiguredRecursiveDataSources()
+        {
+            var sourceParent1 = new Parent { Name = "Parent 1", EldestChild = new Child { Name = "Child 1" } };
+            sourceParent1.EldestChild.EldestParent = sourceParent1;
+
+            var sourceParent2 = new Parent { Name = "Parent 2", EldestChild = new Child { Name = "Child 2" } };
+            sourceParent2.EldestChild.EldestParent = sourceParent2;
+
+            var source = new PublicTwoFields<Parent, Parent>
+            {
+                Value1 = sourceParent1,
+                Value2 = sourceParent2
+            };
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(source)
+                    .ToANew<PublicTwoFields<Parent, Parent>>(cfg => cfg
+                        .If(ctx => ctx.Source.Value1.Name == "Parent 1")
+                        .Map(ctx => ctx.Source.Value2)
+                        .To(t => t.Value1));
+
+                result.Value1.Name.ShouldBe("Parent 2");
+                result.Value1.EldestChild.ShouldNotBeNull();
+                result.Value1.EldestChild.Name.ShouldBe("Child 2");
+                result.Value1.EldestChild.EldestParent.ShouldBeSameAs(result.Value1);
+
+                result.Value2.Name.ShouldBe("Parent 2");
+                result.Value2.EldestChild.ShouldNotBeNull();
+                result.Value2.EldestChild.Name.ShouldBe("Child 2");
+                result.Value2.EldestChild.EldestParent.ShouldBeSameAs(result.Value2);
+            }
         }
 
         [Fact]

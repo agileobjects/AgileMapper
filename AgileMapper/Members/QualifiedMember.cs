@@ -104,9 +104,9 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            for (var i = MemberChain.Length - 2; i > 0; --i)
+            for (var i = MemberChain.Length - 2; i >= 0; --i)
             {
-                if (LeafMember.Equals(MemberChain[i]))
+                if (LeafMember.Type == MemberChain[i].Type)
                 {
                     return true;
                 }
