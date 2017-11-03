@@ -49,7 +49,8 @@ namespace AgileObjects.AgileMapper
             Constants.Project,
             new MappingRuleSetSettings
             {
-                UseMemberInitialisation = true
+                UseMemberInitialisation = true,
+                UseSingleRootMappingExpression = true
             },
             CopySourceEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,

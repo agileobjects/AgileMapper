@@ -4,17 +4,6 @@ namespace AgileObjects.AgileMapper
     using Members.Population;
     using ObjectPopulation.Enumerables;
 
-    internal class MappingRuleSetSettings
-    {
-        public bool RootHasPopulatedTarget { get; set; }
-
-        public bool SourceElementsCouldBeNull { get; set; }
-
-        public bool UseMemberInitialisation { get; set; }
-
-        public bool UseTryCatch { get; set; }
-    }
-
     internal class MappingRuleSet
     {
         public MappingRuleSet(

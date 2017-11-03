@@ -46,6 +46,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return false;
             }
 
+            if (mapperData.UseSingleMappingExpression())
+            {
+                return false;
+            }
+
             if (mapperData.TargetMember.IsComplex &&
                (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated()) &&
                !mapperData.TargetMemberIsUserStruct())

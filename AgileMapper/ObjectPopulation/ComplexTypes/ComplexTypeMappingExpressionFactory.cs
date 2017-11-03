@@ -144,9 +144,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static bool UseMemberInitialisation(IBasicMapperData mapperData)
-            => mapperData.RuleSet.Settings.UseMemberInitialsation || mapperData.TargetMemberIsUserStruct();
-
-        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
+            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.TargetMemberIsUserStruct();
 
         public override void Reset() => _constructionFactory.Reset();
     }

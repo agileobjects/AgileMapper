@@ -262,7 +262,9 @@
             Expression mappingExpression,
             ObjectMapperData mapperData)
         {
-            if (mapperData.Context.IsForDerivedType || !mapperData.Context.IsStandalone)
+            if (mapperData.Context.IsForDerivedType ||
+               !mapperData.Context.IsStandalone ||
+                mapperData.UseSingleMappingExpression())
             {
                 return mappingExpression;
             }

@@ -154,6 +154,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             CreateFullMappingBlock:
 
+            if (mapperData.UseSingleMappingExpression())
+            {
+                return mappingExpressions.First();
+            }
+
             returnExpression = GetReturnExpression(GetReturnValue(mapperData), mappingExtras);
 
             mappingExpressions.Add(mapperData.GetReturnLabel(returnExpression));
@@ -190,7 +195,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 : returnValue;
         }
 
-        protected abstract Expression GetReturnValue(ObjectMapperData mapperData);
+        protected virtual Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
 
         private static Expression WrapInTryCatch(Expression mappingBlock, IMemberMapperData mapperData)
         {

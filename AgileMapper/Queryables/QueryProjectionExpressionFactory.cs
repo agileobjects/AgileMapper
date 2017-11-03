@@ -47,10 +47,5 @@
 
             yield return queryProjection;
         }
-
-        protected override Expression GetReturnValue(ObjectMapperData mapperData)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

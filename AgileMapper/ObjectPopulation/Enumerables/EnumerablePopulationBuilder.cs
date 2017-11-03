@@ -513,7 +513,7 @@
             return GetSourceItemsProjection(
                 sourceEnumerableValue,
                 _selectWithoutIndexMethod,
-                (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter));
+                projectionFuncFactory.Invoke);
         }
 
         public Expression GetSourceItemsProjection(
@@ -521,7 +521,7 @@
             MethodInfo selectMethod,
             Func<Expression, Expression> projectionFuncFactory)
         {
-            return GetSourceItemsProjection(
+            return CreateSourceItemsProjection(
                 sourceEnumerableValue,
                 selectMethod,
                 (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter),
@@ -532,7 +532,7 @@
             Expression sourceEnumerableValue,
             Func<Expression, Expression, Expression> projectionFuncFactory)
         {
-            return GetSourceItemsProjection(
+            return CreateSourceItemsProjection(
                 sourceEnumerableValue,
                 _selectWithIndexMethod,
                 projectionFuncFactory,
@@ -540,7 +540,7 @@
                 Counter);
         }
 
-        private Expression GetSourceItemsProjection(
+        private Expression CreateSourceItemsProjection(
             Expression sourceEnumerableValue,
             MethodInfo linqSelectOverload,
             Func<Expression, Expression, Expression> projectionFuncFactory,

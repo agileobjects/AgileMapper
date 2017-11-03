@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
+    using Extensions;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -32,9 +32,11 @@
                         .GetNonPublicStaticMethod("ProjectQuery")
                         .MakeGenericMethod(key.SourceType, key.TargetType);
 
+                    var typedSourceQueryable = typeof(IQueryable<>).MakeGenericType(key.SourceType);
+
                     var projectQueryCall = Expression.Call(
                         projectQueryMethod,
-                        Parameters.Queryable,
+                        Parameters.Queryable.GetConversionTo(typedSourceQueryable),
                         Parameters.MapperInternal);
 
                     var projectQueryLambda = Expression.Lambda<Func<IQueryable, IMapperInternal, IQueryable<TResultElement>>>(
@@ -49,7 +51,7 @@
         }
 
         internal static IQueryable<TResultElement> ProjectQuery<TSourceElement, TResultElement>(
-            IQueryable sourceQueryable,
+            IQueryable<TSourceElement> sourceQueryable,
             IMapperInternal mapper)
         {
             var projectorKey = new QueryProjectorKey(
@@ -58,13 +60,14 @@
                 mapper.Context);
 
             var rootMappingData = ObjectMappingDataFactory
-                .ForProjection<TSourceElement, TResultElement>(projectorKey, mapper);
+                .ForProjection<IQueryable<TSourceElement>, IQueryable<TResultElement>>(
+                    projectorKey,
+                    sourceQueryable,
+                    mapper);
 
-            //mapper.Context.ObjectMapperFactory.GetOrCreateRoot()
+            var queryProjection = rootMappingData.MapStart();
 
-            //items.
-
-            return null;
+            return queryProjection;
         }
     }
 }

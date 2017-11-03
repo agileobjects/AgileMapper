@@ -15,6 +15,9 @@ namespace AgileObjects.AgileMapper.Members
         public static bool IsStandalone(this IObjectMappingData mappingData)
             => mappingData.IsRoot || mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
 
+        public static bool UseSingleMappingExpression(this IBasicMapperData mapperData)
+            => mapperData.IsRoot && mapperData.RuleSet.Settings.UseSingleRootMappingExpression;
+
         public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
             while (!mapperData.IsRoot)

@@ -324,8 +324,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return builder;
         }
-
-        protected override Expression GetReturnValue(ObjectMapperData mapperData)
-            => mapperData.TargetInstance;
     }
 }

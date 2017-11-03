@@ -24,7 +24,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             yield return mapperData.TargetObject;
         }
-
-        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
     }
 }
