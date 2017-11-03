@@ -12,5 +12,9 @@
         }
 
         public DbSet<Product> Products { get; set; }
+
+        public DbSet<PublicIntProperty> IntItems { get; set; }
+
+        public DbSet<PublicBoolProperty> BoolItems { get; set; }
     }
 }

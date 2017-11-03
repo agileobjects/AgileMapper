@@ -88,8 +88,12 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Ef6TestClassBase.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="TestClasses\Product.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
+    <Compile Include="TestClasses\PublicBoolProperty.cs" />
+    <Compile Include="TestClasses\PublicBoolPropertyDto.cs" />
+    <Compile Include="TestClasses\PublicIntProperty.cs" />
     <Compile Include="TestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestContextCollection.cs" />
