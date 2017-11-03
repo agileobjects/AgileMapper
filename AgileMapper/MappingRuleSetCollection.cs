@@ -31,13 +31,20 @@ namespace AgileObjects.AgileMapper
             NullMemberPopulationGuardFactory.Instance,
             DefaultValueDataSourceFactory.Instance);
 
+        private static readonly MappingRuleSet _project = new MappingRuleSet(
+            Constants.Project,
+            false,
+            CopySourceEnumerablePopulationStrategy.Instance,
+            NullMemberPopulationGuardFactory.Instance,
+            ExistingOrDefaultValueDataSourceFactory.Instance);
+
         #endregion
 
         private readonly List<MappingRuleSet> _ruleSets;
 
         public MappingRuleSetCollection()
         {
-            _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite };
+            _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite, Project };
         }
 
         public IEnumerable<MappingRuleSet> All => _ruleSets;
@@ -47,6 +54,8 @@ namespace AgileObjects.AgileMapper
         public MappingRuleSet Merge => _merge;
 
         public MappingRuleSet Overwrite => _overwrite;
+
+        public MappingRuleSet Project => _project;
 
         public MappingRuleSet GetByName(string name) => _ruleSets.First(rs => rs.Name == name);
     }
