@@ -35,7 +35,7 @@
         {
             var mapperData = mappingData.MapperData;
 
-            var elementMapping = mapperData
+            var queryProjection = mapperData
                 .EnumerablePopulationBuilder
                 .GetSourceItemsProjection(
                     mapperData.SourceObject,
@@ -45,7 +45,7 @@
                         mapperData.TargetMember.ElementType.ToDefaultExpression(),
                         mappingData));
 
-            yield return null;
+            yield return queryProjection;
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)

@@ -5,9 +5,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Extensions;
     using Members.Population;
 
-    internal class StructPopulationExpressionFactory : PopulationExpressionFactoryBase
+    internal class MemberInitPopulationExpressionFactory : PopulationExpressionFactoryBase
     {
-        public StructPopulationExpressionFactory(ComplexTypeConstructionFactory constructionFactory)
+        public MemberInitPopulationExpressionFactory(ComplexTypeConstructionFactory constructionFactory)
             : base(constructionFactory)
         {
         }

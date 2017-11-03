@@ -6,9 +6,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Members.Population;
     using static CallbackPosition;
 
-    internal class ClassPopulationExpressionFactory : PopulationExpressionFactoryBase
+    internal class MultiStatementPopulationExpressionFactory : PopulationExpressionFactoryBase
     {
-        public ClassPopulationExpressionFactory(ComplexTypeConstructionFactory constructionFactory)
+        public MultiStatementPopulationExpressionFactory(ComplexTypeConstructionFactory constructionFactory)
             : base(constructionFactory)
         {
         }

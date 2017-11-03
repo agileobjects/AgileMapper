@@ -10,6 +10,8 @@ namespace AgileObjects.AgileMapper
 
         public bool SourceElementsCouldBeNull { get; set; }
 
+        public bool UseMemberInitialisation { get; set; }
+
         public bool UseTryCatch { get; set; }
     }
 

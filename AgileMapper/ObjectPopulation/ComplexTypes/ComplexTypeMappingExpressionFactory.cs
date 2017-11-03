@@ -15,15 +15,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
         private readonly ComplexTypeConstructionFactory _constructionFactory;
-        private readonly PopulationExpressionFactoryBase _structPopulationFactory;
-        private readonly PopulationExpressionFactoryBase _classPopulationFactory;
+        private readonly PopulationExpressionFactoryBase _memberInitPopulationFactory;
+        private readonly PopulationExpressionFactoryBase _multiStatementPopulationFactory;
         private readonly IEnumerable<ISourceShortCircuitFactory> _shortCircuitFactories;
 
         public ComplexTypeMappingExpressionFactory(MapperContext mapperContext)
         {
             _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
-            _structPopulationFactory = new StructPopulationExpressionFactory(_constructionFactory);
-            _classPopulationFactory = new ClassPopulationExpressionFactory(_constructionFactory);
+            _memberInitPopulationFactory = new MemberInitPopulationExpressionFactory(_constructionFactory);
+            _multiStatementPopulationFactory = new MultiStatementPopulationExpressionFactory(_constructionFactory);
 
             _shortCircuitFactories = new[]
             {
@@ -136,12 +136,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            var expressionFactory = mappingData.MapperData.TargetMemberIsUserStruct()
-                ? _structPopulationFactory
-                : _classPopulationFactory;
+            var expressionFactory = UseMemberInitialisation(mappingData.MapperData)
+                ? _memberInitPopulationFactory
+                : _multiStatementPopulationFactory;
 
             return expressionFactory.GetPopulation(mappingData);
         }
+
+        private static bool UseMemberInitialisation(IBasicMapperData mapperData)
+            => mapperData.RuleSet.Settings.UseMemberInitialsation || mapperData.TargetMemberIsUserStruct();
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
 

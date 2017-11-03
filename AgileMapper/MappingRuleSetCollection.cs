@@ -47,7 +47,10 @@ namespace AgileObjects.AgileMapper
 
         private static readonly MappingRuleSet _project = new MappingRuleSet(
             Constants.Project,
-            new MappingRuleSetSettings(),
+            new MappingRuleSetSettings
+            {
+                UseMemberInitialisation = true
+            },
             CopySourceEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
             ExistingOrDefaultValueDataSourceFactory.Instance);
