@@ -63,7 +63,7 @@
                 .ForProjection<IQueryable<TSourceElement>, IQueryable<TResultElement>>(
                     projectorKey,
                     sourceQueryable,
-                    mapper);
+                    mapper.Context.QueryProjectionMappingContext);
 
             var queryProjection = rootMappingData.MapStart();
 

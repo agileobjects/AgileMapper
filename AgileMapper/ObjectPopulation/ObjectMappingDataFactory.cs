@@ -25,13 +25,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static ObjectMappingData<TSourceQueryable, TResultQueryable> ForProjection<TSourceQueryable, TResultQueryable>(
             ObjectMapperKeyBase projectorKey,
             TSourceQueryable sourceQueryable,
-            IMapperInternal mapper)
+            IMappingContext mappingContext)
         {
             return ForRootFixedTypes(
                 sourceQueryable,
                 default(TResultQueryable),
                 projectorKey,
-                new SimpleMappingContext(mapper.Context.RuleSets.Project, mapper.Context));
+                mappingContext);
         }
 
         public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(

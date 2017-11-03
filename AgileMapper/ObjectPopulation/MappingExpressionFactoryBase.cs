@@ -122,6 +122,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             AdjustForSingleExpressionBlockIfApplicable(ref mappingExpressions);
 
+            if (mapperData.UseSingleMappingExpression())
+            {
+                return mappingExpressions.First();
+            }
+
             if (mappingExpressions[0].NodeType != ExpressionType.Block)
             {
                 if (mappingExpressions[0].NodeType == ExpressionType.MemberAccess)
@@ -153,11 +158,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             CreateFullMappingBlock:
-
-            if (mapperData.UseSingleMappingExpression())
-            {
-                return mappingExpressions.First();
-            }
 
             returnExpression = GetReturnExpression(GetReturnValue(mapperData), mappingExtras);
 
