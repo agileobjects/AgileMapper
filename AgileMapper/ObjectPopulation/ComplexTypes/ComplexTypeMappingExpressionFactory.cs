@@ -39,14 +39,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 // If a target complex type is readonly or unconstructable 
                 // we still try to map to it using an existing non-null value:
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             if (_constructionFactory.GetNewObjectCreation(mappingData) != null)
             {
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             var targetType = mappingData.MapperData.TargetType;

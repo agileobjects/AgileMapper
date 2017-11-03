@@ -5,6 +5,11 @@
     using Api;
     using Api.Configuration;
 
+    internal interface IMapperInternal : IMapper
+    {
+        MapperContext Context { get; }
+    }
+
     /// <summary>
     /// Provides mapping and mapping configuration services.
     /// </summary>

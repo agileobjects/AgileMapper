@@ -513,6 +513,17 @@
             return GetSourceItemsProjection(
                 sourceEnumerableValue,
                 _selectWithoutIndexMethod,
+                (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter));
+        }
+
+        public Expression GetSourceItemsProjection(
+            Expression sourceEnumerableValue,
+            MethodInfo selectMethod,
+            Func<Expression, Expression> projectionFuncFactory)
+        {
+            return GetSourceItemsProjection(
+                sourceEnumerableValue,
+                selectMethod,
                 (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter),
                 _sourceElementParameter);
         }

@@ -63,9 +63,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mappingBlock;
         }
 
-        protected abstract bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock);
+        protected virtual bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
+        {
+            nullMappingBlock = null;
+            return false;
+        }
 
-        protected abstract IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData);
+        protected virtual IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
+            => Enumerable<Expression>.Empty;
 
         private bool MappingAlwaysBranchesToDerivedType(IObjectMappingData mappingData, out Expression derivedTypeMappings)
         {
@@ -81,7 +86,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        protected abstract Expression GetDerivedTypeMappings(IObjectMappingData mappingData);
+        protected virtual Expression GetDerivedTypeMappings(IObjectMappingData mappingData) => Constants.EmptyExpression;
 
         private static MappingExtras GetMappingExtras(ObjectMapperData mapperData)
         {

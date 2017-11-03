@@ -15,6 +15,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
+        public static readonly MappingExpressionFactoryBase Instance = new DictionaryMappingExpressionFactory();
+
         private readonly MemberPopulationFactory _memberPopulationFactory;
 
         public DictionaryMappingExpressionFactory()
@@ -128,16 +130,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (mappingData.MapperKey.MappingTypes.SourceType.IsDictionary())
             {
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             var targetMember = (DictionaryTargetMember)mappingData.MapperData.TargetMember;
 
             if ((targetMember.KeyType == typeof(string)) || (targetMember.KeyType == typeof(object)))
             {
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             nullMappingBlock = Expression.Block(
@@ -146,12 +146,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return true;
         }
-
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
-            => Enumerable<Expression>.Empty;
-
-        protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
-            => Constants.EmptyExpression;
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {

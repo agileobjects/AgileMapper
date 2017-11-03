@@ -7,22 +7,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class SimpleTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
+        public static readonly MappingExpressionFactoryBase Instance = new SimpleTypeMappingExpressionFactory();
+
         public override bool IsFor(IObjectMappingData mappingData)
-        {
-            return mappingData.MapperKey.MappingTypes.TargetType.IsSimple();
-        }
-
-        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
-        {
-            nullMappingBlock = null;
-            return false;
-        }
-
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
-            => Enumerable<Expression>.Empty;
-
-        protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
-            => Constants.EmptyExpression;
+            => mappingData.MapperKey.MappingTypes.TargetType.IsSimple();
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {

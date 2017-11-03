@@ -10,9 +10,9 @@
     /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
     /// instance via the static Mapper access methods.
     /// </summary>
-    public sealed class Mapper : IMapper
+    public sealed class Mapper : IMapperInternal
     {
-        private static readonly IMapper _default = CreateNew();
+        internal static readonly IMapperInternal Default = CreateNewInternal();
 
         private Mapper(MapperContext context)
         {
@@ -25,16 +25,13 @@
         /// Creates an instance implementing IMapper with which to perform mappings.
         /// </summary>
         /// <returns>A new instance implementing IMapper.</returns>
-        public static IMapper CreateNew()
-        {
-            var mapper = new Mapper(new MapperContext());
+        public static IMapper CreateNew() => CreateNewInternal();
 
-            MapperCache.Add(mapper);
-
-            return mapper;
-        }
+        private static IMapperInternal CreateNewInternal() => new Mapper(new MapperContext());
 
         #endregion
+
+        MapperContext IMapperInternal.Context => Context;
 
         internal MapperContext Context { get; }
 
@@ -80,7 +77,7 @@
         /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>() => _default.GetPlanFor<TSource>();
+        public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>() => Default.GetPlanFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for mapping from the source type specified by the given 
@@ -106,30 +103,30 @@
         /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>() => _default.GetPlansFor<TSource>();
+        public static IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>() => Default.GetPlansFor<TSource>();
 
         /// <summary>
         /// Returns mapping plans for all mapping functions currently cached by the default <see cref="IMapper"/>.
         /// </summary>
         /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>
-        public static string GetPlansInCache() => _default.GetPlansInCache();
+        public static string GetPlansInCache() => Default.GetPlansInCache();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source
         /// and target types.
         /// </summary>
-        public static PreEventConfigStartingPoint Before => _default.Before;
+        public static PreEventConfigStartingPoint Before => Default.Before;
 
         /// <summary>
         /// Configure callbacks to be executed after a particular type of event occurs for all source
         /// and target types.
         /// </summary>
-        public static PostEventConfigStartingPoint After => _default.After;
+        public static PostEventConfigStartingPoint After => Default.After;
 
         /// <summary>
         /// Configure how the default mapper performs a mapping.
         /// </summary>
-        public static MappingConfigStartingPoint WhenMapping => _default.WhenMapping;
+        public static MappingConfigStartingPoint WhenMapping => Default.WhenMapping;
 
         /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
@@ -137,7 +134,7 @@
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        public static TSource Clone<TSource>(TSource source) => _default.Clone(source);
+        public static TSource Clone<TSource>(TSource source) => Default.Clone(source);
 
         /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
@@ -153,7 +150,7 @@
             TSource source,
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations)
         {
-            return _default.Clone(source, configurations);
+            return Default.Clone(source, configurations);
         }
 
         /// <summary>
@@ -167,7 +164,7 @@
         /// properties.
         /// </returns>
         public static dynamic Flatten<TSource>(TSource source) where TSource : class
-            => _default.Flatten(source);
+            => Default.Flatten(source);
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.
@@ -175,9 +172,9 @@
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
         /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        public static ITargetTypeSelector<TSource> Map<TSource>(TSource source) => _default.Map(source);
+        public static ITargetTypeSelector<TSource> Map<TSource>(TSource source) => Default.Map(source);
 
-        internal static void ResetDefaultInstance() => _default.Dispose();
+        internal static void ResetDefaultInstance() => Default.Dispose();
 
         #endregion
 
@@ -207,13 +204,5 @@
         public void Dispose() => Context.Reset();
 
         #endregion
-    }
-
-    internal static class MapperCache
-    {
-        public static void Add(IMapper mapper)
-        {
-
-        }
     }
 }

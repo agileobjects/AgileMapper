@@ -31,7 +31,7 @@
         internal static MappingPlan For<TSource, TTarget>(IMappingContext mappingContext)
         {
             var mappingData = ObjectMappingDataFactory
-                .ForRootFixedTypes(default(TSource), default(TTarget), mappingContext);
+                .ForRootFixedTypes<TSource, TTarget>(mappingContext);
 
             return new MappingPlan(mappingData.Mapper);
         }

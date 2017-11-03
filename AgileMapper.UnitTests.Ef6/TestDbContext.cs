@@ -2,6 +2,7 @@
 {
     using System.Data.Entity;
     using Effort;
+    using TestClasses;
 
     public class TestDbContext : DbContext
     {

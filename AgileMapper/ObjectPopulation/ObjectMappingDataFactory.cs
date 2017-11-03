@@ -17,15 +17,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly IObjectMappingDataFactoryBridge _bridge = new ObjectMappingDataFactory();
 
         public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
+            IMappingContext mappingContext)
+        {
+            return ForRootFixedTypes(default(TSource), default(TTarget), mappingContext);
+        }
+
+        public static ObjectMappingData<IQueryable<TSourceElement>, IQueryable<TResultElement>> ForProjection<TSourceElement, TResultElement>(
+            ObjectMapperKeyBase projectorKey,
+            IMapperInternal mapper)
+        {
+            return ForRootFixedTypes(
+                default(IQueryable<TSourceElement>),
+                default(IQueryable<TResultElement>),
+                projectorKey,
+                new SimpleMappingContext(mapper.Context.RuleSets.Project, mapper.Context));
+        }
+
+        public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
             TSource source,
             TTarget target,
+            IMappingContext mappingContext)
+        {
+            return ForRootFixedTypes(
+                source,
+                target,
+                new RootObjectMapperKey(MappingTypes<TSource, TTarget>.Fixed, mappingContext),
+                mappingContext);
+        }
+
+        private static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
+            TSource source,
+            TTarget target,
+            ObjectMapperKeyBase mapperKey,
             IMappingContext mappingContext)
         {
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
                 null, // <- No enumerable index because we're at the root
-                new RootObjectMapperKey(MappingTypes<TSource, TTarget>.Fixed, mappingContext),
+                mapperKey,
                 mappingContext,
                 parent: null);
         }
