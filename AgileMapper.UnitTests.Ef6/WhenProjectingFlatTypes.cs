@@ -5,9 +5,9 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenProjecting : Ef6TestClassBase
+    public class WhenProjectingFlatTypes : Ef6TestClassBase
     {
-        public WhenProjecting(TestContext context)
+        public WhenProjectingFlatTypes(TestContext context)
             : base(context)
         {
         }
@@ -31,9 +31,16 @@
 
                 context.SaveChanges();
 
-                var products = context.Products.ProjectTo<ProductDto>().ToArray();
+                var products = context.Products.ToArray();
+                var productDtos = context.Products.ProjectTo<ProductDto>().ToArray();
 
-                products.Length.ShouldBe(2);
+                productDtos.Length.ShouldBe(2);
+
+                productDtos[0].ProductId.ShouldBe(products[0].ProductId);
+                productDtos[0].Name.ShouldBe(products[0].Name);
+
+                productDtos[1].ProductId.ShouldBe(products[1].ProductId);
+                productDtos[1].Name.ShouldBe(products[1].Name);
             });
         }
     }
