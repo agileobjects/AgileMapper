@@ -85,7 +85,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool UseLocalVariable { get; }
 
-        public bool UseMappingTryCatch => _mapperData.IsRoot || !IsPartOfUserStructMapping;
+        public bool UseMappingTryCatch
+            => _mapperData.RuleSet.Settings.UseTryCatch && (_mapperData.IsRoot || !IsPartOfUserStructMapping);
 
         public bool IsPartOfUserStructMapping
         {

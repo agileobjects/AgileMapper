@@ -4,17 +4,24 @@ namespace AgileObjects.AgileMapper
     using Members.Population;
     using ObjectPopulation.Enumerables;
 
+    internal class MappingRuleSetSettings
+    {
+        public bool RootHasPopulatedTarget { get; set; }
+
+        public bool UseTryCatch { get; set; }
+    }
+
     internal class MappingRuleSet
     {
         public MappingRuleSet(
             string name,
-            bool rootHasPopulatedTarget,
+            MappingRuleSetSettings settings,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
             IMemberPopulationGuardFactory populationGuardFactory,
             IDataSourceFactory fallbackDataSourceFactory)
         {
             Name = name;
-            RootHasPopulatedTarget = rootHasPopulatedTarget;
+            Settings = settings;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             PopulationGuardFactory = populationGuardFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
@@ -22,7 +29,7 @@ namespace AgileObjects.AgileMapper
 
         public string Name { get; }
 
-        public bool RootHasPopulatedTarget { get; }
+        public MappingRuleSetSettings Settings { get; }
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 
