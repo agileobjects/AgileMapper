@@ -12,21 +12,35 @@ namespace AgileObjects.AgileMapper
 
         private static readonly MappingRuleSet _createNew = new MappingRuleSet(
             Constants.CreateNew,
-            new MappingRuleSetSettings { UseTryCatch = true },
+            new MappingRuleSetSettings
+            {
+                SourceElementsCouldBeNull = true,
+                UseTryCatch = true
+            },
             CopySourceEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
         private static readonly MappingRuleSet _merge = new MappingRuleSet(
             Constants.Merge,
-            new MappingRuleSetSettings { RootHasPopulatedTarget = true, UseTryCatch = true },
+            new MappingRuleSetSettings
+            {
+                RootHasPopulatedTarget = true,
+                SourceElementsCouldBeNull = true,
+                UseTryCatch = true
+            },
             MergeEnumerablePopulationStrategy.Instance,
             PreserveExistingValueMemberPopulationGuardFactory.Instance,
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
             Constants.Overwrite,
-            new MappingRuleSetSettings { RootHasPopulatedTarget = true, UseTryCatch = true },
+            new MappingRuleSetSettings
+            {
+                RootHasPopulatedTarget = true,
+                SourceElementsCouldBeNull = true,
+                UseTryCatch = true
+            },
             OverwriteEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
             DefaultValueDataSourceFactory.Instance);

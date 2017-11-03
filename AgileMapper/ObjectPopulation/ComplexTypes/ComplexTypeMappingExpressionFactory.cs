@@ -91,7 +91,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return false;
             }
 
-            if (mapperData.TargetMemberIsEnumerableElement())
+            if (mapperData.RuleSet.Settings.SourceElementsCouldBeNull && mapperData.TargetMemberIsEnumerableElement())
             {
                 return !mapperData.HasSameSourceAsParent();
             }

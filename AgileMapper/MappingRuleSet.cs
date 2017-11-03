@@ -8,6 +8,8 @@ namespace AgileObjects.AgileMapper
     {
         public bool RootHasPopulatedTarget { get; set; }
 
+        public bool SourceElementsCouldBeNull { get; set; }
+
         public bool UseTryCatch { get; set; }
     }
 
