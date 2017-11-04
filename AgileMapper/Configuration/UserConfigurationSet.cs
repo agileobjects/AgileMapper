@@ -175,7 +175,7 @@
             DataSourceFactories.AddSortFilter(dataSourceFactory);
         }
 
-        public IEnumerable<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
+        public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
             => _dataSourceFactories.FindMatches(mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
 
         #endregion

@@ -13,12 +13,8 @@ namespace AgileObjects.AgileMapper.Members.Population
         private readonly DataSourceSet _dataSources;
         private readonly Expression _populateCondition;
 
-        private MemberPopulation(
-            IMemberMapperData mapperData,
-            DataSourceSet dataSources,
-            Expression populateCondition = null)
+        private MemberPopulation(DataSourceSet dataSources, Expression populateCondition = null)
         {
-            MapperData = mapperData;
             _dataSources = dataSources;
             _populateCondition = populateCondition;
         }
@@ -48,7 +44,7 @@ namespace AgileObjects.AgileMapper.Members.Population
                 populateCondition = GetPopulateCondition(populateCondition, mappingData);
             }
 
-            return new MemberPopulation(mappingData.MapperData, dataSources, populateCondition);
+            return new MemberPopulation(dataSources, populateCondition);
         }
 
         private static Expression GetPopulateCondition(Expression populateCondition, IChildMemberMappingData mappingData)
@@ -88,16 +84,15 @@ namespace AgileObjects.AgileMapper.Members.Population
             IMemberMapperData mapperData,
             Func<QualifiedMember, string> commentFactory)
         {
-            return new MemberPopulation(
-                mapperData,
-                new DataSourceSet(
+            return new MemberPopulation(new DataSourceSet(
+                    mapperData,
                     new NullDataSource(
                         ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember)))));
         }
 
         #endregion
 
-        public IMemberMapperData MapperData { get; }
+        public IMemberMapperData MapperData => _dataSources.MapperData;
 
         public bool IsSuccessful => _dataSources.HasValue;
 
@@ -112,7 +107,7 @@ namespace AgileObjects.AgileMapper.Members.Population
                 ? GetBinding()
                 : MapperData.TargetMember.IsReadOnly
                     ? GetReadOnlyMemberPopulation()
-                    : _dataSources.GetPopulationExpression(MapperData);
+                    : _dataSources.GetPopulationExpression();
 
             if (_dataSources.Variables.Any())
             {

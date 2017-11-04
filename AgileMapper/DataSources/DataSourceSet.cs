@@ -11,8 +11,11 @@ namespace AgileObjects.AgileMapper.DataSources
         private readonly IList<IDataSource> _dataSources;
         private readonly List<ParameterExpression> _variables;
 
-        public DataSourceSet(params IDataSource[] dataSources)
+        public DataSourceSet(
+            IMemberMapperData mapperData,
+            params IDataSource[] dataSources)
         {
+            MapperData = mapperData;
             _dataSources = dataSources;
             _variables = new List<ParameterExpression>();
             None = dataSources.Length == 0;
@@ -38,6 +41,8 @@ namespace AgileObjects.AgileMapper.DataSources
             }
         }
 
+        public IMemberMapperData MapperData { get; }
+
         public bool None { get; }
 
         public bool HasValue { get; }
@@ -50,9 +55,9 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression GetValueExpression() => _dataSources.ReverseChain();
 
-        public Expression GetPopulationExpression(IMemberMapperData mapperData)
+        public Expression GetPopulationExpression()
         {
-            var fallbackValue = GetFallbackValueOrNull(mapperData);
+            var fallbackValue = GetFallbackValueOrNull();
             var excludeFallback = fallbackValue == null;
 
             Expression population = null;
@@ -68,7 +73,7 @@ namespace AgileObjects.AgileMapper.DataSources
                         continue;
                     }
 
-                    population = mapperData.GetTargetMemberPopulation(fallbackValue);
+                    population = MapperData.GetTargetMemberPopulation(fallbackValue);
 
                     if (dataSource.IsConditional)
                     {
@@ -79,7 +84,7 @@ namespace AgileObjects.AgileMapper.DataSources
                     continue;
                 }
 
-                var memberPopulation = mapperData.GetTargetMemberPopulation(dataSource.Value);
+                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
 
                 population = dataSource.AddCondition(memberPopulation, population);
                 population = dataSource.AddPreCondition(population);
@@ -88,7 +93,7 @@ namespace AgileObjects.AgileMapper.DataSources
             return population;
         }
 
-        private Expression GetFallbackValueOrNull(IMemberMapperData mapperData)
+        private Expression GetFallbackValueOrNull()
         {
             var fallbackValue = _dataSources.Last().Value;
 
@@ -102,7 +107,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 return ((BinaryExpression)fallbackValue).Right;
             }
 
-            var targetMemberAccess = mapperData.GetTargetMemberAccess();
+            var targetMemberAccess = MapperData.GetTargetMemberAccess();
 
             if (ExpressionEvaluation.AreEqual(fallbackValue, targetMemberAccess))
             {
