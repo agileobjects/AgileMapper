@@ -136,15 +136,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            var expressionFactory = UseMemberInitialisation(mappingData.MapperData)
+            var expressionFactory = mappingData.MapperData.UseMemberInitialisation()
                 ? _memberInitPopulationFactory
                 : _multiStatementPopulationFactory;
 
             return expressionFactory.GetPopulation(mappingData);
         }
-
-        private static bool UseMemberInitialisation(IBasicMapperData mapperData)
-            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.TargetMemberIsUserStruct();
 
         public override void Reset() => _constructionFactory.Reset();
     }

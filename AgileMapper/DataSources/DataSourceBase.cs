@@ -116,8 +116,5 @@
                 ? Expression.IfThenElse(Condition, value, alternateBranch)
                 : Expression.IfThen(Condition, value);
         }
-
-        public Expression GetTargetMemberPopulation(IMemberMapperData mapperData)
-            => mapperData.GetTargetMemberPopulation(Value);
     }
 }

@@ -18,6 +18,9 @@ namespace AgileObjects.AgileMapper.Members
         public static bool UseSingleMappingExpression(this IBasicMapperData mapperData)
             => mapperData.IsRoot && mapperData.RuleSet.Settings.UseSingleRootMappingExpression;
 
+        public static bool UseMemberInitialisation(this IBasicMapperData mapperData)
+            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.TargetMemberIsUserStruct();
+
         public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
             while (!mapperData.IsRoot)
