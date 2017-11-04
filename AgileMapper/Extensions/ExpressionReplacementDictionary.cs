@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.Extensions
     internal class ExpressionReplacementDictionary : Dictionary<Expression, Expression>
     {
         public ExpressionReplacementDictionary(int capacity)
-            : base(capacity, ExpressionEquator.Instance)
+            : base(capacity, ExpressionEvaluation.Equivalator)
         {
         }
     }

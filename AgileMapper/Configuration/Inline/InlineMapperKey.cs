@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
                 var configuration = Configurations[i].Body;
                 var otherConfiguration = otherKey.Configurations[i].Body;
 
-                if (!ExpressionEquator.Instance.Equals(configuration, otherConfiguration))
+                if (!ExpressionEvaluation.AreEquivalent(configuration, otherConfiguration))
                 {
                     return false;
                 }

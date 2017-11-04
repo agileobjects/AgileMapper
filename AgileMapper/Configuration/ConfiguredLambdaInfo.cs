@@ -123,7 +123,7 @@
                 return false;
             }
 
-            return ExpressionEquator.Instance.Equals(_lambda.Body, otherLambdaInfo._lambda.Body);
+            return ExpressionEvaluation.AreEquivalent(_lambda.Body, otherLambdaInfo._lambda.Body);
         }
 
         public Expression GetBody(

@@ -104,7 +104,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var targetMemberAccess = mapperData.GetTargetMemberAccess();
 
-            if (fallbackValue.ToString() == targetMemberAccess.ToString())
+            if (ExpressionEvaluation.AreEqual(fallbackValue, targetMemberAccess))
             {
                 return null;
             }
