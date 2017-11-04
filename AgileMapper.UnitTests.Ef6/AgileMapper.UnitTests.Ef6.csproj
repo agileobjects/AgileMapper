@@ -94,6 +94,7 @@
     <Compile Include="TestClasses\PublicBoolProperty.cs" />
     <Compile Include="TestClasses\PublicBoolPropertyDto.cs" />
     <Compile Include="TestClasses\PublicIntProperty.cs" />
+    <Compile Include="TestClasses\PublicStringProperty.cs" />
     <Compile Include="TestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestContextCollection.cs" />

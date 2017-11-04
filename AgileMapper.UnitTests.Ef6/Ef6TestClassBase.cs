@@ -23,8 +23,9 @@
         private void EmptyDbContext()
         {
             _context.Products.RemoveRange(_context.Products);
-            _context.IntItems.RemoveRange(_context.IntItems);
             _context.BoolItems.RemoveRange(_context.BoolItems);
+            _context.IntItems.RemoveRange(_context.IntItems);
+            _context.StringItems.RemoveRange(_context.StringItems);
             _context.SaveChanges();
         }
     }

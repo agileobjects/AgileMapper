@@ -15,9 +15,12 @@ namespace AgileObjects.AgileMapper.Members
             _mappingDataObject = mappingDataObject;
         }
 
-        public ExpressionInfo FindIn(Expression expression, bool targetCanBeNull)
+        public ExpressionInfo FindIn(
+            Expression expression,
+            bool targetCanBeNull,
+            bool guardStringAccesses)
         {
-            var finder = new ExpressionInfoFinderInstance(_mappingDataObject, targetCanBeNull);
+            var finder = new ExpressionInfoFinderInstance(_mappingDataObject, targetCanBeNull, guardStringAccesses);
             var info = finder.FindIn(expression);
 
             return info;
@@ -32,18 +35,25 @@ namespace AgileObjects.AgileMapper.Members
             private readonly ICollection<string> _nullCheckSubjects;
             private readonly Dictionary<string, Expression> _nestedAccessesByPath;
             private readonly bool _includeTargetNullChecking;
+            private readonly bool _guardStringAccesses;
 
             public ExpressionInfoFinderInstance(
                 Expression mappingDataObject,
-                bool targetCanBeNull)
+                bool targetCanBeNull,
+                bool guardStringAccesses)
             {
                 _mappingDataObject = mappingDataObject;
-                _stringMemberAccessSubjects = new List<Expression>();
                 _allInvocations = new List<Expression>();
                 _multiInvocations = new List<Expression>();
                 _nullCheckSubjects = new List<string>();
                 _nestedAccessesByPath = new Dictionary<string, Expression>();
                 _includeTargetNullChecking = targetCanBeNull;
+                _guardStringAccesses = guardStringAccesses;
+
+                //if (guardStringAccesses)
+                {
+                    _stringMemberAccessSubjects = new List<Expression>();
+                }
             }
 
             public ExpressionInfo FindIn(Expression expression)
@@ -166,7 +176,10 @@ namespace AgileObjects.AgileMapper.Members
 
             private void AddStringMemberAccessSubjectIfAppropriate(Expression member)
             {
-                if ((member != null) && (member.Type == typeof(string)) && AccessSubjectCouldBeNull(member))
+                if (_guardStringAccesses &&
+                   (member != null) &&
+                   (member.Type == typeof(string)) &&
+                    AccessSubjectCouldBeNull(member))
                 {
                     _stringMemberAccessSubjects.Add(member);
                 }

@@ -103,7 +103,7 @@ namespace AgileObjects.AgileMapper.Members.Population
                 return _dataSources.GetValueExpression();
             }
 
-            var population = MapperData.Context.IsPartOfUserStructMapping
+            var population = MapperData.UseMemberInitialisation()
                 ? GetBinding()
                 : MapperData.TargetMember.IsReadOnly
                     ? GetReadOnlyMemberPopulation()

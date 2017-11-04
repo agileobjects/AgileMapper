@@ -18,8 +18,8 @@ namespace AgileObjects.AgileMapper.Members
         public static bool UseSingleMappingExpression(this IBasicMapperData mapperData)
             => mapperData.IsRoot && mapperData.RuleSet.Settings.UseSingleRootMappingExpression;
 
-        public static bool UseMemberInitialisation(this IBasicMapperData mapperData)
-            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.TargetMemberIsUserStruct();
+        public static bool UseMemberInitialisation(this IMemberMapperData mapperData)
+            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping;
 
         public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
@@ -72,7 +72,10 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
-            return mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull);
+            return mapperData.ExpressionInfoFinder.FindIn(
+                value,
+                targetCanBeNull,
+                mapperData.RuleSet.Settings.GuardStringAccesses);
         }
 
         public static bool SourceIsNotFlatObject(this IMemberMapperData mapperData)

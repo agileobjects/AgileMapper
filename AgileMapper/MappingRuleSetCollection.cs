@@ -15,7 +15,8 @@ namespace AgileObjects.AgileMapper
             new MappingRuleSetSettings
             {
                 SourceElementsCouldBeNull = true,
-                UseTryCatch = true
+                UseTryCatch = true,
+                GuardStringAccesses = true
             },
             CopySourceEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
@@ -27,7 +28,8 @@ namespace AgileObjects.AgileMapper
             {
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
-                UseTryCatch = true
+                UseTryCatch = true,
+                GuardStringAccesses = true
             },
             MergeEnumerablePopulationStrategy.Instance,
             PreserveExistingValueMemberPopulationGuardFactory.Instance,
@@ -39,7 +41,8 @@ namespace AgileObjects.AgileMapper
             {
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
-                UseTryCatch = true
+                UseTryCatch = true,
+                GuardStringAccesses = true
             },
             OverwriteEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
