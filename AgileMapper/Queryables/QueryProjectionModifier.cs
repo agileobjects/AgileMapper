@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
+    using System;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
@@ -21,6 +22,30 @@
 
             return base.VisitMethodCall(methodCall);
         }
+
+        protected override Expression VisitDefault(DefaultExpression defaultExpression)
+            => GetDefaultValueFor(defaultExpression.Type).ToConstantExpression(defaultExpression.Type);
+
+        private static object GetDefaultValueFor(Type type)
+        {
+            var getDefaultValueCaller = GlobalContext.Instance.Cache.GetOrAdd(type, t =>
+            {
+                var getDefaultValueCall = Expression
+                    .Call(typeof(QueryProjectionModifier)
+                        .GetNonPublicStaticMethod("GetDefaultValue")
+                        .MakeGenericMethod(t))
+                    .GetConversionTo(typeof(object));
+
+                var getDefaultValueLambda = Expression.Lambda<Func<object>>(getDefaultValueCall);
+
+                return getDefaultValueLambda.Compile();
+            });
+
+            return getDefaultValueCaller.Invoke();
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static T GetDefaultValue<T>() => default(T);
 
         private static bool IsStringEqualsIgnoreCase(MethodCallExpression methodCall)
         {

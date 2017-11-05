@@ -13,7 +13,7 @@
         }
 
         [Fact]
-        public void ShouldMapAShortToAnInt()
+        public void ShouldProjectAShortToAnInt()
         {
             RunTest(context =>
             {
@@ -23,6 +23,48 @@
                 var intItem = context.ShortItems.ProjectTo<PublicIntPropertyDto>().First();
 
                 intItem.Value.ShouldBe(123);
+            });
+        }
+
+        [Fact]
+        public void ShouldProjectAnInRangeLongToAnInt()
+        {
+            RunTest(context =>
+            {
+                context.LongItems.Add(new PublicLongProperty { Value = 12345L });
+                context.SaveChanges();
+
+                var intItem = context.LongItems.ProjectTo<PublicIntPropertyDto>().First();
+
+                intItem.Value.ShouldBe(12345);
+            });
+        }
+
+        [Fact]
+        public void ShouldProjectATooBigLongToAnInt()
+        {
+            RunTest(context =>
+            {
+                context.LongItems.Add(new PublicLongProperty { Value = long.MaxValue });
+                context.SaveChanges();
+
+                var intItem = context.LongItems.ProjectTo<PublicIntPropertyDto>().First();
+
+                intItem.Value.ShouldBe(0);
+            });
+        }
+
+        [Fact]
+        public void ShouldProjectATooSmallLongToAnInt()
+        {
+            RunTest(context =>
+            {
+                context.LongItems.Add(new PublicLongProperty { Value = int.MinValue - 1L });
+                context.SaveChanges();
+
+                var intItem = context.LongItems.ProjectTo<PublicIntPropertyDto>().First();
+
+                intItem.Value.ShouldBe(0);
             });
         }
     }

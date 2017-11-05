@@ -19,6 +19,8 @@
 
         public DbSet<PublicIntProperty> IntItems { get; set; }
 
+        public DbSet<PublicLongProperty> LongItems { get; set; }
+
         public DbSet<PublicStringProperty> StringItems { get; set; }
     }
 }
