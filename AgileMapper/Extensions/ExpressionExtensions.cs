@@ -25,8 +25,8 @@
             .GetPublicStaticMethod("ToList");
 
         private static readonly MethodInfo _stringEqualsMethod = typeof(string)
-            .GetPublicInstanceMethods()
-            .First(m => (m.Name == "Equals") && (m.GetParameters().Length == 2));
+            .GetPublicStaticMethods()
+            .First(m => (m.Name == "Equals") && (m.GetParameters().Length == 3));
 
         [DebuggerStepThrough]
         public static BinaryExpression AssignTo(this Expression subject, Expression value)
@@ -80,8 +80,8 @@
         public static Expression GetCaseInsensitiveEquals(this Expression stringValue, Expression comparisonValue)
         {
             return Expression.Call(
-                stringValue,
                 _stringEqualsMethod,
+                stringValue,
                 comparisonValue,
                 StringComparison.OrdinalIgnoreCase.ToConstantExpression());
         }
