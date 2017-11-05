@@ -25,9 +25,9 @@
         private static bool IsStringEqualsIgnoreCase(MethodCallExpression methodCall)
         {
             return methodCall.Method.IsStatic &&
-                   (methodCall.Arguments.Count == 3) &&
-                   (methodCall.Method.DeclaringType == typeof(string)) &&
-                   (methodCall.Method.Name == "Equals");
+                  (methodCall.Arguments.Count == 3) &&
+                  (methodCall.Method.DeclaringType == typeof(string)) &&
+                  (methodCall.Method.Name == "Equals");
         }
 
         private static Expression GetStringToLowerEqualsComparison(MethodCallExpression methodCall)

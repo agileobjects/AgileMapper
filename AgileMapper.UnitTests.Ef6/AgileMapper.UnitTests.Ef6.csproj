@@ -89,10 +89,13 @@
     </Compile>
     <Compile Include="Ef6TestClassBase.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="TestClasses\Product.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
     <Compile Include="TestClasses\PublicBoolProperty.cs" />
     <Compile Include="TestClasses\PublicBoolPropertyDto.cs" />
+    <Compile Include="TestClasses\PublicShortProperty.cs" />
+    <Compile Include="TestClasses\PublicIntPropertyDto.cs" />
     <Compile Include="TestClasses\PublicIntProperty.cs" />
     <Compile Include="TestClasses\PublicStringProperty.cs" />
     <Compile Include="TestContext.cs" />

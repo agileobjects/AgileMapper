@@ -15,6 +15,8 @@
 
         public DbSet<PublicBoolProperty> BoolItems { get; set; }
 
+        public DbSet<PublicShortProperty> ShortItems { get; set; }
+
         public DbSet<PublicIntProperty> IntItems { get; set; }
 
         public DbSet<PublicStringProperty> StringItems { get; set; }
