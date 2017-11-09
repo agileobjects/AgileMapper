@@ -1,16 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props')" />
   <Import Project="..\packages\xunit.core.2.3.1\build\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.3.1\build\xunit.core.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}</ProjectGuid>
+    <ProjectGuid>{66522D44-19F5-4AF5-9D43-483A3CD6F958}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Ef6</RootNamespace>
-    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Ef6</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Orms</RootNamespace>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Orms</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -43,25 +42,12 @@
     <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Effort, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6a46696d54971e6d, processorArchitecture=MSIL">
-      <HintPath>..\packages\Effort.EF6.1.3.0\lib\net45\Effort.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
-    <Reference Include="NMemory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6a46696d54971e6d, processorArchitecture=MSIL">
-      <HintPath>..\packages\NMemory.1.1.2\lib\net45\NMemory.dll</HintPath>
-    </Reference>
     <Reference Include="Shouldly, Version=2.8.3.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
       <HintPath>..\packages\Shouldly.2.8.3\lib\net451\Shouldly.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -87,35 +73,38 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Infrastructure\Ef6DbSetWrapper.cs" />
-    <Compile Include="Infrastructure\TestContextCollection.cs" />
+    <Compile Include="Infrastructure\DbSetWrapperBase.cs" />
+    <Compile Include="Infrastructure\IDbSetWrapper.cs" />
+    <Compile Include="Infrastructure\ITestDbContext.cs" />
+    <Compile Include="Infrastructure\OrmTestClassBase.cs" />
+    <Compile Include="TestConstants.cs" />
+    <Compile Include="Infrastructure\TestContext.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Infrastructure\Ef6TestDbContext.cs" />
+    <Compile Include="TestClasses\Product.cs" />
+    <Compile Include="TestClasses\ProductDto.cs" />
+    <Compile Include="TestClasses\PublicBoolProperty.cs" />
+    <Compile Include="TestClasses\PublicBoolPropertyDto.cs" />
+    <Compile Include="TestClasses\PublicIntProperty.cs" />
+    <Compile Include="TestClasses\PublicIntPropertyDto.cs" />
+    <Compile Include="TestClasses\PublicLongProperty.cs" />
+    <Compile Include="TestClasses\PublicShortProperty.cs" />
+    <Compile Include="TestClasses\PublicStringProperty.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj">
-      <Project>{66522d44-19f5-4af5-9d43-483a3cd6f958}</Project>
-      <Name>AgileMapper.UnitTests.Orms</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
-      <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
-      <Name>AgileMapper</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\xunit.analyzers.0.7.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
+      <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
+      <Name>AgileMapper</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -123,7 +112,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\xunit.core.2.3.1\build\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.3.1\build\xunit.core.props'))" />
     <Error Condition="!Exists('..\packages\xunit.core.2.3.1\build\xunit.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.3.1\build\xunit.core.targets'))" />
-    <Error Condition="!Exists('..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props'))" />
   </Target>
   <Import Project="..\packages\xunit.core.2.3.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.3.1\build\xunit.core.targets')" />
 </Project>

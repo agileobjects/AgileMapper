@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Ef6.TestClasses
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.TestClasses
 {
     using System.ComponentModel.DataAnnotations;
 

@@ -1,0 +1,34 @@
+﻿namespace AgileObjects.AgileMapper.Queryables
+{
+    using System;
+    using System.Linq.Expressions;
+    using Extensions;
+    using NetStandardPolyfills;
+
+    internal static class DefaultExpressionConverter
+    {
+        public static Expression Convert(DefaultExpression defaultExpression)
+            => GetDefaultValueFor(defaultExpression.Type).ToConstantExpression(defaultExpression.Type);
+
+        private static object GetDefaultValueFor(Type type)
+        {
+            var getDefaultValueCaller = GlobalContext.Instance.Cache.GetOrAdd(type, t =>
+            {
+                var getDefaultValueCall = Expression
+                    .Call(typeof(DefaultExpressionConverter)
+                        .GetNonPublicStaticMethod("GetDefaultValue")
+                        .MakeGenericMethod(t))
+                    .GetConversionTo(typeof(object));
+
+                var getDefaultValueLambda = Expression.Lambda<Func<object>>(getDefaultValueCall);
+
+                return getDefaultValueLambda.Compile();
+            });
+
+            return getDefaultValueCaller.Invoke();
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static T GetDefaultValue<T>() => default(T);
+    }
+}

@@ -6,11 +6,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}</ProjectGuid>
+    <ProjectGuid>{D87103FD-3851-4724-BD8F-9CEF19C8F193}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Ef6</RootNamespace>
-    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Ef6</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Ef5</RootNamespace>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Ef5</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -44,13 +44,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Effort, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6a46696d54971e6d, processorArchitecture=MSIL">
-      <HintPath>..\packages\Effort.EF6.1.3.0\lib\net45\Effort.dll</HintPath>
+      <HintPath>..\packages\Effort.1.3.0\lib\net45\Effort.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="NMemory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6a46696d54971e6d, processorArchitecture=MSIL">
       <HintPath>..\packages\NMemory.1.1.2\lib\net45\NMemory.dll</HintPath>
@@ -61,6 +58,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -87,12 +85,12 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Infrastructure\Ef6DbSetWrapper.cs" />
+    <Compile Include="Infrastructure\Ef5DbSetWrapper.cs" />
     <Compile Include="Infrastructure\TestContextCollection.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Infrastructure\Ef6TestDbContext.cs" />
+    <Compile Include="Infrastructure\Ef5TestDbContext.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
   </ItemGroup>
   <ItemGroup>
