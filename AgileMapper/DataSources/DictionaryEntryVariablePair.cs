@@ -14,13 +14,11 @@ namespace AgileObjects.AgileMapper.DataSources
         #region Cached MethodInfos
 
         private static readonly MethodInfo _linqFirstOrDefaultMethod = typeof(Enumerable)
-            .GetPublicStaticMethods()
-            .First(m => (m.Name == "FirstOrDefault") && (m.GetParameters().Length == 2))
+            .GetPublicStaticMethod("FirstOrDefault", parameterCount: 2)
             .MakeGenericMethod(typeof(string));
 
         private static readonly MethodInfo _stringStartsWithMethod = typeof(string)
-            .GetPublicInstanceMethods()
-            .First(m => (m.Name == "StartsWith") && (m.GetParameters().Length == 2));
+            .GetPublicInstanceMethod("StartsWith", parameterCount: 2);
 
         #endregion
 

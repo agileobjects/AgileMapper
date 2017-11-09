@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
@@ -16,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
         private static readonly MethodInfo _mapRecursionMethod =
-            typeof(IObjectMappingDataUntyped).GetMethod("MapRecursion");
+            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRecursion");
 
         private readonly List<ObjectMapperData> _childMapperDatas;
         private readonly MethodInfo _mapChildMethod;
@@ -155,8 +154,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
         {
             return mappingDataType
-                .GetPublicInstanceMethods()
-                .First(m => (m.Name == "Map") && (m.GetParameters().Length == numberOfArguments));
+                .GetPublicInstanceMethod("Map", parameterCount: numberOfArguments);
         }
 
         private bool IsTargetTypeFirstMapping(ObjectMapperData parent)

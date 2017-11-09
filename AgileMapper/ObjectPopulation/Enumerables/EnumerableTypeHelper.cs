@@ -4,12 +4,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq.Expressions;
-    using Extensions;
-    using NetStandardPolyfills;
-
 #if NET_STANDARD
     using System.Reflection;
 #endif
+    using Extensions;
+    using NetStandardPolyfills;
 
     internal class EnumerableTypeHelper
     {

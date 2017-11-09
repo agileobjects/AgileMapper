@@ -15,24 +15,24 @@
         #region Untyped MethodInfos
 
         private static readonly MethodInfo _selectWithoutIndexMethod = typeof(Enumerable)
-            .GetPublicStaticMethods()
-            .Last(m => (m.Name == "Select") &&
+            .GetPublicStaticMethods("Select")
+            .Last(m =>
                 (m.GetParameters().Length == 2) &&
                 (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2));
 
         private static readonly MethodInfo _selectWithIndexMethod = typeof(Enumerable)
-            .GetPublicStaticMethods()
-            .Last(m => (m.Name == "Select") &&
+            .GetPublicStaticMethods("Select")
+            .Last(m => 
                 (m.GetParameters().Length == 2) &&
                 (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 3));
 
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods()
-            .First(m => m.Name == "ForEach");
+            .GetPublicStaticMethods("ForEach")
+            .First();
 
         private static readonly MethodInfo _forEachTupleMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods()
-            .Last(m => m.Name == "ForEach");
+            .GetPublicStaticMethods("ForEach")
+            .Last();
 
         #endregion
 
