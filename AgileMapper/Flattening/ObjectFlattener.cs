@@ -17,8 +17,8 @@
         private static readonly ParameterExpression _objectFlattenerParameter = Parameters.Create<ObjectFlattener>();
 
         private static readonly MethodInfo _getPropertiesMethod = typeof(ObjectFlattener)
-            .GetNonPublicInstanceMethods()
-            .Last(m => m.Name == "GetPropertyValuesByName");
+            .GetNonPublicInstanceMethods("GetPropertyValuesByName")
+            .Last();
 
         #endregion
 

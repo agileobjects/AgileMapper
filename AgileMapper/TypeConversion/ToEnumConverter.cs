@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using NetStandardPolyfills;
@@ -46,8 +45,7 @@
             var nonNullableEnumType = targetType.GetNonNullableType();
 
             var tryParseMethod = typeof(Enum)
-                .GetPublicStaticMethods()
-                .First(m => (m.Name == "TryParse") && (m.GetParameters().Length == 3))
+                .GetPublicStaticMethod("TryParse", parameterCount: 3)
                 .MakeGenericMethod(nonNullableEnumType);
 
             var valueVariable = Expression.Variable(nonNullableEnumType, nonNullableEnumType.GetShortVariableName());

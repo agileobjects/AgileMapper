@@ -9,8 +9,7 @@ namespace AgileObjects.AgileMapper.Extensions
     internal static class CollectionData
     {
         private static readonly MethodInfo[] _createMethods = typeof(CollectionData)
-            .GetPublicStaticMethods()
-            .Where(m => m.Name == "Create")
+            .GetPublicStaticMethods("Create")
             .ToArray();
 
         public static readonly MethodInfo IdSameTypesCreateMethod = _createMethods[0];

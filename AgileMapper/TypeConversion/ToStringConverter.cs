@@ -33,8 +33,7 @@
             }
 
             var toStringMethod = sourceValue.Type
-                .GetPublicInstanceMethods()
-                .First(m => (m.Name == "ToString") && m.GetParameters().None());
+                .GetPublicInstanceMethod("ToString", parameterCount: 0);
 
             var toStringCall = Expression.Call(sourceValue, toStringMethod);
 
@@ -44,8 +43,7 @@
         #region Byte[] Conversion
 
         private static readonly MethodInfo _toBase64String = typeof(Convert)
-            .GetPublicStaticMethods()
-            .First(m => (m.Name == "ToBase64String") && m.GetParameters().HasOne());
+            .GetPublicStaticMethod("ToBase64String", parameterCount: 1);
 
         private static Expression GetByteArrayToBase64StringConversion(Expression sourceValue)
         {
@@ -73,8 +71,7 @@
         public static MethodInfo GetToStringMethodOrNull(Type sourceType, Type argumentType)
         {
             var toStringMethod = sourceType
-                .GetPublicInstanceMethods()
-                .Where(m => m.Name == "ToString")
+                .GetPublicInstanceMethods("ToString")
                 .Select(m => new
                 {
                     Method = m,

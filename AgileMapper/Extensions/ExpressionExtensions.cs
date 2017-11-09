@@ -13,10 +13,10 @@
     internal static partial class ExpressionExtensions
     {
         private static readonly MethodInfo _listToArrayMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods().First(m => m.Name == "ToArray");
+            .GetPublicStaticMethods("ToArray").First();
 
         private static readonly MethodInfo _collectionToArrayMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods().Where(m => m.Name == "ToArray").ElementAt(1);
+            .GetPublicStaticMethods("ToArray").ElementAt(1);
 
         private static readonly MethodInfo _linqToArrayMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToArray");
@@ -25,8 +25,7 @@
             .GetPublicStaticMethod("ToList");
 
         private static readonly MethodInfo _stringEqualsMethod = typeof(string)
-            .GetPublicStaticMethods()
-            .First(m => (m.Name == "Equals") && (m.GetParameters().Length == 3));
+            .GetPublicStaticMethod("Equals", parameterCount: 3);
 
         [DebuggerStepThrough]
         public static BinaryExpression AssignTo(this Expression subject, Expression value)

@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
@@ -24,8 +23,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
             _nullableTargetType = typeof(Nullable<>).MakeGenericType(nonNullableTargetType);
 
             _tryParseMethod = nonNullableTargetType
-                .GetPublicStaticMethods()
-                .First(m => (m.Name == "TryParse") && (m.GetParameters().Length == 2));
+                .GetPublicStaticMethod("TryParse", parameterCount: 2);
 
             _valueVariable = Expression.Variable(
                 nonNullableTargetType,

@@ -11,8 +11,8 @@
     internal static class EnumerableExtensions
     {
         public static readonly MethodInfo EnumerableNoneMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods()
-            .First(m => (m.Name == "None") && (m.GetParameters().Length == 2))
+            .GetPublicStaticMethods("None")
+            .First(m => m.GetParameters().Length == 2)
             .MakeGenericMethod(typeof(string));
 
         public static void AddUnlessNullOrEmpty(this ICollection<Expression> items, Expression item)
