@@ -9,14 +9,12 @@
     internal static class StringExpressionExtensions
     {
         private static readonly MethodInfo _stringJoinMethod = typeof(string)
-            .GetPublicStaticMethods()
-            .First(m => (m.Name == "Join") &&
-                        (m.GetParameters().Length == 2) &&
+            .GetPublicStaticMethods("Join")
+            .First(m => (m.GetParameters().Length == 2) &&
                         (m.GetParameters()[1].ParameterType == typeof(string[])));
 
         private static readonly MethodInfo[] _stringConcatMethods = typeof(string)
-            .GetPublicStaticMethods()
-            .Where(m => m.Name == "Concat")
+            .GetPublicStaticMethods("Concat")
             .Select(m => new
             {
                 Method = m,
