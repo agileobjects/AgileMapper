@@ -22,13 +22,6 @@
 
         #endregion
 
-        private readonly QueryProjectionModifier _queryProjectionModifier;
-
-        private QueryProjectionExpressionFactory()
-        {
-            _queryProjectionModifier = new QueryProjectionModifier();
-        }
-
         public override bool IsFor(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
@@ -41,6 +34,7 @@
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
+            var queryable = mappingData.GetSource<IQueryable>();
 
             var queryProjection = mapperData
                 .EnumerablePopulationBuilder
@@ -52,7 +46,7 @@
                         mapperData.TargetMember.ElementType.ToDefaultExpression(),
                         mappingData));
 
-            queryProjection = _queryProjectionModifier.Modify(queryProjection);
+            queryProjection = QueryProjectionModifier.Modify(queryProjection, queryable);
 
             yield return queryProjection;
         }

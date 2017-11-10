@@ -26,6 +26,8 @@
 
         #region ITestDbContext Members
 
+        public bool StringParsingSupported => false;
+
         IDbSetWrapper<Product> ITestDbContext.Products
             => new Ef5DbSetWrapper<Product>(Products);
 

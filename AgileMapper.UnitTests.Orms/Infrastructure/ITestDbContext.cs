@@ -5,6 +5,8 @@
 
     public interface ITestDbContext : IDisposable
     {
+        bool StringParsingSupported { get; }
+
         IDbSetWrapper<Product> Products { get; }
 
         IDbSetWrapper<PublicBoolProperty> BoolItems { get; }

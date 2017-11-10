@@ -130,6 +130,8 @@
     <Compile Include="Infrastructure\EfCore2TestDbContext.cs" />
     <Compile Include="Infrastructure\TestContextCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
   </ItemGroup>
   <ItemGroup>

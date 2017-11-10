@@ -71,9 +71,9 @@
         }
 
         [Fact]
-        public void ShouldErrorIfProjectingStringToAnInt()
+        public void ShouldProjectAParseableStringToAnIntAsExpected()
         {
-            RunTestAndExpectThrow(context =>
+            void Test(TOrmContext context)
             {
                 context.StringItems.Add(new PublicStringProperty { Value = "738" });
                 context.SaveChanges();
@@ -81,7 +81,16 @@
                 var intItem = context.StringItems.ProjectTo<PublicIntPropertyDto>().First();
 
                 intItem.Value.ShouldBe(738);
-            });
+            }
+
+            if (Context.StringParsingSupported)
+            {
+                RunTest(Test);
+            }
+            else
+            {
+                RunTestAndExpectThrow(Test);
+            }
         }
     }
 }

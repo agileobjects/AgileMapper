@@ -8,12 +8,12 @@
     public abstract class OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
     {
-        private readonly TOrmContext _context;
-
         protected OrmTestClassBase(TestContext context)
         {
-            _context = context.GetDbContext<TOrmContext>();
+            Context = context.GetDbContext<TOrmContext>();
         }
+
+        protected TOrmContext Context { get; }
 
         protected Exception RunTestAndExpectThrow(Action<TOrmContext> testAction)
             => RunTestAndExpectThrow<Exception>(testAction);
@@ -26,20 +26,20 @@
 
         protected void RunTest(Action<TOrmContext> testAction)
         {
-            testAction.Invoke(_context);
+            testAction.Invoke(Context);
 
             EmptyDbContext();
         }
 
         private void EmptyDbContext()
         {
-            _context.Products.Clear();
-            _context.BoolItems.Clear();
-            _context.ShortItems.Clear();
-            _context.IntItems.Clear();
-            _context.LongItems.Clear();
-            _context.StringItems.Clear();
-            _context.SaveChanges();
+            Context.Products.Clear();
+            Context.BoolItems.Clear();
+            Context.ShortItems.Clear();
+            Context.IntItems.Clear();
+            Context.LongItems.Clear();
+            Context.StringItems.Clear();
+            Context.SaveChanges();
         }
     }
 }

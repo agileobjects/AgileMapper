@@ -30,6 +30,8 @@
 
         #region ITestDbContext Members
 
+        public bool StringParsingSupported => true;
+
         IDbSetWrapper<Product> ITestDbContext.Products
             => new EfCore2DbSetWrapper<Product>(Products);
 

@@ -7,11 +7,11 @@
 
     internal static class StringEqualsIgnoreCaseConverter
     {
-        public static bool TryConvert(MethodCallExpression methodCall, out Expression converted)
+        public static bool TryConvert(MethodCallExpression methodCall, IQueryable queryable, out Expression converted)
         {
             if (IsEqualsIgnoreCaseCall(methodCall))
             {
-                converted = Convert(methodCall);
+                converted = Convert(methodCall, queryable);
                 return true;
             }
 
@@ -27,17 +27,31 @@
                   (methodCall.Method.Name == "Equals");
         }
 
-        private static Expression Convert(MethodCallExpression methodCall)
+        private static Expression Convert(MethodCallExpression methodCall, IQueryable queryable)
         {
+            var subject = methodCall.Arguments[0];
+
             var subjectToLower = Expression.Call(
-                methodCall.Arguments[0],
-                typeof(string)
-                    .GetPublicInstanceMethods()
-                    .First(m => (m.Name == "ToLower") && (m.GetParameters().None())));
+                subject,
+                typeof(string).GetPublicInstanceMethod("ToLower", parameterCount: 0));
 
             var comparison = Expression.Equal(subjectToLower, methodCall.Arguments[1]);
 
-            return comparison;
+            if (NullCheckNotRequired(queryable))
+            {
+                return comparison;
+            }
+
+            var subjectNotNull = subject.GetIsNotDefaultComparison();
+
+            return Expression.AndAlso(subjectNotNull, comparison);
+        }
+
+        private static bool NullCheckNotRequired(IQueryable queryable)
+        {
+            var providerName = queryable.Provider.GetType().FullName;
+
+            return !providerName.Contains("EntityFrameworkCore");
         }
     }
 }

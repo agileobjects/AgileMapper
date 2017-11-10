@@ -1,10 +1,23 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
+    using System.Linq;
     using System.Linq.Expressions;
 
     internal class QueryProjectionModifier : ExpressionVisitor
     {
-        public Expression Modify(Expression queryProjection)
+        private readonly IQueryable _queryable;
+
+        private QueryProjectionModifier(IQueryable queryable)
+        {
+            _queryable = queryable;
+        }
+
+        public static Expression Modify(Expression queryProjection, IQueryable queryable)
+        {
+            return new QueryProjectionModifier(queryable).Modify(queryProjection);
+        }
+
+        private Expression Modify(Expression queryProjection)
         {
             return VisitAndConvert(queryProjection, "Modify");
         }
@@ -21,7 +34,7 @@
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if (StringEqualsIgnoreCaseConverter.TryConvert(methodCall, out var converted))
+            if (StringEqualsIgnoreCaseConverter.TryConvert(methodCall, _queryable, out var converted))
             {
                 return converted;
             }
