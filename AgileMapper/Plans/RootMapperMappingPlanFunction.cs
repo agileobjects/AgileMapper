@@ -31,7 +31,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-{lambda.ToReadableString()}".TrimStart();
+{lambda.ToReadableString(_ => _.NoQuotedLambdaComments)}".TrimStart();
         }
 
         private Expression GetFinalMappingLambda()

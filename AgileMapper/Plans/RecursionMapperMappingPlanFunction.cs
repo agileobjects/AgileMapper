@@ -29,7 +29,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-{_mappingLambda.ToReadableString()}".TrimStart();
+{_mappingLambda.ToReadableString(_ => _.NoQuotedLambdaComments)}".TrimStart();
         }
     }
 }
