@@ -71,9 +71,9 @@
         }
 
         [Fact]
-        public void ShouldProjectAParsableStringToAnInt()
+        public void ShouldErrorIfProjectingStringToAnInt()
         {
-            RunTest(context =>
+            RunTestAndExpectThrow(context =>
             {
                 context.StringItems.Add(new PublicStringProperty { Value = "738" });
                 context.SaveChanges();

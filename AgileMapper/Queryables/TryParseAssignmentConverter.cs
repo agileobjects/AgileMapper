@@ -47,14 +47,17 @@
 
         private static MethodCallExpression GetConvertCall(MethodCallExpression tryParseCall)
         {
-            var parseMethod = tryParseCall
-                .Method
-                .DeclaringType
-                .GetPublicStaticMethod("Parse");
+            // Attempt to use Convert.ToInt32 - irretrievably unsupported in non-EDMX EF5 and EF6, 
+            // but it at least gives a decent error message:
+            var convertMethodName = "To" + tryParseCall.Method.DeclaringType.Name;
 
-            var parseCall = Expression.Call(parseMethod, tryParseCall.Arguments.First());
+            var convertMethod = typeof(Convert)
+                .GetPublicStaticMethods(convertMethodName)
+                .First(m => m.GetParameters().HasOne() && (m.GetParameters()[0].ParameterType == typeof(string)));
 
-            return parseCall;
+            var convertCall = Expression.Call(convertMethod, tryParseCall.Arguments.First());
+
+            return convertCall;
         }
     }
 }

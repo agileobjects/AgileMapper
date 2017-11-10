@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Infrastructure
 {
     using System;
+    using Shouldly;
     using Xunit;
 
     [Collection(TestConstants.OrmCollectionName)]
@@ -12,6 +13,15 @@
         protected OrmTestClassBase(TestContext context)
         {
             _context = context.GetDbContext<TOrmContext>();
+        }
+
+        protected Exception RunTestAndExpectThrow(Action<TOrmContext> testAction)
+            => RunTestAndExpectThrow<Exception>(testAction);
+
+        protected TException RunTestAndExpectThrow<TException>(Action<TOrmContext> testAction)
+            where TException : Exception
+        {
+            return Should.Throw<TException>(() => RunTest(testAction));
         }
 
         protected void RunTest(Action<TOrmContext> testAction)
