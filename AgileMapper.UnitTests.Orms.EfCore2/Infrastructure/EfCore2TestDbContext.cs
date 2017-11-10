@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Infrastructure
 {
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Debug;
     using Orms.Infrastructure;
     using TestClasses;
 
@@ -8,8 +10,9 @@
     {
         private static readonly DbContextOptions _inMemoryOptions =
             new DbContextOptionsBuilder<EfCore2TestDbContext>()
-            .UseInMemoryDatabase(databaseName: "Ef6TestDbContext")
-            .Options;
+                .UseLoggerFactory(new LoggerFactory(new[] { new DebugLoggerProvider() }))
+                .UseInMemoryDatabase(databaseName: "Ef6TestDbContext")
+                .Options;
 
         public EfCore2TestDbContext()
             : base(_inMemoryOptions)

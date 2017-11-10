@@ -26,9 +26,14 @@
 
         protected void RunTest(Action<TOrmContext> testAction)
         {
-            testAction.Invoke(Context);
-
-            EmptyDbContext();
+            try
+            {
+                testAction.Invoke(Context);
+            }
+            finally
+            {
+                EmptyDbContext();
+            }
         }
 
         private void EmptyDbContext()

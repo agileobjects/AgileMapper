@@ -35,6 +35,7 @@
         {
             var mapperData = mappingData.MapperData;
             var queryable = mappingData.GetSource<IQueryable>();
+            var providerSettings = QueryProviderSettings.For(queryable);
 
             var queryProjection = mapperData
                 .EnumerablePopulationBuilder
@@ -46,7 +47,7 @@
                         mapperData.TargetMember.ElementType.ToDefaultExpression(),
                         mappingData));
 
-            queryProjection = QueryProjectionModifier.Modify(queryProjection, queryable);
+            queryProjection = QueryProjectionModifier.Modify(queryProjection, providerSettings);
 
             yield return queryProjection;
         }

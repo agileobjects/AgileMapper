@@ -92,5 +92,18 @@
                 RunTestAndExpectThrow(Test);
             }
         }
+
+        [Fact]
+        public void ShouldProjectAnUnparseableStringToAnIntAsExpected()
+        {
+            RunTestAndExpectThrow(context =>
+            {
+                context.StringItems.Add(new PublicStringProperty { Value = "hsejk" });
+                context.SaveChanges();
+
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                context.StringItems.ProjectTo<PublicIntPropertyDto>().First();
+            });
+        }
     }
 }

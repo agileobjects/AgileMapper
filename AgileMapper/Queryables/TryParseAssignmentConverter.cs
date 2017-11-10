@@ -8,7 +8,10 @@
 
     internal static class TryParseAssignmentConverter
     {
-        public static bool TryConvert(MemberAssignment assignment, out MemberAssignment converted)
+        public static bool TryConvert(
+            MemberAssignment assignment,
+            QueryProviderSettings settings,
+            out MemberAssignment converted)
         {
             if (assignment.Expression.NodeType != ExpressionType.Block)
             {
