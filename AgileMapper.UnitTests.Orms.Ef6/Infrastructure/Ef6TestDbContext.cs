@@ -1,13 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Ef5.Infrastructure
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6.Infrastructure
 {
     using System.Data.Entity;
     using Effort;
     using Orms.Infrastructure;
-    using Orms.TestClasses;
+    using TestClasses;
 
-    public class Ef5TestDbContext : DbContext, ITestDbContext
+    public class Ef6TestDbContext : DbContext, ITestDbContext
     {
-        public Ef5TestDbContext()
+        public Ef6TestDbContext()
             : base(DbConnectionFactory.CreateTransient(), true)
         {
         }
@@ -27,22 +27,22 @@
         #region ITestDbContext Members
 
         IDbSetWrapper<Product> ITestDbContext.Products
-            => new Ef5DbSetWrapper<Product>(Products);
+            => new Ef6DbSetWrapper<Product>(Products);
 
         IDbSetWrapper<PublicBoolProperty> ITestDbContext.BoolItems
-            => new Ef5DbSetWrapper<PublicBoolProperty>(BoolItems);
+            => new Ef6DbSetWrapper<PublicBoolProperty>(BoolItems);
 
         IDbSetWrapper<PublicShortProperty> ITestDbContext.ShortItems
-            => new Ef5DbSetWrapper<PublicShortProperty>(ShortItems);
+            => new Ef6DbSetWrapper<PublicShortProperty>(ShortItems);
 
         IDbSetWrapper<PublicIntProperty> ITestDbContext.IntItems
-            => new Ef5DbSetWrapper<PublicIntProperty>(IntItems);
+            => new Ef6DbSetWrapper<PublicIntProperty>(IntItems);
 
         IDbSetWrapper<PublicLongProperty> ITestDbContext.LongItems
-            => new Ef5DbSetWrapper<PublicLongProperty>(LongItems);
+            => new Ef6DbSetWrapper<PublicLongProperty>(LongItems);
 
         IDbSetWrapper<PublicStringProperty> ITestDbContext.StringItems
-            => new Ef5DbSetWrapper<PublicStringProperty>(StringItems);
+            => new Ef6DbSetWrapper<PublicStringProperty>(StringItems);
 
         void ITestDbContext.SaveChanges() => SaveChanges();
 

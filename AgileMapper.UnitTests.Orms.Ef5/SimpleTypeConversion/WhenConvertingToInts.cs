@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Ef5.SimpleTypeConversion
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.SimpleTypeConversion
 {
     using Infrastructure;
     using Orms.Infrastructure;

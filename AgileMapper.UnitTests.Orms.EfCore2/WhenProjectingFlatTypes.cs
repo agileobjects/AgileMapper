@@ -1,10 +1,10 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Ef6
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2
 {
     using Infrastructure;
     using Orms;
     using Orms.Infrastructure;
 
-    public class WhenProjectingFlatTypes : WhenProjectingFlatTypes<Ef6TestDbContext>
+    public class WhenProjectingFlatTypes : WhenProjectingFlatTypes<EfCore2TestDbContext>
     {
         public WhenProjectingFlatTypes(TestContext context)
             : base(context)

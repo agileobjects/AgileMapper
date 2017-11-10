@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Ef5.Infrastructure
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.Infrastructure
 {
     using System.Data.Entity;
     using System.Linq;

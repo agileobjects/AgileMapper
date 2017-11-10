@@ -9,8 +9,8 @@
     <ProjectGuid>{D87103FD-3851-4724-BD8F-9CEF19C8F193}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Ef5</RootNamespace>
-    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Ef5</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Orms.Ef5</RootNamespace>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Orms.Ef5</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

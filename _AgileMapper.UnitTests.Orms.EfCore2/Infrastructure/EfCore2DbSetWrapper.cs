@@ -1,14 +1,14 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Ef6.Infrastructure
+﻿namespace AgileObjects.AgileMapper.UnitTests.EfCore2.Infrastructure
 {
-    using System.Data.Entity;
+    using Microsoft.EntityFrameworkCore;
     using Orms.Infrastructure;
 
-    public class Ef6DbSetWrapper<TEntity> : DbSetWrapperBase<TEntity>
+    public class EfCore2DbSetWrapper<TEntity> : DbSetWrapperBase<TEntity>
         where TEntity : class
     {
         private readonly DbSet<TEntity> _dbSet;
 
-        public Ef6DbSetWrapper(DbSet<TEntity> dbSet)
+        public EfCore2DbSetWrapper(DbSet<TEntity> dbSet)
             : base(dbSet)
         {
             _dbSet = dbSet;

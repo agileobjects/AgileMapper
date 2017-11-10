@@ -22,11 +22,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper", "AgileMapper\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.MoreTestClasses", "AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj", "{049E1EE5-48CE-441A-B166-3CF6BEC17957}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Ef6", "AgileMapper.UnitTests.Ef6\AgileMapper.UnitTests.Ef6.csproj", "{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef6", "AgileMapper.UnitTests.Orms.Ef6\AgileMapper.UnitTests.Orms.Ef6.csproj", "{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms", "AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj", "{66522D44-19F5-4AF5-9D43-483A3CD6F958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Ef5", "AgileMapper.UnitTests.Ef5\AgileMapper.UnitTests.Ef5.csproj", "{D87103FD-3851-4724-BD8F-9CEF19C8F193}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef5", "AgileMapper.UnitTests.Orms.Ef5\AgileMapper.UnitTests.Orms.Ef5.csproj", "{D87103FD-3851-4724-BD8F-9CEF19C8F193}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.EfCore2", "AgileMapper.UnitTests.Orms.EfCore2\AgileMapper.UnitTests.Orms.EfCore2.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +68,10 @@ Global
 		{D87103FD-3851-4724-BD8F-9CEF19C8F193}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D87103FD-3851-4724-BD8F-9CEF19C8F193}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D87103FD-3851-4724-BD8F-9CEF19C8F193}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Ef5.Infrastructure
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Infrastructure
 {
     using Orms;
     using Orms.Infrastructure;
