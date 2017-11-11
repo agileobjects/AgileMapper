@@ -2,7 +2,6 @@
 {
 #if !NET_STANDARD
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using NetStandardPolyfills;
@@ -11,19 +10,22 @@
     internal class Ef5QueryProviderSettings : DefaultQueryProviderSettings
     {
 #if !NET_STANDARD
-        public override Expression ConvertToString(MethodCallExpression toStringCall)
+        protected override Type LoadCanonicalFunctionsType()
+            => GetTypeOrNull("System.Data.Entity", "System.Data.Objects.EntityFunctions");
+
+        protected override Type LoadSqlFunctionsType()
+            => GetTypeOrNull("System.Data.Entity", "System.Data.Objects.SqlClient.SqlFunctions");
+
+        public override Expression ConvertToStringCall(MethodCallExpression call)
         {
-            var sqlFunctionsType = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .FirstOrDefault(assembly => assembly.GetName().Name == "System.Data.Entity")?
-                .GetType("System.Data.Objects.SqlClient.SqlFunctions");
+            var sqlFunctionsType = SqlFunctionsType;
 
             if (sqlFunctionsType == null)
             {
-                return base.ConvertToString(toStringCall);
+                return base.ConvertToStringCall(call);
             }
 
-            var stringConvertCall = GetStringConvertCall(toStringCall.Object, sqlFunctionsType);
+            var stringConvertCall = GetStringConvertCall(call.Object, sqlFunctionsType);
             var trimMethod = typeof(string).GetPublicInstanceMethod("Trim", parameterCount: 0);
             var trimCall = Expression.Call(stringConvertCall, trimMethod);
 
@@ -49,6 +51,13 @@
             return Expression.Call(
                 sqlFunctionsType.GetPublicStaticMethod("StringConvert", typeof(double?)),
                 subject);
+        }
+
+        public override Expression ConvertTryParseCall(MethodCallExpression call)
+        {
+            return this.TryGetDateTimeFromStringCall(call, out var convertedCall)
+                ? convertedCall
+                : base.ConvertTryParseCall(call);
         }
 #endif
     }

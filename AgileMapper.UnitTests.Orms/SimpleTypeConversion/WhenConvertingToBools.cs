@@ -19,10 +19,10 @@
         {
             RunTest(context =>
             {
-                context.IntItems.Add(new PublicIntProperty { Value = 1 });
+                context.IntItems.Add(new PublicInt { Value = 1 });
                 context.SaveChanges();
 
-                var boolItem = context.IntItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.IntItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeTrue();
             });
@@ -33,10 +33,10 @@
         {
             RunTest(context =>
             {
-                context.IntItems.Add(new PublicIntProperty { Value = 0 });
+                context.IntItems.Add(new PublicInt { Value = 0 });
                 context.SaveChanges();
 
-                var boolItem = context.IntItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.IntItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });
@@ -47,10 +47,10 @@
         {
             RunTest(context =>
             {
-                context.StringItems.Add(new PublicStringProperty { Value = "true" });
+                context.StringItems.Add(new PublicString { Value = "true" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeTrue();
             });
@@ -61,10 +61,10 @@
         {
             RunTest(context =>
             {
-                context.StringItems.Add(new PublicStringProperty { Value = "tRuE" });
+                context.StringItems.Add(new PublicString { Value = "tRuE" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeTrue();
             });
@@ -75,10 +75,10 @@
         {
             RunTest(context =>
             {
-                context.StringItems.Add(new PublicStringProperty { Value = "1" });
+                context.StringItems.Add(new PublicString { Value = "1" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeTrue();
             });
@@ -89,10 +89,10 @@
         {
             RunTest(context =>
             {
-                context.StringItems.Add(new PublicStringProperty { Value = "false" });
+                context.StringItems.Add(new PublicString { Value = "false" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });
@@ -103,10 +103,10 @@
         {
             RunTest(context =>
             {
-                context.StringItems.Add(new PublicStringProperty { Value = "0" });
+                context.StringItems.Add(new PublicString { Value = "0" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });
@@ -117,10 +117,10 @@
         {
             RunTest(context =>
             {
-                context.StringItems.Add(new PublicStringProperty { Value = "uokyujhygt" });
+                context.StringItems.Add(new PublicString { Value = "uokyujhygt" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });
@@ -131,10 +131,10 @@
         {
             RunTest(context =>
             {
-                context.StringItems.Add(new PublicStringProperty { Value = null });
+                context.StringItems.Add(new PublicString { Value = null });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolPropertyDto>().First();
+                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });

@@ -2,7 +2,7 @@
 {
     using System.ComponentModel.DataAnnotations;
 
-    public class PublicStringProperty
+    public class PublicString
     {
         [Key]
         public int Id { get; set; }

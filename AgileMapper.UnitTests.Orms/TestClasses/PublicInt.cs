@@ -2,12 +2,12 @@
 {
     using System.ComponentModel.DataAnnotations;
 
-    public class PublicShortProperty
+    public class PublicInt
     {
         [Key]
         public int Id { get; set; }
 
 
-        public short Value { get; set; }
+        public int Value { get; set; }
     }
 }

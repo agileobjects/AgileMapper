@@ -83,8 +83,10 @@
     <Compile Include="Infrastructure\ITestLocalDbContext.cs" />
     <Compile Include="Infrastructure\LocalDbTestContext.cs" />
     <Compile Include="Infrastructure\OrmTestClassBase.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
-    <Compile Include="TestClasses\PublicStringPropertyDto.cs" />
+    <Compile Include="TestClasses\PublicDateTimeDto.cs" />
+    <Compile Include="TestClasses\PublicStringDto.cs" />
     <Compile Include="TestConstants.cs" />
     <Compile Include="Infrastructure\InMemoryOrmTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -92,13 +94,13 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="TestClasses\Product.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
-    <Compile Include="TestClasses\PublicBoolProperty.cs" />
-    <Compile Include="TestClasses\PublicBoolPropertyDto.cs" />
-    <Compile Include="TestClasses\PublicIntProperty.cs" />
-    <Compile Include="TestClasses\PublicIntPropertyDto.cs" />
-    <Compile Include="TestClasses\PublicLongProperty.cs" />
-    <Compile Include="TestClasses\PublicShortProperty.cs" />
-    <Compile Include="TestClasses\PublicStringProperty.cs" />
+    <Compile Include="TestClasses\PublicBool.cs" />
+    <Compile Include="TestClasses\PublicBoolDto.cs" />
+    <Compile Include="TestClasses\PublicInt.cs" />
+    <Compile Include="TestClasses\PublicIntDto.cs" />
+    <Compile Include="TestClasses\PublicLong.cs" />
+    <Compile Include="TestClasses\PublicShort.cs" />
+    <Compile Include="TestClasses\PublicString.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,14 +1,17 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6.Infrastructure
+﻿namespace AgileObjects.AgileMapper.IntegrationTests.Orms.Ef6.Infrastructure
 {
     using System.Data.Entity;
-    using Effort;
-    using Orms.Infrastructure;
-    using TestClasses;
+    using System.Data.SqlClient;
+    using UnitTests.Orms;
+    using UnitTests.Orms.Infrastructure;
+    using UnitTests.Orms.TestClasses;
 
-    public class Ef6TestDbContext : DbContext, ITestDbContext
+    public class Ef6TestDbContext : DbContext, ITestLocalDbContext
     {
         public Ef6TestDbContext()
-            : base(DbConnectionFactory.CreateTransient(), true)
+            : base(
+                new SqlConnection(TestConstants.GetLocalDbConnectionString<Ef6TestDbContext>()),
+                true)
         {
         }
 
@@ -47,6 +50,14 @@
             => new Ef6DbSetWrapper<PublicString>(StringItems);
 
         void ITestDbContext.SaveChanges() => SaveChanges();
+
+        #endregion
+
+        #region ITestLocalDbContext Members
+
+        void ITestLocalDbContext.CreateDatabase() => Database.Create();
+
+        void ITestLocalDbContext.DeleteDatabase() => Database.Delete();
 
         #endregion
     }

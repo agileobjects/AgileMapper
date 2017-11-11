@@ -19,10 +19,10 @@
         {
             RunTest(context =>
             {
-                context.IntItems.Add(new PublicIntProperty { Value = 763483 });
+                context.IntItems.Add(new PublicInt { Value = 763483 });
                 context.SaveChanges();
 
-                var stringItem = context.IntItems.ProjectTo<PublicStringPropertyDto>().First();
+                var stringItem = context.IntItems.ProjectTo<PublicStringDto>().First();
 
                 stringItem.Value.ShouldBe("763483");
             });
@@ -33,10 +33,10 @@
         {
             RunTest(context =>
             {
-                context.BoolItems.Add(new PublicBoolProperty { Value = true });
+                context.BoolItems.Add(new PublicBool { Value = true });
                 context.SaveChanges();
 
-                var stringItem = context.BoolItems.ProjectTo<PublicStringPropertyDto>().First();
+                var stringItem = context.BoolItems.ProjectTo<PublicStringDto>().First();
 
                 stringItem.Value.ShouldBe("true");
             });

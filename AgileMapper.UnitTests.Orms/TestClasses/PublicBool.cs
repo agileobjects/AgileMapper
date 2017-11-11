@@ -2,12 +2,11 @@
 {
     using System.ComponentModel.DataAnnotations;
 
-    public class PublicLongProperty
+    public class PublicBool
     {
         [Key]
         public int Id { get; set; }
 
-
-        public long Value { get; set; }
+        public bool Value { get; set; }
     }
 }

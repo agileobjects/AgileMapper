@@ -1,9 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.TestClasses
 {
-    public class PublicBoolPropertyDto
+    using System;
+
+    public class PublicDateTimeDto
     {
         public int Id { get; set; }
 
-        public bool Value { get; set; }
+
+        public DateTime Value { get; set; }
     }
 }

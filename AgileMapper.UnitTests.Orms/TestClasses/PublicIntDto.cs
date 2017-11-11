@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.TestClasses
 {
-    public class PublicIntPropertyDto
+    public class PublicIntDto
     {
         public int Id { get; set; }
 

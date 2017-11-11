@@ -1,10 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
-    using System;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
-    using NetStandardPolyfills;
     using Settings;
 
     internal static class TryParseAssignmentConverter
@@ -41,28 +38,12 @@
 
             if (methodCall.Method.IsStatic && (methodCall.Method.Name == "TryParse"))
             {
-                converted = assignment.Update(GetConvertCall(methodCall));
+                converted = assignment.Update(settings.ConvertTryParseCall(methodCall));
                 return true;
             }
 
             converted = null;
             return false;
-        }
-
-        private static MethodCallExpression GetConvertCall(MethodCallExpression tryParseCall)
-        {
-            // ReSharper disable once PossibleNullReferenceException
-            // Attempt to use Convert.ToInt32 - irretrievably unsupported in non-EDMX EF5 and EF6, 
-            // but it at least gives a decent error message:
-            var convertMethodName = "To" + tryParseCall.Method.DeclaringType.Name;
-
-            var convertMethod = typeof(Convert)
-                .GetPublicStaticMethods(convertMethodName)
-                .First(m => m.GetParameters().HasOne() && (m.GetParameters()[0].ParameterType == typeof(string)));
-
-            var convertCall = Expression.Call(convertMethod, tryParseCall.Arguments.First());
-
-            return convertCall;
         }
     }
 }

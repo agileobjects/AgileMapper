@@ -19,10 +19,10 @@
         {
             RunTest(context =>
             {
-                context.ShortItems.Add(new PublicShortProperty { Value = 123 });
+                context.ShortItems.Add(new PublicShort { Value = 123 });
                 context.SaveChanges();
 
-                var intItem = context.ShortItems.ProjectTo<PublicIntPropertyDto>().First();
+                var intItem = context.ShortItems.ProjectTo<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(123);
             });
@@ -33,10 +33,10 @@
         {
             RunTest(context =>
             {
-                context.LongItems.Add(new PublicLongProperty { Value = 12345L });
+                context.LongItems.Add(new PublicLong { Value = 12345L });
                 context.SaveChanges();
 
-                var intItem = context.LongItems.ProjectTo<PublicIntPropertyDto>().First();
+                var intItem = context.LongItems.ProjectTo<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(12345);
             });
@@ -47,10 +47,10 @@
         {
             RunTest(context =>
             {
-                context.LongItems.Add(new PublicLongProperty { Value = long.MaxValue });
+                context.LongItems.Add(new PublicLong { Value = long.MaxValue });
                 context.SaveChanges();
 
-                var intItem = context.LongItems.ProjectTo<PublicIntPropertyDto>().First();
+                var intItem = context.LongItems.ProjectTo<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(0);
             });
@@ -61,10 +61,10 @@
         {
             RunTest(context =>
             {
-                context.LongItems.Add(new PublicLongProperty { Value = int.MinValue - 1L });
+                context.LongItems.Add(new PublicLong { Value = int.MinValue - 1L });
                 context.SaveChanges();
 
-                var intItem = context.LongItems.ProjectTo<PublicIntPropertyDto>().First();
+                var intItem = context.LongItems.ProjectTo<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(0);
             });
@@ -75,15 +75,15 @@
         {
             void Test(TOrmContext context)
             {
-                context.StringItems.Add(new PublicStringProperty { Value = "738" });
+                context.StringItems.Add(new PublicString { Value = "738" });
                 context.SaveChanges();
 
-                var intItem = context.StringItems.ProjectTo<PublicIntPropertyDto>().First();
+                var intItem = context.StringItems.ProjectTo<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(738);
             }
 
-            if (Context.StringParsingSupported)
+            if (Context.StringToNumberConversionSupported)
             {
                 RunTest(Test);
             }
@@ -98,11 +98,11 @@
         {
             RunTestAndExpectThrow(context =>
             {
-                context.StringItems.Add(new PublicStringProperty { Value = "hsejk" });
+                context.StringItems.Add(new PublicString { Value = "hsejk" });
                 context.SaveChanges();
 
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                context.StringItems.ProjectTo<PublicIntPropertyDto>().First();
+                context.StringItems.ProjectTo<PublicIntDto>().First();
             });
         }
     }

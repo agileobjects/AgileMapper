@@ -18,37 +18,37 @@
 
         public DbSet<Product> Products { get; set; }
 
-        public DbSet<PublicBoolProperty> BoolItems { get; set; }
+        public DbSet<PublicBool> BoolItems { get; set; }
 
-        public DbSet<PublicShortProperty> ShortItems { get; set; }
+        public DbSet<PublicShort> ShortItems { get; set; }
 
-        public DbSet<PublicIntProperty> IntItems { get; set; }
+        public DbSet<PublicInt> IntItems { get; set; }
 
-        public DbSet<PublicLongProperty> LongItems { get; set; }
+        public DbSet<PublicLong> LongItems { get; set; }
 
-        public DbSet<PublicStringProperty> StringItems { get; set; }
+        public DbSet<PublicString> StringItems { get; set; }
 
         #region ITestDbContext Members
 
-        public bool StringParsingSupported => true;
+        public bool StringToNumberConversionSupported => true;
 
         IDbSetWrapper<Product> ITestDbContext.Products
             => new EfCore1DbSetWrapper<Product>(Products);
 
-        IDbSetWrapper<PublicBoolProperty> ITestDbContext.BoolItems
-            => new EfCore1DbSetWrapper<PublicBoolProperty>(BoolItems);
+        IDbSetWrapper<PublicBool> ITestDbContext.BoolItems
+            => new EfCore1DbSetWrapper<PublicBool>(BoolItems);
 
-        IDbSetWrapper<PublicShortProperty> ITestDbContext.ShortItems
-            => new EfCore1DbSetWrapper<PublicShortProperty>(ShortItems);
+        IDbSetWrapper<PublicShort> ITestDbContext.ShortItems
+            => new EfCore1DbSetWrapper<PublicShort>(ShortItems);
 
-        IDbSetWrapper<PublicIntProperty> ITestDbContext.IntItems
-            => new EfCore1DbSetWrapper<PublicIntProperty>(IntItems);
+        IDbSetWrapper<PublicInt> ITestDbContext.IntItems
+            => new EfCore1DbSetWrapper<PublicInt>(IntItems);
 
-        IDbSetWrapper<PublicLongProperty> ITestDbContext.LongItems
-            => new EfCore1DbSetWrapper<PublicLongProperty>(LongItems);
+        IDbSetWrapper<PublicLong> ITestDbContext.LongItems
+            => new EfCore1DbSetWrapper<PublicLong>(LongItems);
 
-        IDbSetWrapper<PublicStringProperty> ITestDbContext.StringItems
-            => new EfCore1DbSetWrapper<PublicStringProperty>(StringItems);
+        IDbSetWrapper<PublicString> ITestDbContext.StringItems
+            => new EfCore1DbSetWrapper<PublicString>(StringItems);
 
         void ITestDbContext.SaveChanges() => SaveChanges();
 

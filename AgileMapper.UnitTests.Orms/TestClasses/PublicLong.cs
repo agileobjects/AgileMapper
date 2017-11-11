@@ -2,12 +2,12 @@
 {
     using System.ComponentModel.DataAnnotations;
 
-    public class PublicIntProperty
+    public class PublicLong
     {
         [Key]
         public int Id { get; set; }
 
 
-        public int Value { get; set; }
+        public long Value { get; set; }
     }
 }

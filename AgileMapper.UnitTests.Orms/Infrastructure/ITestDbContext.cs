@@ -5,19 +5,19 @@
 
     public interface ITestDbContext : IDisposable
     {
-        bool StringParsingSupported { get; }
+        bool StringToNumberConversionSupported { get; }
 
         IDbSetWrapper<Product> Products { get; }
 
-        IDbSetWrapper<PublicBoolProperty> BoolItems { get; }
+        IDbSetWrapper<PublicBool> BoolItems { get; }
 
-        IDbSetWrapper<PublicShortProperty> ShortItems { get; }
+        IDbSetWrapper<PublicShort> ShortItems { get; }
 
-        IDbSetWrapper<PublicIntProperty> IntItems { get; }
+        IDbSetWrapper<PublicInt> IntItems { get; }
 
-        IDbSetWrapper<PublicLongProperty> LongItems { get; }
+        IDbSetWrapper<PublicLong> LongItems { get; }
 
-        IDbSetWrapper<PublicStringProperty> StringItems { get; }
+        IDbSetWrapper<PublicString> StringItems { get; }
 
         void SaveChanges();
     }

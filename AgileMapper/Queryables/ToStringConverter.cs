@@ -17,7 +17,7 @@
                 return false;
             }
 
-            converted = settings.ConvertToString(methodCall);
+            converted = settings.ConvertToStringCall(methodCall);
             return true;
         }
 
