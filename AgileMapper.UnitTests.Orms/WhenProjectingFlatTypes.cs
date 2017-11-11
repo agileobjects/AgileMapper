@@ -9,7 +9,7 @@
     public abstract class WhenProjectingFlatTypes<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
     {
-        protected WhenProjectingFlatTypes(TestContext context)
+        protected WhenProjectingFlatTypes(ITestContext context)
             : base(context)
         {
         }

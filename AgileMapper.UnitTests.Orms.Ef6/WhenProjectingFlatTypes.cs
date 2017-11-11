@@ -6,7 +6,7 @@
 
     public class WhenProjectingFlatTypes : WhenProjectingFlatTypes<Ef6TestDbContext>
     {
-        public WhenProjectingFlatTypes(TestContext context)
+        public WhenProjectingFlatTypes(InMemoryOrmTestContext context)
             : base(context)
         {
         }

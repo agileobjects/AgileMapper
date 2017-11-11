@@ -6,7 +6,7 @@
 
     public class WhenConvertingToBools : WhenConvertingToBools<Ef5TestDbContext>
     {
-        public WhenConvertingToBools(TestContext context)
+        public WhenConvertingToBools(InMemoryOrmTestContext context)
             : base(context)
         {
         }

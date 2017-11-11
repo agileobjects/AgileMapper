@@ -132,7 +132,7 @@
   <ItemGroup>
     <Compile Include="Infrastructure\EfCore2DbSetWrapper.cs" />
     <Compile Include="Infrastructure\EfCore2TestDbContext.cs" />
-    <Compile Include="Infrastructure\TestContextCollection.cs" />
+    <Compile Include="Infrastructure\InMemoryOrmTestDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />

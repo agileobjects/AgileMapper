@@ -5,7 +5,7 @@
     using Xunit;
 
     [CollectionDefinition(TestConstants.OrmCollectionName)]
-    public class TestContextCollection : ICollectionFixture<TestContext>
+    public class InMemoryOrmTestDefinition : ICollectionFixture<InMemoryOrmTestContext>
     {
     }
 }

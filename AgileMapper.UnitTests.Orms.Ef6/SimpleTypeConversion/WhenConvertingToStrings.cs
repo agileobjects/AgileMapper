@@ -6,7 +6,7 @@
 
     public class WhenConvertingToStrings : WhenConvertingToStrings<Ef6TestDbContext>
     {
-        public WhenConvertingToStrings(TestContext context)
+        public WhenConvertingToStrings(InMemoryOrmTestContext context)
             : base(context)
         {
         }

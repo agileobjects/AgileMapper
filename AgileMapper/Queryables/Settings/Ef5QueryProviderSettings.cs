@@ -23,9 +23,15 @@
                 return base.ConvertToString(toStringCall);
             }
 
-            var subject = toStringCall.Object;
+            var stringConvertCall = GetStringConvertCall(toStringCall.Object, sqlFunctionsType);
+            var trimMethod = typeof(string).GetPublicInstanceMethod("Trim", parameterCount: 0);
+            var trimCall = Expression.Call(stringConvertCall, trimMethod);
 
-            // ReSharper disable once PossibleNullReferenceException
+            return trimCall;
+        }
+
+        private static Expression GetStringConvertCall(Expression subject, Type sqlFunctionsType)
+        {
             var subjectType = subject.Type.GetNonNullableType();
 
             if (subjectType == typeof(decimal))
@@ -40,11 +46,9 @@
                 subject = Expression.Convert(subject, typeof(double?));
             }
 
-            var subjectToString = Expression.Call(
+            return Expression.Call(
                 sqlFunctionsType.GetPublicStaticMethod("StringConvert", typeof(double?)),
                 subject);
-
-            return subjectToString;
         }
 #endif
     }

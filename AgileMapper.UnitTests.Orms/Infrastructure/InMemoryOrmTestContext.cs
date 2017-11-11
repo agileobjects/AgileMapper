@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class TestContext : IDisposable
+    public class InMemoryOrmTestContext : ITestContext
     {
         private IDisposable _dbContext;
 

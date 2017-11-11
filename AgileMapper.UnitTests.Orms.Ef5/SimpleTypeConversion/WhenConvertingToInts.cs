@@ -6,7 +6,7 @@
 
     public class WhenConvertingToInts : WhenConvertingToInts<Ef5TestDbContext>
     {
-        public WhenConvertingToInts(TestContext context)
+        public WhenConvertingToInts(InMemoryOrmTestContext context)
             : base(context)
         {
         }

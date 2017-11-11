@@ -9,7 +9,7 @@
     public abstract class WhenConvertingToBools<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
     {
-        protected WhenConvertingToBools(TestContext context)
+        protected WhenConvertingToBools(ITestContext context)
             : base(context)
         {
         }

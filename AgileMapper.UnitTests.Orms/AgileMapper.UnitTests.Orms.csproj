@@ -78,12 +78,13 @@
     </Compile>
     <Compile Include="Infrastructure\DbSetWrapperBase.cs" />
     <Compile Include="Infrastructure\IDbSetWrapper.cs" />
+    <Compile Include="Infrastructure\ITestContext.cs" />
     <Compile Include="Infrastructure\ITestDbContext.cs" />
     <Compile Include="Infrastructure\OrmTestClassBase.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\PublicStringPropertyDto.cs" />
     <Compile Include="TestConstants.cs" />
-    <Compile Include="Infrastructure\TestContext.cs" />
+    <Compile Include="Infrastructure\InMemoryOrmTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
