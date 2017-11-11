@@ -7,6 +7,7 @@
     using Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using Settings;
 
     internal class QueryProjectionExpressionFactory : MappingExpressionFactoryBase
     {

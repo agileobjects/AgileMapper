@@ -2,10 +2,14 @@
 {
     using System.Linq.Expressions;
     using NetStandardPolyfills;
+    using Settings;
 
     internal static class StringEqualsIgnoreCaseConverter
     {
-        public static bool TryConvert(MethodCallExpression methodCall, QueryProviderSettings settings, out Expression converted)
+        public static bool TryConvert(
+            MethodCallExpression methodCall,
+            IQueryProviderSettings settings,
+            out Expression converted)
         {
             if (settings.SupportsStringEqualsIgnoreCase || IsNotEqualsIgnoreCaseCall(methodCall))
             {

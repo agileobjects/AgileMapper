@@ -5,12 +5,13 @@
     using System.Linq.Expressions;
     using Extensions;
     using NetStandardPolyfills;
+    using Settings;
 
     internal static class TryParseAssignmentConverter
     {
         public static bool TryConvert(
             MemberAssignment assignment,
-            QueryProviderSettings settings,
+            IQueryProviderSettings settings,
             out MemberAssignment converted)
         {
             if (assignment.Expression.NodeType != ExpressionType.Block)
@@ -50,6 +51,7 @@
 
         private static MethodCallExpression GetConvertCall(MethodCallExpression tryParseCall)
         {
+            // ReSharper disable once PossibleNullReferenceException
             // Attempt to use Convert.ToInt32 - irretrievably unsupported in non-EDMX EF5 and EF6, 
             // but it at least gives a decent error message:
             var convertMethodName = "To" + tryParseCall.Method.DeclaringType.Name;
