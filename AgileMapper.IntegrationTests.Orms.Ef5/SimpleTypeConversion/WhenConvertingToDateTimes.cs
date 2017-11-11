@@ -4,9 +4,9 @@
     using UnitTests.Orms.Infrastructure;
     using UnitTests.Orms.SimpleTypeConversion;
 
-    public class WhenConvertingToDateTimes : WhenConvertingToDateTimes<Ef5TestDbContext>
+    public class WhenConvertingToDateTimes : WhenConvertingToDateTimes<Ef5TestLocalDbContext>
     {
-        public WhenConvertingToDateTimes(LocalDbTestContext<Ef5TestDbContext> context)
+        public WhenConvertingToDateTimes(LocalDbTestContext<Ef5TestLocalDbContext> context)
             : base(context)
         {
         }

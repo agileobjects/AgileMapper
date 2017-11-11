@@ -5,7 +5,7 @@
     using Xunit;
 
     [CollectionDefinition(TestConstants.OrmCollectionName)]
-    public class Ef6LocalDbTestDefinition : ICollectionFixture<LocalDbTestContext<Ef6TestDbContext>>
+    public class Ef6TestLocalDbDefinition : ICollectionFixture<LocalDbTestContext<Ef6TestLocalDbContext>>
     {
     }
 }

@@ -4,9 +4,9 @@
     using UnitTests.Orms.Infrastructure;
     using UnitTests.Orms.SimpleTypeConversion;
 
-    public class WhenConvertingToStrings : WhenConvertingToStrings<Ef5TestDbContext>
+    public class WhenConvertingToStrings : WhenConvertingToStrings<Ef5TestLocalDbContext>
     {
-        public WhenConvertingToStrings(LocalDbTestContext<Ef5TestDbContext> context)
+        public WhenConvertingToStrings(LocalDbTestContext<Ef5TestLocalDbContext> context)
             : base(context)
         {
         }

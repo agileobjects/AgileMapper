@@ -80,14 +80,17 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Infrastructure\Ef5DbSetWrapper.cs" />
-    <Compile Include="Infrastructure\Ef5TestDbContext.cs" />
-    <Compile Include="Infrastructure\Ef5LocalDbTestDefinition.cs" />
+    <Compile Include="Infrastructure\Ef5TestLocalDbContext.cs" />
+    <Compile Include="Infrastructure\Ef5TestLocalDbDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Orms.Ef5\AgileMapper.UnitTests.Orms.Ef5.csproj">
+      <Project>{d87103fd-3851-4724-bd8f-9cef19c8f193}</Project>
+      <Name>AgileMapper.UnitTests.Orms.Ef5</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj">
       <Project>{66522d44-19f5-4af5-9d43-483a3cd6f958}</Project>
       <Name>AgileMapper.UnitTests.Orms</Name>

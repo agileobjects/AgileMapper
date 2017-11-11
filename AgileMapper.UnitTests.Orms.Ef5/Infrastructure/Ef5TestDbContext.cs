@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.Infrastructure
 {
+    using System.Data.Common;
     using System.Data.Entity;
     using Effort;
     using Orms.Infrastructure;
@@ -8,7 +9,12 @@
     public class Ef5TestDbContext : DbContext, ITestDbContext
     {
         public Ef5TestDbContext()
-            : base(DbConnectionFactory.CreateTransient(), true)
+            : this(DbConnectionFactory.CreateTransient())
+        {
+        }
+
+        protected Ef5TestDbContext(DbConnection dbConnection)
+            : base(dbConnection, true)
         {
         }
 
