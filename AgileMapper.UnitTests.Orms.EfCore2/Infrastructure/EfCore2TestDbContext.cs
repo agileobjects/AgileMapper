@@ -11,7 +11,7 @@
         private static readonly DbContextOptions _inMemoryOptions =
             new DbContextOptionsBuilder<EfCore2TestDbContext>()
                 .UseLoggerFactory(new LoggerFactory(new[] { new DebugLoggerProvider() }))
-                .UseInMemoryDatabase(databaseName: "Ef6TestDbContext")
+                .UseInMemoryDatabase(databaseName: "EfCore2TestDb")
                 .Options;
 
         public EfCore2TestDbContext()

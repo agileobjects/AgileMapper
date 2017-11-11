@@ -1,18 +1,18 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.EfCore2.Infrastructure
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.Infrastructure
 {
     using Microsoft.EntityFrameworkCore;
     using Orms.Infrastructure;
-    using Orms.TestClasses;
+    using TestClasses;
 
-    public class EfCore2TestDbContext : DbContext, ITestDbContext
+    public class EfCore1TestDbContext : DbContext, ITestDbContext
     {
-        private static readonly DbContextOptions _inMemoryDbOptions =
-            new DbContextOptionsBuilder<EfCore2TestDbContext>()
-                .UseInMemoryDatabase(databaseName: "EfCore2TestDb")
+        private static readonly DbContextOptions _inMemoryOptions =
+            new DbContextOptionsBuilder<EfCore1TestDbContext>()
+                .UseInMemoryDatabase(databaseName: "EfCore1TestDb")
                 .Options;
 
-        public EfCore2TestDbContext()
-            : base(_inMemoryDbOptions)
+        public EfCore1TestDbContext()
+            : base(_inMemoryOptions)
         {
         }
 
@@ -30,23 +30,25 @@
 
         #region ITestDbContext Members
 
+        public bool StringParsingSupported => true;
+
         IDbSetWrapper<Product> ITestDbContext.Products
-            => new EfCore2DbSetWrapper<Product>(Products);
+            => new EfCore1DbSetWrapper<Product>(Products);
 
         IDbSetWrapper<PublicBoolProperty> ITestDbContext.BoolItems
-            => new EfCore2DbSetWrapper<PublicBoolProperty>(BoolItems);
+            => new EfCore1DbSetWrapper<PublicBoolProperty>(BoolItems);
 
         IDbSetWrapper<PublicShortProperty> ITestDbContext.ShortItems
-            => new EfCore2DbSetWrapper<PublicShortProperty>(ShortItems);
+            => new EfCore1DbSetWrapper<PublicShortProperty>(ShortItems);
 
         IDbSetWrapper<PublicIntProperty> ITestDbContext.IntItems
-            => new EfCore2DbSetWrapper<PublicIntProperty>(IntItems);
+            => new EfCore1DbSetWrapper<PublicIntProperty>(IntItems);
 
         IDbSetWrapper<PublicLongProperty> ITestDbContext.LongItems
-            => new EfCore2DbSetWrapper<PublicLongProperty>(LongItems);
+            => new EfCore1DbSetWrapper<PublicLongProperty>(LongItems);
 
         IDbSetWrapper<PublicStringProperty> ITestDbContext.StringItems
-            => new EfCore2DbSetWrapper<PublicStringProperty>(StringItems);
+            => new EfCore1DbSetWrapper<PublicStringProperty>(StringItems);
 
         void ITestDbContext.SaveChanges() => SaveChanges();
 
