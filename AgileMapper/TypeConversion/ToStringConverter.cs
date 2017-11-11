@@ -32,6 +32,11 @@
                 return GetDateTimeToStringConversion(sourceValue, nonNullableSourceType);
             }
 
+            if (nonNullableSourceType == typeof(bool))
+            {
+                return GetBoolToStringConversion(sourceValue, nonNullableSourceType);
+            }
+
             var toStringMethod = sourceValue.Type
                 .GetPublicInstanceMethod("ToString", parameterCount: 0);
 
@@ -81,6 +86,29 @@
                 .Method;
 
             return toStringMethod;
+        }
+
+        private static Expression GetBoolToStringConversion(Expression sourceValue, Type nonNullableSourceType)
+        {
+            if (sourceValue.Type == nonNullableSourceType)
+            {
+                return GetTrueOrFalseTernary(sourceValue);
+            }
+
+            var nullTrueOrFalse = Expression.Condition(
+                Expression.Property(sourceValue, "HasValue"),
+                GetTrueOrFalseTernary(Expression.Property(sourceValue, "Value")),
+                typeof(string).ToDefaultExpression());
+
+            return nullTrueOrFalse;
+        }
+
+        private static Expression GetTrueOrFalseTernary(Expression sourceValue)
+        {
+            return Expression.Condition(
+                sourceValue,
+                "true".ToConstantExpression(),
+                "false".ToConstantExpression());
         }
     }
 }

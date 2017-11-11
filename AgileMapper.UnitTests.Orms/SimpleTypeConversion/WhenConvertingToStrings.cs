@@ -27,5 +27,19 @@
                 stringItem.Value.ShouldBe("763483");
             });
         }
+
+        [Fact]
+        public void ShouldProjectABoolToAString()
+        {
+            RunTest(context =>
+            {
+                context.BoolItems.Add(new PublicBoolProperty { Value = true });
+                context.SaveChanges();
+
+                var stringItem = context.BoolItems.ProjectTo<PublicStringPropertyDto>().First();
+
+                stringItem.Value.ShouldBe("true");
+            });
+        }
     }
 }
