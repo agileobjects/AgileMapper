@@ -1,11 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.Infrastructure
 {
     using Orms;
-    using Orms.Infrastructure;
     using Xunit;
 
     [CollectionDefinition(TestConstants.OrmCollectionName)]
-    public class InMemoryOrmTestDefinition : ICollectionFixture<InMemoryOrmTestContext>
+    public class InMemoryEf5TestDefinition : ICollectionFixture<InMemoryEf5TestContext>
     {
     }
 }

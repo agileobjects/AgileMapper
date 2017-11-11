@@ -91,7 +91,8 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Infrastructure\Ef6DbSetWrapper.cs" />
-    <Compile Include="Infrastructure\InMemoryOrmTestDefinition.cs" />
+    <Compile Include="Infrastructure\InMemoryEf6TestContext.cs" />
+    <Compile Include="Infrastructure\InMemoryEf6TestDefinition.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

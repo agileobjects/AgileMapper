@@ -1,20 +1,18 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Infrastructure
 {
-    using System;
-
-    public class InMemoryOrmTestContext : ITestContext
+    public class InMemoryOrmTestContext<TOrmContext> : ITestContext<TOrmContext>
+        where TOrmContext : ITestDbContext, new()
     {
-        private IDisposable _dbContext;
-
-        public TOrmContext GetDbContext<TOrmContext>()
-            where TOrmContext : ITestDbContext, new()
+        public InMemoryOrmTestContext()
         {
-            return (TOrmContext)(_dbContext ?? (_dbContext = new TOrmContext()));
+            DbContext = new TOrmContext();
         }
+
+        public TOrmContext DbContext { get; }
 
         public void Dispose()
         {
-            _dbContext?.Dispose();
+            DbContext?.Dispose();
         }
     }
 }

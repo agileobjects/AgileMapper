@@ -8,9 +8,9 @@
     public abstract class OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
     {
-        protected OrmTestClassBase(ITestContext context)
+        protected OrmTestClassBase(ITestContext<TOrmContext> context)
         {
-            Context = context.GetDbContext<TOrmContext>();
+            Context = context.DbContext;
         }
 
         protected TOrmContext Context { get; }

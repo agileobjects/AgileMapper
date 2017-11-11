@@ -9,7 +9,7 @@
     public abstract class WhenConvertingToStrings<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
     {
-        protected WhenConvertingToStrings(ITestContext context)
+        protected WhenConvertingToStrings(ITestContext<TOrmContext> context)
             : base(context)
         {
         }

@@ -76,7 +76,6 @@
   <ItemGroup>
     <Compile Include="Infrastructure\Ef5DbSetWrapper.cs" />
     <Compile Include="Infrastructure\Ef5TestDbContext.cs" />
-    <Compile Include="Infrastructure\Ef5LocalDbTestContext.cs" />
     <Compile Include="Infrastructure\Ef5LocalDbTestDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />

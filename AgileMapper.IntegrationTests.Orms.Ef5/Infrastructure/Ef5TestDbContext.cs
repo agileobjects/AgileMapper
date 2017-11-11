@@ -1,18 +1,17 @@
 ﻿namespace AgileObjects.AgileMapper.IntegrationTests.Orms.Ef5.Infrastructure
 {
-    using System.Data.Common;
     using System.Data.Entity;
+    using System.Data.SqlClient;
+    using UnitTests.Orms;
     using UnitTests.Orms.Infrastructure;
     using UnitTests.Orms.TestClasses;
 
-    public class Ef5TestDbContext : DbContext, ITestDbContext
+    public class Ef5TestDbContext : DbContext, ITestLocalDbContext
     {
         public Ef5TestDbContext()
-        {
-        }
-
-        public Ef5TestDbContext(DbConnection localDbConnection)
-            : base(localDbConnection, false)
+            : base(
+                new SqlConnection(TestConstants.GetLocalDbConnectionString<Ef5TestDbContext>()),
+                true)
         {
         }
 
@@ -51,6 +50,14 @@
             => new Ef5DbSetWrapper<PublicStringProperty>(StringItems);
 
         void ITestDbContext.SaveChanges() => SaveChanges();
+
+        #endregion
+
+        #region ITestLocalDbContext Members
+
+        void ITestLocalDbContext.CreateDatabase() => Database.Create();
+
+        void ITestLocalDbContext.DeleteDatabase() => Database.Delete();
 
         #endregion
     }

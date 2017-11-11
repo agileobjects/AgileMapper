@@ -2,11 +2,10 @@
 {
     using Infrastructure;
     using Orms;
-    using Orms.Infrastructure;
 
     public class WhenProjectingFlatTypes : WhenProjectingFlatTypes<Ef6TestDbContext>
     {
-        public WhenProjectingFlatTypes(InMemoryOrmTestContext context)
+        public WhenProjectingFlatTypes(InMemoryEf6TestContext context)
             : base(context)
         {
         }

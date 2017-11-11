@@ -2,9 +2,9 @@
 {
     using System;
 
-    public interface ITestContext : IDisposable
+    public interface ITestContext<out TOrmContext> : IDisposable
+        where TOrmContext : ITestDbContext, new()
     {
-        TOrmContext GetDbContext<TOrmContext>()
-            where TOrmContext : ITestDbContext, new();
+        TOrmContext DbContext { get; }
     }
 }

@@ -89,7 +89,8 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Infrastructure\Ef5DbSetWrapper.cs" />
-    <Compile Include="Infrastructure\InMemoryOrmTestDefinition.cs" />
+    <Compile Include="Infrastructure\InMemoryEf5TestDefinition.cs" />
+    <Compile Include="Infrastructure\InMemoryEf5TestContext.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

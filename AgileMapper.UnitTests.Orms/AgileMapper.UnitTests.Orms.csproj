@@ -80,6 +80,8 @@
     <Compile Include="Infrastructure\IDbSetWrapper.cs" />
     <Compile Include="Infrastructure\ITestContext.cs" />
     <Compile Include="Infrastructure\ITestDbContext.cs" />
+    <Compile Include="Infrastructure\ITestLocalDbContext.cs" />
+    <Compile Include="Infrastructure\LocalDbTestContext.cs" />
     <Compile Include="Infrastructure\OrmTestClassBase.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\PublicStringPropertyDto.cs" />
