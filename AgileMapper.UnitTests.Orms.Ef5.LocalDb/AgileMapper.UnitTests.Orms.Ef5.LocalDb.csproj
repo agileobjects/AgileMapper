@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B75D1A61-006A-4951-82FE-A2943296A872}</ProjectGuid>
+    <ProjectGuid>{48B855A9-F42C-4D2A-9549-97ED27D59336}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AgileObjects.AgileMapper.IntegrationTests.Orms.Ef6</RootNamespace>
-    <AssemblyName>AgileObjects.AgileMapper.IntegrationTests.Orms.Ef6</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Orms.Ef5.LocalDb</RootNamespace>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Orms.Ef5.LocalDb</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -48,15 +48,13 @@
     <Reference Include="AgileObjects.NetStandardPolyfills, Version=1.0.0.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
       <HintPath>..\packages\AgileObjects.NetStandardPolyfills.1.0.0\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -82,15 +80,16 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Infrastructure\Ef6TestLocalDbContext.cs" />
-    <Compile Include="Infrastructure\Ef6TestLocalDbDefinition.cs" />
+    <Compile Include="Infrastructure\Ef5TestLocalDbContext.cs" />
+    <Compile Include="Infrastructure\Ef5TestLocalDbDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AgileMapper.UnitTests.Orms.Ef6\AgileMapper.UnitTests.Orms.Ef6.csproj">
-      <Project>{63b8975d-0cde-48f5-8ca9-8af8fe729610}</Project>
-      <Name>AgileMapper.UnitTests.Orms.Ef6</Name>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Orms.Ef5\AgileMapper.UnitTests.Orms.Ef5.csproj">
+      <Project>{d87103fd-3851-4724-bd8f-9cef19c8f193}</Project>
+      <Name>AgileMapper.UnitTests.Orms.Ef5</Name>
     </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj">
       <Project>{66522d44-19f5-4af5-9d43-483a3cd6f958}</Project>

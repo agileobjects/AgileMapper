@@ -1,7 +1,7 @@
-﻿namespace AgileObjects.AgileMapper.IntegrationTests.Orms.Ef6.Infrastructure
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6.LocalDb.Infrastructure
 {
-    using UnitTests.Orms;
-    using UnitTests.Orms.Infrastructure;
+    using Orms;
+    using Orms.Infrastructure;
     using Xunit;
 
     [CollectionDefinition(TestConstants.OrmCollectionName)]

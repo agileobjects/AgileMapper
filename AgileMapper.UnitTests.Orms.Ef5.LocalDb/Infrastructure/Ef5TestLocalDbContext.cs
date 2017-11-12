@@ -1,9 +1,9 @@
-﻿namespace AgileObjects.AgileMapper.IntegrationTests.Orms.Ef5.Infrastructure
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.LocalDb.Infrastructure
 {
     using System.Data.SqlClient;
-    using UnitTests.Orms;
-    using UnitTests.Orms.Ef5.Infrastructure;
-    using UnitTests.Orms.Infrastructure;
+    using Ef5.Infrastructure;
+    using Orms;
+    using Orms.Infrastructure;
 
     public class Ef5TestLocalDbContext : Ef5TestDbContext, ITestLocalDbContext
     {

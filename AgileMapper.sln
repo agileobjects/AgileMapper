@@ -30,11 +30,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.EfCore2", "AgileMapper.UnitTests.Orms.EfCore2\AgileMapper.UnitTests.Orms.EfCore2.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.IntegrationTests.Orms.Ef5", "AgileMapper.IntegrationTests.Orms.Ef5\AgileMapper.IntegrationTests.Orms.Ef5.csproj", "{48B855A9-F42C-4D2A-9549-97ED27D59336}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.EfCore1", "AgileMapper.UnitTests.Orms.EfCore1\AgileMapper.UnitTests.Orms.EfCore1.csproj", "{FDEC5C57-9B2B-4599-80A6-DF0791BC7E1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.IntegrationTests.Orms.Ef6", "AgileMapper.IntegrationTests.Orms.Ef6\AgileMapper.IntegrationTests.Orms.Ef6.csproj", "{B75D1A61-006A-4951-82FE-A2943296A872}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef5.LocalDb", "AgileMapper.UnitTests.Orms.Ef5.LocalDb\AgileMapper.UnitTests.Orms.Ef5.LocalDb.csproj", "{48B855A9-F42C-4D2A-9549-97ED27D59336}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef6.LocalDb", "AgileMapper.UnitTests.Orms.Ef6.LocalDb\AgileMapper.UnitTests.Orms.Ef6.LocalDb.csproj", "{B75D1A61-006A-4951-82FE-A2943296A872}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,14 +78,14 @@ Global
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48B855A9-F42C-4D2A-9549-97ED27D59336}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48B855A9-F42C-4D2A-9549-97ED27D59336}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48B855A9-F42C-4D2A-9549-97ED27D59336}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48B855A9-F42C-4D2A-9549-97ED27D59336}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FDEC5C57-9B2B-4599-80A6-DF0791BC7E1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FDEC5C57-9B2B-4599-80A6-DF0791BC7E1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDEC5C57-9B2B-4599-80A6-DF0791BC7E1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDEC5C57-9B2B-4599-80A6-DF0791BC7E1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48B855A9-F42C-4D2A-9549-97ED27D59336}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48B855A9-F42C-4D2A-9549-97ED27D59336}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48B855A9-F42C-4D2A-9549-97ED27D59336}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48B855A9-F42C-4D2A-9549-97ED27D59336}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Release|Any CPU.ActiveCfg = Release|Any CPU
