@@ -9,6 +9,8 @@
 
         bool StringToDateTimeConversionSupported { get; }
 
+        bool StringToDateTimeValidationSupported { get; }
+
         IDbSetWrapper<Product> Products { get; }
 
         IDbSetWrapper<PublicBool> BoolItems { get; }

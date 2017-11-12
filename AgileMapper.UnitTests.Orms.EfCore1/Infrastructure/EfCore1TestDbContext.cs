@@ -34,6 +34,8 @@
 
         public bool StringToDateTimeConversionSupported => true;
 
+        public bool StringToDateTimeValidationSupported => false;
+
         IDbSetWrapper<Product> ITestDbContext.Products
             => new EfCore1DbSetWrapper<Product>(Products);
 

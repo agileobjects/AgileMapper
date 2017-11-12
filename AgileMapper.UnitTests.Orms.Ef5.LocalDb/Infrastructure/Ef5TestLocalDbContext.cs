@@ -14,6 +14,8 @@
 
         public override bool StringToDateTimeConversionSupported => true;
 
+        public override bool StringToDateTimeValidationSupported => true;
+
         void ITestLocalDbContext.CreateDatabase() => Database.Create();
 
         void ITestLocalDbContext.DeleteDatabase() => Database.Delete();

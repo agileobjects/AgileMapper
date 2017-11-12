@@ -16,6 +16,6 @@
 
         Expression ConvertToStringCall(MethodCallExpression call);
 
-        Expression ConvertTryParseCall(MethodCallExpression call);
+        Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue);
     }
 }

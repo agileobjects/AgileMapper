@@ -42,26 +42,10 @@
                 return false;
             }
 
-            var convertedValue = settings.ConvertTryParseCall(methodCall);
-            var fallbackValue = GetFallbackValue(tryParseOrDefault);
-            var nullString = default(string).ToConstantExpression();
-            var sourceIsNotNull = Expression.NotEqual(methodCall.Arguments[0], nullString);
-            var convertedOrFallback = Expression.Condition(sourceIsNotNull, convertedValue, fallbackValue);
+            var convertedValue = settings.ConvertTryParseCall(methodCall, tryParseOrDefault.IfFalse);
 
-            converted = assignment.Update(convertedOrFallback);
+            converted = assignment.Update(convertedValue);
             return true;
-        }
-
-        private static Expression GetFallbackValue(ConditionalExpression tryParseOrDefault)
-        {
-            var defaultValue = tryParseOrDefault.IfFalse;
-
-            if (defaultValue.NodeType != ExpressionType.Default)
-            {
-                return defaultValue;
-            }
-
-            return DefaultExpressionConverter.Convert((DefaultExpression)defaultValue);
         }
     }
 }

@@ -35,7 +35,7 @@
 
         public virtual Expression ConvertToStringCall(MethodCallExpression call) => call;
 
-        public virtual Expression ConvertTryParseCall(MethodCallExpression call)
+        public virtual Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
             => this.GetConvertToTypeCall(call);
 
 #if !NET_STANDARD

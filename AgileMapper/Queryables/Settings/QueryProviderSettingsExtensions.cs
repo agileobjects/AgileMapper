@@ -31,6 +31,7 @@
         public static bool TryGetDateTimeFromStringCall(
             this IQueryProviderSettings settings,
             MethodCallExpression tryParseCall,
+            Expression fallbackValue,
             out Expression convertedCall)
         {
             if ((tryParseCall.Method.DeclaringType != typeof(DateTime)) ||
@@ -64,7 +65,7 @@
 
             var sourceValue = tryParseCall.Arguments[0];
 
-            convertedCall = Expression.Call(
+            var createDateTimeCall = Expression.Call(
                 createDateTimeMethod,
                 GetDatePartCall(datePartMethod, "yy", sourceValue),
                 GetDatePartCall(datePartMethod, "mm", sourceValue),
@@ -73,7 +74,18 @@
                 GetDatePartCall(datePartMethod, "mi", sourceValue),
                 GetDatePartCall(datePartMethod, "ss", sourceValue).GetConversionTo(typeof(double?)));
 
-            convertedCall = Expression.Property(convertedCall, "Value");
+            if (fallbackValue.NodeType == ExpressionType.Default)
+            {
+                fallbackValue = DefaultExpressionConverter.Convert((DefaultExpression)fallbackValue);
+            }
+
+            var createdDateTime = GetGuardedDateCreation(createDateTimeCall, sourceValue, fallbackValue, settings);
+
+            var nullString = default(string).ToConstantExpression();
+            var sourceIsNotNull = Expression.NotEqual(sourceValue, nullString);
+            var convertedOrFallback = Expression.Condition(sourceIsNotNull, createdDateTime, fallbackValue);
+
+            convertedCall = convertedOrFallback;
             return true;
         }
 
@@ -83,6 +95,29 @@
             Expression sourceValue)
         {
             return Expression.Call(datePartMethod, datePart.ToConstantExpression(), sourceValue);
+        }
+
+        private static Expression GetGuardedDateCreation(
+            Expression createDateTimeCall,
+            Expression sourceValue,
+            Expression fallbackValue,
+            IQueryProviderSettings settings)
+        {
+            var createdDateTime = Expression.Property(createDateTimeCall, "Value");
+
+            var isDateMethod = settings.SqlFunctionsType.GetPublicStaticMethod("IsDate");
+
+            if (isDateMethod == null)
+            {
+                return createDateTimeCall;
+            }
+
+            var isDateCall = Expression.Call(isDateMethod, sourceValue);
+            var one = 1.ToConstantExpression(typeof(int?));
+            var isDateIsTrue = Expression.Equal(isDateCall, one);
+            var createdDateOrFallback = Expression.Condition(isDateIsTrue, createdDateTime, fallbackValue);
+
+            return createdDateOrFallback;
         }
 #endif
     }

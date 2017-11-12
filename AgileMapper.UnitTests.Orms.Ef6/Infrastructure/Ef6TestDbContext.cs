@@ -36,6 +36,8 @@
 
         public virtual bool StringToDateTimeConversionSupported => false;
 
+        public virtual bool StringToDateTimeValidationSupported => false;
+
         IDbSetWrapper<Product> ITestDbContext.Products
             => new Ef6DbSetWrapper<Product>(Products);
 

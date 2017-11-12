@@ -14,11 +14,11 @@
         protected override Type LoadSqlFunctionsType()
             => GetTypeOrNull("EntityFramework.SqlServer", "System.Data.Entity.SqlServer.SqlFunctions");
 
-        public override Expression ConvertTryParseCall(MethodCallExpression call)
+        public override Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
         {
-            return this.TryGetDateTimeFromStringCall(call, out var convertedCall)
+            return this.TryGetDateTimeFromStringCall(call, fallbackValue, out var convertedCall)
                 ? convertedCall
-                : base.ConvertTryParseCall(call);
+                : base.ConvertTryParseCall(call, fallbackValue);
         }
 #endif
     }

@@ -62,5 +62,28 @@
                 RunTestAndExpectThrow(Test);
             }
         }
+
+        [Fact]
+        public void ShouldProjectAnUnparseableStringToADateTimeAsExpected()
+        {
+            void Test(TOrmContext context)
+            {
+                context.StringItems.Add(new PublicString { Value = "htgijfoekld" });
+                context.SaveChanges();
+
+                var dateTimeItem = context.StringItems.ProjectTo<PublicDateTimeDto>().First();
+
+                dateTimeItem.Value.ShouldBe(default(DateTime));
+            }
+
+            if (Context.StringToDateTimeValidationSupported)
+            {
+                RunTest(Test);
+            }
+            else
+            {
+                RunTestAndExpectThrow(Test);
+            }
+        }
     }
 }
