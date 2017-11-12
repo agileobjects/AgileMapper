@@ -25,6 +25,8 @@
 
         public IQueryProvider Provider => _dbSet.Provider;
 
+        public abstract void Include<TProperty>(Expression<Func<TEntity, TProperty>> navigationPropertyPath);
+
         public abstract void Add(TEntity itemToAdd);
 
         public abstract void Clear();
