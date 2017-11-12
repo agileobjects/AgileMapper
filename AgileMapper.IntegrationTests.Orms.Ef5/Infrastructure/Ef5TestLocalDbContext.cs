@@ -12,6 +12,8 @@
         {
         }
 
+        public override bool StringToDateTimeConversionSupported => true;
+
         void ITestLocalDbContext.CreateDatabase() => Database.Create();
 
         void ITestLocalDbContext.DeleteDatabase() => Database.Delete();

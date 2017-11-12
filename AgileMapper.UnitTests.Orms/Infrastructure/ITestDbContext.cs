@@ -7,6 +7,8 @@
     {
         bool StringToNumberConversionSupported { get; }
 
+        bool StringToDateTimeConversionSupported { get; }
+
         IDbSetWrapper<Product> Products { get; }
 
         IDbSetWrapper<PublicBool> BoolItems { get; }

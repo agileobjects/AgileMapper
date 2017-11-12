@@ -31,7 +31,14 @@
                 dateTimeItem.Value.ShouldBe(now, TimeSpan.FromSeconds(1));
             }
 
-            RunTest(Test);
+            if (Context.StringToDateTimeConversionSupported)
+            {
+                RunTest(Test);
+            }
+            else
+            {
+                RunTestAndExpectThrow(Test);
+            }
         }
     }
 }
