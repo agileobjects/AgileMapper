@@ -36,14 +36,32 @@
 
             var methodCall = (MethodCallExpression)tryParseOrDefault.Test;
 
-            if (methodCall.Method.IsStatic && (methodCall.Method.Name == "TryParse"))
+            if (!methodCall.Method.IsStatic || (methodCall.Method.Name != "TryParse"))
             {
-                converted = assignment.Update(settings.ConvertTryParseCall(methodCall));
-                return true;
+                converted = null;
+                return false;
             }
 
-            converted = null;
-            return false;
+            var convertedValue = settings.ConvertTryParseCall(methodCall);
+            var fallbackValue = GetFallbackValue(tryParseOrDefault);
+            var nullString = default(string).ToConstantExpression();
+            var sourceIsNotNull = Expression.NotEqual(methodCall.Arguments[0], nullString);
+            var convertedOrFallback = Expression.Condition(sourceIsNotNull, convertedValue, fallbackValue);
+
+            converted = assignment.Update(convertedOrFallback);
+            return true;
+        }
+
+        private static Expression GetFallbackValue(ConditionalExpression tryParseOrDefault)
+        {
+            var defaultValue = tryParseOrDefault.IfFalse;
+
+            if (defaultValue.NodeType != ExpressionType.Default)
+            {
+                return defaultValue;
+            }
+
+            return DefaultExpressionConverter.Convert((DefaultExpression)defaultValue);
         }
     }
 }

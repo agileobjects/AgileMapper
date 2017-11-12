@@ -34,8 +34,8 @@
             out Expression convertedCall)
         {
             if ((tryParseCall.Method.DeclaringType != typeof(DateTime)) ||
-               (settings.CanonicalFunctionsType) == null ||
-               (settings.SqlFunctionsType == null))
+                (settings.CanonicalFunctionsType == null) ||
+                (settings.SqlFunctionsType == null))
             {
                 convertedCall = null;
                 return false;
