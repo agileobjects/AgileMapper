@@ -22,14 +22,13 @@
             void Test(TOrmContext context)
             {
                 var now = DateTime.Now;
-                var nowString = now.ToString(CultureInfo.InvariantCulture);
 
-                context.StringItems.Add(new PublicString { Value = nowString });
+                context.StringItems.Add(new PublicString { Value = now.ToString("s") });
                 context.SaveChanges();
 
                 var dateTimeItem = context.StringItems.ProjectTo<PublicDateTimeDto>().First();
 
-                dateTimeItem.Value.ToString(CultureInfo.InvariantCulture).ShouldBe(nowString);
+                dateTimeItem.Value.ShouldBe(now, TimeSpan.FromSeconds(1));
             }
 
             RunTest(Test);
