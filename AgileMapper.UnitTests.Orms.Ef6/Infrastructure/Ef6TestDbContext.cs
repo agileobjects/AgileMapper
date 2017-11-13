@@ -20,6 +20,10 @@
 
         public DbSet<Product> Products { get; set; }
 
+        public DbSet<Person> Persons { get; set; }
+
+        public DbSet<Address> Addresses { get; set; }
+
         public DbSet<PublicBool> BoolItems { get; set; }
 
         public DbSet<PublicShort> ShortItems { get; set; }
@@ -40,6 +44,12 @@
 
         IDbSetWrapper<Product> ITestDbContext.Products
             => new Ef6DbSetWrapper<Product>(Products);
+
+        IDbSetWrapper<Person> ITestDbContext.Persons
+            => new Ef6DbSetWrapper<Person>(Persons);
+
+        IDbSetWrapper<Address> ITestDbContext.Addresses
+            => new Ef6DbSetWrapper<Address>(Addresses);
 
         IDbSetWrapper<PublicBool> ITestDbContext.BoolItems
             => new Ef6DbSetWrapper<PublicBool>(BoolItems);

@@ -13,6 +13,10 @@
 
         IDbSetWrapper<Product> Products { get; }
 
+        IDbSetWrapper<Person> Persons { get; }
+
+        IDbSetWrapper<Address> Addresses { get; }
+
         IDbSetWrapper<PublicBool> BoolItems { get; }
 
         IDbSetWrapper<PublicShort> ShortItems { get; }

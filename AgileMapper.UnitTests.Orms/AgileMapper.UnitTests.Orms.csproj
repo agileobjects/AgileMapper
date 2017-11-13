@@ -85,6 +85,9 @@
     <Compile Include="Infrastructure\OrmTestClassBase.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
+    <Compile Include="TestClasses\Address.cs" />
+    <Compile Include="TestClasses\Person.cs" />
+    <Compile Include="TestClasses\PersonDto.cs" />
     <Compile Include="TestClasses\PublicDateTimeDto.cs" />
     <Compile Include="TestClasses\PublicStringDto.cs" />
     <Compile Include="TestConstants.cs" />
@@ -102,6 +105,7 @@
     <Compile Include="TestClasses\PublicShort.cs" />
     <Compile Include="TestClasses\PublicString.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
+    <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -67,7 +67,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 var assignedMember = (MemberExpression)assignment.Left;
                 var memberBinding = Expression.Bind(assignedMember.Member, assignment.Right);
 
-                memberBindings.Add(memberBinding);
+                memberBindings.Insert(0, memberBinding);
                 memberPopulations.RemoveAt(i);
             }
 
