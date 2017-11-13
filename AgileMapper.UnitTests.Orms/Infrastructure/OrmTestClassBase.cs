@@ -36,6 +36,21 @@
             }
         }
 
+        protected void RunTest(Action<TOrmContext, IMapper> testAction)
+        {
+            try
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    testAction.Invoke(Context, mapper);
+                }
+            }
+            finally
+            {
+                EmptyDbContext();
+            }
+        }
+
         private void EmptyDbContext()
         {
             Context.Products.Clear();

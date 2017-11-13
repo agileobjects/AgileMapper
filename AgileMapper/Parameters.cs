@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper
         public static readonly ParameterExpression MappingData = Create<IMappingData>();
         public static readonly ParameterExpression ObjectMappingData = Create<IObjectMappingData>();
         public static readonly ParameterExpression Queryable = Create<IQueryable>();
-        public static readonly ParameterExpression MapperInternal = Create<IMapperInternal>();
+        public static readonly ParameterExpression Mapper = Create<IMapper>();
 
         public static ParameterExpression Create<T>(string name = null) => Create(typeof(T), name);
 

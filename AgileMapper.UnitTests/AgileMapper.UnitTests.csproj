@@ -121,7 +121,6 @@
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
     <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
     <Compile Include="MapperCloning\WhenCloningStringFormatting.cs" />
-    <Compile Include="MappingExtensions.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />

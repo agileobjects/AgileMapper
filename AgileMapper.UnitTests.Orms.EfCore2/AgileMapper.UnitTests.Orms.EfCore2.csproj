@@ -83,6 +83,9 @@
     <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.1.2\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
+    <Reference Include="Shouldly, Version=2.8.3.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shouldly.2.8.3\lib\net451\Shouldly.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.4.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
@@ -145,6 +148,7 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
+    <Compile Include="WhenCreatingProjections.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -156,9 +160,17 @@
     <Analyzer Include="..\packages\xunit.analyzers.0.7.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
+      <Project>{049e1ee5-48ce-441a-b166-3cf6bec17957}</Project>
+      <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj">
       <Project>{66522d44-19f5-4af5-9d43-483a3cd6f958}</Project>
       <Name>AgileMapper.UnitTests.Orms</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
+      <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
+      <Name>AgileMapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
