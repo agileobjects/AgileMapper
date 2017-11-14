@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper
             {
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardStringAccesses = true
+                GuardMemberAccesses = true
             },
             CopySourceEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardStringAccesses = true
+                GuardMemberAccesses = true
             },
             MergeEnumerablePopulationStrategy.Instance,
             PreserveExistingValueMemberPopulationGuardFactory.Instance,
@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardStringAccesses = true
+                GuardMemberAccesses = true
             },
             OverwriteEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,

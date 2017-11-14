@@ -72,10 +72,14 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
+            if (!mapperData.RuleSet.Settings.GuardMemberAccesses)
+            {
+                return ExpressionInfoFinder.ExpressionInfo.Empty;
+            }
+
             return mapperData.ExpressionInfoFinder.FindIn(
                 value,
-                targetCanBeNull,
-                mapperData.RuleSet.Settings.GuardStringAccesses);
+                targetCanBeNull);
         }
 
         public static bool SourceIsNotFlatObject(this IMemberMapperData mapperData)

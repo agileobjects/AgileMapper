@@ -12,6 +12,6 @@ namespace AgileObjects.AgileMapper
 
         public bool UseTryCatch { get; set; }
 
-        public bool GuardStringAccesses { get; set; }
+        public bool GuardMemberAccesses { get; set; }
     }
 }
