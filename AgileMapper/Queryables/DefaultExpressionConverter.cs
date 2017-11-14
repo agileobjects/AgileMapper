@@ -12,6 +12,11 @@
 
         private static object GetDefaultValueFor(Type type)
         {
+            if (!type.IsValueType())
+            {
+                return null;
+            }
+
             var getDefaultValueCaller = GlobalContext.Instance.Cache.GetOrAdd(type, t =>
             {
                 var getDefaultValueCall = Expression

@@ -23,10 +23,10 @@
                 {
                     PersonId = 1,
                     Name = "Test Db",
-                    AddressId = 2,
+                    AddressId = 1,
                     Address = new Address
                     {
-                        AddressId = 2,
+                        AddressId = 1,
                         Line1 = "Test Db Line 1",
                         Line2 = "Test Db Line 2"
                     }
@@ -40,7 +40,7 @@
 
                 personDto.Id.ShouldBe(1);
                 personDto.Name.ShouldBe("Test Db");
-                personDto.AddressId.ShouldBe(2);
+                personDto.AddressId.ShouldBe(1);
                 personDto.AddressLine1.ShouldBe("Test Db Line 1");
                 personDto.AddressLine2.ShouldBe("Test Db Line 2");
             });

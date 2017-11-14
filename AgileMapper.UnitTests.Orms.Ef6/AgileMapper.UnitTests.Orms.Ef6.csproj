@@ -97,6 +97,7 @@
     <Compile Include="Infrastructure\Ef6TestDbContext.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
+    <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj">
