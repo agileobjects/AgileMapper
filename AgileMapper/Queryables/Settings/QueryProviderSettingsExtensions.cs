@@ -14,10 +14,10 @@
 #if !NET_STANDARD
         public static Expression GetParseStringToDateTimeOrNull(
             this IQueryProviderSettings settings,
-            MethodCallExpression tryParseCall,
+            MethodCallExpression dateTimeTryParseCall,
             Expression fallbackValue)
         {
-            if ((tryParseCall.Method.DeclaringType != typeof(DateTime)) ||
+            if ((dateTimeTryParseCall.Method.DeclaringType != typeof(DateTime)) ||
                 (settings.CanonicalFunctionsType == null) ||
                 (settings.SqlFunctionsType == null))
             {
@@ -43,7 +43,7 @@
                 return null;
             }
 
-            var sourceValue = tryParseCall.Arguments[0];
+            var sourceValue = dateTimeTryParseCall.Arguments[0];
 
             var createDateTimeCall = Expression.Call(
                 createDateTimeMethod,
@@ -56,7 +56,7 @@
 
             if (fallbackValue.NodeType == ExpressionType.Default)
             {
-                fallbackValue = DefaultExpressionConverter.Convert((DefaultExpression)fallbackValue);
+                fallbackValue = DefaultExpressionConverter.Convert(fallbackValue);
             }
 
             var createdDateTime = GetGuardedDateCreation(createDateTimeCall, sourceValue, fallbackValue, settings);

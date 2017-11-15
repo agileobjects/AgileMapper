@@ -70,9 +70,19 @@
             var parseMethod = typeof(Guid)
                 .GetPublicStaticMethod("Parse", parameterCount: 1);
 
-            var guidConversion = Expression.Call(parseMethod, guidTryParseCall.Arguments.First());
+            var sourceValue = guidTryParseCall.Arguments.First();
+            var guidConversion = Expression.Call(parseMethod, sourceValue);
 
-            return guidConversion;
+            if (fallbackValue.NodeType == ExpressionType.Default)
+            {
+                fallbackValue = DefaultExpressionConverter.Convert(fallbackValue);
+            }
+
+            var nullString = default(string).ToConstantExpression();
+            var sourceIsNotNull = Expression.NotEqual(sourceValue, nullString);
+            var convertedOrFallback = Expression.Condition(sourceIsNotNull, guidConversion, fallbackValue);
+
+            return convertedOrFallback;
         }
 
 #if !NET_STANDARD

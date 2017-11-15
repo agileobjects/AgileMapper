@@ -7,6 +7,9 @@
 
     internal static class DefaultExpressionConverter
     {
+        public static Expression Convert(Expression defaultExpression)
+            => Convert((DefaultExpression)defaultExpression);
+
         public static Expression Convert(DefaultExpression defaultExpression)
             => GetDefaultValueFor(defaultExpression.Type).ToConstantExpression(defaultExpression.Type);
 

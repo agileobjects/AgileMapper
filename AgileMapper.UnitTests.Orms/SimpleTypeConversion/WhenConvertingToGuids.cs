@@ -39,5 +39,28 @@
                 RunTestAndExpectThrow(Test);
             }
         }
+
+        [Fact]
+        public void ShouldProjectANullStringToAGuidAsExpected()
+        {
+            void Test(TOrmContext context)
+            {
+                context.StringItems.Add(new PublicString { Value = default(string) });
+                context.SaveChanges();
+
+                var guidItem = context.StringItems.ProjectTo<PublicGuidDto>().First();
+
+                guidItem.Value.ShouldBe(default(Guid));
+            }
+
+            if (Context.StringToGuidConversionSupported)
+            {
+                RunTest(Test);
+            }
+            else
+            {
+                RunTestAndExpectThrow(Test);
+            }
+        }
     }
 }
