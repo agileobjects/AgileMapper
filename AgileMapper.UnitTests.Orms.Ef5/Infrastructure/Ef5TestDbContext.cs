@@ -17,7 +17,6 @@
             : base(dbConnection, true)
         {
         }
-
         public DbSet<Product> Products { get; set; }
 
         public DbSet<Person> Persons { get; set; }
@@ -41,6 +40,8 @@
         public virtual bool StringToDateTimeConversionSupported => false;
 
         public virtual bool StringToDateTimeValidationSupported => false;
+
+        public bool StringToGuidConversionSupported => false;
 
         IDbSetWrapper<Product> ITestDbContext.Products
             => new Ef5DbSetWrapper<Product>(Products);

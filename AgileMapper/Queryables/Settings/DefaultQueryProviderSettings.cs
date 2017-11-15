@@ -1,13 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Settings
 {
-#if !NET_STANDARD
     using System;
     using System.Linq;
-#endif
     using System.Linq.Expressions;
-#if !NET_STANDARD
-    using System.Reflection;
-#endif
+    using Extensions;
+    using NetStandardPolyfills;
 
     internal class DefaultQueryProviderSettings : IQueryProviderSettings
     {
@@ -33,10 +30,50 @@
 
         public virtual bool SupportsToString => false;
 
-        public virtual Expression ConvertToStringCall(MethodCallExpression call) => call;
+        public virtual Expression ConvertToStringCall(MethodCallExpression call)
+            => call.Object.GetConversionTo<string>();
 
-        public virtual Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
-            => this.GetConvertToTypeCall(call);
+        public Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
+        {
+            if (call.Method.DeclaringType == typeof(Guid))
+            {
+                return GetConvertStringToGuid(call, fallbackValue);
+            }
+
+            Expression conversion;
+
+            if ((call.Method.DeclaringType == typeof(DateTime)) &&
+                (conversion = GetParseStringToDateTimeOrNull(call, fallbackValue)) != null)
+            {
+                return conversion;
+            }
+
+            // ReSharper disable once PossibleNullReferenceException
+            // Attempt to use Convert.ToInt32 - irretrievably unsupported in non-EDMX EF5 and EF6, 
+            // but it at least gives a decent error message:
+            var convertMethodName = "To" + call.Method.DeclaringType.Name;
+
+            var convertMethod = typeof(Convert)
+                .GetPublicStaticMethods(convertMethodName)
+                .First(m => m.GetParameters().HasOne() && (m.GetParameters()[0].ParameterType == typeof(string)));
+
+            conversion = Expression.Call(convertMethod, call.Arguments.First());
+
+            return conversion;
+        }
+
+        protected virtual Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
+            => null;
+
+        private static Expression GetConvertStringToGuid(MethodCallExpression guidTryParseCall, Expression fallbackValue)
+        {
+            var parseMethod = typeof(Guid)
+                .GetPublicStaticMethod("Parse", parameterCount: 1);
+
+            var guidConversion = Expression.Call(parseMethod, guidTryParseCall.Arguments.First());
+
+            return guidConversion;
+        }
 
 #if !NET_STANDARD
         protected static Type GetTypeOrNull(string loadedAssemblyName, string typeName)

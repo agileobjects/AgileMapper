@@ -155,6 +155,10 @@
         }
 
         [DebuggerStepThrough]
+        public static Expression GetConversionTo<T>(this Expression expression)
+            => GetConversionTo(expression, typeof(T));
+
+        [DebuggerStepThrough]
         public static Expression GetConversionTo(this Expression expression, Type targetType)
             => (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
 

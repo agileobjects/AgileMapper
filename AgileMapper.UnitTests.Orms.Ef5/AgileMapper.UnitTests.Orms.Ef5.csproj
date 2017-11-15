@@ -89,6 +89,7 @@
     <Compile Include="Infrastructure\InMemoryEf5TestDefinition.cs" />
     <Compile Include="Infrastructure\InMemoryEf5TestContext.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

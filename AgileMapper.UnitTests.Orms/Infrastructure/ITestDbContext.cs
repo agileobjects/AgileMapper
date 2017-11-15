@@ -11,6 +11,8 @@
 
         bool StringToDateTimeValidationSupported { get; }
 
+        bool StringToGuidConversionSupported { get; }
+
         IDbSetWrapper<Product> Products { get; }
 
         IDbSetWrapper<Person> Persons { get; }

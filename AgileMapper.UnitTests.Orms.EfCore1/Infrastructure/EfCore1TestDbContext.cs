@@ -40,6 +40,8 @@
 
         public bool StringToDateTimeValidationSupported => false;
 
+        public bool StringToGuidConversionSupported => true;
+
         IDbSetWrapper<Product> ITestDbContext.Products
             => new EfCore1DbSetWrapper<Product>(Products);
 

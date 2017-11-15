@@ -53,12 +53,8 @@
                 subject);
         }
 
-        public override Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
-        {
-            return this.TryGetDateTimeFromStringCall(call, fallbackValue, out var convertedCall)
-                ? convertedCall
-                : base.ConvertTryParseCall(call, fallbackValue);
-        }
+        protected override Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
+            => QueryProviderSettingsExtensions.GetParseStringToDateTimeOrNull(this, call, fallbackValue);
 #endif
     }
 }

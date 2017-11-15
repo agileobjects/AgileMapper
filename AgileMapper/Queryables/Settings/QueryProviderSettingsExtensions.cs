@@ -1,45 +1,27 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Settings
 {
+#if !NET_STANDARD
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
+    using System.Linq;
     using System.Reflection;
     using Extensions;
     using NetStandardPolyfills;
+#endif
 
     internal static class QueryProviderSettingsExtensions
     {
-        public static Expression GetConvertToTypeCall(
-            this IQueryProviderSettings settings,
-            MethodCallExpression tryParseCall)
-        {
-            // ReSharper disable once PossibleNullReferenceException
-            // Attempt to use Convert.ToInt32 - irretrievably unsupported in non-EDMX EF5 and EF6, 
-            // but it at least gives a decent error message:
-            var convertMethodName = "To" + tryParseCall.Method.DeclaringType.Name;
-
-            var convertMethod = typeof(Convert)
-                .GetPublicStaticMethods(convertMethodName)
-                .First(m => m.GetParameters().HasOne() && (m.GetParameters()[0].ParameterType == typeof(string)));
-
-            var convertCall = Expression.Call(convertMethod, tryParseCall.Arguments.First());
-
-            return convertCall;
-        }
-
 #if !NET_STANDARD
-        public static bool TryGetDateTimeFromStringCall(
+        public static Expression GetParseStringToDateTimeOrNull(
             this IQueryProviderSettings settings,
             MethodCallExpression tryParseCall,
-            Expression fallbackValue,
-            out Expression convertedCall)
+            Expression fallbackValue)
         {
             if ((tryParseCall.Method.DeclaringType != typeof(DateTime)) ||
                 (settings.CanonicalFunctionsType == null) ||
                 (settings.SqlFunctionsType == null))
             {
-                convertedCall = null;
-                return false;
+                return null;
             }
 
             var createDateTimeMethod = settings
@@ -48,8 +30,7 @@
 
             if (createDateTimeMethod == null)
             {
-                convertedCall = null;
-                return false;
+                return null;
             }
 
             var datePartMethod = settings
@@ -59,8 +40,7 @@
 
             if (datePartMethod == null)
             {
-                convertedCall = null;
-                return false;
+                return null;
             }
 
             var sourceValue = tryParseCall.Arguments[0];
@@ -85,8 +65,7 @@
             var sourceIsNotNull = Expression.NotEqual(sourceValue, nullString);
             var convertedOrFallback = Expression.Condition(sourceIsNotNull, createdDateTime, fallbackValue);
 
-            convertedCall = convertedOrFallback;
-            return true;
+            return convertedOrFallback;
         }
 
         private static Expression GetDatePartCall(

@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Settings
 {
+#if !NET_STANDARD
     using System;
     using System.Linq.Expressions;
+#endif
 
     internal class Ef6QueryProviderSettings : DefaultQueryProviderSettings
     {
@@ -14,12 +16,8 @@
         protected override Type LoadSqlFunctionsType()
             => GetTypeOrNull("EntityFramework.SqlServer", "System.Data.Entity.SqlServer.SqlFunctions");
 
-        public override Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
-        {
-            return this.TryGetDateTimeFromStringCall(call, fallbackValue, out var convertedCall)
-                ? convertedCall
-                : base.ConvertTryParseCall(call, fallbackValue);
-        }
+        protected override Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
+            => QueryProviderSettingsExtensions.GetParseStringToDateTimeOrNull(this, call, fallbackValue);
 #endif
     }
 }
