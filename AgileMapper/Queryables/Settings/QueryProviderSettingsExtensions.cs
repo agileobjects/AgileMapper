@@ -12,14 +12,12 @@
     internal static class QueryProviderSettingsExtensions
     {
 #if !NET_STANDARD
-        public static Expression GetParseStringToDateTimeOrNull(
+        public static Expression GetCreateDateTimeFromStringOrNull(
             this IQueryProviderSettings settings,
             MethodCallExpression dateTimeTryParseCall,
             Expression fallbackValue)
         {
-            if ((dateTimeTryParseCall.Method.DeclaringType != typeof(DateTime)) ||
-                (settings.CanonicalFunctionsType == null) ||
-                (settings.SqlFunctionsType == null))
+            if ((settings.CanonicalFunctionsType == null) || (settings.SqlFunctionsType == null))
             {
                 return null;
             }

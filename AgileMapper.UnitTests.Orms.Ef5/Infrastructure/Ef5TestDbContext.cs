@@ -17,6 +17,7 @@
             : base(dbConnection, true)
         {
         }
+
         public DbSet<Product> Products { get; set; }
 
         public DbSet<Person> Persons { get; set; }

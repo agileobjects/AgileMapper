@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Settings
 {
+#if !NET_STANDARD
     using System;
+#endif
     using System.Linq.Expressions;
 
     internal interface IQueryProviderSettings

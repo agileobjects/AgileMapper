@@ -17,7 +17,7 @@
             => GetTypeOrNull("EntityFramework.SqlServer", "System.Data.Entity.SqlServer.SqlFunctions");
 
         protected override Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
-            => QueryProviderSettingsExtensions.GetParseStringToDateTimeOrNull(this, call, fallbackValue);
+            => this.GetCreateDateTimeFromStringOrNull(call, fallbackValue);
 #endif
     }
 }
