@@ -83,8 +83,12 @@
     <Compile Include="Infrastructure\ITestLocalDbContext.cs" />
     <Compile Include="Infrastructure\LocalDbTestContext.cs" />
     <Compile Include="Infrastructure\OrmTestClassBase.cs" />
+    <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeConversionFailureTest.cs" />
+    <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeConverterTest.cs" />
+    <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeValidationFailureTest.cs" />
+    <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeValidatorTest.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
+    <Compile Include="SimpleTypeConversion\DateTimes\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\Person.cs" />

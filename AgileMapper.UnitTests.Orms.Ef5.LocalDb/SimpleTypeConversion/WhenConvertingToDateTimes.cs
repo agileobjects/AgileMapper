@@ -2,13 +2,29 @@
 {
     using Infrastructure;
     using Orms.Infrastructure;
-    using Orms.SimpleTypeConversion;
+    using Orms.SimpleTypeConversion.DateTimes;
+    using Xunit;
 
-    public class WhenConvertingToDateTimes : WhenConvertingToDateTimes<Ef5TestLocalDbContext>
+    public class WhenConvertingToDateTimes :
+        WhenConvertingToDateTimes<Ef5TestLocalDbContext>,
+        IDateTimeConverterTest,
+        IDateTimeValidatorTest
     {
         public WhenConvertingToDateTimes(LocalDbTestContext<Ef5TestLocalDbContext> context)
             : base(context)
         {
         }
+
+        [Fact]
+        public void ShouldProjectAParseableStringToADateTime()
+            => RunShouldProjectAParseableStringToADateTime();
+
+        [Fact]
+        public void ShouldProjectANullStringToADateTime()
+            => RunShouldProjectANullStringToADateTime();
+
+        [Fact]
+        public void ShouldProjectAnUnparseableStringToADateTime()
+            => RunShouldProjectAnUnparseableStringToADateTime();
     }
 }

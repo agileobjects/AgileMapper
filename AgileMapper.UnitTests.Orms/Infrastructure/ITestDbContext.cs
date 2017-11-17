@@ -7,10 +7,6 @@
     {
         bool StringToNumberConversionSupported { get; }
 
-        bool StringToDateTimeConversionSupported { get; }
-
-        bool StringToDateTimeValidationSupported { get; }
-
         bool StringToGuidConversionSupported { get; }
 
         IDbSetWrapper<Product> Products { get; }

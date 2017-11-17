@@ -38,10 +38,6 @@
 
         public bool StringToNumberConversionSupported => false;
 
-        public virtual bool StringToDateTimeConversionSupported => false;
-
-        public virtual bool StringToDateTimeValidationSupported => false;
-
         public bool StringToGuidConversionSupported => false;
 
         IDbSetWrapper<Product> ITestDbContext.Products
