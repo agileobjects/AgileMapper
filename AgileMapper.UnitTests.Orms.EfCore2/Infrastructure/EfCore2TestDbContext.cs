@@ -39,8 +39,6 @@
 
         public bool StringToNumberConversionSupported => true;
 
-        public bool StringToGuidConversionSupported => true;
-
         IDbSetWrapper<Product> ITestDbContext.Products
             => new EfCore2DbSetWrapper<Product>(Products);
 

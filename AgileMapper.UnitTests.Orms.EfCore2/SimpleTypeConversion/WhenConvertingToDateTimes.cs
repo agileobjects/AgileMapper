@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.SimpleTypeConversion
 {
     using Infrastructure;
-    using Orms.SimpleTypeConversion;
     using Orms.SimpleTypeConversion.DateTimes;
     using Xunit;
 

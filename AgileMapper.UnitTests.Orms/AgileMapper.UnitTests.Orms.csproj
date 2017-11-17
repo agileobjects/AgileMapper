@@ -87,7 +87,9 @@
     <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeConverterTest.cs" />
     <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeValidationFailureTest.cs" />
     <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeValidatorTest.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
+    <Compile Include="SimpleTypeConversion\Guids\IGuidConversionFailureTest.cs" />
+    <Compile Include="SimpleTypeConversion\Guids\IGuidConverterTest.cs" />
+    <Compile Include="SimpleTypeConversion\Guids\WhenConvertingToGuids.cs" />
     <Compile Include="SimpleTypeConversion\DateTimes\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />

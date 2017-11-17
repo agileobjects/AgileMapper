@@ -38,8 +38,6 @@
 
         public bool StringToNumberConversionSupported => false;
 
-        public bool StringToGuidConversionSupported => false;
-
         IDbSetWrapper<Product> ITestDbContext.Products
             => new Ef5DbSetWrapper<Product>(Products);
 
