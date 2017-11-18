@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion.Guids
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
     using System;
     using System.Linq;

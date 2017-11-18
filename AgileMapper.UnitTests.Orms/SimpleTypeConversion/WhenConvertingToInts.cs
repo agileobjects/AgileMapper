@@ -1,34 +1,10 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion.Integers
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
     using System.Linq;
     using Infrastructure;
     using Shouldly;
     using TestClasses;
     using Xunit;
-
-    public interface IStringToIntegerConverterTest
-    {
-        void ShouldProjectAParseableStringToAnInt();
-
-        void ShouldProjectANullStringToAnInt();
-    }
-
-    public interface IStringToIntegerConversionFailureTest
-    {
-        void ShouldErrorProjectingAParseableStringToAnInt();
-
-        void ShouldErrorProjectingANullStringToAnInt();
-    }
-
-    public interface IStringToIntegerValidatorTest
-    {
-        void ShouldProjectAnUnparseableStringToAnInt();
-    }
-
-    public interface IStringToIntegerValidationFailureTest
-    {
-        void ShouldErrorProjectingAnUnparseableStringToAnInt();
-    }
 
     public abstract class WhenConvertingToInts<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()

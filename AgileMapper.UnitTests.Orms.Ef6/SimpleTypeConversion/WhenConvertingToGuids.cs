@@ -1,12 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6.SimpleTypeConversion
 {
+    using System;
     using Infrastructure;
-    using Orms.SimpleTypeConversion.Guids;
+    using Orms.SimpleTypeConversion;
     using Xunit;
 
     public class WhenConvertingToGuids :
         WhenConvertingToGuids<Ef6TestDbContext>,
-        IGuidConversionFailureTest
+        IStringConversionFailureTest<Guid>
     {
         public WhenConvertingToGuids(InMemoryEf6TestContext context)
             : base(context)
@@ -14,11 +15,11 @@
         }
 
         [Fact]
-        public void ShouldErrorProjectingAParseableStringToAGuid()
+        public void ShouldErrorProjectingAParseableString()
             => RunShouldErrorProjectingAParseableStringToAGuid();
 
         [Fact]
-        public void ShouldErrorProjectingANullStringToAGuid()
+        public void ShouldErrorProjectingANullString()
             => RunShouldErrorProjectingANullStringToAGuid();
     }
 }

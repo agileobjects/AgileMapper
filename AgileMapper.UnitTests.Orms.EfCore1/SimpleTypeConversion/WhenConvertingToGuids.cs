@@ -1,12 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.SimpleTypeConversion
 {
+    using System;
     using Infrastructure;
-    using Orms.SimpleTypeConversion.Guids;
+    using Orms.SimpleTypeConversion;
     using Xunit;
 
     public class WhenConvertingToGuids :
         WhenConvertingToGuids<EfCore1TestDbContext>,
-        IGuidConverterTest
+        IStringConverterTest<Guid>
     {
         public WhenConvertingToGuids(InMemoryEfCore1TestContext context)
             : base(context)
@@ -14,11 +15,11 @@
         }
 
         [Fact]
-        public void ShouldProjectAParseableStringToAGuid()
+        public void ShouldProjectAParseableString()
             => RunShouldProjectAParseableStringToAGuid();
 
         [Fact]
-        public void ShouldProjectANullStringToAGuid()
+        public void ShouldProjectANullString()
             => RunShouldProjectANullStringToAGuid();
     }
 }

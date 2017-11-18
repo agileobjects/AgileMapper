@@ -1,14 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.LocalDb.SimpleTypeConversion
 {
+    using System;
     using Infrastructure;
     using Orms.Infrastructure;
-    using Orms.SimpleTypeConversion.DateTimes;
+    using Orms.SimpleTypeConversion;
     using Xunit;
 
     public class WhenConvertingToDateTimes :
         WhenConvertingToDateTimes<Ef5TestLocalDbContext>,
-        IDateTimeConverterTest,
-        IDateTimeValidatorTest
+        IStringConverterTest<DateTime>,
+        IStringConversionValidatorTest<DateTime>
     {
         public WhenConvertingToDateTimes(LocalDbTestContext<Ef5TestLocalDbContext> context)
             : base(context)
@@ -16,15 +17,15 @@
         }
 
         [Fact]
-        public void ShouldProjectAParseableStringToADateTime()
+        public void ShouldProjectAParseableString()
             => RunShouldProjectAParseableStringToADateTime();
 
         [Fact]
-        public void ShouldProjectANullStringToADateTime()
+        public void ShouldProjectANullString()
             => RunShouldProjectANullStringToADateTime();
 
         [Fact]
-        public void ShouldProjectAnUnparseableStringToADateTime()
+        public void ShouldProjectAnUnparseableString()
             => RunShouldProjectAnUnparseableStringToADateTime();
     }
 }

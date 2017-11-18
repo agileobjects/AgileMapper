@@ -83,14 +83,12 @@
     <Compile Include="Infrastructure\ITestLocalDbContext.cs" />
     <Compile Include="Infrastructure\LocalDbTestContext.cs" />
     <Compile Include="Infrastructure\OrmTestClassBase.cs" />
-    <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeConversionFailureTest.cs" />
-    <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeConverterTest.cs" />
-    <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeValidationFailureTest.cs" />
-    <Compile Include="SimpleTypeConversion\DateTimes\IDateTimeValidatorTest.cs" />
-    <Compile Include="SimpleTypeConversion\Guids\IGuidConversionFailureTest.cs" />
-    <Compile Include="SimpleTypeConversion\Guids\IGuidConverterTest.cs" />
-    <Compile Include="SimpleTypeConversion\Guids\WhenConvertingToGuids.cs" />
-    <Compile Include="SimpleTypeConversion\DateTimes\WhenConvertingToDateTimes.cs" />
+    <Compile Include="SimpleTypeConversion\IStringConversionFailureTest.cs" />
+    <Compile Include="SimpleTypeConversion\IStringConverterTest.cs" />
+    <Compile Include="SimpleTypeConversion\IStringConversionValidationFailureTest.cs" />
+    <Compile Include="SimpleTypeConversion\IStringConversionValidatorTest.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\Person.cs" />
@@ -102,7 +100,7 @@
     <Compile Include="Infrastructure\InMemoryOrmTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
-    <Compile Include="SimpleTypeConversion\Integers\WhenConvertingToInts.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="TestClasses\Product.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
     <Compile Include="TestClasses\PublicBool.cs" />
@@ -127,6 +125,7 @@
       <Name>AgileMapper</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

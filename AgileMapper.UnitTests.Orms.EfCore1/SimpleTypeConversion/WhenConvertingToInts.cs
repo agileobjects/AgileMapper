@@ -1,13 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.SimpleTypeConversion
 {
     using Infrastructure;
-    using Orms.SimpleTypeConversion.Integers;
+    using Orms.SimpleTypeConversion;
     using Xunit;
 
     public class WhenConvertingToInts :
         WhenConvertingToInts<EfCore1TestDbContext>,
-        IStringToIntegerConverterTest,
-        IStringToIntegerValidationFailureTest
+        IStringConverterTest<int>,
+        IStringConversionValidationFailureTest<int>
     {
         public WhenConvertingToInts(InMemoryEfCore1TestContext context)
             : base(context)
@@ -15,15 +15,15 @@
         }
 
         [Fact]
-        public void ShouldProjectAParseableStringToAnInt()
+        public void ShouldProjectAParseableString()
             => RunShouldProjectAParseableStringToAnInt();
 
         [Fact]
-        public void ShouldProjectANullStringToAnInt()
+        public void ShouldProjectANullString()
             => RunShouldProjectANullStringToAnInt();
 
         [Fact]
-        public void ShouldErrorProjectingAnUnparseableStringToAnInt()
+        public void ShouldErrorProjectingAnUnparseableString()
             => RunShouldErrorProjectingAnUnparseableStringToAnInt();
     }
 }

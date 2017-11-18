@@ -1,13 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.SimpleTypeConversion
 {
+    using System;
     using Infrastructure;
-    using Orms.SimpleTypeConversion.DateTimes;
+    using Orms.SimpleTypeConversion;
     using Xunit;
 
-    public class WhenConvertingToDateTimes : 
+    public class WhenConvertingToDateTimes :
         WhenConvertingToDateTimes<EfCore2TestDbContext>,
-        IDateTimeConverterTest,
-        IDateTimeValidationFailureTest
+        IStringConverterTest<DateTime>,
+        IStringConversionValidationFailureTest<DateTime>
     {
         public WhenConvertingToDateTimes(InMemoryEfCore2TestContext context)
             : base(context)
@@ -15,15 +16,15 @@
         }
 
         [Fact]
-        public void ShouldProjectAParseableStringToADateTime()
+        public void ShouldProjectAParseableString()
             => RunShouldProjectAParseableStringToADateTime();
 
         [Fact]
-        public void ShouldProjectANullStringToADateTime()
+        public void ShouldProjectANullString()
             => RunShouldProjectANullStringToADateTime();
 
         [Fact]
-        public void ShouldErrorProjectingAnUnparseableStringToADateTime()
+        public void ShouldErrorProjectingAnUnparseableString()
             => RunShouldErrorProjectingAnUnparseableStringToADateTime();
     }
 }
