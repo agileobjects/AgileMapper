@@ -5,8 +5,6 @@
 
     public interface ITestDbContext : IDisposable
     {
-        bool StringToNumberConversionSupported { get; }
-
         IDbSetWrapper<Product> Products { get; }
 
         IDbSetWrapper<Person> Persons { get; }

@@ -36,8 +36,6 @@
 
         #region ITestDbContext Members
 
-        public bool StringToNumberConversionSupported => false;
-
         IDbSetWrapper<Product> ITestDbContext.Products
             => new Ef6DbSetWrapper<Product>(Products);
 

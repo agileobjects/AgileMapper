@@ -34,8 +34,6 @@
 
         #region ITestDbContext Members
 
-        public bool StringToNumberConversionSupported => true;
-
         IDbSetWrapper<Product> ITestDbContext.Products
             => new EfCore1DbSetWrapper<Product>(Products);
 
