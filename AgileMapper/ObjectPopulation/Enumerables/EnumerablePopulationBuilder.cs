@@ -449,8 +449,6 @@
                 return GetSimpleElementConversion(sourceElement);
             }
 
-            mappingData = ObjectMappingDataFactory.ForElement(mappingData);
-
             var targetMember = mappingData.MapperData.TargetMember;
 
             Expression existingElementValue;

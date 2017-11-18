@@ -153,28 +153,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parent);
         }
 
-        public static IObjectMappingData ForElement(IObjectMappingData parentOrElement)
+        public static IObjectMappingData ForElement(IObjectMappingData parent)
         {
-            if (IsElementMappingData(parentOrElement.MapperData))
-            {
-                return parentOrElement;
-            }
-
-            var parent = parentOrElement;
             var sourceElementType = parent.MapperData.SourceMember.GetElementMember().Type;
             var targetElementType = parent.MapperData.TargetMember.GetElementMember().Type;
 
             return ForElement(sourceElementType, targetElementType, parent);
-        }
-
-        private static bool IsElementMappingData(IBasicMapperData mapperData)
-        {
-            if (mapperData.TargetMemberIsEnumerableElement())
-            {
-                return true;
-            }
-
-            return !mapperData.TargetMember.IsEnumerable || mapperData.TargetMember.ElementType.IsSimple();
         }
 
         public static IObjectMappingData ForElement(
