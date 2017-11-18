@@ -98,10 +98,7 @@
         {
             var mapperData = mappingData.MapperData;
 
-            if (CreateElementMappingDataFor(mapperData))
-            {
-                mappingData = ObjectMappingDataFactory.ForElement(mappingData);
-            }
+            mappingData = ObjectMappingDataFactory.ForElement(mappingData);
 
             mapperData.TargetMember.MapCreating(mapperData.SourceMember);
 
@@ -111,21 +108,6 @@
             }
 
             return GetElementMapping(mappingData, sourceElementValue, targetElementValue);
-        }
-
-        private static bool CreateElementMappingDataFor(IBasicMapperData mapperData)
-        {
-            if (!mapperData.TargetMemberIsEnumerableElement())
-            {
-                return true;
-            }
-
-            if (mapperData.TargetMember.IsEnumerable)
-            {
-                return !mapperData.TargetMember.ElementType.IsSimple();
-            }
-
-            return false;
         }
 
         public static Expression GetElementMapping(

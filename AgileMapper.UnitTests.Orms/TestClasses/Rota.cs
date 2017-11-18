@@ -13,6 +13,6 @@
 
         public DateTime EndDate { get; set; }
 
-        public IEnumerable<RotaEntry> Entries { get; set; }
+        public ICollection<RotaEntry> Entries { get; set; }
     }
 }

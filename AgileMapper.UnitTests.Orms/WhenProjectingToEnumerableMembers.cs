@@ -64,6 +64,26 @@
                 var rotaDto = context.Rotas.Where(r => r.Id == 1).ProjectTo<RotaDto>().First();
 
                 rotaDto.Id.ShouldBe(1);
+                rotaDto.StartDate.ShouldBe(rota.StartDate);
+                rotaDto.EndDate.ShouldBe(rota.EndDate);
+                rotaDto.Entries.Count.ShouldBe(rota.Entries.Count());
+
+                var i = 0;
+
+                foreach (var rotaEntry in rota.Entries)
+                {
+                    var rotaEntryDto = rotaDto.Entries.ElementAt(i);
+
+                    rotaEntryDto.Id.ShouldBe(rotaEntry.Id);
+                    rotaEntryDto.DayOfWeek.ShouldBe(rotaEntry.DayOfWeek);
+                    rotaEntryDto.PersonId.ShouldBe(rotaEntry.PersonId);
+                    rotaEntryDto.StartHour.ShouldBe(rotaEntry.StartHour);
+                    rotaEntryDto.StartMinute.ShouldBe(rotaEntry.StartMinute);
+                    rotaEntryDto.EndHour.ShouldBe(rotaEntry.EndHour);
+                    rotaEntryDto.EndMinute.ShouldBe(rotaEntry.EndMinute);
+
+                    ++i;
+                }
             });
         }
     }

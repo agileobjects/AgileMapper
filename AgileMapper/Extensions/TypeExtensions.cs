@@ -172,8 +172,13 @@
         public static bool IsEnumerable(this Type type)
         {
             return type.IsArray ||
-                (type != typeof(string) &&
-                typeof(IEnumerable).IsAssignableFrom(type));
+                  (type != typeof(string) &&
+                   typeof(IEnumerable).IsAssignableFrom(type));
+        }
+
+        public static bool IsQueryable(this Type type)
+        {
+            return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(IQueryable<>);
         }
 
         public static bool IsComplex(this Type type)

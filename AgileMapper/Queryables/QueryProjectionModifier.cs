@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
     using System.Linq.Expressions;
+    using Extensions;
     using Settings;
 
     internal class QueryProjectionModifier : ExpressionVisitor
@@ -30,6 +31,16 @@
             }
 
             return base.VisitMemberAssignment(assignment);
+        }
+
+        protected override Expression VisitConstant(ConstantExpression constant)
+        {
+            if (constant.Value is LambdaExpression lambda)
+            {
+                return VisitAndConvert(lambda, "ModifyLambda").ToConstantExpression(constant.Type);
+            }
+
+            return base.VisitConstant(constant);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)

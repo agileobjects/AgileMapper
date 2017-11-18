@@ -97,6 +97,7 @@
     <Compile Include="Infrastructure\Ef5TestDbContext.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
+    <Compile Include="WhenProjectingToEnumerableMembers.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj">

@@ -14,17 +14,27 @@
     {
         #region Untyped MethodInfos
 
-        private static readonly MethodInfo _selectWithoutIndexMethod = typeof(Enumerable)
+        private static readonly MethodInfo _enumerableSelectWithoutIndexMethod = typeof(Enumerable)
             .GetPublicStaticMethods("Select")
-            .Last(m =>
+            .First(m =>
                 (m.GetParameters().Length == 2) &&
                 (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2));
 
-        private static readonly MethodInfo _selectWithIndexMethod = typeof(Enumerable)
+        private static readonly MethodInfo _enumerableSelectWithIndexMethod = typeof(Enumerable)
             .GetPublicStaticMethods("Select")
-            .Last(m => 
+            .First(m =>
                 (m.GetParameters().Length == 2) &&
                 (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 3));
+
+        private static readonly MethodInfo _queryableSelectMethod = typeof(Queryable)
+            .GetPublicStaticMethods("Select")
+            .First(m =>
+                (m.GetParameters().Length == 2) &&
+                (m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2));
+
+        private static readonly MethodInfo _asQueryableMethod = typeof(Queryable)
+            .GetPublicStaticMethods("AsQueryable")
+            .Last(m => m.ContainsGenericParameters);
 
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
             .GetPublicStaticMethods("ForEach")
@@ -258,12 +268,12 @@
 
         #region Target Variable Population
 
-        public void PopulateTargetVariableFromSourceObjectOnly()
-            => AssignTargetVariableTo(GetSourceOnlyReturnValue());
+        public void PopulateTargetVariableFromSourceObjectOnly(IObjectMappingData mappingData = null)
+            => AssignTargetVariableTo(GetSourceOnlyReturnValue(mappingData));
 
-        private Expression GetSourceOnlyReturnValue()
+        private Expression GetSourceOnlyReturnValue(IObjectMappingData mappingData)
         {
-            var convertedSourceItems = _sourceItemsSelector.SourceItemsProjectedToTargetType().GetResult();
+            var convertedSourceItems = _sourceItemsSelector.SourceItemsProjectedToTargetType(mappingData).GetResult();
             var returnValue = ConvertForReturnValue(convertedSourceItems);
 
             return returnValue;
@@ -443,6 +453,8 @@
                 return GetSimpleElementConversion(sourceElement);
             }
 
+            mappingData = ObjectMappingDataFactory.ForElement(mappingData);
+
             var targetMember = mappingData.MapperData.TargetMember;
 
             Expression existingElementValue;
@@ -510,51 +522,73 @@
             Expression sourceEnumerableValue,
             Func<Expression, Expression> projectionFuncFactory)
         {
-            return GetSourceItemsProjection(
-                sourceEnumerableValue,
-                _selectWithoutIndexMethod,
-                projectionFuncFactory.Invoke);
-        }
-
-        public Expression GetSourceItemsProjection(
-            Expression sourceEnumerableValue,
-            MethodInfo selectMethod,
-            Func<Expression, Expression> projectionFuncFactory)
-        {
             return CreateSourceItemsProjection(
                 sourceEnumerableValue,
-                selectMethod,
                 (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter),
-                _sourceElementParameter);
+                counterRequired: false);
         }
 
         public Expression GetSourceItemsProjection(
             Expression sourceEnumerableValue,
             Func<Expression, Expression, Expression> projectionFuncFactory)
         {
-            return CreateSourceItemsProjection(
-                sourceEnumerableValue,
-                _selectWithIndexMethod,
-                projectionFuncFactory,
-                _sourceElementParameter,
-                Counter);
+            return CreateSourceItemsProjection(sourceEnumerableValue, projectionFuncFactory, counterRequired: true);
         }
 
         private Expression CreateSourceItemsProjection(
             Expression sourceEnumerableValue,
-            MethodInfo linqSelectOverload,
             Func<Expression, Expression, Expression> projectionFuncFactory,
-            params ParameterExpression[] projectionFuncParameters)
+            bool counterRequired)
         {
-            var funcTypes = projectionFuncParameters
-                .Select(p => p.Type)
-                .ToArray()
-                .Append(Context.TargetElementType);
+            MethodInfo linqSelectOverload;
 
-            var projectionFunc = Expression.Lambda(
-                Expression.GetFuncType(funcTypes),
+            var isQueryableMapping = MapperData.Context.IsPartOfQueryableMapping();
+
+            if (isQueryableMapping)
+            {
+                if (!MapperData.SourceType.IsQueryable())
+                {
+                    var asQueryableMethod = _asQueryableMethod.MakeGenericMethod(Context.SourceElementType);
+
+                    sourceEnumerableValue = Expression.Call(asQueryableMethod, sourceEnumerableValue);
+                }
+
+                counterRequired = false;
+                linqSelectOverload = _queryableSelectMethod;
+            }
+            else
+            {
+                linqSelectOverload = counterRequired
+                    ? _enumerableSelectWithIndexMethod
+                    : _enumerableSelectWithoutIndexMethod;
+            }
+
+            ParameterExpression[] projectionFuncParameters;
+            Type[] funcTypes;
+
+            if (counterRequired)
+            {
+                projectionFuncParameters = new[] { _sourceElementParameter, Counter };
+                funcTypes = new[] { Context.SourceElementType, Counter.Type, Context.TargetElementType };
+            }
+            else
+            {
+                projectionFuncParameters = new[] { _sourceElementParameter };
+                funcTypes = new[] { Context.SourceElementType, Context.TargetElementType };
+            }
+
+            var projectionFuncType = Expression.GetFuncType(funcTypes);
+
+            Expression projectionFunc = Expression.Lambda(
+                projectionFuncType,
                 projectionFuncFactory.Invoke(_sourceElementParameter, Counter),
                 projectionFuncParameters);
+
+            if (isQueryableMapping)
+            {
+                projectionFuncType = typeof(Expression<>).MakeGenericType(projectionFuncType);
+                projectionFunc = projectionFunc.ToConstantExpression(projectionFuncType);
+            }
 
             var typedSelectMethod = linqSelectOverload.MakeGenericMethod(Context.ElementTypes);
             var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionFunc);
@@ -678,13 +712,13 @@
                 _builder = builder;
             }
 
-            public SourceItemsSelector SourceItemsProjectedToTargetType()
+            public SourceItemsSelector SourceItemsProjectedToTargetType(IObjectMappingData mappingData = null)
             {
                 var context = _builder.Context;
                 var sourceEnumerableValue = _builder._sourceAdapter.GetSourceValue();
 
                 if (context.ElementTypesAreTheSame ||
-                    (sourceEnumerableValue.Type.GetEnumerableElementType() == context.TargetElementType))
+                   (sourceEnumerableValue.Type.GetEnumerableElementType() == context.TargetElementType))
                 {
                     _result = sourceEnumerableValue;
                     return this;
@@ -692,7 +726,7 @@
 
                 _result = _builder.GetSourceItemsProjection(
                     sourceEnumerableValue,
-                    _builder.GetSimpleElementConversion);
+                    (sourceElement, counter) => _builder.GetElementConversion(sourceElement, mappingData));
 
                 return this;
             }

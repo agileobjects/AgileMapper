@@ -10,6 +10,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             EnumerablePopulationBuilder builder,
             IObjectMappingData mappingData)
         {
+            builder.PopulateTargetVariableFromSourceObjectOnly(mappingData);
+
             return builder;
         }
     }

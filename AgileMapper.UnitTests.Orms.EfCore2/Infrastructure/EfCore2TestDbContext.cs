@@ -15,7 +15,12 @@
                 .Options;
 
         public EfCore2TestDbContext()
-            : base(_inMemoryOptions)
+            : this(_inMemoryOptions)
+        {
+        }
+
+        protected EfCore2TestDbContext(DbContextOptions options)
+            : base(options)
         {
         }
 

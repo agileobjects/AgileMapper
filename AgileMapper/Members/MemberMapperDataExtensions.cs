@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.IsRoot && mapperData.RuleSet.Settings.UseSingleRootMappingExpression;
 
         public static bool UseMemberInitialisation(this IMemberMapperData mapperData)
-            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping;
+            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping();
 
         public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
@@ -128,7 +128,7 @@ namespace AgileObjects.AgileMapper.Members
 
         [DebuggerStepThrough]
         public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)
-            => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping;
+            => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping();
 
         [DebuggerStepThrough]
         public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)

@@ -21,7 +21,7 @@
         private static readonly MethodInfo _linqToArrayMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToArray");
 
-        private static readonly MethodInfo _linqToListMethod = typeof(Enumerable)
+        public static readonly MethodInfo LinqToListMethod = typeof(Enumerable)
             .GetPublicStaticMethod("ToList");
 
         private static readonly MethodInfo _stringEqualsMethod = typeof(string)
@@ -236,7 +236,7 @@
         }
 
         public static Expression WithToListCall(this Expression enumerable, Type elementType)
-            => GetToEnumerableCall(enumerable, _linqToListMethod, elementType);
+            => GetToEnumerableCall(enumerable, LinqToListMethod, elementType);
 
         private static Expression GetToEnumerableCall(Expression enumerable, MethodInfo method, Type elementType)
         {
