@@ -207,6 +207,7 @@
     <Compile Include="Infrastructure\InMemoryEfCore1TestDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />

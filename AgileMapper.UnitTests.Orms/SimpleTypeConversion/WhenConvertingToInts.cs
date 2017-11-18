@@ -118,7 +118,7 @@
         protected void RunShouldErrorProjectingAnUnparseableStringToAnInt()
             => RunTestAndExpectThrow(ProjectUnparseableStringToInt);
 
-        private void ProjectUnparseableStringToInt(TOrmContext context)
+        private static void ProjectUnparseableStringToInt(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = "hsejk" });
             context.SaveChanges();

@@ -91,6 +91,7 @@
     <Compile Include="Infrastructure\InMemoryEf6TestContext.cs" />
     <Compile Include="Infrastructure\InMemoryEf6TestDefinition.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
