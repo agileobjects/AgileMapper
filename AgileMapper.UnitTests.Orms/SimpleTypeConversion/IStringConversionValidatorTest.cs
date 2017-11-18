@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
-    // ReSharper disable once UnusedTypeParameter
-    public interface IStringConversionValidatorTest<TTarget>
+    public interface IStringConversionValidatorTest
     {
         void ShouldProjectAnUnparseableString();
     }

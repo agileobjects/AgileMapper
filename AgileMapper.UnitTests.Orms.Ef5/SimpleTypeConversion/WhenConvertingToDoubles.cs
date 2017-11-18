@@ -6,8 +6,8 @@
 
     public class WhenConvertingToDoubles :
         WhenConvertingToDoubles<Ef5TestDbContext>,
-        IStringConversionFailureTest<double>,
-        IStringConversionValidationFailureTest<double>
+        IStringConversionFailureTest,
+        IStringConversionValidationFailureTest
 
     {
         public WhenConvertingToDoubles(InMemoryEf5TestContext context)

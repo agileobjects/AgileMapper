@@ -6,8 +6,8 @@
 
     public class WhenConvertingToInts :
         WhenConvertingToInts<Ef5TestDbContext>,
-        IStringConversionFailureTest<int>,
-        IStringConversionValidationFailureTest<int>
+        IStringConversionFailureTest,
+        IStringConversionValidationFailureTest
 
     {
         public WhenConvertingToInts(InMemoryEf5TestContext context)

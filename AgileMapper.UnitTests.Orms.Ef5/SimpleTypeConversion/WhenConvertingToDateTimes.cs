@@ -1,14 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.SimpleTypeConversion
 {
-    using System;
     using Infrastructure;
     using Orms.SimpleTypeConversion;
     using Xunit;
 
     public class WhenConvertingToDateTimes :
         WhenConvertingToDateTimes<Ef5TestDbContext>,
-        IStringConversionFailureTest<DateTime>,
-        IStringConversionValidationFailureTest<DateTime>
+        IStringConversionFailureTest,
+        IStringConversionValidationFailureTest
     {
         public WhenConvertingToDateTimes(InMemoryEf5TestContext context)
             : base(context)

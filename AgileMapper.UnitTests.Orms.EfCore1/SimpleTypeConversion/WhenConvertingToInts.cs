@@ -6,8 +6,8 @@
 
     public class WhenConvertingToInts :
         WhenConvertingToInts<EfCore1TestDbContext>,
-        IStringConverterTest<int>,
-        IStringConversionValidationFailureTest<int>
+        IStringConverterTest,
+        IStringConversionValidationFailureTest
     {
         public WhenConvertingToInts(InMemoryEfCore1TestContext context)
             : base(context)

@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6.LocalDb.SimpleTypeConversion
 {
-    using System;
     using Infrastructure;
     using Orms.Infrastructure;
     using Orms.SimpleTypeConversion;
@@ -8,8 +7,8 @@
 
     public class WhenConvertingToDateTimes :
         WhenConvertingToDateTimes<Ef6TestLocalDbContext>,
-        IStringConverterTest<DateTime>,
-        IStringConversionValidatorTest<DateTime>
+        IStringConverterTest,
+        IStringConversionValidatorTest
     {
         public WhenConvertingToDateTimes(LocalDbTestContext<Ef6TestLocalDbContext> context)
             : base(context)

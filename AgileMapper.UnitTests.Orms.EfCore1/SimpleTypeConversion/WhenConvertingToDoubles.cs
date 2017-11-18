@@ -6,8 +6,8 @@
 
     public class WhenConvertingToDoubles :
         WhenConvertingToDoubles<EfCore1TestDbContext>,
-        IStringConverterTest<int>,
-        IStringConversionValidationFailureTest<int>
+        IStringConverterTest,
+        IStringConversionValidationFailureTest
     {
         public WhenConvertingToDoubles(InMemoryEfCore1TestContext context)
             : base(context)
