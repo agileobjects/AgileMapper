@@ -55,9 +55,9 @@ namespace AgileObjects.AgileMapper
                 UseMemberInitialisation = true,
                 UseSingleRootMappingExpression = true
             },
-            CopySourceEnumerablePopulationStrategy.Instance,
+            ProjectSourceEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
-            ExistingOrDefaultValueDataSourceFactory.Instance);
+            DefaultValueDataSourceFactory.Instance);
 
         #endregion
 

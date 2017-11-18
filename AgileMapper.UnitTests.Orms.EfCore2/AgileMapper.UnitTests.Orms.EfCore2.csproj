@@ -152,6 +152,7 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="WhenCreatingProjections.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
+    <Compile Include="WhenProjectingToEnumerableMembers.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
   </ItemGroup>
   <ItemGroup>

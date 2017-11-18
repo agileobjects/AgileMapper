@@ -98,6 +98,10 @@
     <Compile Include="TestClasses\PublicGuidDto.cs" />
     <Compile Include="TestClasses\PublicDoubleDto.cs" />
     <Compile Include="TestClasses\PublicStringDto.cs" />
+    <Compile Include="TestClasses\Rota.cs" />
+    <Compile Include="TestClasses\RotaDto.cs" />
+    <Compile Include="TestClasses\RotaEntry.cs" />
+    <Compile Include="TestClasses\RotaEntryDto.cs" />
     <Compile Include="TestConstants.cs" />
     <Compile Include="Infrastructure\InMemoryOrmTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -114,6 +118,7 @@
     <Compile Include="TestClasses\PublicString.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
+    <Compile Include="WhenProjectingToEnumerableMembers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -56,6 +56,8 @@
             Context.Products.Clear();
             Context.Addresses.Clear();
             Context.Persons.Clear();
+            Context.Rotas.Clear();
+            Context.RotaEntries.Clear();
             Context.BoolItems.Clear();
             Context.ShortItems.Clear();
             Context.IntItems.Clear();

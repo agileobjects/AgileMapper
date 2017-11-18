@@ -21,18 +21,15 @@
             {
                 var person = new Person
                 {
-                    PersonId = 1,
                     Name = "Test Db",
                     AddressId = 1,
                     Address = new Address
                     {
-                        AddressId = 1,
                         Line1 = "Test Db Line 1",
                         Line2 = "Test Db Line 2"
                     }
                 };
 
-                context.Addresses.Add(person.Address);
                 context.Persons.Add(person);
                 context.SaveChanges();
 

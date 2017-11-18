@@ -11,6 +11,10 @@
 
         IDbSetWrapper<Address> Addresses { get; }
 
+        IDbSetWrapper<Rota> Rotas { get; }
+
+        IDbSetWrapper<RotaEntry> RotaEntries { get; }
+
         IDbSetWrapper<PublicBool> BoolItems { get; }
 
         IDbSetWrapper<PublicShort> ShortItems { get; }

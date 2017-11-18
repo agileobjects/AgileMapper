@@ -24,6 +24,10 @@
 
         public DbSet<Address> Addresses { get; set; }
 
+        public DbSet<Rota> Rotas { get; set; }
+
+        public DbSet<RotaEntry> RotaEntries { get; set; }
+
         public DbSet<PublicBool> BoolItems { get; set; }
 
         public DbSet<PublicShort> ShortItems { get; set; }
@@ -44,6 +48,12 @@
 
         IDbSetWrapper<Address> ITestDbContext.Addresses
             => new Ef5DbSetWrapper<Address>(Addresses);
+
+        IDbSetWrapper<Rota> ITestDbContext.Rotas
+            => new Ef5DbSetWrapper<Rota>(Rotas);
+
+        IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries
+            => new Ef5DbSetWrapper<RotaEntry>(RotaEntries);
 
         IDbSetWrapper<PublicBool> ITestDbContext.BoolItems
             => new Ef5DbSetWrapper<PublicBool>(BoolItems);
