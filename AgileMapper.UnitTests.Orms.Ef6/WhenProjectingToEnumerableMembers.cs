@@ -1,13 +1,20 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6
 {
+    using Enumerables;
     using Infrastructure;
-    using Orms;
+    using Xunit;
 
-    public class WhenProjectingToEnumerableMembers : WhenProjectingToEnumerableMembers<Ef6TestDbContext>
+    public class WhenProjectingToEnumerableMembers :
+        WhenProjectingToEnumerableMembers<Ef6TestDbContext>,
+        ICollectionMemberProjectorTest
     {
         public WhenProjectingToEnumerableMembers(InMemoryEf6TestContext context)
             : base(context)
         {
         }
+
+        [Fact]
+        public void ShouldProjectToAComplexTypeCollectionMember()
+            => RunShouldProjectToAComplexTypeCollectionMember();
     }
 }
