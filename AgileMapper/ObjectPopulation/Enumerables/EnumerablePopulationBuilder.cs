@@ -32,10 +32,6 @@
                 (m.GetParameters().Length == 2) &&
                 (m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2));
 
-        private static readonly MethodInfo _asQueryableMethod = typeof(Queryable)
-            .GetPublicStaticMethods("AsQueryable")
-            .Last(m => m.ContainsGenericParameters);
-
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
             .GetPublicStaticMethods("ForEach")
             .First();
@@ -540,28 +536,18 @@
             Func<Expression, Expression, Expression> projectionFuncFactory,
             bool counterRequired)
         {
-            MethodInfo linqSelectOverload;
+            var isRootQueryableMapping = MapperData.SourceType.IsQueryable();
 
-            var isQueryableMapping = MapperData.Context.IsPartOfQueryableMapping();
-
-            if (isQueryableMapping)
+            if (isRootQueryableMapping || MapperData.Context.IsPartOfQueryableMapping())
             {
-                if (!MapperData.SourceType.IsQueryable())
-                {
-                    var asQueryableMethod = _asQueryableMethod.MakeGenericMethod(Context.SourceElementType);
-
-                    sourceEnumerableValue = Expression.Call(asQueryableMethod, sourceEnumerableValue);
-                }
-
                 counterRequired = false;
-                linqSelectOverload = _queryableSelectMethod;
             }
-            else
-            {
-                linqSelectOverload = counterRequired
+
+            var linqSelectOverload = isRootQueryableMapping
+                ? _queryableSelectMethod
+                : counterRequired
                     ? _enumerableSelectWithIndexMethod
                     : _enumerableSelectWithoutIndexMethod;
-            }
 
             ParameterExpression[] projectionFuncParameters;
             Type[] funcTypes;
@@ -584,7 +570,7 @@
                 projectionFuncFactory.Invoke(_sourceElementParameter, Counter),
                 projectionFuncParameters);
 
-            if (isQueryableMapping)
+            if (isRootQueryableMapping)
             {
                 projectionFuncType = typeof(Expression<>).MakeGenericType(projectionFuncType);
                 projectionFunc = projectionFunc.ToConstantExpression(projectionFuncType);
