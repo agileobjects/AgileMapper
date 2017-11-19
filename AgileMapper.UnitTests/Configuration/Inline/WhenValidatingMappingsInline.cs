@@ -14,7 +14,7 @@
                 mapper
                     .Map(new PublicPropertyStruct<string>())
                     .OnTo(new PublicField<string>(), cfg => cfg
-                        .ThrowRightNowIf.MembersAreNotMapped());
+                        .ThrowRightNowIfAnythingIsWrong());
             }
         }
 
@@ -27,11 +27,12 @@
                     mapper
                         .Map(new { Whatsit = "Thingy" })
                         .OnTo(new PublicSetMethod<string>(), cfg => cfg
-                            .ThrowRightNowIf.MembersAreNotMapped()));
+                            .ThrowRightNowIfAnythingIsWrong()));
 
                 validationEx.Message.ShouldContain("AnonymousType<string> -> PublicSetMethod<string>");
                 validationEx.Message.ShouldContain("Rule set: Merge");
-                validationEx.Message.ShouldContain("PublicSetMethod<string>.SetValue is unmapped");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldContain("PublicSetMethod<string>.SetValue");
             }
         }
     }

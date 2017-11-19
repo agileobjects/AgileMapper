@@ -4,7 +4,6 @@
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
-    using Api.Validation;
     using Plans;
     using Validation;
 
@@ -185,7 +184,7 @@
 
         MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(Context);
 
-        IMapperValidationSelector IMapper.ThrowRightNowIf => new MappingValidator(this);
+        void IMapper.ThrowRightNowIfAnythingIsWrong() => MappingValidator.Validate(this);
 
         IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 

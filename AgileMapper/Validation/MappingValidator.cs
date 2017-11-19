@@ -2,23 +2,22 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Api.Validation;
+    using System.Text;
     using Configuration;
     using Extensions;
     using Members;
     using ObjectPopulation;
-    using static System.Environment;
 
-    internal class MappingValidator : IMapperValidationSelector, IMappingValidationSelector
+    internal static class MappingValidator
     {
-        private readonly IEnumerable<ObjectMapperData> _rootMapperDatas;
-
-        public MappingValidator(Mapper mapper)
+        public static void Validate(Mapper mapper)
         {
-            _rootMapperDatas = mapper.Context.ObjectMapperFactory.RootMappers.Select(m => m.MapperData);
+            var rootMapperDatas = mapper.Context.ObjectMapperFactory.RootMappers.Select(m => m.MapperData);
+
+            VerifyAllTargetMembersAreMapped(GetAllMapperDatas(rootMapperDatas));
         }
 
-        public MappingValidator(MappingConfigInfo configInfo)
+        public static void Validate(MappingConfigInfo configInfo)
         {
             var creationCallbackKey = new MapperCreationCallbackKey(
                 configInfo.RuleSet,
@@ -27,17 +26,10 @@
 
             configInfo.MapperContext.ObjectMapperFactory.RegisterCreationCallback(
                 creationCallbackKey,
-                createdMapper => MembersAreNotMapped(new[] { createdMapper.MapperData }));
+                createdMapper => VerifyAllTargetMembersAreMapped(new[] { createdMapper.MapperData }));
         }
 
-        void IMapperValidationSelector.MembersAreNotMapped() => MembersAreNotMapped(AllMapperDatas);
-
-        void IMappingValidationSelector.MembersAreNotMapped()
-        {
-
-        }
-
-        private static void MembersAreNotMapped(IEnumerable<ObjectMapperData> mapperDatas)
+        private static void VerifyAllTargetMembersAreMapped(IEnumerable<ObjectMapperData> mapperDatas)
         {
             var unmappedMemberData = mapperDatas
                 .Select(md => new
@@ -50,6 +42,12 @@
                         .ToArray()
                 })
                 .Where(d => d.UnmappedMembers.Any())
+                .GroupBy(d => d.MapperData.GetRootMapperData())
+                .Select(g => new
+                {
+                    RootMapperData = g.Key,
+                    UnmappedMembers = g.SelectMany(d => d.UnmappedMembers).ToArray()
+                })
                 .ToArray();
 
             if (unmappedMemberData.None())
@@ -57,43 +55,41 @@
                 return;
             }
 
-            var failureMessage = string.Empty;
+            var failureMessage = new StringBuilder();
 
             foreach (var memberData in unmappedMemberData)
             {
                 if (failureMessage.Length != 0)
                 {
-                    failureMessage += NewLine + NewLine;
+                    failureMessage.AppendLine().AppendLine();
                 }
 
-                var mapperData = memberData.MapperData;
-                var rootData = mapperData.GetRootMapperData();
-                var sourcePath = mapperData.SourceMember.GetFriendlySourcePath(rootData);
-                var targetPath = mapperData.TargetMember.GetFriendlyTargetPath(rootData);
+                var rootData = memberData.RootMapperData;
+                var sourcePath = rootData.SourceMember.GetFriendlySourcePath(rootData);
+                var targetPath = rootData.TargetMember.GetFriendlyTargetPath(rootData);
 
-                failureMessage +=
-                    sourcePath + " -> " + targetPath + NewLine +
-                    "Rule set: " + mapperData.RuleSet.Name + NewLine + NewLine;
+                failureMessage
+                    .Append(sourcePath).Append(" -> ").AppendLine(targetPath)
+                    .Append("Rule set: ").AppendLine(rootData.RuleSet.Name).AppendLine()
+                    .AppendLine("Unmapped target members - fix by ignoring or configuring a custom source member or data source:").AppendLine();
 
                 foreach (var unmappedMember in memberData.UnmappedMembers)
                 {
                     var targetMemberPath = unmappedMember.Key.GetFriendlyTargetPath(rootData);
 
-                    failureMessage += $" - {targetMemberPath} is unmapped." + NewLine;
+                    failureMessage.Append(" - ").AppendLine(targetMemberPath);
                 }
             }
 
-            throw new MappingValidationException(failureMessage);
+            throw new MappingValidationException(failureMessage.ToString());
         }
 
-        private IEnumerable<ObjectMapperData> AllMapperDatas => GetAllMapperDatas(_rootMapperDatas);
-
-        private IEnumerable<ObjectMapperData> GetAllMapperDatas(IEnumerable<ObjectMapperData> mapperDatas)
+        private static IEnumerable<ObjectMapperData> GetAllMapperDatas(IEnumerable<ObjectMapperData> mapperDatas)
         {
             return mapperDatas.SelectMany(GetAllMapperDatas);
         }
 
-        private IEnumerable<ObjectMapperData> GetAllMapperDatas(ObjectMapperData parent)
+        private static IEnumerable<ObjectMapperData> GetAllMapperDatas(ObjectMapperData parent)
         {
             yield return parent;
 

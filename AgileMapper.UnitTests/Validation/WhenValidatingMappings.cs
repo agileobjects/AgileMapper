@@ -13,7 +13,7 @@
             {
                 mapper.GetPlanFor<PublicProperty<string>>().ToANew<PublicProperty<int>>();
 
-                Should.NotThrow(() => mapper.ThrowRightNowIf.MembersAreNotMapped());
+                Should.NotThrow(() => mapper.ThrowRightNowIfAnythingIsWrong());
             }
         }
 
@@ -25,11 +25,12 @@
                 mapper.GetPlanFor(new { Thingy = default(string) }).ToANew<PublicProperty<long>>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowRightNowIf.MembersAreNotMapped());
+                    mapper.ThrowRightNowIfAnythingIsWrong());
 
                 validationEx.Message.ShouldContain("AnonymousType<string> -> PublicProperty<long>");
                 validationEx.Message.ShouldContain("Rule set: CreateNew");
-                validationEx.Message.ShouldContain("PublicProperty<long>.Value is unmapped");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldContain("PublicProperty<long>.Value");
             }
         }
 
@@ -43,18 +44,20 @@
                     {
                         Id = default(string),
                         Title = default(int),
-                        Name = default(string),
-                        Address = new { Fixxwang = default(string) }
+                        Name = default(string)
                     })
                     .Over<Person>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowRightNowIf.MembersAreNotMapped());
+                    mapper.ThrowRightNowIfAnythingIsWrong());
 
-                validationEx.Message.ShouldContain(" -> Person.Address");
+                validationEx.Message.ShouldContain(" -> Person");
+                validationEx.Message.ShouldNotContain(" -> Person.Address");
                 validationEx.Message.ShouldContain("Rule set: Overwrite");
-                validationEx.Message.ShouldContain("Person.Address.Line1 is unmapped");
-                validationEx.Message.ShouldContain("Person.Address.Line2 is unmapped");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldContain("Person.Address");
+                validationEx.Message.ShouldContain("Person.Address.Line1");
+                validationEx.Message.ShouldContain("Person.Address.Line2");
             }
         }
 
@@ -69,7 +72,7 @@
 
                 mapper.GetPlanFor<PublicProperty<string>>().OnTo<PublicField<int>>();
 
-                Should.NotThrow(() => mapper.ThrowRightNowIf.MembersAreNotMapped());
+                Should.NotThrow(() => mapper.ThrowRightNowIfAnythingIsWrong());
             }
         }
     }

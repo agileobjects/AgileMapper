@@ -16,10 +16,10 @@
         MappingConfigStartingPoint WhenMapping { get; }
 
         /// <summary>
-        /// Throw an exception upon execution of this statement if any target members in the mapping being configured
-        /// will not be mapped.
+        /// Throw an exception upon execution of this statement if the mapping being configured has any target 
+        /// members which will not be mapped.
         /// </summary>
-        IMappingValidationSelector ThrowRightNowIf { get; }
+        void ThrowRightNowIfAnythingIsWrong();
 
         /// <summary>
         /// Scan the given <paramref name="assemblies"/> when looking for types derived from any source or 

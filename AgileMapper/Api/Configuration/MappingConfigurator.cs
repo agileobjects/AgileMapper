@@ -4,7 +4,6 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
-    using AgileMapper.Validation;
     using Extensions;
     using Members;
     using Validation;
@@ -27,7 +26,7 @@
         public MappingConfigStartingPoint WhenMapping
             => new MappingConfigStartingPoint(MapperContext);
 
-        public IMappingValidationSelector ThrowRightNowIf => new MappingValidator(ConfigInfo);
+        public void ThrowRightNowIfAnythingIsWrong() => MappingValidator.Validate(ConfigInfo);
 
         public IFullMappingInlineConfigurator<TSource, TTarget> LookForDerivedTypesIn(params Assembly[] assemblies)
         {

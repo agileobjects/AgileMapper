@@ -36,6 +36,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                        (x._targetType == y._targetType);
             }
 
+            #region ExcludeFromCodeCoverage
+#if DEBUG
+            [ExcludeFromCodeCoverage]
+#endif
+            #endregion
             public int GetHashCode(MapperCreationCallbackKey obj) => 0;
         }
     }
