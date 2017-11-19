@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Caching;
@@ -11,6 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly IList<MappingExpressionFactoryBase> _mappingExpressionFactories;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _rootMappersCache;
+        private Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>> _creationCallbacksByKey;
 
         public ObjectMapperFactory(MapperContext mapperContext)
         {
@@ -26,6 +28,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public IEnumerable<IObjectMapper> RootMappers => _rootMappersCache.Values;
+
+        public void RegisterCreationCallback(MapperCreationCallbackKey creationCallbackKey, Action<IObjectMapper> callback)
+        {
+            if (_creationCallbacksByKey == null)
+            {
+                _creationCallbacksByKey =
+                    new Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(MapperCreationCallbackKey.Comparer);
+            }
+
+            _creationCallbacksByKey.Add(creationCallbackKey, callback);
+        }
 
         public ObjectMapper<TSource, TTarget> GetOrCreateRoot<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
@@ -63,6 +76,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingData.MapperData.MappingDataObject);
 
             var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mappingData.MapperData);
+
+            if (_creationCallbacksByKey == null)
+            {
+                return mapper;
+            }
+
+            var creationCallbackKey = new MapperCreationCallbackKey(mappingData.MapperData);
+
+            if (_creationCallbacksByKey.TryGetValue(creationCallbackKey, out var creationCallback))
+            {
+                creationCallback.Invoke(mapper);
+            }
 
             return mapper;
         }

@@ -7,7 +7,7 @@
     public class WhenValidatingMappings
     {
         [Fact]
-        public void ShouldSupportMemberMappingValidation()
+        public void ShouldSupportCachedMappingMemberValidation()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -67,7 +67,7 @@
                     .From<PublicProperty<string>>().To<PublicField<int>>()
                     .Ignore(pf => pf.Value);
 
-                string balls = mapper.GetPlanFor<PublicProperty<string>>().OnTo<PublicField<int>>();
+                mapper.GetPlanFor<PublicProperty<string>>().OnTo<PublicField<int>>();
 
                 Should.NotThrow(() => mapper.ThrowRightNowIf.MembersAreNotMapped());
             }

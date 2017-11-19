@@ -1,15 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.Validation
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Api.Validation;
+    using Configuration;
     using Extensions;
     using Members;
     using ObjectPopulation;
     using static System.Environment;
 
-    internal class MappingValidator : IMapperValidationSelector
+    internal class MappingValidator : IMapperValidationSelector, IMappingValidationSelector
     {
         private readonly IEnumerable<ObjectMapperData> _rootMapperDatas;
 
@@ -18,9 +18,28 @@
             _rootMapperDatas = mapper.Context.ObjectMapperFactory.RootMappers.Select(m => m.MapperData);
         }
 
-        public void MembersAreNotMapped()
+        public MappingValidator(MappingConfigInfo configInfo)
         {
-            var unmappedMemberData = AllMapperDatas
+            var creationCallbackKey = new MapperCreationCallbackKey(
+                configInfo.RuleSet,
+                configInfo.SourceType,
+                configInfo.TargetType);
+
+            configInfo.MapperContext.ObjectMapperFactory.RegisterCreationCallback(
+                creationCallbackKey,
+                createdMapper => MembersAreNotMapped(new[] { createdMapper.MapperData }));
+        }
+
+        void IMapperValidationSelector.MembersAreNotMapped() => MembersAreNotMapped(AllMapperDatas);
+
+        void IMappingValidationSelector.MembersAreNotMapped()
+        {
+
+        }
+
+        private static void MembersAreNotMapped(IEnumerable<ObjectMapperData> mapperDatas)
+        {
+            var unmappedMemberData = mapperDatas
                 .Select(md => new
                 {
                     MapperData = md,

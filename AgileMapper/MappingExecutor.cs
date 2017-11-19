@@ -54,7 +54,7 @@
             }
 
             RuleSet = ruleSet;
-            MapperContext = MapperContext.InlineMappers.GetContextFor(configurations, this);
+            MapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
 
             return PerformMapping(target);
         }
