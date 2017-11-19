@@ -46,14 +46,30 @@
                         Name = default(string),
                         Address = new { Fixxwang = default(string) }
                     })
-                    .ToANew<Person>();
+                    .Over<Person>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
                     mapper.ThrowRightNowIf.MembersAreNotMapped());
 
                 validationEx.Message.ShouldContain(" -> Person.Address");
+                validationEx.Message.ShouldContain("Rule set: Overwrite");
                 validationEx.Message.ShouldContain("Person.Address.Line1 is unmapped");
                 validationEx.Message.ShouldContain("Person.Address.Line2 is unmapped");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfCachedNestedMappingMemberIsIgnored()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<string>>().To<PublicField<int>>()
+                    .Ignore(pf => pf.Value);
+
+                string balls = mapper.GetPlanFor<PublicProperty<string>>().OnTo<PublicField<int>>();
+
+                Should.NotThrow(() => mapper.ThrowRightNowIf.MembersAreNotMapped());
             }
         }
     }
