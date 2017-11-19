@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
+    using Api.Validation;
 
     /// <summary>
     /// Provides mapping and mapping configuration services.
@@ -89,6 +90,11 @@
         /// Configure how this mapper performs a mapping.
         /// </summary>
         MappingConfigStartingPoint WhenMapping { get; }
+
+        /// <summary>
+        /// Throw an exception if the cached mappings have any specified issues.
+        /// </summary>
+        IMapperValidationSelector ThrowRightNowIf { get; }
 
         /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.

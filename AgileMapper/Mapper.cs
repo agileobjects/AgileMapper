@@ -4,7 +4,9 @@
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
+    using Api.Validation;
     using Plans;
+    using Validation;
 
     /// <summary>
     /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
@@ -35,25 +37,6 @@
         }
 
         #endregion
-
-        internal MapperContext Context { get; }
-
-        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
-
-        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
-
-        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
-
-        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
-
-        string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
-
-        private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
-            => new PlanTargetTypeSelector<TSource>(Context);
-
-        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
-
-        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(Context);
 
         #region Static Access Methods
 
@@ -181,7 +164,28 @@
 
         #endregion
 
+        internal MapperContext Context { get; }
+
+        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+
+        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
+
+        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+
+        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
+
+        string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
+
+        private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
+            => new PlanTargetTypeSelector<TSource>(Context);
+
+        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
+
+        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(Context);
+
         MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(Context);
+
+        IMapperValidationSelector IMapper.ThrowRightNowIf => new MappingValidator(this);
 
         IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 

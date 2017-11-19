@@ -177,6 +177,7 @@
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
+    <Compile Include="Validation\WhenValidatingMappings.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />

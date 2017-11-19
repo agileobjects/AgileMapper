@@ -31,9 +31,8 @@ namespace AgileObjects.AgileMapper.Members.Population
             Expression populateCondition)
         {
             var memberPopulation = WithoutRegistration(mappingData, dataSources, populateCondition);
-            var mapperData = memberPopulation.MapperData;
 
-            mapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(mapperData.TargetMember, dataSources);
+            memberPopulation.MapperData.RegisterTargetMemberDataSourcesIfRequired(dataSources);
 
             return memberPopulation;
         }
@@ -75,7 +74,13 @@ namespace AgileObjects.AgileMapper.Members.Population
             => CreateNullMemberPopulation(mapperData, configuredIgnore.GetIgnoreMessage);
 
         public static IMemberPopulation NoDataSource(IMemberMapperData mapperData)
-            => CreateNullMemberPopulation(mapperData, GetNoDataSourceMessage);
+        {
+            var noDataSources = CreateNullDataSourceSet(mapperData, GetNoDataSourceMessage);
+
+            mapperData.RegisterTargetMemberDataSourcesIfRequired(noDataSources);
+
+            return new MemberPopulation(mapperData, noDataSources);
+        }
 
         private static string GetNoDataSourceMessage(QualifiedMember targetMember)
         {
@@ -84,15 +89,20 @@ namespace AgileObjects.AgileMapper.Members.Population
                 : $"No data source for {targetMember.Name} or any of its child members";
         }
 
-        private static IMemberPopulation CreateNullMemberPopulation(
+        private static MemberPopulation CreateNullMemberPopulation(
             IMemberMapperData mapperData,
             Func<QualifiedMember, string> commentFactory)
         {
-            return new MemberPopulation(
-                mapperData,
-                new DataSourceSet(
-                    new NullDataSource(
-                        ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember)))));
+            return new MemberPopulation(mapperData, CreateNullDataSourceSet(mapperData, commentFactory));
+        }
+
+        private static DataSourceSet CreateNullDataSourceSet(
+            IBasicMapperData mapperData,
+            Func<QualifiedMember, string> commentFactory)
+        {
+            return new DataSourceSet(
+                new NullDataSource(
+                    ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember))));
         }
 
         #endregion

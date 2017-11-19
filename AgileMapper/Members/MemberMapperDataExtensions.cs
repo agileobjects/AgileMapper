@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using DataSources;
     using Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -107,6 +108,13 @@ namespace AgileObjects.AgileMapper.Members
 
             // We're mapping a dictionary entry by its runtime type:
             return null;
+        }
+
+        public static void RegisterTargetMemberDataSourcesIfRequired(
+            this IMemberMapperData mapperData,
+            DataSourceSet dataSources)
+        {
+            mapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(mapperData.TargetMember, dataSources);
         }
 
         [DebuggerStepThrough]
