@@ -18,7 +18,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfCachedMappingMembersAreNotMapped()
+        public void ShouldErrorIfCachedMappingMembersHaveNoDataSources()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -29,7 +29,31 @@
 
                 validationEx.Message.ShouldContain("AnonymousType<string> -> PublicProperty<long>");
                 validationEx.Message.ShouldContain("Rule set: CreateNew");
-                validationEx.Message.ShouldContain("Target.Value");
+                validationEx.Message.ShouldContain("PublicProperty<long>.Value is unmapped");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfCachedNestedMappingMembersHaveNoDataSources()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .GetPlanFor(new
+                    {
+                        Id = default(string),
+                        Title = default(int),
+                        Name = default(string),
+                        Address = new { Fixxwang = default(string) }
+                    })
+                    .ToANew<Person>();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.ThrowRightNowIf.MembersAreNotMapped());
+
+                validationEx.Message.ShouldContain(" -> Person.Address");
+                validationEx.Message.ShouldContain("Person.Address.Line1 is unmapped");
+                validationEx.Message.ShouldContain("Person.Address.Line2 is unmapped");
             }
         }
     }
