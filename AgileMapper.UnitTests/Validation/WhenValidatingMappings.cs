@@ -13,7 +13,7 @@
             {
                 mapper.GetPlanFor<PublicProperty<string>>().ToANew<PublicProperty<int>>();
 
-                Should.NotThrow(() => mapper.ThrowRightNowIfAnythingIsWrong());
+                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingIsIncomplete());
             }
         }
 
@@ -25,7 +25,7 @@
                 mapper.GetPlanFor(new { Thingy = default(string) }).ToANew<PublicProperty<long>>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowRightNowIfAnythingIsWrong());
+                    mapper.ThrowNowIfAnyMappingIsIncomplete());
 
                 validationEx.Message.ShouldContain("AnonymousType<string> -> PublicProperty<long>");
                 validationEx.Message.ShouldContain("Rule set: CreateNew");
@@ -49,7 +49,7 @@
                     .Over<Person>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowRightNowIfAnythingIsWrong());
+                    mapper.ThrowNowIfAnyMappingIsIncomplete());
 
                 validationEx.Message.ShouldContain(" -> Person");
                 validationEx.Message.ShouldNotContain(" -> Person.Address");
@@ -62,7 +62,7 @@
         }
 
         [Fact]
-        public void ShouldNotErrorIfCachedNestedMappingMemberIsIgnored()
+        public void ShouldNotErrorIfCachedMappingMemberIsIgnored()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -72,7 +72,22 @@
 
                 mapper.GetPlanFor<PublicProperty<string>>().OnTo<PublicField<int>>();
 
-                Should.NotThrow(() => mapper.ThrowRightNowIfAnythingIsWrong());
+                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingIsIncomplete());
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfUnmappedCachedMappingMemberIsIgnored()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From(new { LaLaLa = default(int) }).To<PublicField<int>>()
+                    .Ignore(pf => pf.Value);
+
+                mapper.GetPlanFor(new { LaLaLa = default(int) }).OnTo<PublicField<int>>();
+
+                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingIsIncomplete());
             }
         }
     }

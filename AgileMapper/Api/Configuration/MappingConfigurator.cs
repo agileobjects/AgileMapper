@@ -26,7 +26,7 @@
         public MappingConfigStartingPoint WhenMapping
             => new MappingConfigStartingPoint(MapperContext);
 
-        public void ThrowRightNowIfAnythingIsWrong() => MappingValidator.Validate(ConfigInfo);
+        public void ThrowNowIfMappingIsIncomplete() => MappingValidator.Validate(ConfigInfo);
 
         public IFullMappingInlineConfigurator<TSource, TTarget> LookForDerivedTypesIn(params Assembly[] assemblies)
         {

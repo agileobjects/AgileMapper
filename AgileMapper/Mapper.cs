@@ -184,7 +184,7 @@
 
         MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(Context);
 
-        void IMapper.ThrowRightNowIfAnythingIsWrong() => MappingValidator.Validate(this);
+        void IMapper.ThrowNowIfAnyMappingIsIncomplete() => MappingValidator.Validate(this);
 
         IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 

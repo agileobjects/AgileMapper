@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System.Reflection;
-    using Validation;
 
     /// <summary>
     /// Provides options for configuring mappings from and to a given source and target type, inline.
@@ -17,9 +16,10 @@
 
         /// <summary>
         /// Throw an exception upon execution of this statement if the mapping being configured has any target 
-        /// members which will not be mapped.
+        /// members which will not be mapped. Use calls to this method to validate a mapping plan, remove them
+        /// in production code.
         /// </summary>
-        void ThrowRightNowIfAnythingIsWrong();
+        void ThrowNowIfMappingIsIncomplete();
 
         /// <summary>
         /// Scan the given <paramref name="assemblies"/> when looking for types derived from any source or 

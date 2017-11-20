@@ -92,9 +92,10 @@
 
         /// <summary>
         /// Throw an exception upon execution of this statement if any cached mappings have any target 
-        /// members which will not be mapped.
+        /// members which will not be mapped. Use calls to this method to validate a mapping plan, remove 
+        /// them in production code.
         /// </summary>
-        void ThrowRightNowIfAnythingIsWrong();
+        void ThrowNowIfAnyMappingIsIncomplete();
 
         /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
