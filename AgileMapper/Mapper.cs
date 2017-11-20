@@ -114,6 +114,13 @@
         public static MappingConfigStartingPoint WhenMapping => _default.WhenMapping;
 
         /// <summary>
+        /// Throw an exception upon execution of this statement if any cached mappings have any target 
+        /// members which will not be mapped. Use calls to this method to validate a mapping plan, remove 
+        /// them in production code.
+        /// </summary>
+        public static void ThrowNowIfAnyMappingIsIncomplete() => _default.ThrowNowIfAnyMappingIsIncomplete();
+
+        /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
         /// </summary>
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>

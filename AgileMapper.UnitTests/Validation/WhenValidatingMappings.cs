@@ -108,5 +108,26 @@
                 validationEx.Message.ShouldContain("PublicProperty<PublicTwoParamCtor<int, int>>.Value");
             }
         }
+
+        [Fact]
+        public void ShouldShowMultipleIncompleteCachedMappingPlans()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlansFor<Person>().To<ProductDto>();
+                mapper.GetPlansFor<Product>().To<PersonViewModel>();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.ThrowNowIfAnyMappingIsIncomplete());
+
+                validationEx.Message.ShouldContain("Person -> ProductDto");
+                validationEx.Message.ShouldContain("ProductDto.ProductId");
+                validationEx.Message.ShouldContain("ProductDto.Price");
+
+                validationEx.Message.ShouldContain("Product -> PersonViewModel");
+                validationEx.Message.ShouldContain("PersonViewModel.Name");
+                validationEx.Message.ShouldContain("PersonViewModel.AddressLine1");
+            }
+        }
     }
 }
