@@ -90,5 +90,23 @@
                 Should.NotThrow(() => mapper.ThrowNowIfAnyMappingIsIncomplete());
             }
         }
+
+        [Fact]
+        public void ShouldErrorIfComplexTypeMemberIsUnconstructable()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .GetPlanFor<PublicField<PublicField<int>>>()
+                    .ToANew<PublicProperty<PublicTwoParamCtor<int, int>>>();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.ThrowNowIfAnyMappingIsIncomplete());
+
+                validationEx.Message.ShouldContain("PublicField<PublicField<int>> -> PublicProperty<PublicTwoParamCtor<int, int>>");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldContain("PublicProperty<PublicTwoParamCtor<int, int>>.Value");
+            }
+        }
     }
 }
