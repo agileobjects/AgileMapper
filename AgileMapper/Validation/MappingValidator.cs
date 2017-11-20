@@ -55,6 +55,8 @@
                 return;
             }
 
+            var previousRootMapperData = default(IMemberMapperData);
+
             var failureMessage = new StringBuilder();
 
             foreach (var memberData in unmappedMemberData)
@@ -68,16 +70,29 @@
                 var sourcePath = rootData.SourceMember.GetFriendlySourcePath(rootData);
                 var targetPath = rootData.TargetMember.GetFriendlyTargetPath(rootData);
 
+                if ((previousRootMapperData?.SourceType != rootData.SourceType) ||
+                    (previousRootMapperData?.TargetType != rootData.TargetType))
+                {
+                    failureMessage
+                        .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+                        .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+                        .Append("- ").Append(sourcePath).Append(" -> ").AppendLine(targetPath)
+                        .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+                        .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+                        .AppendLine();
+
+                    previousRootMapperData = rootData;
+                }
+
                 failureMessage
-                    .Append(sourcePath).Append(" -> ").AppendLine(targetPath)
-                    .Append("Rule set: ").AppendLine(rootData.RuleSet.Name).AppendLine()
-                    .AppendLine("Unmapped target members - fix by ignoring or configuring a custom source member or data source:").AppendLine();
+                    .Append(" Rule set: ").AppendLine(rootData.RuleSet.Name).AppendLine()
+                    .AppendLine(" Unmapped target members - fix by ignoring or configuring a custom source member or data source:").AppendLine();
 
                 foreach (var unmappedMember in memberData.UnmappedMembers)
                 {
                     var targetMemberPath = unmappedMember.Key.GetFriendlyTargetPath(rootData);
 
-                    failureMessage.Append(" - ").AppendLine(targetMemberPath);
+                    failureMessage.Append("  - ").AppendLine(targetMemberPath);
                 }
             }
 
