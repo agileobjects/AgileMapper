@@ -26,6 +26,16 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData;
         }
 
+        public static IEnumerable<ObjectMapperData> EnumerateAllMapperDatas(this ObjectMapperData mapperData)
+        {
+            yield return mapperData;
+
+            foreach (var childMapperData in mapperData.ChildMapperDatas.SelectMany(md => md.EnumerateAllMapperDatas()))
+            {
+                yield return childMapperData;
+            }
+        }
+
         public static bool TargetCouldBePopulated(this IMemberMapperData mapperData)
             => !TargetIsDefinitelyUnpopulated(mapperData);
 

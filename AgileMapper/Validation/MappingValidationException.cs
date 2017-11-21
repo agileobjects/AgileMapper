@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper
+﻿namespace AgileObjects.AgileMapper.Validation
 {
     using System;
     using System.Runtime.Serialization;

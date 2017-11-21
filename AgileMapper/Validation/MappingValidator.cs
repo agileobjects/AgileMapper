@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Text;
     using Configuration;
+    using DataSources;
     using Extensions;
     using Members;
     using ObjectPopulation;
@@ -31,26 +32,9 @@
 
         private static void VerifyAllTargetMembersAreMapped(IEnumerable<ObjectMapperData> mapperDatas)
         {
-            var unmappedMemberData = mapperDatas
-                .Select(md => new
-                {
-                    MapperData = md,
-                    UnmappedMembers = md
-                        .DataSourcesByTargetMember
-                        .Where(pair => !pair.Value.HasValue)
-                        .Select(pair => pair)
-                        .ToArray()
-                })
-                .Where(d => d.UnmappedMembers.Any())
-                .GroupBy(d => d.MapperData.GetRootMapperData())
-                .Select(g => new
-                {
-                    RootMapperData = g.Key,
-                    UnmappedMembers = g.SelectMany(d => d.UnmappedMembers).ToArray()
-                })
-                .ToArray();
+            var incompleteMappingData = GetIncompleteMappingData(mapperDatas);
 
-            if (unmappedMemberData.None())
+            if (incompleteMappingData.None())
             {
                 return;
             }
@@ -59,59 +43,146 @@
 
             var failureMessage = new StringBuilder();
 
-            foreach (var memberData in unmappedMemberData)
+            foreach (var mappingData in incompleteMappingData)
             {
                 if (failureMessage.Length != 0)
                 {
                     failureMessage.AppendLine().AppendLine();
                 }
 
-                var rootData = memberData.RootMapperData;
-                var sourcePath = rootData.SourceMember.GetFriendlySourcePath(rootData);
-                var targetPath = rootData.TargetMember.GetFriendlyTargetPath(rootData);
+                var rootData = mappingData.RootMapperData;
 
-                if ((previousRootMapperData?.SourceType != rootData.SourceType) ||
-                    (previousRootMapperData?.TargetType != rootData.TargetType))
-                {
-                    failureMessage
-                        .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-                        .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-                        .Append("- ").Append(sourcePath).Append(" -> ").AppendLine(targetPath)
-                        .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-                        .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-                        .AppendLine();
-
-                    previousRootMapperData = rootData;
-                }
+                AddMappingTypeHeaderIfRequired(failureMessage, rootData, ref previousRootMapperData);
 
                 failureMessage
-                    .Append(" Rule set: ").AppendLine(rootData.RuleSet.Name).AppendLine()
-                    .AppendLine(" Unmapped target members - fix by ignoring or configuring a custom source member or data source:").AppendLine();
+                    .Append(" Rule set: ").AppendLine(rootData.RuleSet.Name).AppendLine();
 
-                foreach (var unmappedMember in memberData.UnmappedMembers)
-                {
-                    var targetMemberPath = unmappedMember.Key.GetFriendlyTargetPath(rootData);
-
-                    failureMessage.Append("  - ").AppendLine(targetMemberPath);
-                }
+                AddUnmappedTargetMembersInfo(mappingData.UnmappedMembers, failureMessage, rootData);
+                AddUnpairedEnumsInfo(mappingData.UnpairedEnums, failureMessage);
             }
 
             throw new MappingValidationException(failureMessage.ToString());
         }
 
-        private static IEnumerable<ObjectMapperData> GetAllMapperDatas(IEnumerable<ObjectMapperData> mapperDatas)
+        private static ICollection<IncompleteMappingData> GetIncompleteMappingData(
+            IEnumerable<ObjectMapperData> mapperDatas)
         {
-            return mapperDatas.SelectMany(GetAllMapperDatas);
+            return mapperDatas
+                .Select(md => new
+                {
+                    MapperData = md,
+                    UnmappedMembers = md
+                        .DataSourcesByTargetMember
+                        .Where(pair => !pair.Value.HasValue)
+                        .Select(pair => pair)
+                        .ToArray(),
+                    UnpairedEnums = EnumMappingMismatchFinder.FindMismatches(md)
+                })
+                .Where(d => d.UnmappedMembers.Any() || d.UnpairedEnums.Any())
+                .GroupBy(d => d.MapperData.GetRootMapperData())
+                .Select(g => new IncompleteMappingData
+                {
+                    RootMapperData = g.Key,
+                    UnmappedMembers = g
+                        .SelectMany(d => d.UnmappedMembers)
+                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                    UnpairedEnums = g
+                        .SelectMany(d => d.UnpairedEnums)
+                        .ToArray()
+                })
+                .ToArray();
         }
 
-        private static IEnumerable<ObjectMapperData> GetAllMapperDatas(ObjectMapperData parent)
+        private static void AddMappingTypeHeaderIfRequired(
+            StringBuilder failureMessage,
+            IMemberMapperData rootData,
+            ref IMemberMapperData previousRootMapperData)
         {
-            yield return parent;
-
-            foreach (var childMapperData in GetAllMapperDatas(parent.ChildMapperDatas))
+            if ((previousRootMapperData != null) &&
+                (previousRootMapperData.SourceType == rootData.SourceType) &&
+                (previousRootMapperData.TargetType == rootData.TargetType))
             {
-                yield return childMapperData;
+                return;
+            }
+
+            var sourcePath = rootData.SourceMember.GetFriendlySourcePath(rootData);
+            var targetPath = rootData.TargetMember.GetFriendlyTargetPath(rootData);
+
+            failureMessage
+                .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+                .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+                .Append("- ").Append(sourcePath).Append(" -> ").AppendLine(targetPath)
+                .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+                .AppendLine("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+                .AppendLine();
+
+            previousRootMapperData = rootData;
+        }
+
+        private static void AddUnmappedTargetMembersInfo(
+            Dictionary<QualifiedMember, DataSourceSet> unmappedMembers,
+            StringBuilder failureMessage,
+            IMemberMapperData rootData)
+        {
+            if (unmappedMembers.None())
+            {
+                return;
+            }
+
+            failureMessage
+                .AppendLine(" Unmapped target members - fix by ignoring or configuring a custom source member or data source:")
+                .AppendLine();
+
+            foreach (var unmappedMember in unmappedMembers)
+            {
+                var targetMemberPath = unmappedMember.Key.GetFriendlyTargetPath(rootData);
+
+                failureMessage.Append("  - ").AppendLine(targetMemberPath);
             }
         }
+
+        private static void AddUnpairedEnumsInfo(
+            ICollection<EnumMappingMismatchSet> unpairedEnums,
+            StringBuilder failureMessage)
+        {
+            if (unpairedEnums.None())
+            {
+                return;
+            }
+
+            failureMessage
+                .AppendLine(" Unpaired enum values - fix by configuring enum pairs:");
+
+            foreach (var mismatch in unpairedEnums.SelectMany(e => e.Mismatches))
+            {
+                failureMessage
+                    .AppendLine()
+                    .Append("  - ").Append(mismatch.SourceMemberPaths).Append(" -> ").Append(mismatch.TargetMemberPath)
+                    .AppendLine(":");
+
+                foreach (var valuePair in mismatch.EnumValues)
+                {
+                    failureMessage.Append("   ").Append(valuePair).AppendLine();
+                }
+            }
+        }
+
+        private static IEnumerable<ObjectMapperData> GetAllMapperDatas(IEnumerable<ObjectMapperData> mapperDatas)
+        {
+            return mapperDatas.SelectMany(md => md.EnumerateAllMapperDatas());
+        }
+
+        #region Helper Class
+
+        private class IncompleteMappingData
+        {
+            public IMemberMapperData RootMapperData { get; set; }
+
+            public Dictionary<QualifiedMember, DataSourceSet> UnmappedMembers { get; set; }
+
+            public ICollection<EnumMappingMismatchSet> UnpairedEnums { get; set; }
+        }
+
+        #endregion
     }
 }

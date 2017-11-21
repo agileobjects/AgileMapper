@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Validation
 {
+    using AgileMapper.Validation;
     using Shouldly;
     using TestClasses;
     using Xunit;

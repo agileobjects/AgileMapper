@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Plans
+﻿namespace AgileObjects.AgileMapper.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -11,16 +11,17 @@
 
     internal class EnumMappingMismatchSet
     {
-        private EnumMappingMismatchSet(IEnumerable<EnumMappingMismatch> mappingMismatches)
-        {
-            var warningsText = string.Join(
-                Environment.NewLine + Environment.NewLine,
-                mappingMismatches.Where(mm => mm.Any).Select(mm => mm.Warning));
+        public static readonly IEqualityComparer<EnumMappingMismatchSet> Comparer = new MismatchSetComparer();
 
-            if (warningsText != string.Empty)
-            {
-                Warnings = ReadableExpression.Comment(warningsText);
-            }
+        private static readonly EnumMappingMismatchSet _emptySet =
+            new EnumMappingMismatchSet(Enumerable<EnumMappingMismatch>.EmptyArray);
+
+        private readonly IList<EnumMappingMismatch> _mappingMismatches;
+        private Expression _warning;
+
+        private EnumMappingMismatchSet(IList<EnumMappingMismatch> mappingMismatches)
+        {
+            _mappingMismatches = mappingMismatches;
         }
 
         #region Factory Method
@@ -56,22 +57,69 @@
                     targetEnumNames,
                     targetMember,
                     mapperData))
+                .Where(mm => mm.Any)
                 .ToArray();
 
-            return new EnumMappingMismatchSet(mappingMismatches);
+            return mappingMismatches.Any() ? new EnumMappingMismatchSet(mappingMismatches) : _emptySet;
         }
 
         #endregion
 
-        public bool Any => Warnings != null;
+        public bool Any => _mappingMismatches.Any();
 
-        public Expression Warnings { get; }
+        public IEnumerable<EnumMappingMismatch> Mismatches => _mappingMismatches;
 
-        #region EnumMappingMismatch Class
+        public Expression Warnings => _warning ?? (_warning = CreateWarnings());
 
-        private class EnumMappingMismatch
+        private Expression CreateWarnings()
+        {
+            var warningsText = string.Join(
+                Environment.NewLine + Environment.NewLine,
+                _mappingMismatches.Select(mm => mm.Warning));
+
+            return (warningsText != string.Empty)
+                ? ReadableExpression.Comment(warningsText)
+                : Constants.EmptyExpression;
+        }
+
+        #region Helper Classes
+
+        private class MismatchSetComparer : IEqualityComparer<EnumMappingMismatchSet>
+        {
+            public bool Equals(EnumMappingMismatchSet x, EnumMappingMismatchSet y)
+            {
+                // ReSharper disable PossibleNullReferenceException
+                if (x._mappingMismatches.Count != y._mappingMismatches.Count)
+                {
+                    return false;
+                }
+                // ReSharper restore PossibleNullReferenceException
+
+                for (var i = 0; i < x._mappingMismatches.Count; i++)
+                {
+                    var xMismatch = x._mappingMismatches[i];
+                    var yMismatch = y._mappingMismatches[i];
+
+                    if (!xMismatch.Equals(yMismatch))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public int GetHashCode(EnumMappingMismatchSet mismatchSet) => 0;
+        }
+
+        public class EnumMappingMismatch
         {
             private static readonly EnumMappingMismatch _empty = new EnumMappingMismatch();
+
+            private readonly IMemberMapperData _rootMapperData;
+            private readonly IEnumerable<IQualifiedMember> _sourceMembers;
+            private readonly IList<string> _mismatches;
+            private string _warning;
 
             private EnumMappingMismatch()
             {
@@ -80,17 +128,13 @@
             private EnumMappingMismatch(
                 IQualifiedMember targetMember,
                 IEnumerable<IQualifiedMember> sourceMembers,
-                string[] mismatches,
+                IList<string> mismatches,
                 IMemberMapperData mapperData)
             {
-                var rootMapperData = mapperData.GetRootMapperData();
-                var sourceMemberPaths = string.Join(" / ", sourceMembers.Select(sm => sm.GetFriendlySourcePath(rootMapperData)));
-                var targetMemberPath = targetMember.GetFriendlyTargetPath(rootMapperData);
-
-                var warningLines = mismatches
-                    .Prepend($"WARNING - enum mismatches mapping {sourceMemberPaths} to {targetMemberPath}:");
-
-                Warning = string.Join(Environment.NewLine, warningLines);
+                _rootMapperData = mapperData.GetRootMapperData();
+                _sourceMembers = sourceMembers;
+                _mismatches = mismatches;
+                TargetMemberPath = targetMember.GetFriendlyTargetPath(_rootMapperData);
             }
 
             #region Factory Method
@@ -168,9 +212,34 @@
 
             #endregion
 
-            public bool Any => Warning != null;
+            public bool Any => _mismatches?.Any() == true;
 
-            public string Warning { get; }
+            public IEnumerable<string> EnumValues => _mismatches;
+
+            public string TargetMemberPath { get; }
+
+            public string SourceMemberPaths =>
+                string.Join(" / ", _sourceMembers.Select(sm => sm.GetFriendlySourcePath(_rootMapperData)));
+
+            public string Warning => _warning ?? (_warning = CreateWarning());
+
+            private string CreateWarning()
+            {
+                var warningLines = _mismatches
+                    .Prepend($"WARNING - enum mismatches mapping {SourceMemberPaths} to {TargetMemberPath}:");
+
+                return string.Join(Environment.NewLine, warningLines);
+            }
+
+            public bool Equals(EnumMappingMismatch other)
+            {
+                if (ReferenceEquals(other, this))
+                {
+                    return true;
+                }
+
+                return false;
+            }
         }
 
         #endregion

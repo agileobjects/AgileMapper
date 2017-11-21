@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
+    using AgileMapper.Validation;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -48,6 +49,25 @@
                         cfg => cfg.ThrowNowIfMappingIsIncomplete());
 
                 result.Value.ShouldBe("Configure me!");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfMappingHasNonPairedEnumValues()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper
+                        .Map(new PublicField<PaymentTypeUs>())
+                        .ToANew<PublicField<PaymentTypeUk>>(cfg => cfg
+                            .ThrowNowIfMappingIsIncomplete()));
+
+                validationEx.Message.ShouldContain("PublicField<PaymentTypeUs> -> PublicField<PaymentTypeUk>");
+                validationEx.Message.ShouldContain("Rule set: CreateNew");
+                validationEx.Message.ShouldContain("Unpaired enum values");
+                validationEx.Message.ShouldContain("PaymentTypeUs.Check matches no PaymentTypeUk");
+                validationEx.Message.ShouldContain("PaymentTypeUk.Cheque is matched by no PaymentTypeUs");
             }
         }
     }
