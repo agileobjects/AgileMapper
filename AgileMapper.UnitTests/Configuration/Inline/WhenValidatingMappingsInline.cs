@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
+    using System;
     using AgileMapper.Validation;
     using Shouldly;
     using TestClasses;
@@ -83,6 +84,43 @@
                             cfg => cfg.WhenMapping.PairEnum(PaymentTypeUs.Check).With(PaymentTypeUk.Cheque),
                             cfg => cfg.ThrowNowIfMappingPlanIsIncomplete()));
 
+            }
+        }
+
+        [Fact]
+        public void ShouldValidateMappingPlanMemberMappingByDefault()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper
+                        .Map(new PublicField<int> { Value = 456 })
+                        .ToANew<PublicTwoFields<int, int>>(cfg => cfg
+                            .Map(ctx => ctx.Source.Value)
+                            .To(ptf => ptf.Value1)));
+
+                validationEx.Message.ShouldContain("PublicField<int> -> PublicTwoFields<int, int>");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldNotContain("PublicTwoFields<int, int>.Value1");
+                validationEx.Message.ShouldContain("PublicTwoFields<int, int>.Value2");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfUnmappedMemberHasConfiguredDataSourceWhenValidatingMappingPlansByDefault()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                Should.NotThrow(() =>
+                    mapper
+                        .GetPlanFor<Product>()
+                        .Over<PublicProperty<Guid>>(cfg => cfg
+                            .Map(ctx => ctx.Source.ProductId)
+                            .To(p => p.Value)));
             }
         }
     }
