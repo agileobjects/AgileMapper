@@ -1,9 +1,9 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Validation
+﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
-    using AgileMapper.Validation;
     using Shouldly;
     using TestClasses;
+    using Validation;
     using Xunit;
 
     public class WhenValidatingMappings

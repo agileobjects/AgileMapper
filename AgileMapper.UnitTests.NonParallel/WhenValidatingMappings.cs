@@ -1,9 +1,9 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel.Validation
+﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel
 {
-    using AgileMapper.Validation;
     using TestClasses;
-    using Xunit;
     using Shouldly;
+    using Validation;
+    using Xunit;
 
     public class WhenValidatingMappings : NonParallelTestsBase
     {

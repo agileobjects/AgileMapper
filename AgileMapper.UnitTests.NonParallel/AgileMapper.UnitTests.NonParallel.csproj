@@ -79,7 +79,7 @@
     <Compile Include="NonParallelTestsBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
-    <Compile Include="Validation\WhenValidatingMappings.cs" />
+    <Compile Include="WhenValidatingMappings.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />
   </ItemGroup>
   <ItemGroup>
