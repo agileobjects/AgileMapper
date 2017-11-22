@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Security;
 
 [assembly: AssemblyTitle("AgileObjects.AgileMapper")]
-[assembly: AssemblyDescription("AgileMapper is a zero-configuration, highly-configurable object-object mapper with viewable execution plans via a static or instance API. It conforms to .NET Standard 1.0.")]
+[assembly: AssemblyDescription("A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.")]
 [assembly: AllowPartiallyTrustedCallers]
 [assembly: CLSCompliant(true)]
 
