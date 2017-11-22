@@ -55,5 +55,28 @@
                 validationEx.Message.ShouldNotContain("PublicTwoFields<long, long>.Value2");
             });
         }
+
+        [Fact]
+        public void ShouldNotErrorIfUnmappedMembersHaveConfiguredDataSourcesViaTheStaticApi()
+        {
+            TestThenReset(() =>
+            {
+                Mapper.WhenMapping
+                    .ThrowIfAnyMappingPlanIsIncomplete()
+                    .AndWhenMapping
+                    .From<PublicField<long>>()
+                    .ToANew<PublicTwoFields<long, long>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .To(ptf => ptf.Value1)
+                    .And
+                    .Map(ctx => ctx.Source.Value)
+                    .To(ptf => ptf.Value2);
+
+                Should.NotThrow(() =>
+                    Mapper
+                        .Map(new PublicField<long> { Value = 11 })
+                        .ToANew<PublicTwoFields<long, long>>());
+            });
+        }
     }
 }
