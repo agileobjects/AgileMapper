@@ -15,9 +15,9 @@
         MappingConfigStartingPoint WhenMapping { get; }
 
         /// <summary>
-        /// Throw an exception upon execution of this statement if the mapping being configured has any target 
-        /// members which will not be mapped. Use calls to this method to validate a mapping plan, remove them
-        /// in production code.
+        /// Throw an exception upon execution of this statement if the mapping being configured has any target members 
+        /// which will not be mapped, or maps from a source enum to a target enum which does not support all of its 
+        /// values. Use calls to this method to validate a mapping plan; remove them in production code.
         /// </summary>
         void ThrowNowIfMappingPlanIsIncomplete();
 

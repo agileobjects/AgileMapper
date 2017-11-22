@@ -130,5 +130,21 @@
                 validationEx.Message.ShouldContain("PersonViewModel.AddressLine1");
             }
         }
+
+        [Fact]
+        public void ShouldValidateMappingPlansByDefault()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.GetPlanFor(new { Head = "Spinning" }).ToANew<PublicField<string>>());
+
+                validationEx.Message.ShouldContain("AnonymousType<string> -> PublicField<string>");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldContain("PublicField<string>.Value");
+            }
+        }
     }
 }

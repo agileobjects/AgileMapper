@@ -18,6 +18,11 @@
             VerifyMappingPlanIsComplete(GetAllMapperDatas(rootMapperDatas));
         }
 
+        public static void Validate(ObjectMapperData mapperData)
+        {
+            VerifyMappingPlanIsComplete(GetAllMapperDatas(new[] { mapperData }));
+        }
+
         public static void Validate(MappingConfigInfo configInfo)
         {
             var creationCallbackKey = new MapperCreationCallbackKey(

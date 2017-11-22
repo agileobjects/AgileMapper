@@ -31,6 +31,8 @@
             _mapperContext = mapperContext;
         }
 
+        public bool ValidateMappingPlans { get; set; }
+
         #region Mapped Object Caching Settings
 
         private List<MappedObjectCachingSettings> MappedObjectCachingSettings

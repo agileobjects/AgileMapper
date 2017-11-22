@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ComplexTypes;
     using Enumerables;
     using Extensions;
+    using Validation;
 
     internal class ObjectMapperFactory
     {
@@ -51,6 +52,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     var mapperToCache = key.MappingData.Mapper;
 
                     key.MappingData = null;
+
+                    if (mapperToCache.MapperData.MapperContext.UserConfigurations.ValidateMappingPlans)
+                    {
+                        MappingValidator.Validate(mapperToCache.MapperData);
+                    }
 
                     return mapperToCache;
                 });
