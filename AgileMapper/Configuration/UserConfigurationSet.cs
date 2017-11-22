@@ -31,6 +31,8 @@
             _mapperContext = mapperContext;
         }
 
+        public bool ValidateMappingPlans { get; set; }
+
         #region Mapped Object Caching Settings
 
         private List<MappedObjectCachingSettings> MappedObjectCachingSettings
@@ -267,6 +269,7 @@
 
         public void CloneTo(UserConfigurationSet configurations)
         {
+            configurations.ValidateMappingPlans = ValidateMappingPlans;
             _mappedObjectCachingSettings?.CopyTo(configurations.MappedObjectCachingSettings);
             _mapToNullConditions?.CopyTo(configurations.MapToNullConditions);
             _nullCollectionsSettings?.CopyTo(configurations.NullCollectionsSettings);
@@ -284,6 +287,7 @@
 
         public void Reset()
         {
+            ValidateMappingPlans = false;
             _mappedObjectCachingSettings?.Clear();
             _mapToNullConditions?.Clear();
             _nullCollectionsSettings?.Clear();

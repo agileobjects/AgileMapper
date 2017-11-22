@@ -98,6 +98,7 @@
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
     <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
+    <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
     <Compile Include="Extensions\WhenEquatingExpressions.cs" />
@@ -177,6 +178,7 @@
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
+    <Compile Include="WhenValidatingMappings.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />

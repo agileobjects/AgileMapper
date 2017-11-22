@@ -10,19 +10,19 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
     internal class InlineMapperKey<TSource, TTarget> : IInlineMapperKey
     {
         private readonly Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] _configurations;
-        private readonly MappingExecutor<TSource> _initiatingExecutor;
+        private readonly MappingExecutor<TSource> _executor;
 
         public InlineMapperKey(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations,
-            MappingExecutor<TSource> initiatingExecutor)
+            MappingExecutor<TSource> executor)
         {
             _configurations = configurations;
-            _initiatingExecutor = initiatingExecutor;
+            _executor = executor;
         }
 
         public MappingTypes MappingTypes => MappingTypes<TSource, TTarget>.Fixed;
 
-        public MappingRuleSet RuleSet => _initiatingExecutor.RuleSet;
+        public MappingRuleSet RuleSet => _executor.RuleSet;
 
         // ReSharper disable once CoVariantArrayConversion
         public IList<LambdaExpression> Configurations => _configurations;
@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
         public MapperContext CreateInlineMapperContext()
         {
             return InlineMappingConfigurator<TSource, TTarget>
-                .ConfigureInlineMapperContext(_configurations, _initiatingExecutor);
+                .ConfigureInlineMapperContext(_configurations, _executor);
         }
 
         public override bool Equals(object obj)

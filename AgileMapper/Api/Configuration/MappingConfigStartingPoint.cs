@@ -188,6 +188,20 @@
         }
 
         /// <summary>
+        /// Throw an exception upon creation of a mapper if the mapping plan has any target members which will not be mapped, 
+        /// or maps from a source enum to a target enum which does not support all of its values. Call this method to validate 
+        /// mapping plans during development; remove it in production code.
+        /// </summary>
+        /// <returns>
+        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalConfigSettings ThrowIfAnyMappingPlanIsIncomplete()
+        {
+            MapperContext.UserConfigurations.ValidateMappingPlans = true;
+            return this;
+        }
+
+        /// <summary>
         /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another enum Type.
         /// This pairing will apply to mappings between all types and MappingRuleSets (create new, overwrite, etc).
         /// </summary>
