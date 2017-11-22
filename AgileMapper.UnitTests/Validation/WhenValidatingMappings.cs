@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Validation
 {
+    using System;
     using AgileMapper.Validation;
     using Shouldly;
     using TestClasses;
@@ -132,7 +133,7 @@
         }
 
         [Fact]
-        public void ShouldValidateMappingPlansByDefault()
+        public void ShouldValidateMappingPlanMemberMappingByDefault()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -144,6 +145,54 @@
                 validationEx.Message.ShouldContain("AnonymousType<string> -> PublicField<string>");
                 validationEx.Message.ShouldContain("Unmapped target members");
                 validationEx.Message.ShouldContain("PublicField<string>.Value");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfUnmappedMemberHasConfiguredDataSourceWhenValidatingMappingPlansByDefault()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .ThrowIfAnyMappingPlanIsIncomplete()
+                    .AndWhenMapping
+                    .From<Product>().To<PublicProperty<Guid>>()
+                    .Map((p, pp) => p.ProductId)
+                    .To(p => p.Value);
+
+                Should.NotThrow(() =>
+                    mapper.GetPlansFor<Product>().To<PublicProperty<Guid>>());
+            }
+        }
+
+        [Fact]
+        public void ShouldValidateMappingPlanEnumMatchingByDefault()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.Map(new PublicField<PaymentTypeUk>()).ToANew<PublicField<PaymentTypeUs>>());
+
+                validationEx.Message.ShouldContain("PublicField<PaymentTypeUk> -> PublicField<PaymentTypeUs>");
+                validationEx.Message.ShouldContain("Unpaired enum values");
+                validationEx.Message.ShouldContain("PaymentTypeUk.Cheque matches no PaymentTypeUs");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfEnumValuesArePairedWhenValidatingMappingPlansByDefault()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .ThrowIfAnyMappingPlanIsIncomplete()
+                    .AndWhenMapping
+                    .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check);
+
+                Should.NotThrow(() =>
+                    mapper.Map(new PublicField<PaymentTypeUk>()).ToANew<PublicField<PaymentTypeUs>>());
             }
         }
     }
