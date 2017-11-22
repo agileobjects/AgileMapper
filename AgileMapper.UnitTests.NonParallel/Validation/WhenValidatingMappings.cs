@@ -8,7 +8,7 @@
     public class WhenValidatingMappings : NonParallelTestsBase
     {
         [Fact]
-        public void ShouldSupportCachedMappingMemberValidationFromTheStaticApi()
+        public void ShouldSupportCachedMappingMemberValidationViaTheStaticApi()
         {
             TestThenReset(() =>
             {
@@ -32,6 +32,27 @@
                 validationEx.Message.ShouldContain("Rule set: CreateNew");
                 validationEx.Message.ShouldContain("Unmapped target members");
                 validationEx.Message.ShouldContain("PublicField<long>.Value");
+            });
+        }
+
+        [Fact]
+        public void ShouldValidateMappingPlanMemberMappingByDefaultViaTheStaticApi()
+        {
+            TestThenReset(() =>
+            {
+                Mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    Mapper
+                        .Map(new PublicField<int> { Value = 999 })
+                        .ToANew<PublicTwoFields<long, long>>(cfg => cfg
+                            .Map(ctx => ctx.Source.Value)
+                            .To(ptf => ptf.Value2)));
+
+                validationEx.Message.ShouldContain("PublicField<int> -> PublicTwoFields<long, long>");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldContain("PublicTwoFields<long, long>.Value1");
+                validationEx.Message.ShouldNotContain("PublicTwoFields<long, long>.Value2");
             });
         }
     }

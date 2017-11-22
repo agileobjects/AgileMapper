@@ -287,6 +287,7 @@
 
         public void Reset()
         {
+            ValidateMappingPlans = false;
             _mappedObjectCachingSettings?.Clear();
             _mapToNullConditions?.Clear();
             _nullCollectionsSettings?.Clear();
