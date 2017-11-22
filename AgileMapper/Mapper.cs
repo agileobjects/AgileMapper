@@ -118,7 +118,7 @@
         /// members which will not be mapped. Use calls to this method to validate a mapping plan, remove 
         /// them in production code.
         /// </summary>
-        public static void ThrowNowIfAnyMappingIsIncomplete() => _default.ThrowNowIfAnyMappingIsIncomplete();
+        public static void ThrowNowIfAnyMappingIsIncomplete() => _default.ThrowNowIfAnyMappingPlanIsIncomplete();
 
         /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
@@ -191,7 +191,7 @@
 
         MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(Context);
 
-        void IMapper.ThrowNowIfAnyMappingIsIncomplete() => MappingValidator.Validate(this);
+        void IMapper.ThrowNowIfAnyMappingPlanIsIncomplete() => MappingValidator.Validate(this);
 
         IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 

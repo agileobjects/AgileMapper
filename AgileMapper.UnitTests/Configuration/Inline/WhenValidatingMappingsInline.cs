@@ -15,7 +15,7 @@
                 mapper
                     .Map(new PublicPropertyStruct<string>())
                     .OnTo(new PublicField<string>(), cfg => cfg
-                        .ThrowNowIfMappingIsIncomplete());
+                        .ThrowNowIfMappingPlanIsIncomplete());
             }
         }
 
@@ -28,7 +28,7 @@
                     mapper
                         .Map(new { Whatsit = "Thingy" })
                         .OnTo(new PublicSetMethod<string>(), cfg => cfg
-                            .ThrowNowIfMappingIsIncomplete()));
+                            .ThrowNowIfMappingPlanIsIncomplete()));
 
                 validationEx.Message.ShouldContain("AnonymousType<string> -> PublicSetMethod<string>");
                 validationEx.Message.ShouldContain("Rule set: Merge");
@@ -46,7 +46,7 @@
                     .Map(new { Data = "Configure me!" })
                     .Over(new PublicField<string>(),
                         cfg => cfg.Map(ctx => ctx.Source.Data).To(pf => pf.Value),
-                        cfg => cfg.ThrowNowIfMappingIsIncomplete());
+                        cfg => cfg.ThrowNowIfMappingPlanIsIncomplete());
 
                 result.Value.ShouldBe("Configure me!");
             }
@@ -61,13 +61,28 @@
                     mapper
                         .Map(new PublicField<PaymentTypeUs>())
                         .ToANew<PublicField<PaymentTypeUk>>(cfg => cfg
-                            .ThrowNowIfMappingIsIncomplete()));
+                            .ThrowNowIfMappingPlanIsIncomplete()));
 
                 validationEx.Message.ShouldContain("PublicField<PaymentTypeUs> -> PublicField<PaymentTypeUk>");
                 validationEx.Message.ShouldContain("Rule set: CreateNew");
                 validationEx.Message.ShouldContain("Unpaired enum values");
                 validationEx.Message.ShouldContain("PaymentTypeUs.Check matches no PaymentTypeUk");
                 validationEx.Message.ShouldContain("PaymentTypeUk.Cheque is matched by no PaymentTypeUs");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfEnumValuesArePaired()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Should.NotThrow(() =>
+                    mapper
+                        .Map(new PublicField<PaymentTypeUs>())
+                        .ToANew<PublicField<PaymentTypeUk>>(
+                            cfg => cfg.WhenMapping.PairEnum(PaymentTypeUs.Check).With(PaymentTypeUk.Cheque),
+                            cfg => cfg.ThrowNowIfMappingPlanIsIncomplete()));
+
             }
         }
     }

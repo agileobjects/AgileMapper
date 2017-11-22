@@ -15,7 +15,7 @@
         {
             var rootMapperDatas = mapper.Context.ObjectMapperFactory.RootMappers.Select(m => m.MapperData);
 
-            VerifyAllTargetMembersAreMapped(GetAllMapperDatas(rootMapperDatas));
+            VerifyMappingPlanIsComplete(GetAllMapperDatas(rootMapperDatas));
         }
 
         public static void Validate(MappingConfigInfo configInfo)
@@ -27,12 +27,12 @@
 
             configInfo.MapperContext.ObjectMapperFactory.RegisterCreationCallback(
                 creationCallbackKey,
-                createdMapper => VerifyAllTargetMembersAreMapped(new[] { createdMapper.MapperData }));
+                createdMapper => VerifyMappingPlanIsComplete(new[] { createdMapper.MapperData }));
         }
 
-        private static void VerifyAllTargetMembersAreMapped(IEnumerable<ObjectMapperData> mapperDatas)
+        private static void VerifyMappingPlanIsComplete(IEnumerable<ObjectMapperData> mapperDatas)
         {
-            var incompleteMappingData = GetIncompleteMappingData(mapperDatas);
+            var incompleteMappingData = GetIncompleteMappingPlanData(mapperDatas);
 
             if (incompleteMappingData.None())
             {
@@ -64,7 +64,7 @@
             throw new MappingValidationException(failureMessage.ToString());
         }
 
-        private static ICollection<IncompleteMappingData> GetIncompleteMappingData(
+        private static ICollection<IncompleteMappingData> GetIncompleteMappingPlanData(
             IEnumerable<ObjectMapperData> mapperDatas)
         {
             return mapperDatas

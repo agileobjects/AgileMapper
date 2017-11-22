@@ -14,7 +14,7 @@
             {
                 mapper.GetPlanFor<PublicProperty<string>>().ToANew<PublicProperty<int>>();
 
-                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingIsIncomplete());
+                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
             }
         }
 
@@ -26,7 +26,7 @@
                 mapper.GetPlanFor(new { Thingy = default(string) }).ToANew<PublicProperty<long>>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowNowIfAnyMappingIsIncomplete());
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
                 validationEx.Message.ShouldContain("AnonymousType<string> -> PublicProperty<long>");
                 validationEx.Message.ShouldContain("Rule set: CreateNew");
@@ -50,7 +50,7 @@
                     .Over<Person>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowNowIfAnyMappingIsIncomplete());
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
                 validationEx.Message.ShouldContain(" -> Person");
                 validationEx.Message.ShouldNotContain(" -> Person.Address");
@@ -73,7 +73,7 @@
 
                 mapper.GetPlanFor<PublicProperty<string>>().OnTo<PublicField<int>>();
 
-                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingIsIncomplete());
+                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
             }
         }
 
@@ -88,7 +88,7 @@
 
                 mapper.GetPlanFor(new { LaLaLa = default(int) }).OnTo<PublicField<int>>();
 
-                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingIsIncomplete());
+                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
             }
         }
 
@@ -102,7 +102,7 @@
                     .ToANew<PublicProperty<PublicTwoParamCtor<int, int>>>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowNowIfAnyMappingIsIncomplete());
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
                 validationEx.Message.ShouldContain("PublicField<PublicField<int>> -> PublicProperty<PublicTwoParamCtor<int, int>>");
                 validationEx.Message.ShouldContain("Unmapped target members");
@@ -119,7 +119,7 @@
                 mapper.GetPlansFor<Product>().To<PersonViewModel>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowNowIfAnyMappingIsIncomplete());
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
                 validationEx.Message.ShouldContain("Person -> ProductDto");
                 validationEx.Message.ShouldContain("ProductDto.ProductId");

@@ -19,7 +19,7 @@
         /// members which will not be mapped. Use calls to this method to validate a mapping plan, remove them
         /// in production code.
         /// </summary>
-        void ThrowNowIfMappingIsIncomplete();
+        void ThrowNowIfMappingPlanIsIncomplete();
 
         /// <summary>
         /// Scan the given <paramref name="assemblies"/> when looking for types derived from any source or 

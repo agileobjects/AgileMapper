@@ -95,7 +95,7 @@
         /// members which will not be mapped. Use calls to this method to validate a mapping plan, remove 
         /// them in production code.
         /// </summary>
-        void ThrowNowIfAnyMappingIsIncomplete();
+        void ThrowNowIfAnyMappingPlanIsIncomplete();
 
         /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.

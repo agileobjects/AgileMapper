@@ -38,6 +38,7 @@
 
             var mismatchSets = targetMemberDatas
                 .Select(d => EnumMappingMismatchSet.For(d.TargetMember, d.DataSources, mapperData))
+                .Where(m => m.Any)
                 .ToArray();
 
             return mismatchSets;
