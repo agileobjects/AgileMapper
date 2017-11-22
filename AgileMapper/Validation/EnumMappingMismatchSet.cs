@@ -164,32 +164,31 @@
             private static string[] GetMappingMismatches(
                 Type sourceEnumType,
                 Type targetEnumType,
-                string[] targetEnumNames,
+                IEnumerable<string> targetEnumNames,
                 IMemberMapperData mapperData)
             {
                 var sourceEnumNames = Enum.GetNames(sourceEnumType);
                 var unmatchedSourceValues = sourceEnumNames.Except(targetEnumNames).ToList();
-                var unmatchedTargetValues = targetEnumNames.Except(sourceEnumNames).ToList();
 
-                Filter(unmatchedSourceValues, unmatchedTargetValues, sourceEnumType, targetEnumType, mapperData);
+                if (unmatchedSourceValues.Any())
+                {
+                    FilterOutConfiguredPairs(unmatchedSourceValues, sourceEnumType, targetEnumType, mapperData);
+                }
 
-                if (unmatchedSourceValues.None() && unmatchedTargetValues.None())
+                if (unmatchedSourceValues.None())
                 {
                     return Enumerable<string>.EmptyArray;
                 }
 
-                var unmatchedValues = unmatchedSourceValues
+                var mismatches = unmatchedSourceValues
                     .Select(value => $" - {sourceEnumType.Name}.{value} matches no {targetEnumType.Name}")
-                    .Concat(unmatchedTargetValues
-                        .Select(value => $" - {targetEnumType.Name}.{value} is matched by no {sourceEnumType.Name}"))
                     .ToArray();
 
-                return unmatchedValues;
+                return mismatches;
             }
 
-            private static void Filter(
+            private static void FilterOutConfiguredPairs(
                 ICollection<string> unmatchedSourceValues,
-                ICollection<string> unmatchedTargetValues,
                 Type sourceEnumType,
                 Type targetEnumType,
                 IMemberMapperData mapperData)
@@ -201,11 +200,9 @@
 
                 foreach (var enumParing in relevantEnumPairings)
                 {
-                    if (unmatchedSourceValues.Contains(enumParing.FirstEnumMemberName) &&
-                        unmatchedTargetValues.Contains(enumParing.SecondEnumMemberName))
+                    if (unmatchedSourceValues.Contains(enumParing.FirstEnumMemberName))
                     {
                         unmatchedSourceValues.Remove(enumParing.FirstEnumMemberName);
-                        unmatchedTargetValues.Remove(enumParing.SecondEnumMemberName);
                     }
                 }
             }

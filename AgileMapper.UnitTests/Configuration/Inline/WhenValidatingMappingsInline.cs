@@ -68,7 +68,6 @@
                 validationEx.Message.ShouldContain("Rule set: CreateNew");
                 validationEx.Message.ShouldContain("Unpaired enum values");
                 validationEx.Message.ShouldContain("PaymentTypeUs.Check matches no PaymentTypeUk");
-                validationEx.Message.ShouldContain("PaymentTypeUk.Cheque is matched by no PaymentTypeUs");
             }
         }
 

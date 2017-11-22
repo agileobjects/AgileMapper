@@ -182,6 +182,18 @@
         }
 
         [Fact]
+        public void ShouldNotErrorIfEnumMismatchesAreAllTargetToSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                Should.NotThrow(() =>
+                    mapper.GetPlanFor<PublicField<PaymentTypeUk>>().ToANew<PublicField<PaymentType>>());
+            }
+        }
+
+        [Fact]
         public void ShouldNotErrorIfEnumValuesArePairedWhenValidatingMappingPlansByDefault()
         {
             using (var mapper = Mapper.CreateNew())
