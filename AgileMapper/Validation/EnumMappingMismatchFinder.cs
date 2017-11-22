@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Plans
+﻿namespace AgileObjects.AgileMapper.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -14,7 +14,7 @@
     {
         private readonly ObjectMapperData _mapperData;
         private readonly TargetMemberData[] _targetMemberDatas;
-        private readonly Dictionary<Expression, Expression> _assignmentReplacements;
+        private readonly Dictionary<EnumMappingMismatchSet, List<Expression>> _assignmentsByMismatchSet;
 
         private EnumMappingMismatchFinder(
             ObjectMapperData mapperData,
@@ -22,7 +22,26 @@
         {
             _mapperData = mapperData;
             _targetMemberDatas = targetMemberDatas;
-            _assignmentReplacements = new Dictionary<Expression, Expression>();
+
+            _assignmentsByMismatchSet =
+                new Dictionary<EnumMappingMismatchSet, List<Expression>>(EnumMappingMismatchSet.Comparer);
+        }
+
+        public static ICollection<EnumMappingMismatchSet> FindMismatches(ObjectMapperData mapperData)
+        {
+            var targetMemberDatas = GetAllTargetMemberDatas(mapperData);
+
+            if (targetMemberDatas.None())
+            {
+                return Enumerable<EnumMappingMismatchSet>.EmptyArray;
+            }
+
+            var mismatchSets = targetMemberDatas
+                .Select(d => EnumMappingMismatchSet.For(d.TargetMember, d.DataSources, mapperData))
+                .Where(m => m.Any)
+                .ToArray();
+
+            return mismatchSets;
         }
 
         public static Expression Process(Expression lambda, ObjectMapperData mapperData)
@@ -38,7 +57,15 @@
 
             finder.Visit(lambda);
 
-            var updatedLambda = lambda.Replace(finder._assignmentReplacements);
+            var assignmentReplacements = finder._assignmentsByMismatchSet
+                .SelectMany(kvp => kvp.Value.Select(assignment => new
+                {
+                    Assignment = assignment,
+                    AssignmentWithWarning = (Expression)Expression.Block(kvp.Key.Warnings, assignment)
+                }))
+                .ToDictionary(d => d.Assignment, d => d.AssignmentWithWarning);
+
+            var updatedLambda = lambda.Replace(assignmentReplacements);
 
             return updatedLambda;
         }
@@ -52,13 +79,14 @@
             {
                 var targetMember = targetMemberAndDataSource.Key;
 
-                if (!TargetMemberIsAnEnum(targetMember))
+                if (!TargetMemberIsAnEnum(targetMember, out var targetEnumType))
                 {
                     continue;
                 }
 
-                var dataSources = targetMemberAndDataSource.Value
-                    .Where(dataSource => dataSource.IsValid && IsEnum(dataSource.SourceMember.Type))
+                var dataSources = targetMemberAndDataSource
+                    .Value
+                    .Where(dataSource => IsValidOtherEnumType(dataSource, targetEnumType))
                     .ToArray();
 
                 if (dataSources.Any())
@@ -77,16 +105,31 @@
             }
         }
 
-        private static bool TargetMemberIsAnEnum(QualifiedMember targetMember)
-            => targetMember.IsSimple && IsEnum(targetMember.Type);
+        private static bool IsValidOtherEnumType(IDataSource dataSource, Type targetEnumType)
+        {
+            return dataSource.IsValid &&
+                   IsEnum(dataSource.SourceMember.Type, out var sourceEnumType) &&
+                  (sourceEnumType != targetEnumType);
+        }
 
-        private static bool IsEnum(Type type) => type.GetNonNullableType().IsEnum();
+        private static bool TargetMemberIsAnEnum(QualifiedMember targetMember, out Type targetEnumType)
+        {
+            if (targetMember.IsSimple && IsEnum(targetMember.Type, out targetEnumType))
+            {
+                return true;
+            }
+
+            targetEnumType = null;
+            return false;
+        }
+
+        private static bool IsEnum(Type type, out Type enumType) => (enumType = type.GetNonNullableType()).IsEnum();
 
         protected override Expression VisitBinary(BinaryExpression binary)
         {
             if ((binary.NodeType == ExpressionType.Assign) &&
-                IsEnum(binary.Left.Type) &&
-                TryGetMatch(binary.Left, out var targetMemberData))
+                 IsEnum(binary.Left.Type) &&
+                 TryGetMatch(binary.Left, out var targetMemberData))
             {
                 var mismatchWarnings = EnumMappingMismatchSet.For(
                     targetMemberData.TargetMember,
@@ -95,13 +138,22 @@
 
                 if (mismatchWarnings.Any)
                 {
-                    _assignmentReplacements.Add(
-                        binary,
-                        Expression.Block(mismatchWarnings.Warnings, binary));
+                    if (!_assignmentsByMismatchSet.TryGetValue(mismatchWarnings, out var assignments))
+                    {
+                        _assignmentsByMismatchSet.Add(mismatchWarnings, (assignments = new List<Expression>()));
+                    }
+
+                    assignments.Add(binary);
                 }
             }
 
             return base.VisitBinary(binary);
+        }
+
+        private static bool IsEnum(Type type)
+        {
+            // ReSharper disable once UnusedVariable
+            return IsEnum(type, out var enumType);
         }
 
         private bool TryGetMatch(Expression targetMemberAccess, out TargetMemberData targetMemberData)

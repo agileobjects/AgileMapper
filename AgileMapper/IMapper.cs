@@ -96,6 +96,13 @@
         MappingConfigStartingPoint WhenMapping { get; }
 
         /// <summary>
+        /// Throw an exception upon execution of this statement if any cached mapping plans have any target members 
+        /// which will not be mapped, or map from a source enum to a target enum which does not support all of its 
+        /// values. Use calls to this method to validate a mapping plan; remove them in production code.
+        /// </summary>
+        void ThrowNowIfAnyMappingPlanIsIncomplete();
+
+        /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
         /// </summary>
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>

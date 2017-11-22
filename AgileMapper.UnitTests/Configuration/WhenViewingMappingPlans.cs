@@ -124,7 +124,6 @@
                 plan.ShouldContain("PublicTwoFields<PaymentTypeUk, PaymentTypeUs>.Value1 to OrderUs.PaymentType");
                 plan.ShouldContain("Value1 == PaymentTypeUk.Cheque");
                 plan.ShouldContain("PaymentTypeUk.Cheque matches no PaymentTypeUs");
-                plan.ShouldContain("PaymentTypeUs.Check is matched by no PaymentTypeUk");
             }
         }
 

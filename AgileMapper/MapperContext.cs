@@ -15,7 +15,7 @@
         internal static readonly MapperContext Default = new MapperContext(NamingSettings.Default);
 
         private ObjectFlattener _objectFlattener;
-        private InlineMapperSet _inlineMappers;
+        private InlineMapperContextSet _inlineContexts;
 
         public MapperContext(NamingSettings namingSettings = null)
         {
@@ -45,7 +45,7 @@
 
         public ObjectFlattener ObjectFlattener => _objectFlattener ?? (_objectFlattener = new ObjectFlattener());
 
-        public InlineMapperSet InlineMappers => _inlineMappers ?? (_inlineMappers = new InlineMapperSet(this));
+        public InlineMapperContextSet InlineContexts => _inlineContexts ?? (_inlineContexts = new InlineMapperContextSet(this));
 
         public UserConfigurationSet UserConfigurations { get; }
 

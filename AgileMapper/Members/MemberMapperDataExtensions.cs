@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using DataSources;
     using Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -29,6 +30,16 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             return mapperData;
+        }
+
+        public static IEnumerable<ObjectMapperData> EnumerateAllMapperDatas(this ObjectMapperData mapperData)
+        {
+            yield return mapperData;
+
+            foreach (var childMapperData in mapperData.ChildMapperDatas.SelectMany(md => md.EnumerateAllMapperDatas()))
+            {
+                yield return childMapperData;
+            }
         }
 
         public static bool TargetCouldBePopulated(this IMemberMapperData mapperData)
@@ -120,6 +131,13 @@ namespace AgileObjects.AgileMapper.Members
 
             // We're mapping a dictionary entry by its runtime type:
             return null;
+        }
+
+        public static void RegisterTargetMemberDataSourcesIfRequired(
+            this IMemberMapperData mapperData,
+            DataSourceSet dataSources)
+        {
+            mapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(mapperData.TargetMember, dataSources);
         }
 
         [DebuggerStepThrough]

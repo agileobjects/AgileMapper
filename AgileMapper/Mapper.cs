@@ -5,6 +5,7 @@
     using Api;
     using Api.Configuration;
     using Plans;
+    using Validation;
 
     /// <summary>
     /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
@@ -30,27 +31,6 @@
         private static IMapperInternal CreateNewInternal() => new Mapper(new MapperContext());
 
         #endregion
-
-        MapperContext IMapperInternal.Context => Context;
-
-        internal MapperContext Context { get; }
-
-        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
-
-        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
-
-        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
-
-        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
-
-        string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
-
-        private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
-            => new PlanTargetTypeSelector<TSource>(Context);
-
-        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
-
-        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(Context);
 
         #region Static Access Methods
 
@@ -129,6 +109,13 @@
         public static MappingConfigStartingPoint WhenMapping => Default.WhenMapping;
 
         /// <summary>
+        /// Throw an exception upon execution of this statement if any cached mappings have any target 
+        /// members which will not be mapped. Use calls to this method to validate a mapping plan, remove 
+        /// them in production code.
+        /// </summary>
+        public static void ThrowNowIfAnyMappingIsIncomplete() => Default.ThrowNowIfAnyMappingPlanIsIncomplete();
+
+        /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
         /// </summary>
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
@@ -178,7 +165,30 @@
 
         #endregion
 
+        MapperContext IMapperInternal.Context => Context;
+
+        internal MapperContext Context { get; }
+
+        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+
+        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
+
+        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+
+        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
+
+        string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
+
+        private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
+            => new PlanTargetTypeSelector<TSource>(Context);
+
+        PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
+
+        PostEventConfigStartingPoint IMapper.After => new PostEventConfigStartingPoint(Context);
+
         MappingConfigStartingPoint IMapper.WhenMapping => new MappingConfigStartingPoint(Context);
+
+        void IMapper.ThrowNowIfAnyMappingPlanIsIncomplete() => MappingValidator.Validate(this);
 
         IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 

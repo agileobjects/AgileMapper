@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
             mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PostMappingCallback);
 
-            if (NothingIsBeingMapped(mappingExpressions))
+            if (NothingIsBeingMapped(mappingExpressions, mapperData))
             {
                 return mapperData.IsRoot ? mapperData.TargetObject : Constants.EmptyExpression;
             }
@@ -107,11 +107,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
-        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions)
+        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
         {
-            return mappingExpressions.None() ||
-                  (mappingExpressions[0].NodeType == ExpressionType.Assign) &&
-                   ((BinaryExpression)mappingExpressions[0]).Right.NodeType == ExpressionType.Default;
+            if (mappingExpressions.None())
+            {
+                return true;
+            }
+
+            if (mappingExpressions[0].NodeType != ExpressionType.Assign)
+            {
+                return false;
+            }
+
+            var assignedValue = ((BinaryExpression)mappingExpressions[0]).Right;
+
+            if (assignedValue.NodeType == ExpressionType.Default)
+            {
+                return true;
+            }
+
+            return mappingExpressions.HasOne() &&
+                  (assignedValue == mapperData.TargetObject);
         }
 
         private Expression GetMappingBlock(IList<Expression> mappingExpressions, MappingExtras mappingExtras)

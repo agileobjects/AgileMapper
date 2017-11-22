@@ -7,7 +7,7 @@
     {
         public static IList<MapperContext> InlineContexts(this IMapper mapper)
         {
-            return ((Mapper)mapper).Context.InlineMappers.InlineContexts.ToArray();
+            return ((Mapper)mapper).Context.InlineContexts.ToArray();
         }
     }
 }

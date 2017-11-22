@@ -4,6 +4,7 @@
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+    using Validation;
 
     internal class RootMapperMappingPlanFunction : IMappingPlanFunction
     {

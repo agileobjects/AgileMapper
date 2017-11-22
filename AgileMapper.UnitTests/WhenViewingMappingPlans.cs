@@ -270,13 +270,10 @@
         [Fact]
         public void ShouldShowEnumMismatches()
         {
-            string plan = Mapper
-                .GetPlanFor<OrderUs>()
-                .ToANew<OrderUk>();
+            string plan = Mapper.GetPlanFor<OrderUs>().ToANew<OrderUk>();
 
             plan.ShouldContain("// WARNING - enum mismatches mapping OrderUs.PaymentType to OrderUk.PaymentType:");
             plan.ShouldContain("//  - PaymentTypeUs.Check matches no PaymentTypeUk");
-            plan.ShouldContain("//  - PaymentTypeUk.Cheque is matched by no PaymentTypeUs");
         }
 
         [Fact]
