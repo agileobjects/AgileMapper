@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
+    using System.Collections.Generic;
     using Shouldly;
     using TestClasses;
     using Validation;
@@ -108,6 +109,40 @@
                 validationEx.Message.ShouldContain("PublicField<PublicField<int>> -> PublicProperty<PublicTwoParamCtor<int, int>>");
                 validationEx.Message.ShouldContain("Unmapped target members");
                 validationEx.Message.ShouldContain("PublicProperty<PublicTwoParamCtor<int, int>>.Value");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotErrorIfConstructableComplexTypeMemberHasNoMatchingSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<Customer>()
+                    .Ignore(c => c.Title, c => c.Address.Line2);
+
+                mapper.GetPlanFor<CustomerViewModel>().ToANew<Customer>();
+
+                Should.NotThrow(() => mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfEnumerableMemberHasNonEnumerableSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .GetPlanFor<PublicField<Address>>()
+                    .ToANew<PublicProperty<ICollection<string>>>();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
+
+                validationEx.Message.ShouldContain("PublicField<Address> -> PublicProperty<ICollection<string>>");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldContain("PublicProperty<ICollection<string>>.Value");
             }
         }
 
