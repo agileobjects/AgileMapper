@@ -6,7 +6,8 @@
 
     public class WhenProjectingToEnumerableMembers :
         WhenProjectingToEnumerableMembers<EfCore2TestDbContext>,
-        ICollectionMemberProjectorTest
+        ICollectionMemberProjectorTest,
+        IEnumerableMemberProjectorTest
     {
         public WhenProjectingToEnumerableMembers(InMemoryEfCore2TestContext context)
             : base(context)
@@ -16,5 +17,9 @@
         [Fact]
         public void ShouldProjectToAComplexTypeCollectionMember()
             => RunShouldProjectToAComplexTypeCollectionMember();
+
+        [Fact]
+        public void ShouldProjectToAComplexTypeEnumerableMember()
+            => RunShouldProjectToAComplexTypeEnumerableMember();
     }
 }

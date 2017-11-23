@@ -26,6 +26,10 @@
 
         public DbSet<RotaEntry> RotaEntries { get; set; }
 
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<OrderItem> OrderItems { get; set; }
+
         public DbSet<PublicBool> BoolItems { get; set; }
 
         public DbSet<PublicShort> ShortItems { get; set; }
@@ -52,6 +56,12 @@
 
         IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries
             => new EfCore1DbSetWrapper<RotaEntry>(RotaEntries);
+
+        IDbSetWrapper<Order> ITestDbContext.Orders
+            => new EfCore1DbSetWrapper<Order>(Orders);
+
+        IDbSetWrapper<OrderItem> ITestDbContext.OrderItems
+            => new EfCore1DbSetWrapper<OrderItem>(OrderItems);
 
         IDbSetWrapper<PublicBool> ITestDbContext.BoolItems
             => new EfCore1DbSetWrapper<PublicBool>(BoolItems);

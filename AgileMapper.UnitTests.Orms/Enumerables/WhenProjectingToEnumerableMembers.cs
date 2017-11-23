@@ -91,5 +91,49 @@
         }
 
         #endregion
+
+        #region Project -> Enumerable
+
+        protected void RunShouldProjectToAComplexTypeEnumerableMember()
+            => RunTest(ProjectToComplexTypeEnumerableMember);
+
+        protected void ProjectToComplexTypeEnumerableMember(TOrmContext context)
+        {
+            var item1 = new OrderItem
+            {
+            };
+
+            var item2 = new OrderItem
+            {
+            };
+
+            var order = new Order
+            {
+                DatePlaced = DateTime.Now,
+                Items = new List<OrderItem> { item1, item2 }
+            };
+
+            context.Orders.Add(order);
+            context.SaveChanges();
+
+            var rotaDto = context.Orders.Where(r => r.Id == 1).ProjectTo<OrderDto>().First();
+
+            rotaDto.Id.ShouldBe(1);
+            rotaDto.DatePlaced.ShouldBe(order.DatePlaced);
+            rotaDto.Items.Count().ShouldBe(order.Items.Count());
+
+            var i = 0;
+
+            foreach (var orderItem in order.Items)
+            {
+                var orderItemDto = order.Items.ElementAt(i);
+
+                orderItemDto.Id.ShouldBe(orderItem.Id);
+
+                ++i;
+            }
+        }
+
+        #endregion
     }
 }

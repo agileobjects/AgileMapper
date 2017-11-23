@@ -15,6 +15,10 @@
 
         IDbSetWrapper<RotaEntry> RotaEntries { get; }
 
+        IDbSetWrapper<Order> Orders { get; }
+
+        IDbSetWrapper<OrderItem> OrderItems { get; }
+
         IDbSetWrapper<PublicBool> BoolItems { get; }
 
         IDbSetWrapper<PublicShort> ShortItems { get; }

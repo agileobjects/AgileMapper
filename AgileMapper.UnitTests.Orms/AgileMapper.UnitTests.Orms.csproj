@@ -78,6 +78,7 @@
     </Compile>
     <Compile Include="Enumerables\ICollectionMemberProjectionFailureTest.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectorTest.cs" />
+    <Compile Include="Enumerables\IEnumerableMemberProjectorTest.cs" />
     <Compile Include="Infrastructure\DbSetWrapperBase.cs" />
     <Compile Include="Infrastructure\IDbSetWrapper.cs" />
     <Compile Include="Infrastructure\ITestContext.cs" />
@@ -94,6 +95,10 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />
+    <Compile Include="TestClasses\Order.cs" />
+    <Compile Include="TestClasses\OrderDto.cs" />
+    <Compile Include="TestClasses\OrderItem.cs" />
+    <Compile Include="TestClasses\OrderItemDto.cs" />
     <Compile Include="TestClasses\Person.cs" />
     <Compile Include="TestClasses\PersonDto.cs" />
     <Compile Include="TestClasses\PublicDateTimeDto.cs" />
