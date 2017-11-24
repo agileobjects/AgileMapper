@@ -87,8 +87,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 newItemsCount);
         }
 
-        public Expression GetEnumerableConversion(Expression instance)
+        public Expression GetEnumerableConversion(Expression instance, bool allowEnumerableAssignment)
         {
+            if (EnumerableType.IsAssignableFrom(instance.Type) &&
+               (allowEnumerableAssignment || ValueIsNotEnumerableInterface(instance)))
+            {
+                return instance;
+            }
+
             if (IsArray)
             {
                 return instance.WithToArrayCall(ElementType);
@@ -100,6 +106,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             }
 
             return instance.WithToListCall(ElementType);
+        }
+
+        private static bool ValueIsNotEnumerableInterface(Expression instance)
+        {
+            return instance.Type != typeof(IEnumerable<>).MakeGenericType(instance.Type.GetEnumerableElementType());
         }
     }
 }

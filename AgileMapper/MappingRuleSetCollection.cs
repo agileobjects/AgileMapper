@@ -53,7 +53,8 @@ namespace AgileObjects.AgileMapper
             new MappingRuleSetSettings
             {
                 UseMemberInitialisation = true,
-                UseSingleRootMappingExpression = true
+                UseSingleRootMappingExpression = true,
+                AllowEnumerableAssignment = true
             },
             ProjectSourceEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,

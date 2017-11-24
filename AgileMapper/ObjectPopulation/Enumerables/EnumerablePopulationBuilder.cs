@@ -653,8 +653,11 @@
                 return value;
             }
 
-            return TargetTypeHelper.GetEnumerableConversion(value);
+            return GetEnumerableConversion(value);
         }
+
+        public Expression GetEnumerableConversion(Expression value)
+            => TargetTypeHelper.GetEnumerableConversion(value, MapperData.RuleSet.Settings.AllowEnumerableAssignment);
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
         {
@@ -738,7 +741,7 @@
                     return _result;
                 }
 
-                _result = _builder.TargetTypeHelper.GetEnumerableConversion(_result);
+                _result = _builder.GetEnumerableConversion(_result);
 
                 return _result;
             }

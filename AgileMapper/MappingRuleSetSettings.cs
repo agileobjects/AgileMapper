@@ -13,5 +13,7 @@ namespace AgileObjects.AgileMapper
         public bool UseTryCatch { get; set; }
 
         public bool GuardMemberAccesses { get; set; }
+
+        public bool AllowEnumerableAssignment { get; set; }
     }
 }

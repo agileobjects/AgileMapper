@@ -11,6 +11,6 @@
 
         public DateTime DatePlaced { get; set; }
 
-        public IEnumerable<OrderItem> Items { get; set; }
+        public ICollection<OrderItem> Items { get; set; }
     }
 }
