@@ -19,30 +19,40 @@
         {
             RunTest(context =>
             {
-                context.Products.Add(new Product
-                {
-                    ProductId = 1,
-                    Name = "Product One"
-                });
+                var product1 = new Product { Name = "Product One" };
+                var product2 = new Product { Name = "Product Two" };
 
-                context.Products.Add(new Product
-                {
-                    ProductId = 2,
-                    Name = "Product Two"
-                });
-
+                context.Products.Add(product1);
+                context.Products.Add(product2);
                 context.SaveChanges();
 
-                var products = context.Products.ToArray();
                 var productDtos = context.Products.ProjectTo<ProductDto>().ToArray();
 
                 productDtos.Length.ShouldBe(2);
 
-                productDtos[0].ProductId.ShouldBe(products[0].ProductId);
-                productDtos[0].Name.ShouldBe(products[0].Name);
+                productDtos[0].ProductId.ShouldBe(product1.ProductId);
+                productDtos[0].Name.ShouldBe(product1.Name);
 
-                productDtos[1].ProductId.ShouldBe(products[1].ProductId);
-                productDtos[1].Name.ShouldBe(products[1].Name);
+                productDtos[1].ProductId.ShouldBe(product2.ProductId);
+                productDtos[1].Name.ShouldBe(product2.Name);
+            });
+        }
+
+        [Fact]
+        public void ShouldProjectAFlatTypeToANonMatchingTypeList()
+        {
+            RunTest(context =>
+            {
+                var product = new Product { Name = "Uno" };
+
+                context.Products.Add(product);
+                context.SaveChanges();
+
+                var productDtos = context.Products.ProjectTo<PublicStringDto>().ToList();
+
+                productDtos.ShouldHaveSingleItem();
+                productDtos[0].Id.ShouldBe(product.ProductId);
+                productDtos[0].Value.ShouldBeNull();
             });
         }
     }

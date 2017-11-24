@@ -155,12 +155,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     goto CreateFullMappingBlock;
                 }
 
-                var localVariableAssignment = mappingExpressions.First(exp => exp.NodeType == ExpressionType.Assign);
+                var localVariableAssignment = (BinaryExpression)mappingExpressions.First(exp => exp.NodeType == ExpressionType.Assign);
 
                 if (mappingExpressions.Last() == localVariableAssignment)
                 {
-                    var assignedValue = ((BinaryExpression)localVariableAssignment).Right;
-                    returnExpression = GetReturnExpression(assignedValue, mappingExtras);
+                    var assignedValue = localVariableAssignment.Right;
+
+                    returnExpression = (assignedValue.NodeType == ExpressionType.Invoke)
+                        ? Expression.Block(
+                              new[] { (ParameterExpression)localVariableAssignment.Left },
+                              GetReturnExpression(localVariableAssignment, mappingExtras))
+                        : GetReturnExpression(assignedValue, mappingExtras);
 
                     if (mappingExpressions.HasOne())
                     {

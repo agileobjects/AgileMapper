@@ -21,6 +21,8 @@
 
         public MappingRuleSet RuleSet { get; private set; }
 
+        public bool AddUnsuccessfulMemberPopulations => false;
+
         #region Inline Configuration
 
         public TResult ToANew<TResult>(

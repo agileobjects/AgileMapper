@@ -59,7 +59,10 @@
             MappingRuleSet ruleSet,
             IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations = null)
         {
-            var planContext = new SimpleMappingContext(ruleSet, _mapperContext);
+            var planContext = new SimpleMappingContext(ruleSet, _mapperContext)
+            {
+                AddUnsuccessfulMemberPopulations = true
+            };
 
             if (configurations != null)
             {

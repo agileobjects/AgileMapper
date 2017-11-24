@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Configuration;
     using DataSources;
+    using Extensions;
     using Members;
     using Members.Population;
 
@@ -28,7 +29,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return _targetMembersFactory
                 .Invoke(mappingData.MapperData)
-                .Select(tm => Create(tm, mappingData));
+                .Select(tm =>
+                {
+                    var memberPopulation = Create(tm, mappingData);
+
+                    if (memberPopulation.IsSuccessful ||
+                        mappingData.MappingContext.AddUnsuccessfulMemberPopulations)
+                    {
+                        return memberPopulation;
+                    }
+
+                    return null;
+                })
+                .WhereNotNull();
         }
 
         private static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)

@@ -5,5 +5,7 @@
         MapperContext MapperContext { get; }
 
         MappingRuleSet RuleSet { get; }
+
+        bool AddUnsuccessfulMemberPopulations { get; }
     }
 }
