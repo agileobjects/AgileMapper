@@ -94,5 +94,16 @@
         /// </returns>
         MappingPlan Over<TTarget>(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations);
+
+        /// <summary>
+        /// Create and compile a mapping function for a Queryable projection mapping from the source type being 
+        /// configured to the type specified by the type argument.
+        /// </summary>
+        /// <typeparam name="TResult">The type of object for which to create the mapping plan.</typeparam>
+        /// <returns>
+        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping. To see 
+        /// a string representation of the function assign the result to a string variable, or call .ToString().
+        /// </returns>
+        MappingPlan ProjectedTo<TResult>();
     }
 }

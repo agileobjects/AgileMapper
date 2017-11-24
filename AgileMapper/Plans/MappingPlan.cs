@@ -28,13 +28,7 @@
             }
         }
 
-        internal static MappingPlan For<TSource, TTarget>(IMappingContext mappingContext)
-        {
-            var mappingData = ObjectMappingDataFactory
-                .ForRootFixedTypes<TSource, TTarget>(mappingContext);
-
-            return new MappingPlan(mappingData.Mapper);
-        }
+        internal static MappingPlan For(IObjectMappingData mappingData) => new MappingPlan(mappingData.Mapper);
 
         /// <summary>
         /// Converts the given <paramref name="mappingPlan"/> to its string representation.

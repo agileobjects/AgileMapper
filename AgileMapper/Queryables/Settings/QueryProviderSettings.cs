@@ -12,6 +12,11 @@
 
         public static IQueryProviderSettings For(IQueryable queryable)
         {
+            if (queryable.Provider == null)
+            {
+                return _defaultSettings;
+            }
+
             var queryableProviderAssemblyName = queryable.Provider.GetType().GetAssembly().GetName();
             var queryableProviderName = queryableProviderAssemblyName.FullName;
 
