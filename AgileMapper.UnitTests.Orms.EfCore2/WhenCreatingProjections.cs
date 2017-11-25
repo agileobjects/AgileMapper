@@ -18,24 +18,30 @@
         [Fact]
         public void ShouldReuseACachedProjectionMapper()
         {
-            RunTest((context, mapper) =>
+            RunTest(mapper =>
             {
-                var stringDtos = context
-                    .StringItems
-                    .ProjectTo<PublicStringDto>(c => c.Using(mapper))
-                    .ToArray();
+                using (var context1 = new EfCore2TestDbContext())
+                {
+                    var stringDtos = context1
+                        .StringItems
+                        .ProjectTo<PublicStringDto>(c => c.Using(mapper))
+                        .ToArray();
 
-                stringDtos.ShouldBeEmpty();
+                    stringDtos.ShouldBeEmpty();
+                }
 
-                context.StringItems.Add(new PublicString { Id = 1, Value = "New!" });
-                context.SaveChanges();
+                using (var context2 = new EfCore2TestDbContext())
+                {
+                    context2.StringItems.Add(new PublicString { Id = 1, Value = "New!" });
+                    context2.SaveChanges();
 
-                var moreStringDtos = context
-                    .StringItems
-                    .ProjectTo<PublicStringDto>(c => c.Using(mapper))
-                    .ToArray();
+                    var moreStringDtos = context2
+                        .StringItems
+                        .ProjectTo<PublicStringDto>(c => c.Using(mapper))
+                        .ToArray();
 
-                moreStringDtos.ShouldHaveSingleItem();
+                    moreStringDtos.ShouldHaveSingleItem();
+                }
 
                 mapper.RootMapperCountShouldBeOne();
             });

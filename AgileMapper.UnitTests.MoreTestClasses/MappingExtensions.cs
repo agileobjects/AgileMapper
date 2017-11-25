@@ -1,18 +1,23 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.MoreTestClasses
 {
+    using System.Collections.Generic;
     using System.Linq;
     using Shouldly;
 
     public static class MappingExtensions
     {
-        public static void RootMapperCountShouldBeOne(this IMapper mapper)
+        public static object RootMapperCountShouldBeOne(this IMapper mapper)
         {
-            RootMapperCountShouldBe(mapper, 1);
+            return RootMapperCountShouldBe(mapper, 1).First();
         }
 
-        public static void RootMapperCountShouldBe(this IMapper mapper, int expected)
+        public static ICollection<object> RootMapperCountShouldBe(this IMapper mapper, int expected)
         {
-            ((Mapper)mapper).Context.ObjectMapperFactory.RootMappers.Count().ShouldBe(expected);
+            var rootMappers = ((Mapper)mapper).Context.ObjectMapperFactory.RootMappers.ToArray();
+
+            rootMappers.Length.ShouldBe(expected);
+
+            return rootMappers;
         }
     }
 }

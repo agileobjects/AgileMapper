@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
+    using System;
     using System.Linq;
     using Members;
     using Members.Sources;
@@ -7,16 +8,24 @@
 
     internal class QueryProjectorKey : ObjectMapperKeyBase
     {
-        private readonly IQueryProvider _queryProvider;
+        private readonly Type _queryProviderType;
         private readonly MapperContext _mapperContext;
 
         public QueryProjectorKey(
             MappingTypes mappingTypes,
             IQueryProvider queryProvider,
             MapperContext mapperContext)
+            : this(mappingTypes, queryProvider.GetType(), mapperContext)
+        {
+        }
+
+        public QueryProjectorKey(
+            MappingTypes mappingTypes,
+            Type queryProviderType,
+            MapperContext mapperContext)
             : base(mappingTypes)
         {
-            _queryProvider = queryProvider;
+            _queryProviderType = queryProviderType;
             _mapperContext = mapperContext;
         }
 
@@ -24,14 +33,14 @@
             => _mapperContext.RootMembersSource;
 
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
-            => new QueryProjectorKey(newMappingTypes, _queryProvider, _mapperContext);
+            => new QueryProjectorKey(newMappingTypes, _queryProviderType, _mapperContext);
 
         public override bool Equals(object obj)
         {
             var otherKey = (QueryProjectorKey)obj;
 
             // ReSharper disable once PossibleNullReferenceException
-            return TypesMatch(otherKey) && (otherKey._queryProvider == _queryProvider);
+            return TypesMatch(otherKey) && (otherKey._queryProviderType == _queryProviderType);
         }
 
         #region ExcludeFromCodeCoverage
