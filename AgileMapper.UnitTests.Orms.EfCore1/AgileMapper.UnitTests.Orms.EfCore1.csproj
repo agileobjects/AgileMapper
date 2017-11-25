@@ -196,6 +196,10 @@
       <Project>{66522d44-19f5-4af5-9d43-483a3cd6f958}</Project>
       <Name>AgileMapper.UnitTests.Orms</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
+      <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
+      <Name>AgileMapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\xunit.analyzers.0.7.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
@@ -215,6 +219,7 @@
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
     <Compile Include="WhenProjectingToEnumerableMembers.cs" />
+    <Compile Include="WhenViewingMappingPlans.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
