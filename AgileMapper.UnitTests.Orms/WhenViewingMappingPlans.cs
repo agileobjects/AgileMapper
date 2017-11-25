@@ -17,7 +17,7 @@
         }
 
         [Fact]
-        public void ShouldCreateAProjectionMappingPlanForASpecificQueryProvider()
+        public void ShouldCreateAQueryProjectionPlanForASpecificQueryProvider()
         {
             RunTest(mapper =>
             {
@@ -40,7 +40,23 @@
                 var usedMapper = (IObjectMapper)mapper.RootMapperCountShouldBeOne();
 
                 usedMapper.ShouldBe(cachedMapper);
+            });
+        }
 
+        [Fact]
+        public void ShouldReturnCachedQueryProjectionPlansInAllCachedPlans()
+        {
+            RunTest(mapper =>
+            {
+                mapper.GetPlanForProjecting(Context.Products).To<ProductDto>();
+                mapper.GetPlanForProjecting(Context.StringItems).To<PublicStringDto>();
+                mapper.GetPlanForProjecting(Context.Persons).To<PersonDto>();
+
+                var allPlans = mapper.GetPlansInCache();
+
+                allPlans.ShouldContain("IQueryable<Product> -> IQueryable<ProductDto>");
+                allPlans.ShouldContain("IQueryable<PublicString> -> IQueryable<PublicStringDto>");
+                allPlans.ShouldContain("IQueryable<Person> -> IQueryable<PersonDto>");
             });
         }
     }
