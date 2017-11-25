@@ -1,11 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms
 {
-    using System;
     using System.Linq;
     using Infrastructure;
     using MoreTestClasses;
     using ObjectPopulation;
-    using Queryables.Api;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -24,8 +22,8 @@
             RunTest(mapper =>
             {
                 string plan = mapper
-                    .GetPlanFor<Product>()
-                    .ProjectedTo<ProductDto>(GetQueryProviderType);
+                    .GetPlanForProjecting(Context.Products)
+                    .To<ProductDto>();
 
                 plan.ShouldContain("Rule Set: Project");
                 plan.ShouldContain("Source.Select(");
@@ -45,7 +43,5 @@
 
             });
         }
-
-        protected abstract Type GetQueryProviderType(QueryProviderTypeSelector selector);
     }
 }

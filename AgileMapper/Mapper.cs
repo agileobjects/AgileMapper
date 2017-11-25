@@ -1,10 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
     using Plans;
+    using Queryables.Api;
     using Validation;
 
     /// <summary>
@@ -172,6 +174,12 @@
         IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
         IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
+
+        IProjectionPlanTargetTypeSelector<TSourceElement> IMapper.GetPlanForProjecting<TSourceElement>(
+            IQueryable<TSourceElement> exampleQueryable)
+        {
+            return new PlanTargetTypeSelector<TSourceElement>(Context, exampleQueryable);
+        }
 
         IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 

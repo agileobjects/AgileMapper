@@ -6,17 +6,23 @@
     using System.Linq.Expressions;
     using AgileMapper.Configuration.Inline;
     using Configuration;
-    using Members;
     using ObjectPopulation;
     using Plans;
-    using Queryables;
     using Queryables.Api;
 
     internal class PlanTargetTypeSelector<TSource> :
         IPlanTargetTypeSelector<TSource>,
-        IPlanTargetTypeAndRuleSetSelector<TSource>
+        IPlanTargetTypeAndRuleSetSelector<TSource>,
+        IProjectionPlanTargetTypeSelector<TSource>
     {
         private readonly MapperContext _mapperContext;
+        private readonly IQueryable<TSource> _exampleQueryable;
+
+        public PlanTargetTypeSelector(MapperContext mapperContext, IQueryable<TSource> exampleQueryable)
+            : this(mapperContext)
+        {
+            _exampleQueryable = exampleQueryable;
+        }
 
         internal PlanTargetTypeSelector(MapperContext mapperContext)
         {
@@ -59,26 +65,11 @@
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
             => GetMappingPlan(_mapperContext.RuleSets.Overwrite, configurations);
 
-        public MappingPlan ProjectedTo<TResult>(Func<QueryProviderTypeSelector, Type> queryProviderTypeSelector)
+        MappingPlan IProjectionPlanTargetTypeSelector<TSource>.To<TResult>()
         {
-            IObjectMappingData CreateProjectionMappingData(IMappingContext planContext)
-            {
-                var queryProviderType = queryProviderTypeSelector.Invoke(QueryProviderTypeSelector.Instance);
-
-                var projectorKey = new QueryProjectorKey(
-                    MappingTypes<TSource, TResult>.Fixed,
-                    queryProviderType,
-                    planContext.MapperContext);
-
-                return ObjectMappingDataFactory.ForProjection<TSource, TResult>(
-                    projectorKey,
-                    default(IQueryable<TSource>),
-                    planContext);
-            }
-
             return GetMappingPlan<TResult>(
                 _mapperContext.QueryProjectionMappingContext,
-                CreateProjectionMappingData);
+                planContext => ObjectMappingDataFactory.ForProjection<TSource, TResult>(_exampleQueryable, planContext));
         }
 
         private MappingPlan GetMappingPlan<TTarget>(
