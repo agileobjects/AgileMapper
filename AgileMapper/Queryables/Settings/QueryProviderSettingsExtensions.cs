@@ -50,7 +50,7 @@
                 GetDatePartCall(datePartMethod, "dd", sourceValue),
                 GetDatePartCall(datePartMethod, "hh", sourceValue),
                 GetDatePartCall(datePartMethod, "mi", sourceValue),
-                GetDatePartCall(datePartMethod, "ss", sourceValue).GetConversionTo(typeof(double?)));
+                GetDatePartCall(datePartMethod, "ss", sourceValue).GetConversionTo<double?>());
 
             if (fallbackValue.NodeType == ExpressionType.Default)
             {

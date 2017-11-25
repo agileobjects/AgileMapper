@@ -26,7 +26,7 @@
                     .Call(typeof(DefaultExpressionConverter)
                         .GetNonPublicStaticMethod("GetDefaultValue")
                         .MakeGenericMethod(t))
-                    .GetConversionTo(typeof(object));
+                    .GetConversionToObject();
 
                 var getDefaultValueLambda = Expression.Lambda<Func<object>>(getDefaultValueCall);
 

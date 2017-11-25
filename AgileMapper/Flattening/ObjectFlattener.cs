@@ -92,7 +92,7 @@
 
                 if (member.Type.IsValueType())
                 {
-                    valueAccess = valueAccess.GetConversionTo(typeof(object));
+                    valueAccess = valueAccess.GetConversionToObject();
                 }
 
                 var valueLambda = Expression.Lambda<Func<TSource, object>>(valueAccess, sourceParameter);

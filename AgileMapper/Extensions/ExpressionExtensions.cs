@@ -123,8 +123,8 @@
             var objectEqualsCall = Expression.Call(
                 null,
                 objectEquals,
-                expression.GetConversionTo(typeof(object)),
-                typeDefault.GetConversionTo(typeof(object)));
+                expression.GetConversionToObject(),
+                typeDefault.GetConversionToObject());
 
             return Expression.IsFalse(objectEqualsCall);
         }
@@ -153,6 +153,10 @@
 
             return Expression.Call(nullableExpression, parameterlessGetValueOrDefault);
         }
+
+        [DebuggerStepThrough]
+        public static Expression GetConversionToObject(this Expression expression)
+            => GetConversionTo<object>(expression);
 
         [DebuggerStepThrough]
         public static Expression GetConversionTo<T>(this Expression expression)

@@ -83,7 +83,7 @@
                 null,
                 typeof(Enum).GetPublicStaticMethod("IsDefined"),
                 valueVariable.Type.ToConstantExpression(),
-                valueVariable.GetConversionTo(typeof(object)));
+                valueVariable.GetConversionToObject());
 
             var definedValueOrDefault = Expression.Condition(isDefinedCall, successfulParseReturnValue, defaultValue);
 
