@@ -205,9 +205,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\xunit.analyzers.0.7.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Infrastructure\EfCore1DbSetWrapper.cs" />
     <Compile Include="Infrastructure\EfCore1TestDbContext.cs" />
     <Compile Include="Infrastructure\InMemoryEfCore1TestContext.cs" />
