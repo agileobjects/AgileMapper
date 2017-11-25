@@ -36,13 +36,13 @@
             }
         }
 
-        protected void RunTest(Action<TOrmContext, IMapper> testAction)
+        protected void RunTest(Action<IMapper> testAction)
         {
             try
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    testAction.Invoke(Context, mapper);
+                    testAction.Invoke(mapper);
                 }
             }
             finally

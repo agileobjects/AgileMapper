@@ -11,7 +11,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
-    using Queryables;
 
     internal class ObjectMappingDataFactory : IObjectMappingDataFactoryBridge
     {
@@ -24,14 +23,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public static ObjectMappingData<IQueryable<TSourceElement>, IQueryable<TResultElement>> ForProjection<TSourceElement, TResultElement>(
+            ObjectMapperKeyBase projectorKey,
             IQueryable<TSourceElement> sourceQueryable,
             IMappingContext mappingContext)
         {
-            var projectorKey = new QueryProjectorKey(
-                MappingTypes<TSourceElement, TResultElement>.Fixed,
-                sourceQueryable.Provider,
-                mappingContext.MapperContext);
-
             return ForRootFixedTypes(
                 sourceQueryable,
                 default(IQueryable<TResultElement>),

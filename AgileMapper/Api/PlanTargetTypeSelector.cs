@@ -1,33 +1,16 @@
 ﻿namespace AgileObjects.AgileMapper.Api
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using AgileMapper.Configuration.Inline;
     using Configuration;
+    using Members;
     using ObjectPopulation;
     using Plans;
-
-    internal class MappingPlanPlaceholderQueryable<T> : IQueryable<T>
-    {
-        public static readonly IQueryable<T> Default = new MappingPlanPlaceholderQueryable<T>();
-
-        public Type ElementType => typeof(T);
-
-        public Expression Expression => null;
-
-        public IQueryProvider Provider => null;
-
-        #region IEnumerable Members
-
-        public IEnumerator<T> GetEnumerator() => Enumerable<T>.Empty.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        #endregion
-    }
+    using Queryables;
+    using Queryables.Api;
 
     internal class PlanTargetTypeSelector<TSource> :
         IPlanTargetTypeSelector<TSource>,
@@ -76,12 +59,20 @@
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
             => GetMappingPlan(_mapperContext.RuleSets.Overwrite, configurations);
 
-        public MappingPlan ProjectedTo<TResult>()
+        public MappingPlan ProjectedTo<TResult>(Func<QueryProviderTypeSelector, Type> queryProviderTypeSelector)
         {
             IObjectMappingData CreateProjectionMappingData(IMappingContext planContext)
             {
+                var queryProviderType = queryProviderTypeSelector.Invoke(QueryProviderTypeSelector.Instance);
+
+                var projectorKey = new QueryProjectorKey(
+                    MappingTypes<TSource, TResult>.Fixed,
+                    queryProviderType,
+                    planContext.MapperContext);
+
                 return ObjectMappingDataFactory.ForProjection<TSource, TResult>(
-                    MappingPlanPlaceholderQueryable<TSource>.Default,
+                    projectorKey,
+                    default(IQueryable<TSource>),
                     planContext);
             }
 

@@ -4,8 +4,10 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
+    using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using Queryables;
     using Queryables.Api;
 
     /// <summary>
@@ -93,7 +95,13 @@
         {
             var mapperContext = ((IMapperInternal)mapper).Context;
 
+            var projectorKey = new QueryProjectorKey(
+                MappingTypes<TSourceElement, TResultElement>.Fixed,
+                sourceQueryable.Provider.GetType(),
+                mapperContext);
+
             var rootMappingData = ObjectMappingDataFactory.ForProjection<TSourceElement, TResultElement>(
+                projectorKey,
                 sourceQueryable,
                 mapperContext.QueryProjectionMappingContext);
 

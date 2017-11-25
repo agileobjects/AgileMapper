@@ -135,6 +135,10 @@
     <Analyzer Include="..\packages\xunit.analyzers.0.7.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
+      <Project>{049E1EE5-48CE-441A-B166-3CF6BEC17957}</Project>
+      <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
       <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
       <Name>AgileMapper</Name>

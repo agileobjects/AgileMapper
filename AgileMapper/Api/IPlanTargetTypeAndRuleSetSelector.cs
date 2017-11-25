@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using Configuration;
     using Plans;
+    using Queryables.Api;
 
     /// <summary>
     /// Provides options to create and compile mapping functions for a particular type of mapping from the 
@@ -100,10 +101,16 @@
         /// configured to the type specified by the type argument.
         /// </summary>
         /// <typeparam name="TResult">The type of object for which to create the mapping plan.</typeparam>
+        /// <param name="queryProviderTypeSelector">
+        /// A func providing the Type of IQueryProvider implementation with which the projection caching should be 
+        /// performed. When available, some provider-specific features are used for query projection - supplying the 
+        /// IQueryProvider Type enables generation and caching of a plan specific to the provider you're using.
+        /// </param>
         /// <returns>
-        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping. To see 
-        /// a string representation of the function assign the result to a string variable, or call .ToString().
+        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a Query projection, using 
+        /// the given IQueryProvider. To see a string representation of the function assign the result to a string 
+        /// variable, or call .ToString().
         /// </returns>
-        MappingPlan ProjectedTo<TResult>();
+        MappingPlan ProjectedTo<TResult>(Func<QueryProviderTypeSelector, Type> queryProviderTypeSelector);
     }
 }

@@ -1,27 +1,51 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms
 {
+    using System;
     using System.Linq;
+    using Infrastructure;
+    using MoreTestClasses;
+    using ObjectPopulation;
+    using Queryables.Api;
     using Shouldly;
     using TestClasses;
     using Xunit;
 
-    public class WhenViewingMappingPlans
+    public abstract class WhenViewingMappingPlans<TOrmContext> : OrmTestClassBase<TOrmContext>
+        where TOrmContext : ITestDbContext, new()
     {
-        [Fact]
-        public void ShouldCreateAProjectionMappingPlan()
+        protected WhenViewingMappingPlans(ITestContext<TOrmContext> context)
+            : base(context)
         {
-            string plan = Mapper
-                .GetPlanFor<Product>()
-                .ProjectedTo<ProductDto>();
-
-            plan.ShouldContain("Rule Set: Project");
-            plan.ShouldContain("Source.Select(");
-            plan.ShouldContain("new ProductDto");
-
-            var cachedMapper = Mapper.Default.Context.ObjectMapperFactory.RootMappers.ShouldHaveSingleItem();
-
-            cachedMapper.MapperData.SourceType.ShouldBe(typeof(IQueryable<Product>));
-            cachedMapper.MapperData.TargetType.ShouldBe(typeof(IQueryable<ProductDto>));
         }
+
+        [Fact]
+        public void ShouldCreateAProjectionMappingPlanForASpecificQueryProvider()
+        {
+            RunTest(mapper =>
+            {
+                string plan = mapper
+                    .GetPlanFor<Product>()
+                    .ProjectedTo<ProductDto>(GetQueryProviderType);
+
+                plan.ShouldContain("Rule Set: Project");
+                plan.ShouldContain("Source.Select(");
+                plan.ShouldContain("new ProductDto");
+
+                var cachedMapper = (IObjectMapper)mapper.RootMapperCountShouldBeOne();
+
+                cachedMapper.MapperData.SourceType.ShouldBe(typeof(IQueryable<Product>));
+                cachedMapper.MapperData.TargetType.ShouldBe(typeof(IQueryable<ProductDto>));
+
+                // Trigger a mapping:
+                Context.Products.ProjectTo<ProductDto>().ShouldBeEmpty();
+
+                var usedMapper = (IObjectMapper)mapper.RootMapperCountShouldBeOne();
+
+                usedMapper.ShouldBe(cachedMapper);
+
+            });
+        }
+
+        protected abstract Type GetQueryProviderType(QueryProviderTypeSelector selector);
     }
 }

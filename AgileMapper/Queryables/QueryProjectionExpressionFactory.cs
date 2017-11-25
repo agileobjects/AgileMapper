@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
     using ObjectPopulation;
@@ -21,8 +20,8 @@
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var queryable = mappingData.GetSource<IQueryable>();
-            var providerSettings = QueryProviderSettings.For(queryable);
+            var queryProviderType = ((QueryProjectorKey)mappingData.MapperKey).QueryProviderType;
+            var providerSettings = QueryProviderSettings.For(queryProviderType);
 
             var queryProjection = mapperData
                 .EnumerablePopulationBuilder
