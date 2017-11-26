@@ -96,6 +96,8 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\AddressDto.cs" />
+    <Compile Include="TestClasses\Category.cs" />
+    <Compile Include="TestClasses\CategoryDto.cs" />
     <Compile Include="TestClasses\Company.cs" />
     <Compile Include="TestClasses\CompanyDto.cs" />
     <Compile Include="TestClasses\Employee.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="TestClasses\PublicLong.cs" />
     <Compile Include="TestClasses\PublicShort.cs" />
     <Compile Include="TestClasses\PublicString.cs" />
+    <Compile Include="TestExtensions.cs" />
     <Compile Include="WhenProjectingCircularReferences.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />

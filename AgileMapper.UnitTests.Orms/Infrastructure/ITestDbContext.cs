@@ -9,6 +9,8 @@
 
         IDbSetWrapper<Employee> Employees { get; }
 
+        IDbSetWrapper<Category> Categories { get; }
+
         IDbSetWrapper<Product> Products { get; }
 
         IDbSetWrapper<Person> Persons { get; }

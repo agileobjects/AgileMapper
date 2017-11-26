@@ -20,6 +20,8 @@
 
         public DbSet<Employee> Employees { get; set; }
 
+        public DbSet<Category> Categories { get; set; }
+
         public DbSet<Product> Products { get; set; }
 
         public DbSet<Person> Persons { get; set; }
@@ -52,6 +54,12 @@
                 .WithOne(e => e.Company)
                 .HasForeignKey<Employee>(e => e.CompanyId);
 
+            modelBuilder
+                .Entity<Category>()
+                .HasOne(c => c.ParentCategory)
+                .WithMany(c => c.SubCategories)
+                .HasForeignKey(c => c.ParentCategoryId);
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -62,6 +70,9 @@
 
         IDbSetWrapper<Employee> ITestDbContext.Employees
             => new EfCore1DbSetWrapper<Employee>(Employees);
+
+        IDbSetWrapper<Category> ITestDbContext.Categories
+            => new EfCore1DbSetWrapper<Category>(Categories);
 
         IDbSetWrapper<Product> ITestDbContext.Products
             => new EfCore1DbSetWrapper<Product>(Products);

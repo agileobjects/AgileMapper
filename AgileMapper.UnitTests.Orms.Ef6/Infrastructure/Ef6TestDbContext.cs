@@ -22,6 +22,8 @@
 
         public DbSet<Employee> Employees { get; set; }
 
+        public DbSet<Category> Categories { get; set; }
+
         public DbSet<Product> Products { get; set; }
 
         public DbSet<Person> Persons { get; set; }
@@ -46,6 +48,17 @@
 
         public DbSet<PublicString> StringItems { get; set; }
 
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Entity<Category>()
+                .HasMany(c => c.SubCategories)
+                .WithOptional(c => c.ParentCategory)
+                .HasForeignKey(c => c.ParentCategoryId);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         #region ITestDbContext Members
 
         IDbSetWrapper<Company> ITestDbContext.Companies
@@ -53,6 +66,9 @@
 
         IDbSetWrapper<Employee> ITestDbContext.Employees
             => new Ef6DbSetWrapper<Employee>(Employees);
+
+        IDbSetWrapper<Category> ITestDbContext.Categories
+            => new Ef6DbSetWrapper<Category>(Categories);
 
         IDbSetWrapper<Product> ITestDbContext.Products
             => new Ef6DbSetWrapper<Product>(Products);

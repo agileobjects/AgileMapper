@@ -55,6 +55,7 @@
         {
             Context.Companies.Clear();
             Context.Employees.Clear();
+            Context.Categories.Clear();
             Context.Products.Clear();
             Context.Addresses.Clear();
             Context.Persons.Clear();

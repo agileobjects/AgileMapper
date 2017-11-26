@@ -14,35 +14,17 @@
         public static string ToCurrentCultureString(this DateTime dateTime)
             => dateTime.ToString(CultureInfo.CurrentCulture);
 
-        public static T Second<T>(this IEnumerable<T> items)
-        {
-            return items.ElementAt(1);
-        }
+        public static T Second<T>(this IEnumerable<T> items) => items.ElementAt(1);
 
-        public static T Third<T>(this IEnumerable<T> items)
-        {
-            return items.ElementAt(2);
-        }
+        public static T Third<T>(this IEnumerable<T> items) => items.ElementAt(2);
 
-        public static void ShouldBeDefault<T>(this T value)
-        {
-            value.ShouldBe(default(T));
-        }
+        public static void ShouldBeDefault<T>(this T value) => value.ShouldBe(default(T));
 
-        public static void ShouldNotBeDefault<T>(this T value)
-        {
-            value.ShouldNotBe(default(T));
-        }
+        public static void ShouldNotBeDefault<T>(this T value) => value.ShouldNotBe(default(T));
 
-        public static void ShouldBeTrue(this bool? value)
-        {
-            value.GetValueOrDefault().ShouldBeTrue();
-        }
+        public static void ShouldBeTrue(this bool? value) => value.GetValueOrDefault().ShouldBeTrue();
 
-        public static void ShouldBeFalse(this bool? value)
-        {
-            value.GetValueOrDefault().ShouldBeFalse();
-        }
+        public static void ShouldBeFalse(this bool? value) => value.GetValueOrDefault().ShouldBeFalse();
 
         public static void ShouldBe<TActual, TExpected>(this TActual? value, TExpected expectedValue)
             where TActual : struct

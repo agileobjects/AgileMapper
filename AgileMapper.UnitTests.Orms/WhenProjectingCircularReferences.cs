@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms
 {
     using System;
+    using System.Linq;
     using Infrastructure;
     using Shouldly;
     using TestClasses;
@@ -63,6 +64,69 @@
                 companyDto.Ceo.Address.ShouldNotBeNull();
                 companyDto.Ceo.Address.Line1.ShouldBe("Ceo Towers");
                 companyDto.Ceo.Address.Postcode.ShouldBe("CE0 0EC");
+            });
+        }
+
+        [Fact]
+        public void ShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
+        {
+            RunTest(context =>
+            {
+                var topLevel = new Category { Name = "Top Level" };
+                var child1 = new Category { Name = "Top > One", ParentCategory = topLevel };
+                var child2 = new Category { Name = "Top > Two", ParentCategory = topLevel };
+                var child3 = new Category { Name = "Top > Three", ParentCategory = topLevel };
+
+                var grandChild11 = new Category { Name = "Top > One > One", ParentCategory = child1 };
+                var grandChild12 = new Category { Name = "Top > One > Two", ParentCategory = child1 };
+
+                var grandChild21 = new Category { Name = "Top > Two > One", ParentCategory = child2 };
+                var grandChild22 = new Category { Name = "Top > Two > Two", ParentCategory = child2 };
+                var grandChild23 = new Category { Name = "Top > Two > Three", ParentCategory = child2 };
+
+                var grandChild31 = new Category { Name = "Top > Three > One", ParentCategory = child3 };
+
+                var greatGrandchild221 = new Category { Name = "Top > Two > Two > One", ParentCategory = grandChild22 };
+                var greatGrandchild222 = new Category { Name = "Top > Two > Two > Two", ParentCategory = grandChild22 };
+
+                context.Categories.Add(topLevel);
+                context.Categories.Add(child1);
+                context.Categories.Add(child2);
+                context.Categories.Add(child3);
+                context.Categories.Add(grandChild11);
+                context.Categories.Add(grandChild12);
+                context.Categories.Add(grandChild21);
+                context.Categories.Add(grandChild22);
+                context.Categories.Add(grandChild23);
+                context.Categories.Add(grandChild31);
+                context.Categories.Add(greatGrandchild221);
+                context.Categories.Add(greatGrandchild222);
+
+                context.SaveChanges();
+
+                var topLevelDto = context
+                    .Categories
+                    .ProjectTo<CategoryDto>()
+                    .OrderBy(c => c.Id)
+                    .First(c => c.Name == "Top Level");
+
+                topLevelDto.Id.ShouldBe(topLevel.Id);
+                topLevelDto.ParentCategoryId.ShouldBe(default(int));
+                topLevelDto.ParentCategory.ShouldBeNull();
+
+                topLevelDto.SubCategories.Count().ShouldBe(3);
+
+                topLevelDto.SubCategories.First().Id.ShouldBe(child1.Id);
+                topLevelDto.SubCategories.First().Name.ShouldBe("Top > One");
+                topLevelDto.SubCategories.First().ParentCategoryId.ShouldBe(topLevel.Id);
+
+                topLevelDto.SubCategories.Second().Id.ShouldBe(child2.Id);
+                topLevelDto.SubCategories.Second().Name.ShouldBe("Top > Two");
+                topLevelDto.SubCategories.Second().ParentCategoryId.ShouldBe(topLevel.Id);
+
+                topLevelDto.SubCategories.Third().Id.ShouldBe(child3.Id);
+                topLevelDto.SubCategories.Third().Name.ShouldBe("Top > Three");
+                topLevelDto.SubCategories.Third().ParentCategoryId.ShouldBe(topLevel.Id);
             });
         }
     }
