@@ -661,8 +661,8 @@
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
         {
-            var method = TargetTypeHelper.CollectionInterfaceType.GetMethod(methodName)
-                ?? TargetVariable.Type.GetMethod(methodName);
+            var method = TargetTypeHelper.CollectionInterfaceType.GetPublicInstanceMethod(methodName)
+                ?? TargetVariable.Type.GetPublicInstanceMethod(methodName);
 
             return (argument != null)
                 ? Expression.Call(TargetVariable, method, argument)

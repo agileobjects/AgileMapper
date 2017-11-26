@@ -5,6 +5,10 @@
 
     public interface ITestDbContext : IDisposable
     {
+        IDbSetWrapper<Company> Companies { get; }
+
+        IDbSetWrapper<Employee> Employees { get; }
+
         IDbSetWrapper<Product> Products { get; }
 
         IDbSetWrapper<Person> Persons { get; }

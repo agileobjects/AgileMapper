@@ -18,6 +18,10 @@
         {
         }
 
+        public DbSet<Company> Companies { get; set; }
+
+        public DbSet<Employee> Employees { get; set; }
+
         public DbSet<Product> Products { get; set; }
 
         public DbSet<Person> Persons { get; set; }
@@ -43,6 +47,12 @@
         public DbSet<PublicString> StringItems { get; set; }
 
         #region ITestDbContext Members
+
+        IDbSetWrapper<Company> ITestDbContext.Companies
+            => new Ef6DbSetWrapper<Company>(Companies);
+
+        IDbSetWrapper<Employee> ITestDbContext.Employees
+            => new Ef6DbSetWrapper<Employee>(Employees);
 
         IDbSetWrapper<Product> ITestDbContext.Products
             => new Ef6DbSetWrapper<Product>(Products);

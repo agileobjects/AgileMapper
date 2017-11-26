@@ -153,6 +153,7 @@
     <Compile Include="WhenCreatingProjections.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
+    <Compile Include="WhenMappingCircularReferences.cs" />
     <Compile Include="WhenProjectingToEnumerableMembers.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />
   </ItemGroup>

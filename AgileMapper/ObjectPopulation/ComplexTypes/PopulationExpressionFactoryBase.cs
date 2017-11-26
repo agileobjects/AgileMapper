@@ -3,10 +3,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using Extensions;
     using Members;
     using Members.Population;
+    using NetStandardPolyfills;
     using static CallbackPosition;
 
     internal abstract class PopulationExpressionFactoryBase
@@ -97,13 +97,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {
-            if (!mapperData.CacheMappedObjects || mapperData.TargetTypeWillNotBeMappedAgain)
+            if (!mapperData.RuleSet.Settings.AllowObjectTracking ||
+                !mapperData.CacheMappedObjects ||
+                 mapperData.TargetTypeWillNotBeMappedAgain)
             {
                 return null;
             }
 
             var registerMethod = typeof(IObjectMappingDataUntyped)
-                .GetMethod("Register")
+                .GetPublicInstanceMethod("Register")
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             return Expression.Call(

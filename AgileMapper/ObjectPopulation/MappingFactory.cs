@@ -54,6 +54,11 @@
 
             if (childMapperData.TargetMemberEverRecurses())
             {
+                if (!childMapperData.RuleSet.Settings.AllowRecursion)
+                {
+                    return Constants.EmptyExpression;
+                }
+
                 childMapperData.CacheMappedObjects = childMapperData.SourceIsNotFlatObject();
 
                 var mapRecursionCall = GetMapRecursionCallFor(
@@ -236,7 +241,8 @@
             IMemberMapperData mapperData)
         {
             return (sourceValue.NodeType != ExpressionType.Parameter) &&
-                   SourceAccessFinder.MultipleAccessesExist(mapperData, mapping);
+                   !mapperData.RuleSet.Settings.UseMemberInitialisation &&
+                    SourceAccessFinder.MultipleAccessesExist(mapperData, mapping);
         }
 
         private static string GetSourceValueVariableName(IMemberMapperData mapperData, Type sourceType = null)

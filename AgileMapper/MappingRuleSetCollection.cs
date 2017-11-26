@@ -16,7 +16,9 @@ namespace AgileObjects.AgileMapper
             {
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardMemberAccesses = true
+                GuardMemberAccesses = true,
+                AllowObjectTracking = true,
+                AllowRecursion = true
             },
             CopySourceEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
@@ -29,7 +31,9 @@ namespace AgileObjects.AgileMapper
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardMemberAccesses = true
+                GuardMemberAccesses = true,
+                AllowObjectTracking = true,
+                AllowRecursion = true
             },
             MergeEnumerablePopulationStrategy.Instance,
             PreserveExistingValueMemberPopulationGuardFactory.Instance,
@@ -42,7 +46,9 @@ namespace AgileObjects.AgileMapper
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardMemberAccesses = true
+                GuardMemberAccesses = true,
+                AllowObjectTracking = true,
+                AllowRecursion = true
             },
             OverwriteEnumerablePopulationStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,

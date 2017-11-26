@@ -1,11 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.TestClasses
 {
-    using System.ComponentModel.DataAnnotations;
-
-    public class Address
+    public class AddressDto
     {
-        [Key]
-        public int AddressId { get; set; }
+        public int Id { get; set; }
 
         public string Line1 { get; set; }
 

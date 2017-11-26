@@ -16,6 +16,10 @@
         {
         }
 
+        public DbSet<Company> Companies { get; set; }
+
+        public DbSet<Employee> Employees { get; set; }
+
         public DbSet<Product> Products { get; set; }
 
         public DbSet<Person> Persons { get; set; }
@@ -40,7 +44,24 @@
 
         public DbSet<PublicString> StringItems { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Entity<Company>()
+                .HasOne(c => c.Ceo)
+                .WithOne(e => e.Company)
+                .HasForeignKey<Employee>(e => e.CompanyId);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         #region ITestDbContext Members
+
+        IDbSetWrapper<Company> ITestDbContext.Companies
+            => new EfCore1DbSetWrapper<Company>(Companies);
+
+        IDbSetWrapper<Employee> ITestDbContext.Employees
+            => new EfCore1DbSetWrapper<Employee>(Employees);
 
         IDbSetWrapper<Product> ITestDbContext.Products
             => new EfCore1DbSetWrapper<Product>(Products);

@@ -4,9 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Enumerables;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
     using Members.Sources;
@@ -96,7 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var parentParameter = Expression.Parameter(typeof(object), "parent");
 
                 var typedForChildMethod = bridgeParameter.Type
-                    .GetMethod("ForChild")
+                    .GetPublicInstanceMethod("ForChild")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
                 var typedForChildCall = Expression.Call(
@@ -179,7 +176,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var parentParameter = Expression.Parameter(typeof(object), "parent");
 
                 var typedForElementMethod = bridgeParameter.Type
-                    .GetMethod("ForElement")
+                    .GetPublicInstanceMethod("ForElement")
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
                 var typedForElementCall = Expression.Call(
@@ -285,7 +282,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var parentParameter = Expression.Parameter(typeof(object), "parent");
 
                 var createMethod = bridgeParameter.Type
-                    .GetMethod("CreateMappingData")
+                    .GetPublicInstanceMethod("CreateMappingData")
                     .MakeGenericMethod(
                         k.DeclaredSourceType,
                         k.DeclaredTargetType,

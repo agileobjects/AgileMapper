@@ -3,9 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
     using NetStandardPolyfills;
@@ -68,6 +65,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(mapperData);
+
             if (alreadyMappedShortCircuit != null)
             {
                 yield return alreadyMappedShortCircuit;
@@ -101,13 +99,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetAlreadyMappedObjectShortCircuitOrNull(ObjectMapperData mapperData)
         {
-            if (!mapperData.CacheMappedObjects || mapperData.TargetTypeHasNotYetBeenMapped)
+            if (!mapperData.RuleSet.Settings.AllowObjectTracking ||
+                !mapperData.CacheMappedObjects ||
+                 mapperData.TargetTypeHasNotYetBeenMapped)
             {
                 return null;
             }
 
-            // ReSharper disable once PossibleNullReferenceException
-            var tryGetMethod = typeof(IObjectMappingDataUntyped).GetMethod("TryGet")
+            var tryGetMethod = typeof(IObjectMappingDataUntyped)
+                .GetPublicInstanceMethod("TryGet")
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             var tryGetCall = Expression.Call(
