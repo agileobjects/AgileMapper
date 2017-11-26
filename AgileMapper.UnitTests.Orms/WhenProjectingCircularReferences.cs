@@ -6,10 +6,10 @@
     using TestClasses;
     using Xunit;
 
-    public abstract class WhenMappingCircularReferences<TOrmContext> : OrmTestClassBase<TOrmContext>
+    public abstract class WhenProjectingCircularReferences<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
     {
-        protected WhenMappingCircularReferences(ITestContext<TOrmContext> context)
+        protected WhenProjectingCircularReferences(ITestContext<TOrmContext> context)
             : base(context)
         {
         }
