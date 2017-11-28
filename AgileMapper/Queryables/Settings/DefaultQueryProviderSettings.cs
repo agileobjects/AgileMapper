@@ -28,10 +28,17 @@
 #endif
         public virtual bool SupportsStringEqualsIgnoreCase => false;
 
-        public virtual bool SupportsToString => false;
+        public virtual bool SupportsToString => true;
+
+        public virtual bool SupportsGetValueOrDefault => true;
+
+        public virtual bool SupportsEmptyArrayCreation => true;
 
         public virtual Expression ConvertToStringCall(MethodCallExpression call)
             => call.Object.GetConversionTo<string>();
+
+        public Expression ConvertGetValueOrDefaultCall(MethodCallExpression call)
+            => Expression.Convert(call.Object, call.Type);
 
         public Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
         {
@@ -61,6 +68,8 @@
 
             return conversion;
         }
+
+        public virtual Expression ConvertEmptyArrayCreation(NewArrayExpression newEmptyArray) => newEmptyArray;
 
         protected virtual Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
             => null;

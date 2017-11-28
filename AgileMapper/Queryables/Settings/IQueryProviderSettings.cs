@@ -16,8 +16,16 @@
 
         bool SupportsToString { get; }
 
+        bool SupportsGetValueOrDefault { get; }
+
+        bool SupportsEmptyArrayCreation { get; }
+
         Expression ConvertToStringCall(MethodCallExpression call);
 
+        Expression ConvertGetValueOrDefaultCall(MethodCallExpression call);
+
         Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue);
+
+        Expression ConvertEmptyArrayCreation(NewArrayExpression newEmptyArray);
     }
 }

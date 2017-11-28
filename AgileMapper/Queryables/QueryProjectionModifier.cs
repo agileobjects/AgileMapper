@@ -50,6 +50,11 @@
                 return converted;
             }
 
+            if (GetValueOrDefaultConverter.TryConvert(methodCall, _settings, out converted))
+            {
+                return converted;
+            }
+
             if (StringEqualsIgnoreCaseConverter.TryConvert(methodCall, _settings, out converted))
             {
                 return converted;
@@ -60,5 +65,15 @@
 
         protected override Expression VisitDefault(DefaultExpression defaultExpression)
             => DefaultExpressionConverter.Convert(defaultExpression);
+
+        protected override Expression VisitNewArray(NewArrayExpression newArray)
+        {
+            if (EmptyArrayConverter.TryConvert(newArray, _settings, out var converted))
+            {
+                return converted;
+            }
+
+            return base.VisitNewArray(newArray);
+        }
     }
 }

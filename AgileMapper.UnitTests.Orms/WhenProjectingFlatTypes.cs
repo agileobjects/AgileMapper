@@ -26,7 +26,11 @@
                 context.Products.Add(product2);
                 context.SaveChanges();
 
-                var productDtos = context.Products.ProjectTo<ProductDto>().ToArray();
+                var productDtos = context
+                    .Products
+                    .ProjectTo<ProductDto>()
+                    .OrderBy(p => p.ProductId)
+                    .ToArray();
 
                 productDtos.Length.ShouldBe(2);
 

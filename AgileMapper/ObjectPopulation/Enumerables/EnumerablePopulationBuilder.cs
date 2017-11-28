@@ -59,7 +59,7 @@
             Context = new EnumerablePopulationContext(mapperData);
             _sourceItemsSelector = new SourceItemsSelector(this);
             _sourceElementParameter = Context.SourceElementType.GetOrCreateParameter();
-            TargetTypeHelper = new EnumerableTypeHelper(mapperData.TargetType, mapperData.TargetMember.ElementType);
+            TargetTypeHelper = new EnumerableTypeHelper(mapperData.TargetMember);
 
             _sourceAdapter = SourceEnumerableAdapterFactory.GetAdapterFor(this);
             _populationExpressions = new List<Expression>();

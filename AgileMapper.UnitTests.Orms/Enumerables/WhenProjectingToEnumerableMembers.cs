@@ -73,10 +73,11 @@
             rotaDto.Entries.Count.ShouldBe(rota.Entries.Count());
 
             var i = 0;
+            var rotaEntryDtos = rotaDto.Entries.OrderBy(re => re.Id).ToArray();
 
-            foreach (var rotaEntry in rota.Entries)
+            foreach (var rotaEntry in rota.Entries.OrderBy(re => re.Id))
             {
-                var rotaEntryDto = rotaDto.Entries.ElementAt(i);
+                var rotaEntryDto = rotaEntryDtos.ElementAt(i);
 
                 rotaEntryDto.Id.ShouldBe(rotaEntry.Id);
                 rotaEntryDto.DayOfWeek.ShouldBe(rotaEntry.DayOfWeek);

@@ -22,7 +22,6 @@
                 var person = new Person
                 {
                     Name = "Test Db",
-                    AddressId = 1,
                     Address = new Address
                     {
                         Line1 = "Test Db Line 1",
@@ -35,9 +34,9 @@
 
                 var personDto = context.Persons.ProjectTo<PersonDto>().First();
 
-                personDto.Id.ShouldBe(1);
+                personDto.Id.ShouldBe(person.PersonId);
                 personDto.Name.ShouldBe("Test Db");
-                personDto.AddressId.ShouldBe(1);
+                personDto.AddressId.ShouldBe(person.Address.AddressId);
                 personDto.AddressLine1.ShouldBe("Test Db Line 1");
                 personDto.AddressLine2.ShouldBe("Test Db Line 2");
             });

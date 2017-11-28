@@ -22,6 +22,9 @@ namespace AgileObjects.AgileMapper.Members
         public static bool UseMemberInitialisation(this IMemberMapperData mapperData)
             => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping();
 
+        public static bool MapToNullCollections(this IMemberMapperData mapperData)
+            => mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
+
         public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
             while (!mapperData.IsRoot)
@@ -225,7 +228,6 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)
         {
             var targetMember = mapperData.TargetMember;
-            var mapToNullCollections = mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
 
             Expression emptyEnumerable;
 
@@ -233,7 +235,7 @@ namespace AgileObjects.AgileMapper.Members
             {
                 var existingValue = mapperData.GetTargetMemberAccess();
 
-                if (mapToNullCollections)
+                if (mapperData.MapToNullCollections())
                 {
                     return existingValue;
                 }
@@ -243,7 +245,7 @@ namespace AgileObjects.AgileMapper.Members
                 return Expression.Coalesce(existingValue, emptyEnumerable);
             }
 
-            if (mapToNullCollections)
+            if (mapperData.MapToNullCollections())
             {
                 return targetMember.Type.ToDefaultExpression();
             }

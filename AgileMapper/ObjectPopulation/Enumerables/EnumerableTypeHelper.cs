@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Reflection;
 #endif
     using Extensions;
+    using Members;
     using NetStandardPolyfills;
 
     internal class EnumerableTypeHelper
@@ -19,6 +20,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type _readOnlyCollectionType;
         private Type _collectionInterfaceType;
         private Type _enumerableInterfaceType;
+
+        public EnumerableTypeHelper(QualifiedMember member)
+            : this(member.Type, member.ElementType)
+        {
+        }
 
         public EnumerableTypeHelper(Type enumerableType, Type elementType)
         {

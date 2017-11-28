@@ -1,9 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
+    using Enumerables;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal static class MappingFactory
     {
@@ -56,7 +59,7 @@
             {
                 if (!childMapperData.RuleSet.Settings.AllowRecursion)
                 {
-                    return Constants.EmptyExpression;
+                    return GetRecursionShortCircuit(childMapperData);
                 }
 
                 childMapperData.CacheMappedObjects = childMapperData.SourceIsNotFlatObject();
@@ -76,6 +79,24 @@
                 MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childMapperData));
 
             return inlineMappingBlock;
+        }
+
+        private static Expression GetRecursionShortCircuit(IBasicMapperData childMapperData)
+        {
+            if (childMapperData.TargetMember.IsComplex)
+            {
+                return Constants.EmptyExpression;
+            }
+
+            var emptyArray = Expression.NewArrayBounds(
+                childMapperData.TargetMember.ElementType,
+                0.ToConstantExpression());
+
+            var helper = new EnumerableTypeHelper(childMapperData.TargetMember);
+
+            return helper.GetEnumerableConversion(
+                emptyArray,
+                childMapperData.RuleSet.Settings.AllowEnumerableAssignment);
         }
 
         private static Expression GetMapRecursionCallFor(

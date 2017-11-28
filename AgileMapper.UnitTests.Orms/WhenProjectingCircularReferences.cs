@@ -114,19 +114,27 @@
                 topLevelDto.ParentCategoryId.ShouldBe(default(int));
                 topLevelDto.ParentCategory.ShouldBeNull();
 
-                topLevelDto.SubCategories.Count().ShouldBe(3);
+                var topLevelSubCategoryDtos = topLevelDto
+                    .SubCategories
+                    .OrderBy(sc => sc.Id)
+                    .ToArray();
 
-                topLevelDto.SubCategories.First().Id.ShouldBe(child1.Id);
-                topLevelDto.SubCategories.First().Name.ShouldBe("Top > One");
-                topLevelDto.SubCategories.First().ParentCategoryId.ShouldBe(topLevel.Id);
+                topLevelSubCategoryDtos.Length.ShouldBe(3);
 
-                topLevelDto.SubCategories.Second().Id.ShouldBe(child2.Id);
-                topLevelDto.SubCategories.Second().Name.ShouldBe("Top > Two");
-                topLevelDto.SubCategories.Second().ParentCategoryId.ShouldBe(topLevel.Id);
+                topLevelSubCategoryDtos.First().Id.ShouldBe(child1.Id);
+                topLevelSubCategoryDtos.First().Name.ShouldBe("Top > One");
+                topLevelSubCategoryDtos.First().ParentCategoryId.ShouldBe(topLevel.Id);
+                topLevelSubCategoryDtos.First().SubCategories.ShouldBeEmpty();
 
-                topLevelDto.SubCategories.Third().Id.ShouldBe(child3.Id);
-                topLevelDto.SubCategories.Third().Name.ShouldBe("Top > Three");
-                topLevelDto.SubCategories.Third().ParentCategoryId.ShouldBe(topLevel.Id);
+                topLevelSubCategoryDtos.Second().Id.ShouldBe(child2.Id);
+                topLevelSubCategoryDtos.Second().Name.ShouldBe("Top > Two");
+                topLevelSubCategoryDtos.Second().ParentCategoryId.ShouldBe(topLevel.Id);
+                topLevelSubCategoryDtos.Second().SubCategories.ShouldBeEmpty();
+
+                topLevelSubCategoryDtos.Third().Id.ShouldBe(child3.Id);
+                topLevelSubCategoryDtos.Third().Name.ShouldBe("Top > Three");
+                topLevelSubCategoryDtos.Third().ParentCategoryId.ShouldBe(topLevel.Id);
+                topLevelSubCategoryDtos.Third().SubCategories.ShouldBeEmpty();
             });
         }
     }

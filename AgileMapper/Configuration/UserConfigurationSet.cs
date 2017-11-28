@@ -33,7 +33,7 @@
 
         public bool ValidateMappingPlans { get; set; }
 
-        #region Mapped Object Caching Settings
+        #region MappedObjectCachingSettings
 
         private List<MappedObjectCachingSettings> MappedObjectCachingSettings
             => _mappedObjectCachingSettings ?? (_mappedObjectCachingSettings = new List<MappedObjectCachingSettings>());
