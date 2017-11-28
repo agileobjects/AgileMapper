@@ -151,12 +151,24 @@ namespace AgileObjects.AgileMapper.Members
                 if ((methodCall.Object != _mappingDataObject) &&
                     (methodCall.Method.DeclaringType != typeof(IMappingData)))
                 {
+                    if (IsNullableGetValueOrDefaultCall(methodCall))
+                    {
+                        AddExistingNullCheck(methodCall.Object);
+                    }
+
                     AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
                     AddInvocationIfNecessary(methodCall);
                     AddMemberAccessIfAppropriate(methodCall);
                 }
 
                 return base.VisitMethodCall(methodCall);
+            }
+
+            private static bool IsNullableGetValueOrDefaultCall(MethodCallExpression methodCall)
+            {
+                return (methodCall.Object != null) &&
+                       (methodCall.Method.Name == "GetValueOrDefault") &&
+                       (methodCall.Object.Type.IsNullableType());
             }
 
             private void AddExistingNullCheck(Expression checkedAccess)
