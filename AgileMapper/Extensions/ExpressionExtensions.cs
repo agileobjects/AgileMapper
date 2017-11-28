@@ -164,7 +164,19 @@
 
         [DebuggerStepThrough]
         public static Expression GetConversionTo(this Expression expression, Type targetType)
-            => (expression.Type != targetType) ? Expression.Convert(expression, targetType) : expression;
+        {
+            if (expression.Type == targetType)
+            {
+                return expression;
+            }
+
+            if (expression.Type.GetNonNullableType() == targetType)
+            {
+                return expression.GetValueOrDefaultCall();
+            }
+
+            return Expression.Convert(expression, targetType);
+        }
 
         public static Expression WithToArrayCall(this Expression enumerable, Type elementType)
         {

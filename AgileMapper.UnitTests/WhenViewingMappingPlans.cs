@@ -265,6 +265,7 @@
             string plan = Mapper.GetPlanFor<PublicField<int?>>().ToANew<PublicField<int>>();
 
             plan.ShouldNotContain("int.MinValue");
+            plan.ShouldNotContain("Value.HasValue");
         }
 
         [Fact]
