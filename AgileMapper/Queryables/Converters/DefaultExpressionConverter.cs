@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Queryables
+﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
     using System;
     using System.Linq.Expressions;
