@@ -1,12 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq;
     using System.Linq.Expressions;
-    using Enumerables;
     using Extensions;
     using Members;
-    using NetStandardPolyfills;
 
     internal static class MappingFactory
     {
@@ -57,18 +54,14 @@
 
             if (childMapperData.TargetMemberEverRecurses())
             {
-                if (!childMapperData.RuleSet.Settings.AllowRecursion)
-                {
-                    return GetRecursionShortCircuit(childMapperData);
-                }
-
-                childMapperData.CacheMappedObjects = childMapperData.SourceIsNotFlatObject();
-
-                var mapRecursionCall = GetMapRecursionCallFor(
-                    childMappingData,
-                    mappingValues.SourceValue,
-                    dataSourceIndex,
-                    declaredTypeMapperData);
+                var mapRecursionCall = childMapperData
+                    .RuleSet
+                    .RecursiveMemberMappingStrategy
+                    .GetMapRecursionCallFor(
+                        childMappingData,
+                        mappingValues.SourceValue,
+                        dataSourceIndex,
+                        declaredTypeMapperData);
 
                 return mapRecursionCall;
             }
@@ -79,42 +72,6 @@
                 MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childMapperData));
 
             return inlineMappingBlock;
-        }
-
-        private static Expression GetRecursionShortCircuit(IBasicMapperData childMapperData)
-        {
-            if (childMapperData.TargetMember.IsComplex)
-            {
-                return Constants.EmptyExpression;
-            }
-
-            var emptyArray = Expression.NewArrayBounds(
-                childMapperData.TargetMember.ElementType,
-                0.ToConstantExpression());
-
-            var helper = new EnumerableTypeHelper(childMapperData.TargetMember);
-
-            return helper.GetEnumerableConversion(
-                emptyArray,
-                childMapperData.RuleSet.Settings.AllowEnumerableAssignment);
-        }
-
-        private static Expression GetMapRecursionCallFor(
-            IObjectMappingData childMappingData,
-            Expression sourceValue,
-            int dataSourceIndex,
-            ObjectMapperData declaredTypeMapperData)
-        {
-            var childMapperData = childMappingData.MapperData;
-
-            childMapperData.RegisterRequiredMapperFunc(childMappingData);
-
-            var mapRecursionCall = declaredTypeMapperData.GetMapRecursionCall(
-                sourceValue,
-                childMapperData.TargetMember,
-                dataSourceIndex);
-
-            return mapRecursionCall;
         }
 
         public static Expression GetElementMapping(

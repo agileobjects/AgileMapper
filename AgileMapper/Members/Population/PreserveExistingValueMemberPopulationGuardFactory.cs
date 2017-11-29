@@ -5,8 +5,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 
     internal class PreserveExistingValueMemberPopulationGuardFactory : IMemberPopulationGuardFactory
     {
-        public static readonly IMemberPopulationGuardFactory Instance = new PreserveExistingValueMemberPopulationGuardFactory();
-
         public Expression GetPopulationGuardOrNull(IMemberMapperData mapperData)
         {
             if (SkipPopulateCondition(mapperData))

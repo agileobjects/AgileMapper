@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
 #endif
     using Caching;
+    using Recursion;
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {

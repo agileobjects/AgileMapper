@@ -9,9 +9,7 @@
 
     internal class Ef5QueryProviderSettings : DefaultQueryProviderSettings
     {
-#if NET_STANDARD
         public override bool SupportsToString => false;
-#endif
 
         public override bool SupportsGetValueOrDefault => false;
 

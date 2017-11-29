@@ -4,8 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
     internal class ProjectSourceEnumerablePopulationStrategy : EnumerablePopulationStrategyBase
     {
-        public static readonly IEnumerablePopulationStrategy Instance = new ProjectSourceEnumerablePopulationStrategy();
-
         protected override Expression GetEnumerablePopulation(
             EnumerablePopulationBuilder builder,
             IObjectMappingData mappingData)

@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper
     using Members.Population;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
+    using ObjectPopulation.Recursion;
 
     internal class MappingRuleSetCollection
     {
@@ -17,10 +18,10 @@ namespace AgileObjects.AgileMapper
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
                 GuardMemberAccesses = true,
-                AllowObjectTracking = true,
-                AllowRecursion = true
+                AllowObjectTracking = true
             },
-            CopySourceEnumerablePopulationStrategy.Instance,
+            new CopySourceEnumerablePopulationStrategy(),
+            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
@@ -32,11 +33,11 @@ namespace AgileObjects.AgileMapper
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
                 GuardMemberAccesses = true,
-                AllowObjectTracking = true,
-                AllowRecursion = true
+                AllowObjectTracking = true
             },
-            MergeEnumerablePopulationStrategy.Instance,
-            PreserveExistingValueMemberPopulationGuardFactory.Instance,
+            new MergeEnumerablePopulationStrategy(),
+            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
+            new PreserveExistingValueMemberPopulationGuardFactory(),
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
@@ -47,10 +48,10 @@ namespace AgileObjects.AgileMapper
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
                 GuardMemberAccesses = true,
-                AllowObjectTracking = true,
-                AllowRecursion = true
+                AllowObjectTracking = true
             },
             OverwriteEnumerablePopulationStrategy.Instance,
+            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
             NullMemberPopulationGuardFactory.Instance,
             DefaultValueDataSourceFactory.Instance);
 
@@ -62,7 +63,8 @@ namespace AgileObjects.AgileMapper
                 UseSingleRootMappingExpression = true,
                 AllowEnumerableAssignment = true
             },
-            ProjectSourceEnumerablePopulationStrategy.Instance,
+            new ProjectSourceEnumerablePopulationStrategy(),
+            new MapToDepthRecursiveMemberMappingStrategy(),
             NullMemberPopulationGuardFactory.Instance,
             DefaultValueDataSourceFactory.Instance);
 

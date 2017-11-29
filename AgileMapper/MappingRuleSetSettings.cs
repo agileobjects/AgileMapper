@@ -17,7 +17,5 @@ namespace AgileObjects.AgileMapper
         public bool AllowEnumerableAssignment { get; set; }
 
         public bool AllowObjectTracking { get; set; }
-
-        public bool AllowRecursion { get; set; }
     }
 }

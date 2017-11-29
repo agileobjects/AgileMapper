@@ -4,8 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
     internal class MergeEnumerablePopulationStrategy : EnumerablePopulationStrategyBase
     {
-        public static readonly IEnumerablePopulationStrategy Instance = new MergeEnumerablePopulationStrategy();
-
         protected override Expression GetEnumerablePopulation(
             EnumerablePopulationBuilder builder,
             IObjectMappingData mappingData)
