@@ -33,7 +33,7 @@
 
         public virtual bool SupportsGetValueOrDefault => true;
 
-        public virtual bool SupportsEmptyArrayCreation => true;
+        public virtual bool SupportsEmptyEnumerableCreation => true;
 
         public virtual Expression ConvertToStringCall(MethodCallExpression call)
             => call.Object.GetConversionTo<string>();

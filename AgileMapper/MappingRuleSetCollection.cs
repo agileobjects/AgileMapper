@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
     using ObjectPopulation.Recursion;
+    using Queryables.Recursion;
 
     internal class MappingRuleSetCollection
     {

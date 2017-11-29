@@ -20,8 +20,6 @@
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var queryProviderType = ((QueryProjectorKey)mappingData.MapperKey).QueryProviderType;
-            var providerSettings = QueryProviderSettings.For(queryProviderType);
 
             var queryProjection = mapperData
                 .EnumerablePopulationBuilder
@@ -31,6 +29,8 @@
                         sourceParameter,
                         mapperData.TargetMember.ElementType.ToDefaultExpression(),
                         mappingData));
+
+            var providerSettings = mappingData.GetQueryProviderSettings();
 
             queryProjection = QueryProjectionModifier.Modify(queryProjection, providerSettings);
 

@@ -13,7 +13,7 @@
 
         public override bool SupportsGetValueOrDefault => false;
 
-        public override bool SupportsEmptyArrayCreation => false;
+        public override bool SupportsEmptyEnumerableCreation => false;
 
 #if !NET_STANDARD
         protected override Type LoadCanonicalFunctionsType()

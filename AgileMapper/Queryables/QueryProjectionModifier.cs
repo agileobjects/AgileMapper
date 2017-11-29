@@ -66,15 +66,5 @@
 
         protected override Expression VisitDefault(DefaultExpression defaultExpression)
             => DefaultExpressionConverter.Convert(defaultExpression);
-
-        protected override Expression VisitNewArray(NewArrayExpression newArray)
-        {
-            if (EmptyArrayConverter.TryConvert(newArray, _settings, out var converted))
-            {
-                return converted;
-            }
-
-            return base.VisitNewArray(newArray);
-        }
     }
 }

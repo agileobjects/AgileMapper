@@ -18,7 +18,7 @@
 
         bool SupportsGetValueOrDefault { get; }
 
-        bool SupportsEmptyArrayCreation { get; }
+        bool SupportsEmptyEnumerableCreation { get; }
 
         Expression ConvertToStringCall(MethodCallExpression call);
 
