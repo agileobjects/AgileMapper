@@ -2,7 +2,6 @@
 {
     using System.Linq.Expressions;
     using ObjectPopulation;
-    using ObjectPopulation.Enumerables;
     using ObjectPopulation.Recursion;
 
     internal class MapToDepthRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
@@ -13,20 +12,15 @@
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
-            var targetMember = childMappingData.MapperData.TargetMember;
-
-            if (targetMember.IsComplex)
+            if (childMappingData.MapperData.TargetMember.IsComplex)
             {
                 return Constants.EmptyExpression;
             }
 
-            var helper = new EnumerableTypeHelper(targetMember);
+            var helper = childMappingData.MapperData.EnumerablePopulationBuilder.TargetTypeHelper;
+            var emptyArray = Expression.NewArrayInit(helper.ElementType);
 
-            var emptyCollection = helper.IsList
-                ? Expression.ListInit(Expression.New(helper.ListType), Enumerable<Expression>.EmptyArray)
-                : (Expression)Expression.NewArrayInit(targetMember.ElementType);
-
-            return helper.GetEnumerableConversion(emptyCollection, allowEnumerableAssignment: true);
+            return helper.GetEnumerableConversion(emptyArray, allowEnumerableAssignment: true);
         }
     }
 }
