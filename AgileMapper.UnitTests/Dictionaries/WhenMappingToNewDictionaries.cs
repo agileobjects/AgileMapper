@@ -282,6 +282,25 @@
         }
 
         [Fact]
+        public void ShouldMapBetweenSameDeclaredSimpleTypeIDictionaries()
+        {
+            IDictionary<string, string> source = new StringKeyedDictionary<string>
+            {
+                ["Hello"] = "Bonjour",
+                ["Yes"] = "Oui"
+            };
+            var result = Mapper.Map(source).ToANew<IDictionary<string, string>>();
+
+            result.Count.ShouldBe(2);
+
+            result.ContainsKey("Hello").ShouldBeTrue();
+            result["Hello"].ShouldBe("Bonjour");
+
+            result.ContainsKey("Yes").ShouldBeTrue();
+            result["Yes"].ShouldBe("Oui");
+        }
+
+        [Fact]
         public void ShouldMapBetweenSameComplexTypeDictionaryImplementations()
         {
             var source = new StringKeyedDictionary<Address>

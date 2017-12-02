@@ -173,9 +173,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (SourceMemberIsDictionary(mapperData, out var sourceDictionaryMember))
             {
-                if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData))
+                if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData, out var cloneConstructor))
                 {
-                    yield return GetClonedDictionaryAssignment(mapperData);
+                    yield return GetClonedDictionaryAssignment(mapperData, cloneConstructor);
                     yield break;
                 }
 
@@ -183,7 +183,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                assignmentFactory = (sdm, md) => GetParameterlessDictionaryAssignment(md);
+                assignmentFactory = (dsm, md) => GetParameterlessDictionaryAssignment(md);
             }
 
             var population = GetDictionaryPopulation(mappingData);
@@ -203,28 +203,46 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool UseDictionaryCloneConstructor(
             IQualifiedMember sourceDictionaryMember,
-            IBasicMapperData mapperData)
+            IBasicMapperData mapperData,
+            out ConstructorInfo cloneConstructor)
         {
+            cloneConstructor = null;
+
             return mapperData.TargetMember.ElementType.IsSimple() &&
-                  (sourceDictionaryMember.Type == mapperData.TargetType);
+                  (sourceDictionaryMember.Type == mapperData.TargetType) &&
+                 ((cloneConstructor = GetDictionaryCloneConstructor(mapperData)) != null);
         }
 
-        private static Expression GetClonedDictionaryAssignment(IMemberMapperData mapperData)
+        private static ConstructorInfo GetDictionaryCloneConstructor(IBasicMapperData mapperData)
         {
-            var cloneConstructor = GetDictionaryCloneConstructor(mapperData.TargetMember.Type);
-            var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
-            var cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject, comparer);
+            var dictionaryTypes = mapperData.TargetType.GetDictionaryTypes();
+            var dictionaryInterfaceType = typeof(IDictionary<,>).MakeGenericType(dictionaryTypes.Key, dictionaryTypes.Value);
+
+            var comparerProperty = mapperData.SourceType.GetPublicInstanceProperty("Comparer");
+
+            return FindDictionaryConstructor(
+                mapperData.TargetType,
+                dictionaryInterfaceType,
+               (comparerProperty != null) ? 2 : 1);
+        }
+
+        private static Expression GetClonedDictionaryAssignment(IMemberMapperData mapperData, ConstructorInfo cloneConstructor)
+        {
+            Expression cloneDictionary;
+
+            if (cloneConstructor.GetParameters().Length == 1)
+            {
+                cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject);
+            }
+            else
+            {
+                var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
+                cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject, comparer);
+            }
+
             var assignment = mapperData.TargetInstance.AssignTo(cloneDictionary);
 
             return assignment;
-        }
-
-        private static ConstructorInfo GetDictionaryCloneConstructor(Type dictionaryType)
-        {
-            var dictionaryTypes = dictionaryType.GetGenericTypeArguments();
-            var dictionaryInterfaceType = typeof(IDictionary<,>).MakeGenericType(dictionaryTypes);
-
-            return FindDictionaryConstructor(dictionaryType, dictionaryInterfaceType, numberOfParameters: 2);
         }
 
         private static ConstructorInfo FindDictionaryConstructor(
