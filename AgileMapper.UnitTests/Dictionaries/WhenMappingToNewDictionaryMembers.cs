@@ -78,7 +78,7 @@
                     new [] { 4, 5, 6 }
                 }
             };
-            var result = Mapper.Map(source).ToANew<PublicField<Dictionary<string, double>>>();
+            var result = Mapper.Map(source).ToANew<PublicField<IDictionary<string, double>>>();
 
             result.Value.ContainsKey("[0]").ShouldBeFalse();
 
