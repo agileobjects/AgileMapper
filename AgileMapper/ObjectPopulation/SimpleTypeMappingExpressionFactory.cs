@@ -7,6 +7,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class SimpleTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
+        public static readonly MappingExpressionFactoryBase Instance = new SimpleTypeMappingExpressionFactory();
+
         public override bool IsFor(IObjectMappingData mappingData)
         {
             return mappingData.MapperKey.MappingTypes.TargetType.IsSimple();

@@ -11,13 +11,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal abstract class PopulationExpressionFactoryBase
     {
-        private readonly ComplexTypeConstructionFactory _constructionFactory;
-
-        protected PopulationExpressionFactoryBase(ComplexTypeConstructionFactory constructionFactory)
-        {
-            _constructionFactory = constructionFactory;
-        }
-
         public IEnumerable<Expression> GetPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
@@ -90,7 +83,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IObjectMappingData mappingData,
             IList<Expression> memberPopulations)
         {
-            return _constructionFactory.GetNewObjectCreation(mappingData);
+            return mappingData
+                .MapperData
+                .MapperContext
+                .ComplexTypeConstructionFactory
+                .GetNewObjectCreation(mappingData);
         }
 
         #region Object Registration

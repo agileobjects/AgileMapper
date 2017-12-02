@@ -17,12 +17,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperFactory(MapperContext mapperContext)
         {
-            _mappingExpressionFactories = new MappingExpressionFactoryBase[]
+            _mappingExpressionFactories = new[]
             {
-                new DictionaryMappingExpressionFactory(),
-                new SimpleTypeMappingExpressionFactory(),
-                new EnumerableMappingExpressionFactory(),
-                new ComplexTypeMappingExpressionFactory(mapperContext)
+                DictionaryMappingExpressionFactory.Instance,
+                SimpleTypeMappingExpressionFactory.Instance,
+                EnumerableMappingExpressionFactory.Instance,
+                ComplexTypeMappingExpressionFactory.Instance
             };
 
             _rootMappersCache = mapperContext.Cache.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();

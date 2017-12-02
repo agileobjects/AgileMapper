@@ -8,6 +8,7 @@
     using Members;
     using Members.Sources;
     using ObjectPopulation;
+    using ObjectPopulation.ComplexTypes;
     using TypeConversion;
 
     internal class MapperContext
@@ -26,6 +27,7 @@
             RootMembersSource = new RootMembersSource(QualifiedMemberFactory);
             ObjectMapperFactory = new ObjectMapperFactory(this);
             UserConfigurations = new UserConfigurationSet(this);
+            ComplexTypeConstructionFactory = new ComplexTypeConstructionFactory(this);
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
         }
@@ -48,6 +50,8 @@
 
         public UserConfigurationSet UserConfigurations { get; }
 
+        public ComplexTypeConstructionFactory ComplexTypeConstructionFactory { get; }
+
         public ConverterSet ValueConverters { get; }
 
         public MappingRuleSetCollection RuleSets { get; }
@@ -67,6 +71,7 @@
         {
             Cache.Empty();
             UserConfigurations.Reset();
+            ComplexTypeConstructionFactory.Reset();
             ObjectMapperFactory.Reset();
         }
     }

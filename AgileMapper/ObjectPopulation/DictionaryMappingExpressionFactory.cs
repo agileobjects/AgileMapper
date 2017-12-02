@@ -15,9 +15,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
+        public static readonly MappingExpressionFactoryBase Instance = new DictionaryMappingExpressionFactory();
+
         private readonly MemberPopulationFactory _memberPopulationFactory;
 
-        public DictionaryMappingExpressionFactory()
+        private DictionaryMappingExpressionFactory()
         {
             _memberPopulationFactory = new MemberPopulationFactory(GetAllTargetMembers);
         }
@@ -255,14 +257,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return GetParameterlessDictionaryAssignment(mappingData);
             }
 
-            var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
+            var comparerProperty = mapperData.SourceObject.Type.GetPublicInstanceProperty("Comparer");
 
-            var constructor = FindDictionaryConstructor(
-                mapperData.TargetType,
-                comparer.Type,
-                numberOfParameters: 1);
+            Expression dictionaryConstruction;
 
-            return GetDictionaryAssignment(Expression.New(constructor, comparer), mappingData);
+            if (comparerProperty == null)
+            {
+                dictionaryConstruction = mapperData
+                    .MapperContext
+                    .ComplexTypeConstructionFactory
+                    .GetNewObjectCreation(mappingData);
+            }
+            else
+            {
+                var comparer = Expression.Property(mapperData.SourceObject, comparerProperty);
+
+                var constructor = FindDictionaryConstructor(
+                    mapperData.TargetType,
+                    comparer.Type,
+                    numberOfParameters: 1);
+
+                dictionaryConstruction = Expression.New(constructor, comparer);
+            }
+
+            return GetDictionaryAssignment(dictionaryConstruction, mappingData);
         }
 
         private static bool UseParameterlessConstructor(
