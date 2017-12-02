@@ -243,6 +243,15 @@
         }
 
         [Fact]
+        public void ShouldMapToASimpleTypeDictionaryImplementation()
+        {
+            var source = new[] { "Hello", "Goodbye", "See ya" };
+            var result = Mapper.Map(source).ToANew<StringKeyedDictionary<string>>();
+
+            result.ShouldNotBeEmpty();
+        }
+
+        [Fact]
         public void ShouldHandleANullComplexTypeMember()
         {
             var source = new MysteryCustomer { Name = "Richie", Address = null };

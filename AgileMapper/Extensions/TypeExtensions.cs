@@ -195,14 +195,46 @@
 
         public static bool IsDictionary(this Type type)
         {
+            // ReSharper disable once UnusedVariable
+            return IsDictionary(type, out var keyAndValueTypes);
+        }
+
+        public static bool IsDictionary(this Type type, out KeyValuePair<Type, Type> keyAndValueTypes)
+        {
+            keyAndValueTypes = GetDictionaryTypes(type);
+
+            return !keyAndValueTypes.Equals(default(KeyValuePair<Type, Type>));
+        }
+
+        public static KeyValuePair<Type, Type> GetDictionaryTypes(this Type type)
+        {
             if (!type.IsGenericType())
             {
-                return false;
+                return default(KeyValuePair<Type, Type>);
             }
 
             var typeDefinition = type.GetGenericTypeDefinition();
 
-            return (typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>));
+            if ((typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>)))
+            {
+                return GetDictionaryTypesFrom(type);
+            }
+
+            var interfaceType = type
+                .GetAllInterfaces()
+                .FirstOrDefault(t =>
+                    t.IsGenericType() &&
+                   (t.GetGenericTypeDefinition() == typeof(IDictionary<,>)));
+
+            return (interfaceType != null)
+                ? GetDictionaryTypesFrom(interfaceType)
+                : default(KeyValuePair<Type, Type>);
+        }
+
+        private static KeyValuePair<Type, Type> GetDictionaryTypesFrom(Type type)
+        {
+            var types = type.GetGenericTypeArguments();
+            return new KeyValuePair<Type, Type>(types[0], types[1]);
         }
 
         [DebuggerStepThrough]
