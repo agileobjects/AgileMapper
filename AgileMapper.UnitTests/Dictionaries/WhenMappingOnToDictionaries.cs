@@ -74,5 +74,29 @@
             target[4].ShouldBe(44);
             target[44].ShouldBe(444);
         }
+
+        [Fact]
+        public void ShouldMapBetweenDictionaryImplementations()
+        {
+            var source = new StringKeyedDictionary<Product>
+            {
+                ["One"] = new Product { ProductId = "One!", Price = 9.99 },
+                ["Two"] = new Product { ProductId = "Two!", Price = 10.00 }
+            };
+            var target = new StringKeyedDictionary<ProductDto>
+            {
+                ["One"] = new ProductDto { ProductId = "One!", Price = 99.99m }
+            };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Count.ShouldBe(2);
+
+            result["One"].ProductId.ShouldBe("One!");
+            result["One"].Price.ShouldBe(9.99m);
+
+            result["Two"].ProductId.ShouldBe("Two!");
+            result["Two"].Price.ShouldBe(10.00m);
+        }
     }
 }
