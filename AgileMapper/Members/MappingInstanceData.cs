@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
-    using System.Reflection;
+    using NetStandardPolyfills;
 
     internal class MappingInstanceData<TSource, TTarget> : IMappingData<TSource, TTarget>, IMappingData
     {

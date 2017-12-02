@@ -3,12 +3,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using DataSources;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal class SourceElementsDictionaryPopulationLoopData : IPopulationLoopData
     {
@@ -73,7 +71,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private Expression GetContainsRootElementKeyCall()
         {
-            var containsKeyMethod = MapperData.SourceObject.Type.GetMethod("ContainsKey");
+            var containsKeyMethod = MapperData.SourceObject.Type.GetPublicInstanceMethod("ContainsKey");
             var containsKeyCall = Expression.Call(MapperData.SourceObject, containsKeyMethod, _targetElementKey);
 
             return containsKeyCall;

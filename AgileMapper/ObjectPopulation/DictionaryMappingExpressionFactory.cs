@@ -22,6 +22,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _memberPopulationFactory = new MemberPopulationFactory(GetAllTargetMembers);
         }
 
+        #region Target Member Generation
+
         private static IEnumerable<QualifiedMember> GetAllTargetMembers(ObjectMapperData mapperData)
         {
             var targetMembersFromSource = EnumerateTargetMembers(mapperData).ToArray();
@@ -98,6 +100,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .WhereNotNull()
                 .ToArray();
         }
+
+        #endregion
 
         public override bool IsFor(IObjectMappingData mappingData)
         {

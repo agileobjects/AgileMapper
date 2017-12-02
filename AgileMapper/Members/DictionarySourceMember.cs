@@ -2,10 +2,8 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
+    using NetStandardPolyfills;
 
     internal class DictionarySourceMember : IQualifiedMember
     {

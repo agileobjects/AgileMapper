@@ -3,10 +3,8 @@
     using System;
     using System.Globalization;
     using System.Linq;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class DerivedTypePair : UserConfiguredItemBase

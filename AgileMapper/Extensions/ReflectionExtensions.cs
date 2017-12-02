@@ -27,14 +27,8 @@
             }
         }
 
-        public static bool IsReadable(this PropertyInfo property)
-        {
-            return property.GetGetMethod(nonPublic: false) != null;
-        }
+        public static bool IsReadable(this PropertyInfo property) => property.GetGetMethod() != null;
 
-        public static bool IsWriteable(this PropertyInfo property)
-        {
-            return property.GetSetMethod(nonPublic: false) != null;
-        }
+        public static bool IsWriteable(this PropertyInfo property) => property.GetSetMethod() != null;
     }
 }

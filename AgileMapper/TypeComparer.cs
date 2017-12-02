@@ -2,9 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
+    using NetStandardPolyfills;
 
     internal class TypeComparer : IComparer<Type>
     {

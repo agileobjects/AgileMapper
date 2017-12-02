@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Configuration
     using System.Diagnostics;
     using System.Reflection;
     using Members;
+    using NetStandardPolyfills;
 
     /// <summary>
     /// Provides a fluent interface to select members by their characteristics.

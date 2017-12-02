@@ -22,7 +22,7 @@
 
         private static readonly MethodInfo _selectWithIndexMethod = typeof(Enumerable)
             .GetPublicStaticMethods("Select")
-            .Last(m => 
+            .Last(m =>
                 (m.GetParameters().Length == 2) &&
                 (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 3));
 
@@ -337,7 +337,7 @@
                 ? Expression.New(nullTargetVariableType)
                 : Expression.New(
                     // ReSharper disable once AssignNullToNotNullAttribute
-                    nullTargetVariableType.GetConstructor(new[] { typeof(int) }),
+                    nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
                     GetSourceCountAccess());
 
             var targetVariableValue = Expression.Condition(
@@ -383,7 +383,7 @@
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
-                TargetTypeHelper.ListType.GetConstructor(new[] { TargetTypeHelper.EnumerableInterfaceType }),
+                TargetTypeHelper.ListType.GetPublicInstanceConstructor(TargetTypeHelper.EnumerableInterfaceType),
                 MapperData.TargetObject);
         }
 
@@ -629,8 +629,8 @@
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
         {
-            var method = TargetTypeHelper.CollectionInterfaceType.GetMethod(methodName)
-                ?? TargetVariable.Type.GetMethod(methodName);
+            var method = TargetTypeHelper.CollectionInterfaceType.GetPublicInstanceMethod(methodName)
+                ?? TargetVariable.Type.GetPublicInstanceMethod(methodName);
 
             return (argument != null)
                 ? Expression.Call(TargetVariable, method, argument)

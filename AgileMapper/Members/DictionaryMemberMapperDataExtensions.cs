@@ -3,10 +3,8 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
+    using NetStandardPolyfills;
 
     internal static class DictionaryMemberMapperDataExtensions
     {
@@ -130,7 +128,7 @@ namespace AgileObjects.AgileMapper.Members
             var mappingDataType = typeof(IMappingData<,>)
                 .MakeGenericType(parentContextAccess.Type.GetGenericArguments());
 
-            var enumerableIndexProperty = mappingDataType.GetProperty("EnumerableIndex");
+            var enumerableIndexProperty = mappingDataType.GetPublicInstanceProperty("EnumerableIndex");
 
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Property(parentContextAccess, enumerableIndexProperty);

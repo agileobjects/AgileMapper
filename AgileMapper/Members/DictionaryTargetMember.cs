@@ -3,10 +3,8 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class DictionaryTargetMember : QualifiedMember
@@ -212,7 +210,7 @@ namespace AgileObjects.AgileMapper.Members
         private Expression GetTryGetValueCall(IMemberMapperData mapperData, out ParameterExpression valueVariable)
         {
             var dictionaryAccess = GetDictionaryAccess(mapperData);
-            var tryGetValueMethod = dictionaryAccess.Type.GetMethod("TryGetValue");
+            var tryGetValueMethod = dictionaryAccess.Type.GetPublicInstanceMethod("TryGetValue");
             var key = GetKey(mapperData);
             valueVariable = Expression.Variable(ValueType, "existingValue");
 

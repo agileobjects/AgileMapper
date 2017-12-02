@@ -4,9 +4,6 @@
     using System.Globalization;
     using System.Linq.Expressions;
     using Extensions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;

@@ -2,11 +2,9 @@
 {
     using System;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal class EnumerablePopulationContext
     {

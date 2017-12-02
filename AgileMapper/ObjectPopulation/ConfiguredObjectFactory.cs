@@ -2,11 +2,9 @@
 {
     using System;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Configuration;
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class ConfiguredObjectFactory : UserConfiguredItemBase, IPotentialClone

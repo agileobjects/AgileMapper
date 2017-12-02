@@ -143,7 +143,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetMappingDataProperty(Type mappingDataType, string propertyName)
         {
-            var property = mappingDataType.GetProperty(propertyName);
+            var property = mappingDataType.GetPublicInstanceProperty(propertyName);
 
             // ReSharper disable once AssignNullToNotNullAttribute
             var propertyAccess = Expression.Property(MappingDataObject, property);

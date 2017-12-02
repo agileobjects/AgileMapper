@@ -4,11 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Configuration;
     using Extensions;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class ConverterSet

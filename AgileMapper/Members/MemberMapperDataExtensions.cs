@@ -405,24 +405,24 @@ namespace AgileObjects.AgileMapper.Members
 
             if (subject.Type == typeof(IMappingData))
             {
-                return GetAsCall(subject, typeof(IMappingData).GetMethod("As"), contextTypes);
+                return GetAsCall(subject, typeof(IMappingData).GetPublicInstanceMethod("As"), contextTypes);
             }
 
             var sourceIsStruct = contextTypes[0].IsValueType();
 
             if (sourceIsStruct)
             {
-                return GetAsCall(subject, subject.Type.GetMethod("WithTargetType"), contextTypes[1]);
+                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithTargetType"), contextTypes[1]);
             }
 
             var targetIsStruct = contextTypes[1].IsValueType();
 
             if (targetIsStruct)
             {
-                return GetAsCall(subject, subject.Type.GetMethod("WithSourceType"), contextTypes[0]);
+                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithSourceType"), contextTypes[0]);
             }
 
-            return GetAsCall(subject, typeof(IObjectMappingDataUntyped).GetMethod("As"), contextTypes);
+            return GetAsCall(subject, typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As"), contextTypes);
         }
 
         private static Expression GetAsCall(
@@ -476,21 +476,21 @@ namespace AgileObjects.AgileMapper.Members
 
             var propertyName = new[] { "Source", "Target" }[contextTypesIndex];
 
-            var property = contextAccess.Type.GetProperty(propertyName)
+            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName)
                 ?? typeof(IMappingData<,>)
                     .MakeGenericType(contextTypes[0], contextTypes[1])
-                    .GetProperty(propertyName);
+                    .GetPublicInstanceProperty(propertyName);
 
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Property(contextAccess, property);
         }
 
-        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
+        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetPublicInstanceMethod("GetSource");
 
         private static Expression GetSourceAccess(Expression subject, Type sourceType)
             => GetAccess(subject, _getSourceMethod, sourceType);
 
-        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget");
+        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetPublicInstanceMethod("GetTarget");
 
         public static Expression GetTargetAccess(Expression subject, Type targetType)
             => GetAccess(subject, _getTargetMethod, targetType);

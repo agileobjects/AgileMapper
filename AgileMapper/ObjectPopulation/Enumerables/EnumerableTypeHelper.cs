@@ -4,9 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using NetStandardPolyfills;
 
@@ -82,7 +79,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
-                WrapperType.GetConstructor(new[] { ListInterfaceType, typeof(int) }),
+                WrapperType.GetPublicInstanceConstructor(ListInterfaceType, typeof(int)),
                 existingItems,
                 newItemsCount);
         }
