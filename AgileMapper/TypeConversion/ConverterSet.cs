@@ -55,7 +55,7 @@
         }
 
         public bool CanConvert(Type sourceType, Type targetType)
-            => targetType.IsAssignableFrom(sourceType) || EnumerateConverters(sourceType, targetType).Any();
+            => sourceType.IsAssignableTo(targetType) || EnumerateConverters(sourceType, targetType).Any();
 
         private IEnumerable<IValueConverter> EnumerateConverters(Type sourceType, Type targetType)
         {
@@ -80,7 +80,7 @@
                 return sourceValue;
             }
 
-            if (targetType.IsAssignableFrom(sourceValue.Type))
+            if (sourceValue.Type.IsAssignableTo(targetType))
             {
                 return targetType.IsNullableType() || (sourceValue.Type.IsSimple() && (targetType == typeof(object)))
                     ? sourceValue.GetConversionTo(targetType)

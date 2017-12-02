@@ -25,7 +25,7 @@
 
         public bool ElementTypesAreTheSame { get; }
 
-        public bool ElementTypesAreAssignable => TargetElementType.IsAssignableFrom(SourceElementType);
+        public bool ElementTypesAreAssignable => SourceElementType.IsAssignableTo(TargetElementType);
 
         public bool ElementTypesAreSimple { get; }
 

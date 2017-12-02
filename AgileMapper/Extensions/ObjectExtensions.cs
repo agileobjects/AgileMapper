@@ -18,6 +18,6 @@
             => (item != null) ? item.GetType() : typeof(TDeclared).GetRuntimeTargetType(sourceType);
 
         public static Type GetRuntimeTargetType(this Type targetType, Type sourceType)
-            => targetType.IsAssignableFrom(sourceType) ? sourceType : targetType;
+            => sourceType.IsAssignableTo(targetType) ? sourceType : targetType;
     }
 }

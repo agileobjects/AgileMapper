@@ -54,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingLambda = mappingLambdaAndKey.Value;
                 var mappingDataObject = mappingLambda.Parameters[0];
-                var mappingDataTypes = mappingDataObject.Type.GetGenericArguments();
+                var mappingDataTypes = mappingDataObject.Type.GetGenericTypeArguments();
 
                 var typesKey = new SourceAndTargetTypesKey(mappingDataTypes[0], mappingDataTypes[1]);
 

@@ -215,7 +215,7 @@ namespace AgileObjects.AgileMapper.Members
                 return Type.ToDefaultExpression();
             }
 
-            if (!DeclaringType.IsAssignableFrom(instance.Type))
+            if (!instance.Type.IsAssignableTo(DeclaringType))
             {
                 instance = Expression.Convert(instance, DeclaringType);
             }

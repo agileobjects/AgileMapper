@@ -40,7 +40,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if (keyType == null)
             {
-                var dictionaryTypes = Type.GetGenericArguments();
+                var dictionaryTypes = Type.GetGenericTypeArguments();
                 KeyType = dictionaryTypes[0];
                 ValueType = dictionaryTypes[1];
             }

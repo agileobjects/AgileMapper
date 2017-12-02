@@ -18,13 +18,13 @@
             .GetPublicStaticMethods("Select")
             .Last(m =>
                 (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2));
+                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 2));
 
         private static readonly MethodInfo _selectWithIndexMethod = typeof(Enumerable)
             .GetPublicStaticMethods("Select")
             .Last(m =>
                 (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 3));
+                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 3));
 
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
             .GetPublicStaticMethods("ForEach")
@@ -619,7 +619,7 @@
         {
             var allowSameValue = value.NodeType != ExpressionType.MemberAccess;
 
-            if (allowSameValue && MapperData.TargetType.IsAssignableFrom(value.Type))
+            if (allowSameValue && value.Type.IsAssignableTo(MapperData.TargetType))
             {
                 return value;
             }

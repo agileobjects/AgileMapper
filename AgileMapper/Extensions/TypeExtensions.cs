@@ -67,7 +67,7 @@
         private static string GetGenericTypeVariableName(string variableName, Type namingType)
         {
             var nonNullableType = namingType.GetNonNullableType();
-            var genericTypeArguments = namingType.GetGenericArguments();
+            var genericTypeArguments = namingType.GetGenericTypeArguments();
 
             if (nonNullableType != namingType)
             {
@@ -147,7 +147,7 @@
             return enumerableType.HasElementType
                 ? enumerableType.GetElementType()
                 : enumerableType.IsGenericType()
-                    ? enumerableType.GetGenericArguments().Last()
+                    ? enumerableType.GetGenericTypeArguments().Last()
                     : typeof(object);
         }
 
@@ -172,8 +172,8 @@
         public static bool IsEnumerable(this Type type)
         {
             return type.IsArray ||
-                (type != typeof(string) &&
-                typeof(IEnumerable).IsAssignableFrom(type));
+                  (type != typeof(string) &&
+                   type.IsAssignableTo(typeof(IEnumerable)));
         }
 
         public static bool IsComplex(this Type type)

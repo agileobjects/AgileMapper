@@ -36,7 +36,7 @@ namespace AgileObjects.AgileMapper.DataSources
             SourceMember = sourceMember;
             MapperData = mapperData;
             _targetMemberName = GetTargetMemberName(mapperData);
-            UseDirectValueAccess = mapperData.TargetMember.Type.IsAssignableFrom(sourceMember.ValueType);
+            UseDirectValueAccess = sourceMember.ValueType.IsAssignableTo(mapperData.TargetMember.Type);
             Variables = UseDirectValueAccess ? new[] { Key } : new[] { Key, Value };
         }
 

@@ -300,7 +300,7 @@
         private static Type GetDictionaryType(Type dictionaryType)
         {
             return dictionaryType.IsInterface()
-                ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericArguments())
+                ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericTypeArguments())
                 : dictionaryType;
         }
 

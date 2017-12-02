@@ -69,7 +69,7 @@
         {
             try
             {
-                IEnumerable<Type> types = assembly.GetTypes();
+                IEnumerable<Type> types = assembly.GetAllTypes();
 
                 if (Constants.ReflectionNotPermitted)
                 {

@@ -336,8 +336,8 @@ namespace AgileObjects.AgileMapper.Members
 
         private static bool TypesMatch(IBasicMapperData mapperData, Type sourceType, Type targetType)
         {
-            return (sourceType.IsAssignableFrom(mapperData.SourceType) || mapperData.SourceType.IsAssignableFrom(sourceType)) &&
-                   (targetType.IsAssignableFrom(mapperData.TargetType) || mapperData.TargetType.IsAssignableFrom(targetType));
+            return (mapperData.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(mapperData.SourceType)) &&
+                   (mapperData.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(mapperData.TargetType));
         }
 
         public static Expression GetTypedContextAccess(
@@ -352,10 +352,10 @@ namespace AgileObjects.AgileMapper.Members
 
             if (contextAccess.Type.IsGenericType())
             {
-                var contextAccessTypes = contextAccess.Type.GetGenericArguments();
+                var contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
 
-                if (contextTypes[0].IsAssignableFrom(contextAccessTypes[0]) &&
-                    contextTypes[1].IsAssignableFrom(contextAccessTypes[1]))
+                if (contextAccessTypes[0].IsAssignableTo(contextTypes[0]) &&
+                    contextAccessTypes[1].IsAssignableTo(contextTypes[1]))
                 {
                     return GetFinalContextAccess(contextAccess, contextTypes, contextAccessTypes);
                 }
@@ -376,7 +376,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if (contextAccessTypes == null)
             {
-                contextAccessTypes = contextAccess.Type.GetGenericArguments();
+                contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
             }
 
             if (contextAccessTypes.None(t => t.IsValueType()))
@@ -398,7 +398,7 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
         {
             if (subject.Type.IsGenericType() &&
-                subject.Type.GetGenericArguments().SequenceEqual(contextTypes))
+                subject.Type.GetGenericTypeArguments().SequenceEqual(contextTypes))
             {
                 return subject;
             }
@@ -467,9 +467,9 @@ namespace AgileObjects.AgileMapper.Members
                 return accessMethodFactory.Invoke(contextAccess, type);
             }
 
-            var contextTypes = contextAccess.Type.GetGenericArguments();
+            var contextTypes = contextAccess.Type.GetGenericTypeArguments();
 
-            if (!type.IsAssignableFrom(contextTypes[contextTypesIndex]))
+            if (!contextTypes[contextTypesIndex].IsAssignableTo(type))
             {
                 return accessMethodFactory.Invoke(contextAccess, type);
             }

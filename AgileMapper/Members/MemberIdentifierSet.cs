@@ -35,8 +35,7 @@ namespace AgileObjects.AgileMapper.Members
                 return identifier;
             }
 
-            var matchingKey = _identifierLambdasByType.Keys
-                .FirstOrDefault(idType => idType.IsAssignableFrom(type));
+            var matchingKey = _identifierLambdasByType.Keys.FirstOrDefault(type.IsAssignableTo);
 
             return (matchingKey != null) ? _identifierLambdasByType[matchingKey] : null;
         }

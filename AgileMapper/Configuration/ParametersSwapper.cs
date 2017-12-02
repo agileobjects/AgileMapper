@@ -49,11 +49,11 @@ namespace AgileObjects.AgileMapper.Configuration
                 return false;
             }
 
-            return parametersChecker.Invoke(contextTypes, contextTypeArgument.GetGenericArguments());
+            return parametersChecker.Invoke(contextTypes, contextTypeArgument.GetGenericTypeArguments());
         }
 
         private static bool IsSourceAndTarget(Type[] contextTypes, Type[] funcArguments)
-            => funcArguments[0].IsAssignableFrom(contextTypes[0]) && funcArguments[1].IsAssignableFrom(contextTypes[1]);
+            => contextTypes[0].IsAssignableTo(funcArguments[0]) && contextTypes[1].IsAssignableTo(funcArguments[1]);
 
         private static bool IsSourceTargetAndIndex(Type[] contextTypes, Type[] funcArguments)
             => IsSourceAndTarget(contextTypes, funcArguments) && IsIndex(funcArguments);
@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.Configuration
         private static bool IsIndex(IEnumerable<Type> funcArguments) => funcArguments.Last() == typeof(int?);
 
         private static bool IsSourceTargetAndCreatedObject(Type[] contextTypes, Type[] funcArguments)
-            => IsSourceAndTarget(contextTypes, funcArguments) && funcArguments[2].IsAssignableFrom(contextTypes[2]);
+            => IsSourceAndTarget(contextTypes, funcArguments) && contextTypes[2].IsAssignableTo(funcArguments[2]);
 
         private static bool IsSourceTargetCreatedObjectAndIndex(Type[] contextTypes, Type[] funcArguments)
             => IsSourceTargetAndCreatedObject(contextTypes, funcArguments) && IsIndex(funcArguments);
@@ -75,12 +75,12 @@ namespace AgileObjects.AgileMapper.Configuration
             var contextParameter = swapArgs.Lambda.Parameters[0];
             var contextType = contextParameter.Type;
 
-            if (contextType.IsAssignableFrom(swapArgs.MapperData.MappingDataObject.Type))
+            if (swapArgs.MapperData.MappingDataObject.Type.IsAssignableTo(contextType))
             {
                 return swapArgs.Lambda.ReplaceParameterWith(swapArgs.MapperData.MappingDataObject);
             }
 
-            var contextTypes = contextType.GetGenericArguments();
+            var contextTypes = contextType.GetGenericTypeArguments();
             var contextInfo = GetAppropriateMappingContext(contextTypes, swapArgs);
 
             if (swapArgs.Lambda.Body.NodeType == ExpressionType.Invoke)
@@ -88,7 +88,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 return GetInvocationContextArgument(contextInfo, swapArgs.Lambda);
             }
 
-            var memberContextType = IsCallbackContext(contextTypes) ? contextType : contextType.GetInterfaces().First();
+            var memberContextType = IsCallbackContext(contextTypes) ? contextType : contextType.GetAllInterfaces().First();
             var sourceProperty = memberContextType.GetPublicInstanceProperty("Source");
             var targetProperty = memberContextType.GetPublicInstanceProperty("Target");
             var indexProperty = memberContextType.GetPublicInstanceProperty("EnumerableIndex");
@@ -202,7 +202,7 @@ namespace AgileObjects.AgileMapper.Configuration
             }
 
             var targetInstanceAccess = mapperData
-                .GetAppropriateMappingContext(contextAccess.Type.GetGenericArguments())
+                .GetAppropriateMappingContext(contextAccess.Type.GetGenericTypeArguments())
                 .TargetInstance;
 
             return ConvertTargetType(targetType, targetInstanceAccess)
@@ -212,7 +212,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private static bool ConvertTargetType(Type targetType, Expression targetInstanceAccess)
         {
-            if (targetType.IsAssignableFrom(targetInstanceAccess.Type))
+            if (targetInstanceAccess.Type.IsAssignableTo(targetType))
             {
                 return targetInstanceAccess.Type.IsValueType();
             }

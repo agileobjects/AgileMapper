@@ -83,7 +83,7 @@
         public Type DerivedTargetType { get; }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-            => DerivedSourceType.IsAssignableFrom(mapperData.SourceType) && base.AppliesTo(mapperData);
+            => mapperData.SourceType.IsAssignableTo(DerivedSourceType) && base.AppliesTo(mapperData);
 
         #region ToString
 #if DEBUG

@@ -15,7 +15,7 @@
                 return 0;
             }
 
-            if (y.IsAssignableFrom(x))
+            if (x.IsAssignableTo(y))
             {
                 return -1;
             }

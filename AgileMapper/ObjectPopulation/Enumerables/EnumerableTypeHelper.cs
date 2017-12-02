@@ -28,17 +28,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public bool IsDictionary
             => _isDictionary ?? (_isDictionary = EnumerableType.IsDictionary()).GetValueOrDefault();
 
-        public bool IsList => ListType.IsAssignableFrom(EnumerableType);
+        public bool IsList => EnumerableType.IsAssignableTo(ListType);
 
-        public bool HasListInterface => ListInterfaceType.IsAssignableFrom(EnumerableType);
+        public bool HasListInterface => EnumerableType.IsAssignableTo(ListInterfaceType);
 
-        public bool IsCollection => CollectionType.IsAssignableFrom(EnumerableType);
+        public bool IsCollection => EnumerableType.IsAssignableTo(CollectionType);
 
         public bool IsReadOnlyCollection => EnumerableType == ReadOnlyCollectionType;
 
         public bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
 
-        public bool HasCollectionInterface => CollectionInterfaceType.IsAssignableFrom(EnumerableType);
+        public bool HasCollectionInterface => EnumerableType.IsAssignableTo(CollectionInterfaceType);
 
         public bool IsReadOnly => IsArray || IsReadOnlyCollection;
 

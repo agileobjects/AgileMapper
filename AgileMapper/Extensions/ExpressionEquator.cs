@@ -186,7 +186,7 @@ namespace AgileObjects.AgileMapper.Extensions
 
             // ReSharper disable once PossibleNullReferenceException
             return (x.Member.Name == y.Member.Name) &&
-                    y.Member.DeclaringType.IsAssignableFrom(x.Member.DeclaringType);
+                   x.Member.DeclaringType.IsAssignableTo(y.Member.DeclaringType);
         }
 
         private bool AreEqual(BinaryExpression x, BinaryExpression y)

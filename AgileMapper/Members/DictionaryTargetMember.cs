@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.Members
         public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
             : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
         {
-            var dictionaryTypes = wrappedTargetMember.Type.GetGenericArguments();
+            var dictionaryTypes = wrappedTargetMember.Type.GetGenericTypeArguments();
             KeyType = dictionaryTypes[0];
             ValueType = dictionaryTypes[1];
             _rootDictionaryMember = this;

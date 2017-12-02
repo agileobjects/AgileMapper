@@ -51,7 +51,7 @@
         public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo.SourceType);
 
         private bool IsForSourceType(Type sourceType)
-            => IsForAllSourceTypes || SourceType.IsAssignableFrom(sourceType);
+            => IsForAllSourceTypes || sourceType.IsAssignableTo(SourceType);
 
         public bool IsForAllSourceTypes => SourceType == _allSourceTypes;
 
@@ -68,7 +68,7 @@
         }
 
         public bool IsForTargetType(MappingConfigInfo otherConfigInfo)
-            => TargetType.IsAssignableFrom(otherConfigInfo.TargetType);
+            => otherConfigInfo.TargetType.IsAssignableTo(TargetType);
 
         public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
 
@@ -82,14 +82,14 @@
         {
             if (IsForSourceType(sourceType))
             {
-                if (TargetType.IsAssignableFrom(targetType))
+                if (targetType.IsAssignableTo(TargetType))
                 {
                     return true;
                 }
 
                 if (targetType.IsInterface())
                 {
-                    return Array.IndexOf(TargetType.GetInterfaces(), targetType) != -1;
+                    return Array.IndexOf(TargetType.GetAllInterfaces(), targetType) != -1;
                 }
             }
 

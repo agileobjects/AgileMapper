@@ -112,7 +112,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 return _targetMember.Type == typeof(object);
             }
 
-            return typeof(TMember).IsAssignableFrom(_targetMember.Type);
+            return _targetMember.Type.IsAssignableTo(typeof(TMember));
         }
 
         /// <summary>

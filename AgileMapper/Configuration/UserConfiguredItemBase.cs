@@ -126,7 +126,7 @@
 
             return (mapperData.TargetMember.Type == TargetMember.Type) &&
                    (mapperData.TargetMember.Name == TargetMember.Name) &&
-                   mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableFrom(TargetMember.LeafMember.DeclaringType);
+                    TargetMember.LeafMember.DeclaringType.IsAssignableTo(mapperData.TargetMember.LeafMember.DeclaringType);
         }
 
         protected virtual bool MemberPathMatches(IBasicMapperData mapperData)

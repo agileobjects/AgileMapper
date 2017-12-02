@@ -27,8 +27,8 @@
             }
         }
 
-        public static bool IsReadable(this PropertyInfo property) => property.GetGetMethod() != null;
+        public static bool IsReadable(this PropertyInfo property) => property.GetGetter() != null;
 
-        public static bool IsWriteable(this PropertyInfo property) => property.GetSetMethod() != null;
+        public static bool IsWriteable(this PropertyInfo property) => property.GetSetter() != null;
     }
 }

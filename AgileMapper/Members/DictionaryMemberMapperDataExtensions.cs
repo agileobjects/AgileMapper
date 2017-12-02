@@ -126,7 +126,7 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             var mappingDataType = typeof(IMappingData<,>)
-                .MakeGenericType(parentContextAccess.Type.GetGenericArguments());
+                .MakeGenericType(parentContextAccess.Type.GetGenericTypeArguments());
 
             var enumerableIndexProperty = mappingDataType.GetPublicInstanceProperty("EnumerableIndex");
 

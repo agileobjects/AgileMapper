@@ -186,7 +186,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mappedType = TargetMember.IsEnumerable ? TargetMember.ElementType : TargetType;
 
-            if (mappedType.IsAssignableFrom(targetType))
+            if (targetType.IsAssignableTo(mappedType))
             {
                 return true;
             }
@@ -250,7 +250,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (childMember.IsComplex)
                 {
-                    if (childMember.Type.IsAssignableFrom(targetType))
+                    if (targetType.IsAssignableTo(childMember.Type))
                     {
                         return true;
                     }
@@ -263,7 +263,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                if (childMember.ElementType.IsComplex() && childMember.ElementType.IsAssignableFrom(targetType))
+                if (childMember.ElementType.IsComplex() && targetType.IsAssignableTo(childMember.ElementType))
                 {
                     return true;
                 }

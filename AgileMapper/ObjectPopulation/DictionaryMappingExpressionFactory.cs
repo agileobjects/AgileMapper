@@ -219,7 +219,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static ConstructorInfo GetDictionaryCloneConstructor(Type dictionaryType)
         {
-            var dictionaryTypes = dictionaryType.GetGenericArguments();
+            var dictionaryTypes = dictionaryType.GetGenericTypeArguments();
             var dictionaryInterfaceType = typeof(IDictionary<,>).MakeGenericType(dictionaryTypes);
 
             return FindDictionaryConstructor(dictionaryType, dictionaryInterfaceType, numberOfParameters: 2);
@@ -232,7 +232,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (dictionaryType.IsInterface())
             {
-                dictionaryType = typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericArguments());
+                dictionaryType = typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericTypeArguments());
             }
 
             return dictionaryType

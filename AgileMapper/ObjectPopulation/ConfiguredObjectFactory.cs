@@ -57,7 +57,7 @@
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-            => mapperData.TargetType.IsAssignableFrom(_objectType) && base.AppliesTo(mapperData);
+            => _objectType.IsAssignableTo(mapperData.TargetType) && base.AppliesTo(mapperData);
 
         public Expression Create(IMemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
 
