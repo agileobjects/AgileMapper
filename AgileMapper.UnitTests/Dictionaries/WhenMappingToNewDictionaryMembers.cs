@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -175,6 +177,57 @@
             result.Value.ContainsKey("key2").ShouldBeTrue();
             result.Value["key2"].ShouldBeOfType<object>();
             result.Value["key2"].ShouldNotBeSameAs(source.Value["key2"]);
+        }
+
+        [Fact]
+        public void ShouldFlattenAComplexTypeCollectionToANestedObjectDictionaryImplementation()
+        {
+            var source = new PublicField<ICollection<Customer>>()
+            {
+                Value = new[]
+                {
+                    new Customer
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = Title.Count,
+                        Name = "Customer 1",
+                        Address = new Address
+                        {
+                            Line1 = "This place",
+                            Line2 = "That place",
+                        }
+                    },
+                    new MysteryCustomer
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = Title.Dr,
+                        Name = "Customer 2",
+                        Discount = 0.3m,
+                        Report = "It was all a mystery :o"
+                    }
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicField<StringKeyedDictionary<object>>>();
+
+            result.Value.ShouldNotBeNull();
+
+            result.Value["[0].Id"].ShouldBe(source.Value.First().Id);
+            result.Value["[0].Title"].ShouldBe(Title.Count);
+            result.Value["[0].Name"].ShouldBe("Customer 1");
+            result.Value.ContainsKey("[0].Address").ShouldBeFalse();
+            result.Value["[0].Address.Line1"].ShouldBe("This place");
+            result.Value["[0].Address.Line2"].ShouldBe("That place");
+
+            result.Value["[1].Id"].ShouldBe(source.Value.Second().Id);
+            result.Value["[1].Title"].ShouldBe(Title.Dr);
+            result.Value["[1].Name"].ShouldBe("Customer 2");
+            result.Value["[1].Discount"].ShouldBe(0.3m);
+            result.Value["[1].Report"].ShouldBe("It was all a mystery :o");
+            result.Value.ContainsKey("[1].Address").ShouldBeFalse();
+            result.Value.ContainsKey("[1].Address.Line1").ShouldBeFalse();
+            result.Value.ContainsKey("[1].Address.Line2").ShouldBeFalse();
+
         }
     }
 }
