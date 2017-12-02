@@ -144,7 +144,7 @@
         public void ShouldMapBetweenSameSimpleValueTypedDictionaries()
         {
             var source = new Dictionary<string, int> { ["One"] = 1, ["Two"] = 2 };
-            var result = Mapper.Map(source).ToANew<Dictionary<string, int>>();
+            var result = Mapper.Map(source).ToANew<IDictionary<string, int>>();
 
             result.ShouldNotBeSameAs(source);
             result.Count.ShouldBe(2);

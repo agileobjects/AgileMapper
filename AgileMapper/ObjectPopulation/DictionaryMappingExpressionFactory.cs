@@ -226,6 +226,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Type firstParameterType,
             int numberOfParameters)
         {
+            if (dictionaryType.IsInterface())
+            {
+                dictionaryType = typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericArguments());
+            }
+
             return dictionaryType
                 .GetPublicInstanceConstructors()
                 .Select(ctor => new { Ctor = ctor, Parameters = ctor.GetParameters() })
