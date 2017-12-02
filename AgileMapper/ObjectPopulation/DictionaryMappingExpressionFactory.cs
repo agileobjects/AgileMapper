@@ -234,7 +234,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (dictionaryType.IsInterface())
             {
-                dictionaryType = typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericTypeArguments());
+                dictionaryType = GetConcreteDictionaryType(dictionaryType);
             }
 
             return dictionaryType
@@ -244,6 +244,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     (ctor.Parameters.Length == numberOfParameters) &&
                     (ctor.Parameters[0].ParameterType == firstParameterType))
                 .Ctor;
+        }
+
+        private static Type GetConcreteDictionaryType(Type dictionaryInterfaceType)
+        {
+            var types = dictionaryInterfaceType.GetDictionaryTypes();
+
+            return typeof(Dictionary<,>).MakeGenericType(types.Key, types.Value);
         }
 
         private static Expression GetMappedDictionaryAssignment(
@@ -263,10 +270,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (comparerProperty == null)
             {
-                dictionaryConstruction = mapperData
-                    .MapperContext
-                    .ComplexTypeConstructionFactory
-                    .GetNewObjectCreation(mappingData);
+                if (mapperData.TargetType.IsInterface())
+                {
+                    dictionaryConstruction = Expression.New(GetConcreteDictionaryType(mapperData.TargetType));
+                }
+                else
+                {
+                    dictionaryConstruction = mapperData
+                        .MapperContext
+                        .ComplexTypeConstructionFactory
+                        .GetNewObjectCreation(mappingData);
+                }
             }
             else
             {

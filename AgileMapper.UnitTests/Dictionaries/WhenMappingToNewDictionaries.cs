@@ -259,6 +259,29 @@
         }
 
         [Fact]
+        public void ShouldMapFromASimpleTypeDictionaryImplementationToAnIDictionary()
+        {
+            var source = new StringKeyedDictionary<string>
+            {
+                ["One"] = "One!",
+                ["Two"] = "Two!",
+                ["Three"] = "Three!",
+            };
+            var result = Mapper.Map(source).ToANew<IDictionary<string, string>>();
+
+            result.Count.ShouldBe(3);
+
+            result.ContainsKey("One").ShouldBeTrue();
+            result["One"].ShouldBe("One!");
+
+            result.ContainsKey("Two").ShouldBeTrue();
+            result["Two"].ShouldBe("Two!");
+
+            result.ContainsKey("Three").ShouldBeTrue();
+            result["Three"].ShouldBe("Three!");
+        }
+
+        [Fact]
         public void ShouldMapBetweenSameComplexTypeDictionaryImplementations()
         {
             var source = new StringKeyedDictionary<Address>
