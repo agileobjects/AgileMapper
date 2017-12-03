@@ -40,7 +40,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return false;
             }
 
-            if (mappingData.MapperData.MapperContext.ComplexTypeConstructionFactory.GetNewObjectCreation(mappingData) != null)
+            if (mappingData.MapperData.MapperContext.ConstructionFactory.GetNewObjectCreation(mappingData) != null)
             {
                 nullMappingBlock = null;
                 return false;

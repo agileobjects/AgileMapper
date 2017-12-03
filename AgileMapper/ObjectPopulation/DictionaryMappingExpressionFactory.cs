@@ -296,7 +296,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     dictionaryConstruction = mapperData
                         .MapperContext
-                        .ComplexTypeConstructionFactory
+                        .ConstructionFactory
                         .GetNewObjectCreation(mappingData);
                 }
             }

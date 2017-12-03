@@ -21,13 +21,13 @@
         public MapperContext(NamingSettings namingSettings = null)
         {
             Cache = new CacheSet();
-            DataSources = new DataSourceFinder(this);
+            DataSources = DataSourceFinder.Instance;
             NamingSettings = namingSettings ?? new NamingSettings();
             QualifiedMemberFactory = new QualifiedMemberFactory(this);
             RootMembersSource = new RootMembersSource(QualifiedMemberFactory);
-            ObjectMapperFactory = new ObjectMapperFactory(this);
+            ObjectMapperFactory = new ObjectMapperFactory(Cache);
             UserConfigurations = new UserConfigurationSet(this);
-            ComplexTypeConstructionFactory = new ComplexTypeConstructionFactory(this);
+            ConstructionFactory = new ComplexTypeConstructionFactory(Cache);
             ValueConverters = new ConverterSet();
             RuleSets = new MappingRuleSetCollection();
         }
@@ -50,7 +50,7 @@
 
         public UserConfigurationSet UserConfigurations { get; }
 
-        public ComplexTypeConstructionFactory ComplexTypeConstructionFactory { get; }
+        public ComplexTypeConstructionFactory ConstructionFactory { get; }
 
         public ConverterSet ValueConverters { get; }
 
@@ -71,7 +71,7 @@
         {
             Cache.Empty();
             UserConfigurations.Reset();
-            ComplexTypeConstructionFactory.Reset();
+            ConstructionFactory.Reset();
             ObjectMapperFactory.Reset();
         }
     }

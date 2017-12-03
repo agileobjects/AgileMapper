@@ -86,7 +86,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return mappingData
                 .MapperData
                 .MapperContext
-                .ComplexTypeConstructionFactory
+                .ConstructionFactory
                 .GetNewObjectCreation(mappingData);
         }
 
