@@ -54,5 +54,15 @@
             result.Name.ShouldBe("Frank");
             result.Address.ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldOverwriteFromASimpleTypeDictionaryImplementation()
+        {
+            var source = new StringKeyedDictionary<string> { ["Value"] = "LaLaLa!" };
+            var target = new PublicField<string> { Value = "DumDeeDum!" };
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBe("LaLaLa!");
+        }
     }
 }
