@@ -107,6 +107,9 @@
             _elementKeyPartFactories.Insert(0, keyPartFactory);
         }
 
+        public Expression GetElementKeyPrefixOrNull(IBasicMapperData mapperData)
+            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyPrefixOrNull();
+
         public IEnumerable<Expression> GetElementKeyParts(Expression index, IBasicMapperData mapperData)
             => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyParts(index);
 

@@ -3,9 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
     using NetStandardPolyfills;
@@ -298,12 +295,12 @@
                     return 0;
                 }
 
-                if (targetTypeX.IsAssignableFrom(targetTypeY))
+                if (targetTypeX.IsAssignableTo(targetTypeY))
                 {
-                    return 1;
+                    return -1;
                 }
 
-                return -1;
+                return 1;
             }
         }
 

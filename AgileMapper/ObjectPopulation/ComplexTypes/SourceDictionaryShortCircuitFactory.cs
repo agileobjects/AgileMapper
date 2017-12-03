@@ -2,12 +2,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using DataSources;
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class SourceDictionaryShortCircuitFactory : ISourceShortCircuitFactory
@@ -117,7 +115,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             ref Expression fallbackValue,
             IMemberMapperData mapperData)
         {
-            var parentMappingTypes = mapperData.Parent.MappingDataObject.Type.GetGenericArguments();
+            var parentMappingTypes = mapperData.Parent.MappingDataObject.Type.GetGenericTypeArguments();
             var parentContextAccess = mapperData.GetAppropriateMappingContextAccess(parentMappingTypes);
             var typedParentContextAccess = mapperData.GetTypedContextAccess(parentContextAccess, parentMappingTypes);
             var parentTargetAccess = mapperData.GetTargetAccess(parentContextAccess, mapperData.TargetType);

@@ -2,11 +2,9 @@
 {
     using System;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
+    using NetStandardPolyfills;
 
     internal class EnumerablePopulationContext
     {
@@ -27,7 +25,7 @@
 
         public bool ElementTypesAreTheSame { get; }
 
-        public bool ElementTypesAreAssignable => TargetElementType.IsAssignableFrom(SourceElementType);
+        public bool ElementTypesAreAssignable => SourceElementType.IsAssignableTo(TargetElementType);
 
         public bool ElementTypesAreSimple { get; }
 

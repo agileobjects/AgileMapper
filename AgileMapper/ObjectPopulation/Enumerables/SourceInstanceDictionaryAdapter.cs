@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public DictionaryEntryVariablePair DictionaryVariables { get; }
 
-        public override Expression GetSourceValue()
+        public override Expression GetSourceValues()
         {
             var elementType = DictionaryVariables.SourceMember.EntryMember.ElementType;
             var emptyTarget = DictionaryVariables.SourceMember.ValueType.GetEmptyInstanceCreation(elementType);
@@ -52,20 +52,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         }
 
         public Expression GetEntryValueAccess() => DictionaryVariables.GetEntryValueAccess();
-
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
-        public Expression GetSourceValues()
-        {
-            // This is called to provide a value for a List.AddRange() call,
-            // which requires the source and target elements to be simple and
-            // of the same type. This class is for Dictionary<string, IEnumerable<T>>,
-            // so this is never called:
-            return null;
-        }
 
         public Expression GetSourceCountAccess() => _defaultAdapter.GetSourceCountAccess();
 

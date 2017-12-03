@@ -8,7 +8,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenMappingFromDictionaries
+    public class WhenMappingNewObjectsFromDictionaries
     {
         [Fact]
         public void ShouldPopulateAnIntMemberFromATypedEntry()
@@ -36,30 +36,6 @@
             var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBe("Goodbye");
-        }
-
-        [Fact]
-        public void ShouldPopulateAStringMemberFromANullableTypedEntry()
-        {
-            var guid = Guid.NewGuid();
-
-            var source = new Dictionary<string, Guid?> { ["Value"] = guid };
-            var target = new PublicProperty<string>();
-            var result = Mapper.Map(source).OnTo(target);
-
-            result.Value.ShouldBe(guid.ToString());
-        }
-
-        [Fact]
-        public void ShouldPopulateADateTimeMemberFromAnUntypedEntry()
-        {
-            var now = DateTime.Now.ToCurrentCultureString();
-
-            var source = new Dictionary<string, object> { ["Value"] = now };
-            var target = new PublicProperty<DateTime> { Value = DateTime.Now.AddHours(1) };
-            var result = Mapper.Map(source).Over(target);
-
-            result.Value.ToCurrentCultureString().ShouldBe(now);
         }
 
         [Fact]
@@ -448,52 +424,6 @@
             result.Value.Second().Value.Value.First().Name.ShouldBe("Rob");
             result.Value.Second().Value.Value.First().Address.Line1.ShouldBe("Some place");
             result.Value.Second().Value.Value.First().Address.Line2.ShouldBeDefault();
-        }
-
-        [Fact]
-        public void ShouldReuseAnExistingListIfNoEntriesMatch()
-        {
-            var source = new Dictionary<string, object>();
-            var target = new PublicProperty<ICollection<string>> { Value = new List<string>() };
-            var originalList = target.Value;
-            var result = Mapper.Map(source).OnTo(target);
-
-            result.Value.ShouldBeSameAs(originalList);
-        }
-
-        [Fact]
-        public void ShouldOverwriteAStringPropertyToNullFromATypedEntry()
-        {
-            var source = new Dictionary<string, string> { ["Value"] = null };
-            var target = new PublicField<string> { Value = "To be overwritten..." };
-            var result = Mapper.Map(source).Over(target);
-
-            result.Value.ShouldBeNull();
-        }
-
-        [Fact]
-        public void ShouldOverwriteAnIntPropertyToDefaultFromATypedEntry()
-        {
-            var source = new Dictionary<string, string> { ["Value"] = null };
-            var target = new PublicField<int> { Value = 6473 };
-            var result = Mapper.Map(source).Over(target);
-
-            result.Value.ShouldBeDefault();
-        }
-
-        [Fact]
-        public void ShouldOverwriteAComplexTypePropertyToNull()
-        {
-            var source = new Dictionary<string, object>
-            {
-                ["Name"] = "Frank",
-                ["Address"] = default(Address)
-            };
-            var target = new Customer { Name = "Charlie", Address = new Address { Line1 = "Cat Lane" } };
-            var result = Mapper.Map(source).Over(target);
-
-            result.Name.ShouldBe("Frank");
-            result.Address.ShouldBeNull();
         }
 
         [Fact]

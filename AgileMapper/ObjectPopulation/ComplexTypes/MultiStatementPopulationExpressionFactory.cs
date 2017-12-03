@@ -8,11 +8,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal class MultiStatementPopulationExpressionFactory : PopulationExpressionFactoryBase
     {
-        public MultiStatementPopulationExpressionFactory(ComplexTypeConstructionFactory constructionFactory)
-            : base(constructionFactory)
-        {
-        }
-
         protected override IEnumerable<Expression> GetPopulationExpressionsFor(
             IMemberPopulation memberPopulation,
             IObjectMappingData mappingData)

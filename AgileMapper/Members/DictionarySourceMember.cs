@@ -2,9 +2,6 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
 
     internal class DictionarySourceMember : IQualifiedMember
@@ -42,9 +39,9 @@ namespace AgileObjects.AgileMapper.Members
 
             if (keyType == null)
             {
-                var dictionaryTypes = Type.GetGenericArguments();
-                KeyType = dictionaryTypes[0];
-                ValueType = dictionaryTypes[1];
+                var dictionaryTypes = Type.GetDictionaryTypes();
+                KeyType = dictionaryTypes.Key;
+                ValueType = dictionaryTypes.Value;
             }
             else
             {

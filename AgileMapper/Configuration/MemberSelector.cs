@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Configuration
     using System.Diagnostics;
     using System.Reflection;
     using Members;
+    using NetStandardPolyfills;
 
     /// <summary>
     /// Provides a fluent interface to select members by their characteristics.
@@ -111,7 +112,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 return _targetMember.Type == typeof(object);
             }
 
-            return typeof(TMember).IsAssignableFrom(_targetMember.Type);
+            return _targetMember.Type.IsAssignableTo(typeof(TMember));
         }
 
         /// <summary>

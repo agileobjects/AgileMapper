@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using AgileMapper.Extensions;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -137,6 +139,26 @@
             result["[0]"].AddressLine1.ShouldBeNull();
             result["[1]"].Name.ShouldBe("Clark");
             result["[1]"].AddressLine1.ShouldBe("Daily Planet");
+        }
+
+        [Fact]
+        public void ShouldOverwriteASimpleTypeArrayToADictionaryImplementation()
+        {
+            var source = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+            var target = new StringKeyedDictionary<string>
+            {
+                ["[0]"] = source.First().ToString(),
+                ["[1]"] = source.Third().ToString(),
+                ["[4]"] = Guid.NewGuid().ToString()
+            };
+            var preMapping4 = target["[4]"];
+            var result = Mapper.Map(source).Over(target);
+
+            result.Count.ShouldBe(4);
+            result["[0]"].ShouldBe(source.First().ToString());
+            result["[1]"].ShouldBe(source.Second().ToString());
+            result["[2]"].ShouldBe(source.Third().ToString());
+            result["[4]"].ShouldBe(preMapping4);
         }
     }
 }

@@ -2,11 +2,9 @@
 {
     using System;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Configuration;
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class ConfiguredObjectFactory : UserConfiguredItemBase, IPotentialClone
@@ -59,7 +57,7 @@
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-            => mapperData.TargetType.IsAssignableFrom(_objectType) && base.AppliesTo(mapperData);
+            => _objectType.IsAssignableTo(mapperData.TargetType) && base.AppliesTo(mapperData);
 
         public Expression Create(IMemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
 

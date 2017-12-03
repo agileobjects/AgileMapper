@@ -4,9 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
     using NetStandardPolyfills;
@@ -37,17 +34,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public bool IsDictionary
             => _isDictionary ?? (_isDictionary = EnumerableType.IsDictionary()).GetValueOrDefault();
 
-        public bool IsList => ListType.IsAssignableFrom(EnumerableType);
+        public bool IsList => EnumerableType.IsAssignableTo(ListType);
 
-        public bool HasListInterface => ListInterfaceType.IsAssignableFrom(EnumerableType);
+        public bool HasListInterface => EnumerableType.IsAssignableTo(ListInterfaceType);
 
-        public bool IsCollection => CollectionType.IsAssignableFrom(EnumerableType);
+        public bool IsCollection => EnumerableType.IsAssignableTo(CollectionType);
 
         public bool IsReadOnlyCollection => EnumerableType == ReadOnlyCollectionType;
 
         public bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
 
-        public bool HasCollectionInterface => CollectionInterfaceType.IsAssignableFrom(EnumerableType);
+        public bool HasCollectionInterface => EnumerableType.IsAssignableTo(CollectionInterfaceType);
 
         public bool IsReadOnly => IsArray || IsReadOnlyCollection;
 
@@ -88,14 +85,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
-                WrapperType.GetConstructor(new[] { ListInterfaceType, typeof(int) }),
+                WrapperType.GetPublicInstanceConstructor(ListInterfaceType, typeof(int)),
                 existingItems,
                 newItemsCount);
         }
 
         public Expression GetEnumerableConversion(Expression instance, bool allowEnumerableAssignment)
         {
-            if (EnumerableType.IsAssignableFrom(instance.Type) &&
+            if (instance.Type.IsAssignableTo(EnumerableType) &&
                (allowEnumerableAssignment || ValueIsNotEnumerableInterface(instance)))
             {
                 return instance;

@@ -144,7 +144,7 @@
         public void ShouldMapBetweenSameSimpleValueTypedDictionaries()
         {
             var source = new Dictionary<string, int> { ["One"] = 1, ["Two"] = 2 };
-            var result = Mapper.Map(source).ToANew<Dictionary<string, int>>();
+            var result = Mapper.Map(source).ToANew<IDictionary<string, int>>();
 
             result.ShouldNotBeSameAs(source);
             result.Count.ShouldBe(2);
@@ -240,6 +240,89 @@
             result["456"].Name.ShouldBe("Magnus");
             result["456"].Address.Line1.ShouldBe("Address 2!");
             ((Customer)result["456"]).Discount.ShouldBe(0.25m);
+        }
+
+        [Fact]
+        public void ShouldMapToASimpleTypeDictionaryImplementation()
+        {
+            var source = new[] { "Hello", "Goodbye", "See ya" };
+            var result = Mapper.Map(source).ToANew<StringKeyedDictionary<string>>();
+
+            result.Count.ShouldBe(3);
+
+            result.ContainsKey("[0]").ShouldBeTrue();
+            result["[0]"].ShouldBe("Hello");
+            result.ContainsKey("[1]").ShouldBeTrue();
+            result["[1]"].ShouldBe("Goodbye");
+            result.ContainsKey("[2]").ShouldBeTrue();
+            result["[2]"].ShouldBe("See ya");
+        }
+
+        [Fact]
+        public void ShouldMapFromASimpleTypeDictionaryImplementationToAnIDictionary()
+        {
+            var source = new StringKeyedDictionary<string>
+            {
+                ["One"] = "One!",
+                ["Two"] = "Two!",
+                ["Three"] = "Three!",
+            };
+            var result = Mapper.Map(source).ToANew<IDictionary<string, string>>();
+
+            result.Count.ShouldBe(3);
+
+            result.ContainsKey("One").ShouldBeTrue();
+            result["One"].ShouldBe("One!");
+
+            result.ContainsKey("Two").ShouldBeTrue();
+            result["Two"].ShouldBe("Two!");
+
+            result.ContainsKey("Three").ShouldBeTrue();
+            result["Three"].ShouldBe("Three!");
+        }
+
+        [Fact]
+        public void ShouldMapBetweenSameDeclaredSimpleTypeIDictionaries()
+        {
+            IDictionary<string, string> source = new StringKeyedDictionary<string>
+            {
+                ["Hello"] = "Bonjour",
+                ["Yes"] = "Oui"
+            };
+            var result = Mapper.Map(source).ToANew<IDictionary<string, string>>();
+
+            result.Count.ShouldBe(2);
+
+            result.ContainsKey("Hello").ShouldBeTrue();
+            result["Hello"].ShouldBe("Bonjour");
+
+            result.ContainsKey("Yes").ShouldBeTrue();
+            result["Yes"].ShouldBe("Oui");
+        }
+
+        [Fact]
+        public void ShouldMapBetweenSameComplexTypeDictionaryImplementations()
+        {
+            var source = new StringKeyedDictionary<Address>
+            {
+                ["One"] = new Address { Line1 = "1.1", Line2 = "1.2" },
+                ["Two"] = new Address { Line1 = "2.1", Line2 = "2.2" },
+                ["Three"] = default(Address),
+            };
+            var result = Mapper.Map(source).ToANew<StringKeyedDictionary<Address>>();
+
+            result.Count.ShouldBe(3);
+
+            result.ContainsKey("One").ShouldBeTrue();
+            result["One"].Line1.ShouldBe("1.1");
+            result["One"].Line2.ShouldBe("1.2");
+
+            result.ContainsKey("Two").ShouldBeTrue();
+            result["Two"].Line1.ShouldBe("2.1");
+            result["Two"].Line2.ShouldBe("2.2");
+
+            result.ContainsKey("Three").ShouldBeTrue();
+            result["Three"].ShouldBeNull();
         }
 
         [Fact]

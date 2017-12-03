@@ -10,8 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
         }
 
-        public Expression GetSourceValues() => SourceValue;
-
         public Expression GetSourceCountAccess()
         {
             if (SourceTypeHelper.IsArray)

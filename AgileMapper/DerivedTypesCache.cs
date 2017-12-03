@@ -10,6 +10,8 @@
 
     internal class DerivedTypesCache
     {
+        private static readonly object _assembliesLock = new object();
+
         private readonly List<Assembly> _assemblies;
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
         private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;
@@ -23,7 +25,10 @@
 
         public void AddAssemblies(Assembly[] assemblies)
         {
-            _assemblies.AddRange(assemblies.Except(_assemblies));
+            lock (_assembliesLock)
+            {
+                _assemblies.AddRange(assemblies.Except(_assemblies));
+            }
         }
 
         public ICollection<Type> GetTypesDerivedFrom(Type type)
@@ -40,9 +45,14 @@
         {
             var typeAssemblies = new[] { type.GetAssembly() };
 
-            var assemblies = _assemblies.Any()
-                ? _assemblies.Concat(typeAssemblies).Distinct()
-                : typeAssemblies;
+            Assembly[] assemblies;
+
+            lock (_assembliesLock)
+            {
+                assemblies = _assemblies.Any()
+                    ? _assemblies.Concat(typeAssemblies).Distinct().ToArray()
+                    : typeAssemblies;
+            }
 
             var assemblyTypes = assemblies
                 .SelectMany(assembly => _typesByAssembly
@@ -69,7 +79,7 @@
         {
             try
             {
-                IEnumerable<Type> types = assembly.GetTypes();
+                IEnumerable<Type> types = assembly.GetAllTypes();
 
                 if (Constants.ReflectionNotPermitted)
                 {

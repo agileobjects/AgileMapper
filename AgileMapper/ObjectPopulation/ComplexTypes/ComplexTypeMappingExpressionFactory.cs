@@ -11,16 +11,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        private readonly ComplexTypeConstructionFactory _constructionFactory;
+        public static readonly MappingExpressionFactoryBase Instance = new ComplexTypeMappingExpressionFactory();
+
         private readonly PopulationExpressionFactoryBase _memberInitPopulationFactory;
         private readonly PopulationExpressionFactoryBase _multiStatementPopulationFactory;
         private readonly IEnumerable<ISourceShortCircuitFactory> _shortCircuitFactories;
 
-        public ComplexTypeMappingExpressionFactory(MapperContext mapperContext)
+        private ComplexTypeMappingExpressionFactory()
         {
-            _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
-            _memberInitPopulationFactory = new MemberInitPopulationExpressionFactory(_constructionFactory);
-            _multiStatementPopulationFactory = new MultiStatementPopulationExpressionFactory(_constructionFactory);
+            _memberInitPopulationFactory = new MemberInitPopulationExpressionFactory();
+            _multiStatementPopulationFactory = new MultiStatementPopulationExpressionFactory();
 
             _shortCircuitFactories = new[]
             {
@@ -39,7 +39,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
-            if (_constructionFactory.GetNewObjectCreation(mappingData) != null)
+            if (mappingData.MapperData.MapperContext.ConstructionFactory.GetNewObjectCreation(mappingData) != null)
             {
                 return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
@@ -142,7 +142,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             return expressionFactory.GetPopulation(mappingData);
         }
-
-        public override void Reset() => _constructionFactory.Reset();
     }
 }

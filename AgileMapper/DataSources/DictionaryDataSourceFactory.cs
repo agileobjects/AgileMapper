@@ -7,13 +7,6 @@
 
     internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
-        private readonly MapperContext _mapperContext;
-
-        public DictionaryDataSourceFactory(MapperContext mapperContext)
-        {
-            _mapperContext = mapperContext;
-        }
-
         public bool IsFor(IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsComplex && mapperData.Context.IsStandalone)
@@ -24,7 +17,7 @@
             return HasUseableSourceDictionary(mapperData);
         }
 
-        private bool HasUseableSourceDictionary(IMemberMapperData mapperData)
+        private static bool HasUseableSourceDictionary(IMemberMapperData mapperData)
         {
             if (!mapperData.SourceMemberIsStringKeyedDictionary(out var dictionarySourceMember))
             {
@@ -59,7 +52,7 @@
                 targetType = mapperData.TargetMember.Type;
             }
 
-            return _mapperContext.ValueConverters.CanConvert(valueType, targetType);
+            return mapperData.MapperContext.ValueConverters.CanConvert(valueType, targetType);
         }
 
         public IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)

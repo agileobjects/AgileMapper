@@ -301,14 +301,14 @@
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
-                typeHelper.ReadOnlyCollectionType.GetConstructor(new[] { typeHelper.ListInterfaceType }),
+                typeHelper.ReadOnlyCollectionType.GetPublicInstanceConstructor(typeHelper.ListInterfaceType),
                 list);
         }
 
         private static Type GetDictionaryType(Type dictionaryType)
         {
             return dictionaryType.IsInterface()
-                ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericArguments())
+                ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericTypeArguments())
                 : dictionaryType;
         }
 

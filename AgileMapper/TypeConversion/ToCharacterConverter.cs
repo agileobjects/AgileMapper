@@ -3,9 +3,6 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using NetStandardPolyfills;
 
@@ -58,7 +55,7 @@
             var sourceLength = Expression.Property(sourceValue, "Length");
             var lengthIsOne = Expression.Equal(sourceLength, 1.ToConstantExpression());
 
-            var stringIndexer = typeof(string).GetProperty("Chars");
+            var stringIndexer = typeof(string).GetPublicInstanceProperty("Chars");
             var elementZero = new[] { 0.ToConstantExpression() };
             var zeroethCharacter = Expression.MakeIndex(sourceValue, stringIndexer, elementZero);
             var typedZeroeth = zeroethCharacter.GetConversionTo(targetType);
