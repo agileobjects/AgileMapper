@@ -223,7 +223,7 @@
 
         public void AssignSourceVariableFromSourceObject()
         {
-            SourceValue = _sourceAdapter.GetSourceValue();
+            SourceValue = _sourceAdapter.GetSourceValues();
 
             if ((SourceValue == MapperData.SourceObject) && MapperData.HasSameSourceAsParent())
             {
@@ -415,7 +415,7 @@
         {
             if (ElementTypesAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
             {
-                _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceAdapter.GetSourceValues()));
+                _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceVariable));
                 return;
             }
 
@@ -561,7 +561,7 @@
 
             var callArguments = new List<Expression>(4)
             {
-                _sourceAdapter.GetSourceValue(),
+                _sourceAdapter.GetSourceValues(),
                 MapperData.TargetObject,
                 _sourceElementIdLambda
             };
@@ -670,10 +670,10 @@
             public SourceItemsSelector SourceItemsProjectedToTargetType()
             {
                 var context = _builder.Context;
-                var sourceEnumerableValue = _builder._sourceAdapter.GetSourceValue();
+                var sourceEnumerableValue = _builder._sourceAdapter.GetSourceValues();
 
                 if (context.ElementTypesAreTheSame ||
-                    (sourceEnumerableValue.Type.GetEnumerableElementType() == context.TargetElementType))
+                   (sourceEnumerableValue.Type.GetEnumerableElementType() == context.TargetElementType))
                 {
                     _result = sourceEnumerableValue;
                     return this;

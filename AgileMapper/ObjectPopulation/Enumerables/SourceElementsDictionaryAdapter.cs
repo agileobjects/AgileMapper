@@ -15,8 +15,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _sourceMember = sourceMember;
         }
 
-        public Expression GetSourceValues()
-            => Expression.Property(GetSourceValue(), "Values");
+        public override Expression GetSourceValues() 
+            => Expression.Property(base.GetSourceValues(), "Values");
 
         public Expression GetSourceCountAccess()
             => Expression.Property(SourceValue, "Count");

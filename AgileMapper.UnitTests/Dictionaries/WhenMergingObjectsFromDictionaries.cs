@@ -22,6 +22,42 @@
         }
 
         [Fact]
+        public void ShouldMergeSimpleTypeListFromSimpleTypeDictionaryImplementationEntries()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["Value[0]"] = "Zero",
+                ["Value[1]"] = "One",
+                ["Value[2]"] = "Two"
+            };
+            var target = new PublicField<List<string>>
+            {
+                Value = new List<string> { "One" }
+            };
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBe("One", "Zero", "Two");
+        }
+
+        [Fact]
+        public void ShouldMergeSimpleTypeCollectionFromSimpleTypeDictionaryImplementationEntries()
+        {
+            var source = new Dictionary<string, int>
+            {
+                ["Value[0]"] = 5,
+                ["Value[1]"] = 20,
+                ["Value[2]"] = 30
+            };
+            var target = new PublicField<ICollection<short?>>
+            {
+                Value = new List<short?> { 10 }
+            };
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBe((short?)10, (short?)20, (short?)30);
+        }
+
+        [Fact]
         public void ShouldMergeANestedComplexTypeArrayFromUntypedDictionaryImplementationEntries()
         {
             var source = new StringKeyedDictionary<object>
