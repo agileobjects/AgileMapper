@@ -44,15 +44,17 @@
         {
             var source = new StringKeyedDictionary<int>
             {
-                ["Value[1]"] = 20,
-                ["Value[2]"] = 30
+                ["Blah"] = 5,
+                ["Value[0]"] = 20,
+                ["Value[1]"] = 30
             };
             var target = new PublicField<ICollection<short?>>
             {
-                Value = new List<short?> { 10 }
+                Value = new List<short?> { 10, 20 }
             };
             var result = Mapper.Map(source).OnTo(target);
 
+            result.Value.ShouldNotContain((short?)5);
             result.Value.ShouldBe((short?)10, (short?)20, (short?)30);
         }
 

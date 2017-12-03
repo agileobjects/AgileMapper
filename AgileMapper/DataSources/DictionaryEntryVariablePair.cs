@@ -126,10 +126,17 @@ namespace AgileObjects.AgileMapper.DataSources
             var noKeysStartWithTarget = GetKeyMatchingQuery(
                 targetMemberKey,
                 (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
-                (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.OrdinalIgnoreCase),
+                GetKeyStartsWithIgnoreCaseCall,
                 EnumerableExtensions.EnumerableNoneMethod);
 
             return noKeysStartWithTarget;
+        }
+
+        public Expression GetKeyStartsWithIgnoreCaseCall(
+            Expression keyAccess,
+            Expression targetKey)
+        {
+            return GetKeyStartsWithCall(keyAccess, targetKey, StringComparison.OrdinalIgnoreCase);
         }
 
         private static Expression GetKeyStartsWithCall(
