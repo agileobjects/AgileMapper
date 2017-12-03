@@ -101,6 +101,8 @@
     <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
+    <Compile Include="Dictionaries\WhenMergingObjectsFromDictionaries.cs" />
+    <Compile Include="Dictionaries\WhenOverwritingObjectsFromDictionaries.cs" />
     <Compile Include="Extensions\WhenEquatingExpressions.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
