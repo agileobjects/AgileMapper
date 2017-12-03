@@ -35,7 +35,7 @@
 
         T IMappingData.GetSource<T>()
         {
-            if (typeof(T).IsAssignableTo(typeof(TSource)))
+            if (typeof(TSource).IsAssignableTo(typeof(T)))
             {
                 return (T)((object)Source);
             }
@@ -45,7 +45,7 @@
 
         T IMappingData.GetTarget<T>()
         {
-            if (typeof(T).IsAssignableTo(typeof(TTarget)))
+            if (typeof(TTarget).IsAssignableTo(typeof(T)))
             {
                 return (T)((object)Target);
             }
