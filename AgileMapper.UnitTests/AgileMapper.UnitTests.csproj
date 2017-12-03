@@ -185,7 +185,7 @@
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionaries.cs" />
+    <Compile Include="Dictionaries\WhenMappingNewObjectsFromDictionaries.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />
     <Compile Include="Dictionaries\WhenMappingOnToDictionaries.cs" />
     <Compile Include="Dictionaries\WhenMappingOnToDictionaryMembers.cs" />
