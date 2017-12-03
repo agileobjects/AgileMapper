@@ -34,10 +34,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             var sourceMember = dictionaryVariables.SourceMember;
 
-            DoNotPerformElementChecks =
-                !ElementTypesAreSimple &&
-                !sourceMember.HasObjectEntries &&
-                (sourceMember.ValueType.IsSimple() || !builder.Context.ElementTypesAreAssignable);
+            PerformElementChecks =
+               ElementTypesAreSimple ||
+               sourceMember.HasObjectEntries ||
+              (builder.Context.ElementTypesAreAssignable && !sourceMember.ValueType.IsSimple());
 
             _targetMemberKey = dictionaryVariables
                 .GetTargetMemberDictionaryEnumerableElementKey(builder.Counter, MapperData);
@@ -162,9 +162,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private bool ElementTypesAreSimple => _builder.ElementTypesAreSimple;
 
-        private bool PerformElementChecks => !DoNotPerformElementChecks;
+        private bool PerformElementChecks { get; }
 
-        private bool DoNotPerformElementChecks { get; }
+        private bool DoNotPerformElementChecks => !PerformElementChecks;
 
         private Expression GetElementMappingBlock(Expression elementMapping)
         {

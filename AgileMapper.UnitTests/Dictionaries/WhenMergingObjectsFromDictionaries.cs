@@ -24,7 +24,7 @@
         [Fact]
         public void ShouldMergeSimpleTypeListFromSimpleTypeDictionaryImplementationEntries()
         {
-            var source = new Dictionary<string, string>
+            IDictionary<string, string> source = new Dictionary<string, string>
             {
                 ["Value[0]"] = "Zero",
                 ["Value[1]"] = "One",
@@ -42,9 +42,8 @@
         [Fact]
         public void ShouldMergeSimpleTypeCollectionFromSimpleTypeDictionaryImplementationEntries()
         {
-            var source = new Dictionary<string, int>
+            var source = new StringKeyedDictionary<int>
             {
-                ["Value[0]"] = 5,
                 ["Value[1]"] = 20,
                 ["Value[2]"] = 30
             };

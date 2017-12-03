@@ -241,12 +241,9 @@
         {
             CreateSourceTypeHelper(sourceValue);
 
-            _sourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
-            var sourceVariableAssignment = _sourceVariable.AssignTo(sourceValue);
+            SourceValue = _sourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
 
-            SourceValue = _sourceVariable;
-
-            _populationExpressions.Add(sourceVariableAssignment);
+            _populationExpressions.Add(_sourceVariable.AssignTo(sourceValue));
         }
 
         private void CreateSourceTypeHelper(Expression sourceValue)
@@ -652,13 +649,6 @@
 
         public class SourceItemsSelector
         {
-            #region Untyped MethodInfos
-
-            private static readonly MethodInfo _excludeMethod = typeof(EnumerableExtensions)
-                .GetPublicStaticMethod("Exclude");
-
-            #endregion
-
             private readonly EnumerablePopulationBuilder _builder;
             private Expression _result;
 
@@ -688,8 +678,12 @@
 
             public SourceItemsSelector ExcludingTargetItems()
             {
+                var excludeMethod = typeof(EnumerableExtensions)
+                    .GetPublicStaticMethod("Exclude")
+                    .MakeGenericMethod(_builder.Context.TargetElementType);
+
                 _result = Expression.Call(
-                    _excludeMethod.MakeGenericMethod(_builder.Context.TargetElementType),
+                    excludeMethod,
                     _result,
                     _builder.MapperData.TargetObject);
 

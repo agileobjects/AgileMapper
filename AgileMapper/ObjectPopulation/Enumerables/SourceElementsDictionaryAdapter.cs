@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _sourceMember = sourceMember;
         }
 
-        public override Expression GetSourceValues() 
+        public override Expression GetSourceValues()
             => Expression.Property(base.GetSourceValues(), "Values");
 
         public Expression GetSourceCountAccess()
@@ -25,6 +25,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             => base.UseReadOnlyTargetWrapper && Builder.Context.ElementTypesAreSimple;
 
         public IPopulationLoopData GetPopulationLoopData()
-            => new SourceElementsDictionaryPopulationLoopData(_sourceMember, Builder);
+        {
+            if (Builder.ElementTypesAreSimple)
+            {
+                return new EnumerableSourcePopulationLoopData(Builder);
+            }
+
+            return new SourceElementsDictionaryPopulationLoopData(_sourceMember, Builder);
+        }
     }
 }
