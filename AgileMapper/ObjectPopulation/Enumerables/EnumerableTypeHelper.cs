@@ -42,7 +42,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool IsReadOnly => IsArray || IsReadOnlyCollection;
 
-        public bool IsDeclaredReadOnly => IsReadOnly || IsEnumerableInterface;
+        public bool IsDeclaredReadOnly
+            => IsReadOnly || IsEnumerableInterface || IsReadOnlyCollectionInterface();
+
+        private bool IsReadOnlyCollectionInterface()
+        {
+            return EnumerableType.IsInterface() &&
+                  (EnumerableType.Name == "IReadOnlyCollection`1") &&
+                   EnumerableType.IsFromBcl();
+        }
 
         public Type EnumerableType { get; }
 
