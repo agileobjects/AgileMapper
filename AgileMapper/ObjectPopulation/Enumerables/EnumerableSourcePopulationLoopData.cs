@@ -6,11 +6,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions;
+    using NetStandardPolyfills;
 
     internal class EnumerableSourcePopulationLoopData : IPopulationLoopData
     {
-        private static readonly MethodInfo _enumeratorMoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
-        private static readonly MethodInfo _disposeMethod = typeof(IDisposable).GetMethod("Dispose");
+        private static readonly MethodInfo _enumeratorMoveNextMethod = typeof(IEnumerator).GetPublicInstanceMethod("MoveNext");
+        private static readonly MethodInfo _disposeMethod = typeof(IDisposable).GetPublicInstanceMethod("Dispose");
 
         private readonly Expression _enumerableSubject;
         private readonly MethodInfo _getEnumeratorMethod;
@@ -29,7 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             Builder = builder;
             _enumerableSubject = enumerableSubject;
 
-            _getEnumeratorMethod = typeof(IEnumerable<>).MakeGenericType(elementType).GetMethod("GetEnumerator");
+            _getEnumeratorMethod = typeof(IEnumerable<>).MakeGenericType(elementType).GetPublicInstanceMethod("GetEnumerator");
             _enumerator = Expression.Variable(_getEnumeratorMethod.ReturnType, "enumerator");
 
             ContinueLoopTarget = Expression.Label(typeof(void), "Continue");

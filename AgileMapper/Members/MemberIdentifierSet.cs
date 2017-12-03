@@ -4,10 +4,8 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Configuration;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class MemberIdentifierSet
@@ -37,8 +35,7 @@ namespace AgileObjects.AgileMapper.Members
                 return identifier;
             }
 
-            var matchingKey = _identifierLambdasByType.Keys
-                .FirstOrDefault(idType => idType.IsAssignableFrom(type));
+            var matchingKey = _identifierLambdasByType.Keys.FirstOrDefault(type.IsAssignableTo);
 
             return (matchingKey != null) ? _identifierLambdasByType[matchingKey] : null;
         }

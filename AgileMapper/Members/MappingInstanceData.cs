@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
-    using System.Reflection;
+    using NetStandardPolyfills;
 
     internal class MappingInstanceData<TSource, TTarget> : IMappingData<TSource, TTarget>, IMappingData
     {
@@ -35,7 +35,7 @@
 
         T IMappingData.GetSource<T>()
         {
-            if (typeof(TSource).IsAssignableFrom(typeof(T)))
+            if (typeof(T).IsAssignableTo(typeof(TSource)))
             {
                 return (T)((object)Source);
             }
@@ -45,7 +45,7 @@
 
         T IMappingData.GetTarget<T>()
         {
-            if (typeof(TTarget).IsAssignableFrom(typeof(T)))
+            if (typeof(T).IsAssignableTo(typeof(TTarget)))
             {
                 return (T)((object)Target);
             }

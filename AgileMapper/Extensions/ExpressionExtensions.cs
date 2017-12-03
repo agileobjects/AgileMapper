@@ -207,7 +207,7 @@
                 return false;
             }
 
-            method = wrapperType.GetMethod(methodName);
+            method = wrapperType.GetPublicInstanceMethod(methodName);
             return true;
         }
 
@@ -229,7 +229,7 @@
 
             if (typeHelper.IsList)
             {
-                return Expression.Call(enumerable, typeHelper.ListType.GetMethod("AsReadOnly"));
+                return Expression.Call(enumerable, typeHelper.ListType.GetPublicInstanceMethod("AsReadOnly"));
             }
 
             if (typeHelper.HasListInterface)
@@ -293,14 +293,14 @@
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
-                typeHelper.ReadOnlyCollectionType.GetConstructor(new[] { typeHelper.ListInterfaceType }),
+                typeHelper.ReadOnlyCollectionType.GetPublicInstanceConstructor(typeHelper.ListInterfaceType),
                 list);
         }
 
         private static Type GetDictionaryType(Type dictionaryType)
         {
             return dictionaryType.IsInterface()
-                ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericArguments())
+                ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericTypeArguments())
                 : dictionaryType;
         }
 

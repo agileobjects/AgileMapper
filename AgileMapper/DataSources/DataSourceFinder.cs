@@ -7,13 +7,15 @@
 
     internal class DataSourceFinder
     {
+        public static readonly DataSourceFinder Instance = new DataSourceFinder();
+
         private readonly ICollection<IMaptimeDataSourceFactory> _mapTimeDataSourceFactories;
 
-        public DataSourceFinder(MapperContext mapperContext)
+        private DataSourceFinder()
         {
             _mapTimeDataSourceFactories = new List<IMaptimeDataSourceFactory>
             {
-                new DictionaryDataSourceFactory(mapperContext)
+                new DictionaryDataSourceFactory()
             };
         }
 

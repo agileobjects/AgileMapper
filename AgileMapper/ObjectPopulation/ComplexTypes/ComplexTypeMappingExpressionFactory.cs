@@ -3,9 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
     using Members;
     using NetStandardPolyfills;
@@ -14,16 +11,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        private readonly ComplexTypeConstructionFactory _constructionFactory;
+        public static readonly MappingExpressionFactoryBase Instance = new ComplexTypeMappingExpressionFactory();
+
         private readonly PopulationExpressionFactoryBase _structPopulationFactory;
         private readonly PopulationExpressionFactoryBase _classPopulationFactory;
         private readonly IEnumerable<ISourceShortCircuitFactory> _shortCircuitFactories;
 
-        public ComplexTypeMappingExpressionFactory(MapperContext mapperContext)
+        private ComplexTypeMappingExpressionFactory()
         {
-            _constructionFactory = new ComplexTypeConstructionFactory(mapperContext);
-            _structPopulationFactory = new StructPopulationExpressionFactory(_constructionFactory);
-            _classPopulationFactory = new ClassPopulationExpressionFactory(_constructionFactory);
+            _structPopulationFactory = new StructPopulationExpressionFactory();
+            _classPopulationFactory = new ClassPopulationExpressionFactory();
 
             _shortCircuitFactories = new[]
             {
@@ -43,7 +40,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return false;
             }
 
-            if (_constructionFactory.GetNewObjectCreation(mappingData) != null)
+            if (mappingData.MapperData.MapperContext.ConstructionFactory.GetNewObjectCreation(mappingData) != null)
             {
                 nullMappingBlock = null;
                 return false;
@@ -109,7 +106,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             // ReSharper disable once PossibleNullReferenceException
-            var tryGetMethod = typeof(IObjectMappingDataUntyped).GetMethod("TryGet")
+            var tryGetMethod = typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("TryGet")
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             var tryGetCall = Expression.Call(
@@ -146,7 +143,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
-
-        public override void Reset() => _constructionFactory.Reset();
     }
 }

@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _emptyTarget = targetEnumerableType.GetEmptyInstanceCreation(TargetTypeHelper.ElementType);
         }
 
-        public override Expression GetSourceValue()
+        public override Expression GetSourceValues()
         {
             var returnLabel = Expression.Label(_emptyTarget.Type, "Return");
             var returnEmpty = Expression.Return(returnLabel, _emptyTarget);
@@ -106,20 +106,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private Expression GetSourceElementMapping(Expression sourceParameter, Expression counter)
             => Builder.MapperData.GetMapCall(sourceParameter);
-
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
-        public Expression GetSourceValues()
-        {
-            // This is called to provide a value for a List.AddRange() call,
-            // which requires the source and target elements to be simple and
-            // of the same type. This class is for Dictionary<string, object>,
-            // so this is never called:
-            return null;
-        }
 
         public Expression GetSourceCountAccess() => _instanceDictionaryAdapter.GetSourceCountAccess();
 

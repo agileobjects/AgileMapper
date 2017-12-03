@@ -4,9 +4,6 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -31,7 +28,7 @@
         public static ConfiguredLambdaInfo For(LambdaExpression lambda)
         {
             var funcArguments = lambda.Parameters.Select(p => p.Type).ToArray();
-            var contextTypes = (funcArguments.Length != 1) ? funcArguments : funcArguments[0].GetGenericArguments();
+            var contextTypes = (funcArguments.Length != 1) ? funcArguments : funcArguments[0].GetGenericTypeArguments();
             var parameterSwapper = ParametersSwapper.For(contextTypes, funcArguments);
 
             return new ConfiguredLambdaInfo(lambda, lambda.ReturnType, parameterSwapper);
@@ -84,7 +81,7 @@
                 return null;
             }
 
-            var funcTypes = funcType.GetGenericArguments();
+            var funcTypes = funcType.GetGenericTypeArguments();
             var funcArguments = funcArgumentsFactory.Invoke(funcTypes);
             var parameterSwapper = ParametersSwapper.For(contextTypes, funcArguments);
 

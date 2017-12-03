@@ -2,10 +2,8 @@
 {
     using System;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
@@ -128,7 +126,7 @@
 
             return (mapperData.TargetMember.Type == TargetMember.Type) &&
                    (mapperData.TargetMember.Name == TargetMember.Name) &&
-                   mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableFrom(TargetMember.LeafMember.DeclaringType);
+                    TargetMember.LeafMember.DeclaringType.IsAssignableTo(mapperData.TargetMember.LeafMember.DeclaringType);
         }
 
         protected virtual bool MemberPathMatches(IBasicMapperData mapperData)

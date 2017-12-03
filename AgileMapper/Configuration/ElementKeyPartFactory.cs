@@ -81,6 +81,8 @@
 
         #endregion
 
+        public Expression GetElementKeyPrefixOrNull() => _prefix;
+
         public IEnumerable<Expression> GetElementKeyParts(Expression index)
         {
             if (_prefix != null)

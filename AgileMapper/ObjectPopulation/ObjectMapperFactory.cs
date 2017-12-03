@@ -15,17 +15,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _rootMappersCache;
         private Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>> _creationCallbacksByKey;
 
-        public ObjectMapperFactory(MapperContext mapperContext)
+        public ObjectMapperFactory(CacheSet mapperScopedCacheSet)
         {
-            _mappingExpressionFactories = new MappingExpressionFactoryBase[]
+            _mappingExpressionFactories = new[]
             {
-                new DictionaryMappingExpressionFactory(),
-                new SimpleTypeMappingExpressionFactory(),
-                new EnumerableMappingExpressionFactory(),
-                new ComplexTypeMappingExpressionFactory(mapperContext)
+                DictionaryMappingExpressionFactory.Instance,
+                SimpleTypeMappingExpressionFactory.Instance,
+                EnumerableMappingExpressionFactory.Instance,
+                ComplexTypeMappingExpressionFactory.Instance
             };
 
-            _rootMappersCache = mapperContext.Cache.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();
+            _rootMappersCache = mapperScopedCacheSet.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();
         }
 
         public IEnumerable<IObjectMapper> RootMappers => _rootMappersCache.Values;

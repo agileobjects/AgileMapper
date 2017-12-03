@@ -15,9 +15,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     {
         private readonly ICache<ConstructionKey, Construction> _constructorsCache;
 
-        public ComplexTypeConstructionFactory(MapperContext mapperContext)
+        public ComplexTypeConstructionFactory(CacheSet mapperScopedCacheSet)
         {
-            _constructorsCache = mapperContext.Cache.CreateScoped<ConstructionKey, Construction>();
+            _constructorsCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, Construction>();
         }
 
         public Expression GetNewObjectCreation(IObjectMappingData mappingData)

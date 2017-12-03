@@ -4,10 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Extensions;
+    using NetStandardPolyfills;
 
     internal static class Constants
     {
@@ -61,7 +59,7 @@
         private static Dictionary<Type, double> GetValuesByType(string fieldName)
         {
             return NumericTypes
-                .ToDictionary(t => t, t => Convert.ToDouble(t.GetField(fieldName).GetValue(null)));
+                .ToDictionary(t => t, t => Convert.ToDouble(t.GetPublicStaticField(fieldName).GetValue(null)));
         }
 
         #endregion

@@ -55,7 +55,7 @@
                 var methods = GetMethods(key.Type, OnlyCallableSetters, Member.SetMethod);
 
                 var constructorParameterNames = key.Type
-                    .GetConstructors()
+                    .GetPublicInstanceConstructors()
                     .SelectMany(ctor => ctor.GetParameters().Select(p => p.Name))
                     .Distinct()
                     .ToArray();

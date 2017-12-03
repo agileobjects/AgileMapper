@@ -40,6 +40,11 @@
 
             OptimiseForStringConcat(expressions);
 
+            if (expressions.HasOne())
+            {
+                return expressions.First();
+            }
+
             if (_stringConcatMethods.Length >= expressions.Count - 1)
             {
                 var concatMethod = _stringConcatMethods[expressions.Count - 2];

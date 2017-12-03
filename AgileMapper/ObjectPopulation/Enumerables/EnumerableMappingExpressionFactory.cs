@@ -7,6 +7,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
     internal class EnumerableMappingExpressionFactory : MappingExpressionFactoryBase
     {
+        public static readonly MappingExpressionFactoryBase Instance = new EnumerableMappingExpressionFactory();
+
         public override bool IsFor(IObjectMappingData mappingData)
             => mappingData.MapperKey.MappingTypes.IsEnumerable;
 

@@ -2,11 +2,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Caching;
+    using NetStandardPolyfills;
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {
@@ -55,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingLambda = mappingLambdaAndKey.Value;
                 var mappingDataObject = mappingLambda.Parameters[0];
-                var mappingDataTypes = mappingDataObject.Type.GetGenericArguments();
+                var mappingDataTypes = mappingDataObject.Type.GetGenericTypeArguments();
 
                 var typesKey = new SourceAndTargetTypesKey(mappingDataTypes[0], mappingDataTypes[1]);
 
@@ -64,7 +63,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     var mapperFuncType = typeof(RecursionMapperFunc<,>).MakeGenericType(key.SourceType, key.TargetType);
                     var lambdaParameter = Parameters.Create<LambdaExpression>("lambda");
 
-                    var mapperFuncCreation = Expression.New(mapperFuncType.GetConstructors()[0], lambdaParameter);
+                    var mapperFuncCreation = Expression.New(mapperFuncType.GetPublicInstanceConstructors().First(), lambdaParameter);
 
                     var mapperCreationLambda = Expression.Lambda<Func<LambdaExpression, IRecursionMapperFunc>>(
                         mapperFuncCreation,

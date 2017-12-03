@@ -7,11 +7,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal class StructPopulationExpressionFactory : PopulationExpressionFactoryBase
     {
-        public StructPopulationExpressionFactory(ComplexTypeConstructionFactory constructionFactory)
-            : base(constructionFactory)
-        {
-        }
-
         protected override IEnumerable<Expression> GetPopulationExpressionsFor(
             IMemberPopulation memberPopulation,
             IObjectMappingData mappingData)

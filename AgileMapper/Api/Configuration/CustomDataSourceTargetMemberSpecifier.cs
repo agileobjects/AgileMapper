@@ -126,7 +126,7 @@
 
             if ((_customValueLambda.Body.NodeType != ExpressionType.Constant) ||
                 (typeof(TTargetValue) == typeof(object)) ||
-                 typeof(TTargetValue).IsAssignableFrom(_customValueLambda.ReturnType))
+                _customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
             {
                 return ConfiguredLambdaInfo.For(_customValueLambda);
             }

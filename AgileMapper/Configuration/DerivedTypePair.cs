@@ -3,10 +3,8 @@
     using System;
     using System.Globalization;
     using System.Linq;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class DerivedTypePair : UserConfiguredItemBase
@@ -85,7 +83,7 @@
         public Type DerivedTargetType { get; }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-            => DerivedSourceType.IsAssignableFrom(mapperData.SourceType) && base.AppliesTo(mapperData);
+            => mapperData.SourceType.IsAssignableTo(DerivedSourceType) && base.AppliesTo(mapperData);
 
         #region ToString
 #if DEBUG

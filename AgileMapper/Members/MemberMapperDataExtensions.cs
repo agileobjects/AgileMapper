@@ -336,8 +336,8 @@ namespace AgileObjects.AgileMapper.Members
 
         private static bool TypesMatch(IBasicMapperData mapperData, Type sourceType, Type targetType)
         {
-            return (sourceType.IsAssignableFrom(mapperData.SourceType) || mapperData.SourceType.IsAssignableFrom(sourceType)) &&
-                   (targetType.IsAssignableFrom(mapperData.TargetType) || mapperData.TargetType.IsAssignableFrom(targetType));
+            return (mapperData.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(mapperData.SourceType)) &&
+                   (mapperData.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(mapperData.TargetType));
         }
 
         public static Expression GetTypedContextAccess(
@@ -352,10 +352,10 @@ namespace AgileObjects.AgileMapper.Members
 
             if (contextAccess.Type.IsGenericType())
             {
-                var contextAccessTypes = contextAccess.Type.GetGenericArguments();
+                var contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
 
-                if (contextTypes[0].IsAssignableFrom(contextAccessTypes[0]) &&
-                    contextTypes[1].IsAssignableFrom(contextAccessTypes[1]))
+                if (contextAccessTypes[0].IsAssignableTo(contextTypes[0]) &&
+                    contextAccessTypes[1].IsAssignableTo(contextTypes[1]))
                 {
                     return GetFinalContextAccess(contextAccess, contextTypes, contextAccessTypes);
                 }
@@ -376,7 +376,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if (contextAccessTypes == null)
             {
-                contextAccessTypes = contextAccess.Type.GetGenericArguments();
+                contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
             }
 
             if (contextAccessTypes.None(t => t.IsValueType()))
@@ -398,31 +398,31 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
         {
             if (subject.Type.IsGenericType() &&
-                subject.Type.GetGenericArguments().SequenceEqual(contextTypes))
+                subject.Type.GetGenericTypeArguments().SequenceEqual(contextTypes))
             {
                 return subject;
             }
 
             if (subject.Type == typeof(IMappingData))
             {
-                return GetAsCall(subject, typeof(IMappingData).GetMethod("As"), contextTypes);
+                return GetAsCall(subject, typeof(IMappingData).GetPublicInstanceMethod("As"), contextTypes);
             }
 
             var sourceIsStruct = contextTypes[0].IsValueType();
 
             if (sourceIsStruct)
             {
-                return GetAsCall(subject, subject.Type.GetMethod("WithTargetType"), contextTypes[1]);
+                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithTargetType"), contextTypes[1]);
             }
 
             var targetIsStruct = contextTypes[1].IsValueType();
 
             if (targetIsStruct)
             {
-                return GetAsCall(subject, subject.Type.GetMethod("WithSourceType"), contextTypes[0]);
+                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithSourceType"), contextTypes[0]);
             }
 
-            return GetAsCall(subject, typeof(IObjectMappingDataUntyped).GetMethod("As"), contextTypes);
+            return GetAsCall(subject, typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As"), contextTypes);
         }
 
         private static Expression GetAsCall(
@@ -467,30 +467,30 @@ namespace AgileObjects.AgileMapper.Members
                 return accessMethodFactory.Invoke(contextAccess, type);
             }
 
-            var contextTypes = contextAccess.Type.GetGenericArguments();
+            var contextTypes = contextAccess.Type.GetGenericTypeArguments();
 
-            if (!type.IsAssignableFrom(contextTypes[contextTypesIndex]))
+            if (!contextTypes[contextTypesIndex].IsAssignableTo(type))
             {
                 return accessMethodFactory.Invoke(contextAccess, type);
             }
 
             var propertyName = new[] { "Source", "Target" }[contextTypesIndex];
 
-            var property = contextAccess.Type.GetProperty(propertyName)
+            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName)
                 ?? typeof(IMappingData<,>)
                     .MakeGenericType(contextTypes[0], contextTypes[1])
-                    .GetProperty(propertyName);
+                    .GetPublicInstanceProperty(propertyName);
 
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Property(contextAccess, property);
         }
 
-        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetMethod("GetSource");
+        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetPublicInstanceMethod("GetSource");
 
         private static Expression GetSourceAccess(Expression subject, Type sourceType)
             => GetAccess(subject, _getSourceMethod, sourceType);
 
-        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetMethod("GetTarget");
+        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetPublicInstanceMethod("GetTarget");
 
         public static Expression GetTargetAccess(Expression subject, Type targetType)
             => GetAccess(subject, _getTargetMethod, targetType);

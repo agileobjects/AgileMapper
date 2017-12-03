@@ -18,13 +18,13 @@
             .GetPublicStaticMethods("Select")
             .Last(m =>
                 (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2));
+                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 2));
 
         private static readonly MethodInfo _selectWithIndexMethod = typeof(Enumerable)
             .GetPublicStaticMethods("Select")
-            .Last(m => 
+            .Last(m =>
                 (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericArguments().Length == 3));
+                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 3));
 
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
             .GetPublicStaticMethods("ForEach")
@@ -223,7 +223,7 @@
 
         public void AssignSourceVariableFromSourceObject()
         {
-            SourceValue = _sourceAdapter.GetSourceValue();
+            SourceValue = _sourceAdapter.GetSourceValues();
 
             if ((SourceValue == MapperData.SourceObject) && MapperData.HasSameSourceAsParent())
             {
@@ -241,12 +241,9 @@
         {
             CreateSourceTypeHelper(sourceValue);
 
-            _sourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
-            var sourceVariableAssignment = _sourceVariable.AssignTo(sourceValue);
+            SourceValue = _sourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
 
-            SourceValue = _sourceVariable;
-
-            _populationExpressions.Add(sourceVariableAssignment);
+            _populationExpressions.Add(_sourceVariable.AssignTo(sourceValue));
         }
 
         private void CreateSourceTypeHelper(Expression sourceValue)
@@ -337,7 +334,7 @@
                 ? Expression.New(nullTargetVariableType)
                 : Expression.New(
                     // ReSharper disable once AssignNullToNotNullAttribute
-                    nullTargetVariableType.GetConstructor(new[] { typeof(int) }),
+                    nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
                     GetSourceCountAccess());
 
             var targetVariableValue = Expression.Condition(
@@ -383,7 +380,7 @@
         {
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
-                TargetTypeHelper.ListType.GetConstructor(new[] { TargetTypeHelper.EnumerableInterfaceType }),
+                TargetTypeHelper.ListType.GetPublicInstanceConstructor(TargetTypeHelper.EnumerableInterfaceType),
                 MapperData.TargetObject);
         }
 
@@ -415,7 +412,7 @@
         {
             if (ElementTypesAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
             {
-                _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceAdapter.GetSourceValues()));
+                _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceVariable));
                 return;
             }
 
@@ -561,7 +558,7 @@
 
             var callArguments = new List<Expression>(4)
             {
-                _sourceAdapter.GetSourceValue(),
+                _sourceAdapter.GetSourceValues(),
                 MapperData.TargetObject,
                 _sourceElementIdLambda
             };
@@ -619,7 +616,7 @@
         {
             var allowSameValue = value.NodeType != ExpressionType.MemberAccess;
 
-            if (allowSameValue && MapperData.TargetType.IsAssignableFrom(value.Type))
+            if (allowSameValue && value.Type.IsAssignableTo(MapperData.TargetType))
             {
                 return value;
             }
@@ -629,8 +626,8 @@
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
         {
-            var method = TargetTypeHelper.CollectionInterfaceType.GetMethod(methodName)
-                ?? TargetVariable.Type.GetMethod(methodName);
+            var method = TargetTypeHelper.CollectionInterfaceType.GetPublicInstanceMethod(methodName)
+                ?? TargetVariable.Type.GetPublicInstanceMethod(methodName);
 
             return (argument != null)
                 ? Expression.Call(TargetVariable, method, argument)
@@ -652,13 +649,6 @@
 
         public class SourceItemsSelector
         {
-            #region Untyped MethodInfos
-
-            private static readonly MethodInfo _excludeMethod = typeof(EnumerableExtensions)
-                .GetPublicStaticMethod("Exclude");
-
-            #endregion
-
             private readonly EnumerablePopulationBuilder _builder;
             private Expression _result;
 
@@ -670,10 +660,10 @@
             public SourceItemsSelector SourceItemsProjectedToTargetType()
             {
                 var context = _builder.Context;
-                var sourceEnumerableValue = _builder._sourceAdapter.GetSourceValue();
+                var sourceEnumerableValue = _builder._sourceAdapter.GetSourceValues();
 
                 if (context.ElementTypesAreTheSame ||
-                    (sourceEnumerableValue.Type.GetEnumerableElementType() == context.TargetElementType))
+                   (sourceEnumerableValue.Type.GetEnumerableElementType() == context.TargetElementType))
                 {
                     _result = sourceEnumerableValue;
                     return this;
@@ -688,8 +678,12 @@
 
             public SourceItemsSelector ExcludingTargetItems()
             {
+                var excludeMethod = typeof(EnumerableExtensions)
+                    .GetPublicStaticMethod("Exclude")
+                    .MakeGenericMethod(_builder.Context.TargetElementType);
+
                 _result = Expression.Call(
-                    _excludeMethod.MakeGenericMethod(_builder.Context.TargetElementType),
+                    excludeMethod,
                     _result,
                     _builder.MapperData.TargetObject);
 

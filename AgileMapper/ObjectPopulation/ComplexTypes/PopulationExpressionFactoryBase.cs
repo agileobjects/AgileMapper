@@ -3,21 +3,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using Extensions;
     using Members;
     using Members.Population;
+    using NetStandardPolyfills;
     using static CallbackPosition;
 
     internal abstract class PopulationExpressionFactoryBase
     {
-        private readonly ComplexTypeConstructionFactory _constructionFactory;
-
-        protected PopulationExpressionFactoryBase(ComplexTypeConstructionFactory constructionFactory)
-        {
-            _constructionFactory = constructionFactory;
-        }
-
         public IEnumerable<Expression> GetPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
@@ -90,7 +83,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IObjectMappingData mappingData,
             IList<Expression> memberPopulations)
         {
-            return _constructionFactory.GetNewObjectCreation(mappingData);
+            return mappingData
+                .MapperData
+                .MapperContext
+                .ConstructionFactory
+                .GetNewObjectCreation(mappingData);
         }
 
         #region Object Registration
@@ -103,7 +100,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             var registerMethod = typeof(IObjectMappingDataUntyped)
-                .GetMethod("Register")
+                .GetPublicInstanceMethod("Register")
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             return Expression.Call(

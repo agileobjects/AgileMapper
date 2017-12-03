@@ -212,14 +212,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (configuredCallback != null)
             {
-                var callbackActionType = configuredCallback.Type.GetGenericArguments()[0];
+                var callbackActionType = configuredCallback.Type.GetGenericTypeArguments()[0];
 
                 Type[] contextTypes;
                 Expression contextAccess;
 
                 if (callbackActionType.IsGenericType())
                 {
-                    contextTypes = callbackActionType.GetGenericArguments();
+                    contextTypes = callbackActionType.GetGenericTypeArguments();
                     contextAccess = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
                 }
                 else
