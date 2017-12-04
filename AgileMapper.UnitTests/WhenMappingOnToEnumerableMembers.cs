@@ -200,6 +200,22 @@
         }
 
         [Fact]
+        public void ShouldHandleANullIReadOnlyCollection()
+        {
+            var source = new PublicField<IList<string>>
+            {
+                Value = new[] { "X", "Y", "Z" }
+            };
+
+            var target = new PublicProperty<IReadOnlyCollection<char>> { Value = null };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBe('X', 'Y', 'Z');
+        }
+
+        [Fact]
         public void ShouldHandleNoMatchingSourceMember()
         {
             var source = new { HelloThere = "La la la" };
