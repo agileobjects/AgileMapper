@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             if (SourceTypeHelper.IsArray)
             {
-                return Expression.Property(SourceValue, "Length");
+                return Expression.ArrayLength(SourceValue);
             }
 
             var countPropertyInfo = 
