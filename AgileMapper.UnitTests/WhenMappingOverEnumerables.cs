@@ -146,6 +146,29 @@
         }
 
         [Fact]
+        public void ShouldOverwriteAnIReadOnlyCollectionList()
+        {
+            var source = new[]
+            {
+                new ProductDto { ProductId = "khujygtf", Price = 0.75m }
+            };
+
+            IReadOnlyCollection<ProductDto> target = new List<ProductDto>
+            {
+                new ProductDto { ProductId = "kjsdkljnax", Price = 0.99m }
+            };
+
+            var originalObject = target.First();
+            var result = Mapper.Map(source).Over(target);
+
+            result.ShouldBeSameAs(target);
+            result.ShouldHaveSingleItem();
+            result.First().ShouldNotBeSameAs(originalObject);
+            result.First().ProductId.ShouldBe("khujygtf");
+            result.First().Price.ShouldBe(0.75m);
+        }
+
+        [Fact]
         public void ShouldOverwriteUsingAConfiguredDataSource()
         {
             using (var mapper = Mapper.CreateNew())

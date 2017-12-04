@@ -328,7 +328,7 @@
                 nonNullTargetVariableValue = MapperData.TargetObject;
             }
 
-            if (MapperData.TargetMember.IsReadOnly)
+            if (MapperData.TargetMember.IsReadOnly || MapperData.TargetIsDefinitelyPopulated())
             {
                 return nonNullTargetVariableValue;
             }
@@ -630,12 +630,25 @@
         {
             var allowSameValue = value.NodeType != ExpressionType.MemberAccess;
 
-            if (allowSameValue && value.Type.IsAssignableTo(MapperData.TargetType))
+            if (!allowSameValue)
+            {
+                return TargetTypeHelper.GetEnumerableConversion(value);
+            }
+
+            if (value.Type.IsAssignableTo(MapperData.TargetType))
             {
                 return value;
             }
 
-            return TargetTypeHelper.GetEnumerableConversion(value);
+            var conversion = TargetTypeHelper.GetEnumerableConversion(value);
+
+            if (MapperData.TargetType.IsInterface())
+            {
+                conversion = Expression.Coalesce(Expression.TypeAs(value, MapperData.TargetType), conversion);
+            }
+
+            return conversion;
+
         }
 
         private Expression GetTargetMethodCall(string methodName, Expression argument = null)
