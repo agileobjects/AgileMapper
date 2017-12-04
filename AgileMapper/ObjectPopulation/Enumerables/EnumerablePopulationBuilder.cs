@@ -294,6 +294,11 @@
                 return TargetTypeHelper.GetEmptyInstanceCreation();
             }
 
+            if (MapperData.TargetIsDefinitelyUnpopulated())
+            {
+                return GetNullTargetListConstruction();
+            }
+
             if (_sourceAdapter.UseReadOnlyTargetWrapper)
             {
                 return GetCopyIntoWrapperConstruction();
@@ -328,14 +333,7 @@
                 return nonNullTargetVariableValue;
             }
 
-            var nullTargetVariableType = GetNullTargetVariableType(nonNullTargetVariableValue.Type);
-
-            var nullTargetVariableValue = SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
-                ? Expression.New(nullTargetVariableType)
-                : Expression.New(
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
-                    GetSourceCountAccess());
+            var nullTargetVariableValue = GetNullTargetListConstruction(nonNullTargetVariableValue);
 
             var targetVariableValue = Expression.Condition(
                 MapperData.TargetObject.GetIsNotDefaultComparison(),
@@ -348,6 +346,22 @@
 
         private Expression GetCopyIntoWrapperConstruction()
             => TargetTypeHelper.GetWrapperConstruction(MapperData.TargetObject, GetSourceCountAccess());
+
+        private Expression GetNullTargetListConstruction(Expression nonNullTargetVariableValue = null)
+        {
+            var nonNullTargetVariableType =
+                nonNullTargetVariableValue?.Type ??
+               (TargetTypeHelper.IsDeclaredReadOnly ? TargetTypeHelper.ListType : MapperData.TargetType);
+
+            var nullTargetVariableType = GetNullTargetVariableType(nonNullTargetVariableType);
+
+            return SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
+                ? Expression.New(nullTargetVariableType)
+                : Expression.New(
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
+                    GetSourceCountAccess());
+        }
 
         private Expression GetNonNullEnumerableTargetVariableValue()
         {
