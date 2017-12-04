@@ -91,6 +91,25 @@
         }
 
         [Fact]
+        public void ShouldMergeAComplexTypeIReadOnlyCollectionList()
+        {
+            var source = new PublicField<IReadOnlyCollection<PublicField<long>>>
+            {
+                Value = new[] { new PublicField<long> { Value = 456 }, new PublicField<long> { Value = 789 } }
+            };
+
+            var target = new PublicField<IReadOnlyCollection<PublicField<int>>>
+            {
+                Value = new List<PublicField<int>> { new PublicField<int> { Value = 123 } }
+            };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBeSameAs(target.Value);
+            result.Value.ShouldBe(r => r.Value, 123, 456, 789);
+        }
+
+        [Fact]
         public void ShouldMergeAnIdentifiableComplexTypeList()
         {
             var source = new PublicProperty<Product[]>

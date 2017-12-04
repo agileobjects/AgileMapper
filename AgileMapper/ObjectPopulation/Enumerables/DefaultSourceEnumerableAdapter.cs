@@ -17,9 +17,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return Expression.Property(SourceValue, "Length");
             }
 
-            var countPropertyInfo = SourceTypeHelper
-                .CollectionInterfaceType
-                .GetPublicInstanceProperty("Count");
+            var countPropertyInfo = 
+                SourceValue.Type.GetPublicInstanceProperty("Count") ??
+                SourceTypeHelper.CollectionInterfaceType.GetPublicInstanceProperty("Count");
 
             return Expression.Property(SourceValue, countPropertyInfo);
         }
