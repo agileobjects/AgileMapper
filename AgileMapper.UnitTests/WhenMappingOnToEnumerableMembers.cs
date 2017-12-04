@@ -167,6 +167,35 @@
         }
 
         [Fact]
+        public void ShouldMergeAnIdentifiableComplexTypeIReadOnlyCollectionArray()
+        {
+            var source = new PublicProperty<ProductDto[]>
+            {
+                Value = new[]
+                {
+                    new ProductDto { ProductId = "Magic", Price = 1.00m }
+                }
+            };
+
+            var target = new PublicField<IReadOnlyCollection<Product>>
+            {
+                Value = new[]
+                {
+                    new Product { ProductId = "Magic" },
+                    new Product { ProductId = "Science", Price = 1000.00 }
+                }
+            };
+
+            var existingProduct = target.Value.First();
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.First().ShouldBeSameAs(existingProduct);
+            result.Value.First().Price.ShouldBe(1.00);
+            result.Value.Second().Price.ShouldBe(1000.00);
+            result.Value.ShouldBe(r => r.ProductId, "Magic", "Science");
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceMember()
         {
             var source = new PublicGetMethod<IEnumerable<byte>>(null);

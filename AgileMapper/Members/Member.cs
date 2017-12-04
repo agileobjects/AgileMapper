@@ -52,7 +52,6 @@ namespace AgileObjects.AgileMapper.Members
             IsRoot = isRoot;
 
             JoiningName = (isRoot || this.IsEnumerableElement()) ? name : "." + name;
-            IsIdentifier = IsIdMember(name, declaringType);
             IsReadable = memberType.IsReadable();
             IsEnumerable = type.IsEnumerable();
 
@@ -66,18 +65,6 @@ namespace AgileObjects.AgileMapper.Members
             IsSimple = type.IsSimple();
             IsComplex = !IsSimple;
         }
-
-        #region Setup
-
-        private static bool IsIdMember(string name, Type declaringType)
-        {
-            return (name == "Id") ||
-                   (name == declaringType.Name + "Id") ||
-                   (name == "Identifier") ||
-                   (name == declaringType.Name + "Identifier");
-        }
-
-        #endregion
 
         #region Factory Methods
 
@@ -174,7 +161,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsRoot { get; }
 
-        public bool IsIdentifier { get; }
+        public bool IsIdentifier { get; set; }
 
         public bool IsComplex { get; }
 
