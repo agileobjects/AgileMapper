@@ -370,17 +370,30 @@
                 return GetCopyIntoListConstruction();
             }
 
-            var targetIsCollection = Expression
-                .TypeIs(MapperData.TargetObject, TargetTypeHelper.CollectionInterfaceType);
+            var targetAsCollection = Expression
+                .TypeAs(MapperData.TargetObject, TargetTypeHelper.CollectionInterfaceType);
 
-            var collectionValue = MapperData.TargetObject.GetConversionTo(TargetTypeHelper.CollectionInterfaceType);
-            var nonCollectionValue = GetUnusableTargetValue(collectionValue.Type);
+            var tempCollection = Parameters.Create(targetAsCollection.Type, "collection");
+            var assignedCollection = Expression.Assign(tempCollection, targetAsCollection);
+            var assignedCollectionNotNull = assignedCollection.GetIsNotDefaultComparison();
 
-            return Expression.Condition(
-                targetIsCollection,
-                collectionValue,
-                nonCollectionValue,
+            var unusableCollectionValue = GetUnusableTargetValue(tempCollection.Type);
+
+            var isReadOnlyProperty = tempCollection.Type.GetPublicInstanceProperty("IsReadOnly");
+
+            var writeableCollectionOrFallback = Expression.Condition(
+                Expression.Property(tempCollection, isReadOnlyProperty),
+                unusableCollectionValue,
+                tempCollection,
+                tempCollection.Type);
+
+            var collectionResolution = Expression.Condition(
+                assignedCollectionNotNull,
+                writeableCollectionOrFallback,
+                unusableCollectionValue,
                 TargetTypeHelper.CollectionInterfaceType);
+
+            return Expression.Block(new[] { tempCollection }, collectionResolution);
         }
 
         private Expression GetUnusableTargetValue(Type fallbackCollectionType)

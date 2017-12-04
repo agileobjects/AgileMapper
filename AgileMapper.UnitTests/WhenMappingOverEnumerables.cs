@@ -146,7 +146,18 @@
         }
 
         [Fact]
-        public void ShouldOverwriteAnIReadOnlyCollectionList()
+        public void ShouldOverwriteASimpleTypeIReadOnlyCollectionArray()
+        {
+            IReadOnlyCollection<long> target = new[] { 4L, 5, 6 };
+
+            var result = Mapper.Map(new[] { 1, 2, 3 }).Over(target);
+
+            result.ShouldNotBeSameAs(target);
+            result.ShouldBe(1L, 2L, 3L);
+        }
+
+        [Fact]
+        public void ShouldOverwriteAComplexTypeIReadOnlyCollectionList()
         {
             var source = new[]
             {

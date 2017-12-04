@@ -47,9 +47,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private bool IsReadOnlyCollectionInterface()
         {
+#if NET_STANDARD
+            return EnumerableType.IsGenericType() &&
+                  (EnumerableType.GetGenericTypeDefinition() == typeof(IReadOnlyCollection<>));
+#else
             return EnumerableType.IsInterface() &&
                   (EnumerableType.Name == "IReadOnlyCollection`1") &&
                    EnumerableType.IsFromBcl();
+#endif
         }
 
         public Type EnumerableType { get; }
