@@ -176,7 +176,10 @@
                     return configuredIdentifier.ReplaceParameterWith(parameter);
                 }
 
-                var identifier = GlobalContext.Instance.MemberFinder.GetIdentifierOrNull(key);
+                var identifier = mapperData
+                    .MapperContext
+                    .Naming
+                    .GetIdentifierOrNull(key);
 
                 return identifier?.GetAccess(parameter);
             });

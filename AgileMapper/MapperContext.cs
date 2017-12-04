@@ -13,16 +13,16 @@
 
     internal class MapperContext
     {
-        internal static readonly MapperContext Default = new MapperContext(NamingSettings.Default);
+        internal static readonly MapperContext Default = new MapperContext();
 
         private ObjectFlattener _objectFlattener;
         private InlineMapperContextSet _inlineContexts;
 
-        public MapperContext(NamingSettings namingSettings = null)
+        public MapperContext()
         {
             Cache = new CacheSet();
             DataSources = DataSourceFinder.Instance;
-            NamingSettings = namingSettings ?? new NamingSettings();
+            Naming = new NamingSettings(Cache);
             QualifiedMemberFactory = new QualifiedMemberFactory(this);
             RootMembersSource = new RootMembersSource(QualifiedMemberFactory);
             ObjectMapperFactory = new ObjectMapperFactory(Cache);
@@ -36,7 +36,7 @@
 
         public DataSourceFinder DataSources { get; }
 
-        public NamingSettings NamingSettings { get; }
+        public NamingSettings Naming { get; }
 
         public QualifiedMemberFactory QualifiedMemberFactory { get; }
 
@@ -60,7 +60,7 @@
         {
             var context = new MapperContext();
 
-            NamingSettings.CloneTo(context.NamingSettings);
+            Naming.CloneTo(context.Naming);
             UserConfigurations.CloneTo(context.UserConfigurations);
             ValueConverters.CloneTo(context.ValueConverters);
 

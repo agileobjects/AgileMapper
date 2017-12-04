@@ -130,7 +130,7 @@
             string[] memberMatchingNames,
             MapperContext mapperContext)
         {
-            return mapperContext.NamingSettings.ExtendJoinedNames(parentJoinedNames, memberMatchingNames);
+            return mapperContext.Naming.ExtendJoinedNames(parentJoinedNames, memberMatchingNames);
         }
 
         public static bool CouldMatch(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
@@ -167,7 +167,7 @@
             => (TMember)enumerableMember.Append(enumerableMember.Type.GetElementMember());
 
         public static Member GetElementMember(this Type enumerableType)
-            => GlobalContext.Instance.MemberFinder.GetSourceMembers(enumerableType).First();
+            => GlobalContext.Instance.MemberCache.GetSourceMembers(enumerableType).First();
 
         public static Member[] RelativeTo(this Member[] memberChain, Member[] otherMemberChain)
         {
@@ -237,7 +237,7 @@
             return CreateMember(
                 memberAccess,
                 Member.RootSource,
-                GlobalContext.Instance.MemberFinder.GetSourceMembers,
+                GlobalContext.Instance.MemberCache.GetSourceMembers,
                 mapperContext);
         }
 
@@ -246,7 +246,7 @@
             return CreateMember(
                 memberAccess,
                 Member.RootTarget,
-                GlobalContext.Instance.MemberFinder.GetTargetMembers,
+                GlobalContext.Instance.MemberCache.GetTargetMembers,
                 mapperContext);
         }
 

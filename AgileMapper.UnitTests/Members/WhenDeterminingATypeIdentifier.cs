@@ -10,7 +10,8 @@
         [Fact]
         public void ShouldUseAnIdProperty()
         {
-            MemberFinder
+            DefaultMapperContext
+                .Naming
                 .GetIdentifierOrNull(TypeKey.ForTypeId(new { Id = "blahblahblah" }.GetType()))
                 .ShouldNotBeNull();
         }
@@ -18,7 +19,8 @@
         [Fact]
         public void ShouldUseAnIdentifierProperty()
         {
-            MemberFinder
+            DefaultMapperContext
+                .Naming
                 .GetIdentifierOrNull(TypeKey.ForTypeId(new { Identifier = "lalalala" }.GetType()))
                 .ShouldNotBeNull();
         }
@@ -26,7 +28,8 @@
         [Fact]
         public void ShouldUseATypeIdProperty()
         {
-            MemberFinder
+            DefaultMapperContext
+                .Naming
                 .GetIdentifierOrNull(TypeKey.ForTypeId(typeof(Person)))
                 .ShouldNotBeNull();
         }
@@ -34,7 +37,8 @@
         [Fact]
         public void ShouldReturnNullIfNoIdentifier()
         {
-            MemberFinder
+            DefaultMapperContext
+                .Naming
                 .GetIdentifierOrNull(TypeKey.ForTypeId(new { NoIdHere = true }.GetType()))
                 .ShouldBeNull();
         }

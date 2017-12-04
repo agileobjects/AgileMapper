@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.Members
         private QualifiedMember(Member member, QualifiedMember parent, MapperContext mapperContext)
             : this(member, mapperContext)
         {
-            var memberMatchingNames = mapperContext.NamingSettings.GetMatchingNamesFor(member);
+            var memberMatchingNames = mapperContext.Naming.GetMatchingNamesFor(member);
 
             if (parent == null)
             {
@@ -125,10 +125,10 @@ namespace AgileObjects.AgileMapper.Members
         public static QualifiedMember From(Member[] memberChain, MapperContext mapperContext)
         {
             var matchingNameSets = memberChain
-                .Select(mapperContext.NamingSettings.GetMatchingNamesFor)
+                .Select(mapperContext.Naming.GetMatchingNamesFor)
                 .ToArray();
 
-            var joinedNames = mapperContext.NamingSettings.GetJoinedNamesFor(matchingNameSets);
+            var joinedNames = mapperContext.Naming.GetJoinedNamesFor(matchingNameSets);
 
             return new QualifiedMember(memberChain, joinedNames, mapperContext);
         }

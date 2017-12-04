@@ -183,7 +183,7 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 var nonSimpleChildMembers = GlobalContext.Instance
-                    .MemberFinder
+                    .MemberCache
                     .GetTargetMembers(parentMember.Type)
                     .Where(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
                     .ToArray();

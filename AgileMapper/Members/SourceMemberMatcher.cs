@@ -3,9 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-#if NET_STANDARD
-    using System.Reflection;
-#endif
 
     internal static class SourceMemberMatcher
     {
@@ -68,7 +65,7 @@
         {
             return GlobalContext
                 .Instance
-                .MemberFinder
+                .MemberCache
                 .GetSourceMembers(parentMember.Type)
                 .Where(filter);
         }

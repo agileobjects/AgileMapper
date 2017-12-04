@@ -161,8 +161,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsRoot { get; }
 
-        public bool IsIdentifier { get; set; }
-
         public bool IsComplex { get; }
 
         public bool IsEnumerable { get; }

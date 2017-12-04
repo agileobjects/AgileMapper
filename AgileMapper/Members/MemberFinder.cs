@@ -8,25 +8,13 @@
     using Extensions;
     using NetStandardPolyfills;
 
-    internal class MemberFinder
+    internal class MemberCache
     {
-        private readonly ICache<TypeKey, Member> _idMemberCache;
         private readonly ICache<TypeKey, IList<Member>> _membersCache;
 
-        public MemberFinder(CacheSet cacheSet)
+        public MemberCache(CacheSet cacheSet)
         {
-            _idMemberCache = cacheSet.CreateScoped<TypeKey, Member>();
             _membersCache = cacheSet.CreateScoped<TypeKey, IList<Member>>();
-        }
-
-        public Member GetIdentifierOrNull(TypeKey typeIdKey)
-        {
-            return _idMemberCache.GetOrAdd(typeIdKey, key =>
-            {
-                var typeMembers = GetSourceMembers(key.Type);
-
-                return typeMembers.FirstOrDefault(member => member.IsIdentifier);
-            });
         }
 
         public IList<Member> GetSourceMembers(Type sourceType)
@@ -137,77 +125,7 @@
                 .SelectMany(m => m)
                 .ToArray();
 
-            if (allMembers.None())
-            {
-                return Enumerable<Member>.EmptyArray;
-            }
-
-            var idMember = GetBestMatchingIdMemberOrNull(allMembers);
-
-            if (idMember != null)
-            {
-                idMember.IsIdentifier = true;
-            }
-
             return allMembers;
-        }
-
-        private static Member GetBestMatchingIdMemberOrNull(IList<Member> allMembers)
-        {
-            if (TryGetIdMember(allMembers, "Id", out var idMember))
-            {
-                return idMember;
-            }
-
-            var declaringTypeName = allMembers.First().DeclaringType.Name;
-
-            if (TryGetIdMember(allMembers, declaringTypeName + "Id", out idMember))
-            {
-                return idMember;
-            }
-
-            var potentialIds = new List<string>
-            {
-                "Identifier",
-                declaringTypeName + "Identifier"
-            };
-
-            AddPotentialTypeIdsIfApplicable(potentialIds, declaringTypeName, "Dto");
-            AddPotentialTypeIdsIfApplicable(potentialIds, declaringTypeName, "ViewModel");
-
-            var bestMatchingMember = allMembers
-                .Select(m => new
-                {
-                    Member = m,
-                    MatchPriority = potentialIds.IndexOf(m.Name)
-                })
-                .FirstOrDefault(d => d.MatchPriority != -1)?
-                .Member;
-
-            return bestMatchingMember;
-        }
-
-        private static void AddPotentialTypeIdsIfApplicable(
-            ICollection<string> potentialIds,
-            string declaringTypeName,
-            string suffix)
-        {
-            if (!declaringTypeName.EndsWith(suffix, StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            var prefix = declaringTypeName.Substring(0, declaringTypeName.Length - suffix.Length);
-
-            potentialIds.Add(prefix + "Id");
-            potentialIds.Add(prefix + "Identifier");
-        }
-
-        private static bool TryGetIdMember(IEnumerable<Member> allMembers, string name, out Member idMember)
-        {
-            idMember = allMembers.FirstOrDefault(m => m.Name == name);
-
-            return idMember != null;
         }
     }
 }

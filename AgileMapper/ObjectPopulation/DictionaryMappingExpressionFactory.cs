@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(ObjectMapperData mapperData)
         {
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
-            var sourceMembers = GlobalContext.Instance.MemberFinder.GetSourceMembers(mapperData.SourceType);
+            var sourceMembers = GlobalContext.Instance.MemberCache.GetSourceMembers(mapperData.SourceType);
 
             foreach (var sourceMember in sourceMembers)
             {

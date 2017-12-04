@@ -12,7 +12,7 @@
         [Fact]
         public void ShouldFindAPublicProperty()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(PublicProperty<string>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -23,7 +23,7 @@
         [Fact]
         public void ShouldFindAPublicField()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(PublicField<int>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -34,7 +34,7 @@
         [Fact]
         public void ShouldFindAPublicGetMethod()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(PublicGetMethod<DateTime>))
                 .FirstOrDefault(m => m.Name == "GetValue");
 
@@ -45,7 +45,7 @@
         [Fact]
         public void ShouldFindARootArrayElement()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(int[]))
                 .FirstOrDefault();
 
@@ -55,7 +55,7 @@
         [Fact]
         public void ShouldIgnoreAWriteOnlyPublicProperty()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(PublicWriteOnlyProperty<long>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -65,7 +65,7 @@
         [Fact]
         public void ShouldIgnoreANonPublicField()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(InternalField<byte>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -75,7 +75,7 @@
         [Fact]
         public void ShouldIgnoreASetMethod()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(PublicSetMethod<short>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -85,7 +85,7 @@
         [Fact]
         public void ShouldIgnoreGetType()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(PublicProperty<int?>))
                 .FirstOrDefault(m => m.Name == "GetType");
 
@@ -95,7 +95,7 @@
         [Fact]
         public void ShouldIgnoreGetHashCode()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(PublicProperty<DateTime?>))
                 .FirstOrDefault(m => m.Name == "GetHashCode");
 
@@ -105,7 +105,7 @@
         [Fact]
         public void ShouldIgnoreAPropertyGetter()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetSourceMembers(typeof(PublicProperty<string>))
                 .FirstOrDefault(m => m.Name.StartsWith("get_"));
 
