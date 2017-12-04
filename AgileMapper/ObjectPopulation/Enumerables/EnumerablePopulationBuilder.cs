@@ -333,7 +333,7 @@
                 return nonNullTargetVariableValue;
             }
 
-            var nullTargetVariableValue = GetNullTargetListConstruction(nonNullTargetVariableValue);
+            var nullTargetVariableValue = GetNullTargetListConstruction();
 
             var targetVariableValue = Expression.Condition(
                 MapperData.TargetObject.GetIsNotDefaultComparison(),
@@ -347,10 +347,9 @@
         private Expression GetCopyIntoWrapperConstruction()
             => TargetTypeHelper.GetWrapperConstruction(MapperData.TargetObject, GetSourceCountAccess());
 
-        private Expression GetNullTargetListConstruction(Expression nonNullTargetVariableValue = null)
+        private Expression GetNullTargetListConstruction()
         {
             var nonNullTargetVariableType =
-                nonNullTargetVariableValue?.Type ??
                (TargetTypeHelper.IsDeclaredReadOnly ? TargetTypeHelper.ListType : MapperData.TargetType);
 
             var nullTargetVariableType = GetNullTargetVariableType(nonNullTargetVariableType);
@@ -358,7 +357,6 @@
             return SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
                 ? Expression.New(nullTargetVariableType)
                 : Expression.New(
-                    // ReSharper disable once AssignNullToNotNullAttribute
                     nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
                     GetSourceCountAccess());
         }
@@ -405,7 +403,6 @@
 
         private Expression GetCopyIntoListConstruction()
         {
-            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
                 TargetTypeHelper.ListType.GetPublicInstanceConstructor(TargetTypeHelper.EnumerableInterfaceType),
                 MapperData.TargetObject);
