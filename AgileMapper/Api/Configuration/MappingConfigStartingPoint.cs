@@ -324,6 +324,18 @@
         #endregion
 
         /// <summary>
+        /// Configure how this mapper maps objects of the type specified by the given <paramref name="exampleInstance"/>. 
+        /// Use this overload for anonymous types.
+        /// </summary>
+        /// <typeparam name="TObject">The type of object to which the configuration will apply.</typeparam>
+        /// <param name="exampleInstance">
+        /// An instance specifying the source type for which mapping will be configured.
+        /// </param>
+        /// <returns>An InstanceConfigurator with which to complete the configuration.</returns>
+        public InstanceConfigurator<TObject> InstancesOf<TObject>(TObject exampleInstance) where TObject : class
+            => InstancesOf<TObject>();
+
+        /// <summary>
         /// Configure how this mapper maps objects of the type specified by the type argument.
         /// </summary>
         /// <typeparam name="TObject">The type of object to which the configuration will apply.</typeparam>
