@@ -161,6 +161,11 @@
                 return true;
             }
 
+            if (member.Name.IndexOf("id", StringComparison.OrdinalIgnoreCase) == -1)
+            {
+                return false;
+            }
+
             var declaringTypeName = member.DeclaringType.Name;
 
             if (member.Name == declaringTypeName + "Id")

@@ -10,10 +10,12 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class MemberIdentifierSet
     {
+        private readonly MapperContext _mapperContext;
         private readonly Dictionary<Type, LambdaExpression> _identifierLambdasByType;
 
-        public MemberIdentifierSet()
+        public MemberIdentifierSet(MapperContext mapperContext)
         {
+            _mapperContext = mapperContext;
             _identifierLambdasByType = new Dictionary<Type, LambdaExpression>();
         }
 
@@ -25,7 +27,28 @@ namespace AgileObjects.AgileMapper.Members
                     $"An identifier has already been configured for type '{type.GetFriendlyName()}'");
             }
 
+            ThrowIfIdentifierIsRedundant(type, idMember);
+
             _identifierLambdasByType.Add(type, idMember);
+        }
+
+        private void ThrowIfIdentifierIsRedundant(Type type, LambdaExpression idMember)
+        {
+            if (idMember.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                return;
+            }
+
+            var defaultIdentifier = _mapperContext.Naming.GetIdentifierOrNull(TypeKey.ForTypeId(type));
+
+            if (defaultIdentifier.Name != idMember.Body.GetMemberName())
+            {
+                return;
+            }
+
+            throw new MappingConfigurationException(
+                $"{defaultIdentifier.Name} is automatically used as the identifier for Type '{type.GetFriendlyName()}', " +
+                 "and does not need to be configured.");
         }
 
         public LambdaExpression GetIdentifierOrNullFor(Type type)
