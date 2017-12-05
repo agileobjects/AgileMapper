@@ -112,6 +112,16 @@
         }
 
         [Fact]
+        public void ShouldCreateAnIReadOnlyCollection()
+        {
+            var source = new[] { 1, 2, 3 };
+            var result = Mapper.Map(source).ToANew<IReadOnlyCollection<short>>();
+
+            result.ShouldNotBeNull();
+            result.ShouldBe((short)1, (short)2, (short)3);
+        }
+
+        [Fact]
         public void ShouldHandleANullComplexTypeElement()
         {
             var source = new List<Product>

@@ -8,25 +8,13 @@
     using Extensions;
     using NetStandardPolyfills;
 
-    internal class MemberFinder
+    internal class MemberCache
     {
-        private readonly ICache<TypeKey, Member> _idMemberCache;
         private readonly ICache<TypeKey, IList<Member>> _membersCache;
 
-        public MemberFinder(CacheSet cacheSet)
+        public MemberCache(CacheSet cacheSet)
         {
-            _idMemberCache = cacheSet.CreateScoped<TypeKey, Member>();
             _membersCache = cacheSet.CreateScoped<TypeKey, IList<Member>>();
-        }
-
-        public Member GetIdentifierOrNull(TypeKey typeIdKey)
-        {
-            return _idMemberCache.GetOrAdd(typeIdKey, key =>
-            {
-                var typeMembers = GetSourceMembers(key.Type);
-
-                return typeMembers.FirstOrDefault(member => member.IsIdentifier);
-            });
         }
 
         public IList<Member> GetSourceMembers(Type sourceType)

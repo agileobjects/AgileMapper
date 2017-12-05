@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.Members
                   childMember.IsEnumerable,
                   parent.Name + childMember.JoiningName,
                   parent._matchedTargetMemberJoinedNames.ExtendWith(
-                      parent._mapperContext.NamingSettings.GetMatchingNamesFor(childMember),
+                      parent._mapperContext.Naming.GetMatchingNamesFor(childMember),
                       parent._mapperContext),
                   parent._mapperContext,
                   parent._childMembers.Append(childMember))

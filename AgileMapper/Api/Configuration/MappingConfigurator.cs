@@ -40,7 +40,7 @@
 
         public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePrefixes(params string[] prefixes)
         {
-            MapperContext.NamingSettings.AddNamePrefixes(prefixes);
+            MapperContext.Naming.AddNamePrefixes(prefixes);
             return this;
         }
 
@@ -48,7 +48,7 @@
 
         public IFullMappingInlineConfigurator<TSource, TTarget> UseNameSuffixes(params string[] suffixes)
         {
-            MapperContext.NamingSettings.AddNameSuffixes(suffixes);
+            MapperContext.Naming.AddNameSuffixes(suffixes);
             return this;
         }
 
@@ -56,7 +56,7 @@
 
         public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePatterns(params string[] patterns)
         {
-            MapperContext.NamingSettings.AddNameMatchers(patterns);
+            MapperContext.Naming.AddNameMatchers(patterns);
             return this;
         }
 

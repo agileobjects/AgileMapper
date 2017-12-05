@@ -14,12 +14,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             if (SourceTypeHelper.IsArray)
             {
-                return Expression.Property(SourceValue, "Length");
+                return Expression.ArrayLength(SourceValue);
             }
 
-            var countPropertyInfo = SourceTypeHelper
-                .CollectionInterfaceType
-                .GetPublicInstanceProperty("Count");
+            var countPropertyInfo = 
+                SourceValue.Type.GetPublicInstanceProperty("Count") ??
+                SourceTypeHelper.CollectionInterfaceType.GetPublicInstanceProperty("Count");
 
             return Expression.Property(SourceValue, countPropertyInfo);
         }

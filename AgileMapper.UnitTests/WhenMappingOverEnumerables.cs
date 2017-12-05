@@ -146,6 +146,40 @@
         }
 
         [Fact]
+        public void ShouldOverwriteASimpleTypeIReadOnlyCollectionArray()
+        {
+            IReadOnlyCollection<long> target = new[] { 4L, 5, 6 };
+
+            var result = Mapper.Map(new[] { 1, 2, 3 }).Over(target);
+
+            result.ShouldNotBeSameAs(target);
+            result.ShouldBe(1L, 2L, 3L);
+        }
+
+        [Fact]
+        public void ShouldOverwriteAComplexTypeIReadOnlyCollectionList()
+        {
+            var source = new[]
+            {
+                new ProductDto { ProductId = "khujygtf", Price = 0.75m }
+            };
+
+            IReadOnlyCollection<ProductDto> target = new List<ProductDto>
+            {
+                new ProductDto { ProductId = "kjsdkljnax", Price = 0.99m }
+            };
+
+            var originalObject = target.First();
+            var result = Mapper.Map(source).Over(target);
+
+            result.ShouldBeSameAs(target);
+            result.ShouldHaveSingleItem();
+            result.First().ShouldNotBeSameAs(originalObject);
+            result.First().ProductId.ShouldBe("khujygtf");
+            result.First().Price.ShouldBe(0.75m);
+        }
+
+        [Fact]
         public void ShouldOverwriteUsingAConfiguredDataSource()
         {
             using (var mapper = Mapper.CreateNew())

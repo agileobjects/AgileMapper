@@ -117,7 +117,7 @@
 
             plan.ShouldContain("sourceIntArray = ");
             plan.ShouldContain("ICollection<int> targetInts = ");
-            plan.ShouldContain("publicField_Ints.Value is ICollection<int>");
+            plan.ShouldContain(" = publicField_Ints.Value as ICollection<int>) != null");
             plan.ShouldContain("new List<int>(publicField_Ints.Value)");
             plan.ShouldContain("targetInts.Add(sourceIntArray[i])");
         }

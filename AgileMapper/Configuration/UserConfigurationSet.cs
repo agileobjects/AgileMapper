@@ -123,7 +123,7 @@
 
         #endregion
 
-        public MemberIdentifierSet Identifiers => _identifiers ?? (_identifiers = new MemberIdentifierSet());
+        public MemberIdentifierSet Identifiers => _identifiers ?? (_identifiers = new MemberIdentifierSet(_mapperContext));
 
         #region IgnoredMembers
 

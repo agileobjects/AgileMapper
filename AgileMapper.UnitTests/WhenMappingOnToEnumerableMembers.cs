@@ -91,6 +91,25 @@
         }
 
         [Fact]
+        public void ShouldMergeAComplexTypeIReadOnlyCollectionList()
+        {
+            var source = new PublicField<IReadOnlyCollection<PublicField<long>>>
+            {
+                Value = new[] { new PublicField<long> { Value = 456 }, new PublicField<long> { Value = 789 } }
+            };
+
+            var target = new PublicField<IReadOnlyCollection<PublicField<int>>>
+            {
+                Value = new List<PublicField<int>> { new PublicField<int> { Value = 123 } }
+            };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBeSameAs(target.Value);
+            result.Value.ShouldBe(r => r.Value, 123, 456, 789);
+        }
+
+        [Fact]
         public void ShouldMergeAnIdentifiableComplexTypeList()
         {
             var source = new PublicProperty<Product[]>
@@ -148,6 +167,35 @@
         }
 
         [Fact]
+        public void ShouldMergeAnIdentifiableComplexTypeIReadOnlyCollectionArray()
+        {
+            var source = new PublicProperty<ProductDto[]>
+            {
+                Value = new[]
+                {
+                    new ProductDto { ProductId = "Magic", Price = 1.00m }
+                }
+            };
+
+            var target = new PublicField<IReadOnlyCollection<Product>>
+            {
+                Value = new[]
+                {
+                    new Product { ProductId = "Magic" },
+                    new Product { ProductId = "Science", Price = 1000.00 }
+                }
+            };
+
+            var existingProduct = target.Value.First();
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.First().ShouldBeSameAs(existingProduct);
+            result.Value.First().Price.ShouldBe(1.00);
+            result.Value.Second().Price.ShouldBe(1000.00);
+            result.Value.ShouldBe(r => r.ProductId, "Magic", "Science");
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceMember()
         {
             var source = new PublicGetMethod<IEnumerable<byte>>(null);
@@ -197,6 +245,22 @@
             result.Value.ShouldNotBeNull();
             result.Value.ShouldHaveSingleItem();
             result.Value.First().Id.ShouldBe(source.Value.First().Id);
+        }
+
+        [Fact]
+        public void ShouldHandleANullIReadOnlyCollection()
+        {
+            var source = new PublicField<IList<string>>
+            {
+                Value = new[] { "X", "Y", "Z" }
+            };
+
+            var target = new PublicProperty<IReadOnlyCollection<char>> { Value = null };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBe('X', 'Y', 'Z');
         }
 
         [Fact]
