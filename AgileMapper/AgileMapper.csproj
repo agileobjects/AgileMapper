@@ -1,33 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\common.props" />
 
   <PropertyGroup>
-    <Description>A zero-configuration, highly-configurable, portable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API.</Description>
-    <Copyright>2017 Steve Wilkes</Copyright>
+    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API. Conforms to .NET Standard 1.0.</Description>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
-    <VersionPrefix>0.10.1</VersionPrefix>
-    <Authors>Steve Wilkes</Authors>
     <TargetFrameworks>netstandard1.0;net40</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
-    <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>AgileObjects.AgileMapper</PackageId>
     <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/AgileObjects/AgileMapper</RepositoryUrl>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.0</NetStandardImplicitPackageVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
-    <Company>AgileObjects</Company>
-    <Version>0.17.0</Version>
-    <AssemblyVersion>0.17.0.0</AssemblyVersion>
-    <FileVersion>0.17.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
