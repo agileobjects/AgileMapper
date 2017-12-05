@@ -70,6 +70,29 @@
         }
 
         [Fact]
+        public void ShouldOverwriteAnIReadOnlyCollectionCollection()
+        {
+            var source = new PublicProperty<IEnumerable<decimal>>
+            {
+                Value = new[] { MinusOne, Zero }
+            };
+
+            var target = new PublicField<IReadOnlyCollection<decimal>>
+            {
+                Value = new Collection<decimal>(new[] { MinValue, MaxValue })
+            };
+
+            var preMappingCollection = target.Value;
+
+            var result = Mapper.Map(source).Over(target);
+
+            // (Collection<decimal> as ICollection<decimal>).IsReadOnly == true, so the 
+            // Collection does not get reused:
+            result.Value.ShouldNotBeSameAs(preMappingCollection);
+            result.Value.ShouldBe(MinusOne, Zero);
+        }
+
+        [Fact]
         public void ShouldOverwriteAComplexTypeCollection()
         {
             var source = new PublicField<PublicField<int>[]>
@@ -168,6 +191,16 @@
             result.Value.ShouldNotBeNull();
             result.Value.ShouldBeSameAs(strings);
             result.Value.ShouldBe("A", "B", "C");
+        }
+
+        [Fact]
+        public void ShouldHandleANullReadOnlyNestedIReadOnlyCollection()
+        {
+            var source = new PublicField<string[]> { Value = new[] { "Alpha!", "Beta!" } };
+            var target = new PublicReadOnlyField<IReadOnlyCollection<string>>(null);
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldBeNull();
         }
     }
 }
