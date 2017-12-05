@@ -182,7 +182,10 @@
                     return configuredIdentifier.ReplaceParameterWith(parameter);
                 }
 
-                var identifier = GlobalContext.Instance.MemberFinder.GetIdentifierOrNull(key);
+                var identifier = mapperData
+                    .MapperContext
+                    .Naming
+                    .GetIdentifierOrNull(key);
 
                 return identifier?.GetAccess(parameter);
             });
@@ -300,6 +303,11 @@
                 return TargetTypeHelper.GetEmptyInstanceCreation();
             }
 
+            if (MapperData.TargetIsDefinitelyUnpopulated())
+            {
+                return GetNullTargetListConstruction();
+            }
+
             if (_sourceAdapter.UseReadOnlyTargetWrapper)
             {
                 return GetCopyIntoWrapperConstruction();
@@ -329,19 +337,12 @@
                 nonNullTargetVariableValue = MapperData.TargetObject;
             }
 
-            if (MapperData.TargetMember.IsReadOnly)
+            if (MapperData.TargetMember.IsReadOnly || MapperData.TargetIsDefinitelyPopulated())
             {
                 return nonNullTargetVariableValue;
             }
 
-            var nullTargetVariableType = GetNullTargetVariableType(nonNullTargetVariableValue.Type);
-
-            var nullTargetVariableValue = SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
-                ? Expression.New(nullTargetVariableType)
-                : Expression.New(
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
-                    GetSourceCountAccess());
+            var nullTargetVariableValue = GetNullTargetListConstruction();
 
             var targetVariableValue = Expression.Condition(
                 MapperData.TargetObject.GetIsNotDefaultComparison(),
@@ -355,6 +356,20 @@
         private Expression GetCopyIntoWrapperConstruction()
             => TargetTypeHelper.GetWrapperConstruction(MapperData.TargetObject, GetSourceCountAccess());
 
+        private Expression GetNullTargetListConstruction()
+        {
+            var nonNullTargetVariableType =
+               (TargetTypeHelper.IsDeclaredReadOnly ? TargetTypeHelper.ListType : MapperData.TargetType);
+
+            var nullTargetVariableType = GetNullTargetVariableType(nonNullTargetVariableType);
+
+            return SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
+                ? Expression.New(nullTargetVariableType)
+                : Expression.New(
+                    nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
+                    GetSourceCountAccess());
+        }
+
         private Expression GetNonNullEnumerableTargetVariableValue()
         {
             if (TargetTypeHelper.IsReadOnly)
@@ -362,17 +377,30 @@
                 return GetCopyIntoListConstruction();
             }
 
-            var targetIsCollection = Expression
-                .TypeIs(MapperData.TargetObject, TargetTypeHelper.CollectionInterfaceType);
+            var targetAsCollection = Expression
+                .TypeAs(MapperData.TargetObject, TargetTypeHelper.CollectionInterfaceType);
 
-            var collectionValue = MapperData.TargetObject.GetConversionTo(TargetTypeHelper.CollectionInterfaceType);
-            var nonCollectionValue = GetUnusableTargetValue(collectionValue.Type);
+            var tempCollection = Parameters.Create(targetAsCollection.Type, "collection");
+            var assignedCollection = Expression.Assign(tempCollection, targetAsCollection);
+            var assignedCollectionNotNull = assignedCollection.GetIsNotDefaultComparison();
 
-            return Expression.Condition(
-                targetIsCollection,
-                collectionValue,
-                nonCollectionValue,
+            var unusableCollectionValue = GetUnusableTargetValue(tempCollection.Type);
+
+            var isReadOnlyProperty = tempCollection.Type.GetPublicInstanceProperty("IsReadOnly");
+
+            var writeableCollectionOrFallback = Expression.Condition(
+                Expression.Property(tempCollection, isReadOnlyProperty),
+                unusableCollectionValue,
+                tempCollection,
+                tempCollection.Type);
+
+            var collectionResolution = Expression.Condition(
+                assignedCollectionNotNull,
+                writeableCollectionOrFallback,
+                unusableCollectionValue,
                 TargetTypeHelper.CollectionInterfaceType);
+
+            return Expression.Block(new[] { tempCollection }, collectionResolution);
         }
 
         private Expression GetUnusableTargetValue(Type fallbackCollectionType)
@@ -384,7 +412,6 @@
 
         private Expression GetCopyIntoListConstruction()
         {
-            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
                 TargetTypeHelper.ListType.GetPublicInstanceConstructor(TargetTypeHelper.EnumerableInterfaceType),
                 MapperData.TargetObject);
@@ -645,12 +672,25 @@
         {
             var allowSameValue = value.NodeType != ExpressionType.MemberAccess;
 
-            if (allowSameValue && value.Type.IsAssignableTo(MapperData.TargetType))
+            if (!allowSameValue)
+            {
+                return GetEnumerableConversion(value);
+            }
+
+            if (value.Type.IsAssignableTo(MapperData.TargetType))
             {
                 return value;
             }
 
-            return GetEnumerableConversion(value);
+            var conversion = GetEnumerableConversion(value);
+
+            if (MapperData.TargetType.IsInterface())
+            {
+                conversion = Expression.Coalesce(Expression.TypeAs(value, MapperData.TargetType), conversion);
+            }
+
+            return conversion;
+
         }
 
         public Expression GetEnumerableConversion(Expression value)

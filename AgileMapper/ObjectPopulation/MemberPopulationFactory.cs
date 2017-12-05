@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly MemberPopulationFactory Default = new MemberPopulationFactory(mapperData =>
             GlobalContext.Instance
-                .MemberFinder
+                .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
                 .Select(tm => mapperData.TargetMember.Append(tm)));
 

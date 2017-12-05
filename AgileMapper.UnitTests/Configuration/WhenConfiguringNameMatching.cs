@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
+    using AgileMapper.Extensions;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -77,14 +79,33 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNamePattern("^_abc(.+)xyz_$");
+                mapper.WhenMapping.UseNamePattern("^_abc(.+)xyz_$");
 
                 var source = new { _abcValuexyz_ = 999 };
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
 
                 result.Value.ShouldBe("999");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseACustomNamingPatternInIdentifierMatching()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.UseNamePattern("^_(.+)_$");
+
+                var source = new[] { new { _Id_ = 123, _Price_ = 1.99 } };
+                var target = new List<ProductDto>
+                {
+                    new ProductDto { ProductId = "123", Price = 0.99m }
+                };
+                var productDto = target.First();
+                var result = mapper.Map(source).Over(target);
+
+                result.ShouldHaveSingleItem();
+                result.First().ShouldBeSameAs(productDto);
+                result.First().Price.ShouldBe(1.99m);
             }
         }
 

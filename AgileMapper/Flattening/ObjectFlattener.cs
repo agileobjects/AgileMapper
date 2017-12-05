@@ -38,7 +38,7 @@
             TSource parentObject,
             string parentMemberName)
         {
-            foreach (var sourceMember in GlobalContext.Instance.MemberFinder.GetSourceMembers(typeof(TSource)))
+            foreach (var sourceMember in GlobalContext.Instance.MemberCache.GetSourceMembers(typeof(TSource)))
             {
                 var name = GetName(parentMemberName, sourceMember);
                 var value = GetValue(parentObject, sourceMember);

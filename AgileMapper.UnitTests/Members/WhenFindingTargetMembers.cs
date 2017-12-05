@@ -13,7 +13,7 @@
         [Fact]
         public void ShouldFindAPublicProperty()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicProperty<byte>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -24,7 +24,7 @@
         [Fact]
         public void ShouldFindAPublicField()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicField<int>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -36,7 +36,7 @@
         [Fact]
         public void ShouldFindAPublicReadOnlyField()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicReadOnlyField<IEnumerable<byte>>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -48,7 +48,7 @@
         [Fact]
         public void ShouldFindAPublicSetMethod()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicSetMethod<DateTime>))
                 .FirstOrDefault(m => m.Name == "SetValue");
 
@@ -60,7 +60,7 @@
         [Fact]
         public void ShouldFindAPublicReadOnlyComplexTypeProperty()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicReadOnlyProperty<object>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -72,7 +72,7 @@
         [Fact]
         public void ShouldFindAPublicReadOnlyArrayField()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicReadOnlyField<byte[]>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -85,7 +85,7 @@
         [Fact]
         public void ShouldFindAPublicReadOnlySimpleTypeProperty()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicReadOnlyProperty<long>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -97,7 +97,7 @@
         [Fact]
         public void ShouldFindAReadOnlyArrayProperty()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicReadOnlyProperty<long[]>))
                 .FirstOrDefault(m => m.Name.StartsWith("Value"));
 
@@ -110,7 +110,7 @@
         [Fact]
         public void ShouldIgnoreANonPublicField()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(InternalField<List<byte>>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -120,7 +120,7 @@
         [Fact]
         public void ShouldIgnoreAGetMethod()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicGetMethod<string[]>))
                 .FirstOrDefault(m => m.Name == "Value");
 
@@ -130,7 +130,7 @@
         [Fact]
         public void ShouldIgnoreAPropertySetter()
         {
-            var member = MemberFinder
+            var member = MemberCache
                 .GetTargetMembers(typeof(PublicProperty<long>))
                 .FirstOrDefault(m => m.Name.StartsWith("set_"));
 

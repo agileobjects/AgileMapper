@@ -84,7 +84,7 @@
         /// </returns>
         public IGlobalConfigSettings UseNamePrefixes(params string[] prefixes)
         {
-            MapperContext.NamingSettings.AddNamePrefixes(prefixes);
+            MapperContext.Naming.AddNamePrefixes(prefixes);
             return this;
         }
 
@@ -108,7 +108,7 @@
         /// </returns>
         public IGlobalConfigSettings UseNameSuffixes(params string[] suffixes)
         {
-            MapperContext.NamingSettings.AddNameSuffixes(suffixes);
+            MapperContext.Naming.AddNameSuffixes(suffixes);
             return this;
         }
 
@@ -138,7 +138,7 @@
         /// </returns>
         public IGlobalConfigSettings UseNamePatterns(params string[] patterns)
         {
-            MapperContext.NamingSettings.AddNameMatchers(patterns);
+            MapperContext.Naming.AddNameMatchers(patterns);
             return this;
         }
 
@@ -322,6 +322,18 @@
             _configInfo.ForAllRuleSets().ForAllSourceTypes().ForAllTargetTypes();
 
         #endregion
+
+        /// <summary>
+        /// Configure how this mapper maps objects of the type specified by the given <paramref name="exampleInstance"/>. 
+        /// Use this overload for anonymous types.
+        /// </summary>
+        /// <typeparam name="TObject">The type of object to which the configuration will apply.</typeparam>
+        /// <param name="exampleInstance">
+        /// An instance specifying the source type for which mapping will be configured.
+        /// </param>
+        /// <returns>An InstanceConfigurator with which to complete the configuration.</returns>
+        public InstanceConfigurator<TObject> InstancesOf<TObject>(TObject exampleInstance) where TObject : class
+            => InstancesOf<TObject>();
 
         /// <summary>
         /// Configure how this mapper maps objects of the type specified by the type argument.

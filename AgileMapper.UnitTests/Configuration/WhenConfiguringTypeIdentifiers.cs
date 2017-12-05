@@ -88,6 +88,38 @@
         }
 
         [Fact]
+        public void ShouldErrorIfRedundantIdentifierSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var idEx = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .InstancesOf<Person>()
+                        .IdentifyUsing(p => p.Id));
+
+                idEx.Message.ShouldContain("Id is automatically used as the identifier");
+                idEx.Message.ShouldContain("does not need to be configured");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantCustomNamingIdentifierSpecified()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.UseNamePattern("^_(.+)_$");
+
+                var idEx = Should.Throw<MappingConfigurationException>(() =>
+                    mapper.WhenMapping
+                        .InstancesOf(new { _Id_ = default(int) })
+                        .IdentifyUsing(d => d._Id_));
+
+                idEx.Message.ShouldContain("_Id_ is automatically used as the identifier");
+                idEx.Message.ShouldContain("does not need to be configured");
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfMultipleIdentifiersSpecifiedForSameType()
         {
             Should.Throw<MappingConfigurationException>(() =>

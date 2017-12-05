@@ -10,13 +10,13 @@ namespace AgileObjects.AgileMapper
         private GlobalContext()
         {
             Cache = new CacheSet();
-            MemberFinder = new MemberFinder(Cache);
+            MemberCache = new MemberCache(Cache);
             DerivedTypes = new DerivedTypesCache(Cache);
         }
 
         public CacheSet Cache { get; }
 
-        public MemberFinder MemberFinder { get; }
+        public MemberCache MemberCache { get; }
 
         public DerivedTypesCache DerivedTypes { get; }
     }

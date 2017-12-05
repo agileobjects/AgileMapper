@@ -158,7 +158,7 @@
                     mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
                 validationEx.Message.ShouldContain("Person -> ProductDto");
-                validationEx.Message.ShouldContain("ProductDto.ProductId");
+                validationEx.Message.ShouldNotContain("ProductDto.ProductId"); // <- Because PVM has a PersonId
                 validationEx.Message.ShouldContain("ProductDto.Price");
 
                 validationEx.Message.ShouldContain("Product -> PersonViewModel");

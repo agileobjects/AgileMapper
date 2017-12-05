@@ -9,8 +9,8 @@
 
     public abstract class MemberTestsBase
     {
-        internal static readonly MapperContext DefaultMapperContext = new MapperContext();
-        internal static readonly MemberFinder MemberFinder = GlobalContext.Instance.MemberFinder;
+        internal static readonly MapperContext DefaultMapperContext = MapperContext.Default;
+        internal static readonly MemberCache MemberCache = GlobalContext.Instance.MemberCache;
 
         internal IQualifiedMember SourceMemberFor<T>(T sourceObject)
         {
@@ -29,22 +29,22 @@
         internal IQualifiedMember SourceMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
             => SourceMemberFor(Member.RootSource<T>(), childMemberExpression);
 
-        private static IQualifiedMember SourceMemberFor(Member rootSourceMember, LambdaExpression childMemberExpression)
+        private static IQualifiedMember SourceMemberFor(Member rootSourceMember, Expression childMemberExpression)
         {
             return (childMemberExpression == null)
-                ? QualifiedMember.From(rootSourceMember, MapperContext.Default)
+                ? QualifiedMember.From(rootSourceMember, DefaultMapperContext)
                 : MemberExtensions.CreateMember(
                     childMemberExpression,
                     Member.RootSource,
-                    MemberFinder.GetSourceMembers,
-                    MapperContext.Default);
+                    MemberCache.GetSourceMembers,
+                    DefaultMapperContext);
         }
 
         internal QualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
         {
             return (childMemberExpression == null)
-                ? QualifiedMember.From(Member.RootTarget(typeof(T)), MapperContext.Default)
-                : childMemberExpression.ToTargetMember(MapperContext.Default);
+                ? QualifiedMember.From(Member.RootTarget(typeof(T)), DefaultMapperContext)
+                : childMemberExpression.ToTargetMember(DefaultMapperContext);
         }
     }
 }
