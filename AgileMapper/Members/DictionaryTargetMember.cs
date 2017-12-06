@@ -256,7 +256,7 @@ namespace AgileObjects.AgileMapper.Members
             return keyedAssignment;
         }
 
-        private bool ValueIsFlattening(Expression value, out BlockExpression flattening)
+        private bool ValueIsFlattening(Expression value, out Expression flattening)
         {
             if (!(HasObjectEntries || HasSimpleEntries))
             {
@@ -268,9 +268,10 @@ namespace AgileObjects.AgileMapper.Members
 
             if (value.NodeType == ExpressionType.Block)
             {
-                flattening = (BlockExpression)value;
-                blockParameters = flattening.Variables;
-                value = flattening.Expressions[0];
+                flattening = value;
+                var flatteningBlock = (BlockExpression)flattening;
+                blockParameters = flatteningBlock.Variables;
+                value = flatteningBlock.Expressions[0];
             }
             else
             {
@@ -289,7 +290,7 @@ namespace AgileObjects.AgileMapper.Members
             flattening = blockParameters.Any()
                 ? Expression.Block(blockParameters, flatteningExpressions)
                 : flatteningExpressions.HasOne()
-                    ? (BlockExpression)flatteningExpressions[0]
+                    ? flatteningExpressions[0]
                     : Expression.Block(flatteningExpressions);
 
             return true;

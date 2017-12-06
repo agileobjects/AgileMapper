@@ -58,8 +58,22 @@
             var result = Mapper.Map(source).ToANew<Dictionary<string, string>>();
 
             result["Name"].ShouldBe("Eddie");
+            result.ContainsKey("Address").ShouldBeFalse();
             result["Address.Line1"].ShouldBe("Customer house");
             result["Address.Line2"].ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldMapNestedSimpleTypeMembersToAnUntypedDictionary()
+        {
+            var source = new PublicProperty<PublicField<int>>
+            {
+                Value = new PublicField<int> { Value = 12345 }
+            };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, object>>();
+
+            result.ContainsKey("Value").ShouldBeFalse();
+            result["Value.Value"].ShouldBe(12345);
         }
 
         [Fact]
