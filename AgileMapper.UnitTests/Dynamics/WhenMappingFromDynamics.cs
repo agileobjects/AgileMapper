@@ -16,5 +16,16 @@
 
             result.Value.ShouldBe(123);
         }
+
+        [Fact]
+        public void ShouldConvertASimpleTypeMemberValue()
+        {
+            dynamic source = new ExpandoObject();
+            source.Value = "728";
+
+            var result = (PublicField<long>)Mapper.Map(source).ToANew<PublicField<long>>();
+
+            result.Value.ShouldBe(728L);
+        }
     }
 }
