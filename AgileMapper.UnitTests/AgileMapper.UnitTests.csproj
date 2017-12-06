@@ -96,9 +96,12 @@
     <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
-    <Compile Include="Dictionaries\WhenMergingFromDictionariesOnToObjects.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesOverObjects.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamics.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToEnumerableMembers.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionariesOverComplexTypes.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewEnumerableMembers.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewEnumerables.cs" />
+    <Compile Include="Dynamics\WhenMappingFromDynamicsToNewComplexTypes.cs" />
     <Compile Include="Extensions\WhenEquatingExpressions.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
@@ -181,7 +184,7 @@
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewObjects.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewComplexTypes.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />
     <Compile Include="Dictionaries\WhenMappingOnToDictionaries.cs" />
     <Compile Include="Dictionaries\WhenMappingOnToDictionaryMembers.cs" />

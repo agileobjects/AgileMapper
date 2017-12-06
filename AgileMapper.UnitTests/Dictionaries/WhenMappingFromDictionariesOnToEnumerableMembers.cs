@@ -1,26 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Shouldly;
     using TestClasses;
     using Xunit;
 
-    public class WhenMergingFromDictionariesOnToObjects
+    public class WhenMappingFromDictionariesOnToEnumerableMembers
     {
-        [Fact]
-        public void ShouldPopulateAStringMemberFromANullableTypedEntry()
-        {
-            var guid = Guid.NewGuid();
-
-            var source = new Dictionary<string, Guid?> { ["Value"] = guid };
-            var target = new PublicProperty<string>();
-            var result = Mapper.Map(source).OnTo(target);
-
-            result.Value.ShouldBe(guid.ToString());
-        }
-
         [Fact]
         public void ShouldMergeSimpleTypeListFromSimpleTypeDictionaryImplementationEntries()
         {
@@ -59,7 +46,7 @@
         }
 
         [Fact]
-        public void ShouldMergeANestedComplexTypeArrayFromUntypedDictionaryImplementationEntries()
+        public void ShouldMergeAComplexTypeArrayFromUntypedDictionaryImplementationEntries()
         {
             var source = new StringKeyedDictionary<object>
             {

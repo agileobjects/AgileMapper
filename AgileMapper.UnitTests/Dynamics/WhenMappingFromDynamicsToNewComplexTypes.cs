@@ -4,7 +4,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenMappingFromDynamics
+    public class WhenMappingFromDynamicsToNewComplexTypes
     {
         [Fact]
         public void ShouldMapToASimpleTypeMember()
