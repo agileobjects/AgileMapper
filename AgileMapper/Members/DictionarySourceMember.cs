@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public DictionarySourceMember(IQualifiedMember wrappedSourceMember, QualifiedMember matchedTargetMember)
             : this(
-                wrappedSourceMember.Type,
+                wrappedSourceMember.Type.GetDictionaryType(),
                 wrappedSourceMember,
                 matchedTargetMember,
                 wrappedSourceMember.Matches(matchedTargetMember))
@@ -78,12 +78,9 @@ namespace AgileObjects.AgileMapper.Members
 
         public IQualifiedMember GetElementMember()
         {
-            if (EntryMember.IsEnumerable)
-            {
-                return EntryMember.GetElementMember();
-            }
-
-            return EntryMember.GetInstanceElementMember();
+            return EntryMember.IsEnumerable
+                ? EntryMember.GetElementMember()
+                : EntryMember.GetInstanceElementMember();
         }
 
         public IQualifiedMember Append(Member childMember) => EntryMember.Append(childMember);

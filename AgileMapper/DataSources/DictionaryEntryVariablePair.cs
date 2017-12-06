@@ -165,10 +165,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var keyMatchesLambda = Expression.Lambda<Func<string, bool>>(keyMatcher, keyParameter);
 
-            var dictionaryType = MapperData.SourceObject.Type.GetDictionaryType();
-            var sourceObject = MapperData.SourceObject.GetConversionTo(dictionaryType);
-
-            var dictionaryKeys = Expression.Property(sourceObject, "Keys");
+            var dictionaryKeys = Expression.Property(MapperData.SourceObject, "Keys");
             var keyMatchesQuery = Expression.Call(queryMethod, dictionaryKeys, keyMatchesLambda);
 
             return keyMatchesQuery;

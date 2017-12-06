@@ -145,10 +145,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var property = mappingDataType.GetPublicInstanceProperty(propertyName);
 
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var propertyAccess = Expression.Property(MappingDataObject, property);
-
-            return propertyAccess;
+            return Expression.Property(MappingDataObject, property);
         }
 
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
@@ -282,7 +279,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #region Factory Method
 
         public static ObjectMapperData For<TSource, TTarget>(IObjectMappingData mappingData)
-        {   
+        {
             var membersSource = mappingData.MapperKey.GetMembersSource(mappingData.Parent);
             var sourceMember = membersSource.GetSourceMember<TSource, TTarget>().WithType(typeof(TSource));
             var targetMember = membersSource.GetTargetMember<TSource, TTarget>().WithType(typeof(TTarget));
