@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
+    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -26,6 +27,17 @@
             var result = (PublicField<long>)Mapper.Map(source).ToANew<PublicField<long>>();
 
             result.Value.ShouldBe(728L);
+        }
+
+        [Fact]
+        public void ShouldHandleANullASimpleTypeMemberValue()
+        {
+            dynamic source = new ExpandoObject();
+            source.Value = default(string);
+
+            var result = (PublicSetMethod<string>)Mapper.Map(source).ToANew<PublicSetMethod<string>>();
+
+            result.Value.ShouldBeNull();
         }
     }
 }
