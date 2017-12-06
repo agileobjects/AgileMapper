@@ -7,7 +7,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenMergingObjectsFromDictionaries
+    public class WhenMergingFromDictionariesOnToObjects
     {
         [Fact]
         public void ShouldPopulateAStringMemberFromANullableTypedEntry()

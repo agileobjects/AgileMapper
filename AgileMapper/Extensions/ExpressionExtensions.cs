@@ -136,8 +136,11 @@
                 return Expression.ArrayIndex(indexedExpression, indexValue);
             }
 
-            var indexer = indexedExpression.Type
-                .GetPublicInstanceProperties()
+            var relevantTypes = new[] { indexedExpression.Type }
+                .Concat(indexedExpression.Type.GetAllInterfaces());
+
+            var indexer = relevantTypes
+                .SelectMany(t => t.GetPublicInstanceProperties())
                 .First(p =>
                     p.GetIndexParameters().HasOne() &&
                    (p.GetIndexParameters()[0].ParameterType == indexValue.Type));

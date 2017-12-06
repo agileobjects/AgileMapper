@@ -96,8 +96,9 @@
     <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
-    <Compile Include="Dictionaries\WhenMergingObjectsFromDictionaries.cs" />
-    <Compile Include="Dictionaries\WhenOverwritingObjectsFromDictionaries.cs" />
+    <Compile Include="Dictionaries\WhenMergingFromDictionariesOnToObjects.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionariesOverObjects.cs" />
+    <Compile Include="Dynamics\WhenMappingFromDynamics.cs" />
     <Compile Include="Extensions\WhenEquatingExpressions.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
@@ -180,7 +181,7 @@
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
     <Compile Include="WhenFlatteningObjects.cs" />
-    <Compile Include="Dictionaries\WhenMappingNewObjectsFromDictionaries.cs" />
+    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewObjects.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />
     <Compile Include="Dictionaries\WhenMappingOnToDictionaries.cs" />
     <Compile Include="Dictionaries\WhenMappingOnToDictionaryMembers.cs" />

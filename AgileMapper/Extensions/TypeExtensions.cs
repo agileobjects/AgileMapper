@@ -208,27 +208,32 @@
 
         public static KeyValuePair<Type, Type> GetDictionaryTypes(this Type type)
         {
-            if (!type.IsGenericType())
-            {
-                return default(KeyValuePair<Type, Type>);
-            }
+            var dictionaryType = GetDictionaryType(type);
 
-            var typeDefinition = type.GetGenericTypeDefinition();
+            return (dictionaryType != null)
+                ? GetDictionaryTypesFrom(dictionaryType)
+                : default(KeyValuePair<Type, Type>);
+        }
 
-            if ((typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>)))
+        public static Type GetDictionaryType(this Type type)
+        {
+            if (type.IsGenericType())
             {
-                return GetDictionaryTypesFrom(type);
+                var typeDefinition = type.GetGenericTypeDefinition();
+
+                if ((typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>)))
+                {
+                    return type;
+                }
             }
 
             var interfaceType = type
                 .GetAllInterfaces()
                 .FirstOrDefault(t =>
                     t.IsGenericType() &&
-                   (t.GetGenericTypeDefinition() == typeof(IDictionary<,>)));
+                    (t.GetGenericTypeDefinition() == typeof(IDictionary<,>)));
 
-            return (interfaceType != null)
-                ? GetDictionaryTypesFrom(interfaceType)
-                : default(KeyValuePair<Type, Type>);
+            return interfaceType;
         }
 
         private static KeyValuePair<Type, Type> GetDictionaryTypesFrom(Type type)

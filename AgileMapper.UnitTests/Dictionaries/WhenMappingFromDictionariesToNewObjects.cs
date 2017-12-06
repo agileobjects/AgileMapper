@@ -8,10 +8,10 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenMappingNewObjectsFromDictionaries
+    public class WhenMappingFromDictionariesToNewObjects
     {
         [Fact]
-        public void ShouldPopulateAnIntMemberFromATypedEntry()
+        public void ShouldMapToAnIntMemberFromATypedEntry()
         {
             var source = new Dictionary<string, int> { ["Value"] = 123 };
             var result = Mapper.Map(source).ToANew<PublicField<int>>();
@@ -21,7 +21,17 @@
         }
 
         [Fact]
-        public void ShouldPopulateAStringMemberFromATypedEntryCaseInsensitively()
+        public void ShouldMapToAnIntMemberFromADictionaryImplementationTypedEntry()
+        {
+            var source = new StringKeyedDictionary<long> { ["Value"] = 999 };
+            var result = Mapper.Map(source).ToANew<PublicField<long>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBe(999L);
+        }
+
+        [Fact]
+        public void ShouldMapToAStringMemberFromATypedEntryCaseInsensitively()
         {
             var source = new Dictionary<string, string> { ["value"] = "Hello" };
             var result = Mapper.Map(source).ToANew<PublicField<string>>();
@@ -30,7 +40,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAStringSetMethodFromATypedEntry()
+        public void ShouldMapToAStringSetMethodFromATypedEntry()
         {
             var source = new Dictionary<string, string> { ["SetValue"] = "Goodbye" };
             var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
@@ -39,7 +49,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateANestedStringMemberFromTypedDottedEntries()
+        public void ShouldMapToANestedStringMemberFromTypedDottedEntries()
         {
             var source = new Dictionary<string, string> { ["Value.Value"] = "Over there!" };
             var result = Mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
@@ -48,7 +58,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateANestedBoolMemberFromUntypedDottedEntries()
+        public void ShouldMapToANestedBoolMemberFromUntypedDottedEntries()
         {
             var source = new Dictionary<string, object> { ["Value.Value"] = "true" };
             var result = Mapper.Map(source).ToANew<PublicProperty<PublicProperty<bool>>>();
@@ -77,7 +87,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeCollectionFromATypedSourceArray()
+        public void ShouldMapToASimpleTypeCollectionFromATypedSourceArray()
         {
             var source = new Dictionary<string, long[]> { ["Value"] = new long[] { 4, 5, 6 } };
             var result = Mapper.Map(source).ToANew<PublicProperty<ICollection<long>>>();
@@ -86,7 +96,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeListFromNullableTypedSourceEntries()
+        public void ShouldMapToASimpleTypeListFromNullableTypedSourceEntries()
         {
             var source = new Dictionary<string, int?>
             {
@@ -100,7 +110,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeEnumerableFromAnUntypedSourceArray()
+        public void ShouldMapToASimpleTypeEnumerableFromAnUntypedSourceArray()
         {
             var source = new Dictionary<string, object> { ["Value"] = new[] { 1, 2, 3 } };
             var result = Mapper.Map(source).ToANew<PublicProperty<IEnumerable<int>>>();
@@ -109,7 +119,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateASimpleTypeArrayFromAConvertibleTypedSourceEnumerable()
+        public void ShouldMapToASimpleTypeArrayFromAConvertibleTypedSourceEnumerable()
         {
             var source = new Dictionary<string, IEnumerable<int>> { ["Value"] = new[] { 4, 5, 6 } };
             var result = Mapper.Map(source).ToANew<PublicProperty<string[]>>();
@@ -118,7 +128,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAComplexTypeArrayFromAConvertibleTypedSourceEnumerable()
+        public void ShouldMapToAComplexTypeArrayFromAConvertibleTypedSourceEnumerable()
         {
             var source = new Dictionary<string, IEnumerable<Person>>
             {
@@ -137,7 +147,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateARootSimpleTypeEnumerableFromTypedEntries()
+        public void ShouldMapToARootSimpleTypeEnumerableFromTypedEntries()
         {
             var source = new Dictionary<string, int>
             {
@@ -151,7 +161,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateANestedSimpleTypeListFromTypedEntries()
+        public void ShouldMapToANestedSimpleTypeListFromTypedEntries()
         {
             var source = new Dictionary<string, int>
             {
@@ -165,7 +175,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateANestedSimpleTypeCollectionFromConvertibleTypedEntries()
+        public void ShouldMapToANestedSimpleTypeCollectionFromConvertibleTypedEntries()
         {
             var now = DateTime.Now;
 
@@ -184,7 +194,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateARootSimpleTypeArrayFromConvertibleTypedEntries()
+        public void ShouldMapToARootSimpleTypeArrayFromConvertibleTypedEntries()
         {
             var source = new Dictionary<string, long>
             {
@@ -201,7 +211,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateARootComplexTypeCollectionFromTypedEntries()
+        public void ShouldMapToARootComplexTypeCollectionFromTypedEntries()
         {
             var source = new Dictionary<string, MegaProduct>
             {
@@ -218,7 +228,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateARootComplexTypeListFromUntypedEntries()
+        public void ShouldMapToARootComplexTypeListFromUntypedEntries()
         {
             var source = new Dictionary<string, object>
             {
@@ -234,7 +244,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateARootComplexTypeEnumerableFromTypedDottedEntries()
+        public void ShouldMapToARootComplexTypeEnumerableFromTypedDottedEntries()
         {
             var source = new Dictionary<string, string>
             {
@@ -249,7 +259,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateARootParameterisedConstructorComplexTypeEnumerableFromTypedDottedEntries()
+        public void ShouldMapToARootParameterisedConstructorComplexTypeEnumerableFromTypedDottedEntries()
         {
             var source = new Dictionary<string, string>
             {
@@ -266,7 +276,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateARootComplexTypeCollectionFromUntypedDottedEntries()
+        public void ShouldMapToARootComplexTypeCollectionFromUntypedDottedEntries()
         {
             var source = new Dictionary<string, object>
             {
@@ -285,7 +295,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateANestedComplexTypeArrayFromUntypedEntries()
+        public void ShouldMapToANestedComplexTypeArrayFromUntypedEntries()
         {
             var source = new Dictionary<string, object>
             {
@@ -301,7 +311,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateANestedComplexTypeCollectionFromTypedDottedEntries()
+        public void ShouldMapToANestedComplexTypeCollectionFromTypedDottedEntries()
         {
             var source = new Dictionary<string, string>
             {
@@ -318,7 +328,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateANestedComplexTypeArrayFromUntypedDottedEntries()
+        public void ShouldMapToANestedComplexTypeArrayFromUntypedDottedEntries()
         {
             var source = new Dictionary<string, object>
             {
@@ -343,7 +353,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateSimpleTypeConstructorParameterFromUntypedEntry()
+        public void ShouldMapToSimpleTypeConstructorParameterFromUntypedEntry()
         {
             var guid = Guid.NewGuid();
             var source = new Dictionary<string, object> { ["Value"] = guid.ToString() };
@@ -353,7 +363,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateComplexTypeAndSimpleTypeArrayConstructorParametersFromUntypedDottedEntries()
+        public void ShouldMapToComplexTypeAndSimpleTypeArrayConstructorParametersFromUntypedDottedEntries()
         {
             var now = DateTime.Now;
             var nowString = now.ToCurrentCultureString();
@@ -379,7 +389,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateDeepNestedComplexTypeMembersFromUntypedDottedEntries()
+        public void ShouldMapToDeepNestedComplexTypeMembersFromUntypedDottedEntries()
         {
             var source = new Dictionary<string, object>
             {

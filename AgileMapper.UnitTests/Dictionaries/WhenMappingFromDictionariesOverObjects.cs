@@ -6,7 +6,7 @@
     using TestClasses;
     using Xunit;
 
-    public class WhenOverwritingObjectsFromDictionaries
+    public class WhenMappingFromDictionariesOverObjects
     {
         [Fact]
         public void ShouldPopulateADateTimeMemberFromAnUntypedEntry()
