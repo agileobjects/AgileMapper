@@ -96,7 +96,8 @@ namespace AgileObjects.AgileMapper.Members
                 ValueType);
         }
 
-        public IQualifiedMember WithType(Type runtimeType) => this;
+        public IQualifiedMember WithType(Type runtimeType)
+            => (runtimeType != _wrappedSourceMember.Type) ? EntryMember.WithType(runtimeType) : this;
 
         public bool CouldMatch(QualifiedMember otherMember) => _wrappedSourceMember.CouldMatch(otherMember);
 

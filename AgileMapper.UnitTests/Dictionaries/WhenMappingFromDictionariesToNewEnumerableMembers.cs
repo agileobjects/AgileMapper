@@ -44,6 +44,18 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
         }
 
         [Fact]
+        public void ShouldMapToASimpleTypeCollectionFromAnUntypedEntry()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["Value"] = new[] { '1', '2', '3' }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<ICollection<int>>>();
+
+            result.Value.ShouldBe(1, 2, 3);
+        }
+
+        [Fact]
         public void ShouldMapToAComplexTypeArrayFromUntypedEntries()
         {
             var source = new Dictionary<string, object>
