@@ -91,5 +91,13 @@
                 typeof(StringExtensions).GetPublicStaticMethod("FirstOrDefault"),
                 stringAccess);
         }
+
+        public static Expression GetMatchesKeyCall(this Expression stringAccess, Expression keyValue)
+        {
+            return Expression.Call(
+                typeof(StringExtensions).GetPublicStaticMethod("MatchesKey"),
+                stringAccess,
+                keyValue);
+        }
     }
 }

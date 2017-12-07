@@ -106,7 +106,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var firstMatchingKeyOrNull = GetKeyMatchingQuery(
                 HasConstantTargetMemberKey ? targetMemberKey : Key,
-                (keyParameter, targetKey) => keyParameter.GetCaseInsensitiveEquals(targetKey),
+                (keyParameter, targetKey) => keyParameter.GetMatchesKeyCall(targetKey),
                 Expression.Equal,
                 _linqFirstOrDefaultMethod);
 

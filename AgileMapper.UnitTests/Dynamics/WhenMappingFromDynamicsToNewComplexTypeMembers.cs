@@ -25,5 +25,21 @@
             result.Address.Line1.ShouldBe("Dynamic Line 1!");
             result.Address.Line2.ShouldBe("Dynamic Line 2!");
         }
+
+        [Fact]
+        public void ShouldMapFlattenedPropertiesToNestedSimpleTypeMembers()
+        {
+            dynamic source = new ExpandoObject();
+            source.name = "Dynamic Person";
+            source.addressLine1 = "Dynamic Line 1";
+            source.addressLine2 = "Dynamic Line 2";
+
+            var result = (Person)Mapper.Map(source).ToANew<Person>();
+
+            result.Name = "Dynamic Person";
+            result.Address.ShouldNotBeNull();
+            result.Address.Line1.ShouldBe("Dynamic Line 1");
+            result.Address.Line2.ShouldBe("Dynamic Line 2");
+        }
     }
 }

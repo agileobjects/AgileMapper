@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions
 {
+    using System;
+
     internal static class StringExtensions
     {
         public static string ToPascalCase(this string value)
@@ -16,6 +18,26 @@
             }
 
             return value[0].ToString();
+        }
+
+        public static bool MatchesKey(this string subjectKey, string queryKey)
+        {
+            if (queryKey == null)
+            {
+                // This can happen when mapping to types with multiple, nested
+                // recursive relationships, e.g:
+                // Dictionary<,> -> Order -> OrderItems -> Order -> OrderItems
+                // ...it's basically not supported
+                return false;
+            }
+
+            if (subjectKey.Equals(queryKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return (queryKey.IndexOf('.') != -1) &&
+                    subjectKey.Equals(queryKey.Replace(".", null), StringComparison.OrdinalIgnoreCase);
         }
     }
 }
