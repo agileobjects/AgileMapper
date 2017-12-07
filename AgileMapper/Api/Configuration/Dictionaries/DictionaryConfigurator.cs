@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// Person.Address.StreetName member would be populated using the dictionary entry with key 
         /// 'AddressStreetName' when mapping to a root Person object.
         /// </summary>
-        public IGlobalDictionarySettings<TValue> UseFlattenedMemberNames()
+        public IGlobalDictionarySettings<TValue> UseFlattenedTargetMemberNames()
         {
             var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(GlobalConfigInfo);
 

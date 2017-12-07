@@ -167,7 +167,7 @@
                 {
                     mapper.WhenMapping
                         .Dictionaries
-                        .UseFlattenedMemberNames()
+                        .UseFlattenedTargetMemberNames()
                         .UseMemberNameSeparator("+");
                 }
             });
@@ -186,7 +186,7 @@
                     mapper.WhenMapping
                         .Dictionaries
                         .UseMemberNameSeparator("+")
-                        .UseFlattenedMemberNames();
+                        .UseFlattenedTargetMemberNames();
                 }
             });
 
@@ -195,7 +195,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfMemberNamesAreFlattenedAndSeparatedForASpecificTargetType()
+        public void ShouldErrorIfDifferentSeparatorsSpecifiedForASpecificTargetType()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -204,32 +204,13 @@
                     mapper.WhenMapping
                         .Dictionaries
                         .To<PublicField<PublicProperty<string>>>()
-                        .UseFlattenedMemberNames()
+                        .UseMemberNameSeparator("-")
                         .UseMemberNameSeparator("_");
                 }
             });
 
             configEx.Message.ShouldContain("PublicField<PublicProperty<string>>");
-            configEx.Message.ShouldContain("flattened");
-        }
-
-        [Fact]
-        public void ShouldErrorIfMemberNamesAreSeparatedAndFlattenedForASpecificTargetType()
-        {
-            var configEx = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .Dictionaries
-                        .To<PublicProperty<PublicField<int>>>()
-                        .UseMemberNameSeparator("+")
-                        .UseFlattenedMemberNames();
-                }
-            });
-
-            configEx.Message.ShouldContain("PublicProperty<PublicField<int>>");
-            configEx.Message.ShouldContain("separated with '+'");
+            configEx.Message.ShouldContain("separated with '-'");
         }
 
         [Fact]

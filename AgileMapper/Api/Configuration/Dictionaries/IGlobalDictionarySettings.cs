@@ -9,15 +9,15 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     public interface IGlobalDictionarySettings<TValue>
     {
         /// <summary>
-        /// Construct dictionary keys for nested members using flattened member names. For example, a
-        /// Person.Address.StreetName member would be populated using the dictionary entry with key 
-        /// 'AddressStreetName' when mapping to a root Person object.
+        /// Construct keys for target dictionary members using flattened member names. For example, a
+        /// Person.Address.StreetName member would be mapped to a dictionary entry with the key 
+        /// 'AddressStreetName'.
         /// </summary>
         /// <returns>
         /// An <see cref="IGlobalDictionarySettings{TValue}"/> with which to globally configure other 
         /// dictionary mapping aspects.
         /// </returns>
-        IGlobalDictionarySettings<TValue> UseFlattenedMemberNames();
+        IGlobalDictionarySettings<TValue> UseFlattenedTargetMemberNames();
 
         /// <summary>
         /// Use the given <paramref name="separator"/> to separate member names when mapping to nested

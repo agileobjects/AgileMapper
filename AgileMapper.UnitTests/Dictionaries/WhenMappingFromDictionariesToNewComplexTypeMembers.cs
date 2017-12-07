@@ -27,6 +27,24 @@
         }
 
         [Fact]
+        public void ShouldMapToMemberFromFlattenedNameEntries()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["Name"] = "Bob",
+                ["Discount"] = "0.1",
+                ["AddressLine1"] = "Bob's House",
+                ["AddressLine2"] = "Bob's Street"
+            };
+            var result = Mapper.Map(source).ToANew<Customer>();
+
+            result.Name.ShouldBe("Bob");
+            result.Discount.ShouldBe(0.1);
+            result.Address.Line1.ShouldBe("Bob's House");
+            result.Address.Line2.ShouldBe("Bob's Street");
+        }
+
+        [Fact]
         public void ShouldMapToNestedMembersFromUntypedEntries()
         {
             var source = new Dictionary<string, object>

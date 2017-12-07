@@ -17,7 +17,7 @@
             {
                 mapper.WhenMapping
                     .Dictionaries
-                    .UseFlattenedMemberNames();
+                    .UseFlattenedTargetMemberNames();
 
                 var source = new MysteryCustomer
                 {

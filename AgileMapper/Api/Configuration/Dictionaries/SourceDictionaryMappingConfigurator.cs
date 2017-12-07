@@ -15,12 +15,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         #region ISourceDictionaryConfigSettings Members
 
-        public ISourceDictionaryConfigSettings<TValue, TTarget> UseFlattenedMemberNames()
-        {
-            SetupFlattenedMemberNames();
-            return this;
-        }
-
         public ISourceDictionaryConfigSettings<TValue, TTarget> UseMemberNameSeparator(string separator)
         {
             SetupMemberNameSeparator(separator);
