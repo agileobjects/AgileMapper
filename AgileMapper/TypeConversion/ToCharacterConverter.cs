@@ -76,7 +76,7 @@
 
             if (!isWholeNumberNumeric)
             {
-                stringValue = stringValue.GetLeftCall(numberOfCharacters: 1);
+                stringValue = stringValue.GetFirstOrDefaultCall();
             }
 
             var convertedStringValue = GetFromStringConversion(stringValue, targetType);

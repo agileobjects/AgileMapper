@@ -8,14 +8,14 @@
         public static string ToCamelCase(this string value)
             => char.ToLowerInvariant(value[0]) + value.Substring(1);
 
-        public static string Left(this string value, int numberOfCharacters)
+        public static string FirstOrDefault(this string value)
         {
-            if (string.IsNullOrEmpty(value) || (value.Length <= numberOfCharacters))
+            if (string.IsNullOrEmpty(value) || (value.Length <= 1))
             {
                 return value;
             }
 
-            return value.Substring(0, numberOfCharacters);
+            return value[0].ToString();
         }
     }
 }

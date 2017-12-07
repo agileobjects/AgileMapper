@@ -106,8 +106,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var firstMatchingKeyOrNull = GetKeyMatchingQuery(
                 HasConstantTargetMemberKey ? targetMemberKey : Key,
-                Expression.Equal,
                 (keyParameter, targetKey) => keyParameter.GetCaseInsensitiveEquals(targetKey),
+                Expression.Equal,
                 _linqFirstOrDefaultMethod);
 
             var keyVariableAssignment = GetKeyAssignment(firstMatchingKeyOrNull);
@@ -125,8 +125,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var noKeysStartWithTarget = GetKeyMatchingQuery(
                 targetMemberKey,
-                (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
                 GetKeyStartsWithIgnoreCaseCall,
+                (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
                 EnumerableExtensions.EnumerableNoneMethod);
 
             return noKeysStartWithTarget;
@@ -153,15 +153,15 @@ namespace AgileObjects.AgileMapper.DataSources
 
         private Expression GetKeyMatchingQuery(
             Expression targetMemberKey,
-            Func<Expression, Expression, Expression> rootKeyMatcherFactory,
-            Func<Expression, Expression, Expression> nestedKeyMatcherFactory,
+            Func<Expression, Expression, Expression> keyMatcherFactory,
+            Func<Expression, Expression, Expression> elementKeyMatcherFactory,
             MethodInfo queryMethod)
         {
             var keyParameter = Expression.Parameter(typeof(string), "key");
 
-            var keyMatcher = MapperData.IsRoot
-                ? rootKeyMatcherFactory.Invoke(keyParameter, targetMemberKey)
-                : nestedKeyMatcherFactory.Invoke(keyParameter, targetMemberKey);
+            var keyMatcher = MapperData.TargetMemberIsEnumerableElement()
+                ? elementKeyMatcherFactory.Invoke(keyParameter, targetMemberKey)
+                : keyMatcherFactory.Invoke(keyParameter, targetMemberKey);
 
             var keyMatchesLambda = Expression.Lambda<Func<string, bool>>(keyMatcher, keyParameter);
 
