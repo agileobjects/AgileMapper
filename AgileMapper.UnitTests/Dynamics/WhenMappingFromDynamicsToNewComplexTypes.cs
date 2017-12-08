@@ -32,7 +32,7 @@
         [Fact]
         public void ShouldHandleANullASimpleTypeMemberValue()
         {
-            dynamic source = new ExpandoObject();
+            dynamic source = new ExpandoObject{};
             source.Value = default(string);
 
             var result = (PublicSetMethod<string>)Mapper.Map(source).ToANew<PublicSetMethod<string>>();

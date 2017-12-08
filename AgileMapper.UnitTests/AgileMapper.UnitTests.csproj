@@ -104,6 +104,7 @@
     <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewEnumerables.cs" />
     <Compile Include="Dynamics\WhenMappingFromDynamicsToNewComplexTypeMembers.cs" />
     <Compile Include="Dynamics\WhenMappingFromDynamicsToNewComplexTypes.cs" />
+    <Compile Include="Dynamics\WhenMappingFromDynamicsToNewEnumerableMembers.cs" />
     <Compile Include="Extensions\WhenEquatingExpressions.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
