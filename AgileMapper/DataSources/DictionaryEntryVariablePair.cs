@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Reflection;
     using Extensions;
     using Members;
+    using Members.Dictionaries;
     using NetStandardPolyfills;
 
     internal class DictionaryEntryVariablePair

@@ -6,6 +6,7 @@
     using DataSources;
     using Extensions;
     using Members;
+    using Members.Dictionaries;
     using Members.Population;
 
     internal class DictionaryPopulationBuilder

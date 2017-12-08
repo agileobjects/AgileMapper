@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members
 #endif
     using System.Linq.Expressions;
     using System.Reflection;
+    using Dictionaries;
     using Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;

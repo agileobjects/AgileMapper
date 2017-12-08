@@ -1,10 +1,10 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
     using System.Collections;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions;
-    using Members;
+    using Members.Dictionaries;
     using NetStandardPolyfills;
 
     internal class SourceObjectDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter

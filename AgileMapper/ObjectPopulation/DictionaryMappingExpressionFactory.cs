@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Enumerables.Dictionaries;
     using Extensions;
     using Members;
+    using Members.Dictionaries;
     using NetStandardPolyfills;
     using ReadableExpressions;
 

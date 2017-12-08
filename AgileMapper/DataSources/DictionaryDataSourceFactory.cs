@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Extensions;
     using Members;
+    using Members.Dictionaries;
 
     internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {

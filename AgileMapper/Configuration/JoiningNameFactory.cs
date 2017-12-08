@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using Extensions;
     using Members;
+    using Members.Dictionaries;
     using ReadableExpressions.Extensions;
 
     internal class JoiningNameFactory : UserConfiguredItemBase

@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
+    using Dictionaries;
     using Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;

@@ -9,6 +9,7 @@
     using DataSources;
     using Extensions;
     using Members;
+    using Members.Dictionaries;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 

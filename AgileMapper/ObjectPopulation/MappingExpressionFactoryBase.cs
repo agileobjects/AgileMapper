@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Extensions;
 #if NET_STANDARD
-    using System.Reflection;
 #endif
     using Members;
     using NetStandardPolyfills;

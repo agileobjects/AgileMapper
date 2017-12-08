@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
+    using Dictionaries;
     using Members;
 
     internal static class SourceEnumerableAdapterFactory
