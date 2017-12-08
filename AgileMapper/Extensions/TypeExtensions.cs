@@ -229,12 +229,13 @@
 
             var interfaceType = type
                 .GetAllInterfaces()
-                .FirstOrDefault(t =>
-                    t.IsGenericType() &&
-                    (t.GetGenericTypeDefinition() == typeof(IDictionary<,>)));
+                .FirstOrDefault(t => t.IsClosedTypeOf(typeof(IDictionary<,>)));
 
             return interfaceType;
         }
+
+        public static bool IsClosedTypeOf(this Type type, Type genericTypeDefinition)
+            => type.IsGenericType() && (type.GetGenericTypeDefinition() == genericTypeDefinition);
 
         private static KeyValuePair<Type, Type> GetDictionaryTypesFrom(Type type)
         {

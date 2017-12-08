@@ -89,9 +89,7 @@
                 return true;
             }
 
-            if (member.IsEnumerable &&
-                member.Type.IsGenericType() &&
-               (member.Type.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)))
+            if (member.IsEnumerable && member.Type.IsClosedTypeOf(typeof(ReadOnlyCollection<>)))
             {
                 reason = "readonly " + member.Type.GetFriendlyName();
                 return true;

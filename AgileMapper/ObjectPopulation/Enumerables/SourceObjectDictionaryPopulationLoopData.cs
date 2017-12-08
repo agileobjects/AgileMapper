@@ -50,10 +50,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
         {
-            var convertedEnumeratorValue = _enumerableLoopData.GetElementMapping(enumerableMappingData);
-            var convertedElementValue = _elementsDictionaryLoopData.GetElementMapping(enumerableMappingData);
-
-            return Expression.Condition(_sourceEnumerableFound, convertedEnumeratorValue, convertedElementValue);
+            return Expression.Condition(
+                _sourceEnumerableFound,
+                _enumerableLoopData.SourceElement,
+                _elementsDictionaryLoopData.GetElementMapping(enumerableMappingData));
         }
 
         public Expression Adapt(LoopExpression loop)
