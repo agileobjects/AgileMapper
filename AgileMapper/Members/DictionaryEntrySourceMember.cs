@@ -98,6 +98,8 @@ namespace AgileObjects.AgileMapper.Members
                 childMembers);
         }
 
+        public bool HasCompatibleType(Type type) => false;
+
         public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 
         public bool Matches(IQualifiedMember otherMember)

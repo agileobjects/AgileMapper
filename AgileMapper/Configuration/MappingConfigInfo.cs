@@ -5,13 +5,11 @@
     using System.Linq.Expressions;
     using Extensions;
     using Members;
-    using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
 
-    internal class MappingConfigInfo
+    internal class MappingConfigInfo : ITypePair
     {
-        private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", true, null, null, null);
 
         private ConfiguredLambdaInfo _conditionLambda;
@@ -36,7 +34,7 @@
 
         public Type SourceType { get; private set; }
 
-        public MappingConfigInfo ForAllSourceTypes() => ForSourceType(_allSourceTypes);
+        public MappingConfigInfo ForAllSourceTypes() => ForSourceType(Constants.AllTypes);
 
         public MappingConfigInfo ForSourceType<TSource>() => ForSourceType(typeof(TSource));
 
@@ -47,13 +45,6 @@
         }
 
         public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => otherConfigInfo.SourceType == SourceType;
-
-        public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo.SourceType);
-
-        private bool IsForSourceType(Type sourceType)
-            => IsForAllSourceTypes || sourceType.IsAssignableTo(SourceType);
-
-        public bool IsForAllSourceTypes => SourceType == _allSourceTypes;
 
         public Type TargetType { get; private set; }
 
@@ -67,34 +58,10 @@
             return this;
         }
 
-        public bool IsForTargetType(MappingConfigInfo otherConfigInfo)
-            => otherConfigInfo.TargetType.IsAssignableTo(TargetType);
-
         public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
 
         public bool HasCompatibleTypes(MappingConfigInfo otherConfigInfo)
-            => HasCompatibleTypes(otherConfigInfo.SourceType, otherConfigInfo.TargetType);
-
-        public bool HasCompatibleTypes(IBasicMapperData mapperData)
-            => HasCompatibleTypes(mapperData.SourceType, mapperData.TargetType);
-
-        public bool HasCompatibleTypes(Type sourceType, Type targetType)
-        {
-            if (IsForSourceType(sourceType))
-            {
-                if (targetType.IsAssignableTo(TargetType))
-                {
-                    return true;
-                }
-
-                if (targetType.IsInterface())
-                {
-                    return Array.IndexOf(TargetType.GetAllInterfaces(), targetType) != -1;
-                }
-            }
-
-            return false;
-        }
+            => ((ITypePair)this).HasCompatibleTypes(otherConfigInfo);
 
         public MappingRuleSet RuleSet { get; private set; }
 

@@ -82,6 +82,8 @@ namespace AgileObjects.AgileMapper.Members
                 relativeMemberChain);
         }
 
+        public bool HasCompatibleType(Type type) => false;
+
         public bool CouldMatch(QualifiedMember otherMember)
             => _matchedTargetMemberJoinedNames.CouldMatch(otherMember.JoinedNames);
 

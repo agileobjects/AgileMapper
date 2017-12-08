@@ -15,6 +15,7 @@
         public static readonly string EnumerableElementName = "[i]";
 
         public static readonly Type[] NoTypeArguments = Enumerable<Type>.EmptyArray;
+        public static readonly Type AllTypes = typeof(Constants);
 
         public static readonly Expression EmptyExpression = Expression.Empty();
 

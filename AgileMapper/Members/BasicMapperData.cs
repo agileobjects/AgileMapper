@@ -32,5 +32,8 @@ namespace AgileObjects.AgileMapper.Members
         public Type TargetType { get; }
 
         public QualifiedMember TargetMember { get; }
+
+        public virtual bool HasCompatibleTypes(ITypePair typePair) 
+            => typePair.HasCompatibleTypes(this);
     }
 }

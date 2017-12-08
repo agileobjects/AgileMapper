@@ -136,7 +136,7 @@
         {
             while (mapperData != null)
             {
-                if (ConfigInfo.HasCompatibleTypes(mapperData))
+                if (mapperData.HasCompatibleTypes(ConfigInfo))
                 {
                     return true;
                 }

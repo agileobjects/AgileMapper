@@ -36,5 +36,21 @@
 
             result.Value.ShouldBe(pf => pf.Value, 1, 2, 3);
         }
+
+        [Fact]
+        public void ShouldMapToAComplexTypeEnumerableMemberFromComplexTypeEntries()
+        {
+            dynamic source = new ExpandoObject();
+
+            source.Value_0_ = new PublicProperty<char> { Value = '9' };
+            source.Value_1_ = new PublicProperty<char> { Value = '8' };
+            source.Value_2_ = new PublicProperty<char> { Value = '7' };
+
+            var result = (PublicField<IEnumerable<PublicField<int>>>)Mapper
+                .Map(source)
+                .ToANew<PublicField<IEnumerable<PublicField<int>>>>();
+
+            result.Value.ShouldBe(pf => pf.Value, 9, 8, 7);
+        }
     }
 }

@@ -1,9 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
     using Extensions;
+    using Members;
 
     internal class ElementKeyPartFactory : UserConfiguredItemBase
     {
@@ -28,6 +30,16 @@
         }
 
         #region Factory Methods
+
+        public static ElementKeyPartFactory UnderscoredIndexForDynamics(MapperContext mapperContext)
+        {
+            var sourceExpandoObject = new MappingConfigInfo(mapperContext)
+                .ForAllRuleSets()
+                .ForSourceType<ExpandoObject>()
+                .ForAllTargetTypes();
+
+            return new ElementKeyPartFactory("_", "_", sourceExpandoObject);
+        }
 
         public static ElementKeyPartFactory SquareBracketedIndex(MapperContext mapperContext)
             => new ElementKeyPartFactory("[", "]", MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext));
@@ -55,7 +67,7 @@
             var prefix = patternMatch.Groups["Prefix"].Value;
             var suffix = patternMatch.Groups["Suffix"].Value;
 
-            if (!configInfo.IsForAllSourceTypes && !configInfo.SourceType.IsEnumerable())
+            if (!configInfo.IsForAllSourceTypes() && !configInfo.SourceType.IsEnumerable())
             {
                 configInfo = configInfo
                     .Clone()

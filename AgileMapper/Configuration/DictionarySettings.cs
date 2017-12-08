@@ -26,6 +26,7 @@
 
             _elementKeyPartFactories = new List<ElementKeyPartFactory>
             {
+                ElementKeyPartFactory.UnderscoredIndexForDynamics(mapperContext),
                 ElementKeyPartFactory.SquareBracketedIndex(mapperContext)
             };
         }

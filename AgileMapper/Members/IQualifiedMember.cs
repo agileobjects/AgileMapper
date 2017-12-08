@@ -21,6 +21,8 @@ namespace AgileObjects.AgileMapper.Members
 
         IQualifiedMember WithType(Type runtimeType);
 
+        bool HasCompatibleType(Type type);
+
         bool CouldMatch(QualifiedMember otherMember);
 
         bool Matches(IQualifiedMember otherMember);
