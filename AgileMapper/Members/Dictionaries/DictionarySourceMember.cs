@@ -58,6 +58,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public Type Type { get; }
 
+        public string GetFriendlyTypeName() => _wrappedSourceMember.GetFriendlyTypeName();
+
         public Type KeyType { get; }
 
         public Type ValueType { get; }

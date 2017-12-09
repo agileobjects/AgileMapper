@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
             _enumerableLoopData = new EnumerableSourcePopulationLoopData(builder);
             _elementsDictionaryLoopData = new SourceElementsDictionaryPopulationLoopData(dictionaryVariables, builder);
-            _sourceEnumerableFound = Expression.Variable(typeof(bool), "sourceEnumerableFound");
+            _sourceEnumerableFound = Parameters.Create<bool>("sourceEnumerableFound");
 
             ContinueLoopTarget = Expression.Label(typeof(void), "Continue");
             LoopExitCheck = GetCompositeLoopExitCheck();
@@ -58,7 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
         public Expression Adapt(LoopExpression loop)
         {
-            var sourceEnumerableFoundTest = Expression.NotEqual(_builder.SourceValue, _emptyTarget);
+            var sourceEnumerableFoundTest = GetSourceEnumerableFoundTest(_emptyTarget, _builder);
             var assignSourceEnumerableFound = (Expression)_sourceEnumerableFound.AssignTo(sourceEnumerableFoundTest);
 
             var adaptedLoop = _elementsDictionaryLoopData.Adapt(loop);
@@ -71,6 +71,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             return Expression.Block(
                 new[] { _sourceEnumerableFound }.Append(enumerableLoopBlock.Variables),
                 new[] { assignSourceEnumerableFound }.Append(enumerableLoopBlock.Expressions));
+        }
+
+        public static BinaryExpression GetSourceEnumerableFoundTest(
+            Expression emptyTarget,
+            EnumerablePopulationBuilder builder)
+        {
+            return Expression.NotEqual(builder.SourceValue, emptyTarget);
         }
 
         private Expression GetEnumeratorIfNecessary(Expression getEnumeratorCall)

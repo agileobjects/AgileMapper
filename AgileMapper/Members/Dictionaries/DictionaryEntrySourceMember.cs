@@ -52,6 +52,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public Type Type { get; }
 
+        public string GetFriendlyTypeName() => Type.GetFriendlyName();
+
         public Type ElementType => _childMembers.First().ElementType;
 
         public bool IsEnumerable { get; }

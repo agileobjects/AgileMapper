@@ -84,6 +84,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         public override bool UseReadOnlyTargetWrapper
             => base.UseReadOnlyTargetWrapper && Builder.Context.ElementTypesAreSimple;
 
+        public Expression GetMappingShortCircuitOrNull() => null;
+
         public IPopulationLoopData GetPopulationLoopData()
         {
             if (Builder.ElementTypesAreSimple)

@@ -17,12 +17,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return Expression.ArrayLength(SourceValue);
             }
 
-            var countPropertyInfo = 
+            var countPropertyInfo =
                 SourceValue.Type.GetPublicInstanceProperty("Count") ??
                 SourceTypeHelper.CollectionInterfaceType.GetPublicInstanceProperty("Count");
 
             return Expression.Property(SourceValue, countPropertyInfo);
         }
+
+        public Expression GetMappingShortCircuitOrNull() => null;
 
         public IPopulationLoopData GetPopulationLoopData()
         {

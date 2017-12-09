@@ -57,6 +57,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type { get; }
 
+        public string GetFriendlyTypeName() => Type.GetFriendlyName();
+
         public bool IsEnumerable { get; }
 
         public string Name { get; }

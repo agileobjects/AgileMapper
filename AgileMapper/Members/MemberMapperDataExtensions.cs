@@ -81,10 +81,8 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull);
         }
 
-        public static bool SourceIsNotFlatObject(this IMemberMapperData mapperData)
-        {
-            return !mapperData.SourceType.IsDictionary();
-        }
+        public static bool SourceIsFlatObject(this IMemberMapperData mapperData)
+            => mapperData.SourceType.IsDictionary();
 
         public static bool SourceMemberIsStringKeyedDictionary(
             this IMemberMapperData mapperData,

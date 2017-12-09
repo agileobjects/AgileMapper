@@ -7,6 +7,8 @@ namespace AgileObjects.AgileMapper.Members
     {
         Type Type { get; }
 
+        string GetFriendlyTypeName();
+
         bool IsEnumerable { get; }
 
         string Name { get; }

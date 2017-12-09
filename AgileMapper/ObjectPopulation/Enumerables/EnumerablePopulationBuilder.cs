@@ -235,6 +235,10 @@
             }
 
             AssignSourceVariableFrom(SourceValue);
+
+            var shortCircuit = _sourceAdapter.GetMappingShortCircuitOrNull();
+
+            _populationExpressions.AddUnlessNullOrEmpty(shortCircuit);
         }
 
         public void AssignSourceVariableFrom(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)

@@ -55,6 +55,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
         public Expression GetSourceCountAccess() => _defaultAdapter.GetSourceCountAccess();
 
+        public Expression GetMappingShortCircuitOrNull() => null;
+
         public IPopulationLoopData GetPopulationLoopData() => _defaultAdapter.GetPopulationLoopData();
     }
 }

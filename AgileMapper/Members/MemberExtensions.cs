@@ -25,7 +25,7 @@
 
         private static string GetMemberPath(IQualifiedMember member, IQualifiedMember rootMember)
         {
-            var rootTypeName = rootMember.Type.GetFriendlyName();
+            var rootTypeName = rootMember.GetFriendlyTypeName();
             var memberPath = member.GetPath();
 
             if (memberPath == rootMember.Name)

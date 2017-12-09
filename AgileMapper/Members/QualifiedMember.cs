@@ -142,6 +142,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type => LeafMember?.Type;
 
+        public string GetFriendlyTypeName() => Type.GetFriendlyName();
+
         public Type ElementType => LeafMember?.ElementType;
 
         public virtual Type GetElementType(Type sourceElementType) => ElementType;

@@ -35,27 +35,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             var enumerableIsNull = untypedEnumerableVariable.GetIsDefaultComparison();
             var ifNotEnumerableReturnEmpty = Expression.IfThen(enumerableIsNull, returnEmpty);
 
-            var typedEnumerableAssignment =
-                GetTypedEnumerableAssignment(untypedEnumerableVariable, out var typedEnumerableVariable);
-
-            var enumerableIsTyped = typedEnumerableVariable.GetIsNotDefaultComparison();
-            var returnTypedEnumerable = Expression.Return(returnLabel, typedEnumerableVariable);
-            var ifTypedEnumerableReturn = Expression.IfThen(enumerableIsTyped, returnTypedEnumerable);
-
             var returnProjectionResult = GetEntryValueProjection(untypedEnumerableVariable, returnLabel);
 
             var sourceValueBlock = Expression.Block(
                 new[]
                 {
                     _instanceDictionaryAdapter.DictionaryVariables.Key,
-                    untypedEnumerableVariable,
-                    typedEnumerableVariable
+                    untypedEnumerableVariable
                 },
                 ifKeyNotFoundShortCircuit,
                 enumerableAssignment,
                 ifNotEnumerableReturnEmpty,
-                typedEnumerableAssignment,
-                ifTypedEnumerableReturn,
                 returnProjectionResult);
 
             return sourceValueBlock;
@@ -71,30 +61,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             return enumerableAssignment;
         }
 
-        private Expression GetTypedEnumerableAssignment(
-            Expression untypedEnumerableVariable,
-            out ParameterExpression typedEnumerableVariable)
-        {
-            var targetEnumerableType = _emptyTarget.Type;
-            var enumerableAsTyped = Expression.TypeAs(untypedEnumerableVariable, targetEnumerableType);
-            var typedEnumerableVariableName = targetEnumerableType.GetVariableNameInCamelCase();
-            typedEnumerableVariable = Expression.Variable(targetEnumerableType, typedEnumerableVariableName);
-            var typedEnumerableAssignment = typedEnumerableVariable.AssignTo(enumerableAsTyped);
-
-            return typedEnumerableAssignment;
-        }
-
         private Expression GetEntryValueProjection(
             Expression untypedEnumerableVariable,
             LabelTarget returnLabel)
         {
-            var linqCastMethod = typeof(Enumerable).GetPublicStaticMethod("Cast");
-            var typedCastMethod = linqCastMethod.MakeGenericMethod(typeof(object));
-            var linqCastCall = Expression.Call(null, typedCastMethod, untypedEnumerableVariable);
+            Expression sourceItemsProjection;
 
-            var sourceItemsProjection = Builder.Context.ElementTypesAreSimple
-                ? Builder.GetSourceItemsProjection(linqCastCall, GetSourceElementConversion)
-                : Builder.GetSourceItemsProjection(linqCastCall, GetSourceElementMapping);
+            if (Builder.Context.ElementTypesAreSimple)
+            {
+                var linqCastMethod = typeof(Enumerable).GetPublicStaticMethod("Cast");
+                var typedCastMethod = linqCastMethod.MakeGenericMethod(typeof(object));
+                var linqCastCall = Expression.Call(null, typedCastMethod, untypedEnumerableVariable);
+                sourceItemsProjection = Builder.GetSourceItemsProjection(linqCastCall, GetSourceElementConversion);
+            }
+            else
+            {
+                sourceItemsProjection = Builder.MapperData.Parent.GetMapCall(
+                    untypedEnumerableVariable,
+                    Builder.MapperData.TargetMember,
+                    dataSourceIndex: 0);
+            }
 
             var returnProjectionResult = Expression.Label(returnLabel, sourceItemsProjection);
 
@@ -104,13 +90,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         private Expression GetSourceElementConversion(Expression sourceParameter)
             => Builder.GetSimpleElementConversion(sourceParameter);
 
-        private Expression GetSourceElementMapping(Expression sourceParameter, Expression counter)
-            => Builder.MapperData.GetMapCall(sourceParameter);
-
         public Expression GetSourceCountAccess() => _instanceDictionaryAdapter.GetSourceCountAccess();
 
         public override bool UseReadOnlyTargetWrapper
             => base.UseReadOnlyTargetWrapper && Builder.Context.ElementTypesAreSimple;
+
+        public Expression GetMappingShortCircuitOrNull()
+        {
+            if (Builder.ElementTypesAreSimple)
+            {
+                return null;
+            }
+
+            var sourceEnumerableFoundTest = SourceObjectDictionaryPopulationLoopData
+                .GetSourceEnumerableFoundTest(_emptyTarget, Builder);
+
+            var projectionAsTargetType = Expression.TypeAs(Builder.SourceValue, Builder.MapperData.TargetType);
+            var convertedProjection = TargetTypeHelper.GetEnumerableConversion(Builder.SourceValue);
+            var projectionResult = Expression.Coalesce(projectionAsTargetType, convertedProjection);
+            var returnConvertedProjection = Expression.Return(Builder.MapperData.ReturnLabelTarget, projectionResult);
+            var ifProjectedReturn = Expression.IfThen(sourceEnumerableFoundTest, returnConvertedProjection);
+
+            return ifProjectedReturn;
+        }
 
         public IPopulationLoopData GetPopulationLoopData()
         {
