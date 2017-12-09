@@ -27,6 +27,23 @@
         }
 
         [Fact]
+        public void ShouldOverwriteAComplexTypeCollectionToEmpty()
+        {
+            dynamic source = new ExpandoObject();
+
+            source.Value = default(List<ProductDto>);
+
+            var target = new PublicField<ICollection<ProductDto>>
+            {
+                Value = new List<ProductDto> { new ProductDto { ProductId = "p-1" } }
+            };
+
+            Mapper.Map(source).Over(target);
+
+            target.Value.ShouldBeEmpty();
+        }
+
+        [Fact]
         public void ShouldOverwriteAnIndentifableComplexTypeCollection()
         {
             dynamic source = new ExpandoObject();
