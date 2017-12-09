@@ -52,5 +52,21 @@
 
             result.Value.ShouldBe(pf => pf.Value, 9, 8, 7);
         }
+
+        [Fact]
+        public void ShouldMapToAComplexTypeEnumerableMemberFromFlattenedEntries()
+        {
+            dynamic source = new ExpandoObject();
+
+            source.Value_0_SetValue = '4';
+            source.Value_1_SetValue = '5';
+            source.Value_2_SetValue = '6';
+
+            var result = (PublicField<IEnumerable<PublicSetMethod<long>>>)Mapper
+                .Map(source)
+                .ToANew<PublicField<IEnumerable<PublicSetMethod<long>>>>();
+
+            result.Value.ShouldBe(pf => pf.Value, 4, 5, 6);
+        }
     }
 }

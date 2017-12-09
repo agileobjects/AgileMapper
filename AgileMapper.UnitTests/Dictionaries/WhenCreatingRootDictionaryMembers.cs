@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using AgileMapper.Members;
+    using AgileMapper.Members.Dictionaries;
     using Shouldly;
     using TestClasses;
     using Xunit;
