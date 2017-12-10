@@ -14,6 +14,9 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class Member
     {
+        public const string RootSourceMemberName = "Source";
+        public const string RootTargetMemberName = "Target";
+
         private readonly Func<Expression, MemberInfo, Expression> _accessFactory;
 
         private Member(
@@ -71,13 +74,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Member RootSource<TSource>() => SourceMemberCache<TSource>.MemberInstance;
 
-        public static Member RootSource(Type type) => RootSource("Source", type);
+        public static Member RootSource(Type type) => RootSource(RootSourceMemberName, type);
 
         public static Member RootSource(string signature, Type type) => Root(signature, type);
 
         public static Member RootTarget<TTarget>() => TargetMemberCache<TTarget>.MemberInstance;
 
-        public static Member RootTarget(Type type) => Root("Target", type);
+        public static Member RootTarget(Type type) => Root(RootTargetMemberName, type);
 
         private static Member Root(string name, Type type)
         {

@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using Caching;
+    using Dictionaries;
     using Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
@@ -244,7 +245,17 @@ namespace AgileObjects.AgileMapper.Members
             return new QualifiedMember(relativeMemberChain, this);
         }
 
-        IQualifiedMember IQualifiedMember.WithType(Type runtimeType) => WithType(runtimeType);
+        IQualifiedMember IQualifiedMember.WithType(Type runtimeType)
+        {
+            var typedMember = WithType(runtimeType);
+
+            if (runtimeType.IsDictionary())
+            {
+                return new DictionarySourceMember(typedMember, typedMember);
+            }
+
+            return typedMember;
+        }
 
         public bool HasCompatibleType(Type type) => Type.IsAssignableTo(type);
 

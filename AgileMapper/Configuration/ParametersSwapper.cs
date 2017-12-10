@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.Configuration
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using static Members.Member;
 
     internal class ParametersSwapper
     {
@@ -89,8 +90,8 @@ namespace AgileObjects.AgileMapper.Configuration
             }
 
             var memberContextType = IsCallbackContext(contextTypes) ? contextType : contextType.GetAllInterfaces().First();
-            var sourceProperty = memberContextType.GetPublicInstanceProperty("Source");
-            var targetProperty = memberContextType.GetPublicInstanceProperty("Target");
+            var sourceProperty = memberContextType.GetPublicInstanceProperty(RootSourceMemberName);
+            var targetProperty = memberContextType.GetPublicInstanceProperty(RootTargetMemberName);
             var indexProperty = memberContextType.GetPublicInstanceProperty("EnumerableIndex");
             var parentProperty = memberContextType.GetPublicInstanceProperty("Parent");
 

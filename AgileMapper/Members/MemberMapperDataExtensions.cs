@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using static Member;
 
     internal static class MemberMapperDataExtensions
     {
@@ -473,10 +474,10 @@ namespace AgileObjects.AgileMapper.Members
                 return accessMethodFactory.Invoke(contextAccess, type);
             }
 
-            var propertyName = new[] { "Source", "Target" }[contextTypesIndex];
+            var propertyName = new[] { RootSourceMemberName, RootTargetMemberName }[contextTypesIndex];
 
-            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName)
-                ?? typeof(IMappingData<,>)
+            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName) ?? 
+                typeof(IMappingData<,>)
                     .MakeGenericType(contextTypes[0], contextTypes[1])
                     .GetPublicInstanceProperty(propertyName);
 

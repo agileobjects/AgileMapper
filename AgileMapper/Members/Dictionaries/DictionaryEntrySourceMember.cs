@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             _pathFactory = pathFactory;
             _matchedTargetMember = matchedTargetMember;
             Parent = parent;
-            _childMembers = childMembers ?? new[] { Member.RootSource("Source", type) };
+            _childMembers = childMembers ?? new[] { Member.RootSource(type) };
         }
 
         public DictionarySourceMember Parent { get; }

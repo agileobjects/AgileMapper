@@ -25,7 +25,7 @@
         protected override Expression VisitMember(MemberExpression memberAccess)
         {
             if ((memberAccess.Expression == _mappingDataObject) &&
-                (memberAccess.Member.Name == "Source"))
+                (memberAccess.Member.Name == Member.RootSourceMemberName))
             {
                 ++_numberOfAccesses;
             }

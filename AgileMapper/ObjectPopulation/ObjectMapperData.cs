@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
+    using static Members.Member;
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
@@ -50,8 +51,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             SourceMember = sourceMember;
 
             var mappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
-            SourceObject = GetMappingDataProperty(mappingDataType, "Source");
-            TargetObject = GetMappingDataProperty("Target");
+            SourceObject = GetMappingDataProperty(mappingDataType, RootSourceMemberName);
+            TargetObject = GetMappingDataProperty(RootTargetMemberName);
             CreatedObject = GetMappingDataProperty("CreatedObject");
 
             var isPartOfDerivedTypeMapping = declaredTypeMapperData != null;
