@@ -185,12 +185,17 @@
         {
             type = type.GetNonNullableType();
 
-            if (type.GetTypeCode() == NetStandardTypeCode.Object)
+            if (type == typeof(ValueType))
             {
-                return type == typeof(Guid);
+                return true;
             }
 
-            return true;
+            if (type.GetTypeCode() != NetStandardTypeCode.Object)
+            {
+                return true;
+            }
+
+            return type == typeof(Guid);
         }
 
         public static bool IsDictionary(this Type type)

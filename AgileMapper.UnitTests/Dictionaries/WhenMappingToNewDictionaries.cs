@@ -34,7 +34,7 @@
             var source = new PublicProperty<Product> { Value = new Product { ProductId = "xxx" } };
             var result = Mapper.Map(source).ToANew<Dictionary<string, Product>>();
 
-            result.ContainsKey("Value").ShouldBeTrue();
+            result.ShouldContainKey("Value");
             result["Value"].ShouldBeOfType<Product>();
         }
 
@@ -58,7 +58,7 @@
             var result = Mapper.Map(source).ToANew<Dictionary<string, string>>();
 
             result["Name"].ShouldBe("Eddie");
-            result.ContainsKey("Address").ShouldBeFalse();
+            result.ShouldNotContainKey("Address");
             result["Address.Line1"].ShouldBe("Customer house");
             result["Address.Line2"].ShouldBeNull();
         }
@@ -72,7 +72,7 @@
             };
             var result = Mapper.Map(source).ToANew<Dictionary<string, object>>();
 
-            result.ContainsKey("Value").ShouldBeFalse();
+            result.ShouldNotContainKey("Value");
             result["Value.Value"].ShouldBe(12345);
         }
 
@@ -112,7 +112,7 @@
             var result = Mapper.Map(source).ToANew<Dictionary<string, object>>();
 
             result.Count.ShouldBe(4);
-            result.ContainsKey("[0]").ShouldBeFalse();
+            result.ShouldNotContainKey("[0]");
 
             result["[0].Line1"].ShouldBe("LOL");
             result["[0].Line2"].ShouldBeNull();
@@ -136,18 +136,18 @@
             };
             var result = Mapper.Map(source).ToANew<Dictionary<string, object>>();
 
-            result.ContainsKey("Value1").ShouldBeFalse();
-            result.ContainsKey("Value2").ShouldBeFalse();
+            result.ShouldNotContainKey("Value1");
+            result.ShouldNotContainKey("Value2");
 
             result["Value1[0].Name"].ShouldBe("Clare");
-            result.ContainsKey("Value1[0].Address").ShouldBeFalse();
+            result.ShouldNotContainKey("Value1[0].Address");
             result["Value1[0].Address.Line1"].ShouldBe("Nes");
             result["Value1[0].Address.Line2"].ShouldBe("Ted");
 
             result["Value1[1].Name"].ShouldBe("Jim");
-            result.ContainsKey("Value1[1].Address").ShouldBeFalse();
-            result.ContainsKey("Value1[1].Address.Line1").ShouldBeFalse();
-            result.ContainsKey("Value1[1].Address.Line2").ShouldBeFalse();
+            result.ShouldNotContainKey("Value1[1].Address");
+            result.ShouldNotContainKey("Value1[1].Address.Line1");
+            result.ShouldNotContainKey("Value1[1].Address.Line2");
 
             result["Value2[0]"].ShouldBe(now.AddMinutes(1));
             result["Value2[1]"].ShouldBe(now.AddMinutes(2));
@@ -264,11 +264,11 @@
 
             result.Count.ShouldBe(3);
 
-            result.ContainsKey("[0]").ShouldBeTrue();
+            result.ShouldContainKey("[0]");
             result["[0]"].ShouldBe("Hello");
-            result.ContainsKey("[1]").ShouldBeTrue();
+            result.ShouldContainKey("[1]");
             result["[1]"].ShouldBe("Goodbye");
-            result.ContainsKey("[2]").ShouldBeTrue();
+            result.ShouldContainKey("[2]");
             result["[2]"].ShouldBe("See ya");
         }
 
@@ -285,13 +285,13 @@
 
             result.Count.ShouldBe(3);
 
-            result.ContainsKey("One").ShouldBeTrue();
+            result.ShouldContainKey("One");
             result["One"].ShouldBe("One!");
 
-            result.ContainsKey("Two").ShouldBeTrue();
+            result.ShouldContainKey("Two");
             result["Two"].ShouldBe("Two!");
 
-            result.ContainsKey("Three").ShouldBeTrue();
+            result.ShouldContainKey("Three");
             result["Three"].ShouldBe("Three!");
         }
 
@@ -307,10 +307,10 @@
 
             result.Count.ShouldBe(2);
 
-            result.ContainsKey("Hello").ShouldBeTrue();
+            result.ShouldContainKey("Hello");
             result["Hello"].ShouldBe("Bonjour");
 
-            result.ContainsKey("Yes").ShouldBeTrue();
+            result.ShouldContainKey("Yes");
             result["Yes"].ShouldBe("Oui");
         }
 
@@ -327,16 +327,56 @@
 
             result.Count.ShouldBe(3);
 
-            result.ContainsKey("One").ShouldBeTrue();
+            result.ShouldContainKey("One");
             result["One"].Line1.ShouldBe("1.1");
             result["One"].Line2.ShouldBe("1.2");
 
-            result.ContainsKey("Two").ShouldBeTrue();
+            result.ShouldContainKey("Two");
             result["Two"].Line1.ShouldBe("2.1");
             result["Two"].Line2.ShouldBe("2.2");
 
-            result.ContainsKey("Three").ShouldBeTrue();
+            result.ShouldContainKey("Three");
             result["Three"].ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldFlattenToValueTypes()
+        {
+            var anonSource = new
+            {
+                Name = "Fred",
+                Array = new[] { 1, 2, 3 },
+                ComplexList = new List<PublicTwoFields<byte[], PublicField<int>>>
+                {
+                    new PublicTwoFields<byte[], PublicField<int>>
+                    {
+                        Value1 = new byte[] { 4, 8, 16 },
+                        Value2 = new PublicField<int> { Value = 456 }
+                    },
+                    new PublicTwoFields<byte[], PublicField<int>>
+                    {
+                        Value1 = default(byte[]),
+                        Value2 = new PublicField<int> { Value = 789 }
+                    }
+                }
+            };
+
+            var anonResult = Mapper.Map(anonSource).ToANew<Dictionary<string, ValueType>>();
+
+            // String members won't be mapped because they're not value types
+            anonResult.ShouldNotContainKey("Name");
+            anonResult["Array[0]"].ShouldBe(1);
+            anonResult["Array[1]"].ShouldBe(2);
+            anonResult["Array[2]"].ShouldBe(3);
+
+            anonResult["ComplexList[0].Value1[0]"].ShouldBe(4);
+            anonResult["ComplexList[0].Value1[1]"].ShouldBe(8);
+            anonResult["ComplexList[0].Value1[2]"].ShouldBe(16);
+            anonResult["ComplexList[0].Value2.Value"].ShouldBe(456);
+
+            anonResult.ShouldNotContainKey("ComplexList[1].Value1");
+            anonResult.ShouldNotContainKey("ComplexList[1].Value1[0]");
+            anonResult["ComplexList[1].Value2.Value"].ShouldBe(789);
         }
 
         [Fact]
@@ -346,8 +386,8 @@
             var result = Mapper.Map(source).ToANew<Dictionary<string, string>>();
 
             result["Name"].ShouldBe("Richie");
-            result.ContainsKey("Address.Line1").ShouldBeFalse();
-            result.ContainsKey("Address.Line2").ShouldBeFalse();
+            result.ShouldNotContainKey("Address.Line1");
+            result.ShouldNotContainKey("Address.Line2");
         }
 
         [Fact]

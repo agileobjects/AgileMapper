@@ -82,7 +82,7 @@
 
             if (sourceValue.Type.IsAssignableTo(targetType))
             {
-                return targetType.IsNullableType() || (sourceValue.Type.IsSimple() && (targetType == typeof(object)))
+                return ConvertSourceValueToTargetType(sourceValue, targetType)
                     ? sourceValue.GetConversionTo(targetType)
                     : sourceValue;
             }
@@ -95,6 +95,21 @@
                     converter.GetConversionOption(sourceValue, targetType, conversionSoFar));
 
             return conversion;
+        }
+
+        private static bool ConvertSourceValueToTargetType(Expression sourceValue, Type targetType)
+        {
+            if (targetType.IsNullableType())
+            {
+                return true;
+            }
+
+            if (!sourceValue.Type.IsSimple())
+            {
+                return false;
+            }
+
+            return (targetType == typeof(object)) || (targetType == typeof(ValueType));
         }
 
         public void CloneTo(ConverterSet converterSet)

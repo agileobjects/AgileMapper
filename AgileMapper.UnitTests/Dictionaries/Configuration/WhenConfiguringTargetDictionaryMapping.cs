@@ -123,8 +123,8 @@
 
                 matchingResult["StreetAddress"].ShouldBe("Paddy's");
                 matchingResult["Address!Line2"].ShouldBe("Philly");
-                matchingResult.ContainsKey("Address.Line1").ShouldBeFalse();
-                matchingResult.ContainsKey("Address!Line1").ShouldBeFalse();
+                matchingResult.ShouldNotContainKey("Address.Line1");
+                matchingResult.ShouldNotContainKey("Address!Line1");
 
                 var nonMatchingSource = new Customer { Address = address };
                 var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<Dictionary<string, string>>();
@@ -241,7 +241,7 @@
                 var noDiscountResult = mapper.Map(noDiscountSource).ToANew<Dictionary<string, object>>();
 
                 noDiscountResult["CustomerName"].ShouldBe("Schumer");
-                noDiscountResult.ContainsKey("Name").ShouldBeFalse();
+                noDiscountResult.ShouldNotContainKey("Name");
 
                 var bigDiscountSource = new MysteryCustomerViewModel { Name = "Silverman", Discount = 0.6 };
                 var bigDiscountResult = mapper.Map(bigDiscountSource).ToANew<Dictionary<string, object>>();
