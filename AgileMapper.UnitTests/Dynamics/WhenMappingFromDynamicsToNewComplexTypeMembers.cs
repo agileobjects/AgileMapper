@@ -41,5 +41,23 @@
             result.Address.Line1.ShouldBe("Dynamic Line 1");
             result.Address.Line2.ShouldBe("Dynamic Line 2");
         }
+
+        [Fact]
+        public void ShouldMapANestedDynamicToANestedComplexTypeMember()
+        {
+            dynamic source = new ExpandoObject();
+
+            source.Name = "Captain Dynamic";
+            source.Address = new ExpandoObject();
+            source.Address.Line1 = "Dynamic House";
+            source.Address.Line2 = "Dynamic Street";
+
+            var result = (Customer)Mapper.Map(source).ToANew<Customer>();
+
+            result.Name.ShouldBe("Captain Dynamic");
+            result.Address.ShouldNotBeNull();
+            result.Address.Line1.ShouldBe("Dynamic House");
+            result.Address.Line2.ShouldBe("Dynamic Street");
+        }
     }
 }

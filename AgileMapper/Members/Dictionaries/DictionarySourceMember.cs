@@ -49,7 +49,9 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 ValueType = valueType;
             }
 
-            EntryMember = new DictionaryEntrySourceMember(ValueType, matchedTargetMember, this);
+            EntryMember = (wrappedSourceMember as DictionaryEntrySourceMember) ??
+                           new DictionaryEntrySourceMember(ValueType, matchedTargetMember, this);
+
             HasObjectEntries = ValueType == typeof(object);
 
             CouldContainSourceInstance =

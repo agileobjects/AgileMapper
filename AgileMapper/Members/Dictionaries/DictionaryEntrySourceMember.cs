@@ -92,12 +92,19 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             Array.Copy(_childMembers, 0, childMembers, 0, childMembers.Length - 1);
             childMembers[childMembers.Length - 1] = _childMembers.Last().WithType(runtimeType);
 
-            return new DictionaryEntrySourceMember(
+            var dictionaryEntry = new DictionaryEntrySourceMember(
                 runtimeType,
                 _pathFactory,
                 _matchedTargetMember,
                 Parent,
                 childMembers);
+
+            if (runtimeType.IsDictionary())
+            {
+                return new DictionarySourceMember(dictionaryEntry, _matchedTargetMember);
+            }
+
+            return dictionaryEntry;
         }
 
         public bool HasCompatibleType(Type type) => false;
