@@ -103,6 +103,7 @@
     <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewEnumerableMembers.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewEnumerables.cs" />
     <Compile Include="Dynamics\WhenMappingFromDynamicsOverComplexTypeMembers.cs" />
+    <Compile Include="Dynamics\WhenMappingFromDynamicsOverComplexTypes.cs" />
     <Compile Include="Dynamics\WhenMappingFromDynamicsOverEnumerableMembers.cs" />
     <Compile Include="Dynamics\WhenMappingFromDynamicsToNewComplexTypeMembers.cs" />
     <Compile Include="Dynamics\WhenMappingFromDynamicsToNewComplexTypes.cs" />
