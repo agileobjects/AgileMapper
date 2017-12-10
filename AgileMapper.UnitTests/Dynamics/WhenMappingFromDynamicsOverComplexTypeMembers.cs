@@ -35,5 +35,38 @@
             target.Value1.Line2.ShouldBe("Somewhere else");
             target.Value2.ShouldBe("Good Googley Moogley!");
         }
+
+        [Fact]
+        public void ShouldMapFlattenedMembersFromANestedDynamicToANestedComplexType()
+        {
+            dynamic sourceDynamic = new ExpandoObject();
+
+            sourceDynamic.Name = "Mystery :o";
+            sourceDynamic.AddressLine1 = "Over here";
+            sourceDynamic.AddressLine2 = "Over there";
+
+            var source = new PublicTwoFields<dynamic, string>
+            {
+                Value1 = sourceDynamic,
+                Value2 = "Blimey!!"
+            };
+
+            var target = new PublicTwoFields<MysteryCustomer, string>
+            {
+                Value1 = new MysteryCustomer { Name = "Mystery?!" },
+                Value2 = "Nowt"
+            };
+
+            var preMappingCustomer = target.Value1;
+
+            Mapper.Map(source).Over(target);
+
+            target.Value1.ShouldBeSameAs(preMappingCustomer);
+            target.Value1.Name.ShouldBe("Mystery :o");
+            target.Value1.Address.ShouldNotBeNull();
+            target.Value1.Address.Line1.ShouldBe("Over here");
+            target.Value1.Address.Line2.ShouldBe("Over there");
+            target.Value2.ShouldBe("Blimey!!");
+        }
     }
 }
