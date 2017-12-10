@@ -82,7 +82,7 @@
 
             while (!parentMapperData.IsRoot)
             {
-                if (parentMapperData.TargetMember.LeafMember == mapperData.TargetMember.LeafMember)
+                if (parentMapperData.TargetMember.LeafMember.Equals(mapperData.TargetMember.LeafMember))
                 {
                     break;
                 }

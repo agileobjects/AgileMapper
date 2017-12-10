@@ -105,7 +105,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             if (IsReadOnlyCollection)
             {
-                return instance.WithToReadOnlyCollectionCall(ElementType);
+                return instance.WithToReadOnlyCollectionCall(this);
+            }
+
+            if (IsCollection)
+            {
+                return instance.WithToCollectionCall(this);
             }
 
             return instance.WithToListCall(ElementType);

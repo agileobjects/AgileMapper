@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
     using System.Linq.Expressions;
     using DataSources;
     using Extensions;
-    using Members.Dictionaries;
     using NetStandardPolyfills;
 
     internal class SourceElementsDictionaryPopulationLoopData : IPopulationLoopData
@@ -17,13 +16,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         private readonly ParameterExpression _targetElementKey;
         private readonly Expression _sourceElement;
         private ParameterExpression _elementKeyExists;
-
-        public SourceElementsDictionaryPopulationLoopData(
-            DictionarySourceMember sourceMember,
-            EnumerablePopulationBuilder builder)
-            : this(new DictionaryEntryVariablePair(sourceMember, builder.MapperData), builder)
-        {
-        }
 
         public SourceElementsDictionaryPopulationLoopData(
             DictionaryEntryVariablePair dictionaryVariables,

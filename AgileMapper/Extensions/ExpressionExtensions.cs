@@ -113,20 +113,7 @@
 
             var typeDefault = expression.Type.ToDefaultExpression();
 
-            if (!expression.Type.IsValueType() || !expression.Type.IsComplex())
-            {
-                return Expression.NotEqual(expression, typeDefault);
-            }
-
-            var objectEquals = typeof(object).GetPublicStaticMethod("Equals");
-
-            var objectEqualsCall = Expression.Call(
-                null,
-                objectEquals,
-                expression.GetConversionTo(typeof(object)),
-                typeDefault.GetConversionTo(typeof(object)));
-
-            return Expression.IsFalse(objectEqualsCall);
+            return Expression.NotEqual(expression, typeDefault);
         }
 
         public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)
@@ -221,13 +208,12 @@
                 : _linqToArrayMethod;
         }
 
-        public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, Type elementType)
+        public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, EnumerableTypeHelper typeHelper)
         {
-            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
-
             if (TryGetWrapperMethod(typeHelper, "ToReadOnlyCollection", out var method))
             {
-                return GetToEnumerableCall(enumerable, method, elementType);
+
+                return GetToEnumerableCall(enumerable, method, typeHelper.ElementType);
             }
 
             if (typeHelper.IsList)
@@ -241,9 +227,22 @@
             }
 
             var nonListToArrayMethod = GetNonListToArrayConversionMethod(typeHelper);
-            var toArrayCall = GetToEnumerableCall(enumerable, nonListToArrayMethod, elementType);
+            var toArrayCall = GetToEnumerableCall(enumerable, nonListToArrayMethod, typeHelper.ElementType);
 
             return GetReadOnlyCollectionCreation(typeHelper, toArrayCall);
+        }
+
+        public static Expression WithToCollectionCall(this Expression enumerable, EnumerableTypeHelper typeHelper)
+        {
+            if (typeHelper.HasListInterface)
+            {
+                return GetCollectionCreation(typeHelper, enumerable.GetConversionTo(typeHelper.ListInterfaceType));
+            }
+
+            var nonListToArrayMethod = GetNonListToArrayConversionMethod(typeHelper);
+            var toArrayCall = GetToEnumerableCall(enumerable, nonListToArrayMethod, typeHelper.ElementType);
+
+            return GetCollectionCreation(typeHelper, toArrayCall);
         }
 
         public static Expression WithToListCall(this Expression enumerable, Type elementType)
@@ -297,6 +296,14 @@
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
                 typeHelper.ReadOnlyCollectionType.GetPublicInstanceConstructor(typeHelper.ListInterfaceType),
+                list);
+        }
+
+        private static Expression GetCollectionCreation(EnumerableTypeHelper typeHelper, Expression list)
+        {
+            // ReSharper disable once AssignNullToNotNullAttribute
+            return Expression.New(
+                typeHelper.CollectionType.GetPublicInstanceConstructor(typeHelper.ListInterfaceType),
                 list);
         }
 

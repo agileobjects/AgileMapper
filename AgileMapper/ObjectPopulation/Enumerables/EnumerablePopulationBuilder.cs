@@ -20,12 +20,6 @@
                 (m.GetParameters().Length == 2) &&
                 (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 2));
 
-        private static readonly MethodInfo _selectWithIndexMethod = typeof(Enumerable)
-            .GetPublicStaticMethods("Select")
-            .Last(m =>
-                (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 3));
-
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
             .GetPublicStaticMethods("ForEach")
             .First();
@@ -543,18 +537,6 @@
                 _selectWithoutIndexMethod,
                 (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter),
                 _sourceElementParameter);
-        }
-
-        public Expression GetSourceItemsProjection(
-            Expression sourceEnumerableValue,
-            Func<Expression, Expression, Expression> projectionFuncFactory)
-        {
-            return GetSourceItemsProjection(
-                sourceEnumerableValue,
-                _selectWithIndexMethod,
-                projectionFuncFactory,
-                _sourceElementParameter,
-                Counter);
         }
 
         private Expression GetSourceItemsProjection(

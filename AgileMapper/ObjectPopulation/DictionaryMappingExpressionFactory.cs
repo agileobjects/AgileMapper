@@ -285,33 +285,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var comparerProperty = mapperData.SourceObject.Type.GetPublicInstanceProperty("Comparer");
 
-            Expression dictionaryConstruction;
+            var comparer = Expression.Property(mapperData.SourceObject, comparerProperty);
 
-            if (comparerProperty == null)
-            {
-                if (mapperData.TargetType.IsInterface())
-                {
-                    dictionaryConstruction = Expression.New(GetConcreteDictionaryType(mapperData.TargetType));
-                }
-                else
-                {
-                    dictionaryConstruction = mapperData
-                        .MapperContext
-                        .ConstructionFactory
-                        .GetNewObjectCreation(mappingData);
-                }
-            }
-            else
-            {
-                var comparer = Expression.Property(mapperData.SourceObject, comparerProperty);
+            var constructor = FindDictionaryConstructor(
+                mapperData.TargetType,
+                comparer.Type,
+                numberOfParameters: 1);
 
-                var constructor = FindDictionaryConstructor(
-                    mapperData.TargetType,
-                    comparer.Type,
-                    numberOfParameters: 1);
-
-                dictionaryConstruction = Expression.New(constructor, comparer);
-            }
+            var dictionaryConstruction = Expression.New(constructor, comparer);
 
             return GetDictionaryAssignment(dictionaryConstruction, mappingData);
         }

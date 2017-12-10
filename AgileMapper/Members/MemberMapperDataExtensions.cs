@@ -106,16 +106,6 @@ namespace AgileObjects.AgileMapper.Members
                 return dictionarySourceMember;
             }
 
-            if (!(mapperData.SourceMember is DictionaryEntrySourceMember dictionaryEntrySourceMember))
-            {
-                return null;
-            }
-
-            if (dictionaryEntrySourceMember.Type.IsDictionary())
-            {
-                return dictionaryEntrySourceMember.Parent;
-            }
-
             // We're mapping a dictionary entry by its runtime type:
             return null;
         }

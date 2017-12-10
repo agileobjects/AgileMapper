@@ -12,6 +12,11 @@
         /// <summary>
         /// Initializes a new instance of the MappingValidationException class.
         /// </summary>
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public MappingValidationException()
             : this("Mapping validation failed.")
         {
@@ -33,6 +38,11 @@
         /// <param name="info">The SerializationInfo containing serialization information.</param>
         /// <param name="context">The StreamingContext in which the deserialization is being performed.</param>
         // ReSharper disable UnusedParameter.Local
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         protected MappingValidationException(SerializationInfo info, StreamingContext context)
         {
         }

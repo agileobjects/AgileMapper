@@ -42,14 +42,7 @@ namespace AgileObjects.AgileMapper.DataSources
         }
 
         private static string GetTargetMemberName(IBasicMapperData mapperData)
-        {
-            if (mapperData.TargetMemberIsEnumerableElement())
-            {
-                return "element";
-            }
-
-            return mapperData.TargetMember.Name.ToCamelCase();
-        }
+            => mapperData.TargetMember.Name.ToCamelCase();
 
         public DictionarySourceMember SourceMember { get; }
 

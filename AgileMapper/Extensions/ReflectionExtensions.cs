@@ -7,6 +7,12 @@
     {
         public static readonly bool ReflectionNotPermitted;
 
+        // This definitely get executed, but code coverage doesn't pick it up
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         static ReflectionExtensions()
         {
             try

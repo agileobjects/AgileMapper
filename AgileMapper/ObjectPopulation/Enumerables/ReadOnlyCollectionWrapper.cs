@@ -92,14 +92,20 @@
         /// </summary>
         /// <param name="index">The zero-based index of the element to get or set.</param>
         /// <returns>The element at the specified index.</returns>
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
         public T this[int index]
         {
+            #region ExcludeFromCodeCoverage
+#if DEBUG
+            [ExcludeFromCodeCoverage]
+#endif
+            #endregion
             get => _items[index];
+
+            #region ExcludeFromCodeCoverage
+#if DEBUG
+            [ExcludeFromCodeCoverage]
+#endif
+            #endregion
             set => _items[index] = value;
         }
 

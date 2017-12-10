@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Dynamic;
     using System.Linq;
     using Shouldly;
@@ -72,6 +73,29 @@
             target.Value.First().ShouldBeSameAs(preMappingProd2);
             target.Value.ShouldBe(p => p.ProductId, "prod-2", "prod-1");
             target.Value.ShouldBe(p => p.Price, 15.00, 12.99);
+        }
+
+        [Fact]
+        public void ShouldOverwriteAComplexTypeCollectionFromElementEntries()
+        {
+            dynamic source = new ExpandoObject();
+
+            source.Value_0_ = new PublicField<string> { Value = "Value 0" };
+            source.Value_1_ = new PublicField<string> { Value = "Value 1" };
+
+            var target = new PublicField<Collection<PublicField<string>>>
+            {
+                Value = new Collection<PublicField<string>>
+                {
+                    new PublicField<string> { Value = "Value 1" },
+                    new PublicField<string> { Value = "Value 2" },
+                }
+            };
+
+            Mapper.Map(source).Over(target);
+
+            target.Value.Count.ShouldBe(2);
+            target.Value.ShouldBe(pf => pf.Value, "Value 0", "Value 1");
         }
     }
 }

@@ -342,7 +342,7 @@
         [Fact]
         public void ShouldFlattenToValueTypes()
         {
-            var anonSource = new
+            var source = new
             {
                 Name = "Fred",
                 Array = new[] { 1, 2, 3 },
@@ -361,7 +361,7 @@
                 }
             };
 
-            var anonResult = Mapper.Map(anonSource).ToANew<Dictionary<string, ValueType>>();
+            var anonResult = Mapper.Map(source).ToANew<Dictionary<string, ValueType>>();
 
             // String members won't be mapped because they're not value types
             anonResult.ShouldNotContainKey("Name");
