@@ -210,7 +210,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         private Expression GetTryGetValueCall(IMemberMapperData mapperData, out ParameterExpression valueVariable)
         {
             var dictionaryAccess = GetDictionaryAccess(mapperData);
-            var tryGetValueMethod = dictionaryAccess.Type.GetPublicInstanceMethod("TryGetValue");
+            var tryGetValueMethod = dictionaryAccess.Type.GetDictionaryType().GetPublicInstanceMethod("TryGetValue");
             var key = GetKey(mapperData);
             valueVariable = Expression.Variable(ValueType, "existingValue");
 
