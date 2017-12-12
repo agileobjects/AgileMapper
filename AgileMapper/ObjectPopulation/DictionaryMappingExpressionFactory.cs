@@ -331,6 +331,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingData,
                 mapperData.HasMapperFuncs);
 
+            if (valueResolution == mapperData.TargetInstance)
+            {
+                return null;
+            }
+
             return mapperData.TargetInstance.AssignTo(valueResolution);
         }
 
