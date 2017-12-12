@@ -202,14 +202,12 @@
         }
 
         private static MethodInfo GetNonListToArrayConversionMethod(EnumerableTypeHelper typeHelper)
-        {
-            return typeHelper.HasCollectionInterface
-                ? _collectionToArrayMethod
-                : _linqToArrayMethod;
-        }
+            => typeHelper.HasCollectionInterface ? _collectionToArrayMethod : _linqToArrayMethod;
 
-        public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, EnumerableTypeHelper typeHelper)
+        public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, Type elementType)
         {
+            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
+
             if (TryGetWrapperMethod(typeHelper, "ToReadOnlyCollection", out var method))
             {
 
@@ -232,8 +230,10 @@
             return GetReadOnlyCollectionCreation(typeHelper, toArrayCall);
         }
 
-        public static Expression WithToCollectionCall(this Expression enumerable, EnumerableTypeHelper typeHelper)
+        public static Expression WithToCollectionCall(this Expression enumerable, Type elementType)
         {
+            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
+
             if (typeHelper.HasListInterface)
             {
                 return GetCollectionCreation(typeHelper, enumerable.GetConversionTo(typeHelper.ListInterfaceType));
