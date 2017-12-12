@@ -419,5 +419,36 @@
                 ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Plenty long enough!");
             }
         }
+
+        [Fact]
+        public void ShouldRestrictCustomKeysByDictionaryValueType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .DictionariesWithValueType<string>()
+                    .ToANew<PublicPropertyStruct<string>>()
+                    .MapFullKey("LaLaLa")
+                    .To(p => p.Value);
+
+                var matchingSource = new Dictionary<string, string>
+                {
+                    ["LaLaLa"] = "1",
+                    ["Value"] = "2"
+                };
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicPropertyStruct<string>>();
+
+                matchingResult.Value.ShouldBe("1");
+
+                var nonMatchingSource = new Dictionary<string, object>
+                {
+                    ["LaLaLa"] = "20",
+                    ["Value"] = "10"
+                };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicPropertyStruct<string>>();
+
+                nonMatchingResult.Value.ShouldBe("10");
+            }
+        }
     }
 }

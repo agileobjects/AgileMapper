@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq.Expressions;
     using Extensions;
@@ -14,6 +15,7 @@
 
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
+        private Dictionary<Type, object> _data;
 
         public MappingConfigInfo(MapperContext mapperContext)
         {
@@ -171,6 +173,16 @@
         }
 
         #endregion
+
+        public T Get<T>() => Data.TryGetValue(typeof(T), out var value) ? (T)value : default(T);
+
+        public MappingConfigInfo Set<T>(T value)
+        {
+            Data[typeof(T)] = value;
+            return this;
+        }
+
+        private Dictionary<Type, object> Data => (_data ?? (_data = new Dictionary<Type, object>()));
 
         public IBasicMapperData ToMapperData()
         {

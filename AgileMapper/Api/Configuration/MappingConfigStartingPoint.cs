@@ -346,7 +346,8 @@
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, T} instances.
         /// </summary>
-        public DictionaryConfigurator<object> Dictionaries => DictionariesWithValueType<object>();
+        public DictionaryConfigurator<object> Dictionaries
+            => CreateDictionaryConfigurator<object>(config => config.ForSourceValueType(Constants.AllTypes));
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, TValue} instances.
@@ -356,7 +357,17 @@
         /// </typeparam>
         /// <returns>A DictionaryConfigurator with which to continue the configuration.</returns>
         public DictionaryConfigurator<TValue> DictionariesWithValueType<TValue>()
-            => new DictionaryConfigurator<TValue>(_configInfo.ForAllSourceTypes());
+            => CreateDictionaryConfigurator<TValue>();
+
+        private DictionaryConfigurator<TValue> CreateDictionaryConfigurator<TValue>(
+            Action<MappingConfigInfo> configInfoConfigurator = null)
+        {
+            var configInfo = _configInfo.ForAllSourceTypes();
+
+            configInfoConfigurator?.Invoke(configInfo);
+
+            return new DictionaryConfigurator<TValue>(configInfo);
+        }
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the given 

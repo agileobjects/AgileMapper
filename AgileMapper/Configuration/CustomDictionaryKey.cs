@@ -1,8 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Dynamic;
     using System.Linq.Expressions;
+    using Api.Configuration.Dictionaries;
     using DataSources;
+    using Extensions;
     using Members;
 
     internal class CustomDictionaryKey : UserConfiguredItemBase
@@ -51,9 +54,21 @@
             return $"Configured dictionary key member {TargetMember.GetPath()} has a configured data source";
         }
 
-        public bool AppliesTo(Member member, IBasicMapperData mapperData)
+        public bool AppliesTo(Member member, IMemberMapperData mapperData)
         {
             if (!base.AppliesTo(mapperData))
+            {
+                return false;
+            }
+
+            if (((ConfigInfo.SourceValueType ?? Constants.AllTypes) != Constants.AllTypes) &&
+                 (mapperData.SourceType.GetDictionaryTypes().Value != ConfigInfo.SourceValueType))
+            {
+                return false;
+            }
+
+            if ((ConfigInfo.Get<DictionaryType>() != DictionaryType.ExpandoObject) &&
+                (mapperData.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject)))
             {
                 return false;
             }

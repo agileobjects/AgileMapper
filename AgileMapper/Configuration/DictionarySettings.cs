@@ -36,10 +36,10 @@
             _configuredFullKeys.Add(configuredKey);
         }
 
-        public Expression GetFullKeyOrNull(IBasicMapperData mapperData)
+        public Expression GetFullKeyOrNull(IMemberMapperData mapperData)
             => GetFullKeyValueOrNull(mapperData)?.ToConstantExpression();
 
-        public string GetFullKeyValueOrNull(IBasicMapperData mapperData)
+        public string GetFullKeyValueOrNull(IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsCustom)
             {
@@ -59,16 +59,16 @@
             _configuredMemberKeys.Add(customKey);
         }
 
-        public string GetMemberKeyOrNull(IBasicMapperData mapperData)
+        public string GetMemberKeyOrNull(IMemberMapperData mapperData)
             => GetMemberKeyOrNull(mapperData.TargetMember.LeafMember, mapperData);
 
-        public string GetMemberKeyOrNull(Member member, IBasicMapperData mapperData)
+        public string GetMemberKeyOrNull(Member member, IMemberMapperData mapperData)
             => FindKeyOrNull(_configuredMemberKeys, member, mapperData)?.Key;
 
         private static CustomDictionaryKey FindKeyOrNull(
             IEnumerable<CustomDictionaryKey> keys,
             Member member,
-            IBasicMapperData mapperData)
+            IMemberMapperData mapperData)
             => keys.FirstOrDefault(k => k.AppliesTo(member, mapperData));
 
         public void Add(JoiningNameFactory joiningNameFactory)

@@ -33,19 +33,19 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #endregion
 
         public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapFullKey(string fullMemberNameKey)
-            => CreateTargetMemberSpecifier("keys", fullMemberNameKey, (settings, customKey) => settings.AddFullKey(customKey));
+            => CreateTargetMemberSpecifier(fullMemberNameKey, "keys", (settings, customKey) => settings.AddFullKey(customKey));
 
         public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapMemberNameKey(string memberNameKeyPart)
         {
             return CreateTargetMemberSpecifier(
-                "member names",
                 memberNameKeyPart,
+                "member names",
                 (settings, customKey) => settings.AddMemberKey(customKey));
         }
 
         private CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> CreateTargetMemberSpecifier(
-            string keyName,
             string key,
+            string keyName,
             Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
         {
             if (key == null)
