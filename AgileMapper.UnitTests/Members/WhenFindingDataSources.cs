@@ -1,5 +1,7 @@
 namespace AgileObjects.AgileMapper.UnitTests.Members
 {
+    using System;
+    using System.Linq.Expressions;
     using AgileMapper.Members;
     using ObjectPopulation;
     using Shouldly;
@@ -13,7 +15,31 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
         {
             var source = new TwoValues { Value = new int[5], value = string.Empty };
             var target = new PublicProperty<byte>();
-            var targetMember = TargetMemberFor<PublicProperty<byte>>(x => x.Value);
+
+            var matchingSourceMember = GetMatchingSourceMember(source, target, pp => pp.Value);
+
+            matchingSourceMember.ShouldNotBeNull();
+            matchingSourceMember.Name.ShouldBe("value");
+        }
+
+        [Fact]
+        public void ShouldUseBaseClassMembers()
+        {
+            var source = new Derived { Value = 123 };
+            var target = new PublicProperty<int>();
+
+            var matchingSourceMember = GetMatchingSourceMember(source, target, pp => pp.Value);
+
+            matchingSourceMember.ShouldNotBeNull();
+            matchingSourceMember.Name.ShouldBe("Value");
+        }
+
+        private IQualifiedMember GetMatchingSourceMember<TSource, TTarget>(
+            TSource source,
+            TTarget target,
+            Expression<Func<TTarget, object>> childMemberExpression)
+        {
+            var targetMember = TargetMemberFor(childMemberExpression);
 
             var mappingContext = new SimpleMappingContext(DefaultMapperContext.RuleSets.CreateNew, DefaultMapperContext);
             var rootMappingData = ObjectMappingDataFactory.ForRoot(source, target, mappingContext);
@@ -23,10 +49,10 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var childMappingContext = rootMappingData.GetChildMappingData(childMapperData);
 
             var matchingSourceMember = SourceMemberMatcher.GetMatchFor(childMappingContext);
-
-            matchingSourceMember.ShouldNotBeNull();
-            matchingSourceMember.Name.ShouldBe("value");
+            return matchingSourceMember;
         }
+
+        #region Helper Classes
 
         private class TwoValues
         {
@@ -42,5 +68,16 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public int[] Value { get; set; }
         }
+
+        private abstract class Base
+        {
+            public virtual int Value { get; set; }
+        }
+
+        private class Derived : Base
+        {
+        }
+
+        #endregion
     }
 }
