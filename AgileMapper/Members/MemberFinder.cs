@@ -105,7 +105,7 @@
         private static bool OnlyRelevantCallable(MethodBase method)
         {
             return !method.IsSpecialName &&
-                    method.Name.StartsWith("Get", StringComparison.OrdinalIgnoreCase) &&
+                    method.Name.StartsWithIgnoreCase("Get") &&
                    (Array.IndexOf(_methodsToIgnore, method.Name) == -1) &&
                     method.GetParameters().None();
         }
@@ -113,7 +113,7 @@
         private static bool OnlyCallableSetters(MethodInfo method)
         {
             return !method.IsSpecialName &&
-                    method.Name.StartsWith("Set", StringComparison.OrdinalIgnoreCase) &&
+                    method.Name.StartsWithIgnoreCase("Set") &&
                     method.GetParameters().HasOne();
         }
 

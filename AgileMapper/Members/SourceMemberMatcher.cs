@@ -26,17 +26,6 @@
             return GetFinalSourceMember(matchingMember, targetData);
         }
 
-        private static IQualifiedMember GetFinalSourceMember(
-            IQualifiedMember sourceMember,
-            IChildMemberMappingData targetData)
-        {
-            return targetData
-                .MapperData
-                .MapperContext
-                .QualifiedMemberFactory
-                .GetFinalSourceMember(sourceMember, targetData.MapperData.TargetMember);
-        }
-
         private static bool ExactMatchingSourceMemberExists(
             IQualifiedMember parentSourceMember,
             IChildMemberMappingData targetData,
@@ -68,6 +57,17 @@
                 .MemberCache
                 .GetSourceMembers(parentMember.Type)
                 .Where(filter);
+        }
+
+        private static IQualifiedMember GetFinalSourceMember(
+            IQualifiedMember sourceMember,
+            IChildMemberMappingData targetData)
+        {
+            return targetData
+                .MapperData
+                .MapperContext
+                .QualifiedMemberFactory
+                .GetFinalSourceMember(sourceMember, targetData.MapperData.TargetMember);
         }
 
         private static IEnumerable<IQualifiedMember> EnumerateSourceMembers(

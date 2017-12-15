@@ -141,7 +141,7 @@
 
             return otherMemberNames
                 .Any(otherJoinedName => (otherJoinedName == Constants.RootMemberName) || memberNames
-                    .Any(joinedName => (joinedName == Constants.RootMemberName) || otherJoinedName.StartsWith(joinedName, OrdinalIgnoreCase)));
+                    .Any(joinedName => (joinedName == Constants.RootMemberName) || otherJoinedName.StartsWithIgnoreCase(joinedName)));
         }
 
         public static bool Match(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
@@ -156,8 +156,8 @@
             var memberName = memberNames.First();
 
             return otherMemberNames.HasOne()
-                ? memberName.Equals(otherMemberNames.First(), OrdinalIgnoreCase)
-                : otherMemberNames.Any(otherMemberName => otherMemberName.Equals(memberName, OrdinalIgnoreCase));
+                ? memberName.EqualsIgnoreCase(otherMemberNames.First())
+                : otherMemberNames.Any(otherMemberName => otherMemberName.EqualsIgnoreCase(memberName));
         }
 
         public static TMember GetElementMember<TMember>(this TMember enumerableMember)

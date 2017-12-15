@@ -20,6 +20,12 @@
             return value[0].ToString();
         }
 
+        public static bool EqualsIgnoreCase(this string value, string otherValue)
+            => value.Equals(otherValue, StringComparison.OrdinalIgnoreCase);
+
+        public static bool StartsWithIgnoreCase(this string value, string substring)
+            => value.StartsWith(substring, StringComparison.OrdinalIgnoreCase);
+
         public static bool MatchesKey(this string subjectKey, string queryKey)
         {
             if (queryKey == null)
@@ -31,13 +37,12 @@
                 return false;
             }
 
-            if (subjectKey.Equals(queryKey, StringComparison.OrdinalIgnoreCase))
+            if (subjectKey.EqualsIgnoreCase(queryKey))
             {
                 return true;
             }
 
-            return (queryKey.IndexOf('.') != -1) &&
-                    subjectKey.Equals(queryKey.Replace(".", null), StringComparison.OrdinalIgnoreCase);
+            return (queryKey.IndexOf('.') != -1) && subjectKey.EqualsIgnoreCase(queryKey.Replace(".", null));
         }
     }
 }
