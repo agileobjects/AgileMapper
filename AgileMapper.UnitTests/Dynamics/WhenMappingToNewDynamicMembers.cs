@@ -21,9 +21,9 @@
 
             ((object)result.Value).ShouldNotBeNull();
             dynamic resultDynamic = result.Value;
-            resultDynamic.Line1.ShouldBe("Over here!");
-            resultDynamic.Line2.ShouldBe("Over there!");
-            resultDynamic.Line3.ShouldBe("Over where?!");
+            ((string)resultDynamic.Line1).ShouldBe("Over here!");
+            ((string)resultDynamic.Line2).ShouldBe("Over there!");
+            ((string)resultDynamic.Line3).ShouldBe("Over where?!");
         }
     }
 }

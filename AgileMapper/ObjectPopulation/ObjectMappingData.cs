@@ -98,19 +98,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Dictionary<object, List<object>> MappedObjectsBySource
             => _mappedObjectsBySource ?? (_mappedObjectsBySource = new Dictionary<object, List<object>>(13));
 
-        private ChildMemberMappingData<TSource, TTarget> _childMappingData;
-
         IChildMemberMappingData IObjectMappingData.GetChildMappingData(IMemberMapperData childMapperData)
-        {
-            if (_childMappingData == null)
-            {
-                _childMappingData = new ChildMemberMappingData<TSource, TTarget>(this);
-            }
-
-            _childMappingData.MapperData = childMapperData;
-
-            return _childMappingData;
-        }
+            => new ChildMemberMappingData<TSource, TTarget>(this, childMapperData);
 
         #endregion
 

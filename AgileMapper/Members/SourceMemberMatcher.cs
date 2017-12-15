@@ -3,27 +3,52 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using ObjectPopulation;
 
     internal static class SourceMemberMatcher
     {
-        public static IQualifiedMember GetMatchFor(IChildMemberMappingData targetData)
+        public static IQualifiedMember GetMatchFor(
+            IChildMemberMappingData targetData,
+            out IChildMemberMappingData contextMappingData)
         {
             var parentSourceMember = targetData.MapperData.SourceMember;
 
             if (ExactMatchingSourceMemberExists(parentSourceMember, targetData, out var matchingMember))
             {
+                contextMappingData = targetData;
                 return GetFinalSourceMember(matchingMember, targetData);
             }
 
             matchingMember = EnumerateSourceMembers(parentSourceMember, targetData)
                 .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
 
-            if (matchingMember == null)
+            if (matchingMember != null)
             {
-                return null;
+                contextMappingData = targetData;
+                return GetFinalSourceMember(matchingMember, targetData);
             }
 
-            return GetFinalSourceMember(matchingMember, targetData);
+            var mappingData = targetData.Parent;
+
+            while (mappingData.Parent != null)
+            {
+                mappingData = mappingData.Parent;
+
+                matchingMember = EnumerateSourceMembers(mappingData.MapperData.SourceMember, targetData)
+                    .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
+
+                if (matchingMember == null)
+                {
+                    continue;
+                }
+
+                var childMapperData = new ChildMemberMapperData(targetData.MapperData.TargetMember, mappingData.MapperData);
+                contextMappingData = mappingData.GetChildMappingData(childMapperData);
+                return GetFinalSourceMember(matchingMember, targetData);
+            }
+
+            contextMappingData = null;
+            return null;
         }
 
         private static bool ExactMatchingSourceMemberExists(
