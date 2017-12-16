@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq;
-    using Extensions;
+    using Extensions.Internal;
 
     internal class ToNumericConverter<TNumeric> : ToNumericConverterBase
     {

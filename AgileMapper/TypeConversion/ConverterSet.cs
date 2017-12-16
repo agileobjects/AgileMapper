@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Configuration;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 

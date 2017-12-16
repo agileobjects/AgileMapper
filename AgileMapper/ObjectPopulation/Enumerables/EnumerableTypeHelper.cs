@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class EnumerableTypeHelper

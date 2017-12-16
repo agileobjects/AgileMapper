@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 

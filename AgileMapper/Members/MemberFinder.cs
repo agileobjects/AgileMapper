@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using Caching;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class MemberCache

@@ -6,7 +6,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Caching;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
 

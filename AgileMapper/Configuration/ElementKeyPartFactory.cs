@@ -4,7 +4,7 @@
     using System.Dynamic;
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class ElementKeyPartFactory : UserConfiguredItemBase

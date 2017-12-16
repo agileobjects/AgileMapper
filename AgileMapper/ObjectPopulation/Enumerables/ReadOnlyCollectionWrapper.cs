@@ -4,7 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using Extensions;
+    using Extensions.Internal;
 
     /// <summary>
     /// Wraps a readonly collection to enable efficient creation of a new array. This object

@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal interface IDataSource : IConditionallyChainable

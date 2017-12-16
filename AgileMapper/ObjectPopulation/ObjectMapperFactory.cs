@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Caching;
     using ComplexTypes;
     using Enumerables;
-    using Extensions;
+    using Extensions.Internal;
     using Validation;
 
     internal class ObjectMapperFactory

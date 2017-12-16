@@ -4,7 +4,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class DictionarySettings

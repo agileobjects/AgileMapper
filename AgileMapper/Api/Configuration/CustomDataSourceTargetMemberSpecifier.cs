@@ -7,7 +7,7 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
     using NetStandardPolyfills;

@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;

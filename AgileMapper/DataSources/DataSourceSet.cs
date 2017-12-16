@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class DataSourceSet : IEnumerable<IDataSource>

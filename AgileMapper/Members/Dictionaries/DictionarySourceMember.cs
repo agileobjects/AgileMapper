@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
 
     internal class DictionarySourceMember : IQualifiedMember
     {

@@ -5,7 +5,7 @@
     using System.Linq.Expressions;
     using Api.Configuration.Dictionaries;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class CustomDictionaryKey : UserConfiguredItemBase

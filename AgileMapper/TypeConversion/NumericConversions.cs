@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
 
     internal static class NumericConversions
     {

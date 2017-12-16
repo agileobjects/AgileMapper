@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
 
     internal class SourceObjectDictionaryPopulationLoopData : IPopulationLoopData
     {

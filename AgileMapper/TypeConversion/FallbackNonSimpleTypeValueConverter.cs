@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
 
     internal class FallbackNonSimpleTypeValueConverter : ValueConverterBase
     {

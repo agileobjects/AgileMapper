@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class SourceElementsDictionaryPopulationLoopData : IPopulationLoopData

@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Extensions
+﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
     internal static class TypeInfo<T>
     {

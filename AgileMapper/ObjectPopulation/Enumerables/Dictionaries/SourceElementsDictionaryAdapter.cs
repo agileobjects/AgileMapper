@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using Members.Dictionaries;
     using NetStandardPolyfills;
 

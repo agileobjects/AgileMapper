@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class ToStringConverter : ValueConverterBase

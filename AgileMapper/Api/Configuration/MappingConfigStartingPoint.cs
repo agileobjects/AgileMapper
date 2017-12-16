@@ -6,7 +6,7 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using Dictionaries;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     /// <summary>

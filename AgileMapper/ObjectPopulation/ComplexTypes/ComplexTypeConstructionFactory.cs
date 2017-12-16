@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Reflection;
     using Caching;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
 

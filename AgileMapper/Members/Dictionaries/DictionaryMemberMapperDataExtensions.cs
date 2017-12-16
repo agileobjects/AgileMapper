@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal static class DictionaryMemberMapperDataExtensions

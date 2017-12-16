@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
 
     internal class DictionaryEntryDataSource : DataSourceBase
     {

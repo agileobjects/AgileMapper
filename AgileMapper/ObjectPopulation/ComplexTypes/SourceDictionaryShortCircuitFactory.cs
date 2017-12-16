@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class SourceDictionaryShortCircuitFactory : ISourceShortCircuitFactory

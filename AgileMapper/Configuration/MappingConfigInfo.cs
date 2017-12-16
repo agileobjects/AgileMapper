@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;

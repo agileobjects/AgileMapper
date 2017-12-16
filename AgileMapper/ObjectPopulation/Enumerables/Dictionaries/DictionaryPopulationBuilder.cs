@@ -4,7 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
     using Members.Population;

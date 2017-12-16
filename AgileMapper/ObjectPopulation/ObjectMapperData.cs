@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
     using DataSources;
     using Enumerables;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;

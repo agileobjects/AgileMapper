@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Linq.Expressions;
     using Caching;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
 

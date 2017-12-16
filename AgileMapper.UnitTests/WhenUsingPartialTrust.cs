@@ -53,10 +53,7 @@
         [Fact]
         public void ShouldCreateAMappingPlan()
         {
-            ExecuteInPartialTrust(helper =>
-            {
-                helper.TestMappingPlan();
-            });
+            ExecuteInPartialTrust(helper => helper.TestMappingPlan());
         }
 
         private static void ExecuteInPartialTrust(

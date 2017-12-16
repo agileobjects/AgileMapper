@@ -4,7 +4,7 @@
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
-    using Extensions;
+    using Extensions.Internal;
     using ObjectPopulation;
 
     internal class MappingExecutor<TSource> : ITargetTypeSelector<TSource>, IMappingContext

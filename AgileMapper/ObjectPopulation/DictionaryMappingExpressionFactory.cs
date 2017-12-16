@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ComplexTypes;
     using DataSources;
     using Enumerables.Dictionaries;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
     using NetStandardPolyfills;

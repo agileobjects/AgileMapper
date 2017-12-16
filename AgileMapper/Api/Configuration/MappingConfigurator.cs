@@ -4,7 +4,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Validation;
 

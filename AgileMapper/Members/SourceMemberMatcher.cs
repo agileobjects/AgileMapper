@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ObjectPopulation;
 
     internal static class SourceMemberMatcher
     {
@@ -32,9 +31,18 @@
 
             while (mappingData.Parent != null)
             {
+                if (mappingData.MapperData.TargetMemberIsEnumerableElement())
+                {
+                    contextMappingData = null;
+                    return null;
+                }
+
                 mappingData = mappingData.Parent;
 
-                matchingMember = EnumerateSourceMembers(mappingData.MapperData.SourceMember, targetData)
+                var childMapperData = new ChildMemberMapperData(targetData.MapperData.TargetMember, mappingData.MapperData);
+                contextMappingData = mappingData.GetChildMappingData(childMapperData);
+
+                matchingMember = EnumerateSourceMembers(mappingData.MapperData.SourceMember, contextMappingData)
                     .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
 
                 if (matchingMember == null)
@@ -42,8 +50,6 @@
                     continue;
                 }
 
-                var childMapperData = new ChildMemberMapperData(targetData.MapperData.TargetMember, mappingData.MapperData);
-                contextMappingData = mappingData.GetChildMappingData(childMapperData);
                 return GetFinalSourceMember(matchingMember, targetData);
             }
 

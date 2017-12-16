@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
-    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Shouldly;
     using TestClasses;
     using Xunit;

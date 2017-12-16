@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Extensions
+﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
     using System;
     using System.Collections.Generic;

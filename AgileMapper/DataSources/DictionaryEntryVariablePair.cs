@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
     using NetStandardPolyfills;
