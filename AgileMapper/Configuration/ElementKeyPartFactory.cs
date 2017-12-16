@@ -31,7 +31,17 @@
 
         #region Factory Methods
 
-        public static ElementKeyPartFactory UnderscoredIndexForDynamics(MapperContext mapperContext)
+        public static ElementKeyPartFactory UnderscoredIndexForSourceDynamics(MapperContext mapperContext)
+        {
+            var sourceExpandoObject = new MappingConfigInfo(mapperContext)
+                .ForAllRuleSets()
+                .ForAllSourceTypes()
+                .ForTargetType<ExpandoObject>();
+
+            return new ElementKeyPartFactory("_", "_", sourceExpandoObject);
+        }
+
+        public static ElementKeyPartFactory UnderscoredIndexForTargetDynamics(MapperContext mapperContext)
         {
             var sourceExpandoObject = new MappingConfigInfo(mapperContext)
                 .ForAllRuleSets()

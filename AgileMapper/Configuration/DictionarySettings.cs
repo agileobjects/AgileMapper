@@ -21,13 +21,14 @@
 
             _joiningNameFactories = new List<JoiningNameFactory>
             {
-                JoiningNameFactory.UnderscoredForDynamics(mapperContext),
+                JoiningNameFactory.UnderscoredForTargetDynamics(mapperContext),
                 JoiningNameFactory.Dotted(mapperContext)
             };
 
             _elementKeyPartFactories = new List<ElementKeyPartFactory>
             {
-                ElementKeyPartFactory.UnderscoredIndexForDynamics(mapperContext),
+                ElementKeyPartFactory.UnderscoredIndexForSourceDynamics(mapperContext),
+                ElementKeyPartFactory.UnderscoredIndexForTargetDynamics(mapperContext),
                 ElementKeyPartFactory.SquareBracketedIndex(mapperContext)
             };
         }

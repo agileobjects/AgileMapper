@@ -31,7 +31,7 @@
 
         #region Factory Methods
 
-        public static JoiningNameFactory UnderscoredForDynamics(MapperContext mapperContext)
+        public static JoiningNameFactory UnderscoredForTargetDynamics(MapperContext mapperContext)
         {
             var targetExpandoObject = new MappingConfigInfo(mapperContext)
                 .ForAllRuleSets()

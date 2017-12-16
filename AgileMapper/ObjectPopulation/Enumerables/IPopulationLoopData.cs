@@ -36,7 +36,7 @@
             var loopBody = Expression.Block(
                 Expression.IfThen(loopData.LoopExitCheck, breakLoop),
                 elementPopulation,
-                Expression.PreIncrementAssign(builder.Counter));
+                builder.GetCounterIncrement());
 
             var populationLoop = loopData.NeedsContinueTarget
                 ? Expression.Loop(loopBody, breakLoop.Target, loopData.ContinueLoopTarget)

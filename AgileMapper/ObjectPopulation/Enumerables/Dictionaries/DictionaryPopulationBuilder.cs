@@ -138,8 +138,9 @@
 
                 var derivedTypeMapping = GetDerivedTypeMapping(derivedSourceCheck, mappingData);
                 var derivedTypePopulation = GetPopulation(derivedTypeMapping, dictionaryEntryMember, mappingData);
+                var incrementCounter = _wrappedBuilder.GetCounterIncrement();
                 var mapNextElement = Expression.Continue(loopData.ContinueLoopTarget);
-                var derivedMappingBlock = Expression.Block(derivedTypePopulation, mapNextElement);
+                var derivedMappingBlock = Expression.Block(derivedTypePopulation, incrementCounter, mapNextElement);
                 var ifDerivedTypeReturn = Expression.IfThen(derivedSourceCheck.TypeCheck, derivedMappingBlock);
 
                 mappingExpressions.Add(ifDerivedTypeReturn);
