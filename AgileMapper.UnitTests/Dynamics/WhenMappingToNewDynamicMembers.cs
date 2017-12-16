@@ -25,5 +25,25 @@
             ((string)resultDynamic.Line2).ShouldBe("Over there!");
             ((string)resultDynamic.Line3).ShouldBe("Over where?!");
         }
+
+        [Fact]
+        public void ShouldMapFromNestedMembers()
+        {
+            var source = new PublicField<Address>
+            {
+                Value = new Address
+                {
+                    Line1 = "One One One",
+                    Line2 = "Two Two Two"
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicProperty<ExpandoObject>>();
+
+            ((object)result.Value).ShouldNotBeNull();
+            dynamic resultDynamic = result.Value;
+            ((string)resultDynamic.Line1).ShouldBe("One One One");
+            ((string)resultDynamic.Line2).ShouldBe("Two Two Two");
+        }
     }
 }
