@@ -1,8 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
-    using System;
-    using System.Linq.Expressions;
-
     /// <summary>
     /// Provides options for configuring mappings from an ExpandoObject to a given <typeparamref name="TTarget"/>.
     /// </summary>
@@ -21,24 +18,19 @@
         /// member with the given <paramref name="sourceMemberName"/> should be used.
         /// </returns>
         ICustomDynamicMappingTargetMemberSpecifier<TTarget> MapMember(string sourceMemberName);
-    }
 
-    /// <summary>
-    /// Provides options for specifying a target member to which an ExpandoObject configuration should apply.
-    /// </summary>
-    /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
-    public interface ICustomDynamicMappingTargetMemberSpecifier<TTarget>
-    {
         /// <summary>
-        /// Apply the configuration to the given <paramref name="targetMember"/>.
+        /// Configure a custom member name to use in a key for a particular target member when mapping from an 
+        /// ExpandoObject to the target type being configured. For example, to map the member "Address.HouseName"
+        /// to a 'Line1' member of an 'Address' member, use MapMemberName("HouseName").To(a => a.Line1).
         /// </summary>
-        /// <typeparam name="TTargetValue">The target member's type.</typeparam>
-        /// <param name="targetMember">The target member to which to apply the configuration.</param>
+        /// <param name="memberNamePart">
+        /// The custom member name to use in a key with which to retrieve the value to map to the configured target member.
+        /// </param>
         /// <returns>
-        /// An ISourceDynamicMappingConfigContinuation to enable further configuration of mappings from 
-        /// Dynamics to the target type being configured.
+        /// A CustomDictionaryMappingTargetMemberSpecifier with which to specify the target member for which the custom 
+        /// member name should be used.
         /// </returns>
-        ISourceDynamicMappingConfigContinuation<TTarget> To<TTargetValue>(
-            Expression<Func<TTarget, TTargetValue>> targetMember);
+        ICustomDynamicMappingTargetMemberSpecifier<TTarget> MapMemberName(string memberNamePart);
     }
 }

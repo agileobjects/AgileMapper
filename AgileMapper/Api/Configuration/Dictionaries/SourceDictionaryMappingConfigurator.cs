@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Dynamics;
 
@@ -52,12 +51,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         }
 
         public ICustomDynamicMappingTargetMemberSpecifier<TTarget> MapMember(string sourceMemberName)
-        {
-            return CreateTargetMemberSpecifier(
-                sourceMemberName,
-                "member name",
-                (settings, customKey) => settings.AddFullKey(customKey));
-        }
+            => MapFullKey(sourceMemberName);
+
+        public ICustomDynamicMappingTargetMemberSpecifier<TTarget> MapMemberName(string memberNamePart)
+            => MapMemberNameKey(memberNamePart);
 
         private CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> CreateTargetMemberSpecifier(
             string key,

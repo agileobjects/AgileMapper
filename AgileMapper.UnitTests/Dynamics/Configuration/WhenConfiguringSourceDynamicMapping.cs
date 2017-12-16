@@ -36,6 +36,34 @@
         }
 
         [Fact]
+        public void ShouldUseCustomDynamicMemberNameForRootMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDynamics
+                    .Over<Address>()
+                    .MapMemberName("HouseNumber")
+                    .To(a => a.Line1)
+                    .And
+                    .MapMemberName("Street")
+                    .To(a => a.Line2);
+
+                dynamic source = new ExpandoObject();
+
+                source.HouseNumber = 10;
+                source.Street = "Street Road";
+
+                var target = new Address { Line1 = "??", Line2 = "??" };
+
+                mapper.Map(source).Over(target);
+
+                target.Line1.ShouldBe("10");
+                target.Line2.ShouldBe("Street Road");
+            }
+        }
+
+        [Fact]
         public void ShouldNotApplyDictionaryConfigurationToDynamics()
         {
             using (var mapper = Mapper.CreateNew())

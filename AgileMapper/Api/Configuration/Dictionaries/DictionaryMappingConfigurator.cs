@@ -98,6 +98,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> Over<TTarget>()
             => CreateConfigurator<TTarget>(Constants.Overwrite);
 
+        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.Over<TTarget>()
+            => CreateConfigurator<TTarget>(Constants.Overwrite);
+
         private SourceDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(string ruleSetName)
             => CreateConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
 
