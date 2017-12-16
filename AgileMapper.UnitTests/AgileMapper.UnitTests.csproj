@@ -112,6 +112,7 @@
     <Compile Include="Dynamics\WhenMappingFromDynamicsToNewEnumerables.cs" />
     <Compile Include="Dynamics\WhenMappingOnToDynamics.cs" />
     <Compile Include="Dynamics\WhenMappingOverDynamics.cs" />
+    <Compile Include="Dynamics\WhenMappingToNewEnumerablesOfDynamic.cs" />
     <Compile Include="Dynamics\WhenMappingToNewDynamicMembers.cs" />
     <Compile Include="Dynamics\WhenMappingToNewDynamics.cs" />
     <Compile Include="Extensions\WhenEquatingExpressions.cs" />
