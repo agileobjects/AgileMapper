@@ -9,6 +9,33 @@
     public class WhenConfiguringSourceDynamicMapping
     {
         [Fact]
+        public void ShouldUseCustomDynamicSourceMemberName()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDynamics
+                    .ToANew<PublicField<int>>()
+                    .MapMember("LaLaLa")
+                    .To(pf => pf.Value);
+
+                dynamic source = new ExpandoObject();
+
+                source.LaLaLa = 1;
+                source.Value = 2;
+
+                var result = (PublicField<int>)mapper.Map(source).ToANew<PublicField<int>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldBe(1);
+
+                mapper.Map(source).Over(result);
+
+                result.Value.ShouldBe(2);
+            }
+        }
+
+        [Fact]
         public void ShouldNotApplyDictionaryConfigurationToDynamics()
         {
             using (var mapper = Mapper.CreateNew())

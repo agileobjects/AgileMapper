@@ -12,5 +12,13 @@
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An ISourceDynamicMappingConfigurator with which to complete the configuration.</returns>
         ISourceDynamicMappingConfigurator<TTarget> To<TTarget>();
+
+        /// <summary>
+        /// Configure how this mapper performs object creation mappings from ExpandoObjects to the target type 
+        /// specified by the type argument.
+        /// </summary>
+        /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
+        /// <returns>An ISourceDynamicMappingConfigurator with which to complete the configuration.</returns>
+        ISourceDynamicMappingConfigurator<TTarget> ToANew<TTarget>();
     }
 }

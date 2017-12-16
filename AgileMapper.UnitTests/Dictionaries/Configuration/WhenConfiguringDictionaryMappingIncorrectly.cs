@@ -166,7 +166,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .UseFlattenedTargetMemberNames()
                         .UseMemberNameSeparator("+");
                 }
