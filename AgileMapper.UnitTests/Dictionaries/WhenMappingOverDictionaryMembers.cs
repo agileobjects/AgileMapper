@@ -8,7 +8,7 @@
     public class WhenMappingOverDictionaryMembers
     {
         [Fact]
-        public void ShouldOverwriteANestedSimpleTypedIDictionary()
+        public void ShouldOverwriteASimpleTypedIDictionary()
         {
             var source = new PublicField<Address>
             {
@@ -25,7 +25,7 @@
         }
 
         [Fact]
-        public void ShouldOverwriteAComplexTypeArrayToANestedSameComplexTypeDictionary()
+        public void ShouldOverwriteAComplexTypeArrayToASameComplexTypeDictionary()
         {
             var source = new PublicField<Address[]>
             {

@@ -221,12 +221,7 @@ namespace AgileObjects.AgileMapper.Members
             => _childMemberCache.GetOrAdd(childMember, CreateChildMember);
 
         protected virtual QualifiedMember CreateChildMember(Member childMember)
-        {
-            var qualifiedChildMember = new QualifiedMember(childMember, this, _mapperContext);
-            qualifiedChildMember = _mapperContext.QualifiedMemberFactory.GetFinalTargetMember(qualifiedChildMember);
-
-            return qualifiedChildMember;
-        }
+            => CreateFinalMember(new QualifiedMember(childMember, this, _mapperContext));
 
         public QualifiedMember GetChildMember(string registrationName)
             => _childMemberCache.Values.First(childMember => childMember.RegistrationName == registrationName);
@@ -283,8 +278,17 @@ namespace AgileObjects.AgileMapper.Members
 
             newMemberChain[MemberChain.Length - 1] = LeafMember.WithType(runtimeType);
 
-            return new QualifiedMember(newMemberChain, this);
+            return CreateFinalMember(new QualifiedMember(newMemberChain, this));
         }
+
+        private QualifiedMember CreateFinalMember(QualifiedMember member)
+        {
+            return member.IsTargetMember
+                ? _mapperContext.QualifiedMemberFactory.GetFinalTargetMember(member)
+                : member;
+        }
+
+        private bool IsTargetMember => MemberChain[0].Name == Member.RootTargetMemberName;
 
         public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);
 
