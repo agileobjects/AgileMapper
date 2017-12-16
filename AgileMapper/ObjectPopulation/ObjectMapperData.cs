@@ -332,7 +332,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return typePair.HasCompatibleTypes(
                 this,
-                () => SourceMember.HasCompatibleType(typePair.SourceType));
+                () => SourceMember.HasCompatibleType(typePair.SourceType),
+                () => TargetMember.HasCompatibleType(typePair.TargetType));
         }
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)

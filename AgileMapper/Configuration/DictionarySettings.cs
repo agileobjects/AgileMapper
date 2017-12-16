@@ -21,6 +21,7 @@
 
             _joiningNameFactories = new List<JoiningNameFactory>
             {
+                JoiningNameFactory.UnderscoredForDynamics(mapperContext),
                 JoiningNameFactory.Dotted(mapperContext)
             };
 

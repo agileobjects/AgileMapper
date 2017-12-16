@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Dynamic;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
@@ -29,6 +30,16 @@
         }
 
         #region Factory Methods
+
+        public static JoiningNameFactory UnderscoredForDynamics(MapperContext mapperContext)
+        {
+            var targetExpandoObject = new MappingConfigInfo(mapperContext)
+                .ForAllRuleSets()
+                .ForAllSourceTypes()
+                .ForTargetType<ExpandoObject>();
+
+            return For("_", targetExpandoObject);
+        }
 
         public static JoiningNameFactory Dotted(MapperContext mapperContext)
             => For(".", MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext));

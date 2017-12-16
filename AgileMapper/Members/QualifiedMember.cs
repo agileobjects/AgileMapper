@@ -210,6 +210,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public virtual bool GuardObjectValuePopulations => false;
 
+        public virtual bool HasCompatibleType(Type type) => Type.IsAssignableTo(type);
+
         IQualifiedMember IQualifiedMember.GetElementMember() => this.GetElementMember();
 
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
@@ -256,8 +258,6 @@ namespace AgileObjects.AgileMapper.Members
 
             return typedMember;
         }
-
-        public bool HasCompatibleType(Type type) => Type.IsAssignableTo(type);
 
         public QualifiedMember WithType(Type runtimeType)
         {

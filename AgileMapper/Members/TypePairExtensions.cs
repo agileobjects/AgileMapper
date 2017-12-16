@@ -20,28 +20,18 @@ namespace AgileObjects.AgileMapper.Members
         public static bool HasCompatibleTypes(
             this ITypePair typePair,
             ITypePair otherTypePair,
-            Func<bool> sourceTypeMatcher = null)
+            Func<bool> sourceTypeMatcher = null,
+            Func<bool> targetTypeMatcher = null)
         {
             var sourceTypesMatch =
                 typePair.IsForSourceType(otherTypePair.SourceType) ||
-                (sourceTypeMatcher?.Invoke() == true);
+               (sourceTypeMatcher?.Invoke() == true);
 
-            if (!sourceTypesMatch)
-            {
-                return false;
-            }
+            var targetTypesMatch =
+                targetTypeMatcher?.Invoke() ??
+                otherTypePair.TargetType.IsAssignableTo(typePair.TargetType);
 
-            if (otherTypePair.TargetType.IsAssignableTo(typePair.TargetType))
-            {
-                return true;
-            }
-
-            if (otherTypePair.TargetType.IsInterface())
-            {
-                return Array.IndexOf(typePair.TargetType.GetAllInterfaces(), otherTypePair.TargetType) != -1;
-            }
-
-            return false;
+            return sourceTypesMatch && targetTypesMatch;
         }
     }
 }

@@ -66,6 +66,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield return targetMember;
             }
 
+            if (mapperData.IsRoot)
+            {
+                yield break;
+            }
+
             foreach (var targetMember in GetParentContextFlattenedTargetMembers(mapperData, targetDictionaryMember))
             {
                 yield return targetMember;

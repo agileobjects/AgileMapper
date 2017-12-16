@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -59,6 +60,26 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         }
 
         public override bool GuardObjectValuePopulations => true;
+
+        public override bool HasCompatibleType(Type type)
+        {
+            if (base.HasCompatibleType(type))
+            {
+                return true;
+            }
+
+            if (this != _rootDictionaryMember)
+            {
+                return false;
+            }
+
+            if (type == typeof(ExpandoObject))
+            {
+                return Type == type;
+            }
+
+            return type.IsDictionary();
+        }
 
         public DictionaryTargetMember Append(ParameterExpression key)
         {
