@@ -111,6 +111,7 @@
     <Compile Include="Dynamics\WhenMappingFromDynamicsToNewEnumerableMembers.cs" />
     <Compile Include="Dynamics\WhenMappingFromDynamicsToNewEnumerables.cs" />
     <Compile Include="Dynamics\WhenMappingOnToDynamics.cs" />
+    <Compile Include="Dynamics\WhenMappingOnToDynamicMembers.cs" />
     <Compile Include="Dynamics\WhenMappingOverDynamicMembers.cs" />
     <Compile Include="Dynamics\WhenMappingOverDynamics.cs" />
     <Compile Include="Dynamics\WhenMappingToNewEnumerablesOfDynamic.cs" />

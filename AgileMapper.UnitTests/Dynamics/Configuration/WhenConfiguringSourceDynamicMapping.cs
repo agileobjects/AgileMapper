@@ -9,7 +9,7 @@
     public class WhenConfiguringSourceDynamicMapping
     {
         [Fact]
-        public void ShouldUseCustomDynamicSourceMemberName()
+        public void ShouldUseACustomDynamicSourceMemberName()
         {
             using (var mapper = Mapper.CreateNew())
             {
