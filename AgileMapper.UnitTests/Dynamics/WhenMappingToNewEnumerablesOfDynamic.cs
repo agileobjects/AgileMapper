@@ -24,5 +24,22 @@
             ((char)result.Second().Value).ShouldBe('2');
             ((char)result.Third().Value).ShouldBe('3');
         }
+
+        [Fact]
+        public void ShouldMapAComplexTypeCollectionByRuntimeType()
+        {
+            ICollection<PersonViewModel> source = new List<PersonViewModel>
+            {
+                new PersonViewModel { Name = "Person" },
+                new CustomerViewModel { Name = "Customer", Discount = 0.2 }
+            };
+            var result = Mapper.Map(source).ToANew<dynamic[]>();
+
+            result.Length.ShouldBe(2);
+
+            ((string)result.First().Name).ShouldBe("Person");
+            ((string)result.Second().Name).ShouldBe("Customer");
+            ((double)result.Second().Discount).ShouldBe(0.2);
+        }
     }
 }
