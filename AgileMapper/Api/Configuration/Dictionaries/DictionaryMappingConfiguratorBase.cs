@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         {
         }
 
-        protected void SetupFlattenedMemberNames()
+        protected void SetupFlattenedTargetMemberNames()
         {
             var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(ConfigInfo);
 

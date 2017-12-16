@@ -257,7 +257,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .ToANew<PublicField<long>>()
                     .Map(ctx => ctx.Source.Count)
                     .To(pf => pf.Value);

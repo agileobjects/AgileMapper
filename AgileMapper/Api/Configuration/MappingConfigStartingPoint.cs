@@ -17,13 +17,8 @@
         private readonly MappingConfigInfo _configInfo;
 
         internal MappingConfigStartingPoint(MapperContext mapperContext)
-            : this(new MappingConfigInfo(mapperContext))
         {
-        }
-
-        internal MappingConfigStartingPoint(MappingConfigInfo configInfo)
-        {
-            _configInfo = configInfo;
+            _configInfo = new MappingConfigInfo(mapperContext);
         }
 
         private MapperContext MapperContext => _configInfo.MapperContext;
@@ -343,11 +338,33 @@
         public InstanceConfigurator<TObject> InstancesOf<TObject>() where TObject : class
             => new InstanceConfigurator<TObject>(GlobalConfigInfo);
 
+        #region Dictionaries
+
         /// <summary>
-        /// Configure how this mapper performs mappings from source Dictionary{string, T} instances.
+        /// Configure how this mapper performs mappings from or to source Dictionary instances
+        /// with any Dictionary value type.
         /// </summary>
-        public DictionaryConfigurator<object> Dictionaries
-            => CreateDictionaryConfigurator<object>(config => config.ForSourceValueType(Constants.AllTypes));
+        public IGlobalDictionarySettings<object> Dictionaries
+            => CreateDictionaryConfigurator<object>(sourceValueType: Constants.AllTypes);
+
+        /// <summary>
+        /// Configure how this mapper performs mappings from or to source Dictionary{string, TValue} instances.
+        /// </summary>
+        /// <typeparam name="TValue">
+        /// The type of values contained in the Dictionary to which the configuration will apply.
+        /// </typeparam>
+        /// <returns>
+        /// An IGlobalDictionarySettings with which to continue other global aspects of Dictionary mapping.
+        /// </returns>
+        public IGlobalDictionarySettings<TValue> DictionariesWithValueType<TValue>()
+            => CreateDictionaryConfigurator<TValue>();
+
+        /// <summary>
+        /// Configure how this mapper performs mappings from source Dictionary instances with 
+        /// any Dictionary value type.
+        /// </summary>
+        public ISourceDictionaryTargetTypeSelector<object> FromDictionaries
+            => CreateDictionaryConfigurator<object>(sourceValueType: Constants.AllTypes);
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, TValue} instances.
@@ -355,19 +372,23 @@
         /// <typeparam name="TValue">
         /// The type of values contained in the Dictionary to which the configuration will apply.
         /// </typeparam>
-        /// <returns>A DictionaryConfigurator with which to continue the configuration.</returns>
-        public DictionaryConfigurator<TValue> DictionariesWithValueType<TValue>()
+        /// <returns>
+        /// An ISourceDictionaryTargetTypeSelector with which to specify to which target type the 
+        /// configuration will apply.
+        /// </returns>
+        public ISourceDictionaryTargetTypeSelector<TValue> FromDictionariesWithValueType<TValue>()
             => CreateDictionaryConfigurator<TValue>();
 
-        private DictionaryConfigurator<TValue> CreateDictionaryConfigurator<TValue>(
-            Action<MappingConfigInfo> configInfoConfigurator = null)
+        private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>(Type sourceValueType = null)
         {
-            var configInfo = _configInfo.ForAllSourceTypes();
+            var configInfo = _configInfo
+                .ForAllSourceTypes()
+                .ForSourceValueType(sourceValueType ?? typeof(TValue));
 
-            configInfoConfigurator?.Invoke(configInfo);
-
-            return new DictionaryConfigurator<TValue>(configInfo);
+            return new DictionaryMappingConfigurator<TValue>(configInfo);
         }
+
+        #endregion
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the given 

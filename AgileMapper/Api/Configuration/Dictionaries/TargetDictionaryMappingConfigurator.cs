@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         public ITargetDictionaryConfigSettings<TSource, TValue> UseFlattenedMemberNames()
         {
-            SetupFlattenedMemberNames();
+            SetupFlattenedTargetMemberNames();
             return this;
         }
 

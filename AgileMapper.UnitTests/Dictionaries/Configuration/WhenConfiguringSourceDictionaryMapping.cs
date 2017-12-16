@@ -14,7 +14,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .To<PublicField<string>>()
                     .MapFullKey("BoomDiddyBoom")
                     .To(pf => pf.Value);
@@ -32,7 +32,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .OnTo<PublicField<PublicProperty<decimal>>>()
                     .MapFullKey("BoomDiddyMcBoom")
                     .To(pf => pf.Value.Value);
@@ -54,7 +54,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .Over<Address>()
                     .MapMemberNameKey("HouseNumber")
                     .To(a => a.Line1)
@@ -81,7 +81,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionariesWithValueType<string>()
                     .ToANew<Address>()
                     .MapMemberNameKey("HouseName")
                     .To(a => a.Line1);
@@ -99,7 +99,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .To<PublicProperty<string[]>>()
                     .MapMemberNameKey("Strings")
                     .To(pp => pp.Value);
@@ -125,7 +125,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionariesWithValueType<object>()
                     .To<Product>()
                     .MapFullKey("BlahBlahBlah")
                     .To(p => p.ProductId)
@@ -175,7 +175,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .To<Order>()
                     .MapMemberNameKey("OrderCode")
                     .To(o => o.OrderId);
@@ -230,7 +230,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .ToANew<Customer>()
                     .UseMemberNameSeparator("_")
                     .And
@@ -268,6 +268,7 @@
                     .Dictionaries
                     .UseMemberNameSeparator("+")
                     .AndWhenMapping
+                    .FromDictionaries
                     .ToANew<Address>()
                     .UseMemberNameSeparator("-");
 
@@ -294,7 +295,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .UseElementKeyPattern("_i_")
                     .AndWhenMapping
                     .To<PublicSetMethod<string>>()
@@ -325,10 +326,11 @@
             {
                 mapper.WhenMapping
                     .Dictionaries
-                    .OnTo<Address>()
                     .UseMemberNameSeparator("-")
                     .UseElementKeyPattern("i")
-                    .And
+                    .AndWhenMapping
+                    .FromDictionariesWithValueType<string>()
+                    .OnTo<Address>()
                     .MapMemberNameKey("StreetName")
                     .To(a => a.Line1)
                     .And
@@ -362,7 +364,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .ToANew<PersonViewModel>()
                     .If(s => s.Source.ContainsKey("Discount"))
                     .MapTo<CustomerViewModel>()
@@ -396,7 +398,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .DictionariesWithValueType<string>()
+                    .FromDictionariesWithValueType<string>()
                     .ToANew<CustomerViewModel>()
                     .If(s => s.Source["Report"].Length > 10)
                     .MapTo<MysteryCustomerViewModel>();
@@ -426,7 +428,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .DictionariesWithValueType<string>()
+                    .FromDictionariesWithValueType<string>()
                     .ToANew<PublicPropertyStruct<string>>()
                     .MapFullKey("LaLaLa")
                     .To(p => p.Value);
