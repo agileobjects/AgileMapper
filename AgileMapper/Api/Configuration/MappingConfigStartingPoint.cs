@@ -6,8 +6,10 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using Dictionaries;
+    using Dynamics;
     using Extensions.Internal;
     using Members;
+    using static Dictionaries.DictionaryType;
 
     /// <summary>
     /// Provides options for configuring how a mapper performs a mapping.
@@ -345,7 +347,7 @@
         /// with any Dictionary value type.
         /// </summary>
         public IGlobalDictionarySettings<object> Dictionaries
-            => CreateDictionaryConfigurator<object>(sourceValueType: Constants.AllTypes);
+            => CreateDictionaryConfigurator<object>(Dictionary, sourceValueType: Constants.AllTypes);
 
         /// <summary>
         /// Configure how this mapper performs mappings from or to source Dictionary{string, TValue} instances.
@@ -357,14 +359,14 @@
         /// An IGlobalDictionarySettings with which to continue other global aspects of Dictionary mapping.
         /// </returns>
         public IGlobalDictionarySettings<TValue> DictionariesWithValueType<TValue>()
-            => CreateDictionaryConfigurator<TValue>();
+            => CreateDictionaryConfigurator<TValue>(Dictionary);
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary instances with 
         /// any Dictionary value type.
         /// </summary>
         public ISourceDictionaryTargetTypeSelector<object> FromDictionaries
-            => CreateDictionaryConfigurator<object>(sourceValueType: Constants.AllTypes);
+            => CreateDictionaryConfigurator<object>(Dictionary, sourceValueType: Constants.AllTypes);
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, TValue} instances.
@@ -377,13 +379,22 @@
         /// configuration will apply.
         /// </returns>
         public ISourceDictionaryTargetTypeSelector<TValue> FromDictionariesWithValueType<TValue>()
-            => CreateDictionaryConfigurator<TValue>();
+            => CreateDictionaryConfigurator<TValue>(Dictionary);
 
-        private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>(Type sourceValueType = null)
+        /// <summary>
+        /// Configure how this mapper performs mappings from source ExpandoObject instances.
+        /// </summary>
+        public ISourceDynamicTargetTypeSelector FromDynamics
+            => CreateDictionaryConfigurator<object>(ExpandoObject, sourceValueType: Constants.AllTypes);
+
+        private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>(
+            DictionaryType dictionaryType,
+            Type sourceValueType = null)
         {
             var configInfo = _configInfo
                 .ForAllSourceTypes()
-                .ForSourceValueType(sourceValueType ?? typeof(TValue));
+                .ForSourceValueType(sourceValueType ?? typeof(TValue))
+                .Set(dictionaryType);
 
             return new DictionaryMappingConfigurator<TValue>(configInfo);
         }

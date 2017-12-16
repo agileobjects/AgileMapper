@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics.Configuration
 {
+    using System.Collections.Generic;
     using System.Dynamic;
     using Shouldly;
     using TestClasses;
@@ -8,12 +9,12 @@
     public class WhenConfiguringSourceDynamicMapping
     {
         [Fact]
-        public void ShouldNotApplyDictionaryConfiguration()
+        public void ShouldNotApplyDictionaryConfigurationToDynamics()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .DictionariesWithValueType<object>()
+                    .FromDictionariesWithValueType<object>()
                     .To<PublicField<string>>()
                     .MapFullKey("LaLaLa")
                     .To(pf => pf.Value);
@@ -24,6 +25,30 @@
                 source.Value = 2;
 
                 var result = (PublicField<string>)mapper.Map(source).ToANew<PublicField<string>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldBe("2");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotApplyDynamicConfigurationToDictionaries()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDynamics
+                    .To<PublicField<string>>()
+                    .MapMember("LaLaLa")
+                    .To(pf => pf.Value);
+
+                var source = new Dictionary<string, int>
+                {
+                    ["LaLaLa"] = 1,
+                    ["Value"] = 2
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<string>>();
 
                 result.ShouldNotBeNull();
                 result.Value.ShouldBe("2");

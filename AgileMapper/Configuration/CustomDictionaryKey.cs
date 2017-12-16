@@ -50,9 +50,7 @@
         public string Key { get; }
 
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
-        {
-            return $"Configured dictionary key member {TargetMember.GetPath()} has a configured data source";
-        }
+            => $"Configured dictionary key member {TargetMember.GetPath()} has a configured data source";
 
         public bool AppliesTo(Member member, IMemberMapperData mapperData)
         {
@@ -67,8 +65,16 @@
                 return false;
             }
 
-            if ((ConfigInfo.Get<DictionaryType>() != DictionaryType.ExpandoObject) &&
+            var applicableDictionaryType = ConfigInfo.Get<DictionaryType>();
+
+            if ((applicableDictionaryType != DictionaryType.ExpandoObject) &&
                 (mapperData.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject)))
+            {
+                return false;
+            }
+
+            if ((applicableDictionaryType == DictionaryType.ExpandoObject) &&
+                (mapperData.SourceMember.GetFriendlyTypeName() != nameof(ExpandoObject)))
             {
                 return false;
             }

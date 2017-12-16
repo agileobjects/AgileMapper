@@ -198,13 +198,25 @@
 
         public MappingConfigInfo Clone()
         {
-            return new MappingConfigInfo(MapperContext)
+            var cloned = new MappingConfigInfo(MapperContext)
             {
                 SourceType = SourceType,
                 TargetType = TargetType,
                 SourceValueType = SourceValueType,
                 RuleSet = RuleSet
             };
+
+            if (_data == null)
+            {
+                return cloned;
+            }
+
+            foreach (var itemByType in _data)
+            {
+                cloned.Data.Add(itemByType.Key, itemByType.Value);
+            }
+
+            return cloned;
         }
 
         private class TypeTestFinder : ExpressionVisitor
