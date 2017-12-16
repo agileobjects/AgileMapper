@@ -21,6 +21,7 @@
 
             _joiningNameFactories = new List<JoiningNameFactory>
             {
+                JoiningNameFactory.UnderscoredForSourceDynamics(mapperContext),
                 JoiningNameFactory.UnderscoredForTargetDynamics(mapperContext),
                 JoiningNameFactory.Dotted(mapperContext)
             };
@@ -102,6 +103,9 @@
                 conflictingJoiningName.SeparatorDescription));
         }
 
+        public Expression GetSeparator(IMemberMapperData mapperData)
+            => _joiningNameFactories.FindMatch(mapperData).Separator;
+
         public Expression GetJoiningName(Member member, IMemberMapperData mapperData)
             => _joiningNameFactories.FindMatch(mapperData).GetJoiningName(member, mapperData);
 
@@ -110,11 +114,14 @@
             _elementKeyPartFactories.Insert(0, keyPartFactory);
         }
 
+        public Expression GetElementKeyPartMatcher(IBasicMapperData mapperData)
+            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyPartMatcher();
+
         public Expression GetElementKeyPrefixOrNull(IBasicMapperData mapperData)
             => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyPrefixOrNull();
 
-        public IEnumerable<Expression> GetElementKeyParts(Expression index, IBasicMapperData mapperData)
-            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyParts(index);
+        public IList<Expression> GetElementKeyParts(Expression index, IBasicMapperData mapperData)
+            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyParts(index).ToArray();
 
         public void CloneTo(DictionarySettings dictionaries)
         {

@@ -9,8 +9,9 @@
 
     internal class ElementKeyPartFactory : UserConfiguredItemBase
     {
-        private readonly Expression _prefix;
-        private readonly Expression _suffix;
+        private readonly ConstantExpression _prefix;
+        private readonly ConstantExpression _suffix;
+        private Expression _keyPartMatcher;
 
         private ElementKeyPartFactory(
             string prefix,
@@ -64,14 +65,14 @@
         {
             if (string.IsNullOrWhiteSpace(pattern))
             {
-                throw NewInvalidPatternException();
+                throw InvalidPattern();
             }
 
             var patternMatch = _patternMatcher.Match(pattern);
 
             if (!patternMatch.Success)
             {
-                throw NewInvalidPatternException();
+                throw InvalidPattern();
             }
 
             var prefix = patternMatch.Groups["Prefix"].Value;
@@ -94,7 +95,7 @@
             return new ElementKeyPartFactory(prefix, suffix, configInfo);
         }
 
-        private static MappingConfigurationException NewInvalidPatternException()
+        private static MappingConfigurationException InvalidPattern()
         {
             return new MappingConfigurationException(
                 "An enumerable element key pattern must contain a single 'i' character " +
@@ -102,6 +103,19 @@
         }
 
         #endregion
+
+        public Expression GetElementKeyPartMatcher()
+            => _keyPartMatcher ?? (_keyPartMatcher = CreateKeyPartRegex().ToConstantExpression());
+
+        private Regex CreateKeyPartRegex()
+        {
+            return new Regex(
+                _prefix?.Value + "[0-9]+" + _suffix?.Value
+#if !NET_STANDARD
+                , RegexOptions.Compiled
+#endif
+                );
+        }
 
         public Expression GetElementKeyPrefixOrNull() => _prefix;
 

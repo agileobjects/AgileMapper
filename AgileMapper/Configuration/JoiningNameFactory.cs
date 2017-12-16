@@ -15,6 +15,7 @@
         private readonly Type _targetType;
         private readonly bool _isDefault;
         private readonly bool _isGlobal;
+        private Expression _separatorConstant;
 
         private JoiningNameFactory(
             string separator,
@@ -30,6 +31,16 @@
         }
 
         #region Factory Methods
+
+        public static JoiningNameFactory UnderscoredForSourceDynamics(MapperContext mapperContext)
+        {
+            var sourceExpandoObject = new MappingConfigInfo(mapperContext)
+                .ForAllRuleSets()
+                .ForSourceType<ExpandoObject>()
+                .ForAllTargetTypes();
+
+            return For("_", sourceExpandoObject);
+        }
 
         public static JoiningNameFactory UnderscoredForTargetDynamics(MapperContext mapperContext)
         {
@@ -74,6 +85,9 @@
 
             return base.ConflictsWith(otherConfiguredItem);
         }
+
+        public Expression Separator
+            => _separatorConstant ?? (_separatorConstant = _separator.ToConstantExpression());
 
         public Expression GetJoiningName(Member member, IMemberMapperData mapperData)
             => _joinedNameFactory.Invoke(_separator, member, mapperData);

@@ -8,6 +8,24 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
     internal static class DictionaryMemberMapperDataExtensions
     {
+        public static Expression GetDictionaryKeyPartSeparator(this IMemberMapperData mapperData)
+        {
+            return mapperData
+                .MapperContext
+                .UserConfigurations
+                .Dictionaries
+                .GetSeparator(mapperData);
+        }
+
+        public static Expression GetDictionaryElementKeyPartMatcher(this IMemberMapperData mapperData)
+        {
+            return mapperData
+                .MapperContext
+                .UserConfigurations
+                .Dictionaries
+                .GetElementKeyPartMatcher(mapperData);
+        }
+
         public static Expression GetTargetMemberDictionaryKey(this IMemberMapperData mapperData)
         {
             var configuredKey = mapperData.MapperContext
@@ -144,7 +162,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             memberPartExpressions.InsertRange(0, elementKeyParts);
         }
 
-        public static IEnumerable<Expression> GetTargetMemberDictionaryElementKeyParts(
+        public static IList<Expression> GetTargetMemberDictionaryElementKeyParts(
             this IMemberMapperData mapperData,
             Expression index)
         {

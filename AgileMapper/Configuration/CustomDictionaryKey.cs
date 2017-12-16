@@ -68,13 +68,13 @@
             var applicableDictionaryType = ConfigInfo.Get<DictionaryType>();
 
             if ((applicableDictionaryType != DictionaryType.ExpandoObject) &&
-                (mapperData.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject)))
+                 IsPartOfExpandoObjectMapping(mapperData))
             {
                 return false;
             }
 
             if ((applicableDictionaryType == DictionaryType.ExpandoObject) &&
-                (mapperData.SourceMember.GetFriendlyTypeName() != nameof(ExpandoObject)))
+                !IsPartOfExpandoObjectMapping(mapperData))
             {
                 return false;
             }
@@ -87,6 +87,21 @@
             var targetMember = GetTargetMember(member, mapperData);
 
             return _sourceMember.Matches(targetMember);
+        }
+
+        private static bool IsPartOfExpandoObjectMapping(IMemberMapperData mapperData)
+        {
+            while (mapperData != null)
+            {
+                if (mapperData.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject))
+                {
+                    return true;
+                }
+
+                mapperData = mapperData.Parent;
+            }
+
+            return false;
         }
 
         private QualifiedMember GetTargetMember(Member member, IBasicMapperData mapperData)

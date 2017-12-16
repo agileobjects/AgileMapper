@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Dynamic;
+    using System.Linq;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -60,6 +61,41 @@
 
                 target.Line1.ShouldBe("10");
                 target.Line2.ShouldBe("Street Road");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyACustomMemberNamePartsToASpecificTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDynamics
+                    .OnTo<Address>()
+                    .MapMemberName("StreetName")
+                    .To(a => a.Line1)
+                    .And
+                    .MapMemberName("CityName")
+                    .To(a => a.Line2);
+
+                dynamic source = new ExpandoObject();
+
+                source.Value_0__StreetName = "Street Zero";
+                source.Value_0__CityName = "City Zero";
+                source.Value_1__StreetName = "Street One";
+                source.Value_1__CityName = "City One";
+
+                var target = new PublicField<IList<Address>> { Value = new List<Address>() };
+
+                mapper.Map(source).OnTo(target);
+
+                target.Value.Count.ShouldBe(2);
+
+                target.Value.First().Line1.ShouldBe("Street Zero");
+                target.Value.First().Line2.ShouldBe("City Zero");
+
+                target.Value.Second().Line1.ShouldBe("Street One");
+                target.Value.Second().Line2.ShouldBe("City One");
             }
         }
 

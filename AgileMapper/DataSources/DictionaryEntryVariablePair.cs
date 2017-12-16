@@ -100,7 +100,18 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var firstMatchingKeyOrNull = GetKeyMatchingQuery(
                 HasConstantTargetMemberKey ? targetMemberKey : Key,
-                (keyParameter, targetKey) => keyParameter.GetMatchesKeyCall(targetKey),
+                (keyParameter, targetKey) =>
+                {
+                    var separator = MapperData.Parent.IsRoot
+                        ? null
+                        : MapperData.GetDictionaryKeyPartSeparator();
+
+                    var elementKeyPartMatcher = MapperData.Parent.TargetMemberIsEnumerableElement()
+                        ? MapperData.GetDictionaryElementKeyPartMatcher()
+                        : null;
+
+                    return keyParameter.GetMatchesKeyCall(targetKey, separator, elementKeyPartMatcher);
+                },
                 Expression.Equal,
                 _linqFirstOrDefaultMethod);
 

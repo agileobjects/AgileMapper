@@ -95,6 +95,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> OnTo<TTarget>()
             => CreateConfigurator<TTarget>(Constants.Merge);
 
+        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.OnTo<TTarget>()
+            => CreateConfigurator<TTarget>(Constants.Merge);
+
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> Over<TTarget>()
             => CreateConfigurator<TTarget>(Constants.Overwrite);
 
