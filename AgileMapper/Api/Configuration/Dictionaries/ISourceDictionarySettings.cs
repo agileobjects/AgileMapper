@@ -21,9 +21,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         /// <summary>
         /// Use the given <paramref name="separator"/>  to construct expected source Dictionary keys, 
-        /// and to separate member names when mapping to nested complex type members of any target type. 
-        /// For example, calling UseMemberName("_") will require a source Dictionary entry with the key 
-        /// 'Address_Line1' to map to an Address.Line1 member.
+        /// and to separate member names when mapping to nested complex type members of any target type - 
+        /// the default is '.'. For example, calling UseMemberNameSeparator("_") will require a source 
+        /// Dictionary entry with the key 'Address_Line1' to map to an Address.Line1 member.
         /// </summary>
         /// <param name="separator">
         /// The separator to use to separate member names when constructing expected source Dictionary 

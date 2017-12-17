@@ -387,7 +387,7 @@
         /// <summary>
         /// Configure how this mapper performs mappings from or to ExpandoObject instances.
         /// </summary>
-        public ISourceDynamicTargetTypeSelector Dynamics
+        public IGlobalDynamicSettings Dynamics
             => CreateDictionaryConfigurator<object>(Expando, typeof(ExpandoObject), sourceValueType: AllTypes);
 
         /// <summary>

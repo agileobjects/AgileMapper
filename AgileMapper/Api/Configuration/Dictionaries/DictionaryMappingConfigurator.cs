@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         DictionaryMappingConfiguratorBase<object, object>,
         IGlobalDictionarySettings<TValue>,
         ISourceDictionaryTargetTypeSelector<TValue>,
+        IGlobalDynamicSettings,
         ISourceDynamicTargetTypeSelector
     {
         private readonly MappingConfigInfo _configInfo;
@@ -29,6 +30,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         public ISourceDictionarySettings<TValue> UseFlattenedTargetMemberNames()
             => RegisterFlattenedTargetMemberNames(GetConfigInfo(SourceOnly));
 
+
+        IGlobalDynamicSettings IGlobalDynamicSettings.UseFlattenedTargetMemberNames()
+            => RegisterFlattenedTargetMemberNames(GetGlobalConfigInfo(All));
+
         ISourceDynamicSettings ISourceDynamicSettings.UseFlattenedTargetMemberNames()
             => RegisterFlattenedTargetMemberNames(GetConfigInfo(SourceOnly));
 
@@ -47,6 +52,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         public ISourceDictionarySettings<TValue> UseMemberNameSeparator(string separator)
             => RegisterMemberNameSeparator(separator, GetConfigInfo(SourceOnly));
+
+        IGlobalDynamicSettings IGlobalDynamicSettings.UseMemberNameSeparator(string separator)
+            => RegisterMemberNameSeparator(separator, GetGlobalConfigInfo(All));
 
         ISourceDynamicSettings ISourceDynamicSettings.UseMemberNameSeparator(string separator)
             => RegisterMemberNameSeparator(separator, GetConfigInfo(SourceOnly));
@@ -68,6 +76,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         public ISourceDictionarySettings<TValue> UseElementKeyPattern(string pattern)
             => RegisterElementKeyPattern(pattern, GetConfigInfo(SourceOnly));
+
+        IGlobalDynamicSettings IGlobalDynamicSettings.UseElementKeyPattern(string pattern)
+            => RegisterElementKeyPattern(pattern, GetGlobalConfigInfo(All));
 
         ISourceDynamicSettings ISourceDynamicSettings.UseElementKeyPattern(string pattern)
             => RegisterElementKeyPattern(pattern, GetConfigInfo(SourceOnly));
@@ -98,6 +109,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             => new MappingConfigStartingPoint(_configInfo.MapperContext);
 
         public ISourceDictionaryTargetTypeSelector<TValue> AndWhenMapping => this;
+
+        MappingConfigStartingPoint IGlobalDynamicSettings.AndWhenMapping
+            => new MappingConfigStartingPoint(_configInfo.MapperContext);
 
         ISourceDynamicTargetTypeSelector ISourceDynamicSettings.AndWhenMapping => this;
 
