@@ -293,6 +293,7 @@
 
             configEx.Message.ShouldContain("already");
             configEx.Message.ShouldContain("global");
+            configEx.Message.ShouldContain("[i]");
         }
 
         [Fact]

@@ -138,7 +138,7 @@
         public override string GetConflictMessage()
             => $"Element keys are already configured {TargetScopeDescription} to be {Pattern}";
 
-        private string Pattern => _suffixString + "i" + _suffixString;
+        private string Pattern => _prefixString + "i" + _suffixString;
 
         public IEnumerable<Expression> GetElementKeyParts(Expression index)
         {
