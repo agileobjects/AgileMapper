@@ -104,7 +104,7 @@
                 return true;
             }
 
-            if (!sourceValue.Type.IsSimple())
+            if (!sourceValue.Type.IsValueType() && !sourceValue.Type.IsSimple())
             {
                 return false;
             }

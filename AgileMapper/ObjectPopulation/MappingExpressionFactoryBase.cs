@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using NetStandardPolyfills;
     using static CallbackPosition;
+    using static System.Linq.Expressions.ExpressionType;
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -70,7 +71,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             derivedTypeMappings = GetDerivedTypeMappings(mappingData);
 
-            if (derivedTypeMappings.NodeType != ExpressionType.Goto)
+            if (derivedTypeMappings.NodeType != Goto)
             {
                 return false;
             }
@@ -101,21 +102,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
-        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
+        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, IMemberMapperData mapperData)
         {
             if (mappingExpressions.None())
             {
                 return true;
             }
 
-            if (mappingExpressions[0].NodeType != ExpressionType.Assign)
+            if (mappingExpressions[0].NodeType != Assign)
             {
                 return false;
             }
 
             var assignedValue = ((BinaryExpression)mappingExpressions[0]).Right;
 
-            if (assignedValue.NodeType == ExpressionType.Default)
+            if (assignedValue.NodeType == Default)
             {
                 return true;
             }
@@ -132,9 +133,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             AdjustForSingleExpressionBlockIfApplicable(ref mappingExpressions);
 
-            if (mappingExpressions[0].NodeType != ExpressionType.Block)
+            if (mappingExpressions.HasOne() && (mappingExpressions[0].NodeType == Constant))
             {
-                if (mappingExpressions[0].NodeType == ExpressionType.MemberAccess)
+                goto CreateFullMappingBlock;
+            }
+
+            if (mappingExpressions[0].NodeType != Block)
+            {
+                if (mappingExpressions[0].NodeType == MemberAccess)
                 {
                     return GetReturnExpression(mappingExpressions[0], mappingExtras);
                 }
@@ -144,9 +150,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     goto CreateFullMappingBlock;
                 }
 
-                var firstAssignment = (BinaryExpression)mappingExpressions.First(exp => exp.NodeType == ExpressionType.Assign);
+                var firstAssignment = (BinaryExpression)mappingExpressions.First(exp => exp.NodeType == Assign);
 
-                if ((firstAssignment.Left.NodeType == ExpressionType.Parameter) &&
+                if ((firstAssignment.Left.NodeType == Parameter) &&
                     (mappingExpressions.Last() == firstAssignment))
                 {
                     returnExpression = GetReturnExpression(firstAssignment.Right, mappingExtras);
@@ -177,7 +183,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static void AdjustForSingleExpressionBlockIfApplicable(ref IList<Expression> mappingExpressions)
         {
-            if (!mappingExpressions.HasOne() || (mappingExpressions[0].NodeType != ExpressionType.Block))
+            if (!mappingExpressions.HasOne() || (mappingExpressions[0].NodeType != Block))
             {
                 return;
             }

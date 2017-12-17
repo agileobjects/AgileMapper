@@ -171,6 +171,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var targetEntryMemberName = targetMemberNameFactory.Invoke(sourceMember);
                 var targetEntryMember = targetDictionaryMember.Append(sourceMember.DeclaringType, targetEntryMemberName);
 
+                if (targetDictionaryMember.HasObjectEntries)
+                {
+                    targetEntryMember = (DictionaryTargetMember)targetEntryMember.WithType(sourceMember.Type);
+                }
+
                 var entryMapperData = new ChildMemberMapperData(targetEntryMember, mapperData);
                 var configuredKey = GetCustomKeyOrNull(entryMapperData);
 

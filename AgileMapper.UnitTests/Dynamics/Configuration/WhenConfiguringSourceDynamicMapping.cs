@@ -100,6 +100,48 @@
         }
 
         [Fact]
+        public void ShouldApplyCustomSeparators()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .Dynamics
+                    .UseMemberNameSeparator("-")
+                    .AndWhenMapping
+                    .FromDynamics
+                    .UseMemberNameSeparator("+");
+
+                var source = new[]
+                {
+                    new PublicProperty<int> { Value = 10 },
+                    new PublicProperty<int> { Value = 20 },
+                    new PublicProperty<int> { Value = 30 },
+                };
+
+                dynamic targetDynamic = new ExpandoObject();
+
+                ((IDictionary<string, object>)targetDynamic)["_0_-Value"] = 1;
+                ((IDictionary<string, object>)targetDynamic)["_1_-Value"] = 2;
+
+                var targetResult = (IDictionary<string, object>)mapper.Map(source).Over(targetDynamic);
+
+                targetResult.Count.ShouldBe(3);
+
+                targetResult["_0_-Value"].ShouldBe(10);
+                targetResult["_1_-Value"].ShouldBe(20);
+                targetResult["_2_-Value"].ShouldBe(30);
+
+                dynamic sourceDynamic = new ExpandoObject();
+
+                ((IDictionary<string, object>)sourceDynamic)["Value+Value"] = 123;
+
+                var sourceResult = (PublicField<PublicField<int>>)mapper.Map(sourceDynamic).ToANew<PublicField<PublicField<int>>>();
+
+                sourceResult.Value.Value.ShouldBe(123);
+            }
+        }
+
+        [Fact]
         public void ShouldNotApplyDictionaryConfigurationToDynamics()
         {
             using (var mapper = Mapper.CreateNew())

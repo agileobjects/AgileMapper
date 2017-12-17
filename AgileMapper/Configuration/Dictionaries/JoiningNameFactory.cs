@@ -7,6 +7,7 @@
     using Members;
     using Members.Dictionaries;
     using ReadableExpressions.Extensions;
+    using static DictionaryContext;
 
     internal class JoiningNameFactory : DictionaryKeyPartFactoryBase
     {
@@ -86,7 +87,7 @@
 
             var applicableDictionarycontext = ConfigInfo.Get<DictionaryContext>();
 
-            if (applicableDictionarycontext == DictionaryContext.All)
+            if (applicableDictionarycontext == All)
             {
                 return true;
             }
@@ -113,14 +114,24 @@
                 return false;
             }
 
-            if (_isDefault && (_separator != otherFactory._separator))
+            var separatorsAreTheSame = _separator == otherFactory._separator;
+
+            if (_isDefault && !separatorsAreTheSame)
             {
                 return false;
             }
 
-            if (ConfigInfo.Get<DictionaryType>() != otherConfiguredItem.ConfigInfo.Get<DictionaryType>())
+            if (ConfigInfo.Get<DictionaryType>() != otherFactory.ConfigInfo.Get<DictionaryType>())
             {
                 return false;
+            }
+
+            var thisContext = ConfigInfo.Get<DictionaryContext>();
+            var otherContext = otherFactory.ConfigInfo.Get<DictionaryContext>();
+
+            if ((thisContext == All) && (otherContext == SourceOnly))
+            {
+                return separatorsAreTheSame;
             }
 
             return base.ConflictsWith(otherConfiguredItem);
