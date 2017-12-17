@@ -107,7 +107,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return dictionaryEntry;
         }
 
-        public bool HasCompatibleType(Type type) => false;
+        public bool HasCompatibleType(Type type) => Parent.HasCompatibleType(type);
 
         public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 

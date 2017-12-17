@@ -67,13 +67,13 @@
 
             var applicableDictionaryType = ConfigInfo.Get<DictionaryType>();
 
-            if ((applicableDictionaryType != DictionaryType.ExpandoObject) &&
+            if ((applicableDictionaryType != DictionaryType.Expando) &&
                  IsPartOfExpandoObjectMapping(mapperData))
             {
                 return false;
             }
 
-            if ((applicableDictionaryType == DictionaryType.ExpandoObject) &&
+            if ((applicableDictionaryType == DictionaryType.Expando) &&
                 !IsPartOfExpandoObjectMapping(mapperData))
             {
                 return false;

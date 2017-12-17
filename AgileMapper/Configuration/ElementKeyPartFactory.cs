@@ -6,6 +6,7 @@
     using System.Text.RegularExpressions;
     using Extensions.Internal;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class ElementKeyPartFactory : UserConfiguredItemBase
     {
@@ -132,6 +133,24 @@
             {
                 yield return _suffix;
             }
+        }
+
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public override string ToString()
+        {
+            var sourceType = ConfigInfo.IsForAllSourceTypes()
+                ? "All sources"
+                : ConfigInfo.SourceType.GetFriendlyName();
+
+            var targetTypeName = ConfigInfo.TargetType == typeof(object)
+                ? "All targets"
+                : TargetTypeName;
+
+            return $"{sourceType} -> {targetTypeName}: {_prefix.Value}i{_suffix.Value}";
         }
     }
 }

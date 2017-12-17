@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using Dynamics;
 
     internal class DictionaryMappingConfigurator<TValue> :
+        DictionaryMappingConfiguratorBase<object, object>,
         IGlobalDictionarySettings<TValue>,
         ISourceDictionaryTargetTypeSelector<TValue>,
         ISourceDynamicTargetTypeSelector
@@ -11,72 +12,89 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         private readonly MappingConfigInfo _configInfo;
 
         internal DictionaryMappingConfigurator(MappingConfigInfo configInfo)
+            : base(configInfo)
         {
             _configInfo = configInfo;
-
-            if (_configInfo.SourceValueType == null)
-            {
-                _configInfo.ForSourceValueType<TValue>();
-            }
         }
 
-        #region Dictionary Mapping Settings
+        #region Mapping Settings
 
-        private MappingConfigInfo GetConfigInfo()
-            => (_configInfo.TargetType != null) ? _configInfo : GlobalConfigInfo;
-
-        private MappingConfigInfo GlobalConfigInfo => _configInfo.Clone().ForAllRuleSets().ForAllTargetTypes();
+        #region UseFlattenedTargetMemberNames
 
         IGlobalDictionarySettings<TValue> IGlobalDictionarySettings<TValue>.UseFlattenedTargetMemberNames()
-            => RegisterFlattenedTargetMemberNames(GlobalConfigInfo);
+            => RegisterFlattenedTargetMemberNames(GetGlobalConfigInfo());
 
         public ISourceDictionarySettings<TValue> UseFlattenedTargetMemberNames()
             => RegisterFlattenedTargetMemberNames(GetConfigInfo());
 
+        ISourceDynamicSettings ISourceDynamicSettings.UseFlattenedTargetMemberNames()
+            => RegisterFlattenedTargetMemberNames(GetConfigInfo());
+
         private DictionaryMappingConfigurator<TValue> RegisterFlattenedTargetMemberNames(MappingConfigInfo configInfo)
         {
-            var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(configInfo);
-
-            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
+            SetupFlattenedTargetMemberNames(configInfo);
             return this;
         }
 
+        #endregion
+
+        #region UseMemberNameSeparator
+
         IGlobalDictionarySettings<TValue> IGlobalDictionarySettings<TValue>.UseMemberNameSeparator(string separator)
-            => RegisterMemberNameSeparator(separator, GlobalConfigInfo);
+            => RegisterMemberNameSeparator(separator, GetGlobalConfigInfo());
 
         public ISourceDictionarySettings<TValue> UseMemberNameSeparator(string separator)
+            => RegisterMemberNameSeparator(separator, GetConfigInfo());
+
+        ISourceDynamicSettings ISourceDynamicSettings.UseMemberNameSeparator(string separator)
             => RegisterMemberNameSeparator(separator, GetConfigInfo());
 
         private DictionaryMappingConfigurator<TValue> RegisterMemberNameSeparator(
             string separator,
             MappingConfigInfo configInfo)
         {
-            var joiningNameFactory = JoiningNameFactory.For(separator, configInfo);
-
-            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
+            SetupMemberNameSeparator(separator, configInfo);
             return this;
         }
 
+        #endregion
+
+        #region UseElementKeyPattern
+
         IGlobalDictionarySettings<TValue> IGlobalDictionarySettings<TValue>.UseElementKeyPattern(string pattern)
-            => RegisterElementKeyPattern(pattern, GlobalConfigInfo);
+            => RegisterElementKeyPattern(pattern, GetGlobalConfigInfo());
 
         public ISourceDictionarySettings<TValue> UseElementKeyPattern(string pattern)
+            => RegisterElementKeyPattern(pattern, GetConfigInfo());
+
+        ISourceDynamicSettings ISourceDynamicSettings.UseElementKeyPattern(string pattern)
             => RegisterElementKeyPattern(pattern, GetConfigInfo());
 
         private DictionaryMappingConfigurator<TValue> RegisterElementKeyPattern(
             string pattern,
             MappingConfigInfo configInfo)
         {
-            var keyPartFactory = ElementKeyPartFactory.For(pattern, configInfo);
-
-            _configInfo.MapperContext.UserConfigurations.Dictionaries.Add(keyPartFactory);
+            SetupElementKeyPattern(pattern, configInfo);
             return this;
         }
+
+        #endregion
+
+        private MappingConfigInfo GetConfigInfo()
+            => (_configInfo.TargetType != typeof(object)) ? _configInfo.Clone() : GetGlobalConfigInfo();
+
+        private MappingConfigInfo GetGlobalConfigInfo() => _configInfo.Clone().ForAllRuleSets().ForAllTargetTypes();
+
+        #region AndWhenMapping
 
         MappingConfigStartingPoint IGlobalDictionarySettings<TValue>.AndWhenMapping
             => new MappingConfigStartingPoint(_configInfo.MapperContext);
 
         public ISourceDictionaryTargetTypeSelector<TValue> AndWhenMapping => this;
+
+        ISourceDynamicTargetTypeSelector ISourceDynamicSettings.AndWhenMapping => this;
+
+        #endregion
 
         #endregion
 

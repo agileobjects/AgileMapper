@@ -10,23 +10,23 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         {
         }
 
-        protected void SetupFlattenedTargetMemberNames()
+        protected void SetupFlattenedTargetMemberNames(MappingConfigInfo configInfo = null)
         {
-            var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(ConfigInfo);
+            var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(configInfo ?? ConfigInfo);
 
             ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
         }
 
-        protected void SetupMemberNameSeparator(string separator)
+        protected void SetupMemberNameSeparator(string separator, MappingConfigInfo configInfo = null)
         {
-            var joiningNameFactory = JoiningNameFactory.For(separator, ConfigInfo);
+            var joiningNameFactory = JoiningNameFactory.For(separator, configInfo ?? ConfigInfo);
 
             ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
         }
 
-        protected void SetupElementKeyPattern(string pattern)
+        protected void SetupElementKeyPattern(string pattern, MappingConfigInfo configInfo = null)
         {
-            var keyPartFactory = ElementKeyPartFactory.For(pattern, ConfigInfo);
+            var keyPartFactory = ElementKeyPartFactory.For(pattern, configInfo ?? ConfigInfo);
 
             ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(keyPartFactory);
         }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides options for specifying the type of ExpandoObject mapping to perform.
     /// </summary>
-    public interface ISourceDynamicTargetTypeSelector
+    public interface ISourceDynamicTargetTypeSelector : ISourceDynamicSettings
     {
         /// <summary>
         /// Configure how this mapper performs mappings from ExpandoObjects in all MappingRuleSets 

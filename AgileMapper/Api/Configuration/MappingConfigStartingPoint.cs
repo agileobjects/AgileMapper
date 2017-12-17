@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Dynamic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -9,6 +10,7 @@
     using Dynamics;
     using Extensions.Internal;
     using Members;
+    using static Constants;
     using static Dictionaries.DictionaryType;
 
     /// <summary>
@@ -347,7 +349,7 @@
         /// with any Dictionary value type.
         /// </summary>
         public IGlobalDictionarySettings<object> Dictionaries
-            => CreateDictionaryConfigurator<object>(Dictionary, sourceValueType: Constants.AllTypes);
+            => CreateDictionaryConfigurator<object>(Dictionary, sourceValueType: AllTypes);
 
         /// <summary>
         /// Configure how this mapper performs mappings from or to source Dictionary{string, TValue} instances.
@@ -366,7 +368,7 @@
         /// any Dictionary value type.
         /// </summary>
         public ISourceDictionaryTargetTypeSelector<object> FromDictionaries
-            => CreateDictionaryConfigurator<object>(Dictionary, sourceValueType: Constants.AllTypes);
+            => CreateDictionaryConfigurator<object>(Dictionary, sourceValueType: AllTypes);
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, TValue} instances.
@@ -385,14 +387,15 @@
         /// Configure how this mapper performs mappings from source ExpandoObject instances.
         /// </summary>
         public ISourceDynamicTargetTypeSelector FromDynamics
-            => CreateDictionaryConfigurator<object>(ExpandoObject, sourceValueType: Constants.AllTypes);
+            => CreateDictionaryConfigurator<object>(Expando, typeof(ExpandoObject), sourceValueType: AllTypes);
 
         private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>(
             DictionaryType dictionaryType,
+            Type sourceType = null,
             Type sourceValueType = null)
         {
             var configInfo = _configInfo
-                .ForAllSourceTypes()
+                .ForSourceType(sourceType ?? AllTypes)
                 .ForSourceValueType(sourceValueType ?? typeof(TValue))
                 .Set(dictionaryType);
 
@@ -434,7 +437,7 @@
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
         public IFullMappingConfigurator<object, TTarget> ToANew<TTarget>()
-            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.CreateNew)).ToANew<TTarget>();
+            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(CreateNew)).ToANew<TTarget>();
 
         /// <summary>
         /// Configure how this mapper performs OnTo (merge) mappings from any source type to the target type 
@@ -443,7 +446,7 @@
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
         public IFullMappingConfigurator<object, TTarget> OnTo<TTarget>()
-            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Merge)).OnTo<TTarget>();
+            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Merge)).OnTo<TTarget>();
 
         /// <summary>
         /// Configure how this mapper performs Over (overwrite) mappings from any source type to the target type 
@@ -452,7 +455,7 @@
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
         public IFullMappingConfigurator<object, TTarget> Over<TTarget>()
-            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Constants.Overwrite)).Over<TTarget>();
+            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Overwrite)).Over<TTarget>();
 
         private TargetTypeSpecifier<object> GetAllSourcesTargetTypeSpecifier(
             Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)

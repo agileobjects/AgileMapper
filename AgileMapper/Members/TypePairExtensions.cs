@@ -27,11 +27,16 @@ namespace AgileObjects.AgileMapper.Members
                 typePair.IsForSourceType(otherTypePair.SourceType) ||
                (sourceTypeMatcher?.Invoke() == true);
 
+            if (!sourceTypesMatch)
+            {
+                return false;
+            }
+
             var targetTypesMatch =
                 targetTypeMatcher?.Invoke() ??
                 otherTypePair.TargetType.IsAssignableTo(typePair.TargetType);
 
-            return sourceTypesMatch && targetTypesMatch;
+            return targetTypesMatch;
         }
     }
 }

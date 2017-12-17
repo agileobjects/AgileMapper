@@ -145,5 +145,43 @@
                 result.Value.ShouldBe("2");
             }
         }
+
+        [Fact]
+        public void ShouldNotConflictDynamicAndDictionaryConfiguration()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionariesWithValueType<object>()
+                    .UseMemberNameSeparator("-");
+
+                mapper.WhenMapping
+                    .FromDynamics
+                    .UseMemberNameSeparator("+");
+
+                var dictionarySource = new Dictionary<string, object>
+                {
+                    ["Value-Line1"] = "Line 1!",
+                    ["Value-Line2"] = "Line 2!"
+                };
+
+                var dictionaryResult = mapper.Map(dictionarySource).ToANew<PublicField<Address>>();
+
+                dictionaryResult.Value.ShouldNotBeNull();
+                dictionaryResult.Value.Line1.ShouldBe("Line 1!");
+                dictionaryResult.Value.Line2.ShouldBe("Line 2!");
+
+                dynamic dynamicSource = new ExpandoObject();
+
+                ((IDictionary<string, object>)dynamicSource)["Value+Line1"] = "Line 1?!";
+                ((IDictionary<string, object>)dynamicSource)["Value+Line2"] = "Line 2?!";
+
+                var dynamicResult = (PublicField<Address>)mapper.Map(dynamicSource).ToANew<PublicField<Address>>();
+
+                dynamicResult.Value.ShouldNotBeNull();
+                dynamicResult.Value.Line1.ShouldBe("Line 1?!");
+                dynamicResult.Value.Line2.ShouldBe("Line 2?!");
+            }
+        }
     }
 }
