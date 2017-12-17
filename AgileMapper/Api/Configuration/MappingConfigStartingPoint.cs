@@ -384,6 +384,12 @@
             => CreateDictionaryConfigurator<TValue>(Dictionary);
 
         /// <summary>
+        /// Configure how this mapper performs mappings from or to ExpandoObject instances.
+        /// </summary>
+        public ISourceDynamicTargetTypeSelector Dynamics
+            => CreateDictionaryConfigurator<object>(Expando, typeof(ExpandoObject), sourceValueType: AllTypes);
+
+        /// <summary>
         /// Configure how this mapper performs mappings from source ExpandoObject instances.
         /// </summary>
         public ISourceDynamicTargetTypeSelector FromDynamics

@@ -7,6 +7,7 @@
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
+    using ReadableExpressions.Extensions;
 
     internal class JoiningNameFactory : DictionaryKeyPartFactoryBase
     {
@@ -38,7 +39,8 @@
             var sourceExpandoObject = new MappingConfigInfo(mapperContext)
                 .ForAllRuleSets()
                 .ForSourceType<ExpandoObject>()
-                .ForAllTargetTypes();
+                .ForAllTargetTypes()
+                .Set(DictionaryType.Expando);
 
             return ForDefault("_", sourceExpandoObject);
         }
@@ -48,7 +50,8 @@
             var targetExpandoObject = new MappingConfigInfo(mapperContext)
                 .ForAllRuleSets()
                 .ForAllSourceTypes()
-                .ForTargetType<ExpandoObject>();
+                .ForTargetType<ExpandoObject>()
+                .Set(DictionaryType.Expando);
 
             return ForDefault("_", targetExpandoObject);
         }
@@ -178,6 +181,24 @@
             }
 
             return memberName.ToConstantExpression();
+        }
+
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public override string ToString()
+        {
+            var sourceType = ConfigInfo.IsForAllSourceTypes()
+                ? "All sources"
+                : ConfigInfo.SourceType.GetFriendlyName();
+
+            var targetTypeName = ConfigInfo.TargetType == typeof(object)
+                ? "All targets"
+                : TargetTypeName;
+
+            return $"{sourceType} -> {targetTypeName}: {SeparatorDescription}";
         }
     }
 }

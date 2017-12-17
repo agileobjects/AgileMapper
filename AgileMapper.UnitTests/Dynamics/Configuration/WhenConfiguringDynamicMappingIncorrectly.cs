@@ -6,6 +6,26 @@
 
     public class WhenConfiguringDynamicMappingIncorrectly
     {
+
+
+        [Fact]
+        public void ShouldErrorIfRedundantGlobalSeparatorIsConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .Dynamics
+                        .UseMemberNameSeparator("_");
+                }
+            });
+
+            configEx.Message.ShouldContain("already");
+            configEx.Message.ShouldContain("global");
+            configEx.Message.ShouldContain("'_'");
+        }
+
         [Fact]
         public void ShouldErrorIfRedundantSourceElementKeyPartIsConfigured()
         {
