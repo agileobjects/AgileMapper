@@ -127,11 +127,17 @@
             }
 
             var thisContext = ConfigInfo.Get<DictionaryContext>();
-            var otherContext = otherFactory.ConfigInfo.Get<DictionaryContext>();
 
-            if ((thisContext == All) && (otherContext == SourceOnly))
+            if (thisContext == All)
             {
-                return separatorsAreTheSame;
+                if (separatorsAreTheSame)
+                {
+                    return true;
+                }
+
+                var otherContext = otherFactory.ConfigInfo.Get<DictionaryContext>();
+
+                return otherContext == All;
             }
 
             return base.ConflictsWith(otherConfiguredItem);
