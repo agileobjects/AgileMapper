@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
+namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     internal enum DictionaryType
     {

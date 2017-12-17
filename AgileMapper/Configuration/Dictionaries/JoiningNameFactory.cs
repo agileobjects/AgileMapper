@@ -3,7 +3,6 @@
     using System;
     using System.Dynamic;
     using System.Linq.Expressions;
-    using Api.Configuration.Dictionaries;
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
@@ -73,10 +72,37 @@
         public Expression Separator
             => _separatorConstant ?? (_separatorConstant = _separator.ToConstantExpression());
 
-        public string SeparatorDescription
+        private string SeparatorDescription
             => IsFlattened ? "flattened" : "separated with '" + _separator + "'";
 
         private bool IsFlattened => _separator == string.Empty;
+
+        public override bool AppliesTo(IBasicMapperData mapperData)
+        {
+            if (!base.AppliesTo(mapperData))
+            {
+                return false;
+            }
+
+            var applicableDictionarycontext = ConfigInfo.Get<DictionaryContext>();
+
+            if (applicableDictionarycontext == DictionaryContext.All)
+            {
+                return true;
+            }
+
+            while (mapperData != null)
+            {
+                if (mapperData.TargetMember.IsDictionary)
+                {
+                    return false;
+                }
+
+                mapperData = mapperData.Parent;
+            }
+
+            return true;
+        }
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {

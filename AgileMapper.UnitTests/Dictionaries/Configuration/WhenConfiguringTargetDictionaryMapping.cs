@@ -40,6 +40,28 @@
         }
 
         [Fact]
+        public void ShouldNotApplySourceOnlyConfigurationToTargetDictionaries()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .UseFlattenedTargetMemberNames();
+
+                var source = new Customer
+                {
+                    Name = "Paul",
+                    Address = new Address { Line1 = "Abbey Road", Line2 = "Penny Lane" }
+                };
+                var result = mapper.Map(source).ToANew<Dictionary<string, string>>();
+
+                result["Name"].ShouldBe("Paul");
+                result["Address.Line1"].ShouldBe("Abbey Road");
+                result["Address.Line2"].ShouldBe("Penny Lane");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyFlattenedMemberNamesToASpecificSourceType()
         {
             using (var mapper = Mapper.CreateNew())
@@ -248,24 +270,6 @@
 
                 bigDiscountResult["CustomerName"].ShouldBe("Silverman");
                 bigDiscountResult["Name"].ShouldBe("Silverman (Big discount!)");
-            }
-        }
-
-        [Fact]
-        public void ShouldApplyACustomConfiguredMember()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .FromDictionaries
-                    .ToANew<PublicField<long>>()
-                    .Map(ctx => ctx.Source.Count)
-                    .To(pf => pf.Value);
-
-                var source = new Dictionary<string, object> { ["One"] = 1, ["Two"] = 2 };
-                var result = mapper.Map(source).ToANew<PublicField<long>>();
-
-                result.Value.ShouldBe(2);
             }
         }
 

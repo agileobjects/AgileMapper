@@ -1,9 +1,8 @@
-﻿namespace AgileObjects.AgileMapper.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using System;
     using System.Dynamic;
     using System.Linq.Expressions;
-    using Api.Configuration.Dictionaries;
     using DataSources;
     using Extensions.Internal;
     using Members;

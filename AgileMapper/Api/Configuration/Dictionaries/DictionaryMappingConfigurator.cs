@@ -1,7 +1,9 @@
 namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
     using Dynamics;
+    using static AgileMapper.Configuration.Dictionaries.DictionaryContext;
 
     internal class DictionaryMappingConfigurator<TValue> :
         DictionaryMappingConfiguratorBase<object, object>,
@@ -22,13 +24,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #region UseFlattenedTargetMemberNames
 
         IGlobalDictionarySettings<TValue> IGlobalDictionarySettings<TValue>.UseFlattenedTargetMemberNames()
-            => RegisterFlattenedTargetMemberNames(GetGlobalConfigInfo());
+            => RegisterFlattenedTargetMemberNames(GetGlobalConfigInfo(All));
 
         public ISourceDictionarySettings<TValue> UseFlattenedTargetMemberNames()
-            => RegisterFlattenedTargetMemberNames(GetConfigInfo());
+            => RegisterFlattenedTargetMemberNames(GetConfigInfo(SourceOnly));
 
         ISourceDynamicSettings ISourceDynamicSettings.UseFlattenedTargetMemberNames()
-            => RegisterFlattenedTargetMemberNames(GetConfigInfo());
+            => RegisterFlattenedTargetMemberNames(GetConfigInfo(SourceOnly));
 
         private DictionaryMappingConfigurator<TValue> RegisterFlattenedTargetMemberNames(MappingConfigInfo configInfo)
         {
@@ -41,13 +43,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #region UseMemberNameSeparator
 
         IGlobalDictionarySettings<TValue> IGlobalDictionarySettings<TValue>.UseMemberNameSeparator(string separator)
-            => RegisterMemberNameSeparator(separator, GetGlobalConfigInfo());
+            => RegisterMemberNameSeparator(separator, GetGlobalConfigInfo(All));
 
         public ISourceDictionarySettings<TValue> UseMemberNameSeparator(string separator)
-            => RegisterMemberNameSeparator(separator, GetConfigInfo());
+            => RegisterMemberNameSeparator(separator, GetConfigInfo(SourceOnly));
 
         ISourceDynamicSettings ISourceDynamicSettings.UseMemberNameSeparator(string separator)
-            => RegisterMemberNameSeparator(separator, GetConfigInfo());
+            => RegisterMemberNameSeparator(separator, GetConfigInfo(SourceOnly));
 
         private DictionaryMappingConfigurator<TValue> RegisterMemberNameSeparator(
             string separator,
@@ -62,13 +64,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #region UseElementKeyPattern
 
         IGlobalDictionarySettings<TValue> IGlobalDictionarySettings<TValue>.UseElementKeyPattern(string pattern)
-            => RegisterElementKeyPattern(pattern, GetGlobalConfigInfo());
+            => RegisterElementKeyPattern(pattern, GetGlobalConfigInfo(All));
 
         public ISourceDictionarySettings<TValue> UseElementKeyPattern(string pattern)
-            => RegisterElementKeyPattern(pattern, GetConfigInfo());
+            => RegisterElementKeyPattern(pattern, GetConfigInfo(SourceOnly));
 
         ISourceDynamicSettings ISourceDynamicSettings.UseElementKeyPattern(string pattern)
-            => RegisterElementKeyPattern(pattern, GetConfigInfo());
+            => RegisterElementKeyPattern(pattern, GetConfigInfo(SourceOnly));
 
         private DictionaryMappingConfigurator<TValue> RegisterElementKeyPattern(
             string pattern,
@@ -80,10 +82,15 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         #endregion
 
-        private MappingConfigInfo GetConfigInfo()
-            => (_configInfo.TargetType != typeof(object)) ? _configInfo.Clone() : GetGlobalConfigInfo();
+        private MappingConfigInfo GetConfigInfo(DictionaryContext context)
+        {
+            return (_configInfo.TargetType != typeof(object))
+                ? _configInfo.Clone().Set(context)
+                : GetGlobalConfigInfo(context);
+        }
 
-        private MappingConfigInfo GetGlobalConfigInfo() => _configInfo.Clone().ForAllRuleSets().ForAllTargetTypes();
+        private MappingConfigInfo GetGlobalConfigInfo(DictionaryContext context)
+            => _configInfo.Clone().ForAllRuleSets().ForAllTargetTypes().Set(context);
 
         #region AndWhenMapping
 

@@ -6,12 +6,13 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
     using Dictionaries;
     using Dynamics;
     using Extensions.Internal;
     using Members;
     using static Constants;
-    using static Dictionaries.DictionaryType;
+    using static AgileMapper.Configuration.Dictionaries.DictionaryType;
 
     /// <summary>
     /// Provides options for configuring how a mapper performs a mapping.
