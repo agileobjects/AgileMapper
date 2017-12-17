@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
     using System;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
     using Members;
 
     /// <summary>

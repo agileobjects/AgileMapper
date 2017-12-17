@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using System.Collections.Generic;
     using System.Dynamic;
@@ -8,9 +8,11 @@
     using Members;
     using ReadableExpressions.Extensions;
 
-    internal class ElementKeyPartFactory : UserConfiguredItemBase
+    internal class ElementKeyPartFactory : DictionaryKeyPartFactoryBase
     {
+        private readonly string _prefixString;
         private readonly ConstantExpression _prefix;
+        private readonly string _suffixString;
         private readonly ConstantExpression _suffix;
         private Expression _keyPartMatcher;
 
@@ -22,11 +24,13 @@
         {
             if (!string.IsNullOrEmpty(prefix))
             {
+                _prefixString = prefix;
                 _prefix = prefix.ToConstantExpression();
             }
 
             if (!string.IsNullOrEmpty(suffix))
             {
+                _suffixString = suffix;
                 _suffix = suffix.ToConstantExpression();
             }
         }
@@ -111,7 +115,7 @@
         private Regex CreateKeyPartRegex()
         {
             return new Regex(
-                _prefix?.Value + "[0-9]+" + _suffix?.Value
+                _prefixString + "[0-9]+" + _suffixString
 #if !NET_STANDARD
                 , RegexOptions.Compiled
 #endif
@@ -119,6 +123,22 @@
         }
 
         public Expression GetElementKeyPrefixOrNull() => _prefix;
+
+        public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
+        {
+            var otherFactory = ((ElementKeyPartFactory)otherConfiguredItem);
+
+            if ((_prefixString != otherFactory._prefixString) || (_suffixString != otherFactory._suffixString))
+            {
+                return false;
+            }
+
+            return base.ConflictsWith(otherConfiguredItem);
+        }
+        public override string GetConflictMessage()
+            => $"Element keys are already configured {TargetScopeDescription} to be {Pattern}";
+
+        private string Pattern => _suffixString + "i" + _suffixString;
 
         public IEnumerable<Expression> GetElementKeyParts(Expression index)
         {
@@ -150,7 +170,7 @@
                 ? "All targets"
                 : TargetTypeName;
 
-            return $"{sourceType} -> {targetTypeName}: {_prefix.Value}i{_suffix.Value}";
+            return $"{sourceType} -> {targetTypeName}: {Pattern}";
         }
     }
 }

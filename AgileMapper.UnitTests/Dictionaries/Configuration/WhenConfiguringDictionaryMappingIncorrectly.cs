@@ -159,6 +159,23 @@
         }
 
         [Fact]
+        public void ShouldErrorIfRedundantSourceSeparatorIsConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .UseMemberNameSeparator(".");
+                }
+            });
+
+            configEx.Message.ShouldContain("already");
+            configEx.Message.ShouldContain("global");
+        }
+
+        [Fact]
         public void ShouldErrorIfMemberNamesAreFlattenedAndSeparatedGlobally()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
@@ -259,6 +276,23 @@
 
             configEx.Message.ShouldContain(
                 "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantGlobalElementKeyPartIsConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .Dictionaries
+                        .UseElementKeyPattern("[i]");
+                }
+            });
+
+            configEx.Message.ShouldContain("already");
+            configEx.Message.ShouldContain("global");
         }
 
         [Fact]

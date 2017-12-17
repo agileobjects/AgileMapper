@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
     using System;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
 
     /// <summary>
     /// Provides base dictionary key configuration functionality for customising mappings

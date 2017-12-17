@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using System.Collections.Generic;
     using System.Globalization;
@@ -76,31 +76,9 @@
 
         public void Add(JoiningNameFactory joiningNameFactory)
         {
-            ThrowIfConflictingJoiningNameFactoryExists(joiningNameFactory);
+            ThrowIfConflictingKeyPartFactoryExists(joiningNameFactory, _joiningNameFactories);
 
             _joiningNameFactories.Insert(0, joiningNameFactory);
-        }
-
-        private void ThrowIfConflictingJoiningNameFactoryExists(JoiningNameFactory joiningNameFactory)
-        {
-            if (_joiningNameFactories.HasOne())
-            {
-                return;
-            }
-
-            var conflictingJoiningName = _joiningNameFactories
-                .FirstOrDefault(jnf => jnf.ConflictsWith(joiningNameFactory));
-
-            if (conflictingJoiningName == null)
-            {
-                return;
-            }
-
-            throw new MappingConfigurationException(string.Format(
-                CultureInfo.InvariantCulture,
-                "Member names are already configured {0} to be {1}",
-                conflictingJoiningName.TargetScopeDescription,
-                conflictingJoiningName.SeparatorDescription));
         }
 
         public Expression GetSeparator(IMemberMapperData mapperData)
@@ -111,7 +89,30 @@
 
         public void Add(ElementKeyPartFactory keyPartFactory)
         {
+            ThrowIfConflictingKeyPartFactoryExists(keyPartFactory, _elementKeyPartFactories);
+
             _elementKeyPartFactories.Insert(0, keyPartFactory);
+        }
+
+        private void ThrowIfConflictingKeyPartFactoryExists<TKeyPartFactory>(
+            TKeyPartFactory factory,
+            IList<TKeyPartFactory> existingFactories)
+            where TKeyPartFactory : DictionaryKeyPartFactoryBase
+        {
+            if (existingFactories.HasOne())
+            {
+                return;
+            }
+
+            var conflictingFactory = existingFactories
+                .FirstOrDefault(kpf => kpf.ConflictsWith(factory));
+
+            if (conflictingFactory == null)
+            {
+                return;
+            }
+
+            throw new MappingConfigurationException(conflictingFactory.GetConflictMessage());
         }
 
         public Expression GetElementKeyPartMatcher(IBasicMapperData mapperData)

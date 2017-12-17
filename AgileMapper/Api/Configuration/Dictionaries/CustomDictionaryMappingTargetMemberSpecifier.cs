@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
     using DataSources;
     using Dynamics;
 

@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using System;
     using System.Dynamic;
@@ -7,14 +7,11 @@
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
-    using ReadableExpressions.Extensions;
 
-    internal class JoiningNameFactory : UserConfiguredItemBase
+    internal class JoiningNameFactory : DictionaryKeyPartFactoryBase
     {
         private readonly string _separator;
-        private readonly Type _targetType;
         private readonly bool _isDefault;
-        private readonly bool _isGlobal;
         private readonly Func<Member, IMemberMapperData, Expression> _joinedNameFactory;
         private Expression _separatorConstant;
 
@@ -22,9 +19,7 @@
             : base(configInfo)
         {
             _separator = separator;
-            _targetType = configInfo.TargetType;
             _isDefault = isDefault;
-            _isGlobal = _targetType == typeof(object);
 
             if (IsFlattened)
             {
@@ -75,9 +70,6 @@
         public Expression Separator
             => _separatorConstant ?? (_separatorConstant = _separator.ToConstantExpression());
 
-        public string TargetScopeDescription
-            => _isGlobal ? "globally" : "for target type " + _targetType.GetFriendlyName();
-
         public string SeparatorDescription
             => IsFlattened ? "flattened" : "separated with '" + _separator + "'";
 
@@ -85,12 +77,14 @@
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {
-            if (_isDefault)
+            var otherFactory = ((JoiningNameFactory)otherConfiguredItem);
+
+            if (IsForAllTargetTypes != otherFactory.IsForAllTargetTypes)
             {
                 return false;
             }
 
-            if (_isGlobal != ((JoiningNameFactory)otherConfiguredItem)._isGlobal)
+            if (_isDefault && (_separator != otherFactory._separator))
             {
                 return false;
             }
@@ -102,6 +96,9 @@
 
             return base.ConflictsWith(otherConfiguredItem);
         }
+
+        public override string GetConflictMessage()
+            => $"Member names are already configured {TargetScopeDescription} to be {SeparatorDescription}";
 
         public Expression GetJoiningName(Member member, IMemberMapperData mapperData)
             => _joinedNameFactory.Invoke(member, mapperData);

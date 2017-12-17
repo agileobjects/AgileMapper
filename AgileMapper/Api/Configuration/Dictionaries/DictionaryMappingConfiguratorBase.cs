@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
 
     internal abstract class DictionaryMappingConfiguratorBase<TSource, TTarget>
         : MappingConfigurator<TSource, TTarget>

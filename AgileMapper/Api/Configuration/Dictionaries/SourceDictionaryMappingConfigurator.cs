@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System;
     using System.Collections.Generic;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
     using Dynamics;
 
     internal class SourceDictionaryMappingConfigurator<TValue, TTarget> :
