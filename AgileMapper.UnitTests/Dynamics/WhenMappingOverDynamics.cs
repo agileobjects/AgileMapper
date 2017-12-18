@@ -61,5 +61,27 @@
             ((int)target._1__Value).ShouldBe(2);
             ((int)target._2__Value).ShouldBe(3);
         }
+
+        [Fact]
+        public void ShouldHandleAnUnmappableStructCollection()
+        {
+            var source = new[]
+            {
+                new PublicPropertyStruct<ProductDto> { Value =  new ProductDto { ProductId = "1" } },
+                new PublicPropertyStruct<ProductDto> { Value =  new ProductDto { ProductId = "2" } }
+            };
+
+            dynamic target = new ExpandoObject();
+
+            target._0__Value_ProductId = "0";
+            target._1__Value_ProductId = "0";
+
+            Mapper.Map(source).Over(target);
+
+            ((IDictionary<string, object>)target).Count.ShouldBe(2);
+
+            ((string)target._0__Value_ProductId).ShouldBe("0");
+            ((string)target._1__Value_ProductId).ShouldBe("0");
+        }
     }
 }

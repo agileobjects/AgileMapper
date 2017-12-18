@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
@@ -94,9 +93,9 @@
             _elementKeyPartFactories.Insert(0, keyPartFactory);
         }
 
-        private void ThrowIfConflictingKeyPartFactoryExists<TKeyPartFactory>(
+        private static void ThrowIfConflictingKeyPartFactoryExists<TKeyPartFactory>(
             TKeyPartFactory factory,
-            IList<TKeyPartFactory> existingFactories)
+            ICollection<TKeyPartFactory> existingFactories)
             where TKeyPartFactory : DictionaryKeyPartFactoryBase
         {
             if (existingFactories.HasOne())
