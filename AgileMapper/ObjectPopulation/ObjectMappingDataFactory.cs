@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Dynamic;
     using System.Linq;
     using System.Linq.Expressions;
     using Enumerables;
@@ -32,7 +33,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTarget target,
             IMappingContext mappingContext)
         {
-            var mapperKey = new RootObjectMapperKey(MappingTypes.For(source, target), mappingContext);
+            RootObjectMapperKey mapperKey;
+
+            if ((target == null) && (typeof(TTarget) == typeof(object)))
+            {
+                // This is a 'create new' mapping where the target type has come 
+                // through as 'object'. This happens when you use .ToANew<dynamic>(),
+                // and I can't see how to differentiate that from .ToANew<object>().
+                // Given that the former is more likely and that people asking for 
+                // .ToANew<object>() are doing something weird, default the target 
+                // type to ExpandoObject:
+                mapperKey = new RootObjectMapperKey(MappingTypes.For(source, default(ExpandoObject)), mappingContext);
+
+                return Create(
+                    source,
+                    default(ExpandoObject),
+                    null,
+                    mapperKey,
+                    mappingContext);
+            }
+
+            mapperKey = new RootObjectMapperKey(MappingTypes.For(source, target), mappingContext);
 
             return Create(
                 source,
