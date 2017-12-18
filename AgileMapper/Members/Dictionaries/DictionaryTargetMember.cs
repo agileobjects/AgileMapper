@@ -3,10 +3,12 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     using System;
     using System.Collections.Generic;
     using System.Dynamic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using static System.Linq.Expressions.ExpressionType;
 
     internal class DictionaryTargetMember : QualifiedMember
     {
@@ -194,7 +196,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         {
             var parentContextAccess = mapperData.GetAppropriateMappingContextAccess(typeof(object), _rootDictionaryMember.Type);
 
-            if (parentContextAccess.NodeType != ExpressionType.Parameter)
+            if (parentContextAccess.NodeType != Parameter)
             {
                 return MemberMapperDataExtensions.GetTargetAccess(parentContextAccess, _rootDictionaryMember.Type);
             }
@@ -285,31 +287,51 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return false;
             }
 
-            ICollection<ParameterExpression> blockParameters;
-
-            if (value.NodeType == ExpressionType.Block)
+            if (value.NodeType == Try)
             {
-                flattening = value;
-                var flatteningBlock = (BlockExpression)flattening;
-                blockParameters = flatteningBlock.Variables;
-                value = flatteningBlock.Expressions[0];
-            }
-            else
-            {
-                blockParameters = Enumerable<ParameterExpression>.EmptyArray;
+                value = ((TryExpression)value).Body;
             }
 
-            if (value.NodeType != ExpressionType.Try)
+            if ((value.NodeType != Block))
             {
                 flattening = null;
                 return false;
             }
 
-            flattening = (BlockExpression)((TryExpression)value).Body;
+            var flatteningBlock = (BlockExpression)value;
+            var flatteningVariables = flatteningBlock.Variables.ToList();
+
+            if (flatteningBlock.Expressions[0].NodeType == Try)
+            {
+                flatteningBlock = (BlockExpression)((TryExpression)flatteningBlock.Expressions[0]).Body;
+                flatteningVariables.AddRange(flatteningBlock.Variables);
+            }
+            else
+            {
+                flatteningBlock = (BlockExpression)value;
+            }
+
+            if (flatteningBlock.Expressions.HasOne())
+            {
+                flattening = null;
+                return false;
+            }
+
+            flattening = flatteningBlock;
+
             var flatteningExpressions = GetMappingExpressions(flattening);
 
-            flattening = blockParameters.Any()
-                ? Expression.Block(blockParameters, flatteningExpressions)
+            if (flatteningExpressions.HasOne() &&
+               (flatteningExpressions[0].NodeType == Block))
+            {
+                flatteningBlock = (BlockExpression)flatteningExpressions[0];
+                flatteningVariables.AddRange(flatteningBlock.Variables);
+                flattening = flatteningBlock.Update(flatteningVariables, flatteningBlock.Expressions);
+                return true;
+            }
+
+            flattening = flatteningVariables.Any()
+                ? Expression.Block(flatteningVariables, flatteningExpressions)
                 : flatteningExpressions.HasOne()
                     ? flatteningExpressions[0]
                     : Expression.Block(flatteningExpressions);
@@ -321,12 +343,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         {
             var expressions = new List<Expression>();
 
-            while (mapping.NodeType == ExpressionType.Block)
+            while (mapping.NodeType == Block)
             {
                 var mappingBlock = (BlockExpression)mapping;
-                expressions.AddRange(mappingBlock.Expressions);
-                expressions.Remove(mappingBlock.Result);
 
+                expressions.AddRange(mappingBlock.Expressions.Except(new[] { mappingBlock.Result }));
                 mapping = mappingBlock.Result;
             }
 
