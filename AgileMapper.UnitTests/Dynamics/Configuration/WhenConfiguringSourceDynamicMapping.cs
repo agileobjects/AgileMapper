@@ -166,6 +166,45 @@
         }
 
         [Fact]
+        public void ShouldConditionallyMapToDerivedTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDynamics
+                    .ToANew<PersonViewModel>()
+                    .If(s => s.Source.ContainsKey("Discount"))
+                    .MapTo<CustomerViewModel>()
+                    .And
+                    .If(s => s.Source.ContainsKey("Report"))
+                    .MapTo<MysteryCustomerViewModel>();
+
+                dynamic source = new ExpandoObject();
+
+                source.Name = "Person";
+
+                var personResult = (PersonViewModel)mapper.Map(source).ToANew<PersonViewModel>();
+
+                personResult.ShouldBeOfType<PersonViewModel>();
+                personResult.Name.ShouldBe("Person");
+
+                source.Discount = 0.05;
+
+                var customerResult = (PersonViewModel)mapper.Map(source).ToANew<PersonViewModel>();
+
+                customerResult.ShouldBeOfType<CustomerViewModel>();
+                ((CustomerViewModel)customerResult).Discount.ShouldBe(0.05);
+
+                source.Report = "Very good!";
+
+                var mysteryCustomerResult = (PersonViewModel)mapper.Map(source).ToANew<PersonViewModel>();
+
+                mysteryCustomerResult.ShouldBeOfType<MysteryCustomerViewModel>();
+                ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Very good!");
+            }
+        }
+
+        [Fact]
         public void ShouldNotApplyDictionaryConfigurationToDynamics()
         {
             using (var mapper = Mapper.CreateNew())
