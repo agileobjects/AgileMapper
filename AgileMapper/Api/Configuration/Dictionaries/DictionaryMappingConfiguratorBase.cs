@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
+    using System;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
 
@@ -30,6 +31,38 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             var keyPartFactory = ElementKeyPartFactory.For(pattern, configInfo ?? ConfigInfo);
 
             ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(keyPartFactory);
+        }
+
+        protected CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapFullKey<TValue>(string fullMemberNameKey)
+        {
+            return CreateTargetMemberSpecifier<TValue>(
+                fullMemberNameKey,
+                "keys",
+                (settings, customKey) => settings.AddFullKey(customKey));
+        }
+
+        protected CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapMemberNameKey<TValue>(string memberNameKeyPart)
+        {
+            return CreateTargetMemberSpecifier<TValue>(
+                memberNameKeyPart,
+                "member name",
+                (settings, customKey) => settings.AddMemberKey(customKey));
+        }
+
+        protected CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> CreateTargetMemberSpecifier<TValue>(
+            string key,
+            string keyName,
+            Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
+        {
+            if (key == null)
+            {
+                throw new MappingConfigurationException(keyName + " cannot be null");
+            }
+
+            return new CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget>(
+                ConfigInfo,
+                key,
+                dictionarySettingsAction);
         }
     }
 }

@@ -119,35 +119,52 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         #endregion
 
-        public ISourceDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>()
-            => CreateConfigurator<TTarget>(_configInfo.ForAllRuleSets());
+        #region Dictionaries
 
-        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.To<TTarget>()
-            => CreateConfigurator<TTarget>(_configInfo.ForAllRuleSets());
+        public ISourceDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>()
+            => CreateDictionaryConfigurator<TTarget>(_configInfo.ForAllRuleSets());
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> ToANew<TTarget>()
-            => CreateConfigurator<TTarget>(Constants.CreateNew);
-
-        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.ToANew<TTarget>()
-            => CreateConfigurator<TTarget>(Constants.CreateNew);
+            => CreateDictionaryConfigurator<TTarget>(Constants.CreateNew);
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> OnTo<TTarget>()
-            => CreateConfigurator<TTarget>(Constants.Merge);
-
-        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.OnTo<TTarget>()
-            => CreateConfigurator<TTarget>(Constants.Merge);
+            => CreateDictionaryConfigurator<TTarget>(Constants.Merge);
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> Over<TTarget>()
-            => CreateConfigurator<TTarget>(Constants.Overwrite);
+            => CreateDictionaryConfigurator<TTarget>(Constants.Overwrite);
 
-        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.Over<TTarget>()
-            => CreateConfigurator<TTarget>(Constants.Overwrite);
+        private SourceDictionaryMappingConfigurator<TValue, TTarget> CreateDictionaryConfigurator<TTarget>(
+            string ruleSetName)
+            => CreateDictionaryConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
 
-        private SourceDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(string ruleSetName)
-            => CreateConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
-
-        private static SourceDictionaryMappingConfigurator<TValue, TTarget> CreateConfigurator<TTarget>(
+        private static SourceDictionaryMappingConfigurator<TValue, TTarget> CreateDictionaryConfigurator<TTarget>(
             MappingConfigInfo configInfo)
             => new SourceDictionaryMappingConfigurator<TValue, TTarget>(configInfo);
+
+        #endregion
+
+        #region Dynamics
+
+        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.To<TTarget>()
+            => CreateDynamicConfigurator<TTarget>(_configInfo.ForAllRuleSets());
+
+        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.ToANew<TTarget>()
+            => CreateDynamicConfigurator<TTarget>(Constants.CreateNew);
+
+        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.OnTo<TTarget>()
+            => CreateDynamicConfigurator<TTarget>(Constants.Merge);
+
+        ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.Over<TTarget>()
+            => CreateDynamicConfigurator<TTarget>(Constants.Overwrite);
+
+        private SourceDynamicMappingConfigurator<TTarget> CreateDynamicConfigurator<TTarget>(
+            string ruleSetName)
+            => CreateDynamicConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
+
+        private static SourceDynamicMappingConfigurator<TTarget> CreateDynamicConfigurator<TTarget>(
+            MappingConfigInfo configInfo)
+            => new SourceDynamicMappingConfigurator<TTarget>(configInfo);
+
+        #endregion
     }
 }

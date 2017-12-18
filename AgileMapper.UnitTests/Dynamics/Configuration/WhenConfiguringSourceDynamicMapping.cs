@@ -17,7 +17,7 @@
                 mapper.WhenMapping
                     .FromDynamics
                     .ToANew<PublicField<int>>()
-                    .MapMember("LaLaLa")
+                    .MapFullMemberName("LaLaLa")
                     .To(pf => pf.Value);
 
                 dynamic source = new ExpandoObject();
@@ -142,6 +142,30 @@
         }
 
         [Fact]
+        public void ShouldApplyACustomConfiguredMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDynamics
+                    .Over<PublicField<long>>()
+                    .Map((d, pf) => d.Count)
+                    .To(pf => pf.Value);
+
+                dynamic source = new ExpandoObject();
+
+                source.One = 1;
+                source.Two = 2;
+
+                var target = new PublicField<long>();
+
+                mapper.Map(source).Over(target);
+
+                target.Value.ShouldBe(2);
+            }
+        }
+
+        [Fact]
         public void ShouldNotApplyDictionaryConfigurationToDynamics()
         {
             using (var mapper = Mapper.CreateNew())
@@ -172,7 +196,7 @@
                 mapper.WhenMapping
                     .FromDynamics
                     .To<PublicField<string>>()
-                    .MapMember("LaLaLa")
+                    .MapFullMemberName("LaLaLa")
                     .To(pf => pf.Value);
 
                 var source = new Dictionary<string, int>

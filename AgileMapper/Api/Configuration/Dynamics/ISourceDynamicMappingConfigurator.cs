@@ -1,10 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Provides options for configuring mappings from an ExpandoObject to a given <typeparamref name="TTarget"/>.
     /// </summary>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
-    public interface ISourceDynamicMappingConfigurator<TTarget>
+    // ReSharper disable once PossibleInterfaceMemberAmbiguity
+    public interface ISourceDynamicMappingConfigurator<TTarget> :
+        IFullMappingConfigurator<IDictionary<string, object>, TTarget>,
+        ISourceDynamicConfigSettings<TTarget>
     {
         /// <summary>
         /// Configure a custom source member for a particular target member when mapping from an ExpandoObject 
@@ -17,7 +22,7 @@
         /// An ICustomDynamicMappingTargetMemberSpecifier with which to specify the target member for which the 
         /// member with the given <paramref name="sourceMemberName"/> should be used.
         /// </returns>
-        ICustomDynamicMappingTargetMemberSpecifier<TTarget> MapMember(string sourceMemberName);
+        ICustomDynamicMappingTargetMemberSpecifier<TTarget> MapFullMemberName(string sourceMemberName);
 
         /// <summary>
         /// Configure a custom member name to use in a key for a particular target member when mapping from an 
