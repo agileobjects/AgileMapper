@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
     /// <typeparam name="TValue">
-    /// The type of values stored in the dictionary to which the configurations will apply.
+    /// The type of values stored in the Dictionary to which the configurations will apply.
     /// </typeparam>
     // ReSharper disable once PossibleInterfaceMemberAmbiguity
     public interface ITargetDictionaryMappingConfigurator<TSource, TValue> :
@@ -18,15 +18,15 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         ITargetDictionaryConfigSettings<TSource, TValue>
     {
         /// <summary>
-        /// Map the given <typeparamref name="TSource"/> member using a custom dictionary key.
+        /// Map the given <typeparamref name="TSource"/> member using a custom Dictionary key.
         /// </summary>
         /// <typeparam name="TSourceMember">The source member's type.</typeparam>
         /// <param name="sourceMember">The source member to which to apply the configuration.</param>
         /// <returns>
-        /// A CustomTargetDictionaryKeySpecifier with which to specify the custom key to use when mapping 
+        /// A ICustomTargetDictionaryKeySpecifier with which to specify the custom key to use when mapping 
         /// the given <paramref name="sourceMember"/>.
         /// </returns>
-        CustomTargetDictionaryKeySpecifier<TSource, TValue> MapMember<TSourceMember>(
+        ICustomTargetDictionaryKeySpecifier<TSource, TValue> MapMember<TSourceMember>(
             Expression<Func<TSource, TSourceMember>> sourceMember);
     }
 }

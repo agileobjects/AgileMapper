@@ -1,52 +1,52 @@
-namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
+namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using Dictionaries;
     using Members;
     using ReadableExpressions;
 
-    internal class TargetDictionaryMappingConfigurator<TSource, TValue> :
-        DictionaryMappingConfiguratorBase<TSource, Dictionary<string, TValue>>,
-        ITargetDictionaryMappingConfigurator<TSource, TValue>
+    internal class TargetDynamicMappingConfigurator<TSource> :
+        DictionaryMappingConfiguratorBase<TSource, IDictionary<string, object>>,
+        ITargetDynamicMappingConfigurator<TSource>
     {
-        public TargetDictionaryMappingConfigurator(MappingConfigInfo configInfo)
+        public TargetDynamicMappingConfigurator(MappingConfigInfo configInfo)
             : base(configInfo)
         {
         }
 
-        #region ITargetDictionaryConfigSettings Members
+        #region ITargetDynamicConfigSettings Members
 
-        public ITargetDictionaryConfigSettings<TSource, TValue> UseFlattenedMemberNames()
+        public ITargetDynamicConfigSettings<TSource> UseFlattenedMemberNames()
         {
             SetupFlattenedTargetMemberNames();
             return this;
         }
 
-        public ITargetDictionaryConfigSettings<TSource, TValue> UseMemberNameSeparator(string separator)
+        public ITargetDynamicConfigSettings<TSource> UseMemberNameSeparator(string separator)
         {
             SetupMemberNameSeparator(separator);
             return this;
         }
 
-        public ITargetDictionaryConfigSettings<TSource, TValue> UseElementKeyPattern(string pattern)
+        public ITargetDynamicConfigSettings<TSource> UseElementKeyPattern(string pattern)
         {
             SetupElementKeyPattern(pattern);
             return this;
         }
 
-        ITargetDictionaryMappingConfigurator<TSource, TValue> ITargetDictionaryConfigSettings<TSource, TValue>.And
-            => this;
+        ITargetDynamicMappingConfigurator<TSource> ITargetDynamicConfigSettings<TSource>.And => this;
 
         #endregion
 
-        public ICustomTargetDictionaryKeySpecifier<TSource, TValue> MapMember<TSourceMember>(
+        public ICustomTargetDynamicMemberNameSpecifier<TSource> MapMember<TSourceMember>(
             Expression<Func<TSource, TSourceMember>> sourceMember)
         {
             var sourceQualifiedMember = GetSourceMemberOrThrow(sourceMember);
 
-            return new CustomTargetDictionaryKeySpecifier<TSource, TValue>(ConfigInfo, sourceQualifiedMember);
+            return new CustomTargetDictionaryKeySpecifier<TSource, object>(ConfigInfo, sourceQualifiedMember);
         }
 
         private QualifiedMember GetSourceMemberOrThrow(LambdaExpression lambda)

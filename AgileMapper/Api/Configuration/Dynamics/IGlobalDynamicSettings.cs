@@ -38,11 +38,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
         /// <summary>
         /// Use the given <paramref name="pattern"/> to create the part of a sourec or target Dynamic member 
         /// name representing an enumerable element - the default is '_i_'. The pattern must contain a single 
-        /// 'i' character as a placeholder for the enumerable index. Any pattern can be specified as an element 
-        /// key - even if it would create illegal member names like '0-OrderItemId' - because ExpandoObjects 
-        /// are mapped as IDictionary{string, Object}s. For example, calling UseElementKeyPattern("-i-") and 
-        /// mapping from a Dynamic to a collection of ints will generate searches for member names '-0-', '-1-', 
-        /// '-2-', etc.
+        /// 'i' character as a placeholder for the enumerable index. For example, calling UseElementKeyPattern("-i-") 
+        /// and mapping from a Dynamic to a collection of ints will generate searches for member names '-0-', 
+        /// '-1-', '-2-', etc. Any pattern can be specified as an element key - even if it would create illegal 
+        /// member names like '-0-' - because ExpandoObjects are mapped as IDictionary{string, Object}s. 
         /// </summary>
         /// <param name="pattern">
         /// The pattern to use to create an expected source Dynamic member name part representing an enumerable 
