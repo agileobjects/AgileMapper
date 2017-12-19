@@ -247,5 +247,30 @@
                 noLine2Result["Line2State"].ShouldBe("Missing");
             }
         }
+
+        [Fact]
+        public void ShouldNotApplyTargetDictionaryConfigurationToDynamics()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .ToDictionaries
+                    .Map((pf, d) => pf.Value)
+                    .To(d => d["Name"]);
+
+                var source = new PublicField<string> { Value = "LaLaLa" };
+
+                dynamic target = new ExpandoObject();
+
+                target.Name = "Doodeedoo";
+
+                mapper.Map(source).Over(target);
+
+                ((object)target).ShouldNotBeNull();
+                ((string)target.Value).ShouldBe("LaLaLa");
+                ((string)target.Name).ShouldBe("Doodeedoo");
+            }
+        }
     }
 }

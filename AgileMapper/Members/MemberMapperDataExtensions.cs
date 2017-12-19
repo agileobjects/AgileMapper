@@ -466,7 +466,7 @@ namespace AgileObjects.AgileMapper.Members
 
             var propertyName = new[] { RootSourceMemberName, RootTargetMemberName }[contextTypesIndex];
 
-            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName) ?? 
+            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName) ??
                 typeof(IMappingData<,>)
                     .MakeGenericType(contextTypes[0], contextTypes[1])
                     .GetPublicInstanceProperty(propertyName);

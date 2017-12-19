@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return false;
             }
 
-            return type.IsDictionary();
+            return (_rootDictionaryMember.Type != typeof(ExpandoObject)) && type.IsDictionary();
         }
 
         public DictionaryTargetMember Append(ParameterExpression key)
