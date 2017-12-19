@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Dictionaries;
@@ -13,7 +14,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
         ITargetDynamicMappingConfigurator<TSource>
     {
         public TargetDynamicMappingConfigurator(MappingConfigInfo configInfo)
-            : base(configInfo)
+            : base(configInfo.ForTargetType<ExpandoObject>())
         {
         }
 

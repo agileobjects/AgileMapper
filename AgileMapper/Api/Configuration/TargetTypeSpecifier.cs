@@ -81,6 +81,5 @@
         /// </summary>
         public ITargetDynamicMappingConfigurator<TSource> ToDynamics
             => new TargetDynamicMappingConfigurator<TSource>(_configInfo.ForAllRuleSets().Set(DictionaryType.Expando));
-
     }
 }

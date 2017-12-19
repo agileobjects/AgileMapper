@@ -92,7 +92,8 @@
         {
             while (mapperData != null)
             {
-                if (mapperData.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject))
+                if ((mapperData.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject)) ||
+                    (mapperData.TargetMember.GetFriendlyTypeName() == nameof(ExpandoObject)))
                 {
                     return true;
                 }

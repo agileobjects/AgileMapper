@@ -99,5 +99,71 @@
                 ((string)nonMatchingResult.Value_Line2).ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldApplyACustomSeparatorToASpecificSourceType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomer>()
+                    .ToDynamics
+                    .UseMemberNameSeparator("!")
+                    .And
+                    .MapMember(c => c.Address.Line1)
+                    .ToFullMemberName("StreetAddress");
+
+                var address = new Address { Line1 = "Paddy's", Line2 = "Philly" };
+                var matchingSource = new MysteryCustomer { Address = address };
+                var matchingResult = (IDictionary<string, object>)mapper.Map(matchingSource).ToANew<dynamic>();
+
+                matchingResult["StreetAddress"].ShouldBe("Paddy's");
+                matchingResult["Address!Line2"].ShouldBe("Philly");
+                matchingResult.ShouldNotContainKey("Address_Line1");
+                matchingResult.ShouldNotContainKey("Address!Line1");
+
+                var nonMatchingSource = new Customer { Address = address };
+                var nonMatchingSourceResult = (IDictionary<string, object>)mapper.Map(nonMatchingSource).ToANew<dynamic>();
+
+                nonMatchingSourceResult["Address_Line1"].ShouldBe("Paddy's");
+
+                var nonMatchingTargetResult = (IDictionary<string, object>)mapper.Map(nonMatchingSource).ToANew<dynamic>();
+
+                nonMatchingTargetResult["Address_Line1"].ShouldBe("Paddy's");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyACustomEnumerableElementPatternToASpecificDerivedSourceType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .ToDynamics
+                    .UseElementKeyPattern("(i)");
+
+                var source = new PublicProperty<IEnumerable<Person>>
+                {
+                    Value = new List<Person>
+                    {
+                        new Person { Name = "Sandra", Address = new Address { Line1 = "Home" } },
+                        new Customer { Name = "David", Address = new Address { Line1 = "Home!" } }
+                    }
+                };
+                var originalExpando = new ExpandoObject();
+                var target = new PublicField<dynamic> { Value = originalExpando };
+
+                var result = (IDictionary<string, object>)mapper.Map(source).OnTo(target).Value;
+
+                result.ShouldBeSameAs(originalExpando);
+
+                result["_0__Name"].ShouldBe("Sandra");
+                result["_0__Address_Line1"].ShouldBe("Home");
+
+                result["(1)_Name"].ShouldBe("David");
+                result["(1)_Address_Line1"].ShouldBe("Home!");
+            }
+        }
     }
 }

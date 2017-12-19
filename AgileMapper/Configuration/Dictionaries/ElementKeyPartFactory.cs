@@ -83,18 +83,22 @@
             var prefix = patternMatch.Groups["Prefix"].Value;
             var suffix = patternMatch.Groups["Suffix"].Value;
 
-            if (!configInfo.IsForAllSourceTypes() && !configInfo.SourceType.IsEnumerable())
+            if (!configInfo.IsForAllSourceTypes() &&
+                (configInfo.SourceType != typeof(ExpandoObject)) &&
+                 configInfo.SourceType.IsEnumerable())
             {
                 configInfo = configInfo
                     .Clone()
-                    .ForSourceType(typeof(IEnumerable<>).MakeGenericType(configInfo.SourceType));
+                    .ForSourceType(configInfo.SourceType.GetEnumerableElementType());
             }
 
-            if ((configInfo.TargetType != typeof(object)) && !configInfo.TargetType.IsEnumerable())
+            if ((configInfo.TargetType != typeof(object)) &&
+                (configInfo.TargetType != typeof(ExpandoObject)) &&
+                 configInfo.TargetType.IsEnumerable())
             {
                 configInfo = configInfo
                     .Clone()
-                    .ForTargetType(typeof(IEnumerable<>).MakeGenericType(configInfo.TargetType));
+                    .ForTargetType(configInfo.TargetType.GetEnumerableElementType());
             }
 
             return new ElementKeyPartFactory(prefix, suffix, configInfo);

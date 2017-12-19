@@ -185,7 +185,7 @@
         }
 
         [Fact]
-        public void ShouldApplyACustomEnumerableElementPatternToASpecificTargetType()
+        public void ShouldApplyACustomEnumerableElementPatternToASpecificSourceType()
         {
             using (var mapper = Mapper.CreateNew())
             {

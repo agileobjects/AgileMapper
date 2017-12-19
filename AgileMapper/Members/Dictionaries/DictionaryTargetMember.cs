@@ -65,6 +65,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public override bool HasCompatibleType(Type type)
         {
+            if (type == typeof(ExpandoObject))
+            {
+                return _rootDictionaryMember.Type == typeof(ExpandoObject);
+            }
+
             if (base.HasCompatibleType(type))
             {
                 return true;
@@ -73,11 +78,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             if (this != _rootDictionaryMember)
             {
                 return false;
-            }
-
-            if (type == typeof(ExpandoObject))
-            {
-                return Type == type;
             }
 
             return type.IsDictionary();

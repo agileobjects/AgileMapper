@@ -14,7 +14,12 @@
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
         {
-            ConfigInfo = configInfo.ForTargetType<TTarget>();
+            ConfigInfo = configInfo;
+
+            if ((ConfigInfo.TargetType ?? typeof(object)) == typeof(object))
+            {
+                ConfigInfo.ForTargetType<TTarget>();
+            }
         }
 
         protected MappingConfigInfo ConfigInfo { get; }
