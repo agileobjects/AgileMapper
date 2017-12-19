@@ -272,5 +272,34 @@
                 ((string)target.Name).ShouldBe("Doodeedoo");
             }
         }
+
+        [Fact]
+        public void ShouldNotApplyDynamicConfigurationToDictionaries()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .ToDynamics
+                    .Map(ctx => ctx.Source.Value)
+                    .To(d => d["Name"]);
+
+                var source = new PublicField<int>
+                {
+                    Value = 123
+                };
+
+                var target = new Dictionary<string, int>
+                {
+                    ["Name"] = 1,
+                    ["Value"] = 2
+                };
+
+                mapper.Map(source).Over(target);
+
+                target["Name"].ShouldBe(1);
+                target["Value"].ShouldBe(123);
+            }
+        }
     }
 }
