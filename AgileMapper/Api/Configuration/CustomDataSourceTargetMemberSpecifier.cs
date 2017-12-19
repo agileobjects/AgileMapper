@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Dynamic;
     using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
@@ -110,9 +111,11 @@
 
             var entryKey = (string)((ConstantExpression)entryKeyExpression).Value;
 
-            var rootMember = (DictionaryTargetMember)_configInfo.MapperContext
-                .QualifiedMemberFactory
-                .RootTarget<TSource, TTarget>();
+            var memberFactory = _configInfo.MapperContext.QualifiedMemberFactory;
+
+            var rootMember = (DictionaryTargetMember)(_configInfo.TargetType == typeof(ExpandoObject)
+                ? memberFactory.RootTarget<TSource, ExpandoObject>()
+                : memberFactory.RootTarget<TSource, TTarget>());
 
             entryMember = rootMember.Append(typeof(TSource), entryKey);
             return true;
