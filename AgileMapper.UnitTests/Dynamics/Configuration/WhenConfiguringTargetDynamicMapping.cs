@@ -274,7 +274,7 @@
         }
 
         [Fact]
-        public void ShouldNotApplyDynamicConfigurationToDictionaries()
+        public void ShouldNotApplyTargetDynamicConfigurationToDictionaries()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -299,6 +299,50 @@
 
                 target["Name"].ShouldBe(1);
                 target["Value"].ShouldBe(123);
+            }
+        }
+
+        [Fact]
+        public void ShouldNotConflictTargetDynamicAndDictionaryConfiguration()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<Address>>()
+                    .ToDictionaries
+                    .UseMemberNameSeparator("-");
+
+                mapper.WhenMapping
+                    .From<PublicProperty<Address>>()
+                    .ToDynamics
+                    .UseMemberNameSeparator("+");
+
+                var source = new PublicProperty<Address>
+                {
+                    Value = new Address { Line1 = "L1", Line2 = "L2" }
+                };
+
+                var dictionaryTarget = new Dictionary<string, object>
+                {
+                    ["Value-Line1"] = "Line 1!",
+                    ["Value-Line2"] = "Line 2!"
+                };
+
+                mapper.Map(source).Over(dictionaryTarget);
+
+                dictionaryTarget["Value-Line1"].ShouldBe("L1");
+                dictionaryTarget["Value-Line2"].ShouldBe("L2");
+
+                dynamic dynamicTarget = new ExpandoObject();
+                var targetDynamicDictionary = (IDictionary<string, object>)dynamicTarget;
+
+                targetDynamicDictionary["Value+Line1"] = "Line 1?!";
+                targetDynamicDictionary["Value+Line2"] = "Line 2?!";
+
+                mapper.Map(source).Over(dynamicTarget);
+
+                targetDynamicDictionary["Value+Line1"].ShouldBe("L1");
+                targetDynamicDictionary["Value+Line2"].ShouldBe("L2");
             }
         }
     }
