@@ -218,5 +218,34 @@
                 bigDiscountResult["Name"].ShouldBe("Silverman (Big discount!)");
             }
         }
+
+        [Fact]
+        public void ShouldApplyACustomConfiguredMemberConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address>()
+                    .ToDynamics
+                    .If(ctx => !string.IsNullOrEmpty(ctx.Source.Line2))
+                    .Map(ctx => "Present")
+                    .To(d => d["Line2State"])
+                    .But
+                    .If(ctx => string.IsNullOrEmpty(ctx.Source.Line2))
+                    .Map(ctx => "Missing")
+                    .To(d => d["Line2State"]);
+
+                var line2Source = new Address { Line1 = "Line 1: Yes", Line2 = "Line 2: Yes!" };
+                var line2Result = (IDictionary<string, object>)mapper.Map(line2Source).ToANew<dynamic>();
+
+                line2Result["Line2State"].ShouldBe("Present");
+                line2Result["Line2"].ShouldBe("Line 2: Yes!");
+
+                var noLine2Source = new Address { Line1 = "Line 1: Yes", Line2 = string.Empty };
+                var noLine2Result = (IDictionary<string, object>)mapper.Map(noLine2Source).ToANew<dynamic>();
+
+                noLine2Result["Line2State"].ShouldBe("Missing");
+            }
+        }
     }
 }
