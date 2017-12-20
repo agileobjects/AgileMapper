@@ -14,7 +14,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .To<PublicField<string>>()
                     .MapFullKey("BoomDiddyBoom")
                     .To(pf => pf.Value);
@@ -32,7 +32,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .OnTo<PublicField<PublicProperty<decimal>>>()
                     .MapFullKey("BoomDiddyMcBoom")
                     .To(pf => pf.Value.Value);
@@ -54,7 +54,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .Over<Address>()
                     .MapMemberNameKey("HouseNumber")
                     .To(a => a.Line1)
@@ -81,7 +81,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionariesWithValueType<string>()
                     .ToANew<Address>()
                     .MapMemberNameKey("HouseName")
                     .To(a => a.Line1);
@@ -99,7 +99,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .To<PublicProperty<string[]>>()
                     .MapMemberNameKey("Strings")
                     .To(pp => pp.Value);
@@ -125,7 +125,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionariesWithValueType<object>()
                     .To<Product>()
                     .MapFullKey("BlahBlahBlah")
                     .To(p => p.ProductId)
@@ -170,40 +170,13 @@
         }
 
         [Fact]
-        public void ShouldApplyFlattenedMemberNamesGlobally()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .Dictionaries
-                    .UseFlattenedMemberNames();
-
-                var source = new Dictionary<string, string>
-                {
-                    ["Name"] = "Bob",
-                    ["Discount"] = "0.1",
-                    ["AddressLine1"] = "Bob's House",
-                    ["AddressLine2"] = "Bob's Street"
-                };
-                var result = mapper.Map(source).ToANew<Customer>();
-
-                result.Name.ShouldBe("Bob");
-                result.Discount.ShouldBe(0.1);
-                result.Address.Line1.ShouldBe("Bob's House");
-                result.Address.Line2.ShouldBe("Bob's Street");
-            }
-        }
-
-        [Fact]
         public void ShouldApplyFlattenedMemberNamesToASpecificTargetType()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .To<Order>()
-                    .UseFlattenedMemberNames()
-                    .And
                     .MapMemberNameKey("OrderCode")
                     .To(o => o.OrderId);
 
@@ -257,7 +230,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .ToANew<Customer>()
                     .UseMemberNameSeparator("_")
                     .And
@@ -295,6 +268,7 @@
                     .Dictionaries
                     .UseMemberNameSeparator("+")
                     .AndWhenMapping
+                    .FromDictionaries
                     .ToANew<Address>()
                     .UseMemberNameSeparator("-");
 
@@ -321,8 +295,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
-                    .UseFlattenedMemberNames()
+                    .FromDictionaries
                     .UseElementKeyPattern("_i_")
                     .AndWhenMapping
                     .To<PublicSetMethod<string>>()
@@ -353,10 +326,11 @@
             {
                 mapper.WhenMapping
                     .Dictionaries
-                    .OnTo<Address>()
                     .UseMemberNameSeparator("-")
                     .UseElementKeyPattern("i")
-                    .And
+                    .AndWhenMapping
+                    .FromDictionariesWithValueType<string>()
+                    .OnTo<Address>()
                     .MapMemberNameKey("StreetName")
                     .To(a => a.Line1)
                     .And
@@ -385,12 +359,30 @@
         }
 
         [Fact]
+        public void ShouldApplyACustomConfiguredMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .ToANew<PublicField<long>>()
+                    .Map(ctx => ctx.Source.Count)
+                    .To(pf => pf.Value);
+
+                var source = new Dictionary<string, object> { ["One"] = 1, ["Two"] = 2 };
+                var result = mapper.Map(source).ToANew<PublicField<long>>();
+
+                result.Value.ShouldBe(2);
+            }
+        }
+
+        [Fact]
         public void ShouldConditionallyMapToDerivedTypes()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .ToANew<PersonViewModel>()
                     .If(s => s.Source.ContainsKey("Discount"))
                     .MapTo<CustomerViewModel>()
@@ -424,7 +416,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .DictionariesWithValueType<string>()
+                    .FromDictionariesWithValueType<string>()
                     .ToANew<CustomerViewModel>()
                     .If(s => s.Source["Report"].Length > 10)
                     .MapTo<MysteryCustomerViewModel>();
@@ -445,6 +437,37 @@
                 mysteryCustomerResult.ShouldBeOfType<MysteryCustomerViewModel>();
                 mysteryCustomerResult.Name.ShouldBe("Customer");
                 ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Plenty long enough!");
+            }
+        }
+
+        [Fact]
+        public void ShouldRestrictCustomKeysByDictionaryValueType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionariesWithValueType<string>()
+                    .ToANew<PublicPropertyStruct<string>>()
+                    .MapFullKey("LaLaLa")
+                    .To(p => p.Value);
+
+                var matchingSource = new Dictionary<string, string>
+                {
+                    ["LaLaLa"] = "1",
+                    ["Value"] = "2"
+                };
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicPropertyStruct<string>>();
+
+                matchingResult.Value.ShouldBe("1");
+
+                var nonMatchingSource = new Dictionary<string, object>
+                {
+                    ["LaLaLa"] = "20",
+                    ["Value"] = "10"
+                };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicPropertyStruct<string>>();
+
+                nonMatchingResult.Value.ShouldBe("10");
             }
         }
     }

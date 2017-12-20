@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal abstract class SourceMemberTypeDependentKeyBase

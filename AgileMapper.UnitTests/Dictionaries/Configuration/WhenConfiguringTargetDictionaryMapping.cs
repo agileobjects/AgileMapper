@@ -17,7 +17,7 @@
             {
                 mapper.WhenMapping
                     .Dictionaries
-                    .UseFlattenedMemberNames();
+                    .UseFlattenedTargetMemberNames();
 
                 var source = new MysteryCustomer
                 {
@@ -36,6 +36,28 @@
                 result["Discount"].ShouldBe("0.25");
                 result["AddressLine1"].ShouldBe("Abbey Road");
                 result["AddressLine2"].ShouldBe("Penny Lane");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotApplySourceOnlyConfigurationToTargetDictionaries()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionaries
+                    .UseFlattenedTargetMemberNames();
+
+                var source = new Customer
+                {
+                    Name = "Paul",
+                    Address = new Address { Line1 = "Abbey Road", Line2 = "Penny Lane" }
+                };
+                var result = mapper.Map(source).ToANew<Dictionary<string, string>>();
+
+                result["Name"].ShouldBe("Paul");
+                result["Address.Line1"].ShouldBe("Abbey Road");
+                result["Address.Line2"].ShouldBe("Penny Lane");
             }
         }
 
@@ -123,8 +145,8 @@
 
                 matchingResult["StreetAddress"].ShouldBe("Paddy's");
                 matchingResult["Address!Line2"].ShouldBe("Philly");
-                matchingResult.ContainsKey("Address.Line1").ShouldBeFalse();
-                matchingResult.ContainsKey("Address!Line1").ShouldBeFalse();
+                matchingResult.ShouldNotContainKey("Address.Line1");
+                matchingResult.ShouldNotContainKey("Address!Line1");
 
                 var nonMatchingSource = new Customer { Address = address };
                 var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<Dictionary<string, string>>();
@@ -163,7 +185,7 @@
         }
 
         [Fact]
-        public void ShouldApplyACustomEnumerableElementPatternToASpecificTargetType()
+        public void ShouldApplyACustomEnumerableElementPatternToASpecificSourceType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -241,31 +263,13 @@
                 var noDiscountResult = mapper.Map(noDiscountSource).ToANew<Dictionary<string, object>>();
 
                 noDiscountResult["CustomerName"].ShouldBe("Schumer");
-                noDiscountResult.ContainsKey("Name").ShouldBeFalse();
+                noDiscountResult.ShouldNotContainKey("Name");
 
                 var bigDiscountSource = new MysteryCustomerViewModel { Name = "Silverman", Discount = 0.6 };
                 var bigDiscountResult = mapper.Map(bigDiscountSource).ToANew<Dictionary<string, object>>();
 
                 bigDiscountResult["CustomerName"].ShouldBe("Silverman");
                 bigDiscountResult["Name"].ShouldBe("Silverman (Big discount!)");
-            }
-        }
-
-        [Fact]
-        public void ShouldApplyACustomConfiguredMember()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .Dictionaries
-                    .ToANew<PublicField<long>>()
-                    .Map(ctx => ctx.Source.Count)
-                    .To(pf => pf.Value);
-
-                var source = new Dictionary<string, object> { ["One"] = 1, ["Two"] = 2 };
-                var result = mapper.Map(source).ToANew<PublicField<long>>();
-
-                result.Value.ShouldBe(2);
             }
         }
 

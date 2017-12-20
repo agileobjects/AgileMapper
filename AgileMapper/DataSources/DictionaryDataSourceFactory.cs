@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
+    using Members.Dictionaries;
 
     internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
@@ -81,7 +82,7 @@
 
             while (!parentMapperData.IsRoot)
             {
-                if (parentMapperData.TargetMember.LeafMember == mapperData.TargetMember.LeafMember)
+                if (parentMapperData.TargetMember.LeafMember.Equals(mapperData.TargetMember.LeafMember))
                 {
                     break;
                 }

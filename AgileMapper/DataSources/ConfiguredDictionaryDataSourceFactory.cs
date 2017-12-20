@@ -2,6 +2,7 @@
 {
     using Configuration;
     using Members;
+    using Members.Dictionaries;
 
     internal class ConfiguredDictionaryDataSourceFactory : ConfiguredDataSourceFactory
     {

@@ -14,7 +14,7 @@
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 Mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .To<PublicField<string>>()
                     .MapFullKey(null)
                     .To(pf => pf.Value);
@@ -29,7 +29,7 @@
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 Mapper.WhenMapping
-                    .Dictionaries
+                    .FromDictionaries
                     .To<PublicField<string>>()
                     .MapMemberNameKey(null)
                     .To(pf => pf.Value);
@@ -46,12 +46,12 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<Person>()
                         .Ignore(p => p.Id);
 
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<Person>()
                         .MapFullKey("PersonId")
                         .To(p => p.Id);
@@ -69,12 +69,12 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<PublicField<string>>()
                         .Ignore(pf => pf.Value);
 
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<PublicField<string>>()
                         .MapMemberNameKey("ValueValue")
                         .To(pf => pf.Value);
@@ -92,13 +92,13 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<Person>()
                         .Map((d, p) => d.Count)
                         .To(p => p.Name);
 
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<Person>()
                         .MapFullKey("PersonName")
                         .To(p => p.Name);
@@ -116,13 +116,13 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<Person>()
                         .Map((d, p) => d.Count)
                         .To(p => p.Name);
 
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<Person>()
                         .MapMemberNameKey("PersonName")
                         .To(p => p.Name);
@@ -159,6 +159,24 @@
         }
 
         [Fact]
+        public void ShouldErrorIfRedundantSourceSeparatorIsConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .FromDictionaries
+                        .UseMemberNameSeparator(".");
+                }
+            });
+
+            configEx.Message.ShouldContain("already");
+            configEx.Message.ShouldContain("global");
+            configEx.Message.ShouldContain("'.'");
+        }
+
+        [Fact]
         public void ShouldErrorIfMemberNamesAreFlattenedAndSeparatedGlobally()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
@@ -166,8 +184,8 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .Dictionaries
-                        .UseFlattenedMemberNames()
+                        .FromDictionaries
+                        .UseFlattenedTargetMemberNames()
                         .UseMemberNameSeparator("+");
                 }
             });
@@ -186,7 +204,7 @@
                     mapper.WhenMapping
                         .Dictionaries
                         .UseMemberNameSeparator("+")
-                        .UseFlattenedMemberNames();
+                        .UseFlattenedTargetMemberNames();
                 }
             });
 
@@ -195,41 +213,22 @@
         }
 
         [Fact]
-        public void ShouldErrorIfMemberNamesAreFlattenedAndSeparatedForASpecificTargetType()
+        public void ShouldErrorIfDifferentSeparatorsSpecifiedForASpecificTargetType()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .Dictionaries
+                        .FromDictionaries
                         .To<PublicField<PublicProperty<string>>>()
-                        .UseFlattenedMemberNames()
+                        .UseMemberNameSeparator("-")
                         .UseMemberNameSeparator("_");
                 }
             });
 
             configEx.Message.ShouldContain("PublicField<PublicProperty<string>>");
-            configEx.Message.ShouldContain("flattened");
-        }
-
-        [Fact]
-        public void ShouldErrorIfMemberNamesAreSeparatedAndFlattenedForASpecificTargetType()
-        {
-            var configEx = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .Dictionaries
-                        .To<PublicProperty<PublicField<int>>>()
-                        .UseMemberNameSeparator("+")
-                        .UseFlattenedMemberNames();
-                }
-            });
-
-            configEx.Message.ShouldContain("PublicProperty<PublicField<int>>");
-            configEx.Message.ShouldContain("separated with '+'");
+            configEx.Message.ShouldContain("separated with '-'");
         }
 
         [Fact]
@@ -278,6 +277,24 @@
 
             configEx.Message.ShouldContain(
                 "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantGlobalElementKeyPartIsConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .Dictionaries
+                        .UseElementKeyPattern("[i]");
+                }
+            });
+
+            configEx.Message.ShouldContain("already");
+            configEx.Message.ShouldContain("global");
+            configEx.Message.ShouldContain("[i]");
         }
 
         [Fact]

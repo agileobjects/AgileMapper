@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using ReadableExpressions.Extensions;
 
     internal class ToBoolConverter : ValueConverterBase

@@ -4,7 +4,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Validation;
 
@@ -14,7 +14,12 @@
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
         {
-            ConfigInfo = configInfo.ForTargetType<TTarget>();
+            ConfigInfo = configInfo;
+
+            if ((ConfigInfo.TargetType ?? typeof(object)) == typeof(object))
+            {
+                ConfigInfo.ForTargetType<TTarget>();
+            }
         }
 
         protected MappingConfigInfo ConfigInfo { get; }

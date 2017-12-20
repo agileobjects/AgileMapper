@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
     using Configuration;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using ReadableExpressions;
 
     internal class MemberPopulation : IMemberPopulation

@@ -25,7 +25,7 @@
             result.Value.ShouldNotBeNull();
             result.Value.ShouldNotBeEmpty();
             result.Value["Name"].ShouldBe("Someone");
-            result.Value.ContainsKey("Address").ShouldBeFalse();
+            result.Value.ShouldNotContainKey("Address");
             result.Value["Address.Line1"].ShouldBe("Some Place");
         }
 
@@ -55,15 +55,15 @@
             };
             var result = Mapper.Map(source).ToANew<PublicSetMethod<Dictionary<string, decimal>>>();
 
-            result.Value.ContainsKey("[0]").ShouldBeFalse();
+            result.Value.ShouldNotContainKey("[0]");
 
             result.Value["[0].Name"].ShouldBeDefault();
-            result.Value.ContainsKey("[0].Id").ShouldBeFalse(); // <- because id is a Guid, which can't be parsed to a decimal
+            result.Value.ShouldNotContainKey("[0].Id"); // <- because id is a Guid, which can't be parsed to a decimal
             result.Value["[0].AddressLine1"].ShouldBeDefault();
             result.Value["[0].Discount"].ShouldBe(0.5);
 
             result.Value["[1].Name"].ShouldBeDefault();
-            result.Value.ContainsKey("[1].Id").ShouldBeFalse();
+            result.Value.ShouldNotContainKey("[1].Id");
             result.Value["[1].AddressLine1"].ShouldBeDefault();
             result.Value["[1].Discount"].ShouldBe(0.6);
             result.Value["[1].Report"].ShouldBe(0.075);
@@ -82,7 +82,7 @@
             };
             var result = Mapper.Map(source).ToANew<PublicField<IDictionary<string, double>>>();
 
-            result.Value.ContainsKey("[0]").ShouldBeFalse();
+            result.Value.ShouldNotContainKey("[0]");
 
             result.Value["[0][0]"].ShouldBe(1.0);
             result.Value["[0][1]"].ShouldBe(2.0);
@@ -105,7 +105,7 @@
             };
             var result = Mapper.Map(source).ToANew<PublicField<Dictionary<string, IEnumerable<string>>>>();
 
-            result.Value.ContainsKey("[0][0]").ShouldBeFalse();
+            result.Value.ShouldNotContainKey("[0][0]");
 
             result.Value["[0]"].ShouldBe("1", "2", "3");
             result.Value["[1]"].ShouldBe("4", "5", "6");
@@ -171,10 +171,10 @@
             var result = Mapper.Map(source).ToANew<PublicProperty<Dictionary<string, object>>>();
 
             result.Value.ShouldNotBeNull();
-            result.Value.ContainsKey("key1").ShouldBeTrue();
+            result.Value.ShouldContainKey("key1");
             result.Value["key1"].ShouldBeOfType<object>();
             result.Value["key1"].ShouldNotBeSameAs(source.Value["key1"]);
-            result.Value.ContainsKey("key2").ShouldBeTrue();
+            result.Value.ShouldContainKey("key2");
             result.Value["key2"].ShouldBeOfType<object>();
             result.Value["key2"].ShouldNotBeSameAs(source.Value["key2"]);
         }
@@ -215,7 +215,7 @@
             result.Value["[0].Id"].ShouldBe(source.Value.First().Id);
             result.Value["[0].Title"].ShouldBe(Title.Count);
             result.Value["[0].Name"].ShouldBe("Customer 1");
-            result.Value.ContainsKey("[0].Address").ShouldBeFalse();
+            result.Value.ShouldNotContainKey("[0].Address");
             result.Value["[0].Address.Line1"].ShouldBe("This place");
             result.Value["[0].Address.Line2"].ShouldBe("That place");
 
@@ -224,9 +224,9 @@
             result.Value["[1].Name"].ShouldBe("Customer 2");
             result.Value["[1].Discount"].ShouldBe(0.3m);
             result.Value["[1].Report"].ShouldBe("It was all a mystery :o");
-            result.Value.ContainsKey("[1].Address").ShouldBeFalse();
-            result.Value.ContainsKey("[1].Address.Line1").ShouldBeFalse();
-            result.Value.ContainsKey("[1].Address.Line2").ShouldBeFalse();
+            result.Value.ShouldNotContainKey("[1].Address");
+            result.Value.ShouldNotContainKey("[1].Address.Line1");
+            result.Value.ShouldNotContainKey("[1].Address.Line2");
 
         }
     }

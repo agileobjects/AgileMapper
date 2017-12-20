@@ -160,6 +160,15 @@
         }
 
         [Fact]
+        public void ShouldMapANullableEnumToAnEnum()
+        {
+            var source = new PublicProperty<Title?> { Value = Title.Dr };
+            var result = Mapper.Map(source).ToANew<PublicProperty<Title>>();
+
+            result.Value.ShouldBe(Title.Dr);
+        }
+
+        [Fact]
         public void ShouldMapANullNullableEnumToAnEnum()
         {
             var source = new PublicProperty<Title?> { Value = null };

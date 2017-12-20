@@ -7,10 +7,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
     using DataSources;
     using Enumerables;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
+    using static Members.Member;
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
@@ -50,9 +51,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             SourceMember = sourceMember;
 
             var mappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
-            SourceObject = GetMappingDataProperty(mappingDataType, "Source");
-            TargetObject = Expression.Property(MappingDataObject, "Target");
-            CreatedObject = Expression.Property(MappingDataObject, "CreatedObject");
+            SourceObject = GetMappingDataProperty(mappingDataType, RootSourceMemberName);
+            TargetObject = GetMappingDataProperty(RootTargetMemberName);
+            CreatedObject = GetMappingDataProperty("CreatedObject");
 
             var isPartOfDerivedTypeMapping = declaredTypeMapperData != null;
 
@@ -64,7 +65,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             else
             {
                 EnumerableIndex = GetMappingDataProperty(mappingDataType, "EnumerableIndex");
-                ParentObject = Expression.Property(MappingDataObject, "Parent");
+                ParentObject = GetMappingDataProperty("Parent");
             }
 
             ExpressionInfoFinder = new ExpressionInfoFinder(MappingDataObject);
@@ -145,11 +146,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var property = mappingDataType.GetPublicInstanceProperty(propertyName);
 
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var propertyAccess = Expression.Property(MappingDataObject, property);
-
-            return propertyAccess;
+            return Expression.Property(MappingDataObject, property);
         }
+
+        private Expression GetMappingDataProperty(string propertyName)
+            => Expression.Property(MappingDataObject, propertyName);
 
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
         {
@@ -282,7 +283,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         #region Factory Method
 
         public static ObjectMapperData For<TSource, TTarget>(IObjectMappingData mappingData)
-        {   
+        {
             var membersSource = mappingData.MapperKey.GetMembersSource(mappingData.Parent);
             var sourceMember = membersSource.GetSourceMember<TSource, TTarget>().WithType(typeof(TSource));
             var targetMember = membersSource.GetTargetMember<TSource, TTarget>().WithType(typeof(TTarget));
@@ -326,6 +327,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public int DataSourceIndex { get; set; }
 
         public MapperDataContext Context { get; }
+
+        public override bool HasCompatibleTypes(ITypePair typePair)
+        {
+            return typePair.HasCompatibleTypes(
+                this,
+                () => SourceMember.HasCompatibleType(typePair.SourceType),
+                () => TargetMember.HasCompatibleType(typePair.TargetType));
+        }
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
             => _dataSourcesByTargetMemberName[targetMemberRegistrationName][dataSourceIndex].SourceMember;

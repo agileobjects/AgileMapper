@@ -7,9 +7,11 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
-    using Extensions;
+    using Dictionaries;
+    using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using static Member;
 
     internal static class MemberMapperDataExtensions
     {
@@ -80,10 +82,8 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull);
         }
 
-        public static bool SourceIsNotFlatObject(this IMemberMapperData mapperData)
-        {
-            return !mapperData.SourceType.IsDictionary();
-        }
+        public static bool SourceIsFlatObject(this IMemberMapperData mapperData)
+            => mapperData.SourceType.IsDictionary();
 
         public static bool SourceMemberIsStringKeyedDictionary(
             this IMemberMapperData mapperData,
@@ -104,16 +104,6 @@ namespace AgileObjects.AgileMapper.Members
             if (mapperData.SourceMember is DictionarySourceMember dictionarySourceMember)
             {
                 return dictionarySourceMember;
-            }
-
-            if (!(mapperData.SourceMember is DictionaryEntrySourceMember dictionaryEntrySourceMember))
-            {
-                return null;
-            }
-
-            if (dictionaryEntrySourceMember.Type.IsDictionary())
-            {
-                return dictionaryEntrySourceMember.Parent;
             }
 
             // We're mapping a dictionary entry by its runtime type:
@@ -474,10 +464,10 @@ namespace AgileObjects.AgileMapper.Members
                 return accessMethodFactory.Invoke(contextAccess, type);
             }
 
-            var propertyName = new[] { "Source", "Target" }[contextTypesIndex];
+            var propertyName = new[] { RootSourceMemberName, RootTargetMemberName }[contextTypesIndex];
 
-            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName)
-                ?? typeof(IMappingData<,>)
+            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName) ??
+                typeof(IMappingData<,>)
                     .MakeGenericType(contextTypes[0], contextTypes[1])
                     .GetPublicInstanceProperty(propertyName);
 

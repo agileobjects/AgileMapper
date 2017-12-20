@@ -1,10 +1,13 @@
 namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
     using AgileMapper.Configuration;
+    using Dynamics;
 
     internal class DictionaryMappingConfigContinuation<TFirst, TSecond> :
         ISourceDictionaryMappingConfigContinuation<TFirst, TSecond>,
-        ITargetDictionaryMappingConfigContinuation<TFirst, TSecond>
+        ITargetDictionaryMappingConfigContinuation<TFirst, TSecond>,
+        ISourceDynamicMappingConfigContinuation<TSecond>,
+        ITargetDynamicMappingConfigContinuation<TFirst>
     {
         private readonly MappingConfigInfo _configInfo;
 
@@ -18,5 +21,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         ITargetDictionaryMappingConfigurator<TFirst, TSecond> ITargetDictionaryMappingConfigContinuation<TFirst, TSecond>.And
             => new TargetDictionaryMappingConfigurator<TFirst, TSecond>(_configInfo.Clone());
+
+        ISourceDynamicMappingConfigurator<TSecond> ISourceDynamicMappingConfigContinuation<TSecond>.And
+            => new SourceDynamicMappingConfigurator<TSecond>(_configInfo.Clone());
+
+        ITargetDynamicMappingConfigurator<TFirst> ITargetDynamicMappingConfigContinuation<TFirst>.And
+            => new TargetDynamicMappingConfigurator<TFirst>(_configInfo.Clone());
     }
 }

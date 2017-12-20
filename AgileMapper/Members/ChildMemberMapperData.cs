@@ -35,5 +35,7 @@
         public Expression TargetInstance => Parent.TargetInstance;
 
         public ExpressionInfoFinder ExpressionInfoFinder => Parent.ExpressionInfoFinder;
+
+        public override bool HasCompatibleTypes(ITypePair typePair) => Parent.HasCompatibleTypes(typePair);
     }
 }

@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class EnumerableTypeHelper
@@ -48,8 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private bool IsReadOnlyCollectionInterface()
         {
 #if NET_STANDARD
-            return EnumerableType.IsGenericType() &&
-                  (EnumerableType.GetGenericTypeDefinition() == typeof(IReadOnlyCollection<>));
+            return EnumerableType.IsClosedTypeOf(typeof(IReadOnlyCollection<>));
 #else
             return EnumerableType.IsInterface() &&
                   (EnumerableType.Name == "IReadOnlyCollection`1") &&
@@ -107,6 +106,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             if (IsReadOnlyCollection)
             {
                 return instance.WithToReadOnlyCollectionCall(ElementType);
+            }
+
+            if (IsCollection)
+            {
+                return instance.WithToCollectionCall(ElementType);
             }
 
             return instance.WithToListCall(ElementType);

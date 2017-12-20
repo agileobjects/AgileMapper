@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members.Population;
 
     internal class StructPopulationExpressionFactory : PopulationExpressionFactoryBase

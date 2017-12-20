@@ -19,13 +19,15 @@
         }
 
         [Fact]
-        public void ShouldIncludeASimpleTypeArrayMember()
+        public void ShouldFlattenASimpleTypeArrayMember()
         {
             var source = new PublicProperty<long[]> { Value = new[] { 1L, 2L, 3L } };
             var result = Mapper.Flatten(source);
 
             ((object)result).ShouldNotBeNull();
-            ((long[])result.Value).ShouldBe(1, 2, 3);
+            ((long)result.Value_0_).ShouldBe(1L);
+            ((long)result.Value_1_).ShouldBe(2L);
+            ((long)result.Value_2_).ShouldBe(3L);
         }
 
         [Fact]
@@ -50,9 +52,10 @@
         public void ShouldHandleANullComplexTypeMember()
         {
             var source = new PublicProperty<PublicField<int>> { Value = null };
-            var result = Mapper.Flatten(source);
+            var result = (IDictionary<string, object>)Mapper.Flatten(source);
 
-            ((int)result.Value_Value).ShouldBeDefault();
+            result.ShouldNotContainKey("Value");
+            result.ShouldNotContainKey("Value_Value");
         }
 
         [Fact]
@@ -82,7 +85,7 @@
             };
             var result = Mapper.Flatten(source);
 
-            ((string)result.Value0_ProductId).ShouldBe("SumminElse");
+            ((string)result.Value_0__ProductId).ShouldBe("SumminElse");
         }
 
         [Fact]
@@ -92,9 +95,9 @@
             {
                 Value = new Product[] { null }
             };
-            var result = Mapper.Flatten(source);
+            var result = (IDictionary<string, object>)Mapper.Flatten(source);
 
-            ((string)result.Value0_ProductId).ShouldBeNull();
+            result.ShouldNotContainKey("Value_0__ProductId");
         }
     }
 }

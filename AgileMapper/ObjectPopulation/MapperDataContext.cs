@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class MapperDataContext

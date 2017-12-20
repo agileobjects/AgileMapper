@@ -1,21 +1,21 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
-    using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
 
-    internal class MappingConfigInfo
+    internal class MappingConfigInfo : ITypePair
     {
-        private static readonly Type _allSourceTypes = typeof(MappingConfigInfo);
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", true, null, null, null);
 
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
+        private Dictionary<Type, object> _data;
 
         public MappingConfigInfo(MapperContext mapperContext)
         {
@@ -36,7 +36,7 @@
 
         public Type SourceType { get; private set; }
 
-        public MappingConfigInfo ForAllSourceTypes() => ForSourceType(_allSourceTypes);
+        public MappingConfigInfo ForAllSourceTypes() => ForSourceType(Constants.AllTypes);
 
         public MappingConfigInfo ForSourceType<TSource>() => ForSourceType(typeof(TSource));
 
@@ -47,13 +47,6 @@
         }
 
         public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => otherConfigInfo.SourceType == SourceType;
-
-        public bool IsForSourceType(MappingConfigInfo otherConfigInfo) => IsForSourceType(otherConfigInfo.SourceType);
-
-        private bool IsForSourceType(Type sourceType)
-            => IsForAllSourceTypes || sourceType.IsAssignableTo(SourceType);
-
-        public bool IsForAllSourceTypes => SourceType == _allSourceTypes;
 
         public Type TargetType { get; private set; }
 
@@ -67,34 +60,10 @@
             return this;
         }
 
-        public bool IsForTargetType(MappingConfigInfo otherConfigInfo)
-            => otherConfigInfo.TargetType.IsAssignableTo(TargetType);
-
         public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
 
         public bool HasCompatibleTypes(MappingConfigInfo otherConfigInfo)
-            => HasCompatibleTypes(otherConfigInfo.SourceType, otherConfigInfo.TargetType);
-
-        public bool HasCompatibleTypes(IBasicMapperData mapperData)
-            => HasCompatibleTypes(mapperData.SourceType, mapperData.TargetType);
-
-        public bool HasCompatibleTypes(Type sourceType, Type targetType)
-        {
-            if (IsForSourceType(sourceType))
-            {
-                if (targetType.IsAssignableTo(TargetType))
-                {
-                    return true;
-                }
-
-                if (targetType.IsInterface())
-                {
-                    return Array.IndexOf(TargetType.GetAllInterfaces(), targetType) != -1;
-                }
-            }
-
-            return false;
-        }
+            => ((ITypePair)this).HasCompatibleTypes(otherConfigInfo);
 
         public MappingRuleSet RuleSet { get; private set; }
 
@@ -205,6 +174,16 @@
 
         #endregion
 
+        public T Get<T>() => Data.TryGetValue(typeof(T), out var value) ? (T)value : default(T);
+
+        public MappingConfigInfo Set<T>(T value)
+        {
+            Data[typeof(T)] = value;
+            return this;
+        }
+
+        private Dictionary<Type, object> Data => (_data ?? (_data = new Dictionary<Type, object>()));
+
         public IBasicMapperData ToMapperData()
         {
             var dummyTargetMember = QualifiedMember
@@ -219,13 +198,25 @@
 
         public MappingConfigInfo Clone()
         {
-            return new MappingConfigInfo(MapperContext)
+            var cloned = new MappingConfigInfo(MapperContext)
             {
                 SourceType = SourceType,
                 TargetType = TargetType,
                 SourceValueType = SourceValueType,
                 RuleSet = RuleSet
             };
+
+            if (_data == null)
+            {
+                return cloned;
+            }
+
+            foreach (var itemByType in _data)
+            {
+                cloned.Data.Add(itemByType.Key, itemByType.Value);
+            }
+
+            return cloned;
         }
 
         private class TypeTestFinder : ExpressionVisitor

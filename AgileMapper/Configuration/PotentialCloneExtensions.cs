@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
+    using Extensions.Internal;
 
     internal static class PotentialCloneExtensions
     {

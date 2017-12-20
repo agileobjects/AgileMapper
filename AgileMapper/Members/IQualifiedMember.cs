@@ -7,6 +7,8 @@ namespace AgileObjects.AgileMapper.Members
     {
         Type Type { get; }
 
+        string GetFriendlyTypeName();
+
         bool IsEnumerable { get; }
 
         string Name { get; }
@@ -20,6 +22,8 @@ namespace AgileObjects.AgileMapper.Members
         IQualifiedMember RelativeTo(IQualifiedMember otherMember);
 
         IQualifiedMember WithType(Type runtimeType);
+
+        bool HasCompatibleType(Type type);
 
         bool CouldMatch(QualifiedMember otherMember);
 

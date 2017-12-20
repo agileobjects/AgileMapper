@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Configuration;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal static class DerivedComplexTypeMappingsFactory

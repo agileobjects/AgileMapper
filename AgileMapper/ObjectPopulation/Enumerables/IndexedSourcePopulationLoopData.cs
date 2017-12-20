@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
 
     internal class IndexedSourcePopulationLoopData : IPopulationLoopData
     {

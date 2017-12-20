@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class DataSourceFinder
@@ -114,8 +114,8 @@
                 yield break;
             }
 
-            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData);
-            var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, mappingData);
+            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(mappingData, out var contextMappingData);
+            var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, contextMappingData);
 
             if ((matchingSourceMemberDataSource == null) ||
                 configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))

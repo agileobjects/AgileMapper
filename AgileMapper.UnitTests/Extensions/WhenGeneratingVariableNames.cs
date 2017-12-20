@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Extensions
 {
     using System.Collections.Generic;
-    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using TestClasses;
     using Xunit;
 

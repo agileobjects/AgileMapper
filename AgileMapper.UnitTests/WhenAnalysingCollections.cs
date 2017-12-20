@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq;
-    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Shouldly;
     using TestClasses;
     using Xunit;

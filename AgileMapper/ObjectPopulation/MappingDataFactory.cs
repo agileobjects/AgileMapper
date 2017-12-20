@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Reflection;
     using Enumerables;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
 

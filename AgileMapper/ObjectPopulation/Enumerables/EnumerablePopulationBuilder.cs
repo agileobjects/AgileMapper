@@ -6,7 +6,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Caching;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
 
@@ -19,12 +19,6 @@
             .Last(m =>
                 (m.GetParameters().Length == 2) &&
                 (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 2));
-
-        private static readonly MethodInfo _selectWithIndexMethod = typeof(Enumerable)
-            .GetPublicStaticMethods("Select")
-            .Last(m =>
-                (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 3));
 
         private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
             .GetPublicStaticMethods("ForEach")
@@ -83,6 +77,8 @@
         }
 
         #endregion
+
+        public Expression GetCounterIncrement() => Expression.PreIncrementAssign(Counter);
 
         public ParameterExpression Counter => _counterVariable ?? (_counterVariable = GetCounterVariable());
 
@@ -235,6 +231,10 @@
             }
 
             AssignSourceVariableFrom(SourceValue);
+
+            var shortCircuit = _sourceAdapter.GetMappingShortCircuitOrNull();
+
+            _populationExpressions.AddUnlessNullOrEmpty(shortCircuit);
         }
 
         public void AssignSourceVariableFrom(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)
@@ -539,18 +539,6 @@
                 _selectWithoutIndexMethod,
                 (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter),
                 _sourceElementParameter);
-        }
-
-        public Expression GetSourceItemsProjection(
-            Expression sourceEnumerableValue,
-            Func<Expression, Expression, Expression> projectionFuncFactory)
-        {
-            return GetSourceItemsProjection(
-                sourceEnumerableValue,
-                _selectWithIndexMethod,
-                projectionFuncFactory,
-                _sourceElementParameter,
-                Counter);
         }
 
         private Expression GetSourceItemsProjection(

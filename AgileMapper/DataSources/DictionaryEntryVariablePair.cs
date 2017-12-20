@@ -5,8 +5,9 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
+    using Members.Dictionaries;
     using NetStandardPolyfills;
 
     internal class DictionaryEntryVariablePair
@@ -41,14 +42,7 @@ namespace AgileObjects.AgileMapper.DataSources
         }
 
         private static string GetTargetMemberName(IBasicMapperData mapperData)
-        {
-            if (mapperData.TargetMemberIsEnumerableElement())
-            {
-                return "element";
-            }
-
-            return mapperData.TargetMember.Name.ToCamelCase();
-        }
+            => mapperData.TargetMember.Name.ToCamelCase();
 
         public DictionarySourceMember SourceMember { get; }
 
@@ -106,8 +100,19 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var firstMatchingKeyOrNull = GetKeyMatchingQuery(
                 HasConstantTargetMemberKey ? targetMemberKey : Key,
+                (keyParameter, targetKey) =>
+                {
+                    var separator = MapperData.Parent.IsRoot
+                        ? null
+                        : MapperData.GetDictionaryKeyPartSeparator();
+
+                    var elementKeyPartMatcher = MapperData.Parent.TargetMemberIsEnumerableElement()
+                        ? MapperData.GetDictionaryElementKeyPartMatcher()
+                        : null;
+
+                    return keyParameter.GetMatchesKeyCall(targetKey, separator, elementKeyPartMatcher);
+                },
                 Expression.Equal,
-                (keyParameter, targetKey) => keyParameter.GetCaseInsensitiveEquals(targetKey),
                 _linqFirstOrDefaultMethod);
 
             var keyVariableAssignment = GetKeyAssignment(firstMatchingKeyOrNull);
@@ -125,8 +130,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
             var noKeysStartWithTarget = GetKeyMatchingQuery(
                 targetMemberKey,
-                (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
                 GetKeyStartsWithIgnoreCaseCall,
+                (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
                 EnumerableExtensions.EnumerableNoneMethod);
 
             return noKeysStartWithTarget;
@@ -153,15 +158,15 @@ namespace AgileObjects.AgileMapper.DataSources
 
         private Expression GetKeyMatchingQuery(
             Expression targetMemberKey,
-            Func<Expression, Expression, Expression> rootKeyMatcherFactory,
-            Func<Expression, Expression, Expression> nestedKeyMatcherFactory,
+            Func<Expression, Expression, Expression> keyMatcherFactory,
+            Func<Expression, Expression, Expression> elementKeyMatcherFactory,
             MethodInfo queryMethod)
         {
             var keyParameter = Expression.Parameter(typeof(string), "key");
 
-            var keyMatcher = MapperData.IsRoot
-                ? rootKeyMatcherFactory.Invoke(keyParameter, targetMemberKey)
-                : nestedKeyMatcherFactory.Invoke(keyParameter, targetMemberKey);
+            var keyMatcher = MapperData.TargetMemberIsEnumerableElement()
+                ? elementKeyMatcherFactory.Invoke(keyParameter, targetMemberKey)
+                : keyMatcherFactory.Invoke(keyParameter, targetMemberKey);
 
             var keyMatchesLambda = Expression.Lambda<Func<string, bool>>(keyMatcher, keyParameter);
 

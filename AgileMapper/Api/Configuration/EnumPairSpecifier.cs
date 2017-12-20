@@ -4,7 +4,7 @@
     using System.Globalization;
     using System.Linq;
     using AgileMapper.Configuration;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 

@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using AgileMapper.Members;
     using NetStandardPolyfills;
 

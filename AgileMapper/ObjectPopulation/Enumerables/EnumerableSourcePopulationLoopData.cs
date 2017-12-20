@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class EnumerableSourcePopulationLoopData : IPopulationLoopData
