@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Dynamic;
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
@@ -209,7 +210,7 @@
             return ((IMapper)this).Map(source).ToANew(configurations);
         }
 
-        dynamic IMapper.Flatten<TSource>(TSource source) => Context.ObjectFlattener.Flatten(source);
+        dynamic IMapper.Flatten<TSource>(TSource source) => Map(source).ToANew<ExpandoObject>();
 
         ITargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);

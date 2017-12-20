@@ -1,12 +1,9 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
-    using System.Collections.Generic;
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal class SourceDictionaryShortCircuitFactory : ISourceShortCircuitFactory
     {
@@ -51,11 +48,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var mapValueCall = GetMapValueCall(dictionaryVariables.Value, mapperData);
             var fallbackValue = GetFallbackValue(mappingData);
 
-            if (mapperData.TargetMember.IsRecursionRoot())
-            {
-                AdjustForStandaloneContext(ref mapValueCall, ref fallbackValue, mapperData);
-            }
-
             var valueMappingOrFallback = Expression.Condition(foundValueNonNull, mapValueCall, fallbackValue);
             var returnMapValueResult = Expression.Return(mapperData.ReturnLabelTarget, valueMappingOrFallback);
             var ifEntryExistsShortCircuit = Expression.IfThen(entryExistsTest, returnMapValueResult);
@@ -87,51 +79,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static MethodCallExpression GetMapValueCall(Expression sourceValue, IMemberMapperData mapperData)
-        {
-            if (mapperData.TargetMemberIsEnumerableElement())
-            {
-                return mapperData.Parent.GetMapCall(sourceValue);
-            }
-
-            return mapperData.Parent.GetMapCall(sourceValue, mapperData.TargetMember, dataSourceIndex: 0);
-        }
+            => mapperData.Parent.GetMapCall(sourceValue, mapperData.TargetMember, dataSourceIndex: 0);
 
         private static Expression GetFallbackValue(IObjectMappingData mappingData)
         {
-            if (mappingData.MapperData.TargetMemberIsEnumerableElement())
-            {
-                return mappingData.MapperData.TargetMember.Type.ToDefaultExpression();
-            }
-
             return mappingData.MappingContext
                 .RuleSet
                 .FallbackDataSourceFactory
                 .Create(mappingData.MapperData)
                 .Value;
-        }
-
-        private static void AdjustForStandaloneContext(
-            ref MethodCallExpression mapValueCall,
-            ref Expression fallbackValue,
-            IMemberMapperData mapperData)
-        {
-            var parentMappingTypes = mapperData.Parent.MappingDataObject.Type.GetGenericTypeArguments();
-            var parentContextAccess = mapperData.GetAppropriateMappingContextAccess(parentMappingTypes);
-            var typedParentContextAccess = mapperData.GetTypedContextAccess(parentContextAccess, parentMappingTypes);
-            var parentTargetAccess = mapperData.GetTargetAccess(parentContextAccess, mapperData.TargetType);
-
-            var replacements = new Dictionary<Expression, Expression>(2)
-            {
-                [mapValueCall.GetSubject()] = typedParentContextAccess,
-                [mapValueCall.Arguments[1]] = parentTargetAccess
-            };
-
-            mapValueCall = mapValueCall.Replace(replacements);
-
-            if (fallbackValue.NodeType != ExpressionType.Default)
-            {
-                fallbackValue = parentTargetAccess;
-            }
         }
     }
 }

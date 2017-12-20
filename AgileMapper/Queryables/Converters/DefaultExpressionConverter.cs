@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal static class DefaultExpressionConverter

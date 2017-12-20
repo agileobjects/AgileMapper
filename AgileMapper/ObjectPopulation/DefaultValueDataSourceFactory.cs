@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using DataSources;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class DefaultValueDataSourceFactory : IDataSourceFactory

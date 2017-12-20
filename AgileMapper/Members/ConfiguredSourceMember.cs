@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Caching;
-    using Extensions;
+    using Extensions.Internal;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
@@ -57,6 +57,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type { get; }
 
+        public string GetFriendlyTypeName() => Type.GetFriendlyName();
+
         public bool IsEnumerable { get; }
 
         public string Name { get; }
@@ -81,6 +83,8 @@ namespace AgileObjects.AgileMapper.Members
                 _mapperContext,
                 relativeMemberChain);
         }
+
+        public bool HasCompatibleType(Type type) => false;
 
         public bool CouldMatch(QualifiedMember otherMember)
             => _matchedTargetMemberJoinedNames.CouldMatch(otherMember.JoinedNames);

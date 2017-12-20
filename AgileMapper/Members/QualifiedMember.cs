@@ -6,7 +6,9 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using Caching;
-    using Extensions;
+    using Dictionaries;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class QualifiedMember : IQualifiedMember
@@ -141,6 +143,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type Type => LeafMember?.Type;
 
+        public string GetFriendlyTypeName() => Type.GetFriendlyName();
+
         public Type ElementType => LeafMember?.ElementType;
 
         public virtual Type GetElementType(Type sourceElementType) => ElementType;
@@ -206,6 +210,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public virtual bool GuardObjectValuePopulations => false;
 
+        public virtual bool HasCompatibleType(Type type) => Type.IsAssignableTo(type);
+
         IQualifiedMember IQualifiedMember.GetElementMember() => this.GetElementMember();
 
         IQualifiedMember IQualifiedMember.Append(Member childMember) => Append(childMember);
@@ -215,12 +221,7 @@ namespace AgileObjects.AgileMapper.Members
             => _childMemberCache.GetOrAdd(childMember, CreateChildMember);
 
         protected virtual QualifiedMember CreateChildMember(Member childMember)
-        {
-            var qualifiedChildMember = new QualifiedMember(childMember, this, _mapperContext);
-            qualifiedChildMember = _mapperContext.QualifiedMemberFactory.GetFinalTargetMember(qualifiedChildMember);
-
-            return qualifiedChildMember;
-        }
+            => CreateFinalMember(new QualifiedMember(childMember, this, _mapperContext));
 
         public QualifiedMember GetChildMember(string registrationName)
             => _childMemberCache.Values.First(childMember => childMember.RegistrationName == registrationName);
@@ -241,7 +242,17 @@ namespace AgileObjects.AgileMapper.Members
             return new QualifiedMember(relativeMemberChain, this);
         }
 
-        IQualifiedMember IQualifiedMember.WithType(Type runtimeType) => WithType(runtimeType);
+        IQualifiedMember IQualifiedMember.WithType(Type runtimeType)
+        {
+            var typedMember = WithType(runtimeType);
+
+            if (runtimeType.IsDictionary())
+            {
+                return new DictionarySourceMember(typedMember, typedMember);
+            }
+
+            return typedMember;
+        }
 
         public QualifiedMember WithType(Type runtimeType)
         {
@@ -267,8 +278,17 @@ namespace AgileObjects.AgileMapper.Members
 
             newMemberChain[MemberChain.Length - 1] = LeafMember.WithType(runtimeType);
 
-            return new QualifiedMember(newMemberChain, this);
+            return CreateFinalMember(new QualifiedMember(newMemberChain, this));
         }
+
+        private QualifiedMember CreateFinalMember(QualifiedMember member)
+        {
+            return member.IsTargetMember
+                ? _mapperContext.QualifiedMemberFactory.GetFinalTargetMember(member)
+                : member;
+        }
+
+        private bool IsTargetMember => MemberChain[0].Name == Member.RootTargetMemberName;
 
         public bool CouldMatch(QualifiedMember otherMember) => JoinedNames.CouldMatch(otherMember.JoinedNames);
 

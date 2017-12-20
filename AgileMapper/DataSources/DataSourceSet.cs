@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class DataSourceSet : IEnumerable<IDataSource>
@@ -95,9 +95,10 @@ namespace AgileObjects.AgileMapper.DataSources
 
         private Expression GetFallbackValueOrNull()
         {
-            var fallbackValue = _dataSources.Last().Value;
+            var finalDataSource = _dataSources.Last();
+            var fallbackValue = finalDataSource.Value;
 
-            if (_dataSources.HasOne())
+            if (finalDataSource.IsConditional || _dataSources.HasOne())
             {
                 return fallbackValue;
             }

@@ -15,7 +15,7 @@
         {
             var childMapperData = childMappingData.MapperData;
 
-            childMapperData.CacheMappedObjects = childMapperData.SourceIsNotFlatObject();
+            childMapperData.CacheMappedObjects = !childMapperData.SourceIsFlatObject();
 
             childMapperData.RegisterRequiredMapperFunc(childMappingData);
 

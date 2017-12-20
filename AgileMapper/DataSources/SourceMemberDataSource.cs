@@ -3,9 +3,8 @@
     using System.Linq.Expressions;
     using System.Collections.Generic;
 #if NET_STANDARD
-    using System.Reflection;
 #endif
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using ReadableExpressions.Extensions;
 

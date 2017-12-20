@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
-    using System.Linq;
+    using AgileMapper.Extensions.Internal;
     using Shouldly;
     using TestClasses;
     using Xunit;
@@ -209,8 +209,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 var source = new { Address = new Address { Line1 = "ONE!", Line2 = "TWO!" } };
 
                 mapper.WhenMapping
-                    .IgnoreTargetMembersWhere(member =>
-                        member.Path.Equals("Value.Line1", StringComparison.OrdinalIgnoreCase));
+                    .IgnoreTargetMembersWhere(member => member.Path.EqualsIgnoreCase("Value.Line1"));
 
                 mapper.WhenMapping
                     .From(source)

@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Settings;
 
     internal static class ToStringConverter

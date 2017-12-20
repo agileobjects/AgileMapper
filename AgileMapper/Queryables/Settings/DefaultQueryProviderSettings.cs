@@ -4,7 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Converters;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class DefaultQueryProviderSettings : IQueryProviderSettings

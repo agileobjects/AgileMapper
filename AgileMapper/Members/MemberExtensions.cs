@@ -7,7 +7,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
     using static System.StringComparison;
@@ -25,7 +25,7 @@
 
         private static string GetMemberPath(IQualifiedMember member, IQualifiedMember rootMember)
         {
-            var rootTypeName = rootMember.Type.GetFriendlyName();
+            var rootTypeName = rootMember.GetFriendlyTypeName();
             var memberPath = member.GetPath();
 
             if (memberPath == rootMember.Name)
@@ -89,9 +89,7 @@
                 return true;
             }
 
-            if (member.IsEnumerable &&
-                member.Type.IsGenericType() &&
-               (member.Type.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)))
+            if (member.IsEnumerable && member.Type.IsClosedTypeOf(typeof(ReadOnlyCollection<>)))
             {
                 reason = "readonly " + member.Type.GetFriendlyName();
                 return true;
@@ -143,7 +141,7 @@
 
             return otherMemberNames
                 .Any(otherJoinedName => (otherJoinedName == Constants.RootMemberName) || memberNames
-                    .Any(joinedName => (joinedName == Constants.RootMemberName) || otherJoinedName.StartsWith(joinedName, OrdinalIgnoreCase)));
+                    .Any(joinedName => (joinedName == Constants.RootMemberName) || otherJoinedName.StartsWithIgnoreCase(joinedName)));
         }
 
         public static bool Match(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
@@ -158,8 +156,8 @@
             var memberName = memberNames.First();
 
             return otherMemberNames.HasOne()
-                ? memberName.Equals(otherMemberNames.First(), OrdinalIgnoreCase)
-                : otherMemberNames.Any(otherMemberName => otherMemberName.Equals(memberName, OrdinalIgnoreCase));
+                ? memberName.EqualsIgnoreCase(otherMemberNames.First())
+                : otherMemberNames.Any(otherMemberName => otherMemberName.EqualsIgnoreCase(memberName));
         }
 
         public static TMember GetElementMember<TMember>(this TMember enumerableMember)

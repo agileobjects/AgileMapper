@@ -1,8 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
-    using System;
-
-    internal interface IBasicMapperData
+    internal interface IBasicMapperData : ITypePair
     {
         MappingRuleSet RuleSet { get; }
 
@@ -10,10 +8,8 @@ namespace AgileObjects.AgileMapper.Members
 
         IBasicMapperData Parent { get; }
 
-        Type SourceType { get; }
-
-        Type TargetType { get; }
-
         QualifiedMember TargetMember { get; }
+
+        bool HasCompatibleTypes(ITypePair typePair);
     }
 }

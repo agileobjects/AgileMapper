@@ -2,7 +2,7 @@
 {
     using System.Linq.Expressions;
     using Converters;
-    using Extensions;
+    using Extensions.Internal;
     using Settings;
 
     internal class QueryProjectionModifier : ExpressionVisitor

@@ -8,7 +8,7 @@
     public class WhenMappingOverDictionaryMembers
     {
         [Fact]
-        public void ShouldOverwriteANestedSimpleTypedIDictionary()
+        public void ShouldOverwriteASimpleTypedIDictionary()
         {
             var source = new PublicField<Address>
             {
@@ -25,7 +25,7 @@
         }
 
         [Fact]
-        public void ShouldOverwriteAComplexTypeArrayToANestedSameComplexTypeDictionary()
+        public void ShouldOverwriteAComplexTypeArrayToASameComplexTypeDictionary()
         {
             var source = new PublicField<Address[]>
             {
@@ -100,11 +100,11 @@
 
             target.Value.ShouldBeSameAs(existingTarget);
 
-            target.Value.ContainsKey("One!").ShouldBeTrue();
+            target.Value.ShouldContainKey("One!");
             target.Value["One!"].ShouldBeOfType<PersonViewModel>();
             ((PersonViewModel)target.Value["One!"]).Name.ShouldBe("One!");
 
-            target.Value.ContainsKey("Two!").ShouldBeTrue();
+            target.Value.ShouldContainKey("Two!");
             target.Value["Two!"].ShouldBeOfType<PersonViewModel>();
             ((PersonViewModel)target.Value["Two!"]).Name.ShouldBe("Two!");
         }

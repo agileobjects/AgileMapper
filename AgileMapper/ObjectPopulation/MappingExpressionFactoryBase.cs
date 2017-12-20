@@ -4,13 +4,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
 #if NET_STANDARD
-    using System.Reflection;
 #endif
     using Members;
     using NetStandardPolyfills;
     using static CallbackPosition;
+    using static System.Linq.Expressions.ExpressionType;
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -76,7 +76,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             derivedTypeMappings = GetDerivedTypeMappings(mappingData);
 
-            if (derivedTypeMappings.NodeType != ExpressionType.Goto)
+            if (derivedTypeMappings.NodeType != Goto)
             {
                 return false;
             }
@@ -107,21 +107,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
-        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
+        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, IMemberMapperData mapperData)
         {
             if (mappingExpressions.None())
             {
                 return true;
             }
 
-            if (mappingExpressions[0].NodeType != ExpressionType.Assign)
+            if (mappingExpressions[0].NodeType != Assign)
             {
                 return false;
             }
 
             var assignedValue = ((BinaryExpression)mappingExpressions[0]).Right;
 
-            if (assignedValue.NodeType == ExpressionType.Default)
+            if (assignedValue.NodeType == Default)
             {
                 return true;
             }
@@ -143,9 +143,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mappingExpressions.First();
             }
 
-            if (mappingExpressions[0].NodeType != ExpressionType.Block)
+            if (mappingExpressions.HasOne() && (mappingExpressions[0].NodeType == Constant))
             {
-                if (mappingExpressions[0].NodeType == ExpressionType.MemberAccess)
+                goto CreateFullMappingBlock;
+            }
+
+            if (mappingExpressions[0].NodeType != Block)
+            {
+                if (mappingExpressions[0].NodeType == MemberAccess)
                 {
                     return GetReturnExpression(mappingExpressions[0], mappingExtras);
                 }
@@ -155,13 +160,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     goto CreateFullMappingBlock;
                 }
 
-                var localVariableAssignment = (BinaryExpression)mappingExpressions.First(exp => exp.NodeType == ExpressionType.Assign);
+                var localVariableAssignment = (BinaryExpression)mappingExpressions.First(exp => exp.NodeType == Assign);
 
-                if (mappingExpressions.Last() == localVariableAssignment)
+                if ((localVariableAssignment.Left.NodeType == Parameter) &&
+                    (mappingExpressions.Last() == localVariableAssignment))
                 {
                     var assignedValue = localVariableAssignment.Right;
 
-                    returnExpression = (assignedValue.NodeType == ExpressionType.Invoke)
+                    returnExpression = (assignedValue.NodeType == Invoke)
                         ? Expression.Block(
                               new[] { (ParameterExpression)localVariableAssignment.Left },
                               GetReturnExpression(localVariableAssignment, mappingExtras))
@@ -193,7 +199,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static void AdjustForSingleExpressionBlockIfApplicable(ref IList<Expression> mappingExpressions)
         {
-            if (!mappingExpressions.HasOne() || (mappingExpressions[0].NodeType != ExpressionType.Block))
+            if (!mappingExpressions.HasOne() || (mappingExpressions[0].NodeType != Block))
             {
                 return;
             }

@@ -6,7 +6,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Caching;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
 
@@ -89,6 +89,8 @@
         }
 
         #endregion
+
+        public Expression GetCounterIncrement() => Expression.PreIncrementAssign(Counter);
 
         public ParameterExpression Counter => _counterVariable ?? (_counterVariable = GetCounterVariable());
 
@@ -241,6 +243,10 @@
             }
 
             AssignSourceVariableFrom(SourceValue);
+
+            var shortCircuit = _sourceAdapter.GetMappingShortCircuitOrNull();
+
+            _populationExpressions.AddUnlessNullOrEmpty(shortCircuit);
         }
 
         public void AssignSourceVariableFrom(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)

@@ -36,6 +36,11 @@
             return _inlineContextsCache.Values.GetEnumerator();
         }
 
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion

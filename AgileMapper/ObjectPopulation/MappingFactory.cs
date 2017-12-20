@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal static class MappingFactory
@@ -54,6 +54,11 @@
 
             if (childMapperData.TargetMemberEverRecurses())
             {
+                if (childMapperData.SourceIsFlatObject())
+                {
+                    return Constants.EmptyExpression;
+                }
+
                 var mapRecursionCall = childMapperData
                     .RuleSet
                     .RecursiveMemberMappingStrategy

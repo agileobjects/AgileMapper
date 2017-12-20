@@ -3,8 +3,9 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using ReadableExpressions.Extensions;
+    using static Member;
 
     internal class ExpressionInfoFinder
     {
@@ -129,12 +130,12 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                if (memberAccess.Member.Name == "Source")
+                if (memberAccess.Member.Name == RootSourceMemberName)
                 {
                     return false;
                 }
 
-                return _includeTargetNullChecking || (memberAccess.Member.Name != "Target");
+                return _includeTargetNullChecking || (memberAccess.Member.Name != RootTargetMemberName);
             }
 
             private static bool IsNullableHasValueAccess(MemberExpression memberAccess)

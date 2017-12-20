@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using Members.Population;
     using NetStandardPolyfills;

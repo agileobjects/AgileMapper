@@ -4,7 +4,6 @@
     using Configuration;
     using Configuration.Inline;
     using DataSources;
-    using Flattening;
     using Members;
     using Members.Sources;
     using ObjectPopulation;
@@ -15,7 +14,6 @@
     {
         internal static readonly MapperContext Default = new MapperContext();
 
-        private ObjectFlattener _objectFlattener;
         private InlineMapperContextSet _inlineContexts;
 
         public MapperContext()
@@ -44,8 +42,6 @@
         public RootMembersSource RootMembersSource { get; }
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
-
-        public ObjectFlattener ObjectFlattener => _objectFlattener ?? (_objectFlattener = new ObjectFlattener());
 
         public InlineMapperContextSet InlineContexts => _inlineContexts ?? (_inlineContexts = new InlineMapperContextSet(this));
 

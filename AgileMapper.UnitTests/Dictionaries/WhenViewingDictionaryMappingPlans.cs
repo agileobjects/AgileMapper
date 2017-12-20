@@ -16,7 +16,7 @@
                 .ToANew<CustomerViewModel>();
 
             plan.ShouldContain("Dictionary<string, string> sourceDictionary_String_String");
-            plan.ShouldContain("idKey = sourceDictionary_String_String.Keys.FirstOrDefault(key => string.Equals(key, \"Id\"");
+            plan.ShouldContain("idKey = sourceDictionary_String_String.Keys.FirstOrDefault(key => key.MatchesKey(\"Id\"");
             plan.ShouldContain("id = sourceDictionary_String_String[idKey]");
             plan.ShouldContain("customerViewModel.Id =");
             plan.ShouldContain("Guid.TryParse(id");

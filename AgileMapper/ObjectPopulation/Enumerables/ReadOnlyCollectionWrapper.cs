@@ -4,7 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using Extensions;
+    using Extensions.Internal;
 
     /// <summary>
     /// Wraps a readonly collection to enable efficient creation of a new array. This object
@@ -92,14 +92,20 @@
         /// </summary>
         /// <param name="index">The zero-based index of the element to get or set.</param>
         /// <returns>The element at the specified index.</returns>
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
         public T this[int index]
         {
+            #region ExcludeFromCodeCoverage
+#if DEBUG
+            [ExcludeFromCodeCoverage]
+#endif
+            #endregion
             get => _items[index];
+
+            #region ExcludeFromCodeCoverage
+#if DEBUG
+            [ExcludeFromCodeCoverage]
+#endif
+            #endregion
             set => _items[index] = value;
         }
 

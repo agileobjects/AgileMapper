@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using ReadableExpressions.Extensions;
     using Settings;
 

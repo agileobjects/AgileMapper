@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using AgileMapper.Extensions.Internal;
     using TestClasses;
     using Xunit;
 
@@ -331,8 +332,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<PublicField<Address>>()
                     .To<PublicProperty<Address>>()
-                    .IgnoreTargetMembersWhere(member =>
-                        member.Path.Equals("Value.Line2", StringComparison.OrdinalIgnoreCase));
+                    .IgnoreTargetMembersWhere(member => member.Path.EqualsIgnoreCase("Value.Line2"));
 
                 var matchingSource = new PublicField<Address> { Value = new Address { Line1 = "Here", Line2 = "Here!" } };
                 var nonMatchingSource = new { Value = new Address { Line1 = "There", Line2 = "There!" } };

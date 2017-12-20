@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
-    using System;
     using System.Collections.Generic;
     using AgileMapper.Configuration;
 
@@ -14,12 +13,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         }
 
         #region ISourceDictionaryConfigSettings Members
-
-        public ISourceDictionaryConfigSettings<TValue, TTarget> UseFlattenedMemberNames()
-        {
-            SetupFlattenedMemberNames();
-            return this;
-        }
 
         public ISourceDictionaryConfigSettings<TValue, TTarget> UseMemberNameSeparator(string separator)
         {
@@ -39,30 +32,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #endregion
 
         public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapFullKey(string fullMemberNameKey)
-            => CreateTargetMemberSpecifier("keys", fullMemberNameKey, (settings, customKey) => settings.AddFullKey(customKey));
+            => MapFullKey<TValue>(fullMemberNameKey);
 
         public CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapMemberNameKey(string memberNameKeyPart)
-        {
-            return CreateTargetMemberSpecifier(
-                "member names",
-                memberNameKeyPart,
-                (settings, customKey) => settings.AddMemberKey(customKey));
-        }
-
-        private CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> CreateTargetMemberSpecifier(
-            string keyName,
-            string key,
-            Action<DictionarySettings, CustomDictionaryKey> dictionarySettingsAction)
-        {
-            if (key == null)
-            {
-                throw new MappingConfigurationException(keyName + " cannot be null");
-            }
-
-            return new CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget>(
-                ConfigInfo,
-                key,
-                dictionarySettingsAction);
-        }
+            => MapMemberNameKey<TValue>(memberNameKeyPart);
     }
 }

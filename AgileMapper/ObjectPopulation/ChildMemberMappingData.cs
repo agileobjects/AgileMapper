@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Linq.Expressions;
     using Caching;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
 
@@ -12,17 +12,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly ObjectMappingData<TSource, TTarget> _parent;
         private readonly ICache<IQualifiedMember, Func<TSource, Type>> _runtimeTypeGettersCache;
 
-        public ChildMemberMappingData(ObjectMappingData<TSource, TTarget> parent)
+        public ChildMemberMappingData(ObjectMappingData<TSource, TTarget> parent, IMemberMapperData mapperData)
         {
             _parent = parent;
             _runtimeTypeGettersCache = parent.MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
+            MapperData = mapperData;
         }
 
         public MappingRuleSet RuleSet => _parent.MappingContext.RuleSet;
 
         public IObjectMappingData Parent => _parent;
 
-        public IMemberMapperData MapperData { get; internal set; }
+        public IMemberMapperData MapperData { get; }
 
         public Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {

@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class ToCharacterConverter : ValueConverterBase
@@ -76,7 +76,7 @@
 
             if (!isWholeNumberNumeric)
             {
-                stringValue = stringValue.GetLeftCall(numberOfCharacters: 1);
+                stringValue = stringValue.GetFirstOrDefaultCall();
             }
 
             var convertedStringValue = GetFromStringConversion(stringValue, targetType);

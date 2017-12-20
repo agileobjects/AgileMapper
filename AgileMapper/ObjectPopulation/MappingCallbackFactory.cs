@@ -25,7 +25,7 @@
             => (CallbackPosition == callbackPosition) && base.AppliesTo(mapperData);
 
         protected override bool MemberPathMatches(IBasicMapperData mapperData)
-            => ConfigInfo.HasCompatibleTypes(mapperData);
+            => mapperData.HasCompatibleTypes(ConfigInfo);
 
         public Expression Create(IMemberMapperData mapperData)
         {

@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using ObjectPopulation;
     using Settings;
 

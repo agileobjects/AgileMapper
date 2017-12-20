@@ -4,9 +4,7 @@
     using Configuration;
     using Members;
 
-    internal class ConfiguredDataSourceFactory :
-        UserConfiguredItemBase,
-        IPotentialClone
+    internal class ConfiguredDataSourceFactory : UserConfiguredItemBase, IPotentialClone
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
 

@@ -4,7 +4,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Configuration;
-    using Extensions;
+    using Extensions.Internal;
     using ReadableExpressions.Extensions;
 
     internal class ToFormattedStringConverter : ValueConverterBase

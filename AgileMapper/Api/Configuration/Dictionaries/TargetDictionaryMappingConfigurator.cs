@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         public ITargetDictionaryConfigSettings<TSource, TValue> UseFlattenedMemberNames()
         {
-            SetupFlattenedMemberNames();
+            SetupFlattenedTargetMemberNames();
             return this;
         }
 
@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         #endregion
 
-        public CustomTargetDictionaryKeySpecifier<TSource, TValue> MapMember<TSourceMember>(
+        public ICustomTargetDictionaryKeySpecifier<TSource, TValue> MapMember<TSourceMember>(
             Expression<Func<TSource, TSourceMember>> sourceMember)
         {
             var sourceQualifiedMember = GetSourceMemberOrThrow(sourceMember);

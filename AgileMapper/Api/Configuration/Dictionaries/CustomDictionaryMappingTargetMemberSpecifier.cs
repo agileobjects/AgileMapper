@@ -3,7 +3,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
     using DataSources;
+    using Dynamics;
 
     /// <summary>
     /// Provides options for specifying a target member to which a dictionary configuration should apply.
@@ -12,8 +14,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// The type of values stored in the dictionary to which the configuration will apply.
     /// </typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
-    public class CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget>
-        : CustomDictionaryKeySpecifierBase<TValue, TTarget>
+    public class CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> :
+        CustomDictionaryKeySpecifierBase<TValue, TTarget>,
+        ICustomDynamicMappingTargetMemberSpecifier<TTarget>
     {
         private readonly string _key;
         private readonly Action<DictionarySettings, CustomDictionaryKey> _dictionarySettingsAction;
@@ -53,6 +56,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         public ISourceDictionaryMappingConfigContinuation<TValue, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
             => RegisterCustomKey(targetSetMethod);
+
+        ISourceDynamicMappingConfigContinuation<TTarget> ICustomDynamicMappingTargetMemberSpecifier<TTarget>.To<TTargetValue>(
+            Expression<Func<TTarget, TTargetValue>> targetMember)
+            => RegisterCustomKey(targetMember);
 
         private DictionaryMappingConfigContinuation<TValue, TTarget> RegisterCustomKey(LambdaExpression targetMemberLambda)
         {

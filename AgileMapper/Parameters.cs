@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
     using ObjectPopulation;
 

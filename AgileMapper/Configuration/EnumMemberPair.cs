@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Extensions;
+    using Extensions.Internal;
     using TypeConversion;
 
     internal class EnumMemberPair

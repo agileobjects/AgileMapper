@@ -8,8 +8,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ComplexTypes;
     using DataSources;
     using Enumerables.Dictionaries;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
+    using Members.Dictionaries;
     using NetStandardPolyfills;
     using ReadableExpressions;
 
@@ -28,7 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static IEnumerable<QualifiedMember> GetAllTargetMembers(ObjectMapperData mapperData)
         {
-            var targetMembersFromSource = EnumerateTargetMembers(mapperData).ToArray();
+            var targetMembersFromSource = EnumerateAllTargetMembers(mapperData).ToArray();
 
             var configuredDataSourceFactories = mapperData.MapperContext
                 .UserConfigurations
@@ -49,29 +50,146 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return allTargetMembers;
         }
 
-        private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(ObjectMapperData mapperData)
+        private static IEnumerable<DictionaryTargetMember> EnumerateAllTargetMembers(ObjectMapperData mapperData)
         {
-            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
             var sourceMembers = GlobalContext.Instance.MemberCache.GetSourceMembers(mapperData.SourceType);
+            var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
 
+            var targetMembers = EnumerateTargetMembers(
+                sourceMembers,
+                targetDictionaryMember,
+                mapperData,
+                m => m.Name);
+
+            foreach (var targetMember in targetMembers)
+            {
+                yield return targetMember;
+            }
+
+            if (mapperData.IsRoot)
+            {
+                yield break;
+            }
+
+            foreach (var targetMember in GetParentContextFlattenedTargetMembers(mapperData, targetDictionaryMember))
+            {
+                yield return targetMember;
+            }
+        }
+
+        private static IEnumerable<DictionaryTargetMember> GetParentContextFlattenedTargetMembers(
+            ObjectMapperData mapperData,
+            DictionaryTargetMember targetDictionaryMember)
+        {
+            while (mapperData.Parent != null)
+            {
+                mapperData = mapperData.Parent;
+
+                var sourceMembers = GlobalContext.Instance
+                    .MemberCache
+                    .GetSourceMembers(mapperData.SourceType)
+                    .SelectMany(sm => MatchingFlattenedMembers(sm, targetDictionaryMember))
+                    .ToArray();
+
+                var targetMembers = EnumerateTargetMembers(
+                    sourceMembers,
+                    targetDictionaryMember,
+                    mapperData,
+                    m => m.Name.StartsWithIgnoreCase(targetDictionaryMember.Name)
+                       ? m.Name.Substring(targetDictionaryMember.Name.Length)
+                       : m.Name);
+
+                foreach (var targetMember in targetMembers)
+                {
+                    yield return targetMember;
+                }
+            }
+        }
+
+        private static IEnumerable<Member> MatchingFlattenedMembers(Member sourceMember, IQualifiedMember targetDictionaryMember)
+        {
+            if (sourceMember.Name.EqualsIgnoreCase(targetDictionaryMember.Name))
+            {
+                return Enumerable<Member>.Empty;
+            }
+
+            if (sourceMember.Name.StartsWithIgnoreCase(targetDictionaryMember.Name))
+            {
+                // e.g. ValueLine1 -> Value
+                return new[] { sourceMember };
+            }
+
+            if (!targetDictionaryMember.Name.StartsWithIgnoreCase(sourceMember.Name))
+            {
+                return Enumerable<Member>.Empty;
+            }
+
+            // e.g. Val => Value
+            return GetNestedFlattenedMembers(sourceMember, sourceMember.Name, targetDictionaryMember.Name);
+        }
+
+        private static IEnumerable<Member> GetNestedFlattenedMembers(
+            Member parentMember,
+            string sourceMemberNameMatchSoFar,
+            string targetMemberName)
+        {
+            return GlobalContext.Instance
+                .MemberCache
+                .GetSourceMembers(parentMember.Type)
+                .SelectMany(sm =>
+                {
+                    var flattenedSourceMemberName = sourceMemberNameMatchSoFar + sm.Name;
+
+                    if (!targetMemberName.StartsWithIgnoreCase(flattenedSourceMemberName))
+                    {
+                        return Enumerable<Member>.Empty;
+                    }
+
+                    if (targetMemberName.EqualsIgnoreCase(flattenedSourceMemberName))
+                    {
+                        return GlobalContext.Instance
+                            .MemberCache
+                            .GetSourceMembers(sm.Type);
+                    }
+
+                    return GetNestedFlattenedMembers(
+                        sm,
+                        flattenedSourceMemberName,
+                        targetMemberName);
+                })
+                .ToArray();
+        }
+
+        private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(
+            IEnumerable<Member> sourceMembers,
+            DictionaryTargetMember targetDictionaryMember,
+            ObjectMapperData mapperData,
+            Func<Member, string> targetMemberNameFactory)
+        {
             foreach (var sourceMember in sourceMembers)
             {
-                var entryTargetMember = targetDictionaryMember.Append(sourceMember.DeclaringType, sourceMember.Name);
+                var targetEntryMemberName = targetMemberNameFactory.Invoke(sourceMember);
+                var targetEntryMember = targetDictionaryMember.Append(sourceMember.DeclaringType, targetEntryMemberName);
 
-                var entryMapperData = new ChildMemberMapperData(entryTargetMember, mapperData);
+                if (targetDictionaryMember.HasObjectEntries)
+                {
+                    targetEntryMember = (DictionaryTargetMember)targetEntryMember.WithType(sourceMember.Type);
+                }
+
+                var entryMapperData = new ChildMemberMapperData(targetEntryMember, mapperData);
                 var configuredKey = GetCustomKeyOrNull(entryMapperData);
 
                 if (configuredKey != null)
                 {
-                    entryTargetMember.SetCustomKey(configuredKey);
+                    targetEntryMember.SetCustomKey(configuredKey);
                 }
 
                 if (!sourceMember.IsSimple)
                 {
-                    entryTargetMember = entryTargetMember.WithTypeOf(sourceMember);
+                    targetEntryMember = targetEntryMember.WithTypeOf(sourceMember);
                 }
 
-                yield return entryTargetMember;
+                yield return targetEntryMember;
             }
         }
 
@@ -276,33 +394,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var comparerProperty = mapperData.SourceObject.Type.GetPublicInstanceProperty("Comparer");
 
-            Expression dictionaryConstruction;
+            var comparer = Expression.Property(mapperData.SourceObject, comparerProperty);
 
-            if (comparerProperty == null)
-            {
-                if (mapperData.TargetType.IsInterface())
-                {
-                    dictionaryConstruction = Expression.New(GetConcreteDictionaryType(mapperData.TargetType));
-                }
-                else
-                {
-                    dictionaryConstruction = mapperData
-                        .MapperContext
-                        .ConstructionFactory
-                        .GetNewObjectCreation(mappingData);
-                }
-            }
-            else
-            {
-                var comparer = Expression.Property(mapperData.SourceObject, comparerProperty);
+            var constructor = FindDictionaryConstructor(
+                mapperData.TargetType,
+                comparer.Type,
+                numberOfParameters: 1);
 
-                var constructor = FindDictionaryConstructor(
-                    mapperData.TargetType,
-                    comparer.Type,
-                    numberOfParameters: 1);
-
-                dictionaryConstruction = Expression.New(constructor, comparer);
-            }
+            var dictionaryConstruction = Expression.New(constructor, comparer);
 
             return GetDictionaryAssignment(dictionaryConstruction, mappingData);
         }
@@ -341,6 +440,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingData,
                 mapperData.HasMapperFuncs);
 
+            if (valueResolution == mapperData.TargetInstance)
+            {
+                return null;
+            }
+
             return mapperData.TargetInstance.AssignTo(valueResolution);
         }
 
@@ -357,6 +461,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Create(mappingData)
                 .Select(memberPopulation => memberPopulation.GetPopulation())
                 .ToArray();
+
+            if (memberPopulations.None())
+            {
+                return null;
+            }
 
             if (memberPopulations.HasOne())
             {

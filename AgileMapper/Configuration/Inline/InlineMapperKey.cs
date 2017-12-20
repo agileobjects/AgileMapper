@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Api.Configuration;
-    using Extensions;
+    using Extensions.Internal;
     using Members;
 
     internal class InlineMapperKey<TSource, TTarget> : IInlineMapperKey

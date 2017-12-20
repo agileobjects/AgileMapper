@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using Converters;
-    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 #endif
     using ObjectPopulation;

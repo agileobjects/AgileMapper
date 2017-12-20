@@ -10,6 +10,11 @@
         /// <summary>
         /// Initializes a new instance of the MappingConfigurationException class.
         /// </summary>
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public MappingConfigurationException()
         {
         }
