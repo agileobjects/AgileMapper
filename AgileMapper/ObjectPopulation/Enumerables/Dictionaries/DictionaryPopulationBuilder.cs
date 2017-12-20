@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -115,14 +116,51 @@
             }
 
             var derivedSourceTypes = mappingData.MapperData.GetDerivedSourceTypes();
+            var hasDerivedSourceTypes = derivedSourceTypes.Any();
 
-            if (derivedSourceTypes.None())
+            List<ParameterExpression> typedVariables;
+            List<Expression> mappingExpressions;
+
+            if (hasDerivedSourceTypes)
             {
-                return GetPopulation(loopData, dictionaryEntryMember, mappingData);
+                typedVariables = new List<ParameterExpression>(derivedSourceTypes.Count);
+                mappingExpressions = new List<Expression>(typedVariables.Count * 2 + 2);
+
+                AddDerivedSourceTypePopulations(
+                    loopData,
+                    dictionaryEntryMember,
+                    mappingData,
+                    derivedSourceTypes,
+                    typedVariables,
+                    mappingExpressions);
+            }
+            else
+            {
+                typedVariables = null;
+                mappingExpressions = new List<Expression>(2);
             }
 
-            var typedVariables = new List<ParameterExpression>(derivedSourceTypes.Count);
-            var mappingExpressions = new List<Expression>(typedVariables.Count * 2 + 1);
+            InsertSourceElementNullCheck(loopData, mappingExpressions);
+
+            mappingExpressions.Add(GetPopulation(loopData, dictionaryEntryMember, mappingData));
+
+            var mappingBlock = hasDerivedSourceTypes
+                ? Expression.Block(typedVariables, mappingExpressions)
+                : Expression.Block(mappingExpressions);
+
+            return mappingBlock;
+        }
+
+        private void AddDerivedSourceTypePopulations(
+            IPopulationLoopData loopData,
+            QualifiedMember dictionaryEntryMember,
+            IObjectMappingData mappingData,
+            IEnumerable<Type> derivedSourceTypes,
+            ICollection<ParameterExpression> typedVariables,
+            ICollection<Expression> mappingExpressions)
+        {
+            var sourceElement = loopData.GetSourceElementValue();
+            var mapNextElement = Expression.Continue(loopData.ContinueLoopTarget);
 
             var orderedDerivedSourceTypes = derivedSourceTypes
                 .OrderBy(t => t, TypeComparer.MostToLeastDerived);
@@ -130,7 +168,6 @@
             foreach (var derivedSourceType in orderedDerivedSourceTypes)
             {
                 var derivedSourceCheck = new DerivedSourceTypeCheck(derivedSourceType);
-                var sourceElement = loopData.GetSourceElementValue();
                 var typedVariableAssignment = derivedSourceCheck.GetTypedVariableAssignment(sourceElement);
 
                 typedVariables.Add(derivedSourceCheck.TypedVariable);
@@ -139,18 +176,29 @@
                 var derivedTypeMapping = GetDerivedTypeMapping(derivedSourceCheck, mappingData);
                 var derivedTypePopulation = GetPopulation(derivedTypeMapping, dictionaryEntryMember, mappingData);
                 var incrementCounter = _wrappedBuilder.GetCounterIncrement();
-                var mapNextElement = Expression.Continue(loopData.ContinueLoopTarget);
                 var derivedMappingBlock = Expression.Block(derivedTypePopulation, incrementCounter, mapNextElement);
                 var ifDerivedTypeReturn = Expression.IfThen(derivedSourceCheck.TypeCheck, derivedMappingBlock);
 
                 mappingExpressions.Add(ifDerivedTypeReturn);
             }
+        }
 
-            mappingExpressions.Add(GetPopulation(loopData, dictionaryEntryMember, mappingData));
+        private static void InsertSourceElementNullCheck(IPopulationLoopData loopData, IList<Expression> mappingExpressions)
+        {
+            var sourceElement = loopData.GetSourceElementValue();
 
-            var mappingBlock = Expression.Block(typedVariables, mappingExpressions);
+            if (sourceElement.Type.CannotBeNull())
+            {
+                return;
+            }
 
-            return mappingBlock;
+            loopData.NeedsContinueTarget = true;
+
+            var sourceElementIsNull = sourceElement.GetIsDefaultComparison();
+            var continueLoop = Expression.Continue(loopData.ContinueLoopTarget);
+            var ifNullContinue = Expression.IfThen(sourceElementIsNull, continueLoop);
+
+            mappingExpressions.Insert(0, ifNullContinue);
         }
 
         private Expression GetPopulation(

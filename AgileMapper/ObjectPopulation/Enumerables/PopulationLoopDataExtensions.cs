@@ -19,7 +19,7 @@
             var elementPopulation = elementPopulationFactory.Invoke(loopData, mappingData);
 
             var loopBody = Expression.Block(
-                loopData.GetLoopGuard(breakLoop),
+                Expression.IfThen(loopData.LoopExitCheck, breakLoop),
                 elementPopulation,
                 builder.GetCounterIncrement());
 
