@@ -157,28 +157,15 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return base.GetAccess(instance, mapperData);
             }
 
-            if (ReturnNullAccess())
+            if (ReturnKeyedAccess())
             {
-                return Type.ToDefaultExpression();
+                return GetKeyedAccess(mapperData);
             }
 
-            return GetKeyedAccess(mapperData);
+            return Type.ToDefaultExpression();
         }
 
-        private bool ReturnNullAccess()
-        {
-            if (Type == ValueType)
-            {
-                return false;
-            }
-
-            if (Type.IsSimple())
-            {
-                return false;
-            }
-
-            return true;
-        }
+        private bool ReturnKeyedAccess() => (Type == ValueType) || Type.IsSimple();
 
         private Expression GetKeyedAccess(IMemberMapperData mapperData)
         {

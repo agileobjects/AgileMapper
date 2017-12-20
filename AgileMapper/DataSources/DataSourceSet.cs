@@ -90,9 +90,10 @@ namespace AgileObjects.AgileMapper.DataSources
 
         private Expression GetFallbackValueOrNull(IMemberMapperData mapperData)
         {
-            var fallbackValue = _dataSources.Last().Value;
+            var finalDataSource = _dataSources.Last();
+            var fallbackValue = finalDataSource.Value;
 
-            if (_dataSources.HasOne())
+            if (finalDataSource.IsConditional || _dataSources.HasOne())
             {
                 return fallbackValue;
             }
