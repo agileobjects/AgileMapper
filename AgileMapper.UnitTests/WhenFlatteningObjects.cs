@@ -52,9 +52,10 @@
         public void ShouldHandleANullComplexTypeMember()
         {
             var source = new PublicProperty<PublicField<int>> { Value = null };
-            var result = Mapper.Flatten(source);
+            var result = (IDictionary<string, object>)Mapper.Flatten(source);
 
-            ((int)result.Value_Value).ShouldBeDefault();
+            result.ShouldNotContainKey("Value");
+            result.ShouldNotContainKey("Value_Value");
         }
 
         [Fact]
@@ -94,9 +95,9 @@
             {
                 Value = new Product[] { null }
             };
-            var result = Mapper.Flatten(source);
+            var result = (IDictionary<string, object>)Mapper.Flatten(source);
 
-            ((string)result.Value_0__ProductId).ShouldBeNull();
+            result.ShouldNotContainKey("Value_0__ProductId");
         }
     }
 }
