@@ -54,13 +54,13 @@
                 {
                     mapper.WhenMapping
                         .FromDynamics
-                        .UseElementKeyPattern("_i_");
+                        .UseElementKeyPattern("_i");
                 }
             });
 
             configEx.Message.ShouldContain("already");
             configEx.Message.ShouldContain("global");
-            configEx.Message.ShouldContain("_i_");
+            configEx.Message.ShouldContain("_i");
         }
     }
 }

@@ -80,8 +80,8 @@
         {
             dynamic source = new ExpandoObject();
 
-            source.Value_0_ = new PublicField<string> { Value = "Value 0" };
-            source.Value_1_ = new PublicField<string> { Value = "Value 1" };
+            source.Value_0 = new PublicField<string> { Value = "Value 0" };
+            source.Value_1 = new PublicField<string> { Value = "Value 1" };
 
             var target = new PublicField<Collection<PublicField<string>>>
             {

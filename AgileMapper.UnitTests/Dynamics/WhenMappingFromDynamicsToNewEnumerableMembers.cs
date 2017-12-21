@@ -42,9 +42,9 @@
         {
             dynamic source = new ExpandoObject();
 
-            source.Value_0_ = new PublicProperty<char> { Value = '9' };
-            source.Value_1_ = new PublicProperty<char> { Value = '8' };
-            source.Value_2_ = new PublicProperty<char> { Value = '7' };
+            source.Value_0 = new PublicProperty<char> { Value = '9' };
+            source.Value_1 = new PublicProperty<char> { Value = '8' };
+            source.Value_2 = new PublicProperty<char> { Value = '7' };
 
             var result = (PublicField<IEnumerable<PublicField<int>>>)Mapper
                 .Map(source)
@@ -58,9 +58,9 @@
         {
             dynamic source = new ExpandoObject();
 
-            source.Value_0_SetValue = '4';
-            source.Value_1_SetValue = '5';
-            source.Value_2_SetValue = '6';
+            source.Value_0SetValue = '4';
+            source.Value_1SetValue = '5';
+            source.Value_2SetValue = '6';
 
             var result = (PublicField<IEnumerable<PublicSetMethod<long>>>)Mapper
                 .Map(source)

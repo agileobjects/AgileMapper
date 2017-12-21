@@ -52,8 +52,8 @@
         {
             dynamic source = new ExpandoObject();
 
-            source._0_ProductId = "Hose";
-            source._0_Price = "1.99";
+            source._0ProductId = "Hose";
+            source._0Price = "1.99";
 
             IEnumerable<Product> target = new List<Product>();
 

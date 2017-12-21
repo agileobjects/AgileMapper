@@ -25,9 +25,9 @@
             var result = Mapper.Flatten(source);
 
             ((object)result).ShouldNotBeNull();
-            ((long)result.Value_0_).ShouldBe(1L);
-            ((long)result.Value_1_).ShouldBe(2L);
-            ((long)result.Value_2_).ShouldBe(3L);
+            ((long)result.Value_0).ShouldBe(1L);
+            ((long)result.Value_1).ShouldBe(2L);
+            ((long)result.Value_2).ShouldBe(3L);
         }
 
         [Fact]
@@ -85,7 +85,7 @@
             };
             var result = Mapper.Flatten(source);
 
-            ((string)result.Value_0__ProductId).ShouldBe("SumminElse");
+            ((string)result.Value_0_ProductId).ShouldBe("SumminElse");
         }
 
         [Fact]
@@ -97,7 +97,7 @@
             };
             var result = (IDictionary<string, object>)Mapper.Flatten(source);
 
-            result.ShouldNotContainKey("Value_0__ProductId");
+            result.ShouldNotContainKey("Value_0_ProductId");
         }
     }
 }

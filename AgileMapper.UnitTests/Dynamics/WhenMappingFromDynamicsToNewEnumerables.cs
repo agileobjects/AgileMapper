@@ -14,9 +14,9 @@
         {
             dynamic source = new ExpandoObject();
 
-            source._0_ = 'a';
-            source._1_ = 'b';
-            source._2_ = 'c';
+            source._0 = 'a';
+            source._1 = 'b';
+            source._2 = 'c';
 
             var result = (string[])Mapper.Map(source).ToANew<string[]>();
 
@@ -28,9 +28,9 @@
         {
             dynamic source = new ExpandoObject();
 
-            source._0_ = new ProductDto { ProductId = "prod-one" };
-            source._1_ = new ProductDto { ProductId = "prod-two" };
-            source._2_ = new ProductDto { ProductId = "prod-three" };
+            source._0 = new ProductDto { ProductId = "prod-one" };
+            source._1 = new ProductDto { ProductId = "prod-two" };
+            source._2 = new ProductDto { ProductId = "prod-three" };
 
             var result = (Collection<Product>)Mapper.Map(source).ToANew<Collection<Product>>();
 
@@ -46,12 +46,12 @@
 
             dynamic source = new ExpandoObject();
 
-            source._0_Value1 = guid1;
-            source._0_Value2 = 123;
-            source._1_Value1 = guid2;
-            source._1_Value2 = 456;
-            source._2_Value1 = guid3;
-            source._2_Value2 = 789;
+            source._0Value1 = guid1;
+            source._0Value2 = 123;
+            source._1Value1 = guid2;
+            source._1Value2 = 456;
+            source._2Value1 = guid3;
+            source._2Value2 = 789;
 
             var result = (IList<PublicTwoParamCtor<string, string>>)Mapper
                 .Map(source)

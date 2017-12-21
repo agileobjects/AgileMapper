@@ -80,10 +80,10 @@
 
                 dynamic source = new ExpandoObject();
 
-                source.Value_0__StreetName = "Street Zero";
-                source.Value_0__CityName = "City Zero";
-                source.Value_1__StreetName = "Street One";
-                source.Value_1__CityName = "City One";
+                source.Value_0_StreetName = "Street Zero";
+                source.Value_0_CityName = "City Zero";
+                source.Value_1_StreetName = "Street One";
+                source.Value_1_CityName = "City One";
 
                 var target = new PublicField<IList<Address>> { Value = new List<Address>() };
 
@@ -120,16 +120,16 @@
 
                 dynamic targetDynamic = new ExpandoObject();
 
-                ((IDictionary<string, object>)targetDynamic)["_0_-Value"] = 1;
-                ((IDictionary<string, object>)targetDynamic)["_1_-Value"] = 2;
+                ((IDictionary<string, object>)targetDynamic)["_0-Value"] = 1;
+                ((IDictionary<string, object>)targetDynamic)["_1-Value"] = 2;
 
                 var targetResult = (IDictionary<string, object>)mapper.Map(source).Over(targetDynamic);
 
                 targetResult.Count.ShouldBe(3);
 
-                targetResult["_0_-Value"].ShouldBe(10);
-                targetResult["_1_-Value"].ShouldBe(20);
-                targetResult["_2_-Value"].ShouldBe(30);
+                targetResult["_0-Value"].ShouldBe(10);
+                targetResult["_1-Value"].ShouldBe(20);
+                targetResult["_2-Value"].ShouldBe(30);
 
                 dynamic sourceDynamic = new ExpandoObject();
 
