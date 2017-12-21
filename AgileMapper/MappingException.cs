@@ -2,7 +2,9 @@
 {
     using System;
     using System.Reflection;
+#if NET_STANDARD1_3
     using System.Runtime.Serialization;
+#endif
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -10,7 +12,11 @@
     /// <summary>
     /// Represents an error that occurred during a mapping.
     /// </summary>
+    #region Serialization Support
+#if NET_STANDARD1_3
     [Serializable]
+#endif
+    #endregion
     public class MappingException : Exception
     {
         internal static readonly MethodInfo FactoryMethod =
@@ -18,6 +24,8 @@
 
         internal const string NoMappingData = "An exception occurred creating a mapping data instance";
 
+        #region Serialization Support
+#if NET_STANDARD1_3
         /// <summary>
         /// Initializes a new instance of the MappingException class. This constructor is provided
         /// to support deserialization.
@@ -29,6 +37,8 @@
         {
         }
         // ReSharper restore UnusedParameter.Local
+#endif
+        #endregion
 
         private MappingException(IMemberMapperData mapperData, Exception innerException)
             : base(GetMessage(mapperData), innerException)

@@ -1,12 +1,20 @@
 ﻿namespace AgileObjects.AgileMapper.Validation
 {
     using System;
+    #region Serialization Support
+#if NET_STANDARD1_3
     using System.Runtime.Serialization;
+#endif
+    #endregion
 
     /// <summary>
     /// Provides details of a mapping validation failure.
     /// </summary>
+    #region Serialization Support
+#if NET_STANDARD1_3
     [Serializable]
+#endif
+    #endregion
     public class MappingValidationException : Exception
     {
         /// <summary>
@@ -31,6 +39,8 @@
         {
         }
 
+        #region Serialization Support
+#if NET_STANDARD1_3
         /// <summary>
         /// Initializes a new instance of the MappingValidationException class. This constructor is provided
         /// to support deserialization.
@@ -47,5 +57,7 @@
         {
         }
         // ReSharper restore UnusedParameter.Local
+#endif
+        #endregion
     }
 }

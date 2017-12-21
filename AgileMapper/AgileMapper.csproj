@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API. Conforms to .NET Standard 1.0.</Description>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
-    <TargetFrameworks>netstandard1.0;net40</TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard1.3;net40</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
@@ -26,11 +26,19 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
     <DefineConstants>$(DefineConstants);NET_STANDARD</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <DefineConstants>$(DefineConstants);NET_STANDARD;NET_STANDARD1_3</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
