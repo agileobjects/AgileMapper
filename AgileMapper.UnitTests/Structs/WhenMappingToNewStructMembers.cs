@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Structs
 {
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -25,8 +24,8 @@
             var source = new { Value = new { Value = "800" } };
             var result = Mapper.Map(source).ToANew<PublicPropertyStruct<PublicCtorStruct<int>>>();
 
-            result.ShouldNotBeNull();
-            result.Value.ShouldNotBeNull();
+            result.ShouldNotBeDefault();
+            result.Value.ShouldNotBeDefault();
             result.Value.Value.ShouldBe(800);
         }
 

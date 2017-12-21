@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
     using AgileMapper.Extensions.Internal;
-    using Shouldly;
+    using NetStandardPolyfills;
     using TestClasses;
     using Xunit;
 
@@ -130,7 +130,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
             using (var mapper = Mapper.CreateNew())
             {
                 var field1HashCode = typeof(PublicTwoFields<string, string>)
-                    .GetField("Value1")
+                    .GetPublicInstanceField("Value1")
                     .GetHashCode();
 
                 mapper.WhenMapping

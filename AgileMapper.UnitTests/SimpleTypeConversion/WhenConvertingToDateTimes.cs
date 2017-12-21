@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.SimpleTypeConversion
 {
     using System;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

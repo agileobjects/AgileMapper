@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

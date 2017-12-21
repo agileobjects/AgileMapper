@@ -7,7 +7,6 @@
     using System.Linq;
     using AgileMapper.Members;
     using ReadableExpressions.Extensions;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

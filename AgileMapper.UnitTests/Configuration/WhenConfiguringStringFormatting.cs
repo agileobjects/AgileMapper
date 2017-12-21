@@ -2,7 +2,6 @@
 {
     using System;
     using AgileMapper.Configuration;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

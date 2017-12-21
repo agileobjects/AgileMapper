@@ -4,7 +4,6 @@
     using Microsoft.CSharp.RuntimeBinder;
     using TestClasses;
     using Xunit;
-    using Shouldly;
 
     public class WhenFlatteningObjects
     {

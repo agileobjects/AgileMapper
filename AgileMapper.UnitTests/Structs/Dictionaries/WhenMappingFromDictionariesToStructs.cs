@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -15,7 +14,7 @@
             var source = new Dictionary<string, int> { ["Value"] = 123 };
             var result = Mapper.Map(source).ToANew<PublicCtorStruct<int>>();
 
-            result.ShouldNotBeNull();
+            result.ShouldNotBeDefault();
             result.Value.ShouldBe(123);
         }
 

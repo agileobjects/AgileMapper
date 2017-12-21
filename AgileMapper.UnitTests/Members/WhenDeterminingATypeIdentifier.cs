@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Members
 {
     using AgileMapper.Members;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

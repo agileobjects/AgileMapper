@@ -4,7 +4,6 @@
     using System.Dynamic;
     using System.Linq;
     using AgileMapper.Extensions.Internal;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

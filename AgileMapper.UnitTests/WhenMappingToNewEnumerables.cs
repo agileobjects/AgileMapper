@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -37,7 +36,6 @@
             var result = Mapper.Map(source).ToANew<Collection<byte?>>();
 
             result.ShouldNotBeNull();
-            result.ShouldNotBeSameAs(source);
             result.ShouldBe<byte?>(1, 2, 3);
         }
 

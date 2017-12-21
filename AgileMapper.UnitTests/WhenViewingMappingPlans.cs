@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -55,7 +54,7 @@
                     .OnTo<Customer>();
 
                 plan.ShouldContain("Map AnonymousType<string, string> -> Customer");
-                plan.ShouldContain("customer.Name = sourceF__AnonymousType");
+                plan.ShouldContain(".Target.Name = sourceF__AnonymousType");
                 plan.ShouldContain("_String_String.Name;");
                 plan.ShouldContain("address.Line1 = sourceF__AnonymousType");
                 plan.ShouldContain("_String_String.AddressLine1;");
@@ -129,7 +128,7 @@
                 .GetPlanFor<PublicProperty<Guid>>()
                 .ToANew<PublicField<string>>();
 
-            plan.ShouldContain("data.Source.Value.ToString(");
+            plan.ShouldContain("ppgToPfsData.Source.Value.ToString(");
         }
 
         [Fact]
@@ -333,9 +332,9 @@
                 plan.ShouldContain("PublicField<string> -> PublicProperty<int>");
                 plan.ShouldContain("Customer -> CustomerViewModel");
                 plan.ShouldContain("MegaProduct -> ProductDtoMega");
-                plan.ShouldContain("Rule set: CreateNew");
-                plan.ShouldContain("Rule set: Merge");
-                plan.ShouldContain("Rule set: Overwrite");
+                plan.ShouldContain("Rule Set: CreateNew");
+                plan.ShouldContain("Rule Set: Merge");
+                plan.ShouldContain("Rule Set: Overwrite");
 
                 mapper.RootMappers().Count.ShouldBe(5);
             }

@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System.Collections.ObjectModel;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

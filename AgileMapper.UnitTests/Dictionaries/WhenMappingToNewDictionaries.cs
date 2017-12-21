@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -172,7 +171,6 @@
             IDictionary<int, int> source = new Dictionary<int, int> { [1] = 1, [2] = 2 };
             var result = Mapper.Map(source).ToANew<IDictionary<string, int>>();
 
-            result.ShouldNotBeSameAs(source);
             result.Count.ShouldBe(2);
             result["1"].ShouldBe(1);
             result["2"].ShouldBe(2);
@@ -184,7 +182,6 @@
             var source = new Dictionary<string, char> { ["One"] = '1', ["Two"] = '2' };
             var result = Mapper.Map(source).ToANew<Dictionary<string, long>>();
 
-            result.ShouldNotBeSameAs(source);
             result.Count.ShouldBe(2);
             result["One"].ShouldBe(1);
             result["Two"].ShouldBe(2);
@@ -224,7 +221,6 @@
             };
             var result = Mapper.Map(source).ToANew<Dictionary<string, Person>>();
 
-            result.ShouldNotBeSameAs(source);
             result.Count.ShouldBe(2);
 
             result["123"].Name.ShouldBe("Bobby");
@@ -244,7 +240,6 @@
             };
             var result = Mapper.Map(source).ToANew<Dictionary<string, Person>>();
 
-            result.ShouldNotBeSameAs(source);
             result.Count.ShouldBe(2);
 
             result["123"].Name.ShouldBe("Bobby");

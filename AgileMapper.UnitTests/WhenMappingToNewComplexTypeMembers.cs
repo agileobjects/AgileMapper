@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -18,7 +17,6 @@
             var result = Mapper.Map(source).Over(target);
 
             result.ShouldNotBeNull();
-            result.ShouldNotBeSameAs(source);
             result.ShouldBe(5, 4, 3, 2);
         }
 

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using AgileMapper.Configuration;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

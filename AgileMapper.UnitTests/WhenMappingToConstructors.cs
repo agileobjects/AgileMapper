@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -41,7 +40,7 @@
             var source = new { Value1 = 123, Value2 = 456 };
             var result = Mapper.Map(source).ToANew<PublicTwoParamCtor<byte?, string>>();
 
-            result.Value1.ShouldBe<byte?>(123);
+            result.Value1.ShouldBe(123);
             result.Value2.ShouldBe("456");
         }
 
