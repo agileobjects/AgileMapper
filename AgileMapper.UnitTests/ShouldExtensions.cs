@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using NetStandardPolyfills;
 
     internal static class ShouldExtensions
@@ -19,47 +20,96 @@
 
         public static void ShouldBe<TActual, TExpected>(this TActual value, TExpected expectedValue)
         {
-            var actualExpectedValue = GetActualExpectedValue(expectedValue, typeof(TActual));
-
-            if (value is IComparable<TActual>)
-            {
-                if (Comparer<TActual>.Default.Compare((TActual)actualExpectedValue, value) != 0)
-                {
-                    Asplode(expectedValue.ToString(), value.ToString());
-                }
-
-                return;
-            }
-
-            if (typeof(TActual).IsValueType() || (typeof(TActual) == typeof(ValueType)))
-            {
-                if (!value.Equals(actualExpectedValue))
-                {
-                    Asplode(expectedValue.ToString(), value.ToString());
-                }
-
-                return;
-            }
-
-            if (!ReferenceEquals(expectedValue, value))
+            if (!AreEqual(expectedValue, value))
             {
                 Asplode(expectedValue.ToString(), value.ToString());
             }
         }
 
-        private static object GetActualExpectedValue<TExpected>(TExpected expectedValue, Type actualType)
+        private static readonly MethodInfo _areEqualMethod = typeof(ShouldExtensions)
+            .GetNonPublicStaticMethod("AreEqual");
+
+        private static bool AreEqual<TExpected, TActual>(TExpected expected, TActual actual)
         {
-            if (actualType.IsAssignableTo(typeof(TExpected)))
+            if (ReferenceEquals(expected, actual))
             {
-                return expectedValue;
+                return true;
             }
 
-            if (actualType == typeof(ValueType))
+            if (typeof(TActual) == typeof(object))
             {
-                return (ValueType)(object)expectedValue;
+                return (bool)_areEqualMethod
+                    .MakeGenericMethod(typeof(TExpected), actual.GetType())
+                    .Invoke(null, new object[] { expected, actual });
             }
 
-            return Convert.ChangeType(expectedValue, actualType);
+            var actualExpectedValue = GetActualExpectedValue(expected, actual);
+
+            if (actual is IComparable<TActual>)
+            {
+                return Comparer<TActual>.Default.Compare(actualExpectedValue, actual) == 0;
+            }
+
+            if (typeof(TActual).IsValueType())
+            {
+                return actual.Equals(actualExpectedValue);
+            }
+
+            throw new NotSupportedException(
+                $"Cannot determine equality between {typeof(TExpected).Name} and {typeof(TActual).Name}");
+        }
+
+        private static TActual GetActualExpectedValue<TExpected, TActual>(TExpected expected, TActual actual)
+        {
+            if (typeof(TActual).IsAssignableTo(typeof(TExpected)))
+            {
+                return (TActual)(object)expected;
+            }
+
+            if (actual is string)
+            {
+                return (TActual)(object)expected.ToString();
+            }
+
+            if (expected is IConvertible)
+            {
+                return (TActual)Convert.ChangeType(expected, typeof(TActual));
+            }
+
+            throw new NotSupportedException(
+                $"Can't change a {typeof(TExpected).Name} to a {typeof(TActual).Name}");
+        }
+
+        public static void ShouldBe<T1, T2>(this IEnumerable<T1> actualValues, IEnumerable<T2> expectedValues)
+        {
+            void FailTest()
+            {
+                Asplode(
+                    string.Join(", ", expectedValues.Select(v => v.ToString())),
+                    string.Join(", ", actualValues.Select(v => v.ToString())));
+            }
+
+            using (var expectedEnumerator = expectedValues.GetEnumerator())
+            using (var actualEnumerator = actualValues.GetEnumerator())
+            {
+                while (true)
+                {
+                    var moreExpected = expectedEnumerator.MoveNext();
+                    var moreActual = actualEnumerator.MoveNext();
+
+                    if (!moreExpected && !moreActual)
+                    {
+                        return;
+                    }
+
+                    if (moreExpected != moreActual)
+                    {
+                        FailTest();
+                    }
+
+                    ShouldBe(expectedEnumerator.Current, actualEnumerator.Current);
+                }
+            }
         }
 
         public static void ShouldBe<T>(this IEnumerable<T> actualValues, params T[] expectedValues)
@@ -81,29 +131,7 @@
 
         public static void ShouldNotBe<TActual, TExpected>(this TActual value, TExpected expectedValue)
         {
-            var actualExpectedValue = GetActualExpectedValue(expectedValue, typeof(TActual));
-
-            if (value is IComparable<TActual>)
-            {
-                if (Comparer<TActual>.Default.Compare((TActual)actualExpectedValue, value) == 0)
-                {
-                    Asplode(expectedValue.ToString(), value.ToString());
-                }
-
-                return;
-            }
-
-            if (typeof(TActual).IsValueType() || (typeof(TActual) == typeof(ValueType)))
-            {
-                if (value.Equals(actualExpectedValue))
-                {
-                    Asplode(expectedValue.ToString(), value.ToString());
-                }
-
-                return;
-            }
-
-            if (ReferenceEquals(expectedValue, value))
+            if (AreEqual(expectedValue, value))
             {
                 Asplode(expectedValue.ToString(), value.ToString());
             }

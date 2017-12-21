@@ -426,7 +426,7 @@
                 .ToANew<Parent>();
 
             plan.ShouldContain("Map Parent -> Parent");
-            plan.ShouldContain("mapRecursion(");
+            plan.ShouldContain(".MapRecursion(");
         }
 
         #region Helper Classes

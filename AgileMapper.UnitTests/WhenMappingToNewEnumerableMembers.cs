@@ -27,7 +27,7 @@
 
             result.Value.ShouldNotBeNull();
             result.Value.ShouldNotBeSameAs(source.Value);
-            result.Value.SequenceEqual(source.Value).ShouldBeTrue();
+            result.Value.ShouldBe(source.Value);
         }
 
         [Fact]
@@ -38,7 +38,7 @@
 
             result.Value.ShouldNotBeNull();
             result.Value.ShouldNotBeSameAs(source.Value);
-            result.Value.SequenceEqual(source.Value).ShouldBeTrue();
+            result.Value.ShouldBe<IEnumerable<int>, int[]>(source.Value);
         }
 
         [Fact]

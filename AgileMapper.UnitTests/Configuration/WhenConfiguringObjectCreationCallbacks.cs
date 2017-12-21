@@ -207,7 +207,7 @@
 
                 var matchingResult = mapper.Map(source).ToANew<Person>();
 
-                createdInstanceTypes.ShouldBe(new[] { typeof(Address) });
+                createdInstanceTypes.AsEnumerable().ShouldBe(new[] { typeof(Address) });
                 matchingResult.Name.ShouldBe("Homer");
             }
         }
