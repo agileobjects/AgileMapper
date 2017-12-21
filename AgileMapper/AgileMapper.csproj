@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;NO_SERIALIZE;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;NET_STANDARD1_3</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">

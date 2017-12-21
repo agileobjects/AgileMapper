@@ -2,7 +2,7 @@
 {
     using System;
     #region Serialization Support
-#if NET_STANDARD1_3
+#if !NO_SERIALIZE
     using System.Runtime.Serialization;
 #endif
     #endregion
@@ -11,7 +11,7 @@
     /// Provides details of a mapping validation failure.
     /// </summary>
     #region Serialization Support
-#if NET_STANDARD1_3
+#if !NO_SERIALIZE
     [Serializable]
 #endif
     #endregion
@@ -40,7 +40,7 @@
         }
 
         #region Serialization Support
-#if NET_STANDARD1_3
+#if !NO_SERIALIZE
         /// <summary>
         /// Initializes a new instance of the MappingValidationException class. This constructor is provided
         /// to support deserialization.

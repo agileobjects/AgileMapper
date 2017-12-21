@@ -2,7 +2,7 @@
 {
     using System;
     using System.Reflection;
-#if NET_STANDARD1_3
+#if !NO_SERIALIZE
     using System.Runtime.Serialization;
 #endif
     using Members;
@@ -13,7 +13,7 @@
     /// Represents an error that occurred during a mapping.
     /// </summary>
     #region Serialization Support
-#if NET_STANDARD1_3
+#if !NO_SERIALIZE
     [Serializable]
 #endif
     #endregion
@@ -25,7 +25,7 @@
         internal const string NoMappingData = "An exception occurred creating a mapping data instance";
 
         #region Serialization Support
-#if NET_STANDARD1_3
+#if !NO_SERIALIZE
         /// <summary>
         /// Initializes a new instance of the MappingException class. This constructor is provided
         /// to support deserialization.
