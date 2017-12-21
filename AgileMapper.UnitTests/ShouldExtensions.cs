@@ -19,14 +19,47 @@
 
         public static void ShouldBe<TActual, TExpected>(this TActual value, TExpected expectedValue)
         {
-            var actualExpectedValue = typeof(TActual).IsAssignableTo(typeof(TExpected))
-                ? expectedValue
-                : Convert.ChangeType(expectedValue, typeof(TActual));
+            var actualExpectedValue = GetActualExpectedValue(expectedValue, typeof(TActual));
 
-            if (Comparer<TActual>.Default.Compare((TActual)actualExpectedValue, value) != 0)
+            if (value is IComparable<TActual>)
+            {
+                if (Comparer<TActual>.Default.Compare((TActual)actualExpectedValue, value) != 0)
+                {
+                    Asplode(expectedValue.ToString(), value.ToString());
+                }
+
+                return;
+            }
+
+            if (typeof(TActual).IsValueType() || (typeof(TActual) == typeof(ValueType)))
+            {
+                if (!value.Equals(actualExpectedValue))
+                {
+                    Asplode(expectedValue.ToString(), value.ToString());
+                }
+
+                return;
+            }
+
+            if (!ReferenceEquals(expectedValue, value))
             {
                 Asplode(expectedValue.ToString(), value.ToString());
             }
+        }
+
+        private static object GetActualExpectedValue<TExpected>(TExpected expectedValue, Type actualType)
+        {
+            if (actualType.IsAssignableTo(typeof(TExpected)))
+            {
+                return expectedValue;
+            }
+
+            if (actualType == typeof(ValueType))
+            {
+                return (ValueType)(object)expectedValue;
+            }
+
+            return Convert.ChangeType(expectedValue, actualType);
         }
 
         public static void ShouldBe<T>(this IEnumerable<T> actualValues, params T[] expectedValues)
@@ -48,13 +81,21 @@
 
         public static void ShouldNotBe<TActual, TExpected>(this TActual value, TExpected expectedValue)
         {
-            var actualExpectedValue = (TActual)(typeof(TActual).IsAssignableTo(typeof(TExpected))
-                ? expectedValue
-                : Convert.ChangeType(expectedValue, typeof(TActual)));
+            var actualExpectedValue = GetActualExpectedValue(expectedValue, typeof(TActual));
 
-            if (value is IComparable)
+            if (value is IComparable<TActual>)
             {
-                if (Comparer<TActual>.Default.Compare(actualExpectedValue, value) == 0)
+                if (Comparer<TActual>.Default.Compare((TActual)actualExpectedValue, value) == 0)
+                {
+                    Asplode(expectedValue.ToString(), value.ToString());
+                }
+
+                return;
+            }
+
+            if (typeof(TActual).IsValueType() || (typeof(TActual) == typeof(ValueType)))
+            {
+                if (value.Equals(actualExpectedValue))
                 {
                     Asplode(expectedValue.ToString(), value.ToString());
                 }
