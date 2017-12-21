@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using AgileMapper.Configuration;
     using AgileMapper.Extensions.Internal;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

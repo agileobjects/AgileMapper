@@ -2,7 +2,6 @@
 {
     using System;
     using System.Text;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -47,7 +46,7 @@
         [Fact]
         public void ShouldMapABase64StringByteArrayToAString()
         {
-            var bytes = Encoding.Default.GetBytes("Fish n chips");
+            var bytes = Encoding.GetEncoding(0).GetBytes("Fish n chips");
             var base64String = Convert.ToBase64String(bytes);
             var base64Bytes = Convert.FromBase64String(base64String);
 

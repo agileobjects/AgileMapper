@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -111,9 +110,9 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
             var result = Mapper.Map(source).ToANew<ICollection<MegaProduct>>();
 
             result.Count.ShouldBe(2);
-            result.First().ShouldNotBeSameAs(source.First());
+            result.First().ShouldNotBeSameAs(source.First().Value);
             result.First().ProductId.ShouldBe("asdfasdf");
-            result.Second().ShouldNotBeSameAs(source.Second());
+            result.Second().ShouldNotBeSameAs(source.Second().Value);
             result.Second().ProductId.ShouldBe("mnbvmnbv");
         }
 

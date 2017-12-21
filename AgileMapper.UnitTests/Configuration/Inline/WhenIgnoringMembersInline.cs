@@ -2,7 +2,6 @@
 {
     using System;
     using Api.Configuration;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

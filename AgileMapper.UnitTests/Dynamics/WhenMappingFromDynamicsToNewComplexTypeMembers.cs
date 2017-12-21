@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
-    using Shouldly;
+    using Api;
     using TestClasses;
     using Xunit;
 
@@ -18,7 +18,8 @@
                 Line2 = "Dynamic Line 2!",
             };
 
-            var result = (Customer)Mapper.Map(source).ToANew<Customer>();
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+                .ToANew<Customer>();
 
             result.Name = "Dynamic Customer!";
             result.Address.ShouldNotBeNull();
@@ -34,7 +35,8 @@
             source.addressLine1 = "Dynamic Line 1";
             source.addressLine2 = "Dynamic Line 2";
 
-            var result = (Person)Mapper.Map(source).ToANew<Person>();
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+                .ToANew<Person>();
 
             result.Name = "Dynamic Person";
             result.Address.ShouldNotBeNull();
@@ -52,7 +54,8 @@
             source.Address.Line1 = "Dynamic House";
             source.Address.Line2 = "Dynamic Street";
 
-            var result = (Customer)Mapper.Map(source).ToANew<Customer>();
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+                .ToANew<Customer>();
 
             result.Name.ShouldBe("Captain Dynamic");
             result.Address.ShouldNotBeNull();

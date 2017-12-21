@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics.Configuration
 {
     using AgileMapper.Configuration;
-    using Shouldly;
     using Xunit;
 
     public class WhenConfiguringDynamicMappingIncorrectly

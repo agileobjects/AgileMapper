@@ -5,7 +5,6 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using AgileMapper.Extensions.Internal;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -355,7 +354,6 @@
             var result = Mapper.Map(source).ToANew<PublicField<ReadOnlyCollection<MultipleRecursor>>>();
 
             result.ShouldNotBeNull();
-            result.ShouldNotBeSameAs(source);
             result.Value.Count.ShouldBe(2);
 
             var resultOne = result.Value.First();
@@ -428,7 +426,7 @@
                 .ToANew<Parent>();
 
             plan.ShouldContain("Map Parent -> Parent");
-            plan.ShouldContain("mapRecursion(");
+            plan.ShouldContain(".MapRecursion(");
         }
 
         #region Helper Classes

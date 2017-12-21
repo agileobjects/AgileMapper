@@ -2,8 +2,6 @@
 {
     using System.Linq.Expressions;
     using System.Collections.Generic;
-#if NET_STANDARD
-#endif
     using Extensions.Internal;
     using Members;
     using ReadableExpressions.Extensions;

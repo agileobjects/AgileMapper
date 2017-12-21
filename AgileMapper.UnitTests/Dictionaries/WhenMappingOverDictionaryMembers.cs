@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
 {
     using System.Collections.Generic;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

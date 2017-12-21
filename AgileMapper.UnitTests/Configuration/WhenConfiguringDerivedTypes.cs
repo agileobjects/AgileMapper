@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using MoreTestClasses;
-    using Shouldly;
+    using NetStandardPolyfills;
     using TestClasses;
     using Xunit;
 
@@ -13,7 +13,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .LookForDerivedTypesIn(typeof(Dog).Assembly, typeof(Earthworm).Assembly);
+                    .LookForDerivedTypesIn(typeof(Dog).GetAssembly(), typeof(Earthworm).GetAssembly());
 
                 var result = mapper
                     .Map(new { NumberOfLegs = 1000, SlitherNoise = "thththtth" })
@@ -32,7 +32,7 @@
             {
                 // Set assembly scanning on mapper1...
                 mapper1.WhenMapping
-                    .LookForDerivedTypesIn(typeof(Dog).Assembly, typeof(Earthworm).Assembly);
+                    .LookForDerivedTypesIn(typeof(Dog).GetAssembly(), typeof(Earthworm).GetAssembly());
 
                 // ...use mapper2 to cache the assembly scan results... 
                 var result1 = mapper2

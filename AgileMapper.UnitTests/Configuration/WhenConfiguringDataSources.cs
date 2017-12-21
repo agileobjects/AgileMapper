@@ -6,7 +6,6 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using AgileMapper.Members;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -815,7 +814,7 @@
                 var source = new Person { Name = "Bob" };
                 var result = mapper.Map(source).ToANew<Customer>();
 
-                result.Discount.ShouldBe(source.Name.First());
+                result.Discount.ShouldBe((decimal)source.Name.First());
             }
         }
 

@@ -44,9 +44,6 @@
     <Reference Include="AgileObjects.ReadableExpressions, Version=1.10.1.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
       <HintPath>..\packages\AgileObjects.ReadableExpressions.1.10.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
     </Reference>
-    <Reference Include="Shouldly, Version=2.8.3.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shouldly.2.8.3\lib\net451\Shouldly.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -139,6 +136,8 @@
     <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
     <Compile Include="MapperCloning\WhenCloningStringFormatting.cs" />
     <Compile Include="MappingExtensions.cs" />
+    <Compile Include="Should.cs" />
+    <Compile Include="ShouldExtensions.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />
@@ -273,7 +272,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
-      <Project>{049e1ee5-48ce-441a-b166-3cf6bec17957}</Project>
+      <Project>{0d045f11-1cbb-4be1-b854-d7e5d348c2fe}</Project>
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
     </ProjectReference>
     <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">

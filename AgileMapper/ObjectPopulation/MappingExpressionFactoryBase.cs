@@ -5,8 +5,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
-#if NET_STANDARD
-#endif
     using Members;
     using NetStandardPolyfills;
     using static CallbackPosition;

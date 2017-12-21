@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System.Collections.ObjectModel;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -43,8 +42,8 @@
                     .GetPlanFor<PublicField<PublicField<string>>>()
                     .ToANew<PublicProperty<string>>();
 
-                plan.ShouldContain("data.Source.Value.Value");
-                plan.ShouldNotContain("data.Source.Value.ToString()");
+                plan.ShouldContain("ata.Source.Value.Value");
+                plan.ShouldNotContain("ata.Source.Value.ToString()");
             }
         }
 

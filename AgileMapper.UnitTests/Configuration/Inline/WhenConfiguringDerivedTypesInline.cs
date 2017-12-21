@@ -2,7 +2,7 @@
 {
     using System.Linq;
     using MoreTestClasses;
-    using Shouldly;
+    using NetStandardPolyfills;
     using TestClasses;
     using Xunit;
 
@@ -115,7 +115,7 @@
                 var result = mapper
                     .Map(new { NumberOfLegs = 100, SlitherNoise = "ththtth" })
                     .Over(new Earthworm() as AnimalBase, cgf => cgf
-                        .LookForDerivedTypesIn(typeof(Dog).Assembly, typeof(Earthworm).Assembly));
+                        .LookForDerivedTypesIn(typeof(Dog).GetAssembly(), typeof(Earthworm).GetAssembly()));
 
                 result.NumberOfLegs.ShouldBe(100);
                 ((Earthworm)result).SlitherNoise.ShouldBe("ththtth");

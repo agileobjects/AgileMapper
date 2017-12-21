@@ -7,7 +7,6 @@
     using System.Linq;
     using AgileMapper.Members;
     using ReadableExpressions.Extensions;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -208,7 +207,7 @@
 
                 var matchingResult = mapper.Map(source).ToANew<Person>();
 
-                createdInstanceTypes.ShouldBe(new[] { typeof(Address) });
+                createdInstanceTypes.AsEnumerable().ShouldBe(new[] { typeof(Address) });
                 matchingResult.Name.ShouldBe("Homer");
             }
         }

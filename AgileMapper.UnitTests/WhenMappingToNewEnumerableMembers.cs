@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -28,7 +27,7 @@
 
             result.Value.ShouldNotBeNull();
             result.Value.ShouldNotBeSameAs(source.Value);
-            result.Value.SequenceEqual(source.Value).ShouldBeTrue();
+            result.Value.AsEnumerable().ShouldBe(source.Value);
         }
 
         [Fact]
@@ -39,7 +38,7 @@
 
             result.Value.ShouldNotBeNull();
             result.Value.ShouldNotBeSameAs(source.Value);
-            result.Value.SequenceEqual(source.Value).ShouldBeTrue();
+            result.Value.ShouldBe(source.Value);
         }
 
         [Fact]

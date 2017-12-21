@@ -1,9 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System;
-    using AgileMapper.Validation;
-    using Shouldly;
     using TestClasses;
+    using Validation;
     using Xunit;
 
     public class WhenValidatingMappingsInline

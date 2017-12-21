@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Structs
 {
     using System;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -18,7 +17,7 @@
             };
             var result = Mapper.Map(source).Over(target);
 
-            result.ShouldNotBeSameAs(target);
+            result.ShouldNotBe(target);
             result.Value1.ShouldBe(source.Value1);
             result.Value2.ShouldBe(source.Value2);
         }
