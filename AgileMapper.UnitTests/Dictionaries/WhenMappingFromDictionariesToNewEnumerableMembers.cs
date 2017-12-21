@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

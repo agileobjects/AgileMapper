@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using AgileMapper.Configuration;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -98,7 +97,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 }
             });
 
-            ignoreEx.Message.ShouldContain("Already ignored by ignore pattern");
+            ignoreEx.Message.ShouldContain("already ignored by ignore pattern");
         }
 
         [Fact]

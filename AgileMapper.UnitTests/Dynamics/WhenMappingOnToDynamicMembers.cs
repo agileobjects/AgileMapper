@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Dynamic;
     using Microsoft.CSharp.RuntimeBinder;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -37,7 +36,7 @@
         }
 
         [Fact]
-        public void ShouldMapFromANestedComplexTypeEnumerableOnToFlattenedMembers()
+        public void ShouldMapFromANestedComplexTypeEnumerableOnToNestedMembers()
         {
             var source = new PublicField<ProductDto[]>
             {
@@ -51,27 +50,27 @@
 
             dynamic targetDynamic = new ExpandoObject();
 
-            targetDynamic._0__ProductId = default(string);
-            targetDynamic._0__Price = default(double?);
-            targetDynamic._0__HowMega = "UBER";
+            targetDynamic._0_ProductId = default(string);
+            targetDynamic._0_Price = default(double?);
+            targetDynamic._0_HowMega = "UBER";
 
-            targetDynamic._1__ProductId = "p-m1";
-            targetDynamic._1__Price = default(int?);
+            targetDynamic._1_ProductId = "p-m1";
+            targetDynamic._1_Price = default(int?);
 
             var target = new PublicField<dynamic> { Value = targetDynamic };
 
             Mapper.Map(source).OnTo(target);
 
-            ((string)targetDynamic._0__ProductId).ShouldBe("p-1");
-            ((decimal)targetDynamic._0__Price).ShouldBe(10.00m);
-            ((string)targetDynamic._0__HowMega).ShouldBe("UBER");
+            ((string)targetDynamic._0_ProductId).ShouldBe("p-1");
+            ((decimal)targetDynamic._0_Price).ShouldBe(10.00m);
+            ((string)targetDynamic._0_HowMega).ShouldBe("UBER");
 
-            ((string)targetDynamic._1__ProductId).ShouldBe("p-m1");
-            ((decimal)targetDynamic._1__Price).ShouldBe(100.00m);
-            ((string)targetDynamic._1__HowMega).ShouldBe("OH SO");
+            ((string)targetDynamic._1_ProductId).ShouldBe("p-m1");
+            ((decimal)targetDynamic._1_Price).ShouldBe(100.00m);
+            ((string)targetDynamic._1_HowMega).ShouldBe("OH SO");
 
-            ((string)targetDynamic._2__ProductId).ShouldBe("p-2");
-            ((decimal)targetDynamic._2__Price).ShouldBe(1.99m);
+            ((string)targetDynamic._2_ProductId).ShouldBe("p-2");
+            ((decimal)targetDynamic._2_Price).ShouldBe(1.99m);
             Should.Throw<RuntimeBinderException>(() => targetDynamic.Value_2_HowMega);
         }
     }

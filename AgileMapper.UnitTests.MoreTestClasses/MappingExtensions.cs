@@ -1,8 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.MoreTestClasses
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Shouldly;
 
     public static class MappingExtensions
     {
@@ -15,9 +15,12 @@
         {
             var rootMappers = ((Mapper)mapper).Context.ObjectMapperFactory.RootMappers.ToArray();
 
-            rootMappers.Length.ShouldBe(expected);
+            if (rootMappers.Length == expected)
+            {
+                return rootMappers;
+            }
 
-            return rootMappers;
+            throw new Exception($"Expected {expected} mappers, got {rootMappers.Length}");
         }
     }
 }

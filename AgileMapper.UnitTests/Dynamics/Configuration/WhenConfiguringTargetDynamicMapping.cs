@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Dynamic;
     using System.Linq;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -158,8 +157,8 @@
 
                 result.ShouldBeSameAs(originalExpando);
 
-                result["_0__Name"].ShouldBe("Sandra");
-                result["_0__Address_Line1"].ShouldBe("Home");
+                result["_0_Name"].ShouldBe("Sandra");
+                result["_0_Address_Line1"].ShouldBe("Home");
 
                 result["(1)_Name"].ShouldBe("David");
                 result["(1)_Address_Line1"].ShouldBe("Home!");

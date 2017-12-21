@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.MapperCloning
 {
     using AgileMapper.Configuration;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

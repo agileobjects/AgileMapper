@@ -4,7 +4,7 @@
     using System.Dynamic;
     using System.Linq;
     using AgileMapper.Extensions.Internal;
-    using Shouldly;
+    using Api;
     using TestClasses;
     using Xunit;
 
@@ -22,7 +22,7 @@
                 Value = new List<long> { 2, 3 }
             };
 
-            Mapper.Map(source).Over(target);
+            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.ShouldBe(4L, 5L, 6L);
         }
@@ -40,7 +40,7 @@
 
             var target = new PublicProperty<PersonViewModel[]>();
 
-            Mapper.Map(source).Over(target);
+            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.Length.ShouldBe(2);
             target.Value.First().Name.ShouldBe("Mr Pants");
@@ -52,12 +52,12 @@
         {
             dynamic source = new ExpandoObject();
 
-            source._0_ProductId = "Hose";
-            source._0_Price = "1.99";
+            source._0ProductId = "Hose";
+            source._0Price = "1.99";
 
             IEnumerable<Product> target = new List<Product>();
 
-            Mapper.Map(source).Over(target);
+            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.ShouldHaveSingleItem();
             target.First().ProductId.ShouldBe("Hose");

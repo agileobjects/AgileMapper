@@ -44,7 +44,7 @@
                 .ForAllSourceTypes()
                 .ForTargetType<ExpandoObject>();
 
-            return new ElementKeyPartFactory("_", "_", sourceExpandoObject);
+            return new ElementKeyPartFactory("_", null, sourceExpandoObject);
         }
 
         public static ElementKeyPartFactory UnderscoredIndexForTargetDynamics(MapperContext mapperContext)
@@ -54,7 +54,7 @@
                 .ForSourceType<ExpandoObject>()
                 .ForAllTargetTypes();
 
-            return new ElementKeyPartFactory("_", "_", sourceExpandoObject);
+            return new ElementKeyPartFactory("_", null, sourceExpandoObject);
         }
 
         public static ElementKeyPartFactory SquareBracketedIndex(MapperContext mapperContext)

@@ -32,7 +32,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-{lambda.ToReadableString(_ => _.NoQuotedLambdaComments)}".TrimStart();
+{lambda.ToReadableString()}".TrimStart();
         }
 
         private Expression GetFinalMappingLambda()

@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 
         /// <summary>
         /// Use the given <paramref name="pattern"/> to create the part of an expected Dynamic member name 
-        /// representing an enumerable element - the default is '_i_'. The pattern must contain a single 'i' 
+        /// representing an enumerable element - the default is '_i'. The pattern must contain a single 'i' 
         /// character as a placeholder for the enumerable index. For example, calling UseElementKeyPattern("-i-") 
         /// and mapping from a Dynamic to a collection of ints will generate searches for member names '-0-', '-1-', 
         /// '-2-', etc. Any pattern can be specified as an element key - even if it would create illegal member 

@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
     using System.Linq.Expressions;
     using AgileMapper.Members;
     using ObjectPopulation;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

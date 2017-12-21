@@ -50,16 +50,16 @@
 
             dynamic target = new ExpandoObject();
 
-            target._0__Value = 10;
-            target._2__Value = 30;
+            target._0_Value = 10;
+            target._2_Value = 30;
 
             Mapper.Map(source).Over(target);
 
             ((IDictionary<string, object>)target).Count.ShouldBe(3);
 
-            ((int)target._0__Value).ShouldBe(1);
-            ((int)target._1__Value).ShouldBe(2);
-            ((int)target._2__Value).ShouldBe(3);
+            ((int)target._0_Value).ShouldBe(1);
+            ((int)target._1_Value).ShouldBe(2);
+            ((int)target._2_Value).ShouldBe(3);
         }
 
         [Fact]
@@ -73,15 +73,15 @@
 
             dynamic target = new ExpandoObject();
 
-            target._0__Value_ProductId = "0";
-            target._1__Value_ProductId = "0";
+            target._0_Value_ProductId = "0";
+            target._1_Value_ProductId = "0";
 
             Mapper.Map(source).Over(target);
 
             ((IDictionary<string, object>)target).Count.ShouldBe(2);
 
-            ((string)target._0__Value_ProductId).ShouldBe("0");
-            ((string)target._1__Value_ProductId).ShouldBe("0");
+            ((string)target._0_Value_ProductId).ShouldBe("0");
+            ((string)target._1_Value_ProductId).ShouldBe("0");
         }
     }
 }

@@ -6,7 +6,6 @@
     using System.Linq;
     using AgileMapper.Configuration;
     using AgileMapper.Members;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

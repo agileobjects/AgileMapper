@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics.Configuration
 {
     using AgileMapper.Configuration;
-    using Shouldly;
     using Xunit;
 
     public class WhenConfiguringDynamicMappingIncorrectly
@@ -54,13 +53,13 @@
                 {
                     mapper.WhenMapping
                         .FromDynamics
-                        .UseElementKeyPattern("_i_");
+                        .UseElementKeyPattern("_i");
                 }
             });
 
             configEx.Message.ShouldContain("already");
             configEx.Message.ShouldContain("global");
-            configEx.Message.ShouldContain("_i_");
+            configEx.Message.ShouldContain("_i");
         }
     }
 }

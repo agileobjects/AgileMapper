@@ -3,7 +3,6 @@
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Members;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

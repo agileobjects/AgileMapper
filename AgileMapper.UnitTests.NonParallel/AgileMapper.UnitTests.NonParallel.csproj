@@ -88,7 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
-      <Project>{049e1ee5-48ce-441a-b166-3cf6bec17957}</Project>
+      <Project>{0d045f11-1cbb-4be1-b854-d7e5d348c2fe}</Project>
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
     </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests\AgileMapper.UnitTests.csproj">
