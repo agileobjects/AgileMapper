@@ -3,6 +3,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.MoreTestClasses</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests.MoreTestClasses</RootNamespace>
   </PropertyGroup>
 
 </Project>
