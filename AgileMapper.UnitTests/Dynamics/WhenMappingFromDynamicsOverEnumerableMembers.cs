@@ -4,6 +4,7 @@
     using System.Collections.ObjectModel;
     using System.Dynamic;
     using System.Linq;
+    using Api;
     using TestClasses;
     using Xunit;
 
@@ -21,7 +22,7 @@
                 Value = new List<string> { "40" }
             };
 
-            Mapper.Map(source).Over(target);
+            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.ShouldBe("10", "20", "30");
         }
@@ -38,7 +39,7 @@
                 Value = new List<ProductDto> { new ProductDto { ProductId = "p-1" } }
             };
 
-            Mapper.Map(source).Over(target);
+            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.ShouldBeEmpty();
         }
@@ -65,7 +66,7 @@
 
             var preMappingProd2 = target.Value.First();
 
-            Mapper.Map(source).Over(target);
+            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.Count.ShouldBe(2);
 
@@ -91,7 +92,7 @@
                 }
             };
 
-            Mapper.Map(source).Over(target);
+            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.Count.ShouldBe(2);
             target.Value.ShouldBe(pf => pf.Value, "Value 0", "Value 1");

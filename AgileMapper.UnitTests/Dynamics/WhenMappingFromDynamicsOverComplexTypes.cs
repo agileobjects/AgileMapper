@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
+    using Api;
     using TestClasses;
     using Xunit;
 
@@ -16,7 +17,7 @@
 
             var target = new Address { Line2 = "Up where?!" };
 
-            Mapper.Map(source).Over(target);
+            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Line1.ShouldBe("Up there!");
             target.Line2.ShouldBeNull();

@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Dynamic;
+    using Api;
     using TestClasses;
     using Xunit;
 
@@ -13,7 +14,7 @@
             dynamic source = new ExpandoObject();
             source.Value = new[] { "a", "b", "c" };
 
-            var result = (PublicField<char[]>)Mapper.Map(source).ToANew<PublicField<char[]>>();
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).ToANew<PublicField<char[]>>();
 
             result.Value.ShouldBe('a', 'b', 'c');
         }
@@ -30,8 +31,7 @@
                 new PublicField<string> { Value = "3" }
             };
 
-            var result = (PublicProperty<IEnumerable<PublicField<int>>>)Mapper
-                .Map(source)
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<PublicProperty<IEnumerable<PublicField<int>>>>();
 
             result.Value.ShouldBe(pf => pf.Value, 1, 2, 3);
@@ -46,8 +46,7 @@
             source.Value_1 = new PublicProperty<char> { Value = '8' };
             source.Value_2 = new PublicProperty<char> { Value = '7' };
 
-            var result = (PublicField<IEnumerable<PublicField<int>>>)Mapper
-                .Map(source)
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<PublicField<IEnumerable<PublicField<int>>>>();
 
             result.Value.ShouldBe(pf => pf.Value, 9, 8, 7);
@@ -62,8 +61,7 @@
             source.Value_1SetValue = '5';
             source.Value_2SetValue = '6';
 
-            var result = (PublicField<IEnumerable<PublicSetMethod<long>>>)Mapper
-                .Map(source)
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<PublicField<IEnumerable<PublicSetMethod<long>>>>();
 
             result.Value.ShouldBe(pf => pf.Value, 4, 5, 6);

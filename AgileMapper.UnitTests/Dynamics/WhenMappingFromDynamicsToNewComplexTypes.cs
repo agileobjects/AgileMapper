@@ -2,6 +2,7 @@
 {
     using System;
     using System.Dynamic;
+    using Api;
     using TestClasses;
     using Xunit;
 
@@ -14,7 +15,8 @@
 
             source.value = 123;
 
-            var result = (PublicField<int>)Mapper.Map(source).ToANew<PublicField<int>>();
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+                .ToANew<PublicField<int>>();
 
             result.Value.ShouldBe(123);
         }
@@ -26,7 +28,8 @@
 
             source.Value = "728";
 
-            var result = (PublicField<long>)Mapper.Map(source).ToANew<PublicField<long>>();
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+                .ToANew<PublicField<long>>();
 
             result.Value.ShouldBe(728L);
         }
@@ -38,7 +41,8 @@
 
             source.Value = default(string);
 
-            var result = (PublicSetMethod<string>)Mapper.Map(source).ToANew<PublicSetMethod<string>>();
+            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+                .ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBeNull();
         }
@@ -57,7 +61,8 @@
                     .Call(ctx => throw new InvalidOperationException("I DON'T LIKE ADDRESSES"));
 
                 var mappingEx = Should.Throw<MappingException>(() =>
-                    mapper.Map(source).ToANew<PublicField<Address>>());
+                    ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source))
+                        .ToANew<PublicField<Address>>());
 
                 mappingEx.Message.ShouldContain(nameof(ExpandoObject));
             }

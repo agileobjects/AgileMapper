@@ -27,7 +27,7 @@
                 return ex;
             }
 
-            throw new Exception("Expected exception of type " + nameof(TException));
+            throw new Exception("Expected exception of type " + typeof(TException).Name);
         }
 
         public static void NotThrow(Action testAction) => NotThrow<Exception>(testAction);
@@ -41,7 +41,7 @@
             }
             catch (TException)
             {
-                throw new Exception("Did not expect exception of type " + nameof(TException));
+                throw new Exception("Did not expect exception of type " + typeof(TException).Name);
             }
         }
     }
