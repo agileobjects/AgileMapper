@@ -43,16 +43,28 @@
                     .Invoke(null, new object[] { expected, actual });
             }
 
+            if (typeof(TActual) == typeof(ValueType))
+            {
+                return (bool)_areEqualMethod
+                    .MakeGenericMethod(typeof(TExpected), actual.GetType())
+                    .Invoke(null, new object[] { expected, actual });
+            }
+
             var actualExpectedValue = GetActualExpectedValue(expected, actual);
+
+            if (typeof(TActual).IsValueType())
+            {
+                return actual.Equals(actualExpectedValue);
+            }
 
             if (actual is IComparable<TActual>)
             {
                 return Comparer<TActual>.Default.Compare(actualExpectedValue, actual) == 0;
             }
 
-            if (typeof(TActual).IsValueType())
+            if (typeof(TActual).IsAssignableTo(typeof(TExpected)))
             {
-                return actual.Equals(actualExpectedValue);
+                return false;
             }
 
             throw new NotSupportedException(
