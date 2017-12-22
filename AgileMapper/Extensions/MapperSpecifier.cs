@@ -1,16 +1,21 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions
 {
+    using System;
+
     /// <summary>
     /// Enables specification of a particular Mapper with which to perform a mapping
     /// via an extension method.
     /// </summary>
     public class MapperSpecifier
     {
-        internal static readonly MapperSpecifier Instance = new MapperSpecifier();
+        private static readonly MapperSpecifier _instance = new MapperSpecifier();
 
-        internal MapperSpecifier()
+        private MapperSpecifier()
         {
         }
+
+        internal static IMapper Get(Func<MapperSpecifier, IMapper> mapperSpecifier)
+            => mapperSpecifier.Invoke(_instance);
 
         /// <summary>
         /// Use the given <paramref name="mapper"/> to perform the mapping action.

@@ -26,13 +26,15 @@
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
         /// <param name="mapperSpecifier">
-        /// A func supplying the <see cref="IMapper"/> instance with which to perform the deep clone.
+        /// A func supplying the <see cref="IMapper"/> instance with which to perform the object creation.
         /// </param>
         /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
         public static ITargetTypeSelector<TSource> Map<TSource>(
             this TSource source,
             Func<MapperSpecifier, IMapper> mapperSpecifier)
-            => mapperSpecifier.Invoke(MapperSpecifier.Instance).Map(source);
+        {
+            return MapperSpecifier.Get(mapperSpecifier).Map(source);
+        }
 
         /// <summary>
         /// Perform a deep clone of this <paramref name="instance"/> using the default <see cref="IMapper"/>.
@@ -40,7 +42,7 @@
         /// <typeparam name="T">The Type of object to clone.</typeparam>
         /// <param name="instance">The object to clone.</param>
         /// <returns>A deep clone of this <paramref name="instance"/>.</returns>
-        public static T DeepClone<T>(this T instance) => DeepClone(instance, Mapper.Default);
+        public static T DeepClone<T>(this T instance) => Mapper.Default.DeepClone(instance);
 
         /// <summary>
         /// Perform a deep clone of this <paramref name="instance"/> using the <see cref="IMapper"/> 
@@ -53,9 +55,7 @@
         /// </param>
         /// <returns>A deep clone of this <paramref name="instance"/>.</returns>
         public static T DeepClone<T>(this T instance, Func<MapperSpecifier, IMapper> mapperSpecifier)
-            => DeepClone(instance, mapperSpecifier.Invoke(MapperSpecifier.Instance));
-
-        private static T DeepClone<T>(T instance, IMapper mapper) => mapper.DeepClone(instance);
+            => MapperSpecifier.Get(mapperSpecifier).DeepClone(instance);
 
         /// <summary>
         /// Perform a deep clone of this <paramref name="instance"/> using the default <see cref="IMapper"/> and
@@ -73,6 +73,31 @@
             params Expression<Action<IFullMappingInlineConfigurator<T, T>>>[] configurations)
         {
             return Mapper.Default.DeepClone(instance, configurations);
+        }
+
+        /// <summary>
+        /// Flatten this source object to a flat result Type.
+        /// </summary>
+        /// <typeparam name="TSource">The Type of object to flatten.</typeparam>
+        /// <param name="source">The object instance to flatten.</param>
+        /// <returns>A FlattenTypeSelector with which to select the type of flattening to perform.</returns>
+        public static FlattenTypeSelector<TSource> Flatten<TSource>(this TSource source)
+            => new FlattenTypeSelector<TSource>(source, Mapper.Default);
+
+        /// <summary>
+        /// Flatten this source object to a flat result Type.
+        /// </summary>
+        /// <typeparam name="TSource">The Type of object to flatten.</typeparam>
+        /// <param name="source">The object instance to flatten.</param>
+        /// <param name="mapperSpecifier">
+        /// A func supplying the <see cref="IMapper"/> instance with which to perform the flattening.
+        /// </param>
+        /// <returns>A FlattenTypeSelector with which to select the type of flattening to perform.</returns>
+        public static FlattenTypeSelector<TSource> Flatten<TSource>(
+            this TSource source,
+            Func<MapperSpecifier, IMapper> mapperSpecifier)
+        {
+            return new FlattenTypeSelector<TSource>(source, MapperSpecifier.Get(mapperSpecifier));
         }
     }
 }
