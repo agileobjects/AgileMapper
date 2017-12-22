@@ -7,6 +7,45 @@
     public class WhenMappingToNewComplexTypes
     {
         [Fact]
+        public void ShouldConvertAnIntValue()
+        {
+            var source = new PublicProperty<int> { Value = 123 };
+            var result = source.Map().ToANew<PublicCtorStruct<string>>();
+
+            result.Value.ShouldBe("123");
+        }
+
+        [Fact]
+        public void ShouldUseASpecifiedMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicCtorStruct<string>>()
+                    .Map(ctx => ctx.Source.Value * 2)
+                    .ToCtor<string>();
+
+                var source = new PublicField<int> { Value = 20 };
+                var result = source.Map(_ => _.Using(mapper)).ToANew<PublicCtorStruct<string>>();
+
+                result.Value.ShouldBe("40");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseInlineConfiguration()
+        {
+            var source = new PublicField<int> { Value = 20 };
+
+            var result = source.Map().ToANew<PublicCtorStruct<string>>(cfg => cfg
+                .Map(ctx => ctx.Source.Value * 3)
+                .ToCtor<string>());
+
+            result.Value.ShouldBe("60");
+        }
+
+        [Fact]
         public void ShouldCopyAnIntValueInADeepClone()
         {
             var source = new PublicProperty<int> { Value = 123 };
