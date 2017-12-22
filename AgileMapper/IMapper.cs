@@ -106,7 +106,8 @@
         TSource DeepClone<TSource>(TSource source);
 
         /// <summary>
-        /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
+        /// Perform a deep clone of the given <paramref name="source"/> object using the given 
+        /// <paramref name="configurations"/>.
         /// </summary>
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="configurations">

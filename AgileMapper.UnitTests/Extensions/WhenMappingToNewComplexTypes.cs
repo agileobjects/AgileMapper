@@ -38,5 +38,22 @@
                 result.Value2.ShouldBe(123);
             }
         }
+
+        [Fact]
+        public void ShouldUseInlineConfigurationInADeepClone()
+        {
+            var source = new PublicTwoFieldsStruct<int, int> { Value1 = 456, Value2 = 123 };
+
+            var result = source.DeepClone(cfg => cfg
+                .Map(ctx => ctx.Source.Value1)
+                .To(p => p.Value2)
+                .And
+                .Map(ctx => ctx.Source.Value2)
+                .To(p => p.Value1));
+
+            result.ShouldNotBe(source);
+            result.Value1.ShouldBe(123);
+            result.Value2.ShouldBe(456);
+        }
     }
 }
