@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Extensions
 {
+    using System;
+    using System.Globalization;
     using AgileMapper.Extensions;
     using TestClasses;
     using Xunit;
@@ -150,6 +152,61 @@
 
             target.Value1.ShouldBe(123);
             target.Value2.ShouldBe(890);
+        }
+
+        [Fact]
+        public void ShouldOverwriteAParsedStringValue()
+        {
+            var source = new PublicField<string>
+            {
+                Value = DateTime.Today.ToString(CultureInfo.CurrentCulture.DateTimeFormat)
+            };
+
+            var target = new PublicField<DateTime>
+            {
+                Value = DateTime.Today.AddDays(-1)
+            };
+
+            source.Map().Over(target);
+
+            target.Value.ShouldBe(DateTime.Today);
+        }
+
+        [Fact]
+        public void ShouldOverwriteWithASpecifiedMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .Over<PublicProperty<string>>()
+                    .Map(ctx => ctx.Source.Value + 10)
+                    .To(pf => pf.Value);
+
+                var source = new PublicField<int> { Value = 20 };
+                var target = new PublicProperty<string>();
+
+                source.Map(_ => _.Using(mapper)).Over(target);
+
+                target.Value.ShouldBe("30");
+            }
+        }
+
+        [Fact]
+        public void ShouldOverwriteWithInlineConfiguration()
+        {
+            var source = new PublicTwoFieldsStruct<int, int> { Value1 = 456, Value2 = 123 };
+            var target = new PublicTwoFields<int, int> { Value1 = 627, Value2 = 890 };
+
+            source.Map().Over(target, cfg => cfg
+                .Map(ctx => ctx.Source.Value1)
+                .To(p => p.Value2)
+                .And
+                .Map(ctx => ctx.Source.Value2)
+                .To(p => p.Value1));
+
+            target.Value1.ShouldBe(123);
+            target.Value2.ShouldBe(456);
         }
     }
 }
