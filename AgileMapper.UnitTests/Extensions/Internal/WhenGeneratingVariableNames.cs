@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Extensions
+﻿namespace AgileObjects.AgileMapper.UnitTests.Extensions.Internal
 {
     using System.Collections.Generic;
     using AgileMapper.Extensions.Internal;

@@ -26,7 +26,7 @@
         public void ShouldMapUsingStaticCloneMethod()
         {
             var source = new Person { Name = "Barney" };
-            var result = Mapper.Clone(source);
+            var result = Mapper.DeepClone(source);
 
             result.ShouldNotBeSameAs(source);
             result.Name.ShouldBe("Barney");
@@ -36,7 +36,7 @@
         public void ShouldMapUsingInstanceCloneMethod()
         {
             var source = new Person { Name = "Maggie" };
-            var result = Mapper.CreateNew().Clone(source);
+            var result = Mapper.CreateNew().DeepClone(source);
 
             result.ShouldNotBeSameAs(source);
             result.Name.ShouldBe("Maggie");

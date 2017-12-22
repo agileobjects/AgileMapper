@@ -11,7 +11,7 @@
             TestThenReset(() =>
             {
                 var result = Mapper
-                    .Clone(new PublicPropertyStruct<string> { Value = "Instance fun!" }, cfg => cfg
+                    .DeepClone(new PublicPropertyStruct<string> { Value = "Instance fun!" }, cfg => cfg
                         .Map("Static fun!")
                         .To(pps => pps.Value));
 

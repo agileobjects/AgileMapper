@@ -106,7 +106,7 @@
 
                 var noIdSource = new Person { Name = "Dawn" };
 
-                mapper.Clone(noIdSource, cfg => cfg
+                mapper.DeepClone(noIdSource, cfg => cfg
                     .Before
                     .Mapping(p => p.Address)
                     .If(ctx => ctx.Target.Id != default(Guid))
@@ -116,7 +116,7 @@
 
                 var idSource = new Person { Id = Guid.NewGuid() };
 
-                mapper.Clone(idSource, cfg => cfg
+                mapper.DeepClone(idSource, cfg => cfg
                     .Before
                     .Mapping(p => p.Address)
                     .If(ctx => ctx.Target.Id != default(Guid))
@@ -137,7 +137,7 @@
                 var callbackCalled = false;
 
                 var nullAddressNullNameSource = new Person();
-                var nullAddressNullNameResult = mapper.Clone(nullAddressNullNameSource, cfg => cfg
+                var nullAddressNullNameResult = mapper.DeepClone(nullAddressNullNameSource, cfg => cfg
                     .After
                     .Mapping(p => p.Address)
                     .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
@@ -148,7 +148,7 @@
                 callbackCalled.ShouldBeFalse();
 
                 var nullAddressWithNameSource = new Person { Name = "David" };
-                var nullAddressWithNameResult = mapper.Clone(nullAddressWithNameSource, cfg => cfg
+                var nullAddressWithNameResult = mapper.DeepClone(nullAddressWithNameSource, cfg => cfg
                     .After
                     .Mapping(p => p.Address)
                     .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
@@ -161,7 +161,7 @@
                 callbackCalled = false;
 
                 var nullLine1WithNameSource = new Person { Name = "Brent", Address = new Address { Line2 = "City" } };
-                var nullLine1WithNameResult = mapper.Clone(nullLine1WithNameSource, cfg => cfg
+                var nullLine1WithNameResult = mapper.DeepClone(nullLine1WithNameSource, cfg => cfg
                     .After
                     .Mapping(p => p.Address)
                     .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
@@ -172,7 +172,7 @@
                 callbackCalled.ShouldBeFalse();
 
                 var withLine1WithNameSource = new Person { Name = "Chris", Address = new Address { Line1 = "Town" } };
-                var withLine1WithNameResult = mapper.Clone(withLine1WithNameSource, cfg => cfg
+                var withLine1WithNameResult = mapper.DeepClone(withLine1WithNameSource, cfg => cfg
                     .After
                     .Mapping(p => p.Address)
                     .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
