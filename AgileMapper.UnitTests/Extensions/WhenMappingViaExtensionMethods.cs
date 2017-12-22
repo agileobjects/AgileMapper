@@ -94,5 +94,62 @@
             result.Value1.ShouldBe(123);
             result.Value2.ShouldBe(456);
         }
+
+        [Fact]
+        public void ShouldMergeAParsedStringValue()
+        {
+            var source = new PublicTwoFields<string, string>
+            {
+                Value1 = "123",
+                Value2 = "456"
+            };
+
+            var target = new PublicTwoFieldsStruct<long, long>
+            {
+                Value1 = 678L
+            };
+
+            var result = source.Map().OnTo(target);
+
+            result.Value1.ShouldBe(678L);
+            result.Value2.ShouldBe(456L);
+        }
+
+        [Fact]
+        public void ShouldMergeWithASpecifiedMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .OnTo<PublicField<string>>()
+                    .Map(ctx => ctx.Source.Value / 2)
+                    .To(pf => pf.Value);
+
+                var source = new PublicField<int> { Value = 20 };
+                var target = new PublicField<string>();
+
+                source.Map(_ => _.Using(mapper)).OnTo(target);
+
+                target.Value.ShouldBe("10");
+            }
+        }
+
+        [Fact]
+        public void ShouldMergeWithInlineConfiguration()
+        {
+            var source = new PublicTwoFieldsStruct<int, int> { Value1 = 456, Value2 = 123 };
+            var target = new PublicTwoFields<int, int> { Value2 = 890 };
+
+            source.Map().OnTo(target, cfg => cfg
+                .Map(ctx => ctx.Source.Value1)
+                .To(p => p.Value2)
+                .And
+                .Map(ctx => ctx.Source.Value2)
+                .To(p => p.Value1));
+
+            target.Value1.ShouldBe(123);
+            target.Value2.ShouldBe(890);
+        }
     }
 }

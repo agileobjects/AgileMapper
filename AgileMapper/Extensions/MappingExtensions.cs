@@ -11,7 +11,8 @@
     public static class MappingExtensions
     {
         /// <summary>
-        /// Perform a mapping operation on this <paramref name="source"/> object.
+        /// Perform a mapping operation on this <paramref name="source"/> object using the default 
+        /// <see cref="IMapper"/>.
         /// </summary>
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
