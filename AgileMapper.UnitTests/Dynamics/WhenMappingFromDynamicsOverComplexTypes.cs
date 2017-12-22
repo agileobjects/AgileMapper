@@ -17,7 +17,7 @@
 
             var target = new Address { Line2 = "Up where?!" };
 
-            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Line1.ShouldBe("Up there!");
             target.Line2.ShouldBeNull();

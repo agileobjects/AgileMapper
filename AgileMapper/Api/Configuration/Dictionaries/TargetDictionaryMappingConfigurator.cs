@@ -4,15 +4,16 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
     using Members;
     using ReadableExpressions;
 
     internal class TargetDictionaryMappingConfigurator<TSource, TValue> :
         DictionaryMappingConfiguratorBase<TSource, Dictionary<string, TValue>>,
-        ITargetDictionaryMappingConfigurator<TSource, TValue>
+        ITargetDictionaryMappingInlineConfigurator<TSource, TValue>
     {
         public TargetDictionaryMappingConfigurator(MappingConfigInfo configInfo)
-            : base(configInfo)
+            : base(configInfo.ForTargetType<Dictionary<string, TValue>>().Set(DictionaryType.Dictionary))
         {
         }
 

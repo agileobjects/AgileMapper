@@ -14,8 +14,8 @@
         {
         }
 
-        internal static IMapper Get(Func<MapperSpecifier, IMapper> mapperSpecifier)
-            => mapperSpecifier.Invoke(_instance);
+        internal static IMapperInternal Get(Func<MapperSpecifier, IMapper> mapperSpecifier)
+            => (IMapperInternal)mapperSpecifier.Invoke(_instance);
 
         /// <summary>
         /// Use the given <paramref name="mapper"/> to perform the mapping action.

@@ -16,8 +16,8 @@
         /// </summary>
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
-        /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        public static ITargetTypeSelector<TSource> Map<TSource>(this TSource source) => Mapper.Map(source);
+        /// <returns>A TargetSelector with which to specify the type of mapping to perform.</returns>
+        public static ITargetSelector<TSource> Map<TSource>(this TSource source) => Mapper.Map(source);
 
         /// <summary>
         /// Perform a mapping operation on this <paramref name="source"/> object using the <see cref="IMapper"/> 
@@ -28,8 +28,8 @@
         /// <param name="mapperSpecifier">
         /// A func supplying the <see cref="IMapper"/> instance with which to perform the object creation.
         /// </param>
-        /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        public static ITargetTypeSelector<TSource> Map<TSource>(
+        /// <returns>A TargetSelector with which to specify the type of mapping to perform.</returns>
+        public static ITargetSelector<TSource> Map<TSource>(
             this TSource source,
             Func<MapperSpecifier, IMapper> mapperSpecifier)
         {
@@ -81,8 +81,8 @@
         /// <typeparam name="TSource">The Type of object to flatten.</typeparam>
         /// <param name="source">The object instance to flatten.</param>
         /// <returns>A FlattenTypeSelector with which to select the type of flattening to perform.</returns>
-        public static FlattenTypeSelector<TSource> Flatten<TSource>(this TSource source)
-            => new FlattenTypeSelector<TSource>(source, Mapper.Default);
+        public static IFlatteningSelector<TSource> Flatten<TSource>(this TSource source)
+            => new MappingExecutor<TSource>(source, Mapper.Default.Context);
 
         /// <summary>
         /// Flatten this source object to a flat result Type.
@@ -93,11 +93,11 @@
         /// A func supplying the <see cref="IMapper"/> instance with which to perform the flattening.
         /// </param>
         /// <returns>A FlattenTypeSelector with which to select the type of flattening to perform.</returns>
-        public static FlattenTypeSelector<TSource> Flatten<TSource>(
+        public static IFlatteningSelector<TSource> Flatten<TSource>(
             this TSource source,
             Func<MapperSpecifier, IMapper> mapperSpecifier)
         {
-            return new FlattenTypeSelector<TSource>(source, MapperSpecifier.Get(mapperSpecifier));
+            return new MappingExecutor<TSource>(source, MapperSpecifier.Get(mapperSpecifier).Context);
         }
     }
 }

@@ -1,13 +1,22 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Collections.Generic;
+    using System.Dynamic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
+    using Api.Configuration.Dictionaries;
+    using Configuration.Inline;
+    using Extensions;
     using Extensions.Internal;
     using ObjectPopulation;
 
-    internal class MappingExecutor<TSource> : ITargetTypeSelector<TSource>, IMappingContext
+    internal class MappingExecutor<TSource> :
+        ITargetSelector<TSource>,
+        IFlatteningSelector<TSource>,
+        IMappingContext
     {
         private readonly TSource _source;
 
@@ -29,6 +38,12 @@
             return PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations);
         }
 
+        public IDictionary<string, TValue> ToANewDictionary<TValue>(
+            params Expression<Action<ITargetDictionaryMappingInlineConfigurator<TSource, TValue>>>[] configurations)
+        {
+            return PerformMapping(MapperContext.RuleSets.CreateNew, default(Dictionary<string, TValue>), configurations);
+        }
+
         public TTarget OnTo<TTarget>(
             TTarget existing,
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
@@ -48,13 +63,35 @@
             TTarget target,
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
+            return PerformMapping(
+                ruleSet,
+                target,
+                InlineConfigurationSet<TSource, TTarget>.Full(configurations));
+        }
+
+        private IDictionary<string, TValue> PerformMapping<TValue>(
+            MappingRuleSet ruleSet,
+            IDictionary<string, TValue> target,
+            Expression<Action<ITargetDictionaryMappingInlineConfigurator<TSource, TValue>>>[] configurations)
+        {
+            return PerformMapping(
+                ruleSet,
+                target,
+                InlineConfigurationSet<TSource, TValue>.Dictionary(configurations));
+        }
+
+        private TTarget PerformMapping<TTarget>(
+            MappingRuleSet ruleSet,
+            TTarget target,
+            IInlineConfigurationSet configurations)
+        {
             if (_source == null)
             {
                 return target;
             }
 
             RuleSet = ruleSet;
-            MapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
+            MapperContext = MapperContext.InlineContexts.GetContextFor<TSource, TTarget>(configurations, this);
 
             return PerformMapping(target);
         }
@@ -63,6 +100,8 @@
 
         public TResult ToANew<TResult>()
             => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
+
+        public IDictionary<string, TValue> ToANewDictionary<TValue>() => ToANew<Dictionary<string, TValue>>();
 
         public TTarget OnTo<TTarget>(TTarget existing)
             => PerformMapping(MapperContext.RuleSets.Merge, existing);
@@ -98,5 +137,47 @@
 
             return typedRootMappingData.MapStart();
         }
+
+        #region IFlatteningSelector Members
+
+        dynamic IFlatteningSelector<TSource>.ToDynamic() => ToANew<ExpandoObject>();
+
+        IDictionary<string, object> IFlatteningSelector<TSource>.ToDictionary()
+            => ToANewDictionary<object>();
+
+        IDictionary<string, TValue> IFlatteningSelector<TSource>.ToDictionary<TValue>()
+            => ToANewDictionary<TValue>();
+
+        IDictionary<string, TValue> IFlatteningSelector<TSource>.ToDictionary<TValue>(
+            params Expression<Action<ITargetDictionaryMappingInlineConfigurator<TSource, TValue>>>[] configurations)
+        {
+            return ToANewDictionary(configurations);
+        }
+
+        string IFlatteningSelector<TSource>.ToQueryString()
+        {
+            var flattened = ToANewDictionary<string>();
+
+            return ConvertToQueryString(flattened);
+        }
+
+        string IFlatteningSelector<TSource>.ToQueryString(
+            params Expression<Action<ITargetDictionaryMappingInlineConfigurator<TSource, string>>>[] configurations)
+        {
+            var flattened = ToANewDictionary(configurations);
+
+            return ConvertToQueryString(flattened);
+        }
+
+        private static string ConvertToQueryString(IDictionary<string, string> flattened)
+        {
+            var queryString = string.Join(
+                "&",
+                flattened.Select(kvp => Uri.EscapeDataString(kvp.Key) + "=" + Uri.EscapeDataString(kvp.Value)));
+
+            return queryString.Replace(".", "%2E");
+        }
+
+        #endregion
     }
 }

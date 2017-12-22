@@ -73,13 +73,13 @@
         /// </typeparam>
         /// <returns>An ITargetDictionaryConfigSettings with which to continue the configuration.</returns>
         public ITargetDictionaryMappingConfigurator<TSource, TValue> ToDictionariesWithValueType<TValue>()
-            => new TargetDictionaryMappingConfigurator<TSource, TValue>(_configInfo.ForAllRuleSets().Set(DictionaryType.Dictionary));
+            => new TargetDictionaryMappingConfigurator<TSource, TValue>(_configInfo.ForAllRuleSets());
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
         /// (create new, overwrite, etc), to target ExpandoObjects.
         /// </summary>
         public ITargetDynamicMappingConfigurator<TSource> ToDynamics
-            => new TargetDynamicMappingConfigurator<TSource>(_configInfo.ForAllRuleSets().Set(DictionaryType.Expando));
+            => new TargetDynamicMappingConfigurator<TSource>(_configInfo);
     }
 }

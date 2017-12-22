@@ -1,20 +1,16 @@
 namespace AgileObjects.AgileMapper.Configuration.Inline
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Extensions.Internal;
     using Members;
 
     internal class InlineMapperKey<TSource, TTarget> : IInlineMapperKey
     {
-        private readonly Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] _configurations;
+        private readonly IInlineConfigurationSet _configurations;
         private readonly MappingExecutor<TSource> _executor;
 
-        public InlineMapperKey(
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations,
-            MappingExecutor<TSource> executor)
+        public InlineMapperKey(IInlineConfigurationSet configurations, MappingExecutor<TSource> executor)
         {
             _configurations = configurations;
             _executor = executor;
@@ -25,19 +21,22 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
         public MappingRuleSet RuleSet => _executor.RuleSet;
 
         // ReSharper disable once CoVariantArrayConversion
-        public IList<LambdaExpression> Configurations => _configurations;
+        public IList<LambdaExpression> Configurations => _configurations.Lambdas;
 
         public MapperContext CreateInlineMapperContext()
         {
-            return InlineMappingConfigurator<TSource, TTarget>
-                .ConfigureInlineMapperContext(_configurations, _executor);
+            var inlineMapperContext = _executor.MapperContext.Clone();
+
+            _configurations.Apply(_executor.RuleSet, inlineMapperContext);
+
+            return inlineMapperContext;
         }
 
         public override bool Equals(object obj)
         {
             var otherKey = (IInlineMapperKey)obj;
 
-            if ((_configurations.Length != otherKey.Configurations.Count) ||
+            if ((_configurations.Count != otherKey.Configurations.Count) ||
                 (RuleSet != otherKey.RuleSet) ||
                 !MappingTypes.Equals(otherKey.MappingTypes))
             {

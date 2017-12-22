@@ -12,9 +12,9 @@
     /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
     /// instance via the static Mapper access methods.
     /// </summary>
-    public sealed class Mapper : IMapper
+    public sealed class Mapper : IMapperInternal
     {
-        internal static readonly IMapper Default = CreateNew();
+        internal static readonly IMapperInternal Default = CreateNewInternal();
 
         private Mapper(MapperContext context)
         {
@@ -27,14 +27,9 @@
         /// Creates an instance implementing IMapper with which to perform mappings.
         /// </summary>
         /// <returns>A new instance implementing IMapper.</returns>
-        public static IMapper CreateNew()
-        {
-            var mapper = new Mapper(new MapperContext());
+        public static IMapper CreateNew() => CreateNewInternal();
 
-            MapperCache.Add(mapper);
-
-            return mapper;
-        }
+        private static IMapperInternal CreateNewInternal() => new Mapper(new MapperContext());
 
         #endregion
 
@@ -164,12 +159,14 @@
         /// </summary>
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
-        /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        public static ITargetTypeSelector<TSource> Map<TSource>(TSource source) => Default.Map(source);
+        /// <returns>A TargetSelector with which to specify the type of mapping to perform.</returns>
+        public static ITargetSelector<TSource> Map<TSource>(TSource source) => Default.Map(source);
 
         internal static void ResetDefaultInstance() => Default.Dispose();
 
         #endregion
+
+        MapperContext IMapperInternal.Context => Context;
 
         internal MapperContext Context { get; }
 
@@ -207,7 +204,7 @@
 
         dynamic IMapper.Flatten<TSource>(TSource source) => Map(source).ToANew<ExpandoObject>();
 
-        ITargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
+        ITargetSelector<TSource> IMapper.Map<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);
 
         #region IDisposable Members
@@ -218,13 +215,5 @@
         public void Dispose() => Context.Reset();
 
         #endregion
-    }
-
-    internal static class MapperCache
-    {
-        public static void Add(IMapper mapper)
-        {
-
-        }
     }
 }

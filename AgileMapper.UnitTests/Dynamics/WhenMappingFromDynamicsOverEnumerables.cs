@@ -22,7 +22,7 @@
                 Value = new List<long> { 2, 3 }
             };
 
-            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.ShouldBe(4L, 5L, 6L);
         }
@@ -40,7 +40,7 @@
 
             var target = new PublicProperty<PersonViewModel[]>();
 
-            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.Length.ShouldBe(2);
             target.Value.First().Name.ShouldBe("Mr Pants");
@@ -57,7 +57,7 @@
 
             IEnumerable<Product> target = new List<Product>();
 
-            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.ShouldHaveSingleItem();
             target.First().ProductId.ShouldBe("Hose");
