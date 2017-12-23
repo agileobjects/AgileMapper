@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
     using TestClasses;
     using Xunit;
@@ -307,6 +308,26 @@
                     .To(d => d[d.Count.ToString()]));
 
             configEx.Message.ShouldContain("must be constant string");
+        }
+
+        [Fact]
+        public void ShouldErrorIfToFullKeyUsedWithNonSimpleMemberInFlattening()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new { Numbers = new[] { 1, 2, 3 } };
+
+                var configEx = Should.Throw<MappingConfigurationException>(() =>
+                {
+                    mapper.Map(source).ToANew<Dictionary<string, int>>(cfg => cfg
+                        .ForDictionaries
+                        .MapMember(s => s.Numbers)
+                        .ToFullKey("Nums"));
+                });
+
+                configEx.Message.ShouldContain(".Numbers");
+                configEx.Message.ShouldContain("ToMemberNameKey");
+            }
         }
     }
 }

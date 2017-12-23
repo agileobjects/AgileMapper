@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
     using Dictionaries;

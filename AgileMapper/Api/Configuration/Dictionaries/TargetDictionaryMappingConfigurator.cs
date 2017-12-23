@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         ITargetDictionaryMappingInlineConfigurator<TSource, TValue>
     {
         public TargetDictionaryMappingConfigurator(MappingConfigInfo configInfo)
-            : base(configInfo.ForTargetType<Dictionary<string, TValue>>().Set(DictionaryType.Dictionary))
+            : base(configInfo.Set(DictionaryType.Dictionary))
         {
         }
 

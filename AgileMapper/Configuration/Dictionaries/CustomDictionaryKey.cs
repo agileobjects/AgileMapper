@@ -9,8 +9,6 @@
 
     internal class CustomDictionaryKey : UserConfiguredItemBase
     {
-        private readonly QualifiedMember _sourceMember;
-
         private CustomDictionaryKey(
             string key,
             QualifiedMember sourceMember,
@@ -18,7 +16,7 @@
             : base(configInfo)
         {
             Key = key;
-            _sourceMember = sourceMember;
+            SourceMember = sourceMember;
         }
 
         private CustomDictionaryKey(
@@ -47,6 +45,8 @@
         }
 
         public string Key { get; }
+
+        public QualifiedMember SourceMember { get; }
 
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
             => $"Configured dictionary key member {TargetMember.GetPath()} has a configured data source";
@@ -78,14 +78,14 @@
                 return false;
             }
 
-            if (_sourceMember == null)
+            if (SourceMember == null)
             {
                 return true;
             }
 
             var targetMember = GetTargetMember(member, mapperData);
 
-            return _sourceMember.Matches(targetMember);
+            return SourceMember.Matches(targetMember);
         }
 
         private static bool IsPartOfExpandoObjectMapping(IMemberMapperData mapperData)

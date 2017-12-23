@@ -15,7 +15,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         private readonly DictionaryTargetMember _rootDictionaryMember;
         private bool _createDictionaryChildMembers;
         private Expression _key;
-        //private ICache<Member, Expression>
 
         public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
             : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
@@ -37,6 +36,9 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             _rootDictionaryMember = rootDictionaryMember;
             _createDictionaryChildMembers = HasObjectEntries || HasSimpleEntries;
         }
+
+        public override bool IsRoot
+            => (this == _rootDictionaryMember) ? base.IsRoot : _rootDictionaryMember.IsRoot;
 
         public override string RegistrationName => GetKeyNameOrNull() ?? base.RegistrationName;
 
@@ -259,9 +261,9 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             var keyedAccess = this.GetAccess(mapperData);
 
-            var convertedValue = HasComplexEntries
-                ? GetCheckedValue((BlockExpression)value, keyedAccess, mapperData)
-                : mapperData.GetValueConversion(value, ValueType);
+            var convertedValue =
+                GetCheckedValueOrNull(value, keyedAccess, mapperData) ??
+                mapperData.GetValueConversion(value, ValueType);
 
             var keyedAssignment = keyedAccess.AssignTo(convertedValue);
 
@@ -343,21 +345,67 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return expressions;
         }
 
-        private Expression GetCheckedValue(BlockExpression value, Expression keyedAccess, IMemberMapperData mapperData)
+        private Expression GetCheckedValueOrNull(Expression value, Expression keyedAccess, IMemberMapperData mapperData)
         {
+            if (HasSimpleEntries)
+            {
+                return null;
+            }
+
             if (mapperData.SourceMember.IsEnumerable)
             {
-                return value;
+                return value.GetConversionTo(ValueType);
+            }
+
+
+            if ((value.NodeType != Block) && (value.NodeType != Try))
+            {
+                return null;
             }
 
             var checkedAccess = GetAccessChecked(mapperData);
             var existingValue = checkedAccess.Variables.First();
+
+            if (value.NodeType != Block)
+            {
+                return GetCheckedTryCatch((TryExpression)value, keyedAccess, checkedAccess, existingValue);
+            }
+
             var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValue };
-            var checkedValue = value.Replace(replacements);
+            var checkedValue = ((BlockExpression)value).Replace(replacements);
 
             return checkedValue.Update(
                 checkedValue.Variables.Append(existingValue),
                 checkedValue.Expressions.Prepend(checkedAccess.Expressions.First()));
+        }
+
+        private static Expression GetCheckedTryCatch(
+            TryExpression tryCatchValue,
+            Expression keyedAccess,
+            Expression checkedAccess,
+            ParameterExpression existingValue)
+        {
+            var existingValueOrDefault = Expression.Condition(
+                checkedAccess,
+                existingValue,
+                existingValue.Type.ToDefaultExpression());
+
+            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValueOrDefault };
+
+            var updatedCatchHandlers = tryCatchValue
+                .Handlers
+                .Select(handler => handler.Update(
+                    handler.Variable,
+                    handler.Filter.Replace(replacements),
+                    handler.Body.Replace(replacements)));
+
+            var updatedTryCatch = tryCatchValue.Update(
+                tryCatchValue.Body,
+                updatedCatchHandlers,
+                tryCatchValue.Finally,
+                tryCatchValue.Fault);
+
+            return Expression.Block(new[] { existingValue }, updatedTryCatch);
         }
 
         public DictionaryTargetMember WithTypeOf(Member sourceMember)

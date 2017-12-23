@@ -48,7 +48,10 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)
-            => mapperData.Context.IsForNewElement || (mapperData.IsRoot && !mapperData.RuleSet.RootHasPopulatedTarget);
+        {
+            return mapperData.Context.IsForNewElement ||
+                  (mapperData.TargetMember.IsRoot && !mapperData.RuleSet.RootHasPopulatedTarget);
+        }
 
         public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
         {

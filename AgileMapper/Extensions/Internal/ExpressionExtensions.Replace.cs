@@ -35,7 +35,7 @@
             Dictionary<Expression, Expression> replacementsByTarget)
             where TExpression : Expression
         {
-            if (replacementsByTarget.None())
+            if ((expression == null) || replacementsByTarget.None())
             {
                 return expression;
             }
