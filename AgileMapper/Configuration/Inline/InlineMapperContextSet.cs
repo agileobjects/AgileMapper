@@ -1,7 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration.Inline
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq.Expressions;
+    using Api.Configuration;
     using Caching;
 
     internal class InlineMapperContextSet : IEnumerable<MapperContext>
@@ -14,7 +17,7 @@
         }
 
         public MapperContext GetContextFor<TSource, TTarget>(
-            IInlineConfigurationSet configurations,
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations,
             MappingExecutor<TSource> executor)
         {
             var key = new InlineMapperKey<TSource, TTarget>(configurations, executor);

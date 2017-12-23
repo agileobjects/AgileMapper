@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System.Reflection;
+    using Dictionaries;
 
     /// <summary>
     /// Provides options for configuring mappings from and to a given source and target type, inline.
@@ -10,9 +11,17 @@
     public interface IFullMappingInlineConfigurator<TSource, TTarget> : IFullMappingConfigurator<TSource, TTarget>
     {
         /// <summary>
-        /// Configure how this mapper performs a mapping, inline.
+        /// Configure how this mapper performs a mapping, inline. Use this property to switch from 
+        /// configuration of the root Types on which the mapping is being performed to configuration 
+        /// of any other Types.
         /// </summary>
         MappingConfigStartingPoint WhenMapping { get; }
+
+        /// <summary>
+        /// Configure how this mapper performs a target Dictionary mapping, inline. Use tis property 
+        /// to access Dictionary-specific configuration, like custom member keys, separators, etc.
+        /// </summary>
+        ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries { get; }
 
         /// <summary>
         /// Throw an exception upon execution of this statement if the mapping being configured has any target members 

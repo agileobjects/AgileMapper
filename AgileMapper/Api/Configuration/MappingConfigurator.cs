@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using Dictionaries;
     using Extensions.Internal;
     using Members;
     using Validation;
@@ -30,6 +31,9 @@
 
         public MappingConfigStartingPoint WhenMapping
             => new MappingConfigStartingPoint(MapperContext);
+
+        public ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries
+            => new TargetDictionaryMappingConfigurator<TSource, TTarget>(ConfigInfo);
 
         public void ThrowNowIfMappingPlanIsIncomplete() => MappingValidator.Validate(ConfigInfo);
 

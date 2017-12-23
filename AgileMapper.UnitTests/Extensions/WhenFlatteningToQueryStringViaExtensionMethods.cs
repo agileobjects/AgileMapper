@@ -73,6 +73,7 @@
             };
 
             var result = source.Flatten().ToQueryString(cfg => cfg
+                .ForDictionaries
                 .MapMember(s => s.Name)
                 .ToFullKey("SponsorName")
                 .And

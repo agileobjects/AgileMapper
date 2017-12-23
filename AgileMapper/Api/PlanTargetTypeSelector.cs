@@ -60,7 +60,8 @@
 
             if (configurations != null)
             {
-                InlineConfigurationSet<TSource, TTarget>.Full(configurations).Apply(planContext);
+                InlineMappingConfigurator<TSource, TTarget>
+                    .ConfigureMapperContext(configurations, planContext);
             }
 
             return MappingPlan.For<TSource, TTarget>(planContext);
