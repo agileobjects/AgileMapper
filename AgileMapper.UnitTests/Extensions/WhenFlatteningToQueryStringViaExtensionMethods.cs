@@ -78,7 +78,7 @@
                 .ToFullKey("SponsorName")
                 .And
                 .MapMember(s => s.Numbers)
-                .ToFullKey("Nums"));
+                .ToMemberNameKey("Nums"));
 
             var resultDictionary = result
                 .Split('&')
@@ -86,11 +86,10 @@
                 .Select(pair => new KeyValuePair<string, string>(pair[0], pair[1]))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-            // TODO: 'Numbers' should be 'Nums'
             resultDictionary["SponsorName"].ShouldBe("Sherri");
-            resultDictionary["Numbers%5B0%5D"].ShouldBe("1");
-            resultDictionary["Numbers%5B1%5D"].ShouldBe("2");
-            resultDictionary["Numbers%5B2%5D"].ShouldBe("3");
+            resultDictionary["Nums%5B0%5D"].ShouldBe("1");
+            resultDictionary["Nums%5B1%5D"].ShouldBe("2");
+            resultDictionary["Nums%5B2%5D"].ShouldBe("3");
             resultDictionary["Address%2ELine1"].ShouldBe("One%21");
             resultDictionary["Address%2ELine2"].ShouldBe("Two%21");
             resultDictionary["Products%5B0%5D%2EProductId"].ShouldBe("prod-1");

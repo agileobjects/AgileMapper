@@ -72,6 +72,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public bool IsEnumerable => true;
 
+        public bool IsSimple => false;
+
         public bool CouldContainSourceInstance { get; }
 
         public bool IsEntireDictionaryMatch { get; }

@@ -41,11 +41,21 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             Member[] childMembers = null)
         {
             Type = type;
-            IsEnumerable = type.IsEnumerable();
             _pathFactory = pathFactory;
             _matchedTargetMember = matchedTargetMember;
             Parent = parent;
             _childMembers = childMembers ?? new[] { Member.RootSource(type) };
+
+            if (childMembers == null)
+            {
+                IsEnumerable = type.IsEnumerable();
+                IsSimple = !IsEnumerable && type.IsSimple();
+                return;
+            }
+
+            var leafMember = childMembers.Last();
+            IsEnumerable = leafMember.IsEnumerable;
+            IsSimple = leafMember.IsSimple;
         }
 
         public DictionarySourceMember Parent { get; }
@@ -57,6 +67,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         public Type ElementType => _childMembers.First().ElementType;
 
         public bool IsEnumerable { get; }
+
+        public bool IsSimple { get; }
 
         public string Name => _matchedTargetMember.Name;
 

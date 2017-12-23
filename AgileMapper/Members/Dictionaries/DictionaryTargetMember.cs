@@ -15,6 +15,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         private readonly DictionaryTargetMember _rootDictionaryMember;
         private bool _createDictionaryChildMembers;
         private Expression _key;
+        //private ICache<Member, Expression>
 
         public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
             : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
@@ -136,7 +137,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             return new DictionaryTargetMember(runtimeTypedTargetEntryMember, _rootDictionaryMember)
             {
-                _createDictionaryChildMembers = _createDictionaryChildMembers
+                _createDictionaryChildMembers = _createDictionaryChildMembers,
+                _key = _key
             };
         }
 

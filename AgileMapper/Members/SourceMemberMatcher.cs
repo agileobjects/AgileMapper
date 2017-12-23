@@ -12,6 +12,12 @@
         {
             var parentSourceMember = targetData.MapperData.SourceMember;
 
+            if (parentSourceMember.IsSimple)
+            {
+                contextMappingData = null;
+                return null;
+            }
+
             if (ExactMatchingSourceMemberExists(parentSourceMember, targetData, out var matchingMember))
             {
                 contextMappingData = targetData;
@@ -118,6 +124,11 @@
             {
                 parentMember = parentMember.WithType(parentMemberType);
                 yield return parentMember;
+
+                if (parentMember.IsSimple)
+                {
+                    yield break;
+                }
             }
 
             var relevantSourceMembers = QuerySourceMembers(

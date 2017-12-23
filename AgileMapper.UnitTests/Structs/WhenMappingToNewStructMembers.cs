@@ -49,7 +49,8 @@
                 Valu = (object)new { E2 = new PublicField<string> { Value = "123" } }
             };
 
-            var runtimeTypedResult = Mapper.Map(runtimeTypedSource).ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
+            var runtimeTypedResult = Mapper.Map(runtimeTypedSource)
+                .ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
 
             runtimeTypedResult.Value1.ShouldBe("Ue1!");
             runtimeTypedResult.Value2.ShouldNotBeDefault();
@@ -57,21 +58,24 @@
 
             var halfRuntimeTypedSource = new { Val = (object)new { Ue1 = "Ue1!!" }, Value2 = (object)123 };
 
-            var halfRuntimeTypedResult = Mapper.Map(halfRuntimeTypedSource).ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
+            var halfRuntimeTypedResult = Mapper.Map(halfRuntimeTypedSource)
+                .ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
 
             halfRuntimeTypedResult.Value1.ShouldBe("Ue1!!");
             halfRuntimeTypedResult.Value2.ShouldBeDefault();
 
             var nonRuntimeTypedSource = new { Value1 = (object)123, Value2 = (object)456 };
 
-            var nonRuntimeTypedResult = Mapper.Map(nonRuntimeTypedSource).ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
+            var nonRuntimeTypedResult = Mapper.Map(nonRuntimeTypedSource)
+                .ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
 
             nonRuntimeTypedResult.Value1.ShouldBe("123");
             nonRuntimeTypedResult.Value2.ShouldBeDefault();
 
             var unconstructableSource = new { Val = (object)123, Value2 = (object)456 };
 
-            var unconstructableResult = Mapper.Map(unconstructableSource).ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
+            var unconstructableResult = Mapper.Map(unconstructableSource)
+                .ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
 
             unconstructableResult.ShouldBeNull();
         }

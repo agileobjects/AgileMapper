@@ -19,6 +19,7 @@ namespace AgileObjects.AgileMapper.Members
             : this(
                   value.Type,
                   value.Type.IsEnumerable(),
+                  value.Type.IsSimple(),
                   value.ToReadableString(),
                   mapperData.TargetMember.JoinedNames,
                   mapperData.MapperContext)
@@ -29,6 +30,7 @@ namespace AgileObjects.AgileMapper.Members
             : this(
                   childMember.Type,
                   childMember.IsEnumerable,
+                  childMember.IsSimple,
                   parent.Name + childMember.JoiningName,
                   parent._matchedTargetMemberJoinedNames.ExtendWith(
                       parent._mapperContext.Naming.GetMatchingNamesFor(childMember),
@@ -41,6 +43,7 @@ namespace AgileObjects.AgileMapper.Members
         private ConfiguredSourceMember(
             Type type,
             bool isEnumerable,
+            bool isSimple,
             string name,
             ICollection<string> matchedTargetMemberJoinedNames,
             MapperContext mapperContext,
@@ -48,6 +51,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             Type = type;
             IsEnumerable = isEnumerable;
+            IsSimple = isSimple;
             Name = name;
             _matchedTargetMemberJoinedNames = matchedTargetMemberJoinedNames;
             _mapperContext = mapperContext;
@@ -60,6 +64,8 @@ namespace AgileObjects.AgileMapper.Members
         public string GetFriendlyTypeName() => Type.GetFriendlyName();
 
         public bool IsEnumerable { get; }
+
+        public bool IsSimple { get; }
 
         public string Name { get; }
 
@@ -78,6 +84,7 @@ namespace AgileObjects.AgileMapper.Members
             return new ConfiguredSourceMember(
                 Type,
                 IsEnumerable,
+                IsSimple,
                 Name,
                 _matchedTargetMemberJoinedNames,
                 _mapperContext,
@@ -113,9 +120,13 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
+            var isEnumerable = IsEnumerable || runtimeType.IsEnumerable();
+            var isSimple = !isEnumerable && (IsSimple || runtimeType.IsSimple());
+
             return new ConfiguredSourceMember(
                 runtimeType,
-                IsEnumerable || runtimeType.IsEnumerable(),
+                isEnumerable,
+                isSimple,
                 Name,
                 _matchedTargetMemberJoinedNames,
                 _mapperContext,
