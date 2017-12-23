@@ -70,10 +70,10 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// An IPlanTargetSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
+        public static IPlanTargetSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for the source type specified by the type argument, for all
@@ -81,10 +81,10 @@
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// An IPlanTargetSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>() => Default.GetPlansFor<TSource>();
+        public static IPlanTargetSelector<TSource> GetPlansFor<TSource>() => Default.GetPlansFor<TSource>();
 
         /// <summary>
         /// Returns mapping plans for all mapping functions currently cached by the default <see cref="IMapper"/>.
@@ -174,14 +174,14 @@
 
         IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
 
-        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+        IPlanTargetSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
-        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
+        IPlanTargetSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
         string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
 
-        private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
-            => new PlanTargetTypeSelector<TSource>(Context);
+        private PlanTargetSelector<TSource> GetPlan<TSource>()
+            => new PlanTargetSelector<TSource>(Context);
 
         PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
 

@@ -7,13 +7,13 @@
     using Configuration;
     using Plans;
 
-    internal class PlanTargetTypeSelector<TSource> :
-        IPlanTargetTypeSelector<TSource>,
+    internal class PlanTargetSelector<TSource> :
+        IPlanTargetSelector<TSource>,
         IPlanTargetTypeAndRuleSetSelector<TSource>
     {
         private readonly MapperContext _mapperContext;
 
-        internal PlanTargetTypeSelector(MapperContext mapperContext)
+        internal PlanTargetSelector(MapperContext mapperContext)
         {
             _mapperContext = mapperContext;
         }

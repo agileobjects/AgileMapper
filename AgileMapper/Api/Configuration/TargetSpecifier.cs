@@ -10,11 +10,11 @@
     /// apply.
     /// </summary>
     /// <typeparam name="TSource">The source type being configured.</typeparam>
-    public class TargetTypeSpecifier<TSource>
+    public class TargetSpecifier<TSource>
     {
         private readonly MappingConfigInfo _configInfo;
 
-        internal TargetTypeSpecifier(MappingConfigInfo configInfo)
+        internal TargetSpecifier(MappingConfigInfo configInfo)
         {
             _configInfo = configInfo;
         }

@@ -51,10 +51,10 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// An IPlanTargetSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance);
+        IPlanTargetSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance);
 
         /// <summary>
         /// Create and compile mapping functions for the source type specified by the type argument, for all
@@ -62,10 +62,10 @@
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// An IPlanTargetSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>();
+        IPlanTargetSelector<TSource> GetPlansFor<TSource>();
 
         /// <summary>
         /// Returns mapping plans for all mapping functions currently cached by the <see cref="IMapper"/>.
