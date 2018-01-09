@@ -20,6 +20,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
         {
             var dictionaryTypes = wrappedTargetMember.Type.GetDictionaryTypes();
+
             KeyType = dictionaryTypes.Key;
             ValueType = dictionaryTypes.Value;
             _rootDictionaryMember = this;
@@ -76,11 +77,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             if (base.HasCompatibleType(type))
             {
                 return true;
-            }
-
-            if (this != _rootDictionaryMember)
-            {
-                return false;
             }
 
             return (_rootDictionaryMember.Type != typeof(ExpandoObject)) && type.IsDictionary();
@@ -181,7 +177,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         }
 
         private Expression GetKey(IMemberMapperData mapperData)
-            => _key ?? mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType);
+        {
+            return (_key?.NodeType != Parameter)
+                ? mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType)
+                : _key;
+        }
 
         private Expression GetDictionaryAccess(IMemberMapperData mapperData)
         {

@@ -66,14 +66,8 @@
 
             var applicableDictionaryType = ConfigInfo.Get<DictionaryType>();
 
-            if ((applicableDictionaryType != DictionaryType.Expando) &&
-                 IsPartOfExpandoObjectMapping(mapperData))
-            {
-                return false;
-            }
-
-            if ((applicableDictionaryType == DictionaryType.Expando) &&
-                !IsPartOfExpandoObjectMapping(mapperData))
+            if (IsPartOfExpandoObjectMapping(mapperData) !=
+               (applicableDictionaryType == DictionaryType.Expando))
             {
                 return false;
             }
@@ -85,7 +79,22 @@
 
             var targetMember = GetTargetMember(member, mapperData);
 
-            return SourceMember.Matches(targetMember);
+            if (targetMember.MemberChain.Length < SourceMember.MemberChain.Length)
+            {
+                return false;
+            }
+
+            var targetMemberChainIndex = targetMember.MemberChain.Length;
+
+            for (var i = SourceMember.MemberChain.Length - 1; i > 0; --i)
+            {
+                if (!SourceMember.MemberChain[i].Equals(targetMember.MemberChain[--targetMemberChainIndex]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static bool IsPartOfExpandoObjectMapping(IMemberMapperData mapperData)

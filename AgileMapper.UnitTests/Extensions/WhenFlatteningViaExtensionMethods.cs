@@ -104,6 +104,34 @@
         }
 
         [Fact]
+        public void ShouldFlattenToDictionaryWithInlineConfiguration()
+        {
+            var source = new[]
+            {
+                new PublicTwoFieldsStruct<string, string> { Value1 = "1_1", Value2 = "1_2" },
+                new PublicTwoFieldsStruct<string, string> { Value1 = "2_1", Value2 = "2_2" }
+            };
+
+            var result = source.Flatten().ToDictionary(
+                cfg => cfg
+                    .WhenMapping
+                    .Dictionaries
+                    .UseFlattenedTargetMemberNames()
+                    .UseElementKeyPattern("<i>"),
+                cfg => cfg
+                    .WhenMapping
+                    .From<PublicTwoFieldsStruct<string, string>>()
+                    .ToDictionaries
+                    .MapMember(ptfs => ptfs.Value1)
+                    .ToMemberNameKey("V1"));
+
+            result["<0>V1"].ShouldBe("1_1");
+            result["<0>Value2"].ShouldBe("1_2");
+            result["<1>V1"].ShouldBe("2_1");
+            result["<1>Value2"].ShouldBe("2_2");
+        }
+
+        [Fact]
         public void ShouldFlattenToStringDictionary()
         {
             var source = new[]
