@@ -45,6 +45,7 @@
       <HintPath>..\packages\AgileObjects.ReadableExpressions.1.10.1\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
@@ -155,8 +156,12 @@
     <Compile Include="Structs\WhenMappingToNewStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructs.cs" />
     <Compile Include="TestClasses\Earthworm.cs" />
+    <Compile Include="TestClasses\EntityBase.cs" />
     <Compile Include="TestClasses\IPublicInterface.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />
+    <Compile Include="TestClasses\OrderEntity.cs" />
+    <Compile Include="TestClasses\OrderItemEntity.cs" />
+    <Compile Include="TestClasses\ProductEntity.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
     <Compile Include="TestClasses\ProductDtoMega.cs" />
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />

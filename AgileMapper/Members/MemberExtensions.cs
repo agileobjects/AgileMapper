@@ -53,6 +53,12 @@
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
+            if (member.LeafMember.MemberInfo?.HasKeyAttribute() == true)
+            {
+                reason = "Entity key member";
+                return true;
+            }
+
             if (IsStructNonSimpleMember(member))
             {
                 reason = member.Type.GetFriendlyName() + " member on a struct";
