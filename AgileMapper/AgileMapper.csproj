@@ -17,6 +17,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
+    <Copyright>Copyright © AgileObjects Ltd 2018</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
