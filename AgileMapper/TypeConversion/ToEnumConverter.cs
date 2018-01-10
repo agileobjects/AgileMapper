@@ -62,15 +62,6 @@
             Type nonNullableSourceType,
             Type nonNullableTargetEnumType)
         {
-            var convertedSourceValue = sourceValue
-                .GetConversionTo(Enum.GetUnderlyingType(nonNullableTargetEnumType))
-                .GetConversionTo(typeof(object));
-
-            var numericValueIsDefined = Expression.Call(
-                typeof(Enum).GetPublicStaticMethod("IsDefined"),
-                nonNullableTargetEnumType.ToConstantExpression(),
-                convertedSourceValue);
-
             Expression convertedNumericValue = Expression.Convert(sourceValue, nonNullableTargetEnumType);
 
             if (nonNullableTargetEnumType != fallbackValue.Type)
@@ -79,7 +70,7 @@
             }
 
             var definedValueOrFallback = Expression.Condition(
-                numericValueIsDefined,
+                GetEnumIsDefinedCall(nonNullableTargetEnumType, sourceValue),
                 convertedNumericValue,
                 fallbackValue);
 
@@ -94,6 +85,18 @@
                 fallbackValue);
 
             return nonNullDefinedValueOrFallback;
+        }
+
+        private static Expression GetEnumIsDefinedCall(Type enumType, Expression value)
+        {
+            var convertedValue = value
+                .GetConversionTo(Enum.GetUnderlyingType(enumType))
+                .GetConversionTo(typeof(object));
+
+            return Expression.Call(
+                typeof(Enum).GetPublicStaticMethod("IsDefined"),
+                enumType.ToConstantExpression(),
+                convertedValue);
         }
 
         private Expression GetTryParseConversion(
@@ -151,13 +154,10 @@
                 return successfulParseReturnValue;
             }
 
-            var isDefinedCall = Expression.Call(
-                null,
-                typeof(Enum).GetPublicStaticMethod("IsDefined"),
-                valueVariable.Type.ToConstantExpression(),
-                valueVariable.GetConversionTo(typeof(object)));
-
-            var definedValueOrDefault = Expression.Condition(isDefinedCall, successfulParseReturnValue, defaultValue);
+            var definedValueOrDefault = Expression.Condition(
+                GetEnumIsDefinedCall(valueVariable.Type, valueVariable),
+                successfulParseReturnValue,
+                defaultValue);
 
             return definedValueOrDefault;
         }
