@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
+    using System.Collections;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -31,14 +32,18 @@
         public override Expression GetConversion(Expression sourceValue, Type targetEnumType)
         {
             var fallbackValue = targetEnumType.ToDefaultExpression();
+            var nonNullableSourceType = sourceValue.Type.GetNonNullableType();
             var nonNullableTargetEnumType = targetEnumType.GetNonNullableType();
 
             if (nonNullableTargetEnumType.HasAttribute<FlagsAttribute>())
             {
-                return GetFlagsEnumConversion(sourceValue, fallbackValue, nonNullableTargetEnumType);
+                return GetFlagsEnumConversion(
+                    sourceValue,
+                    fallbackValue,
+                    nonNullableSourceType,
+                    nonNullableTargetEnumType);
             }
 
-            var nonNullableSourceType = sourceValue.Type.GetNonNullableType();
 
             if (nonNullableSourceType.IsNumeric())
             {
@@ -165,9 +170,91 @@
         private Expression GetFlagsEnumConversion(
             Expression sourceValue,
             Expression fallbackValue,
+            Type nonNullableSourceType,
             Type nonNullableTargetEnumType)
         {
+            if (nonNullableSourceType.IsNumeric())
+            {
+                return GetNumericToFlagsEnumConversion(
+                    sourceValue,
+                    fallbackValue,
+                    nonNullableSourceType,
+                    nonNullableTargetEnumType);
+            }
+
             throw new NotImplementedException();
+        }
+
+        private static Expression GetNumericToFlagsEnumConversion(
+            Expression sourceValue,
+            Expression fallbackValue,
+            Type nonNullableSourceType,
+            Type nonNullableTargetEnumType)
+        {
+            var enumTypeName = nonNullableTargetEnumType.GetVariableNameInCamelCase();
+            var underlyingEnumType = Enum.GetUnderlyingType(nonNullableTargetEnumType);
+
+            var enumValueVariable = Expression.Variable(underlyingEnumType, enumTypeName + "Value");
+            var assignEnumValue = Expression.Assign(enumValueVariable, underlyingEnumType.ToDefaultExpression());
+
+            var enumValuesVariable = Expression.Variable(typeof(IEnumerator), enumTypeName + "Values");
+
+            var enumGetValuesCall = Expression.Call(
+                typeof(Enum).GetPublicStaticMethod("GetValues"),
+                nonNullableTargetEnumType.ToConstantExpression());
+
+            var getValuesEnumeratorCall = Expression.Call(
+                enumGetValuesCall,
+                enumGetValuesCall.Type.GetPublicInstanceMethod("GetEnumerator"));
+
+            var assignEnumValues = Expression.Assign(enumValuesVariable, getValuesEnumeratorCall);
+
+            var enumeratorMoveNext = Expression.Call(
+                enumValuesVariable,
+                enumValuesVariable.Type.GetPublicInstanceMethod("MoveNext"));
+
+            var loopBreakTarget = Expression.Label();
+
+            var ifNotMoveNextBreak = Expression.IfThen(
+                Expression.Not(enumeratorMoveNext),
+                Expression.Break(loopBreakTarget));
+
+            var localEnumValueVariable = Expression.Variable(underlyingEnumType, enumTypeName);
+            var enumeratorCurrent = Expression.Property(enumValuesVariable, "Current");
+            var currentAsEnumType = Expression.Convert(enumeratorCurrent, underlyingEnumType);
+            var assignLocalVariable = Expression.Assign(localEnumValueVariable, currentAsEnumType);
+
+            var sourceValueVariable = Expression.Variable(underlyingEnumType, enumTypeName + "Source");
+
+            if (sourceValue.Type != underlyingEnumType)
+            {
+                sourceValue = Expression.Convert(sourceValue, underlyingEnumType);
+            }
+
+            var assignSourceVariable = Expression.Assign(sourceValueVariable, sourceValue);
+
+            var localVariableAndSourceValue = Expression.And(localEnumValueVariable, sourceValueVariable);
+            var andResultEqualsEnumValue = Expression.Equal(localVariableAndSourceValue, localEnumValueVariable);
+
+            var ifAndResultMatchesAssign = Expression.IfThen(
+                andResultEqualsEnumValue,
+                Expression.OrAssign(enumValueVariable, localEnumValueVariable));
+
+            var loopBody = Expression.Block(
+                new[] { localEnumValueVariable },
+                ifNotMoveNextBreak,
+                assignLocalVariable,
+                ifAndResultMatchesAssign);
+
+            var populationBlock = Expression.Block(
+                new[] { sourceValueVariable, enumValueVariable, enumValuesVariable },
+                assignSourceVariable,
+                assignEnumValue,
+                assignEnumValues,
+                Expression.Loop(loopBody, loopBreakTarget),
+                enumValueVariable.GetConversionTo(fallbackValue.Type));
+
+            return populationBlock;
         }
     }
 }
