@@ -182,20 +182,7 @@ namespace AgileObjects.AgileMapper.Members
         public MemberType MemberType { get; }
 
         public bool HasAttribute<TAttribute>()
-        {
-            if (MemberInfo == null)
-            {
-                // TODO: test coverage - DictionaryEntry?
-                return false;
-            }
-
-            return MemberInfo
-                .GetCustomAttributes(typeof(TAttribute), inherit: true)
-#if NET_STANDARD
-                .ToArray()
-#endif
-                .Any();
-        }
+            => MemberInfo?.HasAttribute<TAttribute>() == true;
 
         public Expression GetAccess(Expression instance)
         {
