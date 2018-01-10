@@ -208,5 +208,28 @@
             target.Value1.ShouldBe(123);
             target.Value2.ShouldBe(456);
         }
+
+        [Fact]
+        public void ShouldOverwriteWithInlineConfigurationAndASpecifiedMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, int>>()
+                    .Over<PublicTwoFields<string, string>>()
+                    .Map(ctx => ctx.Source.Value1 + 10)
+                    .To(pf => pf.Value1);
+
+                var source = new PublicTwoFields<int, int> { Value1 = 20, Value2 = 20 };
+                var target = new PublicTwoFields<string, string>();
+
+                source.Map(_ => _.Using(mapper)).Over(target, cfg => cfg
+                    .Map((s, t) => s.Value2 + 5)
+                    .To(ptf => ptf.Value2));
+
+                target.Value1.ShouldBe("30");
+                target.Value2.ShouldBe("25");
+            }
+        }
     }
 }

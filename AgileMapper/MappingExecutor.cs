@@ -31,23 +31,29 @@
         #region Inline Configuration
 
         public TResult ToANew<TResult>(
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
         {
-            return PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations);
+            return configurations.Any()
+                ? PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations)
+                : PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
         }
 
         public TTarget OnTo<TTarget>(
             TTarget existing,
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
-            return PerformMapping(MapperContext.RuleSets.Merge, existing, configurations);
+            return configurations.Any()
+                ? PerformMapping(MapperContext.RuleSets.Merge, existing, configurations)
+                : PerformMapping(MapperContext.RuleSets.Merge, existing);
         }
 
         public TTarget Over<TTarget>(
             TTarget existing,
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
-            return PerformMapping(MapperContext.RuleSets.Overwrite, existing, configurations);
+            return configurations.Any()
+                ? PerformMapping(MapperContext.RuleSets.Overwrite, existing, configurations)
+                : PerformMapping(MapperContext.RuleSets.Overwrite, existing);
         }
 
         private TTarget PerformMapping<TTarget>(
@@ -67,15 +73,6 @@
         }
 
         #endregion
-
-        public TResult ToANew<TResult>()
-            => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
-
-        public TTarget OnTo<TTarget>(TTarget existing)
-            => PerformMapping(MapperContext.RuleSets.Merge, existing);
-
-        public TTarget Over<TTarget>(TTarget existing)
-            => PerformMapping(MapperContext.RuleSets.Overwrite, existing);
 
         private TTarget PerformMapping<TTarget>(MappingRuleSet ruleSet, TTarget target)
         {
