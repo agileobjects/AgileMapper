@@ -155,11 +155,14 @@
     <Compile Include="Structs\WhenMappingToUnmappableStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructs.cs" />
+    <Compile Include="TestClasses\DtoBase.cs" />
     <Compile Include="TestClasses\Earthworm.cs" />
     <Compile Include="TestClasses\EntityBase.cs" />
     <Compile Include="TestClasses\IPublicInterface.cs" />
     <Compile Include="TestClasses\MegaProduct.cs" />
+    <Compile Include="TestClasses\OrderDto.cs" />
     <Compile Include="TestClasses\OrderEntity.cs" />
+    <Compile Include="TestClasses\OrderItemDto.cs" />
     <Compile Include="TestClasses\OrderItemEntity.cs" />
     <Compile Include="TestClasses\ProductEntity.cs" />
     <Compile Include="TestClasses\ProductDto.cs" />
@@ -202,9 +205,12 @@
     <Compile Include="TestClasses\PublicTwoFields.cs" />
     <Compile Include="TestClasses\PublicTwoFieldsStruct.cs" />
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
+    <Compile Include="TestClasses\SaveOrderItemRequest.cs" />
+    <Compile Include="TestClasses\SaveOrderRequest.cs" />
     <Compile Include="TestClasses\StringKeyedDictionary.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
+    <Compile Include="WhenMappingEntities.cs" />
     <Compile Include="WhenValidatingMappings.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />

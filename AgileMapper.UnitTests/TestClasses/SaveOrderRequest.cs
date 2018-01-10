@@ -3,10 +3,10 @@
     using System;
     using System.Collections.Generic;
 
-    internal class OrderEntity : EntityBase
+    internal class SaveOrderRequest : DtoBase
     {
         public DateTime DateCreated { get; set; }
 
-        public ICollection<OrderItemEntity> Items { get; set; }
+        public ICollection<SaveOrderItemRequest> Items { get; set; }
     }
 }

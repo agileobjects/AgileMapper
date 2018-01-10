@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
@@ -450,7 +451,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             nearestStandaloneMapperData.RequiredMapperFuncsByKey.Add(mappingData.MapperKey, null);
 
             var mappingLambda = mappingData.Mapper.MappingLambda;
-            nearestStandaloneMapperData.RequiredMapperFuncsByKey[mappingData.MapperKey] = mappingLambda;
+
+            if (mappingLambda != null)
+            {
+                // The mapping lambda can be null if it turns out the nested mapping 
+                // function has all-unmappable members, i.e. it doesn't map anything:
+                nearestStandaloneMapperData.RequiredMapperFuncsByKey[mappingData.MapperKey] = mappingLambda;
+            }
         }
 
         private ObjectMapperData GetNearestStandaloneMapperData()
@@ -465,7 +472,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool HasMapperFuncs => (RequiredMapperFuncsByKey != null) && RequiredMapperFuncsByKey.Any();
+        public bool HasMapperFuncs => RequiredMapperFuncsByKey?.Any(f => f.Value != null) == true;
 
         public Dictionary<ObjectMapperKeyBase, LambdaExpression> RequiredMapperFuncsByKey { get; }
 

@@ -297,7 +297,7 @@
         [Fact]
         public void ShouldIncludeUnmappableEntityKeyMemberDetails()
         {
-            string plan = Mapper.GetPlanFor<OrderEntity>().ToANew<OrderEntity>();
+            string plan = Mapper.GetPlanFor<OrderDto>().ToANew<OrderEntity>();
 
             plan.ShouldContain("Entity key member");
         }
