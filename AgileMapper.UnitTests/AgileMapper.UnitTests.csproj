@@ -117,7 +117,10 @@
     <Compile Include="Dynamics\WhenMappingToNewEnumerablesOfDynamic.cs" />
     <Compile Include="Dynamics\WhenMappingToNewDynamicMembers.cs" />
     <Compile Include="Dynamics\WhenMappingToNewDynamics.cs" />
-    <Compile Include="Extensions\WhenEquatingExpressions.cs" />
+    <Compile Include="Extensions\Internal\WhenEquatingExpressions.cs" />
+    <Compile Include="Extensions\WhenFlatteningToQueryStringViaExtensionMethods.cs" />
+    <Compile Include="Extensions\WhenFlatteningViaExtensionMethods.cs" />
+    <Compile Include="Extensions\WhenMappingViaExtensionMethods.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectTracking.cs" />
@@ -168,7 +171,7 @@
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringTypeIdentifiers.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
-    <Compile Include="Extensions\WhenGeneratingVariableNames.cs" />
+    <Compile Include="Extensions\Internal\WhenGeneratingVariableNames.cs" />
     <Compile Include="Members\MemberTestsBase.cs" />
     <Compile Include="Members\WhenCreatingTargetMembersFromExpressions.cs" />
     <Compile Include="Members\WhenDeterminingATypeIdentifier.cs" />

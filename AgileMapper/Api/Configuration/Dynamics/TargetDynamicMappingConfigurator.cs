@@ -5,16 +5,20 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
     using System.Dynamic;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Dictionaries;
     using Dictionaries;
     using Members;
     using ReadableExpressions;
 
     internal class TargetDynamicMappingConfigurator<TSource> :
         DictionaryMappingConfiguratorBase<TSource, IDictionary<string, object>>,
-        ITargetDynamicMappingConfigurator<TSource>
+        ITargetDynamicMappingInlineConfigurator<TSource>
     {
         public TargetDynamicMappingConfigurator(MappingConfigInfo configInfo)
-            : base(configInfo.ForTargetType<ExpandoObject>())
+            : base(configInfo
+                  .ForAllRuleSets()
+                  .ForTargetType<ExpandoObject>()
+                  .Set(DictionaryType.Expando))
         {
         }
 

@@ -22,7 +22,7 @@
                 Value = new List<string> { "40" }
             };
 
-            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.ShouldBe("10", "20", "30");
         }
@@ -39,7 +39,7 @@
                 Value = new List<ProductDto> { new ProductDto { ProductId = "p-1" } }
             };
 
-            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.ShouldBeEmpty();
         }
@@ -66,7 +66,7 @@
 
             var preMappingProd2 = target.Value.First();
 
-            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.Count.ShouldBe(2);
 
@@ -92,7 +92,7 @@
                 }
             };
 
-            ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
 
             target.Value.Count.ShouldBe(2);
             target.Value.ShouldBe(pf => pf.Value, "Value 0", "Value 1");

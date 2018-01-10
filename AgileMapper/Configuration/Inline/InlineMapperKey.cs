@@ -37,6 +37,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
         {
             var otherKey = (IInlineMapperKey)obj;
 
+            // ReSharper disable once PossibleNullReferenceException
             if ((_configurations.Length != otherKey.Configurations.Count) ||
                 (RuleSet != otherKey.RuleSet) ||
                 !MappingTypes.Equals(otherKey.MappingTypes))

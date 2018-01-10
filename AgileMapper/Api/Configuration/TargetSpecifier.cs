@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
     using Dictionaries;
@@ -10,11 +11,11 @@
     /// apply.
     /// </summary>
     /// <typeparam name="TSource">The source type being configured.</typeparam>
-    public class TargetTypeSpecifier<TSource>
+    public class TargetSpecifier<TSource>
     {
         private readonly MappingConfigInfo _configInfo;
 
-        internal TargetTypeSpecifier(MappingConfigInfo configInfo)
+        internal TargetSpecifier(MappingConfigInfo configInfo)
         {
             _configInfo = configInfo;
         }
@@ -73,13 +74,13 @@
         /// </typeparam>
         /// <returns>An ITargetDictionaryConfigSettings with which to continue the configuration.</returns>
         public ITargetDictionaryMappingConfigurator<TSource, TValue> ToDictionariesWithValueType<TValue>()
-            => new TargetDictionaryMappingConfigurator<TSource, TValue>(_configInfo.ForAllRuleSets().Set(DictionaryType.Dictionary));
+            => new TargetDictionaryMappingConfigurator<TSource, TValue>(_configInfo.ForAllRuleSets());
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
         /// (create new, overwrite, etc), to target ExpandoObjects.
         /// </summary>
         public ITargetDynamicMappingConfigurator<TSource> ToDynamics
-            => new TargetDynamicMappingConfigurator<TSource>(_configInfo.ForAllRuleSets().Set(DictionaryType.Expando));
+            => new TargetDynamicMappingConfigurator<TSource>(_configInfo);
     }
 }

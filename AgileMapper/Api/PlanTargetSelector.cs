@@ -1,20 +1,19 @@
 ﻿namespace AgileObjects.AgileMapper.Api
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using AgileMapper.Configuration.Inline;
     using Configuration;
     using Plans;
 
-    internal class PlanTargetTypeSelector<TSource> :
-        IPlanTargetTypeSelector<TSource>,
+    internal class PlanTargetSelector<TSource> :
+        IPlanTargetSelector<TSource>,
         IPlanTargetTypeAndRuleSetSelector<TSource>
     {
         private readonly MapperContext _mapperContext;
 
-        internal PlanTargetTypeSelector(MapperContext mapperContext)
+        internal PlanTargetSelector(MapperContext mapperContext)
         {
             _mapperContext = mapperContext;
         }
@@ -55,7 +54,7 @@
 
         private MappingPlan GetMappingPlan<TTarget>(
             MappingRuleSet ruleSet,
-            IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations = null)
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations = null)
         {
             var planContext = new SimpleMappingContext(ruleSet, _mapperContext);
 

@@ -273,6 +273,50 @@
         }
 
         [Fact]
+        public void ShouldAllowACustomTargetFullEntryKeyForAComplexTypeSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<Address, Address>>()
+                    .ToDictionariesWithValueType<Address>()
+                    .MapMember(pf => pf.Value2)
+                    .ToFullKey("Address");
+
+                var source = new PublicTwoFields<Address, Address>
+                {
+                    Value1 = new Address { Line1 = "1.1", Line2 = "1.2" },
+                    Value2 = new Address { Line1 = "2.1", Line2 = "2.2" },
+                };
+                var result = mapper.Map(source).ToANew<Dictionary<string, Address>>();
+
+                result["Value1"].Line1.ShouldBe("1.1");
+                result["Value1"].Line2.ShouldBe("1.2");
+                result["Address"].Line1.ShouldBe("2.1");
+                result["Address"].Line2.ShouldBe("2.2");
+            }
+        }
+
+        [Fact]
+        public void ShouldAllowACustomTargetFullEntryKeyForAnEnumerableSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int[]>>()
+                    .ToDictionariesWithValueType<int[]>()
+                    .MapMember(pf => pf.Value)
+                    .ToFullKey("Numbers");
+
+                var source = new PublicField<int[]> { Value = new[] { 4, 5, 6 } };
+                var result = mapper.Map(source).ToANew<Dictionary<string, int[]>>();
+
+                result.ShouldNotContainKey("Value");
+                result["Numbers"].ShouldBe(4, 5, 6);
+            }
+        }
+
+        [Fact]
         public void ShouldApplyACustomConfiguredMemberConditionally()
         {
             using (var mapper = Mapper.CreateNew())

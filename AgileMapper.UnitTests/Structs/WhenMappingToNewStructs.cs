@@ -17,7 +17,7 @@
         [Fact]
         public void ShouldCloneAStruct()
         {
-            var result = Mapper.Clone(new PublicPropertyStruct<int> { Value = 123 });
+            var result = Mapper.DeepClone(new PublicPropertyStruct<int> { Value = 123 });
 
             result.ShouldNotBeDefault();
             result.Value.ShouldBe(123);
