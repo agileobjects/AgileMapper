@@ -9,7 +9,7 @@
 
     internal class PlanTargetSelector<TSource> :
         IPlanTargetSelector<TSource>,
-        IPlanTargetTypeAndRuleSetSelector<TSource>
+        IPlanTargetAndRuleSetSelector<TSource>
     {
         private readonly MapperContext _mapperContext;
 

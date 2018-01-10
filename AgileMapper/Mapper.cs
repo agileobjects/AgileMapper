@@ -44,10 +44,10 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
+        public static IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for a particular type of mapping of the source type
@@ -55,10 +55,10 @@
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>() => Default.GetPlanFor<TSource>();
+        public static IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>() => Default.GetPlanFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for mapping from the source type specified by the given 
@@ -170,9 +170,9 @@
 
         internal MapperContext Context { get; }
 
-        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+        IPlanTargetAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
-        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
+        IPlanTargetAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
 
         IPlanTargetSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
