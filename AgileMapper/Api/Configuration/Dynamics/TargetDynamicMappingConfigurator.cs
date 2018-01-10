@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 
     internal class TargetDynamicMappingConfigurator<TSource> :
         DictionaryMappingConfiguratorBase<TSource, IDictionary<string, object>>,
-        ITargetDynamicMappingConfigurator<TSource>
+        ITargetDynamicMappingInlineConfigurator<TSource>
     {
         public TargetDynamicMappingConfigurator(MappingConfigInfo configInfo)
             : base(configInfo

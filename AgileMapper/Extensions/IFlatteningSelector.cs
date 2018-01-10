@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.Linq.Expressions;
     using Api.Configuration;
 
@@ -12,27 +13,26 @@
     public interface IFlatteningSelector<TSource>
     {
         /// <summary>
-        /// Flatten to an ExpandoObject using the default <see cref="IMapper"/>.
-        /// </summary>
-        /// <returns>An ExpandoObject dynamic containing the flattened source object.</returns>
-        dynamic ToDynamic();
-
-        /// <summary>
-        /// Flatten to an IDictionary{string, object} using the default <see cref="IMapper"/>.
-        /// </summary>
-        /// <returns>
-        /// An IDictionary{string, object} implementation containing the flattened source object.
-        /// </returns>
-        Dictionary<string, object> ToDictionary();
-
-        /// <summary>
-        /// Flatten to an IDictionary{string, object} using the default <see cref="IMapper"/> and the given 
+        /// Flatten to an ExpandoObject using the default <see cref="IMapper"/> and any given 
         /// <paramref name="configurations"/>.
         /// </summary>
         /// <param name="configurations">
-        /// One or more mapping configurations. The mapping will be configured by combining these inline 
-        /// <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping 
-        /// API.
+        /// Zero or more mapping configurations. If supplied, the mapping will be configured by combining these 
+        /// inline <paramref name="configurations"/> with any configuration already set up via the 
+        /// Mapper.WhenMapping API.
+        /// </param>
+        /// <returns>An ExpandoObject dynamic containing the flattened source object.</returns>
+        dynamic ToDynamic(
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, ExpandoObject>>>[] configurations);
+
+        /// <summary>
+        /// Flatten to an IDictionary{string, object} using the default <see cref="IMapper"/> and any given 
+        /// <paramref name="configurations"/>.
+        /// </summary>
+        /// <param name="configurations">
+        /// Zero or more mapping configurations. If supplied, the mapping will be configured by combining these 
+        /// inline <paramref name="configurations"/> with any configuration already set up via the 
+        /// Mapper.WhenMapping API.
         /// </param>
         /// <returns>
         /// An IDictionary{string, object} implementation containing the flattened source object.
@@ -41,19 +41,7 @@
             params Expression<Action<IFullMappingInlineConfigurator<TSource, Dictionary<string, object>>>>[] configurations);
 
         /// <summary>
-        /// Flatten to an IDictionary{string, TValue} using the default <see cref="IMapper"/>.
-        /// </summary>
-        /// <typeparam name="TValue">
-        /// The Type of objects to store in the result IDictionary{string, TValue}. Values which cannot
-        /// be converted to this Type will be ignored.
-        /// </typeparam>
-        /// <returns>
-        /// An IDictionary{string, TValue} implementation containing the flattened source object.
-        /// </returns>
-        Dictionary<string, TValue> ToDictionary<TValue>();
-
-        /// <summary>
-        /// Flatten to an IDictionary{string, TValue} using the default <see cref="IMapper"/> and the given 
+        /// Flatten to an IDictionary{string, TValue} using the default <see cref="IMapper"/> and any given 
         /// <paramref name="configurations"/>.
         /// </summary>
         /// <typeparam name="TValue">
@@ -61,9 +49,9 @@
         /// converted to this Type will be ignored.
         /// </typeparam>
         /// <param name="configurations">
-        /// One or more mapping configurations. The mapping will be configured by combining these inline 
-        /// <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping 
-        /// API.
+        /// Zero or more mapping configurations. If supplied, the mapping will be configured by combining these 
+        /// inline <paramref name="configurations"/> with any configuration already set up via the 
+        /// Mapper.WhenMapping  API.
         /// </param>
         /// <returns>
         /// An IDictionary{string, TValue} implementation containing the flattened source object.
@@ -73,19 +61,13 @@
 
         /// <summary>
         /// Flatten the source object into an ampersand-separted, key=value pair query string format, using the 
-        /// default <see cref="IMapper"/>. The value is returned without a leading question mark.
-        /// </summary>
-        /// <returns>The flattened query-string-formatted source object data.</returns>
-        string ToQueryString();
-
-        /// <summary>
-        /// Flatten the source object into an ampersand-separted, key=value pair query string format, using the 
-        /// default <see cref="IMapper"/> and the given <paramref name="configurations"/>. The value is returned 
+        /// default <see cref="IMapper"/> and any given <paramref name="configurations"/>. The value is returned 
         /// without a leading question mark.
         /// </summary>
         /// <param name="configurations">
-        ///     One or more mapping configurations. The mapping will be configured by combining these inline 
-        ///     <paramref name="configurations"/> with any configuration already set up via the Mapper.WhenMapping API.
+        /// Zero or more mapping configurations. If supplied, the mapping will be configured by combining these 
+        /// inline <paramref name="configurations"/> with any configuration already set up via the 
+        /// Mapper.WhenMapping API.
         /// </param>
         /// <returns>The flattened query-string-formatted source object data.</returns>
         string ToQueryString(

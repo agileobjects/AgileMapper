@@ -11,6 +11,5 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     public interface ITargetDictionaryMappingInlineConfigurator<TSource, TValue> :
         ITargetDictionaryMappingConfigurator<TSource, TValue>
     {
-
     }
 }

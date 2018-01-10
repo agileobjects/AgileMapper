@@ -5,6 +5,7 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using Dictionaries;
+    using Dynamics;
     using Extensions.Internal;
     using Members;
     using Validation;
@@ -34,6 +35,9 @@
 
         public ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries
             => new TargetDictionaryMappingConfigurator<TSource, TTarget>(ConfigInfo);
+
+        public ITargetDynamicMappingInlineConfigurator<TSource> ForDynamics
+            => new TargetDynamicMappingConfigurator<TSource>(ConfigInfo);
 
         public void ThrowNowIfMappingPlanIsIncomplete() => MappingValidator.Validate(ConfigInfo);
 

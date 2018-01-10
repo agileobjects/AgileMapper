@@ -2,6 +2,7 @@
 {
     using System.Reflection;
     using Dictionaries;
+    using Dynamics;
 
     /// <summary>
     /// Provides options for configuring mappings from and to a given source and target type, inline.
@@ -18,10 +19,16 @@
         MappingConfigStartingPoint WhenMapping { get; }
 
         /// <summary>
-        /// Configure how this mapper performs a target Dictionary mapping, inline. Use tis property 
-        /// to access Dictionary-specific configuration, like custom member keys, separators, etc.
+        /// Configure how this mapper performs a target Dictionary mapping, inline. Use this property 
+        /// to access Dictionary-specific configuration; custom member keys, separators, etc.
         /// </summary>
         ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries { get; }
+
+        /// <summary>
+        /// Configure how this mapper performs a target ExpandoObject mapping, inline. Use this property 
+        /// to access ExpandoObject-specific configuration; separators, etc.
+        /// </summary>
+        ITargetDynamicMappingInlineConfigurator<TSource> ForDynamics { get; }
 
         /// <summary>
         /// Throw an exception upon execution of this statement if the mapping being configured has any target members 

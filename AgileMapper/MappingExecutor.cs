@@ -108,41 +108,29 @@
 
         #region IFlatteningSelector Members
 
-        dynamic IFlatteningSelector<TSource>.ToDynamic() => ToANew<ExpandoObject>();
-
-        Dictionary<string, object> IFlatteningSelector<TSource>.ToDictionary()
-            => ToANew<Dictionary<string, object>>();
+        dynamic IFlatteningSelector<TSource>.ToDynamic(
+            params Expression<Action<IFullMappingInlineConfigurator<TSource, ExpandoObject>>>[] configurations)
+        {
+            return configurations.Any() ? ToANew(configurations) : ToANew<ExpandoObject>();
+        }
 
         Dictionary<string, object> IFlatteningSelector<TSource>.ToDictionary(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, Dictionary<string, object>>>>[] configurations)
-            => ToANew(configurations);
-
-        Dictionary<string, TValue> IFlatteningSelector<TSource>.ToDictionary<TValue>()
-            => ToANew<Dictionary<string, TValue>>();
+        {
+            return configurations.Any() ? ToANew(configurations) : ToANew<Dictionary<string, object>>();
+        }
 
         Dictionary<string, TValue> IFlatteningSelector<TSource>.ToDictionary<TValue>(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, Dictionary<string, TValue>>>>[] configurations)
         {
-            return ToANew(configurations);
-        }
-
-        string IFlatteningSelector<TSource>.ToQueryString()
-        {
-            var flattened = ToANew<Dictionary<string, string>>();
-
-            return ConvertToQueryString(flattened);
+            return configurations.Any() ? ToANew(configurations) : ToANew<Dictionary<string, TValue>>();
         }
 
         string IFlatteningSelector<TSource>.ToQueryString(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, Dictionary<string, string>>>>[] configurations)
         {
-            var flattened = ToANew(configurations);
+            var flattened = configurations.Any() ? ToANew(configurations) : ToANew<Dictionary<string, string>>();
 
-            return ConvertToQueryString(flattened);
-        }
-
-        private static string ConvertToQueryString(IDictionary<string, string> flattened)
-        {
             var queryString = string.Join(
                 "&",
                 flattened.Select(kvp => Uri.EscapeDataString(kvp.Key) + "=" + Uri.EscapeDataString(kvp.Value)));

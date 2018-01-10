@@ -55,6 +55,58 @@
         }
 
         [Fact]
+        public void ShouldFlattenToDynamicWithInlineConfiguration()
+        {
+            var source = new[]
+            {
+                new Address { Line1 = "1_1", Line2 = "1_2" },
+                new Address { Line1 = "2_1", Line2 = "2_2" },
+                new Address { Line1 = "3_1", Line2 = "3_2" }
+            };
+
+            var result = source.Flatten().ToDynamic(cfg => cfg
+                .ForDynamics
+                .UseElementKeyPattern("_i_"));
+
+            ((string)result._0__Line1).ShouldBe("1_1");
+            ((string)result._0__Line2).ShouldBe("1_2");
+            ((string)result._1__Line1).ShouldBe("2_1");
+            ((string)result._1__Line2).ShouldBe("2_2");
+            ((string)result._2__Line1).ShouldBe("3_1");
+            ((string)result._2__Line2).ShouldBe("3_2");
+        }
+
+        [Fact]
+        public void ShouldFlattenToDynamicWithInlineConfigurationAndASpecifiedMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address[]>()
+                    .ToDynamics
+                    .UseFlattenedMemberNames();
+
+                var source = new[]
+                {
+                    new Address { Line1 = "1_1", Line2 = "1_2" },
+                    new Address { Line1 = "2_1", Line2 = "2_2" },
+                    new Address { Line1 = "3_1", Line2 = "3_2" }
+                };
+
+                var result = source.Flatten(_ => _.Using(mapper)).ToDynamic(cfg => cfg
+                    .ForDynamics
+                    .UseElementKeyPattern("_i_"));
+
+                ((string)result._0_Line1).ShouldBe("1_1");
+                ((string)result._0_Line2).ShouldBe("1_2");
+                ((string)result._1_Line1).ShouldBe("2_1");
+                ((string)result._1_Line2).ShouldBe("2_2");
+                ((string)result._2_Line1).ShouldBe("3_1");
+                ((string)result._2_Line2).ShouldBe("3_2");
+            }
+        }
+
+        [Fact]
         public void ShouldFlattenToDictionary()
         {
             var source = new[]
