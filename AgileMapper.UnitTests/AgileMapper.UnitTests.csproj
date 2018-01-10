@@ -143,6 +143,7 @@
     <Compile Include="Should.cs" />
     <Compile Include="ShouldExtensions.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToFlagsEnums.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructMappingCallbacks.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
     <Compile Include="TestClasses\SaveOrderItemRequest.cs" />
     <Compile Include="TestClasses\SaveOrderRequest.cs" />
+    <Compile Include="TestClasses\Status.cs" />
     <Compile Include="TestClasses\StringKeyedDictionary.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
