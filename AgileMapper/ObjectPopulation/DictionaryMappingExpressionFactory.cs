@@ -77,6 +77,47 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
+        private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(
+            IEnumerable<Member> sourceMembers,
+            DictionaryTargetMember targetDictionaryMember,
+            ObjectMapperData mapperData,
+            Func<Member, string> targetMemberNameFactory)
+        {
+            foreach (var sourceMember in sourceMembers)
+            {
+                var targetEntryMemberName = targetMemberNameFactory.Invoke(sourceMember);
+                var targetEntryMember = targetDictionaryMember.Append(sourceMember.DeclaringType, targetEntryMemberName);
+
+                if (targetDictionaryMember.HasObjectEntries)
+                {
+                    targetEntryMember = (DictionaryTargetMember)targetEntryMember.WithType(sourceMember.Type);
+                }
+
+                var entryMapperData = new ChildMemberMapperData(targetEntryMember, mapperData);
+                var configuredKey = GetCustomKeyOrNull(entryMapperData);
+
+                if (configuredKey != null)
+                {
+                    targetEntryMember.SetCustomKey(configuredKey);
+                }
+
+                if (!sourceMember.IsSimple)
+                {
+                    targetEntryMember = targetEntryMember.WithTypeOf(sourceMember);
+                }
+
+                yield return targetEntryMember;
+            }
+        }
+
+        private static string GetCustomKeyOrNull(IMemberMapperData entryMapperData)
+        {
+            var dictionaries = entryMapperData.MapperContext.UserConfigurations.Dictionaries;
+            var configuredFullKey = dictionaries.GetFullKeyValueOrNull(entryMapperData);
+
+            return configuredFullKey ?? dictionaries.GetMemberKeyOrNull(entryMapperData);
+        }
+
         private static IEnumerable<DictionaryTargetMember> GetParentContextFlattenedTargetMembers(
             ObjectMapperData mapperData,
             DictionaryTargetMember targetDictionaryMember)
@@ -158,47 +199,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         targetMemberName);
                 })
                 .ToArray();
-        }
-
-        private static IEnumerable<DictionaryTargetMember> EnumerateTargetMembers(
-            IEnumerable<Member> sourceMembers,
-            DictionaryTargetMember targetDictionaryMember,
-            ObjectMapperData mapperData,
-            Func<Member, string> targetMemberNameFactory)
-        {
-            foreach (var sourceMember in sourceMembers)
-            {
-                var targetEntryMemberName = targetMemberNameFactory.Invoke(sourceMember);
-                var targetEntryMember = targetDictionaryMember.Append(sourceMember.DeclaringType, targetEntryMemberName);
-
-                if (targetDictionaryMember.HasObjectEntries)
-                {
-                    targetEntryMember = (DictionaryTargetMember)targetEntryMember.WithType(sourceMember.Type);
-                }
-
-                var entryMapperData = new ChildMemberMapperData(targetEntryMember, mapperData);
-                var configuredKey = GetCustomKeyOrNull(entryMapperData);
-
-                if (configuredKey != null)
-                {
-                    targetEntryMember.SetCustomKey(configuredKey);
-                }
-
-                if (!sourceMember.IsSimple)
-                {
-                    targetEntryMember = targetEntryMember.WithTypeOf(sourceMember);
-                }
-
-                yield return targetEntryMember;
-            }
-        }
-
-        private static string GetCustomKeyOrNull(IMemberMapperData entryMapperData)
-        {
-            var dictionaries = entryMapperData.MapperContext.UserConfigurations.Dictionaries;
-            var configuredFullKey = dictionaries.GetFullKeyValueOrNull(entryMapperData);
-
-            return configuredFullKey ?? dictionaries.GetMemberKeyOrNull(entryMapperData);
         }
 
         private static DictionaryTargetMember[] GetConfiguredTargetMembers(

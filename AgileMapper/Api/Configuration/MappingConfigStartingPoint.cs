@@ -417,15 +417,15 @@
         /// </summary>
         /// <typeparam name="TSource">The type of the given <paramref name="exampleInstance"/>.</typeparam>
         /// <param name="exampleInstance">The instance specifying to which source type the configuration will apply.</param>
-        /// <returns>A TargetTypeSpecifier with which to specify to which target type the configuration will apply.</returns>
-        public TargetTypeSpecifier<TSource> From<TSource>(TSource exampleInstance) => From<TSource>();
+        /// <returns>A TargetSpecifier with which to specify to which target type the configuration will apply.</returns>
+        public TargetSpecifier<TSource> From<TSource>(TSource exampleInstance) => From<TSource>();
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type specified by the type argument.
         /// </summary>
         /// <typeparam name="TSource">The source type to which the configuration will apply.</typeparam>
-        /// <returns>A TargetTypeSpecifier with which to specify to which target type the configuration will apply.</returns>
-        public TargetTypeSpecifier<TSource> From<TSource>()
+        /// <returns>A TargetSpecifier with which to specify to which target type the configuration will apply.</returns>
+        public TargetSpecifier<TSource> From<TSource>()
             => GetTargetTypeSpecifier<TSource>(ci => ci.ForSourceType<TSource>());
 
         /// <summary>
@@ -464,7 +464,7 @@
         public IFullMappingConfigurator<object, TTarget> Over<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Overwrite)).Over<TTarget>();
 
-        private TargetTypeSpecifier<object> GetAllSourcesTargetTypeSpecifier(
+        private TargetSpecifier<object> GetAllSourcesTargetTypeSpecifier(
             Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)
         {
             return GetTargetTypeSpecifier<object>(ci =>
@@ -475,12 +475,12 @@
             });
         }
 
-        private TargetTypeSpecifier<TSource> GetTargetTypeSpecifier<TSource>(
+        private TargetSpecifier<TSource> GetTargetTypeSpecifier<TSource>(
             Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)
         {
             var configInfo = configInfoConfigurator.Invoke(_configInfo);
 
-            return new TargetTypeSpecifier<TSource>(configInfo);
+            return new TargetSpecifier<TSource>(configInfo);
         }
     }
 }

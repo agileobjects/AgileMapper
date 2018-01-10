@@ -25,9 +25,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             => RegisterFullMemberNameKey(fullMemberName);
 
         private DictionaryMappingConfigContinuation<TSource, TValue> RegisterFullMemberNameKey(string fullMemberNameKey)
-        {
-            return RegisterMemberKey(fullMemberNameKey, (settings, customKey) => settings.AddFullKey(customKey));
-        }
+            => RegisterMemberKey(fullMemberNameKey, (settings, customKey) => settings.AddFullKey(customKey));
 
         #endregion
 

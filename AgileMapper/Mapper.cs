@@ -46,10 +46,10 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
+        public static IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for a particular type of mapping of the source type
@@ -57,10 +57,10 @@
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>() => Default.GetPlanFor<TSource>();
+        public static IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>() => Default.GetPlanFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for mapping from the source type specified by the given 
@@ -72,10 +72,10 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// An IPlanTargetSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
+        public static IPlanTargetSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
 
         /// <summary>
         /// Create and compile mapping functions for the source type specified by the type argument, for all
@@ -83,10 +83,10 @@
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// An IPlanTargetSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        public static IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>() => Default.GetPlansFor<TSource>();
+        public static IPlanTargetSelector<TSource> GetPlansFor<TSource>() => Default.GetPlansFor<TSource>();
 
         /// <summary>
         /// Returns mapping plans for all mapping functions currently cached by the default <see cref="IMapper"/>.
@@ -124,7 +124,7 @@
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        public static TSource Clone<TSource>(TSource source) => Default.Clone(source);
+        public static TSource DeepClone<TSource>(TSource source) => Default.DeepClone(source);
 
         /// <summary>
         /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
@@ -136,11 +136,11 @@
         /// </param>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        public static TSource Clone<TSource>(
+        public static TSource DeepClone<TSource>(
             TSource source,
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations)
         {
-            return Default.Clone(source, configurations);
+            return Default.DeepClone(source, configurations);
         }
 
         /// <summary>
@@ -161,8 +161,8 @@
         /// </summary>
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
-        /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        public static ITargetTypeSelector<TSource> Map<TSource>(TSource source) => Default.Map(source);
+        /// <returns>A TargetSelector with which to specify the type of mapping to perform.</returns>
+        public static ITargetSelector<TSource> Map<TSource>(TSource source) => Default.Map(source);
 
         internal static void ResetDefaultInstance() => Default.Dispose();
 
@@ -172,24 +172,24 @@
 
         internal MapperContext Context { get; }
 
-        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+        IPlanTargetAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
-        IPlanTargetTypeAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
+        IPlanTargetAndRuleSetSelector<TSource> IMapper.GetPlanFor<TSource>() => GetPlan<TSource>();
 
-        IProjectionPlanTargetTypeSelector<TSourceElement> IMapper.GetPlanForProjecting<TSourceElement>(
+        IProjectionPlanTargetSelector<TSourceElement> IMapper.GetPlanForProjecting<TSourceElement>(
             IQueryable<TSourceElement> exampleQueryable)
         {
-            return new PlanTargetTypeSelector<TSourceElement>(Context, exampleQueryable);
+            return new PlanTargetSelector<TSourceElement>(Context, exampleQueryable);
         }
 
-        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
+        IPlanTargetSelector<TSource> IMapper.GetPlansFor<TSource>(TSource exampleInstance) => GetPlan<TSource>();
 
-        IPlanTargetTypeSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
+        IPlanTargetSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
         string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
 
-        private PlanTargetTypeSelector<TSource> GetPlan<TSource>()
-            => new PlanTargetTypeSelector<TSource>(Context);
+        private PlanTargetSelector<TSource> GetPlan<TSource>()
+            => new PlanTargetSelector<TSource>(Context);
 
         PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
 
@@ -201,9 +201,9 @@
 
         IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
 
-        TSource IMapper.Clone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
+        TSource IMapper.DeepClone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
 
-        TSource IMapper.Clone<TSource>(
+        TSource IMapper.DeepClone<TSource>(
             TSource source,
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations)
         {
@@ -212,7 +212,7 @@
 
         dynamic IMapper.Flatten<TSource>(TSource source) => Map(source).ToANew<ExpandoObject>();
 
-        ITargetTypeSelector<TSource> IMapper.Map<TSource>(TSource source)
+        ITargetSelector<TSource> IMapper.Map<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);
 
         #region IDisposable Members

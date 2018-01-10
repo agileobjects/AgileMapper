@@ -1,10 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
+    using Api.Configuration.Dictionaries;
     using Extensions.Internal;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class DictionarySettings
     {
@@ -35,7 +38,30 @@
 
         public void AddFullKey(CustomDictionaryKey configuredKey)
         {
-            _configuredFullKeys.Add(configuredKey);
+            if (configuredKey.SourceMember?.IsSimple != false)
+            {
+                _configuredFullKeys.Add(configuredKey);
+                return;
+            }
+
+            var targetDictionaryTypes = configuredKey.ConfigInfo.TargetType.GetDictionaryTypes();
+
+            if (!targetDictionaryTypes.Value.IsSimple())
+            {
+                _configuredFullKeys.Add(configuredKey);
+                return;
+            }
+
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "Use .{0}(\"{1}\") instead of .{2}(\"{1}\") for source member {3}, " +
+                "because {3} is being flattened to a Dictionary with value type {4}, " +
+                "and will only appear as part of its child member's entries.",
+                nameof(CustomTargetDictionaryKeySpecifier<object, object>.ToMemberNameKey),
+                configuredKey.Key,
+                nameof(CustomTargetDictionaryKeySpecifier<object, object>.ToFullKey),
+                configuredKey.SourceMember.GetPath(),
+                targetDictionaryTypes.Value.GetFriendlyName()));
         }
 
         public Expression GetFullKeyOrNull(IMemberMapperData mapperData)
@@ -127,8 +153,26 @@
         {
             dictionaries._configuredFullKeys.AddRange(_configuredFullKeys);
             dictionaries._configuredMemberKeys.AddRange(_configuredMemberKeys);
-            dictionaries._joiningNameFactories.AddRange(_joiningNameFactories);
-            dictionaries._elementKeyPartFactories.AddRange(_elementKeyPartFactories);
+            dictionaries._joiningNameFactories.InsertRange(0, GetNonDefaultJoiningNameFactories());
+            dictionaries._elementKeyPartFactories.InsertRange(0, GetNonDefaultElementKeyPartFactories());
+        }
+
+        private IEnumerable<JoiningNameFactory> GetNonDefaultJoiningNameFactories()
+        {
+            const int DEFAULT_JOINING_NAME_FACTORY_LENGTH = 3;
+
+            return _joiningNameFactories
+                .Take(_joiningNameFactories.Count - DEFAULT_JOINING_NAME_FACTORY_LENGTH)
+                .Reverse();
+        }
+
+        private IEnumerable<ElementKeyPartFactory> GetNonDefaultElementKeyPartFactories()
+        {
+            const int DEFAULT_ELEMENT_KEY_PART_FACTORY_LENGTH = 3;
+
+            return _elementKeyPartFactories
+                .Take(_elementKeyPartFactories.Count - DEFAULT_ELEMENT_KEY_PART_FACTORY_LENGTH)
+                .Reverse();
         }
 
         public void Reset()

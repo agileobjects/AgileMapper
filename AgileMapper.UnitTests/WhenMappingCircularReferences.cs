@@ -86,7 +86,7 @@
             pilot.Qualifications.TrainedAeroplanes.Add(concorde);
             pilot.Qualifications.TrainedAeroplanes.Add(f16);
 
-            var clonedPilot = Mapper.Clone(pilot);
+            var clonedPilot = Mapper.DeepClone(pilot);
 
             clonedPilot.ShouldNotBeSameAs(pilot);
             clonedPilot.Name.ShouldBe("Walls");
@@ -126,7 +126,7 @@
                     }
                 };
 
-                var clonedPilot = mapper.Clone(pilot);
+                var clonedPilot = mapper.DeepClone(pilot);
 
                 clonedPilot.ShouldNotBeSameAs(pilot);
                 clonedPilot.Name.ShouldBe("Walls");
@@ -162,7 +162,7 @@
 
             order.Items.ForEach(item => item.Order = order);
 
-            var result = Mapper.Clone(order);
+            var result = Mapper.DeepClone(order);
 
             result.ShouldNotBeSameAs(order);
             result.Items.ShouldBe(item => item.ProductId, "Grass", "Flowers");
@@ -180,7 +180,7 @@
             rose.Friends = new List<FacebookUser> { jack, brock };
             brock.Friends = new List<FacebookUser> { jack, rose };
 
-            var clonedJack = Mapper.Clone(jack);
+            var clonedJack = Mapper.DeepClone(jack);
 
             clonedJack.ShouldNotBeSameAs(jack);
             clonedJack.Name.ShouldBe("Jack");
@@ -316,7 +316,7 @@
 
             flowersAndStuff.Presenters.First().Video = flowersAndStuff;
 
-            var moreFlowersAndStuff = Mapper.Clone(flowersAndStuff);
+            var moreFlowersAndStuff = Mapper.DeepClone(flowersAndStuff);
 
             moreFlowersAndStuff.ShouldNotBeSameAs(flowersAndStuff);
 

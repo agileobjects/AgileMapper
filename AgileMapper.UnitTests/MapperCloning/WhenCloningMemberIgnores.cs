@@ -58,24 +58,24 @@
 
                     var source = new Address { Line1 = null, Line2 = "Here here" };
 
-                    var nullLine1OriginalResult = clonedMapper.Clone(source);
+                    var nullLine1OriginalResult = clonedMapper.DeepClone(source);
 
                     nullLine1OriginalResult.Line1.ShouldBeNull();
                     nullLine1OriginalResult.Line2.ShouldBeNull();
 
-                    var nullLine1ClonedResult = clonedMapper.Clone(source);
+                    var nullLine1ClonedResult = clonedMapper.DeepClone(source);
 
                     nullLine1ClonedResult.Line1.ShouldBeNull();
                     nullLine1ClonedResult.Line2.ShouldBeNull();
 
                     source.Line1 = "There there";
 
-                    var originalResult = originalMapper.Clone(source);
+                    var originalResult = originalMapper.DeepClone(source);
 
                     originalResult.Line1.ShouldBe("There there");
                     originalResult.Line2.ShouldBeNull();
 
-                    var clonedResult = clonedMapper.Clone(source);
+                    var clonedResult = clonedMapper.DeepClone(source);
 
                     clonedResult.Line1.ShouldBe("There there");
                     clonedResult.Line2.ShouldBe("Here here");

@@ -27,10 +27,10 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the function for which 
+        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the function for which 
         /// should be cached.
         /// </returns>
-        IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance);
+        IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance);
 
         /// <summary>
         /// Create and compile a mapping function for a particular type of mapping of the source type
@@ -38,10 +38,10 @@
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// An IPlanTargetTypeAndRuleSetSelector with which to specify the type of mapping the function for which 
+        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the function for which 
         /// should be cached.
         /// </returns>
-        IPlanTargetTypeAndRuleSetSelector<TSource> GetPlanFor<TSource>();
+        IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>();
 
         /// <summary>
         /// Create and compile a query projection function from the source IQueryable Type specified by the given 
@@ -54,10 +54,10 @@
         /// An IQueryable instance specifying the source IQueryable for which a query projection mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IProjectionPlanTargetTypeSelector with which to specify the target Type to which the query projection function to 
+        /// An IProjectionPlanTargetSelector with which to specify the target Type to which the query projection function to 
         /// be created should be cached.
         /// </returns>
-        IProjectionPlanTargetTypeSelector<TSourceElement> GetPlanForProjecting<TSourceElement>(IQueryable<TSourceElement> exampleQueryable);
+        IProjectionPlanTargetSelector<TSourceElement> GetPlanForProjecting<TSourceElement>(IQueryable<TSourceElement> exampleQueryable);
 
         /// <summary>
         /// Create and compile mapping functions for mapping from the source type specified by the given 
@@ -69,10 +69,10 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// An IPlanTargetSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance);
+        IPlanTargetSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance);
 
         /// <summary>
         /// Create and compile mapping functions for the source type specified by the type argument, for all
@@ -80,10 +80,10 @@
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// An IPlanTargetTypeSelector with which to specify the target type the mapping functions for which 
+        /// An IPlanTargetSelector with which to specify the target type the mapping functions for which 
         /// should be cached.
         /// </returns>
-        IPlanTargetTypeSelector<TSource> GetPlansFor<TSource>();
+        IPlanTargetSelector<TSource> GetPlansFor<TSource>();
 
         /// <summary>
         /// Returns mapping plans for all mapping functions currently cached by the <see cref="IMapper"/>.
@@ -121,10 +121,11 @@
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        TSource Clone<TSource>(TSource source);
+        TSource DeepClone<TSource>(TSource source);
 
         /// <summary>
-        /// Performs a deep clone of the given <paramref name="source"/> object and returns the result.
+        /// Perform a deep clone of the given <paramref name="source"/> object using the given 
+        /// <paramref name="configurations"/>.
         /// </summary>
         /// <typeparam name="TSource">The type of object for which to perform a deep clone.</typeparam>
         /// <param name="configurations">
@@ -133,7 +134,7 @@
         /// </param>
         /// <param name="source">The object to deep clone.</param>
         /// <returns>A deep clone of the given <paramref name="source"/> object.</returns>
-        TSource Clone<TSource>(
+        TSource DeepClone<TSource>(
             TSource source,
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations);
 
@@ -154,7 +155,7 @@
         /// </summary>
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
         /// <param name="source">The source object on which to perform the mapping.</param>
-        /// <returns>A TargetTypeSelector with which to specify the type of mapping to perform.</returns>
-        ITargetTypeSelector<TSource> Map<TSource>(TSource source);
+        /// <returns>A TargetSelector with which to specify the type of mapping to perform.</returns>
+        ITargetSelector<TSource> Map<TSource>(TSource source);
     }
 }

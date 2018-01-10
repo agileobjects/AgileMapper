@@ -18,12 +18,17 @@ namespace AgileObjects.AgileMapper.Members
 
         private readonly MapperContext _mapperContext;
         private readonly Func<string> _pathFactory;
-        private readonly ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
         private readonly ICache<Member, QualifiedMember> _childMemberCache;
+        private ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
 
         protected QualifiedMember(Member[] memberChain, QualifiedMember adaptedMember)
             : this(memberChain, adaptedMember.JoinedNames, adaptedMember._mapperContext)
         {
+            if (IsSimple || adaptedMember.IsSimple)
+            {
+                return;
+            }
+
             foreach (var childMember in adaptedMember._childMemberCache.Values)
             {
                 _childMemberCache.GetOrAdd(childMember.LeafMember, m => childMember);
@@ -73,8 +78,11 @@ namespace AgileObjects.AgileMapper.Members
 
             LeafMember = leafMember;
             _mapperContext = mapperContext;
-            _runtimeTypedMemberCache = mapperContext.Cache.CreateNew<Type, QualifiedMember>();
-            _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>();
+
+            if (!IsSimple)
+            {
+                _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>();
+            }
 
             RegistrationName = (LeafMember.MemberType != MemberType.ConstructorParameter)
                 ? Name
@@ -136,6 +144,8 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         #endregion
+
+        public virtual bool IsRoot => LeafMember.IsRoot;
 
         public Member[] MemberChain { get; }
 
@@ -261,11 +271,14 @@ namespace AgileObjects.AgileMapper.Members
                 return this;
             }
 
-            var runtimeTypedMember = _runtimeTypedMemberCache
+            var runtimeTypedMember = RuntimeTypedMemberCache
                 .GetOrAdd(runtimeType, CreateRuntimeTypedMember);
 
             return runtimeTypedMember;
         }
+
+        private ICache<Type, QualifiedMember> RuntimeTypedMemberCache
+            => _runtimeTypedMemberCache ?? (_runtimeTypedMemberCache = _mapperContext.Cache.CreateNew<Type, QualifiedMember>());
 
         protected virtual QualifiedMember CreateRuntimeTypedMember(Type runtimeType)
         {

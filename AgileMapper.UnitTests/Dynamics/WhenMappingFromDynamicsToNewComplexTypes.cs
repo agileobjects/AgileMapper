@@ -15,7 +15,7 @@
 
             source.value = 123;
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<PublicField<int>>();
 
             result.Value.ShouldBe(123);
@@ -28,7 +28,7 @@
 
             source.Value = "728";
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<PublicField<long>>();
 
             result.Value.ShouldBe(728L);
@@ -41,7 +41,7 @@
 
             source.Value = default(string);
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<PublicSetMethod<string>>();
 
             result.Value.ShouldBeNull();
@@ -61,7 +61,7 @@
                     .Call(ctx => throw new InvalidOperationException("I DON'T LIKE ADDRESSES"));
 
                 var mappingEx = Should.Throw<MappingException>(() =>
-                    ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source))
+                    ((ITargetSelector<ExpandoObject>)mapper.Map(source))
                         .ToANew<PublicField<Address>>());
 
                 mappingEx.Message.ShouldContain(nameof(ExpandoObject));

@@ -20,6 +20,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
         {
             var dictionaryTypes = wrappedTargetMember.Type.GetDictionaryTypes();
+
             KeyType = dictionaryTypes.Key;
             ValueType = dictionaryTypes.Value;
             _rootDictionaryMember = this;
@@ -36,6 +37,9 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             _rootDictionaryMember = rootDictionaryMember;
             _createDictionaryChildMembers = HasObjectEntries || HasSimpleEntries;
         }
+
+        public override bool IsRoot
+            => (this == _rootDictionaryMember) ? base.IsRoot : _rootDictionaryMember.IsRoot;
 
         public override string RegistrationName => GetKeyNameOrNull() ?? base.RegistrationName;
 
@@ -73,11 +77,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             if (base.HasCompatibleType(type))
             {
                 return true;
-            }
-
-            if (this != _rootDictionaryMember)
-            {
-                return false;
             }
 
             return (_rootDictionaryMember.Type != typeof(ExpandoObject)) && type.IsDictionary();
@@ -136,7 +135,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             return new DictionaryTargetMember(runtimeTypedTargetEntryMember, _rootDictionaryMember)
             {
-                _createDictionaryChildMembers = _createDictionaryChildMembers
+                _createDictionaryChildMembers = _createDictionaryChildMembers,
+                _key = _key
             };
         }
 
@@ -177,7 +177,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         }
 
         private Expression GetKey(IMemberMapperData mapperData)
-            => _key ?? mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType);
+        {
+            return (_key?.NodeType != Parameter)
+                ? mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType)
+                : _key;
+        }
 
         private Expression GetDictionaryAccess(IMemberMapperData mapperData)
         {
@@ -257,9 +261,9 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             var keyedAccess = this.GetAccess(mapperData);
 
-            var convertedValue = HasComplexEntries
-                ? GetCheckedValue((BlockExpression)value, keyedAccess, mapperData)
-                : mapperData.GetValueConversion(value, ValueType);
+            var convertedValue =
+                GetCheckedValueOrNull(value, keyedAccess, mapperData) ??
+                mapperData.GetValueConversion(value, ValueType);
 
             var keyedAssignment = keyedAccess.AssignTo(convertedValue);
 
@@ -341,21 +345,67 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return expressions;
         }
 
-        private Expression GetCheckedValue(BlockExpression value, Expression keyedAccess, IMemberMapperData mapperData)
+        private Expression GetCheckedValueOrNull(Expression value, Expression keyedAccess, IMemberMapperData mapperData)
         {
+            if (HasSimpleEntries)
+            {
+                return null;
+            }
+
             if (mapperData.SourceMember.IsEnumerable)
             {
-                return value;
+                return value.GetConversionTo(ValueType);
+            }
+
+
+            if ((value.NodeType != Block) && (value.NodeType != Try))
+            {
+                return null;
             }
 
             var checkedAccess = GetAccessChecked(mapperData);
             var existingValue = checkedAccess.Variables.First();
+
+            if (value.NodeType != Block)
+            {
+                return GetCheckedTryCatch((TryExpression)value, keyedAccess, checkedAccess, existingValue);
+            }
+
             var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValue };
-            var checkedValue = value.Replace(replacements);
+            var checkedValue = ((BlockExpression)value).Replace(replacements);
 
             return checkedValue.Update(
                 checkedValue.Variables.Append(existingValue),
                 checkedValue.Expressions.Prepend(checkedAccess.Expressions.First()));
+        }
+
+        private static Expression GetCheckedTryCatch(
+            TryExpression tryCatchValue,
+            Expression keyedAccess,
+            Expression checkedAccess,
+            ParameterExpression existingValue)
+        {
+            var existingValueOrDefault = Expression.Condition(
+                checkedAccess,
+                existingValue,
+                existingValue.Type.ToDefaultExpression());
+
+            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValueOrDefault };
+
+            var updatedCatchHandlers = tryCatchValue
+                .Handlers
+                .Select(handler => handler.Update(
+                    handler.Variable,
+                    handler.Filter.Replace(replacements),
+                    handler.Body.Replace(replacements)));
+
+            var updatedTryCatch = tryCatchValue.Update(
+                tryCatchValue.Body,
+                updatedCatchHandlers,
+                tryCatchValue.Finally,
+                tryCatchValue.Fault);
+
+            return Expression.Block(new[] { existingValue }, updatedTryCatch);
         }
 
         public DictionaryTargetMember WithTypeOf(Member sourceMember)

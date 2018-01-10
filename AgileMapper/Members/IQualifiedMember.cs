@@ -11,6 +11,8 @@ namespace AgileObjects.AgileMapper.Members
 
         bool IsEnumerable { get; }
 
+        bool IsSimple { get; }
+
         string Name { get; }
 
         string GetPath();

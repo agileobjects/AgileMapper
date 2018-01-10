@@ -161,7 +161,7 @@
                 CurrencyId = 1
             };
 
-            var result = Mapper.Clone(source);
+            var result = Mapper.DeepClone(source);
 
             result.Currency.ShouldBeNull();
             result.CurrencyId.ShouldBe(1);

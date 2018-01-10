@@ -10,7 +10,7 @@
     /// The type of element contained in the source IQueryable from which the projection function to be created will project.
     /// </typeparam>
     // ReSharper disable once UnusedTypeParameter
-    public interface IProjectionPlanTargetTypeSelector<TSourceElement>
+    public interface IProjectionPlanTargetSelector<TSourceElement>
     {
         /// <summary>
         /// Create and compile a query projection function from the source type being configured to the type specified 

@@ -94,7 +94,7 @@
                 plan.ShouldContain("m.IsPropertyMatching(p => p.Name == \"Line2\")");
 
                 var result = mapper
-                    .Clone(new Customer { Address = new Address { Line1 = "1", Line2 = "2" } });
+                    .DeepClone(new Customer { Address = new Address { Line1 = "1", Line2 = "2" } });
 
                 result.Address.ShouldNotBeNull();
                 result.Address.Line1.ShouldBe("1");

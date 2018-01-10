@@ -10,21 +10,21 @@
     using Plans;
     using Queryables.Api;
 
-    internal class PlanTargetTypeSelector<TSource> :
-        IPlanTargetTypeSelector<TSource>,
-        IPlanTargetTypeAndRuleSetSelector<TSource>,
-        IProjectionPlanTargetTypeSelector<TSource>
+    internal class PlanTargetSelector<TSource> :
+        IPlanTargetSelector<TSource>,
+        IPlanTargetAndRuleSetSelector<TSource>,
+        IProjectionPlanTargetSelector<TSource>
     {
         private readonly MapperContext _mapperContext;
         private readonly IQueryable<TSource> _exampleQueryable;
 
-        public PlanTargetTypeSelector(MapperContext mapperContext, IQueryable<TSource> exampleQueryable)
+        public PlanTargetSelector(MapperContext mapperContext, IQueryable<TSource> exampleQueryable)
             : this(mapperContext)
         {
             _exampleQueryable = exampleQueryable;
         }
 
-        internal PlanTargetTypeSelector(MapperContext mapperContext)
+        internal PlanTargetSelector(MapperContext mapperContext)
         {
             _mapperContext = mapperContext;
         }
@@ -65,7 +65,7 @@
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
             => GetMappingPlan(_mapperContext.RuleSets.Overwrite, configurations);
 
-        MappingPlan IProjectionPlanTargetTypeSelector<TSource>.To<TResult>()
+        MappingPlan IProjectionPlanTargetSelector<TSource>.To<TResult>()
         {
             return GetMappingPlan<TResult>(
                 _mapperContext.QueryProjectionMappingContext,
@@ -74,7 +74,7 @@
 
         private MappingPlan GetMappingPlan<TTarget>(
             MappingRuleSet ruleSet,
-            IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations = null)
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations = null)
         {
             var planContext = new SimpleMappingContext(ruleSet, _mapperContext)
             {

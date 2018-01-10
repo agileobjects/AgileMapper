@@ -12,7 +12,7 @@
 
         protected override Foo Clone(Foo foo)
         {
-            return Mapper.Clone(foo);
+            return Mapper.DeepClone(foo);
         }
     }
 }

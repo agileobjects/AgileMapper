@@ -25,12 +25,12 @@
                 source.LaLaLa = 1;
                 source.Value = 2;
 
-                var result = ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source)).ToANew<PublicField<int>>();
+                var result = ((ITargetSelector<ExpandoObject>)mapper.Map(source)).ToANew<PublicField<int>>();
 
                 result.ShouldNotBeNull();
                 result.Value.ShouldBe(1);
 
-                ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source)).Over(result);
+                ((ITargetSelector<ExpandoObject>)mapper.Map(source)).Over(result);
 
                 result.Value.ShouldBe(2);
             }
@@ -57,7 +57,7 @@
 
                 var target = new Address { Line1 = "??", Line2 = "??" };
 
-                ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source)).Over(target);
+                ((ITargetSelector<ExpandoObject>)mapper.Map(source)).Over(target);
 
                 target.Line1.ShouldBe("10");
                 target.Line2.ShouldBe("Street Road");
@@ -87,7 +87,7 @@
 
                 var target = new PublicField<IList<Address>> { Value = new List<Address>() };
 
-                ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source)).OnTo(target);
+                ((ITargetSelector<ExpandoObject>)mapper.Map(source)).OnTo(target);
 
                 target.Value.Count.ShouldBe(2);
 
@@ -136,7 +136,7 @@
                 ((IDictionary<string, object>)sourceDynamic)["Value+Value"] = 123;
 
 
-                var sourceResult = ((ITargetTypeSelector<ExpandoObject>)mapper.Map(sourceDynamic))
+                var sourceResult = ((ITargetSelector<ExpandoObject>)mapper.Map(sourceDynamic))
                     .ToANew<PublicField<PublicField<int>>>();
 
                 sourceResult.Value.Value.ShouldBe(123);
@@ -161,7 +161,7 @@
 
                 var target = new PublicField<long>();
 
-                ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source)).Over(target);
+                ((ITargetSelector<ExpandoObject>)mapper.Map(source)).Over(target);
 
                 target.Value.ShouldBe(2);
             }
@@ -185,7 +185,7 @@
 
                 source.Name = "Person";
 
-                var personResult = ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source))
+                var personResult = ((ITargetSelector<ExpandoObject>)mapper.Map(source))
                     .ToANew<PersonViewModel>();
 
                 personResult.ShouldBeOfType<PersonViewModel>();
@@ -193,7 +193,7 @@
 
                 source.Discount = 0.05;
 
-                var customerResult = ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source))
+                var customerResult = ((ITargetSelector<ExpandoObject>)mapper.Map(source))
                     .ToANew<PersonViewModel>();
 
                 customerResult.ShouldBeOfType<CustomerViewModel>();
@@ -201,7 +201,7 @@
 
                 source.Report = "Very good!";
 
-                var mysteryCustomerResult = ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source))
+                var mysteryCustomerResult = ((ITargetSelector<ExpandoObject>)mapper.Map(source))
                     .ToANew<PersonViewModel>();
 
                 mysteryCustomerResult.ShouldBeOfType<MysteryCustomerViewModel>();
@@ -225,7 +225,7 @@
                 source.LaLaLa = 1;
                 source.Value = 2;
 
-                var result = ((ITargetTypeSelector<ExpandoObject>)mapper.Map(source)).ToANew<PublicField<string>>();
+                var result = ((ITargetSelector<ExpandoObject>)mapper.Map(source)).ToANew<PublicField<string>>();
 
                 result.ShouldNotBeNull();
                 result.Value.ShouldBe("2");
@@ -286,7 +286,7 @@
                 ((IDictionary<string, object>)dynamicSource)["Value+Line1"] = "Line 1?!";
                 ((IDictionary<string, object>)dynamicSource)["Value+Line2"] = "Line 2?!";
 
-                var dynamicResult = ((ITargetTypeSelector<ExpandoObject>)mapper.Map(dynamicSource))
+                var dynamicResult = ((ITargetSelector<ExpandoObject>)mapper.Map(dynamicSource))
                     .ToANew<PublicField<Address>>();
 
                 dynamicResult.Value.ShouldNotBeNull();

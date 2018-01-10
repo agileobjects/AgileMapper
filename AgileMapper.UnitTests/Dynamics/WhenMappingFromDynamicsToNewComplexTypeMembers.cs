@@ -18,7 +18,7 @@
                 Line2 = "Dynamic Line 2!",
             };
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<Customer>();
 
             result.Name = "Dynamic Customer!";
@@ -35,7 +35,7 @@
             source.addressLine1 = "Dynamic Line 1";
             source.addressLine2 = "Dynamic Line 2";
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<Person>();
 
             result.Name = "Dynamic Person";
@@ -54,7 +54,7 @@
             source.Address.Line1 = "Dynamic House";
             source.Address.Line2 = "Dynamic Street";
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<Customer>();
 
             result.Name.ShouldBe("Captain Dynamic");

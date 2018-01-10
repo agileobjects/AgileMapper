@@ -118,12 +118,12 @@
                     .Call((s, t) => mappedTargetId = t.Id);
 
                 var noIdSource = new Person { Name = "Dawn" };
-                mapper.Clone(noIdSource);
+                mapper.DeepClone(noIdSource);
 
                 mappedTargetId.ShouldBeDefault();
 
                 var idSource = new Person { Id = Guid.NewGuid() };
-                mapper.Clone(idSource);
+                mapper.DeepClone(idSource);
 
                 mappedTargetId.ShouldBe(idSource.Id);
             }
@@ -149,14 +149,14 @@
                     });
 
                 var nullAddressNullNameSource = new Person();
-                var nullAddressNullNameResult = mapper.Clone(nullAddressNullNameSource);
+                var nullAddressNullNameResult = mapper.DeepClone(nullAddressNullNameSource);
 
                 nullAddressNullNameResult.Address.ShouldBeNull();
                 mappedAddress.ShouldBeNull();
                 callbackCalled.ShouldBeFalse();
 
                 var nullAddressWithNameSource = new Person { Name = "David" };
-                var nullAddressWithNameResult = mapper.Clone(nullAddressWithNameSource);
+                var nullAddressWithNameResult = mapper.DeepClone(nullAddressWithNameSource);
 
                 nullAddressWithNameResult.Address.ShouldBeNull();
                 mappedAddress.ShouldBeNull();
@@ -165,14 +165,14 @@
                 callbackCalled = false;
 
                 var nullLine1WithNameSource = new Person { Name = "Brent", Address = new Address { Line2 = "City" } };
-                var nullLine1WithNameResult = mapper.Clone(nullLine1WithNameSource);
+                var nullLine1WithNameResult = mapper.DeepClone(nullLine1WithNameSource);
 
                 nullLine1WithNameResult.Address.ShouldNotBeNull();
                 mappedAddress.ShouldBeNull();
                 callbackCalled.ShouldBeFalse();
 
                 var withLine1WithNameSource = new Person { Name = "Chris", Address = new Address { Line1 = "Town" } };
-                var withLine1WithNameResult = mapper.Clone(withLine1WithNameSource);
+                var withLine1WithNameResult = mapper.DeepClone(withLine1WithNameSource);
 
                 withLine1WithNameResult.Address.ShouldNotBeNull();
                 mappedAddress.ShouldNotBeNull();

@@ -107,7 +107,7 @@
             {
                 var configEx = Should.Throw<MappingConfigurationException>(() =>
                 {
-                    mapper.Clone(
+                    mapper.DeepClone(
                         new[] { new Customer { Name = "BOOM" } },
                         cfg => cfg
                             .MaintainIdentityIntegrity()
@@ -128,7 +128,7 @@
             {
                 var configEx = Should.Throw<MappingConfigurationException>(() =>
                 {
-                    mapper.Clone(
+                    mapper.DeepClone(
                         new[] { new Customer { Name = "BOOM" } },
                         cfg => cfg
                             .DisableObjectTracking()

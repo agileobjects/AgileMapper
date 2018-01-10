@@ -12,7 +12,7 @@
     /// <typeparam name="TSource">
     /// The type of source object from which the mapping function to be created will be performed.
     /// </typeparam>
-    public interface IPlanTargetTypeAndRuleSetSelector<TSource>
+    public interface IPlanTargetAndRuleSetSelector<TSource>
     {
         /// <summary>
         /// Create and compile mapping functions for a create new mapping from the source type being 

@@ -19,7 +19,7 @@
             source._1 = 'b';
             source._2 = 'c';
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source)).ToANew<string[]>();
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).ToANew<string[]>();
 
             result.ShouldBe("a", "b", "c");
         }
@@ -33,7 +33,7 @@
             source._1 = new ProductDto { ProductId = "prod-two" };
             source._2 = new ProductDto { ProductId = "prod-three" };
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<Collection<Product>>();
 
             result.ShouldBe(p => p.ProductId, "prod-one", "prod-two", "prod-three");
@@ -55,7 +55,7 @@
             source._2Value1 = guid3;
             source._2Value2 = 789;
 
-            var result = ((ITargetTypeSelector<ExpandoObject>)Mapper.Map(source))
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
                 .ToANew<IList<PublicTwoParamCtor<string, string>>>();
 
             result.ShouldBe(p => p.Value1, guid1.ToString(), guid2.ToString(), guid3.ToString());
