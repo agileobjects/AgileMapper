@@ -119,10 +119,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public object MapRecursion(IObjectMappingData childMappingData)
         {
-            var mapperFunc = _recursionMappingFuncsByKey
+            // The cache can be null (and can contain null functions) if 
+            // recursive members turn out to have all-unmappable members:
+            var mapperFunc = _recursionMappingFuncsByKey?
                 .GetOrAdd(childMappingData.MapperKey, null);
 
-            return mapperFunc.Map(childMappingData);
+            return mapperFunc?.Map(childMappingData);
         }
     }
 }

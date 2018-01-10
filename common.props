@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Company>AgileObjects Ltd</Company>
-    <Copyright>Copyright © AgileObjects Ltd 2017</Copyright>
+    <Copyright>Copyright © AgileObjects Ltd 2018</Copyright>
     <Authors>Steve Wilkes</Authors>
     <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>

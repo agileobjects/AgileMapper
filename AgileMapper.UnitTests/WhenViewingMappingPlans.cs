@@ -296,6 +296,14 @@
         }
 
         [Fact]
+        public void ShouldIncludeUnmappableEntityKeyMemberDetails()
+        {
+            string plan = Mapper.GetPlanFor<OrderDto>().ToANew<OrderEntity>();
+
+            plan.ShouldContain("Entity key member");
+        }
+
+        [Fact]
         public void ShouldIncludeUnmappableStructComplexTypeMemberDetails()
         {
             using (var mapper = Mapper.CreateNew())

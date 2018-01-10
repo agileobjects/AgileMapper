@@ -1,31 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>AgileObjects.AgileMapper</id>
+    <id>$id$</id>
     <title>AgileMapper</title>
-    <version>0.18.0</version>
-    <authors>Steve Wilkes</authors>
+    <version>$version$</version>
+    <authors>$author$</authors>
     <owners>Steve Wilkes</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md</licenseUrl>
     <projectUrl>https://github.com/AgileObjects/AgileMapper</projectUrl>
-    <description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API. Conforms to .NET Standard 1.0.</description>
-    <summary>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Performs deep clones, updates and merges via a static or instance API. Conforms to .NET Standard 1.0.</summary>
+    <description>$description$</description>
+    <summary>$description$</summary>
     <releaseNotes>
-- Support for mapping dynamic ExpandoObjects
-- Reimplementing Mapper.Flatten() using ExpandoObject mapping
-- Dedicated dynamic-mapping configuration API
-- Support for mapping from flattened IDictionary&lt;,&gt; keys, without configuration
-- Support for mapping members from parent contexts to nested IDictionary&lt;,&gt; entries 
-- Support for mapping any IDictionary&lt;,&gt; implementation
-- Support for mapping IReadOnlyCollections
-- Support for mapping to explicit ValueType-valued IDictionary&lt;,&gt;
-- Bug fixes
-- Performance and memory use improvements
-- Updating to ReadableEpressions v1.10.1
-- Updating to NetStandardPolyfills v1.2.1
+      - Support for mapping dynamic ExpandoObjects
+      - Reimplementing Mapper.Flatten() using ExpandoObject mapping
+      - Dedicated dynamic-mapping configuration API
+      - Support for mapping from flattened IDictionary&lt;,&gt; keys, without configuration
+      - Support for mapping members from parent contexts to nested IDictionary&lt;,&gt; entries
+      - Support for mapping any IDictionary&lt;,&gt; implementation
+      - Support for mapping IReadOnlyCollections
+      - Support for mapping to explicit ValueType-valued IDictionary&lt;,&gt;
+      - Bug fixes
+      - Performance and memory use improvements
+      - Updating to ReadableEpressions v1.10.1
+      - Updating to NetStandardPolyfills v1.2.1
     </releaseNotes>
-    <copyright>Copyright © AgileObjects Ltd 2017</copyright>
+    <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
     <repository type="git" url="https://github.com/AgileObjects/AgileMapper" />
     <dependencies>

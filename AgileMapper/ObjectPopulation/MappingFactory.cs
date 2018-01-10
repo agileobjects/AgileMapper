@@ -54,7 +54,7 @@
 
             if (childMapperData.TargetMemberEverRecurses())
             {
-                if (childMapperData.SourceIsFlatObject())
+                if (childMapperData.DoNotMapRecursion())
                 {
                     return Constants.EmptyExpression;
                 }
