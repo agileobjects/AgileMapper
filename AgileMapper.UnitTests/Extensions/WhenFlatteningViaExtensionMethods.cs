@@ -104,7 +104,7 @@
         }
 
         [Fact]
-        public void ShouldFlattenToDictionaryWithInlineConfiguration()
+        public void ShouldFlattenAnEnumerableToDictionaryWithInlineConfiguration()
         {
             var source = new[]
             {
@@ -129,6 +129,33 @@
             result["<0>Value2"].ShouldBe("1_2");
             result["<1>V1"].ShouldBe("2_1");
             result["<1>Value2"].ShouldBe("2_2");
+        }
+
+        [Fact]
+        public void ShouldFlattenToDictionaryWithInlineConfigurationAndASpecifiedMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address[]>()
+                    .ToDictionaries
+                    .UseFlattenedMemberNames();
+
+                var source = new[]
+                {
+                    new Address { Line1 = "1_1", Line2 = "1_2" },
+                    new Address { Line1 = "2_1", Line2 = "2_2" }
+                };
+
+                var result = source.Flatten(_ => _.Using(mapper)).ToDictionary(cfg => cfg
+                    .ForDictionaries
+                    .UseElementKeyPattern("(i)"));
+
+                result["(0)Line1"].ShouldBe("1_1");
+                result["(0)Line2"].ShouldBe("1_2");
+                result["(1)Line1"].ShouldBe("2_1");
+                result["(1)Line2"].ShouldBe("2_2");
+            }
         }
 
         [Fact]

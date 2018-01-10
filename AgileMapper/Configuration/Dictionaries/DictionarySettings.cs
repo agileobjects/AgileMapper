@@ -153,8 +153,26 @@
         {
             dictionaries._configuredFullKeys.AddRange(_configuredFullKeys);
             dictionaries._configuredMemberKeys.AddRange(_configuredMemberKeys);
-            dictionaries._joiningNameFactories.AddRange(_joiningNameFactories);
-            dictionaries._elementKeyPartFactories.AddRange(_elementKeyPartFactories);
+            dictionaries._joiningNameFactories.InsertRange(0, GetNonDefaultJoiningNameFactories());
+            dictionaries._elementKeyPartFactories.InsertRange(0, GetNonDefaultElementKeyPartFactories());
+        }
+
+        private IEnumerable<JoiningNameFactory> GetNonDefaultJoiningNameFactories()
+        {
+            const int DEFAULT_JOINING_NAME_FACTORY_LENGTH = 3;
+
+            return _joiningNameFactories
+                .Take(_joiningNameFactories.Count - DEFAULT_JOINING_NAME_FACTORY_LENGTH)
+                .Reverse();
+        }
+
+        private IEnumerable<ElementKeyPartFactory> GetNonDefaultElementKeyPartFactories()
+        {
+            const int DEFAULT_ELEMENT_KEY_PART_FACTORY_LENGTH = 3;
+
+            return _elementKeyPartFactories
+                .Take(_elementKeyPartFactories.Count - DEFAULT_ELEMENT_KEY_PART_FACTORY_LENGTH)
+                .Reverse();
         }
 
         public void Reset()
