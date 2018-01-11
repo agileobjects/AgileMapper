@@ -80,5 +80,32 @@
 
             result.Value.ShouldBe(New | InProgress | Completed);
         }
+
+        [Fact]
+        public void ShouldMapAMultiValueMixedObjectStringToAFlagsEnum()
+        {
+            var source = new PublicProperty<object> { Value = "New, InProgress, LaLaLa, 32" };
+            var result = Mapper.Map(source).ToANew<PublicField<Status>>();
+
+            result.Value.ShouldBe(New | InProgress | Removed);
+        }
+
+        [Fact]
+        public void ShouldMapASingleValueNullableFlagsEnumToAFlagsEnum()
+        {
+            var source = new PublicProperty<Status?> { Value = Cancelled };
+            var result = Mapper.Map(source).ToANew<PublicField<Status>>();
+
+            result.Value.ShouldBe(Cancelled);
+        }
+
+        [Fact]
+        public void ShouldMapAMultiValueFlagsEnumToANullableFlagsEnum()
+        {
+            var source = new PublicProperty<Status> { Value = Assigned | Completed | Cancelled };
+            var result = Mapper.Map(source).ToANew<PublicField<Status?>>();
+
+            result.Value.ShouldBe(Assigned | Completed | Cancelled);
+        }
     }
 }
