@@ -53,5 +53,14 @@
 
             result.Value.ShouldBe(Removed);
         }
+
+        [Fact]
+        public void ShouldMapASingleValueNumericStringToAFlagsEnum()
+        {
+            var source = new PublicProperty<string> { Value = "4" };
+            var result = Mapper.Map(source).ToANew<PublicField<Status>>();
+
+            result.Value.ShouldBe((Status)4);
+        }
     }
 }
