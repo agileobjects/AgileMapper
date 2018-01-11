@@ -2,40 +2,41 @@
 {
     using TestClasses;
     using Xunit;
+    using static TestClasses.Title;
 
     public class WhenConvertingToEnums
     {
         [Fact]
         public void ShouldMapAByteToAnEnum()
         {
-            var source = new PublicField<byte> { Value = (byte)Title.Dr };
+            var source = new PublicField<byte> { Value = (byte)Dr };
             var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
-            result.Value.ShouldBe(Title.Dr);
+            result.Value.ShouldBe(Dr);
         }
 
         [Fact]
         public void ShouldMapAShortToAnEnum()
         {
-            var source = new PublicField<short> { Value = (short)Title.Miss };
+            var source = new PublicField<short> { Value = (short)Miss };
             var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
-            result.Value.ShouldBe(Title.Miss);
+            result.Value.ShouldBe(Miss);
         }
 
         [Fact]
         public void ShouldMapANullableIntToAnEnum()
         {
-            var source = new PublicProperty<int?> { Value = (int)Title.Lady };
+            var source = new PublicProperty<int?> { Value = (int)Lady };
             var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
-            result.Value.ShouldBe(Title.Lady);
+            result.Value.ShouldBe(Lady);
         }
 
         [Fact]
         public void ShouldMapAnIntToAnEnum()
         {
-            var source = new PublicProperty<int> { Value = (int)Title.Dr };
+            var source = new PublicProperty<int> { Value = (int)Dr };
             var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
             result.Value.ShouldBe((Title)source.Value);
@@ -53,7 +54,7 @@
         [Fact]
         public void ShouldMapALongToAnEnum()
         {
-            var source = new PublicProperty<long> { Value = (long)Title.Miss };
+            var source = new PublicProperty<long> { Value = (long)Miss };
             var result = Mapper.Map(source).ToANew<PublicField<Title>>();
 
             result.Value.ShouldBe((Title)source.Value);
@@ -62,7 +63,7 @@
         [Fact]
         public void ShouldMapANonMatchingNullableLongToANullableEnum()
         {
-            var source = new PublicProperty<long?> { Value = (long)Title.Earl };
+            var source = new PublicProperty<long?> { Value = (long)Earl };
             var result = Mapper.Map(source).ToANew<PublicField<TitleShortlist?>>();
 
             result.Value.ShouldBeNull();
@@ -98,28 +99,28 @@
         [Fact]
         public void ShouldMapAMatchingStringOnToAnEnum()
         {
-            var source = new PublicField<string> { Value = Title.Mrs.ToString() };
+            var source = new PublicField<string> { Value = Mrs.ToString() };
             var result = Mapper.Map(source).OnTo(new PublicProperty<Title>());
 
-            result.Value.ShouldBe(Title.Mrs);
+            result.Value.ShouldBe(Mrs);
         }
 
         [Fact]
         public void ShouldMapAMatchingStringOnToAnEnumCaseInsensitively()
         {
-            var source = new PublicField<string> { Value = Title.Miss.ToString().ToLowerInvariant() };
+            var source = new PublicField<string> { Value = Miss.ToString().ToLowerInvariant() };
             var result = Mapper.Map(source).OnTo(new PublicProperty<Title>());
 
-            result.Value.ShouldBe(Title.Miss);
+            result.Value.ShouldBe(Miss);
         }
 
         [Fact]
         public void ShouldMapAMatchingNumericStringOverAnEnum()
         {
-            var source = new PublicField<string> { Value = ((int)Title.Dr).ToString() };
+            var source = new PublicField<string> { Value = ((int)Dr).ToString() };
             var result = Mapper.Map(source).Over(new PublicProperty<Title>());
 
-            result.Value.ShouldBe(Title.Dr);
+            result.Value.ShouldBe(Dr);
         }
 
         [Fact]
@@ -146,13 +147,13 @@
             var source = new PublicProperty<TitleShortlist> { Value = TitleShortlist.Mrs };
             var result = Mapper.Map(source).ToANew<PublicProperty<Title>>();
 
-            result.Value.ShouldBe(Title.Mrs);
+            result.Value.ShouldBe(Mrs);
         }
 
         [Fact]
         public void ShouldMapANonMatchingEnumToANullableEnum()
         {
-            var source = new PublicProperty<Title> { Value = Title.Lord };
+            var source = new PublicProperty<Title> { Value = Lord };
             var result = Mapper.Map(source).ToANew<PublicProperty<TitleShortlist?>>();
 
             result.Value.ShouldBeNull();
@@ -161,10 +162,10 @@
         [Fact]
         public void ShouldMapANullableEnumToAnEnum()
         {
-            var source = new PublicProperty<Title?> { Value = Title.Dr };
+            var source = new PublicProperty<Title?> { Value = Dr };
             var result = Mapper.Map(source).ToANew<PublicProperty<Title>>();
 
-            result.Value.ShouldBe(Title.Dr);
+            result.Value.ShouldBe(Dr);
         }
 
         [Fact]
@@ -206,7 +207,7 @@
         [Fact]
         public void ShouldMapAnObjectNullableEnumMemberValueToAnNullableEnum()
         {
-            var source = new PublicProperty<object> { Value = (Title?)Title.Mr };
+            var source = new PublicProperty<object> { Value = (Title?)Mr };
             var result = Mapper.Map(source).ToANew<PublicProperty<TitleShortlist>>();
 
             result.Value.ShouldBe(TitleShortlist.Mr);
@@ -225,20 +226,20 @@
                     .If((ptf, pf) => ptf.Value1 == null)
                     .Map((ptf, pf) => ptf.Value2).To(pf => pf.Value)
                     .And
-                    .If((ptf, pf) => Title.Duke == ptf.Value1)
+                    .If((ptf, pf) => Duke == ptf.Value1)
                     .Map(TitleShortlist.Other).To(pf => pf.Value);
 
-                var nonNullSource = new PublicTwoFields<Title?, Title> { Value1 = Title.Dr, Value2 = Title.Count };
+                var nonNullSource = new PublicTwoFields<Title?, Title> { Value1 = Dr, Value2 = Count };
                 var nonNullResult = mapper.Map(nonNullSource).ToANew<PublicField<TitleShortlist>>();
 
                 nonNullResult.Value.ShouldBe(TitleShortlist.Dr);
 
-                var nullSource = new PublicTwoFields<Title?, Title> { Value1 = null, Value2 = Title.Mrs };
+                var nullSource = new PublicTwoFields<Title?, Title> { Value1 = null, Value2 = Mrs };
                 var nullResult = mapper.Map(nullSource).ToANew<PublicField<TitleShortlist>>();
 
                 nullResult.Value.ShouldBe(TitleShortlist.Mrs);
 
-                var dukeSource = new PublicTwoFields<Title?, Title> { Value1 = Title.Duke };
+                var dukeSource = new PublicTwoFields<Title?, Title> { Value1 = Duke };
                 var dukeResult = mapper.Map(dukeSource).ToANew<PublicField<TitleShortlist>>();
 
                 dukeResult.Value.ShouldBe(TitleShortlist.Other);
