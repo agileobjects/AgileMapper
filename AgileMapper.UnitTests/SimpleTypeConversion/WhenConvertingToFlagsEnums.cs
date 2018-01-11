@@ -55,12 +55,30 @@
         }
 
         [Fact]
+        public void ShouldMapAMultiValueNumericCharacterToAFlagsEnum()
+        {
+            var source = new PublicProperty<char> { Value = '9' };
+            var result = Mapper.Map(source).ToANew<PublicField<Status>>();
+
+            result.Value.ShouldBe(New | Completed);
+        }
+
+        [Fact]
         public void ShouldMapASingleValueNumericStringToAFlagsEnum()
         {
             var source = new PublicProperty<string> { Value = "4" };
             var result = Mapper.Map(source).ToANew<PublicField<Status>>();
 
             result.Value.ShouldBe((Status)4);
+        }
+
+        [Fact]
+        public void ShouldMapAMultiValueMixedStringToAFlagsEnum()
+        {
+            var source = new PublicProperty<string> { Value = "9, InProgress, 4" };
+            var result = Mapper.Map(source).ToANew<PublicField<Status>>();
+
+            result.Value.ShouldBe(New | InProgress | Completed);
         }
     }
 }
