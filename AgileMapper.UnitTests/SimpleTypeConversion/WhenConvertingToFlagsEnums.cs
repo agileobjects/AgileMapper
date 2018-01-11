@@ -16,7 +16,7 @@
         }
 
         [Fact]
-        public void ShouldMapAMultiValueShortToAnEnum()
+        public void ShouldMapAMultiValueShortToAFlagsEnum()
         {
             var source = new PublicField<short> { Value = (short)(InProgress | Assigned) };
             var result = Mapper.Map(source).ToANew<PublicField<Status>>();
@@ -25,6 +25,33 @@
             result.Value.HasFlag(Assigned).ShouldBeTrue();
             result.Value.HasFlag(Cancelled).ShouldBeFalse();
             result.Value.ShouldBe(InProgress | Assigned);
+        }
+
+        [Fact]
+        public void ShouldMapAMultiValueNullableIntToAFlagsEnum()
+        {
+            var source = new PublicProperty<int?> { Value = (int)(New | Completed | Cancelled) };
+            var result = Mapper.Map(source).ToANew<PublicField<Status>>();
+
+            result.Value.ShouldBe(New | Completed | Cancelled);
+        }
+
+        [Fact]
+        public void ShouldMapANullNullableIntToANullableFlagsEnum()
+        {
+            var source = new PublicProperty<int?> { Value = default(int?) };
+            var result = Mapper.Map(source).ToANew<PublicField<Status?>>();
+
+            result.Value.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldMapASingleValueLongToANullableFlagsEnum()
+        {
+            var source = new PublicProperty<long> { Value = (long)Removed };
+            var result = Mapper.Map(source).ToANew<PublicField<Status?>>();
+
+            result.Value.ShouldBe(Removed);
         }
     }
 }

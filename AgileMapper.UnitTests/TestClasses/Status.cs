@@ -8,7 +8,7 @@
         New = 1,
         Assigned = 2,
         InProgress = 4,
-        Complete = 8,
+        Completed = 8,
         Cancelled = 16,
         Removed = 32
     }
