@@ -10,9 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
     internal class EnumerableSourcePopulationLoopData : IPopulationLoopData
     {
-        private static readonly MethodInfo _enumeratorMoveNextMethod = typeof(IEnumerator).GetPublicInstanceMethod("MoveNext");
-        private static readonly MethodInfo _disposeMethod = typeof(IDisposable).GetPublicInstanceMethod("Dispose");
-
         private readonly Expression _enumerableSubject;
         private readonly MethodInfo _getEnumeratorMethod;
         private readonly ParameterExpression _enumerator;
@@ -34,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _enumerator = Expression.Variable(_getEnumeratorMethod.ReturnType, "enumerator");
 
             ContinueLoopTarget = Expression.Label(typeof(void), "Continue");
-            LoopExitCheck = Expression.Not(Expression.Call(_enumerator, _enumeratorMoveNextMethod));
+            LoopExitCheck = Expression.Not(Expression.Call(_enumerator, typeof(IEnumerator).GetPublicInstanceMethod("MoveNext")));
             SourceElement = Expression.Property(_enumerator, "Current");
         }
 
@@ -69,7 +66,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             var enumeratorAssignment = _enumerator.AssignTo(enumeratorValue);
 
-            Expression finallyClause = Expression.Call(_enumerator, _disposeMethod);
+            Expression finallyClause = Expression.Call(
+                _enumerator,
+                typeof(IDisposable).GetPublicInstanceMethod("Dispose"));
 
             if (finallyClauseFactory != null)
             {
