@@ -12,18 +12,13 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-      - Support for mapping dynamic ExpandoObjects
-      - Reimplementing Mapper.Flatten() using ExpandoObject mapping
-      - Dedicated dynamic-mapping configuration API
-      - Support for mapping from flattened IDictionary&lt;,&gt; keys, without configuration
-      - Support for mapping members from parent contexts to nested IDictionary&lt;,&gt; entries
-      - Support for mapping any IDictionary&lt;,&gt; implementation
-      - Support for mapping IReadOnlyCollections
-      - Support for mapping to explicit ValueType-valued IDictionary&lt;,&gt;
-      - Bug fixes
-      - Performance and memory use improvements
-      - Updating to ReadableEpressions v1.10.1
-      - Updating to NetStandardPolyfills v1.2.1
+- Adding mapping extensions methods - obj,Map().ToANew<Target>(), obj.Map().Over(otherObj), etc.
+- Automatically ignoring target members with a KeyAttribute
+- Automatically short-circuiting mapping of recursive relationships in target types ending with 'Dto'
+- Support for mapping to Flags enums
+- Updating default dynamic enumerable element pattern to '_i'
+- Fully-compliant .NET Standard 1.0 version with serialization support removed
+- Adding .NET Standard 1.3 version including serialization support 
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
