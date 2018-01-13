@@ -44,12 +44,35 @@
         }
 
         [Fact]
+        public void ShouldNotMapEntityId()
+        {
+            var source = new { Id = 456, ProductSku = Guid.NewGuid() };
+            var result = Mapper.Map(source).ToANew<ProductEntity>();
+
+            result.Id.ShouldBeDefault();
+            result.ProductSku.ShouldBe(source.ProductSku);
+        }
+
+        [Fact]
         public void ShouldPopulateEntityIdWhenCloningAnEntity()
         {
             var source = new ProductEntity { Id = 123, ProductSku = Guid.NewGuid() };
             var result = source.DeepClone();
 
             result.Id.ShouldBe(123);
+            result.ProductSku.ShouldBe(source.ProductSku);
+        }
+
+        [Fact]
+        public void ShouldMapEntityIdWhenSourceValueIsConfigured()
+        {
+            var source = new { _Id_ = 456, ProductSku = Guid.NewGuid() };
+
+            var result = source.Map().ToANew<ProductEntity>(cfg => cfg
+                .Map((o, p) => o._Id_)
+                .To(p => p.Id));
+
+            result.Id.ShouldBe(456);
             result.ProductSku.ShouldBe(source.ProductSku);
         }
 
