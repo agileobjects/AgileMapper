@@ -47,7 +47,7 @@
                 out var nestedAccesses,
                 out var variables);
 
-            Condition = nestedAccesses.GetIsNotDefaultComparisonsOrNull();
+            Condition = GetCondition(nestedAccesses, mapperData);
             Variables = variables;
             Value = value;
         }
@@ -88,6 +88,68 @@
 
             valueExpressions[numberOfInvocations] = value.Replace(cacheVariablesByValue);
             value = Expression.Block(valueExpressions);
+        }
+
+        private Expression GetCondition(IList<Expression> nestedAccesses, IMemberMapperData mapperData)
+        {
+            if (nestedAccesses.None())
+            {
+                return null;
+            }
+
+            var notNullChecks = nestedAccesses.GetIsNotDefaultComparisonsOrNull();
+
+            if (!IsOptionalEntityMemberId(mapperData))
+            {
+                return notNullChecks;
+            }
+
+            var sourceMemberValue = SourceMember.GetQualifiedAccess(mapperData);
+            var sourceValueType = sourceMemberValue.Type.GetNonNullableType();
+
+            if (!sourceValueType.IsNumeric())
+            {
+                return notNullChecks;
+            }
+
+            if (sourceMemberValue.Type.IsNullableType())
+            {
+                sourceMemberValue = Expression.Property(sourceMemberValue, "Value");
+            }
+
+            var zero = 0.ToConstantExpression(sourceValueType);
+            var sourceValueNonZero = Expression.NotEqual(sourceMemberValue, zero);
+
+            return Expression.AndAlso(notNullChecks, sourceValueNonZero);
+        }
+
+        private static bool IsOptionalEntityMemberId(IBasicMapperData mapperData)
+        {
+            var targetMember = mapperData.TargetMember;
+
+            if (!targetMember.Type.IsNullableType())
+            {
+                return false;
+            }
+
+            var targetMemberNameSuffix = default(string);
+
+            for (var i = targetMember.Name.Length - 1; i > 0; --i)
+            {
+                if (char.IsUpper(targetMember.Name[i]))
+                {
+                    targetMemberNameSuffix = targetMember.Name.Substring(i).ToLowerInvariant();
+                }
+            }
+
+            switch (targetMemberNameSuffix)
+            {
+                case "id":
+                case "identifier":
+                    return true;
+            }
+
+            return false;
         }
 
         #endregion

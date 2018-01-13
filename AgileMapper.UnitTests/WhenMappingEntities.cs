@@ -137,5 +137,41 @@
             result.Items.Second().Product.ProductId.ShouldBe(789);
             result.Items.Second().Product.Price.ShouldBe(1.99);
         }
+
+        [Fact]
+        public void ShouldNotMapZeroToANullableEntityMemberId()
+        {
+            var source = new CategoryDto { Name = "Root Category", ParentId = 0 };
+            var result = Mapper.Map(source).ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldNotMapNullableZeroToANullableEntityMemberId()
+        {
+            var source = new { Name = "Nullable Category", ParentId = (int?)0 };
+            var result = Mapper.Map(source).ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldMapMinusOneToANullableEntityMemberId()
+        {
+            var source = new CategoryDto { Name = "Negative Category", ParentId = -1 };
+            var result = Mapper.Map(source).ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBe(-1);
+        }
+
+        [Fact]
+        public void ShouldMapParsedZeroToANullableEntityMemberId()
+        {
+            var source = new { Name = "Parseable Category", ParentId = "0" };
+            var result = Mapper.Map(source).ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBe(0);
+        }
     }
 }
