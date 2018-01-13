@@ -429,7 +429,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        private bool IsEntryPoint()
+        public bool IsEntryPoint()
         {
             if (IsRoot || Context.IsStandalone)
             {

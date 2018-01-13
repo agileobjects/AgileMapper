@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (NothingIsBeingMapped(mappingExpressions, mapperData))
             {
-                return mapperData.IsRoot ? mapperData.TargetObject : Constants.EmptyExpression;
+                return mapperData.IsEntryPoint() ? mapperData.TargetObject : Constants.EmptyExpression;
             }
 
             mappingExpressions.InsertRange(0, GetShortCircuitReturns(returnNull, mappingData));
@@ -102,6 +102,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, IMemberMapperData mapperData)
         {
+            mappingExpressions = mappingExpressions
+                .Where(IsMemberMapping)
+                .ToList();
+
             if (mappingExpressions.None())
             {
                 return true;
@@ -119,9 +123,65 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
-            return mappingExpressions.HasOne() &&
-                  (assignedValue == mapperData.TargetObject);
+            if (!mappingExpressions.HasOne())
+            {
+                return false;
+            }
+
+            if (assignedValue == mapperData.TargetObject)
+            {
+                return true;
+            }
+
+            if (assignedValue.NodeType == Coalesce)
+            {
+                var valueCoalesce = (BinaryExpression)assignedValue;
+
+                if ((valueCoalesce.Left == mapperData.TargetObject) &&
+                    (valueCoalesce.Right.NodeType == New))
+                {
+                    var objectNewing = (NewExpression)valueCoalesce.Right;
+
+                    if (objectNewing.Arguments.None() && (objectNewing.Type != typeof(object)))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
+
+        private static bool IsMemberMapping(Expression expression)
+        {
+            if (expression.NodeType == Constant)
+            {
+                return false;
+            }
+
+            if ((expression.NodeType == Call) &&
+                (IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||
+                 IsCallTo(nameof(IObjectMappingDataUntyped.TryGet), expression)))
+            {
+                return false;
+            }
+
+            if (expression.NodeType == Assign)
+            {
+                var assignment = (BinaryExpression)expression;
+
+                if ((assignment.Right.NodeType == Call) &&
+                    IsCallTo(nameof(IObjectMappingDataUntyped.MapRecursion), assignment.Right))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsCallTo(string methodName, Expression methodCall)
+            => ((MethodCallExpression)methodCall).Method.Name == methodName;
 
         private Expression GetMappingBlock(IList<Expression> mappingExpressions, MappingExtras mappingExtras)
         {

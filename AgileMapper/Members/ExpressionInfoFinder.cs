@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -119,7 +120,8 @@ namespace AgileObjects.AgileMapper.Members
             {
                 if (memberAccess.Member.Name == "Parent")
                 {
-                    return !memberAccess.IsRootedIn(_mappingDataObject);
+                    return !memberAccess.Member.DeclaringType.Name
+                        .StartsWith(nameof(IMappingData), StringComparison.Ordinal);
                 }
 
                 if (memberAccess.Expression != _mappingDataObject)
