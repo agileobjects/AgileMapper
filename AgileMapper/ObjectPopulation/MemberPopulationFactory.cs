@@ -35,7 +35,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 
-            if (targetMember.IsUnmappable(out var reason))
+            if (childMapperData.TargetMemberIsUnmappable(out var reason))
             {
                 return MemberPopulation.Unmappable(childMapperData, reason);
             }
