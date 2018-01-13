@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Extensions;
     using TestClasses;
     using Xunit;
 
@@ -40,6 +41,16 @@
             result.Items.Second().OrderId.ShouldBe(678);
             result.Items.Second().ProductId.ShouldBe(456);
             result.Items.Second().Product.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldPopulateEntityIdWhenCloningAnEntity()
+        {
+            var source = new ProductEntity { Id = 123, ProductSku = Guid.NewGuid() };
+            var result = source.DeepClone();
+
+            result.Id.ShouldBe(123);
+            result.ProductSku.ShouldBe(source.ProductSku);
         }
 
         [Fact]
