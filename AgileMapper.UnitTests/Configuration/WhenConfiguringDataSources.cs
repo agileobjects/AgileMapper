@@ -627,7 +627,7 @@
                 var target = new PublicProperty<Person> { Value = new Person { Name = "Someone" } };
                 var result = mapper.Map(source).Over(target);
 
-                result.Value.Name.ShouldBe("Someone");
+                result.Value.ShouldBeNull();
             }
         }
 

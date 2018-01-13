@@ -156,6 +156,8 @@
     <Compile Include="Structs\WhenMappingToUnmappableStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructs.cs" />
+    <Compile Include="TestClasses\CategoryDto.cs" />
+    <Compile Include="TestClasses\CategoryEntity.cs" />
     <Compile Include="TestClasses\DtoBase.cs" />
     <Compile Include="TestClasses\Earthworm.cs" />
     <Compile Include="TestClasses\EntityBase.cs" />

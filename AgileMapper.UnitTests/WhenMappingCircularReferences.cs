@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using AgileMapper.Extensions;
     using AgileMapper.Extensions.Internal;
     using TestClasses;
     using Xunit;
@@ -406,6 +407,30 @@
                 result.Value2.EldestChild.Name.ShouldBe("Child 2");
                 result.Value2.EldestChild.EldestParent.ShouldBeSameAs(result.Value2);
             }
+        }
+
+        [Fact]
+        public void ShouldNotMapANullParentMember()
+        {
+            var category = new CategoryEntity { Name = "Standalone" };
+            var clonedCategory = category.DeepClone();
+
+            clonedCategory.Parent.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldNotMapAnEmptyNestedRecursiveParentMember()
+        {
+            var source = new
+            {
+                Value = new CategoryDto { Id = 123, Name = "Child", ParentId = 456 }
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<CategoryEntity>>();
+
+            result.Value.Id.ShouldBeDefault();
+            result.Value.Name.ShouldBe("Child");
+            result.Value.ParentId.ShouldBe(456);
+            result.Value.Parent.ShouldBeNull();
         }
 
         [Fact]
