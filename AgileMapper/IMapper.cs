@@ -121,16 +121,12 @@
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TSource>>>[] configurations);
 
         /// <summary>
-        /// Flattens the given <paramref name="source"/> object so it has only value-type or string members
-        /// and returns the result.
+        /// Flatten the given <paramref name="source"/> object so it has only value-type or string members.
         /// </summary>
         /// <typeparam name="TSource">The type of object to flatten.</typeparam>
         /// <param name="source">The object to flatten.</param>
-        /// <returns>
-        /// A dynamic object containing flattened versions of the given <paramref name="source"/> object's 
-        /// properties.
-        /// </returns>
-        dynamic Flatten<TSource>(TSource source) where TSource : class;
+        /// <returns>A FlatteningTypeSelector with which to select the type of flattening to perform.</returns>
+        IFlatteningSelector<TSource> Flatten<TSource>(TSource source);
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.
