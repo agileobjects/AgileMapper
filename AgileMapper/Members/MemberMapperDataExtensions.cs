@@ -151,6 +151,19 @@ namespace AgileObjects.AgileMapper.Members
             mapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(mapperData.TargetMember, dataSources);
         }
 
+        public static bool TargetMemberIsUnmappable(this IMemberMapperData mapperData, out string reason)
+        {
+            if ((mapperData.TargetType != mapperData.SourceType) &&
+                (mapperData.TargetMember.LeafMember.MemberInfo?.HasKeyAttribute() == true) &&
+                 mapperData.MapperContext.UserConfigurations.GetDataSources(mapperData).None())
+            {
+                reason = "Entity key member";
+                return true;
+            }
+
+            return mapperData.TargetMember.IsUnmappable(out reason);
+        }
+
         [DebuggerStepThrough]
         public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
             => mapperData.TargetMember.LeafMember.IsEnumerableElement();

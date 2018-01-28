@@ -158,6 +158,8 @@
     <Compile Include="Structs\WhenMappingToUnmappableStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructMembers.cs" />
     <Compile Include="Structs\WhenMappingToNewStructs.cs" />
+    <Compile Include="TestClasses\CategoryDto.cs" />
+    <Compile Include="TestClasses\CategoryEntity.cs" />
     <Compile Include="TestClasses\DtoBase.cs" />
     <Compile Include="TestClasses\Earthworm.cs" />
     <Compile Include="TestClasses\EntityBase.cs" />
@@ -214,11 +216,12 @@
     <Compile Include="TestClasses\StringKeyedDictionary.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
+    <Compile Include="WhenFlatteningToDictionaries.cs" />
     <Compile Include="WhenMappingEntities.cs" />
     <Compile Include="WhenValidatingMappings.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
-    <Compile Include="WhenFlatteningObjects.cs" />
+    <Compile Include="WhenFlatteningToDynamics.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewComplexTypes.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />
     <Compile Include="Dictionaries\WhenMappingOnToDictionaries.cs" />

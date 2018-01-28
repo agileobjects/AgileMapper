@@ -76,28 +76,30 @@
         }
 
         /// <summary>
-        /// Flatten this source object to a flat result Type.
+        /// Flatten the given <paramref name="source"/> object so it has only value-type or string members,
+        /// using the default Mapper.
         /// </summary>
-        /// <typeparam name="TSource">The Type of object to flatten.</typeparam>
-        /// <param name="source">The object instance to flatten.</param>
-        /// <returns>A FlattenTypeSelector with which to select the type of flattening to perform.</returns>
+        /// <typeparam name="TSource">The type of object to flatten.</typeparam>
+        /// <param name="source">The object to flatten.</param>
+        /// <returns>A FlatteningTypeSelector with which to select the type of flattening to perform.</returns>
         public static IFlatteningSelector<TSource> Flatten<TSource>(this TSource source)
-            => new MappingExecutor<TSource>(source, Mapper.Default.Context);
+            => Mapper.Default.Flatten(source);
 
         /// <summary>
-        /// Flatten this source object to a flat result Type.
+        /// Flatten the given <paramref name="source"/> object so it has only value-type or string members, 
+        /// using the Mapper specified by the <paramref name="mapperSpecifier"/>.
         /// </summary>
-        /// <typeparam name="TSource">The Type of object to flatten.</typeparam>
-        /// <param name="source">The object instance to flatten.</param>
+        /// <typeparam name="TSource">The type of object to flatten.</typeparam>
+        /// <param name="source">The object to flatten.</param>
         /// <param name="mapperSpecifier">
         /// A func supplying the <see cref="IMapper"/> instance with which to perform the flattening.
         /// </param>
-        /// <returns>A FlattenTypeSelector with which to select the type of flattening to perform.</returns>
+        /// <returns>A FlatteningTypeSelector with which to select the type of flattening to perform.</returns>
         public static IFlatteningSelector<TSource> Flatten<TSource>(
             this TSource source,
             Func<MapperSpecifier, IMapper> mapperSpecifier)
         {
-            return new MappingExecutor<TSource>(source, MapperSpecifier.Get(mapperSpecifier).Context);
+            return MapperSpecifier.Get(mapperSpecifier).Flatten(source);
         }
     }
 }

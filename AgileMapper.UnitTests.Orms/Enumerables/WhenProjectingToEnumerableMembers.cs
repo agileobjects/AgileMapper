@@ -70,7 +70,7 @@
             rotaDto.Id.ShouldBe(1);
             rotaDto.StartDate.ShouldBe(rota.StartDate);
             rotaDto.EndDate.ShouldBe(rota.EndDate);
-            rotaDto.Entries.Count.ShouldBe(rota.Entries.Count());
+            rotaDto.Entries.Count.ShouldBe(rota.Entries.Count);
 
             var i = 0;
             var rotaEntryDtos = rotaDto.Entries.OrderBy(re => re.Id).ToArray();
@@ -121,7 +121,7 @@
 
             rotaDto.Id.ShouldBe(1);
             rotaDto.DatePlaced.ShouldBe(order.DatePlaced);
-            rotaDto.Items.Count().ShouldBe(order.Items.Count());
+            rotaDto.Items.Count().ShouldBe(order.Items.Count);
 
             var i = 0;
 

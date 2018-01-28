@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
 {
     using System.Linq.Expressions;
-    using Members;
 
     internal class MapRecursionCallRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
     {
@@ -15,7 +14,7 @@
         {
             var childMapperData = childMappingData.MapperData;
 
-            childMapperData.CacheMappedObjects = !childMapperData.SourceIsFlatObject();
+            childMapperData.CacheMappedObjects = true;
 
             childMapperData.RegisterRequiredMapperFunc(childMappingData);
 

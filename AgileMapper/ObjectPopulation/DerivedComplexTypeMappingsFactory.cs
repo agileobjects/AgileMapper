@@ -54,6 +54,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 derivedTargetTypes,
                 derivedTypeMappingExpressions);
 
+            if (derivedTypeMappingExpressions.None())
+            {
+                return Constants.EmptyExpression;
+            }
+
             return typedObjectVariables.Any()
                 ? Expression.Block(typedObjectVariables, derivedTypeMappingExpressions)
                 : Expression.Block(derivedTypeMappingExpressions);
@@ -219,7 +224,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     declaredTypeMapperData.SourceObject,
                     derivedTargetType);
 
-                derivedTypeMappingExpressions.Add(ifDerivedTargetTypeThenMap);
+                derivedTypeMappingExpressions.AddUnlessNullOrEmpty(ifDerivedTargetTypeThenMap);
             }
         }
 
@@ -230,6 +235,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Type targetType)
         {
             var returnMappingResult = GetReturnMappingResultExpression(mappingData, sourceValue, targetType);
+
+            if (returnMappingResult == Constants.EmptyExpression)
+            {
+                return Constants.EmptyExpression;
+            }
+
             var ifConditionThenMap = Expression.IfThen(condition, returnMappingResult);
 
             return ifConditionThenMap;
@@ -241,6 +252,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Type targetType)
         {
             var mapping = DerivedMappingFactory.GetDerivedTypeMapping(mappingData, sourceValue, targetType);
+
+            if (mapping == Constants.EmptyExpression)
+            {
+                return Constants.EmptyExpression;
+            }
+
             var returnMappingResult = Expression.Return(mappingData.MapperData.ReturnLabelTarget, mapping);
 
             return returnMappingResult;

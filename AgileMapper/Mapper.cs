@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using System.Dynamic;
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
@@ -144,16 +143,12 @@
         }
 
         /// <summary>
-        /// Flattens the given <paramref name="source"/> object so it has only value-type or string members
-        /// and returns the result.
+        /// Flatten the given <paramref name="source"/> object so it has only value-type or string members.
         /// </summary>
         /// <typeparam name="TSource">The type of object to flatten.</typeparam>
         /// <param name="source">The object to flatten.</param>
-        /// <returns>
-        /// A dynamic object containing flattened versions of the given <paramref name="source"/> object's 
-        /// properties.
-        /// </returns>
-        public static dynamic Flatten<TSource>(TSource source) where TSource : class
+        /// <returns>A FlatteningTypeSelector with which to select the type of flattening to perform.</returns>
+        public static IFlatteningSelector<TSource> Flatten<TSource>(TSource source) where TSource : class
             => Default.Flatten(source);
 
         /// <summary>
@@ -210,7 +205,8 @@
             return ((IMapper)this).Map(source).ToANew(configurations);
         }
 
-        dynamic IMapper.Flatten<TSource>(TSource source) => Map(source).ToANew<ExpandoObject>();
+        IFlatteningSelector<TSource> IMapper.Flatten<TSource>(TSource source)
+            => new MappingExecutor<TSource>(source, Context);
 
         ITargetSelector<TSource> IMapper.Map<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);

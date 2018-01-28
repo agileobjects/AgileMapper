@@ -85,16 +85,21 @@
                 StringComparison.OrdinalIgnoreCase.ToConstantExpression());
         }
 
-        public static Expression GetIsNotDefaultComparisonsOrNull(this IEnumerable<Expression> expressions)
+        public static Expression GetIsNotDefaultComparisonsOrNull(this IList<Expression> expressions)
         {
-            var notNullChecks = expressions
-                .Select(exp => exp.GetIsNotDefaultComparison())
-                .ToArray();
-
-            if (notNullChecks.Length == 0)
+            if (expressions.None())
             {
                 return null;
             }
+
+            if (expressions.HasOne())
+            {
+                return expressions[0].GetIsNotDefaultComparison();
+            }
+
+            var notNullChecks = expressions
+                .Select(exp => exp.GetIsNotDefaultComparison())
+                .ToArray();
 
             var allNotNullCheck = notNullChecks.Chain(firstCheck => firstCheck, Expression.AndAlso);
 

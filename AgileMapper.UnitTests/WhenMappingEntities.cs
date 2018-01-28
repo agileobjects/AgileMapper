@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Extensions;
     using TestClasses;
     using Xunit;
 
@@ -40,6 +41,39 @@
             result.Items.Second().OrderId.ShouldBe(678);
             result.Items.Second().ProductId.ShouldBe(456);
             result.Items.Second().Product.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldNotMapEntityId()
+        {
+            var source = new { Id = 456, ProductSku = Guid.NewGuid() };
+            var result = Mapper.Map(source).ToANew<ProductEntity>();
+
+            result.Id.ShouldBeDefault();
+            result.ProductSku.ShouldBe(source.ProductSku);
+        }
+
+        [Fact]
+        public void ShouldPopulateEntityIdWhenCloningAnEntity()
+        {
+            var source = new ProductEntity { Id = 123, ProductSku = Guid.NewGuid() };
+            var result = source.DeepClone();
+
+            result.Id.ShouldBe(123);
+            result.ProductSku.ShouldBe(source.ProductSku);
+        }
+
+        [Fact]
+        public void ShouldMapEntityIdWhenSourceValueIsConfigured()
+        {
+            var source = new { _Id_ = 456, ProductSku = Guid.NewGuid() };
+
+            var result = source.Map().ToANew<ProductEntity>(cfg => cfg
+                .Map((o, p) => o._Id_)
+                .To(p => p.Id));
+
+            result.Id.ShouldBe(456);
+            result.ProductSku.ShouldBe(source.ProductSku);
         }
 
         [Fact]
@@ -102,6 +136,42 @@
             result.Items.Second().Order.ShouldBeNull();
             result.Items.Second().Product.ProductId.ShouldBe(789);
             result.Items.Second().Product.Price.ShouldBe(1.99);
+        }
+
+        [Fact]
+        public void ShouldNotMapZeroToANullableEntityMemberId()
+        {
+            var source = new CategoryDto { Name = "Root Category", ParentId = 0 };
+            var result = Mapper.Map(source).ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldNotMapNullableZeroToANullableEntityMemberId()
+        {
+            var source = new { Name = "Nullable Category", ParentId = (int?)0 };
+            var result = Mapper.Map(source).ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldMapMinusOneToANullableEntityMemberId()
+        {
+            var source = new CategoryDto { Name = "Negative Category", ParentId = -1 };
+            var result = Mapper.Map(source).ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBe(-1);
+        }
+
+        [Fact]
+        public void ShouldMapParsedZeroToANullableEntityMemberId()
+        {
+            var source = new { Name = "Parseable Category", ParentId = "0" };
+            var result = Mapper.Map(source).ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBe(0);
         }
     }
 }
