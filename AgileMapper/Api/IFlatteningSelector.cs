@@ -1,10 +1,10 @@
-﻿namespace AgileObjects.AgileMapper.Extensions
+﻿namespace AgileObjects.AgileMapper.Api
 {
     using System;
     using System.Collections.Generic;
     using System.Dynamic;
     using System.Linq.Expressions;
-    using Api.Configuration;
+    using Configuration;
 
     /// <summary>
     /// Provides options for selecting the type of flattening to perform on an object.
