@@ -553,7 +553,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             => new BasicMapperData(RuleSet, SourceType, TargetType, QualifiedMember.None, Parent);
 
         #region ToString
-#if DEBUG
+#if CODE_COVERAGE_SUPPORTED
         [ExcludeFromCodeCoverage]
         public override string ToString() => SourceMember + " -> " + TargetMember;
 #endif

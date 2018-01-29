@@ -11,7 +11,7 @@
         /// Initializes a new instance of the MappingConfigurationException class.
         /// </summary>
         #region ExcludeFromCodeCoverage
-#if DEBUG
+#if CODE_COVERAGE_SUPPORTED
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

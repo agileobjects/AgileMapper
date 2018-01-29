@@ -227,7 +227,7 @@
         }
 
         #region ExcludeFromCodeCoverage
-#if DEBUG
+#if CODE_COVERAGE_SUPPORTED
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

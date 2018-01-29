@@ -10,7 +10,7 @@
 
         // This definitely gets executed, but code coverage doesn't pick it up
         #region ExcludeFromCodeCoverage
-#if DEBUG
+#if CODE_COVERAGE_SUPPORTED
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

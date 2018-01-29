@@ -40,14 +40,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #region ExcludeFromCodeCoverage
-#if DEBUG
+#if CODE_COVERAGE_SUPPORTED
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
         public override int GetHashCode() => 0;
 
         #region ToString
-#if DEBUG
+#if CODE_COVERAGE_SUPPORTED
         [ExcludeFromCodeCoverage]
         public override string ToString()
         {

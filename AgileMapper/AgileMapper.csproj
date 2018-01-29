@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;NO_SERIALIZE;</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -39,12 +39,16 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;SERIALIZATION_SUPPORTED;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;CODE_COVERAGE_SUPPORTED;</DefineConstants>
+  </PropertyGroup>
 
 </Project>

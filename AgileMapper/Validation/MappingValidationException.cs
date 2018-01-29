@@ -2,7 +2,7 @@
 {
     using System;
     #region Serialization Support
-#if !NO_SERIALIZE
+#if SERIALIZATION_SUPPORTED
     using System.Runtime.Serialization;
 #endif
     #endregion
@@ -11,7 +11,7 @@
     /// Provides details of a mapping validation failure.
     /// </summary>
     #region Serialization Support
-#if !NO_SERIALIZE
+#if SERIALIZATION_SUPPORTED
     [Serializable]
 #endif
     #endregion
@@ -21,7 +21,7 @@
         /// Initializes a new instance of the MappingValidationException class.
         /// </summary>
         #region ExcludeFromCodeCoverage
-#if DEBUG
+#if CODE_COVERAGE_SUPPORTED
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -40,7 +40,7 @@
         }
 
         #region Serialization Support
-#if !NO_SERIALIZE
+#if SERIALIZATION_SUPPORTED
         /// <summary>
         /// Initializes a new instance of the MappingValidationException class. This constructor is provided
         /// to support deserialization.
