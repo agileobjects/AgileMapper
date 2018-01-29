@@ -34,7 +34,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

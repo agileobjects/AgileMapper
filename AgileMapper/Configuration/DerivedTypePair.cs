@@ -86,7 +86,7 @@
             => mapperData.SourceType.IsAssignableTo(DerivedSourceType) && base.AppliesTo(mapperData);
 
         #region ToString
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
         public override string ToString()
         {

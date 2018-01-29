@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;CODE_COVERAGE_SUPPORTED;</DefineConstants>
+    <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;</DefineConstants>
   </PropertyGroup>
 
 </Project>

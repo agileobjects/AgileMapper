@@ -440,7 +440,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         }
 
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -497,7 +497,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             }
 
             #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
             [ExcludeFromCodeCoverage]
 #endif
             #endregion

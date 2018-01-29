@@ -329,7 +329,7 @@ namespace AgileObjects.AgileMapper.Members
         public virtual bool CheckExistingElementValue => false;
 
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -346,7 +346,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

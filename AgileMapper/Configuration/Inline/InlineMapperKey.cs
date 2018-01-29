@@ -60,7 +60,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
         }
 
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

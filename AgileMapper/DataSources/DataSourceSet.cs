@@ -118,7 +118,7 @@ namespace AgileObjects.AgileMapper.DataSources
         public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
 
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion

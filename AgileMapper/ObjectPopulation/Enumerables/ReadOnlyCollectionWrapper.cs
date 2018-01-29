@@ -58,7 +58,7 @@
         /// <param name="item">The object to locate in the</param>
         /// <returns>The index of item if found; otherwise, -1.</returns>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -70,7 +70,7 @@
         /// <param name="index">The zero-based index at which item should be inserted.</param>
         /// <param name="item">The object to insert.</param>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -81,7 +81,7 @@
         /// </summary>
         /// <param name="index">The zero-based index of the item to remove.</param>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -95,14 +95,14 @@
         public T this[int index]
         {
             #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
             [ExcludeFromCodeCoverage]
 #endif
             #endregion
             get => _items[index];
 
             #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
             [ExcludeFromCodeCoverage]
 #endif
             #endregion
@@ -117,7 +117,7 @@
         /// Gets the number of elements contained in the collection.
         /// </summary>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -127,7 +127,7 @@
         /// Gets a value indicating whether the collection is read-only.
         /// </summary>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -149,7 +149,7 @@
         /// <param name="item">The object to locate.</param>
         /// <returns>True if item is found in the collection, otherwise false.</returns>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -164,7 +164,7 @@
         /// </param>
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -179,7 +179,7 @@
         /// This method also returns false if item is not found in the original collection.
         /// </returns>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -203,7 +203,7 @@
         /// </summary>
         /// <returns>An enumerator that can be used to iterate through the collection.</returns>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
@@ -214,7 +214,7 @@
         /// </summary>
         /// <returns>An IEnumerator object that can be used to iterate through the collection.</returns>
         #region ExcludeFromCodeCoverage
-#if CODE_COVERAGE_SUPPORTED
+#if DEBUG
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
