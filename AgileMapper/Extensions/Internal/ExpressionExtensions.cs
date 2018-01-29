@@ -272,6 +272,11 @@
                 return GetEmptyArray(elementType);
             }
 
+            if (enumerableType.IsValueType())
+            {
+                return Expression.New(enumerableType);
+            }
+
             var typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
 
             if (typeHelper.IsEnumerableInterface)

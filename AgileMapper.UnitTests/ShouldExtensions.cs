@@ -126,17 +126,20 @@
 
         public static void ShouldBe<T>(this IEnumerable<T> actualValues, params T[] expectedValues)
         {
+            actualValues.ShouldNotBeNull();
             actualValues.ShouldNotBeEmpty();
             actualValues.SequenceEqual(expectedValues).ShouldBeTrue();
         }
 
         public static void ShouldBe<T1, T2>(this IEnumerable<T1> actualValues, Func<T1, T2> converter, params T2[] expectedValues)
         {
+            actualValues.ShouldNotBeNull();
             actualValues.ShouldBe(expectedValues, converter);
         }
 
         public static void ShouldBe<T1, T2>(this IEnumerable<T1> actualValues, IEnumerable<T2> expectedValues, Func<T1, T2> converter)
         {
+            actualValues.ShouldNotBeNull();
             actualValues.ShouldNotBeEmpty();
             actualValues.Select(converter).SequenceEqual(expectedValues).ShouldBeTrue();
         }
@@ -266,7 +269,7 @@
         {
             if (!items.GetEnumerator().MoveNext())
             {
-                Asplode("An empty collection", "A non-empty collection");
+                Asplode("a non-empty collection", "an empty collection");
             }
 
             return items;
