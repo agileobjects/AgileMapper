@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Configuration;
     using DataSources;
     using Dictionaries;
     using Extensions.Internal;
@@ -140,15 +141,35 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool TargetMemberIsUnmappable(this IMemberMapperData mapperData, out string reason)
         {
-            if ((mapperData.TargetType != mapperData.SourceType) &&
-                (mapperData.TargetMember.LeafMember.MemberInfo?.HasKeyAttribute() == true) &&
-                 mapperData.MapperContext.UserConfigurations.GetDataSources(mapperData).None())
+            return TargetMemberIsUnmappable(
+                mapperData,
+                mapperData.TargetMember,
+                md => md.MapperContext.UserConfigurations.QueryDataSourceFactories(md),
+                out reason);
+        }
+
+        public static bool TargetMemberIsUnmappable<TTypePair>(
+            this TTypePair typePair,
+            QualifiedMember targetMember,
+            Func<TTypePair, IEnumerable<ConfiguredDataSourceFactory>> configuredDataSourcesFactory,
+            out string reason)
+            where TTypePair : ITypePair
+        {
+            if (targetMember == QualifiedMember.All)
+            {
+                reason = null;
+                return false;
+            }
+
+            if ((typePair.TargetType != typePair.SourceType) &&
+                (targetMember.LeafMember.MemberInfo?.HasKeyAttribute() == true) &&
+                 configuredDataSourcesFactory.Invoke(typePair).ToArray().None())
             {
                 reason = "Entity key member";
                 return true;
             }
 
-            return mapperData.TargetMember.IsUnmappable(out reason);
+            return targetMember.IsUnmappable(out reason);
         }
 
         [DebuggerStepThrough]

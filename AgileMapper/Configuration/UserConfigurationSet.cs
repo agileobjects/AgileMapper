@@ -133,6 +133,7 @@
 
         public void Add(ConfiguredIgnoredMember ignoredMember)
         {
+            ThrowIfMemberIsUnmappable(ignoredMember);
             ThrowIfConflictingIgnoredMemberExists(ignoredMember, (im, cIm) => im.GetConflictMessage(cIm));
             ThrowIfConflictingDataSourceExists(ignoredMember, (im, cDsf) => im.GetConflictMessage(cDsf));
 
@@ -179,7 +180,10 @@
         }
 
         public ICollection<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
-            => _dataSourceFactories.FindMatches(mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
+            => QueryDataSourceFactories(mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
+
+        public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IBasicMapperData mapperData)
+            => _dataSourceFactories?.FindMatches(mapperData) ?? Enumerable<ConfiguredDataSourceFactory>.Empty;
 
         #endregion
 
@@ -222,7 +226,19 @@
 
         public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet());
 
-        #region Conflict Handling
+        #region Validation
+
+        internal void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
+        {
+            if (ignoredMember.ConfigInfo.TargetMemberIsUnmappable(
+                ignoredMember.TargetMember,
+                ci => QueryDataSourceFactories(ci.ToMapperData()),
+                out var reason))
+            {
+                throw new MappingConfigurationException(
+                    $"{ignoredMember.TargetMember.GetPath()} will not be mapped and does not need to be ignored ({reason})");
+            }
+        }
 
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
             where TConfiguredItem : UserConfiguredItemBase
