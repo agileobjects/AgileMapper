@@ -48,8 +48,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             if (childMembers == null)
             {
-                IsEnumerable = type.IsEnumerable();
-                IsSimple = !IsEnumerable && type.IsSimple();
+                IsEnumerable = _childMembers.First().IsEnumerable;
+                IsSimple = !IsEnumerable && _childMembers.First().IsSimple;
                 return;
             }
 

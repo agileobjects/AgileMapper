@@ -144,11 +144,21 @@
 
         public static Type GetEnumerableElementType(this Type enumerableType)
         {
-            return enumerableType.HasElementType
-                ? enumerableType.GetElementType()
-                : enumerableType.IsGenericType()
-                    ? enumerableType.GetGenericTypeArguments().Last()
-                    : typeof(object);
+            if (enumerableType.HasElementType)
+            {
+                return enumerableType.GetElementType();
+            }
+
+            if (enumerableType.IsGenericType())
+            {
+                return enumerableType.GetGenericTypeArguments().Last();
+            }
+
+            var enumerableInterfaceType = enumerableType
+                .GetAllInterfaces()
+                .FirstOrDefault(interfaceType => interfaceType.IsClosedTypeOf(typeof(IEnumerable<>)));
+
+            return enumerableInterfaceType?.GetGenericTypeArguments().First() ?? typeof(object);
         }
 
         public static bool RuntimeTypeNeeded(this Type type)

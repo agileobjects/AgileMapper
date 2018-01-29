@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             var returnEmpty = Expression.Return(returnLabel, emptyTarget);
 
             var ifKeyNotFoundShortCircuit = GetKeyNotFoundShortCircuit(returnEmpty);
-            var isValueIsNullShortCircuit = GetNullValueEntryShortCircuit(returnEmpty);
+            var isValueIsNullShortCircuit = GetNullValueEntryShortCircuitIfAppropriate(returnEmpty);
 
             var sourceValueBlock = Expression.Block(
                 new[] { DictionaryVariables.Key, DictionaryVariables.Value },
@@ -42,9 +42,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         public Expression GetKeyNotFoundShortCircuit(Expression shortCircuitReturn)
             => DictionaryVariables.GetKeyNotFoundShortCircuit(shortCircuitReturn);
 
-        private Expression GetNullValueEntryShortCircuit(Expression shortCircuitReturn)
+        private Expression GetNullValueEntryShortCircuitIfAppropriate(Expression shortCircuitReturn)
         {
             var valueAssignment = DictionaryVariables.GetEntryValueAssignment();
+
+            if (shortCircuitReturn.Type.CannotBeNull())
+            {
+                return valueAssignment;
+            }
+
             var valueIsNull = DictionaryVariables.Value.GetIsDefaultComparison();
             var ifValueNullShortCircuit = Expression.IfThen(valueIsNull, shortCircuitReturn);
 

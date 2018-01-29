@@ -138,5 +138,23 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 
             configEx.Message.ShouldContain("member.Name == \"Name\"");
         }
+
+        [Fact]
+        public void ShouldErrorIfEntityIdIsIgnored()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<ProductDto>()
+                        .Over<ProductEntity>()
+                        .Ignore(p => p.Id);
+                }
+            });
+
+            configEx.Message.ShouldContain("will not be mapped");
+            configEx.Message.ShouldContain("Entity key member");
+        }
     }
 }

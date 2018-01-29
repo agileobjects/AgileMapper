@@ -4,6 +4,9 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+#if !NET_STANDARD
+    using Microsoft.Extensions.Primitives;
+#endif
     using TestClasses;
     using Xunit;
 
@@ -111,6 +114,40 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
             result.Value.Second().Price.ShouldBe(1000.00);
             result.Value.Second().HowMega.ShouldBe(0.99);
         }
+
+#if !NET_STANDARD
+
+        // See https://github.com/agileobjects/AgileMapper/issues/50
+        [Fact]
+        public void ShouldMapStringValuesToAStringArray()
+        {
+            var source = new Dictionary<string, StringValues>
+            {
+                ["WidgetId"] = new StringValues("123"),
+                ["ClientId"] = new StringValues("456"),
+                ["TestPayload"] = new StringValues(new[] { "a", "b", "c" })
+            };
+
+            var result = Mapper.Map(source).ToANew<StringValuesTestDto>();
+
+            result.WidgetId.ShouldBe("123");
+            result.ClientId.ShouldBe("456");
+            result.TestPayload.ShouldBe("a", "b", "c");
+        }
+
+        #region Helper Class
+
+        public class StringValuesTestDto
+        {
+            public string WidgetId { get; set; }
+
+            public string ClientId { get; set; }
+
+            public string[] TestPayload { get; set; }
+        }
+
+        #endregion
+#endif
 
         [Fact]
         public void ShouldHandleAnUnconvertibleValueForACollection()
