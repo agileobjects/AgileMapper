@@ -38,10 +38,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             bool isForStandaloneMapping)
             : base(
                   mappingData.MappingContext.RuleSet,
-                  sourceMember.Type,
-                  targetMember.Type,
-                  targetMember,
-                  parent)
+                sourceMember.Type,
+                targetMember.Type,
+                sourceMember,
+                targetMember,
+                parent)
         {
             MapperContext = mappingData.MappingContext.MapperContext;
             DeclaredTypeMapperData = declaredTypeMapperData;
@@ -330,12 +331,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MapperDataContext Context { get; }
 
         public override bool HasCompatibleTypes(ITypePair typePair)
-        {
-            return typePair.HasCompatibleTypes(
-                this,
-                () => SourceMember.HasCompatibleType(typePair.SourceType),
-                () => TargetMember.HasCompatibleType(typePair.TargetType));
-        }
+            => typePair.HasCompatibleTypes(this, SourceMember, TargetMember);
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
             => _dataSourcesByTargetMemberName[targetMemberRegistrationName][dataSourceIndex].SourceMember;
@@ -550,7 +546,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public IBasicMapperData WithNoTargetMember()
-            => new BasicMapperData(RuleSet, SourceType, TargetType, QualifiedMember.None, Parent);
+        {
+            return new BasicMapperData(
+                RuleSet,
+                SourceType,
+                TargetType,
+                SourceMember,
+                QualifiedMember.None,
+                Parent);
+        }
 
         #region ToString
 #if DEBUG

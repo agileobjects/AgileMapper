@@ -91,7 +91,7 @@
                         .After
                         .MappingEnds
                         .If((s, t) => t.GetType() != typeof(Address))
-                        .Call(ctx => mappedNames.AddRange(new[] { ctx.Source.Name })));
+                        .Call(ctx => mappedNames.Add(ctx.Source.Name)));
 
                 mappedNames.ShouldBe("Bernie", "Bernie", "Bernie");
             }

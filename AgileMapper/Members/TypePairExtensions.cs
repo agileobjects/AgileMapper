@@ -17,15 +17,16 @@ namespace AgileObjects.AgileMapper.Members
         public static bool IsForTargetType(this ITypePair typePair, ITypePair otherTypePair)
             => otherTypePair.TargetType.IsAssignableTo(typePair.TargetType);
 
-        public static bool HasCompatibleTypes(
+        public static bool HasCompatibleTypes<TOtherTypePair>(
             this ITypePair typePair,
-            ITypePair otherTypePair,
-            Func<bool> sourceTypeMatcher = null,
-            Func<bool> targetTypeMatcher = null)
+            TOtherTypePair otherTypePair,
+            IQualifiedMember sourceMember = null,
+            QualifiedMember targetMember = null)
+            where TOtherTypePair : ITypePair
         {
             var sourceTypesMatch =
                 typePair.IsForSourceType(otherTypePair.SourceType) ||
-               (sourceTypeMatcher?.Invoke() == true);
+               (sourceMember?.HasCompatibleType(typePair.SourceType) == true);
 
             if (!sourceTypesMatch)
             {
@@ -33,7 +34,7 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             var targetTypesMatch =
-                targetTypeMatcher?.Invoke() ??
+               (targetMember?.HasCompatibleType(typePair.TargetType) == true) ||
                 otherTypePair.TargetType.IsAssignableTo(typePair.TargetType);
 
             return targetTypesMatch;

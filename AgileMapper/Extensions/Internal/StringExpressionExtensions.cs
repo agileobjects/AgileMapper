@@ -79,6 +79,11 @@
                     continue;
                 }
 
+                if (currentNamePart == string.Empty)
+                {
+                    continue;
+                }
+
                 expressions.Insert(i + 1, currentNamePart.ToConstantExpression());
                 currentNamePart = string.Empty;
             }

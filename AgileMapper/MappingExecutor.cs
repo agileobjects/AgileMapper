@@ -27,7 +27,16 @@
 
         public MappingRuleSet RuleSet { get; private set; }
 
-        #region Inline Configuration
+        #region ToANew Overloads
+
+        public TResult ToANew<TResult>() => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
+
+        public TResult ToANew<TResult>(Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>> configuration)
+        {
+            return (configuration != null)
+                ? PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), new[] { configuration })
+                : PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
+        }
 
         public TResult ToANew<TResult>(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
@@ -35,6 +44,19 @@
             return configurations.Any()
                 ? PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations)
                 : PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
+        }
+
+        #endregion
+
+        #region OnTo Overloads
+
+        public TTarget OnTo<TTarget>(TTarget existing) => PerformMapping(MapperContext.RuleSets.Merge, existing);
+
+        public TTarget OnTo<TTarget>(TTarget existing, Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>> configuration)
+        {
+            return (configuration != null)
+                ? PerformMapping(MapperContext.RuleSets.Merge, existing, new[] { configuration })
+                : PerformMapping(MapperContext.RuleSets.Merge, existing);
         }
 
         public TTarget OnTo<TTarget>(
@@ -46,6 +68,19 @@
                 : PerformMapping(MapperContext.RuleSets.Merge, existing);
         }
 
+        #endregion
+
+        #region Over Overloads
+
+        public TTarget Over<TTarget>(TTarget existing) => PerformMapping(MapperContext.RuleSets.Overwrite, existing);
+
+        public TTarget Over<TTarget>(TTarget existing, Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>> configuration)
+        {
+            return (configuration != null)
+                ? PerformMapping(MapperContext.RuleSets.Overwrite, existing, new[] { configuration })
+                : PerformMapping(MapperContext.RuleSets.Overwrite, existing);
+        }
+
         public TTarget Over<TTarget>(
             TTarget existing,
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
@@ -53,22 +88,6 @@
             return configurations.Any()
                 ? PerformMapping(MapperContext.RuleSets.Overwrite, existing, configurations)
                 : PerformMapping(MapperContext.RuleSets.Overwrite, existing);
-        }
-
-        private TTarget PerformMapping<TTarget>(
-            MappingRuleSet ruleSet,
-            TTarget target,
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
-        {
-            if (_source == null)
-            {
-                return target;
-            }
-
-            RuleSet = ruleSet;
-            MapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
-
-            return PerformMapping(target);
         }
 
         #endregion
@@ -100,6 +119,22 @@
                 .ForRootFixedTypes(_source, target, this);
 
             return typedRootMappingData.MapStart();
+        }
+
+        private TTarget PerformMapping<TTarget>(
+            MappingRuleSet ruleSet,
+            TTarget target,
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
+        {
+            if (_source == null)
+            {
+                return target;
+            }
+
+            RuleSet = ruleSet;
+            MapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
+
+            return PerformMapping(target);
         }
 
         #region IFlatteningSelector Members

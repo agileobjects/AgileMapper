@@ -358,6 +358,28 @@
         }
 
         [Fact]
+        public void ShouldMapToANestedSimpleTypeListWithACustomElementSeparator()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["Value_0_"] = "abc",
+                ["Value_1_"] = "xyz",
+                ["Value_2_"] = "123"
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicField<IList<string>>>(cfg => cfg
+                .WhenMapping
+                .FromDictionaries
+                .ToANew<IList<string>>()
+                .UseElementKeyPattern("_i_"));
+
+            result.Value.Count.ShouldBe(3);
+            result.Value.First().ShouldBe("abc");
+            result.Value.Second().ShouldBe("xyz");
+            result.Value.Third().ShouldBe("123");
+        }
+
+        [Fact]
         public void ShouldApplyACustomConfiguredMember()
         {
             using (var mapper = Mapper.CreateNew())

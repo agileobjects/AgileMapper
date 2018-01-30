@@ -1,10 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.Api
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using AgileMapper.Configuration.Inline;
     using Configuration;
+    using Extensions.Internal;
     using Plans;
 
     internal class PlanTargetSelector<TSource> :
@@ -31,22 +33,13 @@
                     .ToArray());
         }
 
-        public MappingPlan ToANew<TResult>()
-            => GetMappingPlan<TResult>(_mapperContext.RuleSets.CreateNew);
-
         public MappingPlan ToANew<TResult>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
             => GetMappingPlan(_mapperContext.RuleSets.CreateNew, configurations);
 
-        public MappingPlan OnTo<TTarget>()
-            => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Merge);
-
         public MappingPlan OnTo<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
             => GetMappingPlan(_mapperContext.RuleSets.Merge, configurations);
-
-        public MappingPlan Over<TTarget>()
-            => GetMappingPlan<TTarget>(_mapperContext.RuleSets.Overwrite);
 
         public MappingPlan Over<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
@@ -54,11 +47,11 @@
 
         private MappingPlan GetMappingPlan<TTarget>(
             MappingRuleSet ruleSet,
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations = null)
+            ICollection<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations)
         {
             var planContext = new SimpleMappingContext(ruleSet, _mapperContext);
 
-            if (configurations != null)
+            if (configurations?.Any() == true)
             {
                 InlineMappingConfigurator<TSource, TTarget>
                     .ConfigureMapperContext(configurations, planContext);

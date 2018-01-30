@@ -6,7 +6,13 @@
     internal class ChildMemberMapperData : BasicMapperData, IMemberMapperData
     {
         public ChildMemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
-            : base(parent.RuleSet, parent.SourceType, parent.TargetType, targetMember, parent)
+            : base(
+                parent.RuleSet,
+                parent.SourceType,
+                parent.TargetType,
+                parent.SourceMember,
+                targetMember,
+                parent)
         {
             Parent = parent;
             Context = new MapperDataContext(this);

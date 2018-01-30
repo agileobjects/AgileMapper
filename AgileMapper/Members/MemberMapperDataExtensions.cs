@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Configuration;
     using DataSources;
     using Dictionaries;
     using Extensions.Internal;
@@ -24,6 +23,22 @@ namespace AgileObjects.AgileMapper.Members
             while (!mapperData.IsRoot)
             {
                 mapperData = mapperData.Parent;
+            }
+
+            return mapperData;
+        }
+
+        public static IBasicMapperData GetElementMapperData(this IMemberMapperData mapperData)
+        {
+            if (mapperData.TargetMember.IsEnumerable)
+            {
+                return new BasicMapperData(
+                    mapperData.RuleSet,
+                    mapperData.SourceType,
+                    mapperData.TargetMember.ElementType,
+                    mapperData.SourceMember,
+                    mapperData.TargetMember.GetElementMember(),
+                    mapperData);
             }
 
             return mapperData;
