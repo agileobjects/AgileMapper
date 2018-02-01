@@ -15,6 +15,16 @@
         public static void ShouldBe<TActual, TExpected>(this TActual? value, TExpected expectedValue)
             where TActual : struct
         {
+            if (expectedValue == null && value.HasValue)
+            {
+                Asplode("null", "not null");
+            }
+
+            if (expectedValue != null && !value.HasValue)
+            {
+                Asplode(expectedValue.ToString(), "null");
+            }
+
             value.GetValueOrDefault().ShouldBe(expectedValue);
         }
 

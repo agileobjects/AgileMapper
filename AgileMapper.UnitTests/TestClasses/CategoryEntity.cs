@@ -6,6 +6,8 @@
     {
         public string Name { get; set; }
 
+        public int? TopProductIdentifier { get; set; }
+
         public int? ParentId { get; set; }
 
         public CategoryEntity Parent { get; set; }

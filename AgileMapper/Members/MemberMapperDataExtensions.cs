@@ -18,6 +18,24 @@ namespace AgileObjects.AgileMapper.Members
         public static bool IsStandalone(this IObjectMappingData mappingData)
             => mappingData.IsRoot || mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
 
+        public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
+            => IsEntity(mapperData, mapperData.TargetType);
+
+        public static bool IsEntity(this IMemberMapperData mapperData, Type type)
+        {
+            if (type == null)
+            {
+                return false;
+            }
+
+            var idMember = mapperData
+                .MapperContext
+                .Naming
+                .GetIdentifierOrNull(TypeKey.ForTypeId(type));
+
+            return idMember?.IsEntityId() == true;
+        }
+
         public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
             while (!mapperData.IsRoot)
@@ -177,7 +195,7 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             if ((typePair.TargetType != typePair.SourceType) &&
-                (targetMember.LeafMember.MemberInfo?.HasKeyAttribute() == true) &&
+                 targetMember.LeafMember.IsEntityId() &&
                  configuredDataSourcesFactory.Invoke(typePair).ToArray().None())
             {
                 reason = "Entity key member";

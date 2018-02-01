@@ -139,7 +139,7 @@
         }
 
         [Fact]
-        public void ShouldNotMapZeroToANullableEntityMemberId()
+        public void ShouldNotMapZeroToAnEntityNullableEntityIdMember()
         {
             var source = new CategoryDto { Name = "Root Category", ParentId = 0 };
             var result = Mapper.Map(source).ToANew<CategoryEntity>();
@@ -148,7 +148,7 @@
         }
 
         [Fact]
-        public void ShouldNotMapNullableZeroToANullableEntityMemberId()
+        public void ShouldNotMapNullableZeroToAnEntityNullableEntityIdMember()
         {
             var source = new { Name = "Nullable Category", ParentId = (int?)0 };
             var result = Mapper.Map(source).ToANew<CategoryEntity>();
@@ -157,7 +157,7 @@
         }
 
         [Fact]
-        public void ShouldMapMinusOneToANullableEntityMemberId()
+        public void ShouldMapMinusOneToAnEntityNullableEntityIdMember()
         {
             var source = new CategoryDto { Name = "Negative Category", ParentId = -1 };
             var result = Mapper.Map(source).ToANew<CategoryEntity>();
@@ -166,12 +166,31 @@
         }
 
         [Fact]
-        public void ShouldMapParsedZeroToANullableEntityMemberId()
+        public void ShouldMapParsedZeroToAnEntityNullableEntityIdMember()
         {
             var source = new { Name = "Parseable Category", ParentId = "0" };
             var result = Mapper.Map(source).ToANew<CategoryEntity>();
 
             result.ParentId.ShouldBe(0);
+        }
+
+        [Fact]
+        public void ShouldMapZeroToANonEntityNullableMemberIdMember()
+        {
+            var source = new CategoryDto { Name = "Root Category Dto", ParentId = 0 };
+            var result = source.DeepClone();
+
+            result.ParentId.ShouldBe(0);
+        }
+
+        [Fact]
+        public void ShouldMapZeroToAnEntityNullableNonEntityIdMember()
+        {
+            var source = new CategoryDto { Name = "Root Category", ParentId = 0, TopProductIdentifier = 0 };
+            var result = source.Map().ToANew<CategoryEntity>();
+
+            result.ParentId.ShouldBeNull();
+            result.TopProductIdentifier.ShouldBe(0);
         }
     }
 }

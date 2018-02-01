@@ -51,6 +51,9 @@
             return path;
         }
 
+        public static bool IsEntityId(this Member member)
+            => member.MemberInfo?.HasKeyAttribute() == true;
+
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
             if (IsStructNonSimpleMember(member))
