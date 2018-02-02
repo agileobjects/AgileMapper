@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal abstract class TryParseConverterBase : ValueConverterBase
+    internal class TryParseConverter<T> : ValueConverterBase
     {
         private readonly ToStringConverter _toStringConverter;
         private readonly Type _nonNullableTargetType;
@@ -14,27 +14,30 @@ namespace AgileObjects.AgileMapper.TypeConversion
         private readonly MethodInfo _tryParseMethod;
         private readonly ParameterExpression _valueVariable;
 
-        protected TryParseConverterBase(
-            ToStringConverter toStringConverter,
-            Type nonNullableTargetType)
+        public TryParseConverter(ToStringConverter toStringConverter)
         {
             _toStringConverter = toStringConverter;
-            _nonNullableTargetType = nonNullableTargetType;
-            _nullableTargetType = typeof(Nullable<>).MakeGenericType(nonNullableTargetType);
+            _nonNullableTargetType = typeof(T);
+            _nullableTargetType = typeof(Nullable<>).MakeGenericType(_nonNullableTargetType);
 
-            _tryParseMethod = nonNullableTargetType
+            _tryParseMethod = _nonNullableTargetType
                 .GetPublicStaticMethod("TryParse", parameterCount: 2);
 
             _valueVariable = Expression.Variable(
-                nonNullableTargetType,
-                nonNullableTargetType.GetVariableNameInCamelCase() + "Value");
+                _nonNullableTargetType,
+                _nonNullableTargetType.GetVariableNameInCamelCase() + "Value");
         }
 
         public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
             => nonNullableTargetType == _nonNullableTargetType && CanConvert(nonNullableSourceType);
 
         protected virtual bool CanConvert(Type nonNullableSourceType)
-            => (nonNullableSourceType == _nonNullableTargetType) || (nonNullableSourceType == typeof(object));
+        {
+            return (nonNullableSourceType == _nonNullableTargetType) ||
+                   (nonNullableSourceType == typeof(string)) ||
+                   (nonNullableSourceType == typeof(object)) ||
+                   _toStringConverter.HasToStringOperator(nonNullableSourceType, out var _);
+        }
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {

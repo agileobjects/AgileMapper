@@ -118,32 +118,45 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
 #if !NET_STANDARD
 
         // See https://github.com/agileobjects/AgileMapper/issues/50
+        // See https://github.com/agileobjects/AgileMapper/issues/51
         [Fact]
         public void ShouldMapStringValuesToAStringArray()
         {
             var source = new Dictionary<string, StringValues>
             {
-                ["WidgetId"] = new StringValues("123"),
-                ["ClientId"] = new StringValues("456"),
-                ["TestPayload"] = new StringValues(new[] { "a", "b", "c" })
+                ["StringValue"] = new StringValues("123"),
+                ["StringArray"] = new StringValues(new[] { "a", "b", "c" }),
+                ["IntValue"] = new StringValues("456"),
+                ["IntArray"] = new StringValues(new[] { "5", "4", "3" }),
+                ["DoubleValue"] = new StringValues("35.4354"),
+                ["DoubleArray"] = new StringValues(new[] { "1.23", "2.23", "3.23", "4.23" })
             };
 
             var result = Mapper.Map(source).ToANew<StringValuesTestDto>();
 
-            result.WidgetId.ShouldBe("123");
-            result.ClientId.ShouldBe("456");
-            result.TestPayload.ShouldBe("a", "b", "c");
+            result.StringValue.ShouldBe("123");
+            result.StringArray.ShouldBe("a", "b", "c");
+            result.IntValue.ShouldBe(456);
+            result.IntArray.ShouldBe(5, 4, 3);
+            result.DoubleValue.ShouldBe(35.4354);
+            result.DoubleArray.ShouldBe(1.23, 2.23, 3.23, 4.23);
         }
 
         #region Helper Class
 
         public class StringValuesTestDto
         {
-            public string WidgetId { get; set; }
+            public string StringValue { get; set; }
 
-            public string ClientId { get; set; }
+            public string[] StringArray { get; set; }
 
-            public string[] TestPayload { get; set; }
+            public int IntValue { get; set; }
+
+            public int[] IntArray { get; set; }
+
+            public double DoubleValue { get; set; }
+
+            public double[] DoubleArray { get; set; }
         }
 
         #endregion
