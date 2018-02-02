@@ -42,7 +42,8 @@
             var sourceExpandoObject = new MappingConfigInfo(mapperContext)
                 .ForAllRuleSets()
                 .ForAllSourceTypes()
-                .ForTargetType<ExpandoObject>();
+                .ForTargetType<ExpandoObject>()
+                .Set(DictionaryType.Expando);
 
             return new ElementKeyPartFactory("_", null, sourceExpandoObject);
         }
@@ -52,7 +53,8 @@
             var sourceExpandoObject = new MappingConfigInfo(mapperContext)
                 .ForAllRuleSets()
                 .ForSourceType<ExpandoObject>()
-                .ForAllTargetTypes();
+                .ForAllTargetTypes()
+                .Set(DictionaryType.Expando);
 
             return new ElementKeyPartFactory("_", null, sourceExpandoObject);
         }
@@ -134,7 +136,8 @@
         {
             var otherFactory = ((ElementKeyPartFactory)otherConfiguredItem);
 
-            if ((_prefixString != otherFactory._prefixString) || (_suffixString != otherFactory._suffixString))
+            if ((_prefixString != otherFactory._prefixString) || (_suffixString != otherFactory._suffixString) ||
+                (ConfigInfo.Get<DictionaryType>() != otherConfiguredItem.ConfigInfo.Get<DictionaryType>()))
             {
                 return false;
             }

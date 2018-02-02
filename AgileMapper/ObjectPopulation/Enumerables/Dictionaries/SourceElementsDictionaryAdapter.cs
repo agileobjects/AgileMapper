@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
     using System.Linq.Expressions;
     using DataSources;
     using Extensions.Internal;
+    using Members;
     using Members.Dictionaries;
     using NetStandardPolyfills;
 
@@ -41,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             var elementKeyPrefix = Builder.MapperData.MapperContext
                 .UserConfigurations
                 .Dictionaries
-                .GetElementKeyPrefixOrNull(Builder.MapperData);
+                .GetElementKeyPrefixOrNull(Builder.MapperData.GetElementMapperData());
 
             var targetEnumerableElementKey = (elementKeyPrefix != null)
                 ? new List<Expression> { targetEnumerableKey, elementKeyPrefix }.GetStringConcatCall()

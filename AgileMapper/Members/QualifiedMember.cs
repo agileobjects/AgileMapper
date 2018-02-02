@@ -220,7 +220,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public virtual bool GuardObjectValuePopulations => false;
 
-        public virtual bool HasCompatibleType(Type type) => Type.IsAssignableTo(type);
+        public virtual bool HasCompatibleType(Type type) => Type?.IsAssignableTo(type) == true;
 
         IQualifiedMember IQualifiedMember.GetElementMember() => this.GetElementMember();
 

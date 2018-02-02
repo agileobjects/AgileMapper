@@ -12,13 +12,14 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Adding mapping extensions methods - obj,Map().ToANew<Target>(), obj.Map().Over(otherObj), etc.
-- Automatically ignoring target members with a KeyAttribute
-- Automatically short-circuiting mapping of recursive relationships in target types ending with 'Dto'
-- Support for mapping to Flags enums
-- Updating default dynamic enumerable element pattern to '_i'
-- Fully-compliant .NET Standard 1.0 version with serialization support removed
-- Adding .NET Standard 1.3 version including serialization support 
+- Making .Flatten() API consistent between extension methods and mapper API
+- Including entity key mapping when deep cloning
+- Skipping mapping of nested recursive members where the only the recursion is mapped
+- Improving detection of non-generic enumerable element types, re: issue #50
+- Not mapping zero onto nullable, numeric [EntityMemberName]Id members
+- Fixing custom element key pattern configuration for source dictionary to nested enumerable mapping
+- Erroring during configuration if an unmappable target member is ignored
+- Performance improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>

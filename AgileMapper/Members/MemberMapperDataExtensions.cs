@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Configuration;
     using DataSources;
     using Dictionaries;
     using Extensions.Internal;
@@ -18,6 +17,24 @@ namespace AgileObjects.AgileMapper.Members
     {
         public static bool IsStandalone(this IObjectMappingData mappingData)
             => mappingData.IsRoot || mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
+
+        public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
+            => IsEntity(mapperData, mapperData.TargetType);
+
+        public static bool IsEntity(this IMemberMapperData mapperData, Type type)
+        {
+            if (type == null)
+            {
+                return false;
+            }
+
+            var idMember = mapperData
+                .MapperContext
+                .Naming
+                .GetIdentifierOrNull(TypeKey.ForTypeId(type));
+
+            return idMember?.IsEntityId() == true;
+        }
 
         public static bool UseSingleMappingExpression(this IBasicMapperData mapperData)
             => mapperData.IsRoot && mapperData.RuleSet.Settings.UseSingleRootMappingExpression;
@@ -33,6 +50,22 @@ namespace AgileObjects.AgileMapper.Members
             while (!mapperData.IsRoot)
             {
                 mapperData = mapperData.Parent;
+            }
+
+            return mapperData;
+        }
+
+        public static IBasicMapperData GetElementMapperData(this IMemberMapperData mapperData)
+        {
+            if (mapperData.TargetMember.IsEnumerable)
+            {
+                return new BasicMapperData(
+                    mapperData.RuleSet,
+                    mapperData.SourceType,
+                    mapperData.TargetMember.ElementType,
+                    mapperData.SourceMember,
+                    mapperData.TargetMember.GetElementMember(),
+                    mapperData);
             }
 
             return mapperData;
@@ -175,7 +208,7 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             if ((typePair.TargetType != typePair.SourceType) &&
-                (targetMember.LeafMember.MemberInfo?.HasKeyAttribute() == true) &&
+                 targetMember.LeafMember.IsEntityId() &&
                  configuredDataSourcesFactory.Invoke(typePair).ToArray().None())
             {
                 reason = "Entity key member";

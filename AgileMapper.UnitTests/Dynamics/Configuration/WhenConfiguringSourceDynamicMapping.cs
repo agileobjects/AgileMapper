@@ -44,6 +44,8 @@
                 mapper.WhenMapping
                     .FromDynamics
                     .Over<Address>()
+                    .UseMemberNameSeparator("-")
+                    .And
                     .MapMemberName("HouseNumber")
                     .To(a => a.Line1)
                     .And
@@ -52,15 +54,18 @@
 
                 dynamic source = new ExpandoObject();
 
-                source.HouseNumber = 10;
-                source.Street = "Street Road";
+                ((IDictionary<string, object>)source)["Value-HouseNumber"] = 10;
+                ((IDictionary<string, object>)source)["Value-Street"] = "Street Road";
 
-                var target = new Address { Line1 = "??", Line2 = "??" };
+                var target = new PublicField<Address>
+                {
+                    Value = new Address { Line1 = "??", Line2 = "??" }
+                };
 
                 ((ITargetSelector<ExpandoObject>)mapper.Map(source)).Over(target);
 
-                target.Line1.ShouldBe("10");
-                target.Line2.ShouldBe("Street Road");
+                target.Value.Line1.ShouldBe("10");
+                target.Value.Line2.ShouldBe("Street Road");
             }
         }
 
@@ -207,6 +212,45 @@
                 mysteryCustomerResult.ShouldBeOfType<MysteryCustomerViewModel>();
                 ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Very good!");
             }
+        }
+
+        [Fact]
+        public void ShouldMapToASimpleTypeArrayWithACustomElementSeparator()
+        {
+            dynamic source = new ExpandoObject();
+
+            ((IDictionary<string, object>)source)["-0-"] = "a";
+            ((IDictionary<string, object>)source)["-1-"] = "b";
+            ((IDictionary<string, object>)source)["-2-"] = "c";
+
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).ToANew<char[]>(cfg => cfg
+                .WhenMapping.FromDynamics.UseElementKeyPattern("-i-"));
+
+            result.Length.ShouldBe(3);
+            result.First().ShouldBe('a');
+            result.Second().ShouldBe('b');
+            result.Third().ShouldBe('c');
+        }
+
+        [Fact]
+        public void ShouldMapToANestedSimpleTypeListWithACustomElementSeparator()
+        {
+            dynamic source = new ExpandoObject();
+
+            ((IDictionary<string, object>)source)["Value[0]"] = "abc";
+            ((IDictionary<string, object>)source)["Value[1]"] = "xyz";
+            ((IDictionary<string, object>)source)["Value[2]"] = "123";
+
+            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).ToANew<PublicField<List<string>>>(cfg => cfg
+                .WhenMapping
+                .FromDynamics
+                .ToANew<List<string>>()
+                .UseElementKeyPattern("[i]"));
+
+            result.Value.Count.ShouldBe(3);
+            result.Value.First().ShouldBe("abc");
+            result.Value.Second().ShouldBe("xyz");
+            result.Value.Third().ShouldBe("123");
         }
 
         [Fact]

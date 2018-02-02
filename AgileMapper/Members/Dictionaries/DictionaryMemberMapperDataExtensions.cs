@@ -166,7 +166,9 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             this IMemberMapperData mapperData,
             Expression index)
         {
-            return mapperData.MapperContext.UserConfigurations.Dictionaries.GetElementKeyParts(index, mapperData);
+            var elementMapperData = mapperData.GetElementMapperData();
+
+            return mapperData.MapperContext.UserConfigurations.Dictionaries.GetElementKeyParts(index, elementMapperData);
         }
 
         private static Expression AddMemberNamePart(

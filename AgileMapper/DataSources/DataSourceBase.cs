@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
@@ -123,7 +124,7 @@
             return Expression.AndAlso(notNullChecks, sourceValueNonZero);
         }
 
-        private static bool IsOptionalEntityMemberId(IBasicMapperData mapperData)
+        private static bool IsOptionalEntityMemberId(IMemberMapperData mapperData)
         {
             var targetMember = mapperData.TargetMember;
 
@@ -139,6 +140,7 @@
                 if (char.IsUpper(targetMember.Name[i]))
                 {
                     targetMemberNameSuffix = targetMember.Name.Substring(i).ToLowerInvariant();
+                    break;
                 }
             }
 
@@ -146,10 +148,27 @@
             {
                 case "id":
                 case "identifier":
-                    return true;
+                    break;
+
+                default:
+                    return false;
             }
 
-            return false;
+            if (!mapperData.TargetTypeIsEntity())
+            {
+                return false;
+            }
+
+            var entityMemberNameLength = targetMember.Name.Length - targetMemberNameSuffix.Length;
+            var entityMemberName = targetMember.Name.Substring(0, entityMemberNameLength);
+
+            var entityMember = GlobalContext
+                .Instance
+                .MemberCache
+                .GetTargetMembers(mapperData.TargetType)
+                .FirstOrDefault(m => m.Name == entityMemberName);
+
+            return mapperData.IsEntity(entityMember?.Type);
         }
 
         #endregion

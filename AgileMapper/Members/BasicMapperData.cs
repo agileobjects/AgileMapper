@@ -5,6 +5,19 @@ namespace AgileObjects.AgileMapper.Members
     internal class BasicMapperData : IBasicMapperData
     {
         private readonly IBasicMapperData _parent;
+        private readonly IQualifiedMember _sourceMember;
+
+        public BasicMapperData(
+            MappingRuleSet ruleSet,
+            Type sourceType,
+            Type targetType,
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember,
+            IBasicMapperData parent = null)
+            : this(ruleSet, sourceType, targetType, targetMember, parent)
+        {
+            _sourceMember = sourceMember;
+        }
 
         public BasicMapperData(
             MappingRuleSet ruleSet,
@@ -33,7 +46,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public QualifiedMember TargetMember { get; }
 
-        public virtual bool HasCompatibleTypes(ITypePair typePair) 
-            => typePair.HasCompatibleTypes(this);
+        public virtual bool HasCompatibleTypes(ITypePair typePair)
+            => typePair.HasCompatibleTypes(this, _sourceMember, TargetMember);
     }
 }
