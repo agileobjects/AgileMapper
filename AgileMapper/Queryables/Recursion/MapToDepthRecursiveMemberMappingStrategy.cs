@@ -18,9 +18,8 @@
             }
 
             var helper = childMappingData.MapperData.EnumerablePopulationBuilder.TargetTypeHelper;
-            var emptyArray = Expression.NewArrayInit(helper.ElementType);
 
-            return helper.GetEnumerableConversion(emptyArray, allowEnumerableAssignment: true);
+            return helper.GetEmptyInstanceCreation();
         }
     }
 }

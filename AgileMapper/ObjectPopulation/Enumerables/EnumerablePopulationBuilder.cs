@@ -306,7 +306,7 @@
         {
             if (!MapperData.TargetMemberHasInitAccessibleValue())
             {
-                return TargetTypeHelper.GetEmptyInstanceCreation();
+                return TargetTypeHelper.GetNewInstanceCreation();
             }
 
             if (MapperData.TargetIsDefinitelyUnpopulated())

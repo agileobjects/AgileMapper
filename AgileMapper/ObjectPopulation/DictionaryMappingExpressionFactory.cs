@@ -420,8 +420,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)
         {
-            var valueType = mappingData.MapperData.EnumerablePopulationBuilder.TargetTypeHelper.ElementType;
-            var newDictionary = mappingData.MapperData.TargetType.GetEmptyInstanceCreation(valueType);
+            var helper = mappingData.MapperData.EnumerablePopulationBuilder.TargetTypeHelper;
+            var newDictionary = helper.GetEmptyInstanceCreation();
 
             return GetDictionaryAssignment(newDictionary, mappingData);
         }

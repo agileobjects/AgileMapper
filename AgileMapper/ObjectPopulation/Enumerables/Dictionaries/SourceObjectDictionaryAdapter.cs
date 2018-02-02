@@ -18,9 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             : base(builder)
         {
             _instanceDictionaryAdapter = new SourceInstanceDictionaryAdapter(sourceMember, builder);
-
-            var targetEnumerableType = TargetTypeHelper.EnumerableInterfaceType;
-            _emptyTarget = targetEnumerableType.GetEmptyInstanceCreation(TargetTypeHelper.ElementType);
+            _emptyTarget = TargetTypeHelper.GetEmptyInstanceCreation(TargetTypeHelper.EnumerableInterfaceType);
         }
 
         public override Expression GetSourceValues()

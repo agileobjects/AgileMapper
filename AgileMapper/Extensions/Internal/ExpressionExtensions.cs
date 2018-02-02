@@ -286,7 +286,10 @@
             return Expression.Call(typedToEnumerableMethod, enumerable);
         }
 
-        public static Expression GetEmptyInstanceCreation(this Type enumerableType, Type elementType)
+        public static Expression GetEmptyInstanceCreation(
+            this Type enumerableType,
+            Type elementType,
+            EnumerableTypeHelper typeHelper = null)
         {
             if (enumerableType.IsArray)
             {
@@ -298,7 +301,10 @@
                 return Expression.New(enumerableType);
             }
 
-            var typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
+            if (typeHelper == null)
+            {
+                typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
+            }
 
             if (typeHelper.IsEnumerableInterface)
             {

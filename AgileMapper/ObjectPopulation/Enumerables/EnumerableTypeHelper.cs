@@ -83,19 +83,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Type WrapperType => typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(ElementType);
 
-        public Expression GetEmptyInstanceCreation()
+        public Expression GetNewInstanceCreation()
         {
-            if (IsReadOnly || EnumerableType.IsInterface())
+            return IsReadOnly || EnumerableType.IsInterface()
+                ? Expression.New(ListType)
+                : GetEmptyInstanceCreation();
+        }
+
+        public Expression GetEmptyInstanceCreation(Type enumerableType = null)
+        {
+            if ((enumerableType == EnumerableType) || (enumerableType == null))
             {
-                return Expression.New(ListType);
+                return EnumerableType.GetEmptyInstanceCreation(ElementType, this);
             }
 
-            return EnumerableType.GetEmptyInstanceCreation(ElementType);
+            return enumerableType.GetEmptyInstanceCreation(ElementType);
         }
 
         public Expression GetWrapperConstruction(Expression existingItems, Expression newItemsCount)
         {
-            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
                 WrapperType.GetPublicInstanceConstructor(ListInterfaceType, typeof(int)),
                 existingItems,

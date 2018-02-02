@@ -1,6 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
 {
+    using System;
     using System.Linq.Expressions;
+    using Extensions.Internal;
+    using Members;
 
     internal class MapRecursionCallRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
     {
@@ -14,6 +17,11 @@
         {
             var childMapperData = childMappingData.MapperData;
 
+            if (DoNotMapRecursion(childMapperData))
+            {
+                return Constants.EmptyExpression;
+            }
+
             childMapperData.CacheMappedObjects = true;
 
             childMapperData.RegisterRequiredMapperFunc(childMappingData);
@@ -24,6 +32,27 @@
                 dataSourceIndex);
 
             return mapRecursionCall;
+        }
+
+        private static bool DoNotMapRecursion(IMemberMapperData mapperData)
+        {
+            if (mapperData.SourceType.IsDictionary())
+            {
+                return true;
+            }
+
+            while (mapperData != null)
+            {
+                if (mapperData.TargetType.Name.EndsWith("Dto", StringComparison.Ordinal) ||
+                    mapperData.TargetType.Name.EndsWith("DataTransferObject", StringComparison.Ordinal))
+                {
+                    return true;
+                }
+
+                mapperData = mapperData.Parent;
+            }
+
+            return false;
         }
     }
 }

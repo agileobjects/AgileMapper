@@ -132,27 +132,6 @@ namespace AgileObjects.AgileMapper.Members
                 targetCanBeNull);
         }
 
-        public static bool DoNotMapRecursion(this IMemberMapperData mapperData)
-        {
-            if (mapperData.SourceType.IsDictionary())
-            {
-                return true;
-            }
-
-            while (mapperData != null)
-            {
-                if (mapperData.TargetType.Name.EndsWith("Dto", StringComparison.Ordinal) ||
-                    mapperData.TargetType.Name.EndsWith("DataTransferObject", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-
-                mapperData = mapperData.Parent;
-            }
-
-            return false;
-        }
-
         public static bool SourceMemberIsStringKeyedDictionary(
             this IMemberMapperData mapperData,
             out DictionarySourceMember dictionarySourceMember)

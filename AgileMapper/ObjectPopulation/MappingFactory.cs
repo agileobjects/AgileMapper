@@ -54,11 +54,6 @@
 
             if (childMapperData.TargetMemberEverRecurses())
             {
-                if (childMapperData.DoNotMapRecursion())
-                {
-                    return Constants.EmptyExpression;
-                }
-
                 var mapRecursionCall = childMapperData
                     .RuleSet
                     .RecursiveMemberMappingStrategy
