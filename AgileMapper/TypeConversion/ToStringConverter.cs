@@ -32,12 +32,30 @@
                 return GetDateTimeToStringConversion(sourceValue, nonNullableSourceType);
             }
 
+            if (HasToStringOperator(nonNullableSourceType, out var operatorMethod))
+            {
+                return Expression.Call(operatorMethod, sourceValue);
+            }
+
             var toStringMethod = sourceValue.Type
                 .GetPublicInstanceMethod("ToString", parameterCount: 0);
 
             var toStringCall = Expression.Call(sourceValue, toStringMethod);
 
             return toStringCall;
+        }
+
+        public bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)
+        {
+            operatorMethod = nonNullableSourceType
+                .GetPublicStaticMembers()
+                .Where(m => (m.Name == "op_Implicit") || (m.Name == "op_Explicit"))
+                .Cast<MethodInfo>()
+                .FirstOrDefault(m =>
+                    (m.ReturnType == typeof(string)) &&
+                    (m.GetParameters()[0].ParameterType == nonNullableSourceType));
+
+            return operatorMethod != null;
         }
 
         #region Byte[] Conversion
