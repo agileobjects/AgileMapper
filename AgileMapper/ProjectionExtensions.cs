@@ -1,12 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-    using System;
     using System.Linq;
-    using System.Linq.Expressions;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ObjectPopulation;
-    using Queryables.Api;
+    using Api;
 
     /// <summary>
     /// Provides extension methods to support projecting an IQueryable to an IQueryable of a different type.
@@ -14,92 +9,16 @@
     public static class ProjectionExtensions
     {
         /// <summary>
-        /// Project the elements of the given <paramref name="sourceQueryable"/> to instances of the given 
-        /// <typeparamref name="TResultElement"/>.
+        /// Project the elements of the given <paramref name="sourceQueryable"/> to instances of a specified 
+        /// result Type. The projection operation is performed entirely on the data source.
         /// </summary>
-        /// <param name="sourceQueryable">The source collection on which to perform the projection.</param>
-        /// <typeparam name="TResultElement">
-        /// The target Type to which the elements of the given <paramref name="sourceQueryable"/> should be projected.
-        /// </typeparam>
-        /// <returns>
-        /// An IQueryable of the given <paramref name="sourceQueryable"/> to instances of the given 
-        /// <typeparamref name="TResultElement"/>. The projection is not performed until the Queryable is enumerated 
-        /// by a call to .ToArray() or similar.
-        /// </returns>
-        public static IQueryable<TResultElement> ProjectTo<TResultElement>(this IQueryable sourceQueryable)
-            where TResultElement : class
+        /// <typeparam name="TSourceElement">The Type of the elements to project to a new result Type.</typeparam>
+        /// <param name="sourceQueryable">The source IQueryable{T} on which to perform the projection.</param>
+        /// <returns>A ProjectionResultSpecifier with which to specify the type of query projection to perform.</returns>
+        public static ProjectionResultSpecifier<TSourceElement> Project<TSourceElement>(
+            this IQueryable<TSourceElement> sourceQueryable)
         {
-            return ProjectTo<TResultElement>(sourceQueryable, Mapper.Default);
-        }
-
-        /// <summary>
-        /// Project the elements of the given <paramref name="sourceQueryable"/> to instances of the given 
-        /// <typeparamref name="TResultElement"/>.
-        /// </summary>
-        /// <param name="sourceQueryable">The source collection on which to perform the projection.</param>
-        /// <param name="mapperSelector">A func providing the mapper with which the projection should be performed.</param>
-        /// <typeparam name="TResultElement">
-        /// The target Type to which the elements of the given <paramref name="sourceQueryable"/> should be projected.
-        /// </typeparam>
-        /// <returns>
-        /// An IQueryable of the given <paramref name="sourceQueryable"/> to instances of the given 
-        /// <typeparamref name="TResultElement"/>. The projection is not performed until the Queryable is enumerated 
-        /// by a call to .ToArray() or similar.
-        /// </returns>
-        public static IQueryable<TResultElement> ProjectTo<TResultElement>(
-            this IQueryable sourceQueryable,
-            Func<ProjectionMapperSelector, IMapper> mapperSelector)
-            where TResultElement : class
-        {
-            var mapper = mapperSelector.Invoke(ProjectionMapperSelector.Instance);
-
-            return ProjectTo<TResultElement>(sourceQueryable, mapper);
-        }
-
-        private static IQueryable<TResultElement> ProjectTo<TResultElement>(
-            IQueryable sourceQueryable,
-            IMapper mapper)
-            where TResultElement : class
-        {
-            var projectCaller = GlobalContext.Instance.Cache.GetOrAdd(
-                new SourceAndTargetTypesKey(sourceQueryable.ElementType, typeof(TResultElement)),
-                key =>
-                {
-                    var projectQueryMethod = typeof(ProjectionExtensions)
-                        .GetNonPublicStaticMethod("ProjectQuery")
-                        .MakeGenericMethod(key.SourceType, key.TargetType);
-
-                    var typedSourceQueryable = typeof(IQueryable<>).MakeGenericType(key.SourceType);
-
-                    var projectQueryCall = Expression.Call(
-                        projectQueryMethod,
-                        Parameters.Queryable.GetConversionTo(typedSourceQueryable),
-                        Parameters.Mapper);
-
-                    var projectQueryLambda = Expression.Lambda<Func<IQueryable, IMapper, IQueryable<TResultElement>>>(
-                        projectQueryCall,
-                        Parameters.Queryable,
-                        Parameters.Mapper);
-
-                    return projectQueryLambda.Compile();
-                });
-
-            return projectCaller.Invoke(sourceQueryable, mapper);
-        }
-
-        internal static IQueryable<TResultElement> ProjectQuery<TSourceElement, TResultElement>(
-            IQueryable<TSourceElement> sourceQueryable,
-            IMapper mapper)
-        {
-            var mapperContext = ((IMapperInternal)mapper).Context;
-
-            var rootMappingData = ObjectMappingDataFactory.ForProjection<TSourceElement, TResultElement>(
-                sourceQueryable,
-                mapperContext.QueryProjectionMappingContext);
-
-            var queryProjection = rootMappingData.MapStart();
-
-            return queryProjection;
+            return new ProjectionResultSpecifier<TSourceElement>(sourceQueryable);
         }
     }
 }

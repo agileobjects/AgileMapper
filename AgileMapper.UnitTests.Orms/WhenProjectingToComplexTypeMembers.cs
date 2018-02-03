@@ -31,7 +31,7 @@
                 context.Persons.Add(person);
                 context.SaveChanges();
 
-                var personDto = context.Persons.ProjectTo<PersonDto>().First();
+                var personDto = context.Persons.Project().To<PersonDto>().First();
 
                 personDto.Id.ShouldBe(person.PersonId);
                 personDto.Name.ShouldBe("Test Db");

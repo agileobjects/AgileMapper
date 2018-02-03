@@ -21,7 +21,7 @@
                 context.IntItems.Add(new PublicInt { Value = 763483 });
                 context.SaveChanges();
 
-                var stringItem = context.IntItems.ProjectTo<PublicStringDto>().First();
+                var stringItem = context.IntItems.Project().To<PublicStringDto>().First();
 
                 stringItem.Value.ShouldBe("763483");
             });
@@ -35,7 +35,7 @@
                 context.BoolItems.Add(new PublicBool { Value = true });
                 context.SaveChanges();
 
-                var stringItem = context.BoolItems.ProjectTo<PublicStringDto>().First();
+                var stringItem = context.BoolItems.Project().To<PublicStringDto>().First();
 
                 stringItem.Value.ShouldBe("true");
             });

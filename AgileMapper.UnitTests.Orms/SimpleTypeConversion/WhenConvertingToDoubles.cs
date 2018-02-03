@@ -21,7 +21,7 @@
                 context.ShortItems.Add(new PublicShort { Value = 123 });
                 context.SaveChanges();
 
-                var doubleItem = context.ShortItems.ProjectTo<PublicDoubleDto>().First();
+                var doubleItem = context.ShortItems.Project().To<PublicDoubleDto>().First();
 
                 doubleItem.Value.ShouldBe(123d);
             });
@@ -35,7 +35,7 @@
                 context.LongItems.Add(new PublicLong { Value = 12345L });
                 context.SaveChanges();
 
-                var doubleItem = context.LongItems.ProjectTo<PublicDoubleDto>().First();
+                var doubleItem = context.LongItems.Project().To<PublicDoubleDto>().First();
 
                 doubleItem.Value.ShouldBe(12345d);
             });
@@ -54,7 +54,7 @@
             context.StringItems.Add(new PublicString { Value = "738.01" });
             context.SaveChanges();
 
-            var doubleItem = context.StringItems.ProjectTo<PublicDoubleDto>().First();
+            var doubleItem = context.StringItems.Project().To<PublicDoubleDto>().First();
 
             doubleItem.Value.ShouldBe(738.01);
         }
@@ -74,7 +74,7 @@
             context.StringItems.Add(new PublicString { Value = default(string) });
             context.SaveChanges();
 
-            var doubleItem = context.StringItems.ProjectTo<PublicDoubleDto>().First();
+            var doubleItem = context.StringItems.Project().To<PublicDoubleDto>().First();
 
             doubleItem.Value.ShouldBe(default(double));
         }
@@ -95,7 +95,7 @@
             context.SaveChanges();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-            context.StringItems.ProjectTo<PublicDoubleDto>().First();
+            context.StringItems.Project().To<PublicDoubleDto>().First();
         }
 
         #endregion

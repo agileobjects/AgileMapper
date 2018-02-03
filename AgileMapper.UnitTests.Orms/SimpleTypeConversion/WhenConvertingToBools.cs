@@ -21,7 +21,7 @@
                 context.IntItems.Add(new PublicInt { Value = 1 });
                 context.SaveChanges();
 
-                var boolItem = context.IntItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.IntItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeTrue();
             });
@@ -35,7 +35,7 @@
                 context.IntItems.Add(new PublicInt { Value = 0 });
                 context.SaveChanges();
 
-                var boolItem = context.IntItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.IntItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });
@@ -49,7 +49,7 @@
                 context.StringItems.Add(new PublicString { Value = "true" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeTrue();
             });
@@ -63,7 +63,7 @@
                 context.StringItems.Add(new PublicString { Value = "tRuE" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeTrue();
             });
@@ -77,7 +77,7 @@
                 context.StringItems.Add(new PublicString { Value = "1" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeTrue();
             });
@@ -91,7 +91,7 @@
                 context.StringItems.Add(new PublicString { Value = "false" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });
@@ -105,7 +105,7 @@
                 context.StringItems.Add(new PublicString { Value = "0" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });
@@ -119,7 +119,7 @@
                 context.StringItems.Add(new PublicString { Value = "uokyujhygt" });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });
@@ -133,7 +133,7 @@
                 context.StringItems.Add(new PublicString { Value = null });
                 context.SaveChanges();
 
-                var boolItem = context.StringItems.ProjectTo<PublicBoolDto>().First();
+                var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
             });

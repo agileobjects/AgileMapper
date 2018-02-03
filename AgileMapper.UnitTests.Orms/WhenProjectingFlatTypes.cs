@@ -27,7 +27,7 @@
 
                 var productDtos = context
                     .Products
-                    .ProjectTo<ProductDto>()
+                    .Project().To<ProductDto>()
                     .OrderBy(p => p.ProductId)
                     .ToArray();
 
@@ -51,7 +51,7 @@
                 context.Products.Add(product);
                 context.SaveChanges();
 
-                var productDtos = context.Products.ProjectTo<PublicStringDto>().ToList();
+                var productDtos = context.Products.Project().To<PublicStringDto>().ToList();
 
                 productDtos.ShouldHaveSingleItem();
                 productDtos[0].Id.ShouldBe(product.ProductId);

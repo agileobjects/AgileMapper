@@ -28,7 +28,7 @@
             context.StringItems.Add(new PublicString { Value = now.ToString("s") });
             context.SaveChanges();
 
-            var dateTimeItem = context.StringItems.ProjectTo<PublicDateTimeDto>().First();
+            var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
 
             dateTimeItem.Value.ShouldBe(now, TimeSpan.FromSeconds(1));
         }
@@ -48,7 +48,7 @@
             context.StringItems.Add(new PublicString { Value = default(string) });
             context.SaveChanges();
 
-            var dateTimeItem = context.StringItems.ProjectTo<PublicDateTimeDto>().First();
+            var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
 
             dateTimeItem.Value.ShouldBe(default(DateTime));
         }
@@ -68,7 +68,7 @@
             context.StringItems.Add(new PublicString { Value = "htgijfoekld" });
             context.SaveChanges();
 
-            var dateTimeItem = context.StringItems.ProjectTo<PublicDateTimeDto>().First();
+            var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
 
             dateTimeItem.Value.ShouldBe(default(DateTime));
         }

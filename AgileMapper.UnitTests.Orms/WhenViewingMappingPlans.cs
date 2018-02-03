@@ -34,7 +34,7 @@
                 cachedMapper.MapperData.TargetType.ShouldBe(typeof(IQueryable<ProductDto>));
 
                 // Trigger a mapping:
-                Context.Products.ProjectTo<ProductDto>().ShouldBeEmpty();
+                Context.Products.Project().To<ProductDto>().ShouldBeEmpty();
 
                 var usedMapper = (IObjectMapper)mapper.RootMapperCountShouldBeOne();
 

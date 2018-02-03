@@ -23,7 +23,7 @@
                 {
                     var stringDtos = context1
                         .StringItems
-                        .ProjectTo<PublicStringDto>(c => c.Using(mapper))
+                        .Project().To<PublicStringDto>(c => c.Using(mapper))
                         .ToArray();
 
                     stringDtos.ShouldBeEmpty();
@@ -36,7 +36,7 @@
 
                     var moreStringDtos = context2
                         .StringItems
-                        .ProjectTo<PublicStringDto>(c => c.Using(mapper))
+                        .Project().To<PublicStringDto>(c => c.Using(mapper))
                         .ToArray();
 
                     moreStringDtos.ShouldHaveSingleItem();

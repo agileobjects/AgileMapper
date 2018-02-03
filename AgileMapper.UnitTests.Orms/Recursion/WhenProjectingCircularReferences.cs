@@ -46,7 +46,7 @@
 
                 context.SaveChanges();
 
-                var companyDto = context.Companies.ProjectTo<CompanyDto>().ShouldHaveSingleItem();
+                var companyDto = context.Companies.Project().To<CompanyDto>().ShouldHaveSingleItem();
 
                 companyDto.Id.ShouldBe(company.Id);
                 companyDto.Name.ShouldBe(company.Name);
@@ -116,7 +116,7 @@
 
             var topLevelDto = context
                 .Categories
-                .ProjectTo<CategoryDto>()
+                .Project().To<CategoryDto>()
                 .OrderBy(c => c.Id)
                 .First(c => c.Name == "Top Level");
 

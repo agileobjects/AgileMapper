@@ -64,7 +64,7 @@
             context.Rotas.Add(rota);
             context.SaveChanges();
 
-            var rotaDto = context.Rotas.Where(r => r.Id == 1).ProjectTo<RotaDto>().First();
+            var rotaDto = context.Rotas.Where(r => r.Id == 1).Project().To<RotaDto>().First();
 
             rotaDto.Id.ShouldBe(1);
             rotaDto.StartDate.ShouldBe(rota.StartDate);
@@ -116,7 +116,7 @@
             context.Orders.Add(order);
             context.SaveChanges();
 
-            var rotaDto = context.Orders.Where(r => r.Id == 1).ProjectTo<OrderDto>().First();
+            var rotaDto = context.Orders.Where(r => r.Id == 1).Project().To<OrderDto>().First();
 
             rotaDto.Id.ShouldBe(1);
             rotaDto.DatePlaced.ShouldBe(order.DatePlaced);

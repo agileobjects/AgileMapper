@@ -28,7 +28,7 @@
             context.StringItems.Add(new PublicString { Value = guid.ToString() });
             context.SaveChanges();
 
-            var guidItem = context.StringItems.ProjectTo<PublicGuidDto>().First();
+            var guidItem = context.StringItems.Project().To<PublicGuidDto>().First();
 
             guidItem.Value.ShouldBe(guid);
         }
@@ -48,7 +48,7 @@
             context.StringItems.Add(new PublicString { Value = default(string) });
             context.SaveChanges();
 
-            var guidItem = context.StringItems.ProjectTo<PublicGuidDto>().First();
+            var guidItem = context.StringItems.Project().To<PublicGuidDto>().First();
 
             guidItem.Value.ShouldBe(default(Guid));
         }

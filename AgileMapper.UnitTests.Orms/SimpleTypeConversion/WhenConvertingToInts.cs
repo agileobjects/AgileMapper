@@ -21,7 +21,7 @@
                 context.ShortItems.Add(new PublicShort { Value = 123 });
                 context.SaveChanges();
 
-                var intItem = context.ShortItems.ProjectTo<PublicIntDto>().First();
+                var intItem = context.ShortItems.Project().To<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(123);
             });
@@ -35,7 +35,7 @@
                 context.LongItems.Add(new PublicLong { Value = 12345L });
                 context.SaveChanges();
 
-                var intItem = context.LongItems.ProjectTo<PublicIntDto>().First();
+                var intItem = context.LongItems.Project().To<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(12345);
             });
@@ -49,7 +49,7 @@
                 context.LongItems.Add(new PublicLong { Value = long.MaxValue });
                 context.SaveChanges();
 
-                var intItem = context.LongItems.ProjectTo<PublicIntDto>().First();
+                var intItem = context.LongItems.Project().To<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(0);
             });
@@ -63,7 +63,7 @@
                 context.LongItems.Add(new PublicLong { Value = int.MinValue - 1L });
                 context.SaveChanges();
 
-                var intItem = context.LongItems.ProjectTo<PublicIntDto>().First();
+                var intItem = context.LongItems.Project().To<PublicIntDto>().First();
 
                 intItem.Value.ShouldBe(0);
             });
@@ -82,7 +82,7 @@
             context.StringItems.Add(new PublicString { Value = "738" });
             context.SaveChanges();
 
-            var intItem = context.StringItems.ProjectTo<PublicIntDto>().First();
+            var intItem = context.StringItems.Project().To<PublicIntDto>().First();
 
             intItem.Value.ShouldBe(738);
         }
@@ -102,7 +102,7 @@
             context.StringItems.Add(new PublicString { Value = default(string) });
             context.SaveChanges();
 
-            var intItem = context.StringItems.ProjectTo<PublicIntDto>().First();
+            var intItem = context.StringItems.Project().To<PublicIntDto>().First();
 
             intItem.Value.ShouldBe(default(int));
         }
@@ -123,7 +123,7 @@
             context.SaveChanges();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-            context.StringItems.ProjectTo<PublicIntDto>().First();
+            context.StringItems.Project().To<PublicIntDto>().First();
         }
 
         #endregion
