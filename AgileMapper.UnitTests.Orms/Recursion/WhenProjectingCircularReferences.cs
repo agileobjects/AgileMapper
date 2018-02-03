@@ -70,42 +70,48 @@
         #region Project One-to-Many
 
         protected void DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
-            => RunTest(ProjectAOneToManyRelationshipToFirstRecursionDepth);
+            => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(1, context));
 
         protected void DoShouldErrorProjectingAOneToManyRelationshipToFirstRecursionDepth()
-            => RunTestAndExpectThrow(ProjectAOneToManyRelationshipToFirstRecursionDepth);
+            => RunTestAndExpectThrow(context => ProjectAOneToManyRelationshipToRecursionDepth(1, context));
 
-        protected void ProjectAOneToManyRelationshipToFirstRecursionDepth(TOrmContext context)
+        protected void DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
+            => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(2, context));
+
+        protected void ProjectAOneToManyRelationshipToRecursionDepth(
+            int depth,
+            TOrmContext context)
         {
             var topLevel = new Category { Name = "Top Level" };
-            var child1 = new Category { Name = "Top > One", ParentCategory = topLevel };
-            var child2 = new Category { Name = "Top > Two", ParentCategory = topLevel };
-            var child3 = new Category { Name = "Top > Three", ParentCategory = topLevel };
 
-            var grandChild11 = new Category { Name = "Top > One > One", ParentCategory = child1 };
-            var grandChild12 = new Category { Name = "Top > One > Two", ParentCategory = child1 };
-
-            var grandChild21 = new Category { Name = "Top > Two > One", ParentCategory = child2 };
-            var grandChild22 = new Category { Name = "Top > Two > Two", ParentCategory = child2 };
-            var grandChild23 = new Category { Name = "Top > Two > Three", ParentCategory = child2 };
-
-            var grandChild31 = new Category { Name = "Top > Three > One", ParentCategory = child3 };
-
-            var greatGrandchild221 = new Category { Name = "Top > Two > Two > One", ParentCategory = grandChild22 };
-            var greatGrandchild222 = new Category { Name = "Top > Two > Two > Two", ParentCategory = grandChild22 };
+            topLevel.AddSubCategories(
+                new Category { Name = "Top > One" },
+                new Category { Name = "Top > Two" },
+                new Category { Name = "Top > Three" });
 
             context.Categories.Add(topLevel);
-            context.Categories.Add(child1);
-            context.Categories.Add(child2);
-            context.Categories.Add(child3);
-            context.Categories.Add(grandChild11);
-            context.Categories.Add(grandChild12);
-            context.Categories.Add(grandChild21);
-            context.Categories.Add(grandChild22);
-            context.Categories.Add(grandChild23);
-            context.Categories.Add(grandChild31);
-            context.Categories.Add(greatGrandchild221);
-            context.Categories.Add(greatGrandchild222);
+
+            if (depth > 1)
+            {
+                topLevel.SubCategories.First().AddSubCategories(
+                    new Category { Name = "Top > One > One" },
+                    new Category { Name = "Top > One > Two" });
+
+                topLevel.SubCategories.Second().AddSubCategories(
+                    new Category { Name = "Top > Two > One" },
+                    new Category { Name = "Top > Two > Two" },
+                    new Category { Name = "Top > Two > Three" });
+
+                topLevel.SubCategories.Third().AddSubCategories(
+                    new Category { Name = "Top > Three > One" });
+
+                if (depth > 2)
+                {
+                    topLevel.SubCategories.Second().SubCategories.Second().AddSubCategories(
+                        new Category { Name = "Top > Two > Two > One" },
+                        new Category { Name = "Top > Two > Two > Two" });
+                }
+            }
 
             context.SaveChanges();
 
@@ -116,30 +122,70 @@
                 .First(c => c.Name == "Top Level");
 
             topLevelDto.Id.ShouldBe(topLevel.Id);
-            topLevelDto.ParentCategoryId.ShouldBe(default(int));
+            topLevelDto.ParentCategoryId.ShouldBeNull();
             topLevelDto.ParentCategory.ShouldBeNull();
 
-            var topLevelSubCategoryDtos = topLevelDto
-                .SubCategories
-                .OrderBy(sc => sc.Id)
-                .ToArray();
+            var depth1Dtos = GetOrderedSubCategories(topLevelDto);
 
-            topLevelSubCategoryDtos.Length.ShouldBe(3);
+            depth1Dtos.Length.ShouldBe(3);
 
-            topLevelSubCategoryDtos.First().Id.ShouldBe(child1.Id);
-            topLevelSubCategoryDtos.First().Name.ShouldBe("Top > One");
-            topLevelSubCategoryDtos.First().ParentCategoryId.ShouldBe(topLevel.Id);
-            topLevelSubCategoryDtos.First().SubCategories.ShouldBeEmpty();
+            var child1 = topLevel.SubCategories.First();
+            var child2 = topLevel.SubCategories.Second();
+            var child3 = topLevel.SubCategories.Third();
 
-            topLevelSubCategoryDtos.Second().Id.ShouldBe(child2.Id);
-            topLevelSubCategoryDtos.Second().Name.ShouldBe("Top > Two");
-            topLevelSubCategoryDtos.Second().ParentCategoryId.ShouldBe(topLevel.Id);
-            topLevelSubCategoryDtos.Second().SubCategories.ShouldBeEmpty();
+            Verify(depth1Dtos.First(), child1);
+            Verify(depth1Dtos.Second(), child2);
+            Verify(depth1Dtos.Third(), child3);
 
-            topLevelSubCategoryDtos.Third().Id.ShouldBe(child3.Id);
-            topLevelSubCategoryDtos.Third().Name.ShouldBe("Top > Three");
-            topLevelSubCategoryDtos.Third().ParentCategoryId.ShouldBe(topLevel.Id);
-            topLevelSubCategoryDtos.Third().SubCategories.ShouldBeEmpty();
+            if (!(depth > 1))
+            {
+                depth1Dtos.First().SubCategories.ShouldBeEmpty();
+                depth1Dtos.Second().SubCategories.ShouldBeEmpty();
+                depth1Dtos.Third().SubCategories.ShouldBeEmpty();
+                return;
+            }
+
+            var depth11Dtos = GetOrderedSubCategories(depth1Dtos.First());
+
+            depth11Dtos.Length.ShouldBe(2);
+
+            Verify(depth11Dtos.First(), child1.SubCategories.First());
+            Verify(depth11Dtos.Second(), child1.SubCategories.Second());
+
+            var depth12Dtos = GetOrderedSubCategories(depth1Dtos.Second());
+
+            depth12Dtos.Length.ShouldBe(3);
+
+            Verify(depth12Dtos.First(), child2.SubCategories.First());
+            Verify(depth12Dtos.Second(), child2.SubCategories.Second());
+
+            var depth13Dtos = GetOrderedSubCategories(depth1Dtos.Third());
+
+            depth13Dtos.ShouldHaveSingleItem();
+
+            Verify(depth13Dtos.First(), child3.SubCategories.First());
+
+            if (!(depth > 2))
+            {
+                depth11Dtos.First().SubCategories.ShouldBeEmpty();
+                depth11Dtos.Second().SubCategories.ShouldBeEmpty();
+
+                depth12Dtos.First().SubCategories.ShouldBeEmpty();
+                depth12Dtos.Second().SubCategories.ShouldBeEmpty();
+                depth12Dtos.Third().SubCategories.ShouldBeEmpty();
+
+                depth13Dtos.First().SubCategories.ShouldBeEmpty();
+            }
+        }
+
+        private static CategoryDto[] GetOrderedSubCategories(CategoryDto parentDto)
+            => parentDto.SubCategories.OrderBy(sc => sc.Id).ToArray();
+
+        private static void Verify(CategoryDto result, Category source)
+        {
+            result.Id.ShouldBe(source.Id);
+            result.Name.ShouldBe(source.Name);
+            result.ParentCategoryId.ShouldBe(source.ParentCategoryId);
         }
 
         #endregion

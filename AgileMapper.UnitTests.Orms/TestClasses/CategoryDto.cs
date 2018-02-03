@@ -6,7 +6,7 @@
     {
         public int Id { get; set; }
 
-        public int ParentCategoryId { get; set; }
+        public int? ParentCategoryId { get; set; }
 
         public CategoryDto ParentCategory { get; set; }
 
