@@ -20,6 +20,8 @@
 
         bool SupportsEmptyEnumerableCreation { get; }
 
+        bool SupportsComplexTypeToNullComparisons { get; }
+
         Expression ConvertToStringCall(MethodCallExpression call);
 
         Expression ConvertGetValueOrDefaultCall(MethodCallExpression call);

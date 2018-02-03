@@ -3,20 +3,23 @@
     using System.Linq.Expressions;
     using Converters;
     using Extensions.Internal;
+    using ObjectPopulation;
     using Settings;
 
     internal class QueryProjectionModifier : ExpressionVisitor
     {
+        private readonly ObjectMapperData _mapperData;
         private readonly IQueryProviderSettings _settings;
 
-        private QueryProjectionModifier(IQueryProviderSettings settings)
+        private QueryProjectionModifier(IObjectMappingData mappingData)
         {
-            _settings = settings;
+            _mapperData = mappingData.MapperData;
+            _settings = mappingData.GetQueryProviderSettings();
         }
 
-        public static Expression Modify(Expression queryProjection, IQueryProviderSettings settings)
+        public static Expression Modify(Expression queryProjection, IObjectMappingData mappingData)
         {
-            return new QueryProjectionModifier(settings).Modify(queryProjection);
+            return new QueryProjectionModifier(mappingData).Modify(queryProjection);
         }
 
         private Expression Modify(Expression queryProjection)
@@ -62,6 +65,16 @@
             }
 
             return base.VisitMethodCall(methodCall);
+        }
+
+        protected override Expression VisitBinary(BinaryExpression binary)
+        {
+            if (ComplexTypeToNullComparisonConverter.TryConvert(binary, _settings, _mapperData, out var converted))
+            {
+                return converted;
+            }
+
+            return base.VisitBinary(binary);
         }
 
         protected override Expression VisitDefault(DefaultExpression defaultExpression)

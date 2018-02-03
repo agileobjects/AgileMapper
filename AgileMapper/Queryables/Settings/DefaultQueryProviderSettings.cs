@@ -35,6 +35,8 @@
 
         public virtual bool SupportsEmptyEnumerableCreation => true;
 
+        public virtual bool SupportsComplexTypeToNullComparisons => true;
+
         public virtual Expression ConvertToStringCall(MethodCallExpression call)
             => call.Object.GetConversionTo<string>();
 

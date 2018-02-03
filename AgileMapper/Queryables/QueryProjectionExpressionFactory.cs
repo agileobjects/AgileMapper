@@ -4,7 +4,6 @@
     using System.Linq.Expressions;
     using Extensions.Internal;
     using ObjectPopulation;
-    using Settings;
 
     internal class QueryProjectionExpressionFactory : MappingExpressionFactoryBase
     {
@@ -30,9 +29,7 @@
                         mapperData.TargetMember.ElementType.ToDefaultExpression(),
                         mappingData));
 
-            var providerSettings = mappingData.GetQueryProviderSettings();
-
-            queryProjection = QueryProjectionModifier.Modify(queryProjection, providerSettings);
+            queryProjection = QueryProjectionModifier.Modify(queryProjection, mappingData);
 
             yield return queryProjection;
         }

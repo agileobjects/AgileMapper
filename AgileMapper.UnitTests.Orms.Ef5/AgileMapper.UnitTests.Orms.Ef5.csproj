@@ -95,7 +95,7 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\Ef5TestDbContext.cs" />
-    <Compile Include="WhenProjectingCircularReferences.cs" />
+    <Compile Include="Recursion\WhenProjectingCircularReferences.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
     <Compile Include="WhenProjectingToEnumerableMembers.cs" />

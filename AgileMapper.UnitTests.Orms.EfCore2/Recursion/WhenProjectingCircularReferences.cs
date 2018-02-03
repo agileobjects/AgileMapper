@@ -1,7 +1,7 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Recursion
 {
     using Infrastructure;
-    using Recursion;
+    using Orms.Recursion;
     using Xunit;
 
     public class WhenProjectingCircularReferences :
