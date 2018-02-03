@@ -14,11 +14,11 @@
         /// </summary>
         /// <typeparam name="TSourceElement">The Type of the elements to project to a new result Type.</typeparam>
         /// <param name="sourceQueryable">The source IQueryable{T} on which to perform the projection.</param>
-        /// <returns>A ProjectionResultSpecifier with which to specify the type of query projection to perform.</returns>
-        public static ProjectionResultSpecifier<TSourceElement> Project<TSourceElement>(
+        /// <returns>An IProjectionResultSpecifier with which to specify the type of query projection to perform.</returns>
+        public static IProjectionResultSpecifier<TSourceElement> Project<TSourceElement>(
             this IQueryable<TSourceElement> sourceQueryable)
         {
-            return new ProjectionResultSpecifier<TSourceElement>(sourceQueryable);
+            return new ProjectionExecutor<TSourceElement>(sourceQueryable);
         }
     }
 }

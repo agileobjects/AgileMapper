@@ -3,26 +3,30 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Api.Configuration;
     using Extensions.Internal;
     using Members;
 
-    internal class InlineMapperKey<TSource, TTarget> : IInlineMapperKey
+    internal class InlineMapperKey<TSource, TTarget, TConfigurator> : IInlineMapperKey
     {
-        private readonly Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] _configurations;
-        private readonly MappingExecutor<TSource> _executor;
+        private readonly Expression<Action<TConfigurator>>[] _configurations;
+        private readonly Func<MappingConfigInfo, TConfigurator> _configuratorFactory;
+        private readonly IMappingContext _mappingContext;
 
         public InlineMapperKey(
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations,
-            MappingExecutor<TSource> executor)
+            Expression<Action<TConfigurator>>[] configurations,
+            Func<MappingConfigInfo, TConfigurator> configuratorFactory,
+            IMappingContext mappingContext)
         {
             _configurations = configurations;
-            _executor = executor;
+            _configuratorFactory = configuratorFactory;
+            _mappingContext = mappingContext;
         }
 
         public MappingTypes MappingTypes => MappingTypes<TSource, TTarget>.Fixed;
 
-        public MappingRuleSet RuleSet => _executor.RuleSet;
+        public MappingRuleSet RuleSet => _mappingContext.RuleSet;
+
+        public Type ConfiguratorType => typeof(TConfigurator);
 
         // ReSharper disable once CoVariantArrayConversion
         public IList<LambdaExpression> Configurations => _configurations;
@@ -30,7 +34,10 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
         public MapperContext CreateInlineMapperContext()
         {
             return InlineMappingConfigurator<TSource, TTarget>
-                .ConfigureInlineMapperContext(_configurations, _executor);
+                .ConfigureInlineMapperContext(
+                    _configurations,
+                    _configuratorFactory,
+                    _mappingContext);
         }
 
         public override bool Equals(object obj)
@@ -39,6 +46,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 
             // ReSharper disable once PossibleNullReferenceException
             if ((_configurations.Length != otherKey.Configurations.Count) ||
+                (ConfiguratorType != otherKey.ConfiguratorType) ||
                 (RuleSet != otherKey.RuleSet) ||
                 !MappingTypes.Equals(otherKey.MappingTypes))
             {

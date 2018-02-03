@@ -8,11 +8,13 @@
     using Dynamics;
     using Extensions.Internal;
     using Members;
+    using Projection;
     using Validation;
 
     internal class MappingConfigurator<TSource, TTarget> :
         IFullMappingInlineConfigurator<TSource, TTarget>,
-        IConditionalRootMappingConfigurator<TSource, TTarget>
+        IConditionalRootMappingConfigurator<TSource, TTarget>,
+        IFullProjectionInlineConfigurator<TSource, TTarget>
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
         {

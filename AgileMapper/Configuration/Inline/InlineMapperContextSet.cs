@@ -5,22 +5,49 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Api.Configuration;
+    using Api.Configuration.Projection;
     using Caching;
 
     internal class InlineMapperContextSet : IEnumerable<MapperContext>
     {
         private readonly ICache<IInlineMapperKey, MapperContext> _inlineContextsCache;
+        private readonly IMappingContext _queryProjectionMappingContext;
 
         public InlineMapperContextSet(MapperContext parentMapperContext)
         {
             _inlineContextsCache = parentMapperContext.Cache.CreateScoped<IInlineMapperKey, MapperContext>();
+            _queryProjectionMappingContext = parentMapperContext.QueryProjectionMappingContext;
         }
 
         public MapperContext GetContextFor<TSource, TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations,
             MappingExecutor<TSource> executor)
         {
-            var key = new InlineMapperKey<TSource, TTarget>(configurations, executor);
+            return GetContextFor<TSource, TTarget, IFullMappingInlineConfigurator<TSource, TTarget>>(
+                configurations,
+                configInfo => new MappingConfigurator<TSource, TTarget>(configInfo),
+                executor);
+        }
+
+        public MapperContext GetContextFor<TSourceElement, TResultElement>(
+            Expression<Action<IFullProjectionInlineConfigurator<TSourceElement, TResultElement>>>[] configurations,
+            ProjectionExecutor<TSourceElement> executor)
+        {
+            return GetContextFor<TSourceElement, TResultElement, IFullProjectionInlineConfigurator<TSourceElement, TResultElement>>(
+                configurations,
+                configInfo => new MappingConfigurator<TSourceElement, TResultElement>(configInfo),
+                _queryProjectionMappingContext);
+        }
+
+        private MapperContext GetContextFor<TSource, TTarget, TConfigurator>(
+            Expression<Action<TConfigurator>>[] configurations,
+            Func<MappingConfigInfo, TConfigurator> configuratorFactory,
+            IMappingContext mappingContext)
+        {
+            var key = new InlineMapperKey<TSource, TTarget, TConfigurator>(
+                configurations,
+                configuratorFactory,
+                mappingContext);
 
             var inlineMapperContext = _inlineContextsCache.GetOrAdd(
                 key,

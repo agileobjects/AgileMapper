@@ -7,24 +7,34 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 
     internal static class InlineMappingConfigurator<TSource, TTarget>
     {
-        public static MapperContext ConfigureInlineMapperContext(
-            IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations,
+        public static MapperContext ConfigureInlineMapperContext<TConfigurator>(
+            IEnumerable<Expression<Action<TConfigurator>>> configurations,
+            Func<MappingConfigInfo, TConfigurator> configuratorFactory,
             IMappingContext mappingContext)
         {
             var inlineMapperContext = mappingContext.MapperContext.Clone();
 
-            return ConfigureMapperContext(configurations, mappingContext.RuleSet, inlineMapperContext);
+            return ConfigureMapperContext(
+                configurations,
+                configuratorFactory,
+                mappingContext.RuleSet,
+                inlineMapperContext);
         }
 
         public static MapperContext ConfigureMapperContext(
             IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations,
             IMappingContext mappingContext)
         {
-            return ConfigureMapperContext(configurations, mappingContext.RuleSet, mappingContext.MapperContext);
+            return ConfigureMapperContext(
+                configurations,
+                configInfo => new MappingConfigurator<TSource, TTarget>(configInfo),
+                mappingContext.RuleSet,
+                mappingContext.MapperContext);
         }
 
-        private static MapperContext ConfigureMapperContext(
-            IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations,
+        private static MapperContext ConfigureMapperContext<TConfigurator>(
+            IEnumerable<Expression<Action<TConfigurator>>> configurations,
+            Func<MappingConfigInfo, TConfigurator> configuratorFactory,
             MappingRuleSet ruleSet,
             MapperContext mapperContext)
         {
@@ -33,7 +43,7 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
                 .ForSourceType<TSource>()
                 .ForTargetType<TTarget>();
 
-            var configurator = new MappingConfigurator<TSource, TTarget>(configInfo);
+            var configurator = configuratorFactory.Invoke(configInfo);
 
             foreach (var configuration in configurations)
             {
