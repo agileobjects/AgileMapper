@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using Infrastructure;
-    using Shouldly;
     using TestClasses;
 
     public abstract class WhenProjectingToEnumerableMembers<TOrmContext> : OrmTestClassBase<TOrmContext>

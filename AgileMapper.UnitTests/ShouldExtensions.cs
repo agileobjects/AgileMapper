@@ -6,11 +6,28 @@
     using System.Reflection;
     using NetStandardPolyfills;
 
-    internal static class ShouldExtensions
+    public static class ShouldExtensions
     {
         public static void ShouldBeDefault<T>(this T value) => value.ShouldBe(default(T));
 
         public static void ShouldNotBeDefault<T>(this T value) => value.ShouldNotBe(default(T));
+
+        public static void ShouldBe(this DateTime value, DateTime expectedValue, TimeSpan tolerance)
+        {
+            var minimumExpectedValue = expectedValue.Subtract(tolerance);
+
+            if (value < minimumExpectedValue)
+            {
+                Asplode($"a DateTime greater than {minimumExpectedValue}", $"{value}");
+            }
+
+            var maximumExpectedValue = expectedValue.Add(tolerance);
+
+            if (value > maximumExpectedValue)
+            {
+                Asplode($"a DateTime less than {maximumExpectedValue}", $"{value}");
+            }
+        }
 
         public static void ShouldBe<TActual, TExpected>(this TActual? value, TExpected expectedValue)
             where TActual : struct

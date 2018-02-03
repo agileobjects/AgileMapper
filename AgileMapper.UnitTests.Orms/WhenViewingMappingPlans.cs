@@ -4,7 +4,6 @@
     using Infrastructure;
     using MoreTestClasses;
     using ObjectPopulation;
-    using Shouldly;
     using TestClasses;
     using Xunit;
 

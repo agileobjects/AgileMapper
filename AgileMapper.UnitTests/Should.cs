@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal static class Should
+    public static class Should
     {
         public static TException Throw<TException>(Action testAction)
             where TException : Exception

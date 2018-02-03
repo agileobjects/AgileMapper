@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Infrastructure
 {
     using System;
-    using Shouldly;
     using Xunit;
 
     [Collection(TestConstants.OrmCollectionName)]
