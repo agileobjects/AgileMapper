@@ -35,7 +35,7 @@
         {
             return GetContextFor<TSourceElement, TResultElement, IFullProjectionInlineConfigurator<TSourceElement, TResultElement>>(
                 configurations,
-                configInfo => new MappingConfigurator<TSourceElement, TResultElement>(configInfo),
+                configInfo => new ProjectionConfigurator<TSourceElement, TResultElement>(configInfo),
                 _queryProjectionMappingContext);
         }
 

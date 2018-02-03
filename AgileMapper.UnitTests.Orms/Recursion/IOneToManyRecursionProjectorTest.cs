@@ -2,6 +2,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Orms.Recursion
 {
     public interface IOneToManyRecursionProjectorTest
     {
-        void ShouldProjectAOneToManyRelationshipToFirstRecursionDepth();
+        void ShouldProjectAOneToManyRelationshipToZeroethRecursionDepth();
     }
 }

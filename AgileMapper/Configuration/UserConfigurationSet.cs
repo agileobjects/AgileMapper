@@ -9,6 +9,7 @@
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
+    using Projection;
 
     internal class UserConfigurationSet
     {
@@ -26,6 +27,7 @@
         private List<ObjectCreationCallbackFactory> _creationCallbackFactories;
         private List<ExceptionCallback> _exceptionCallbackFactories;
         private DerivedTypePairSet _derivedTypes;
+        private List<RecursionDepthSettings> _recursionDepthSettings;
 
         public UserConfigurationSet(MapperContext mapperContext)
         {
@@ -225,6 +227,28 @@
         #endregion
 
         public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet());
+
+        #region RecursionDepthSettings
+
+        private List<RecursionDepthSettings> RecursionDepthSettings
+            => _recursionDepthSettings ?? (_recursionDepthSettings = new List<RecursionDepthSettings>());
+
+        public void Add(RecursionDepthSettings settings)
+        {
+            RecursionDepthSettings.Add(settings);
+        }
+
+        public bool ShortCircuitRecursion(IBasicMapperData mapperData)
+        {
+            if (_recursionDepthSettings == null)
+            {
+                return true;
+            }
+
+            return RecursionDepthSettings.FindMatch(mapperData)?.IsWithinDepth(mapperData) != true;
+        }
+
+        #endregion
 
         #region Validation
 

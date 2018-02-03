@@ -14,7 +14,7 @@
         }
 
         [Fact]
-        public void ShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
-            => DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth();
+        public void ShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
+            => DoShouldProjectAOneToManyRelationshipToZeroethRecursionDepth();
     }
 }

@@ -14,7 +14,7 @@
         }
 
         [Fact]
-        public void ShouldErrorProjectingAOneToManyRelationshipToFirstRecursionDepth()
-            => DoShouldErrorProjectingAOneToManyRelationshipToFirstRecursionDepth();
+        public void ShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth()
+            => DoShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth();
     }
 }

@@ -172,7 +172,7 @@
                 createMappingDataCall);
         }
 
-        public static Expression GetDirectAccessMapping(
+        private static Expression GetDirectAccessMapping(
             Expression mapping,
             ObjectMapperData mapperData,
             MappingValues mappingValues,

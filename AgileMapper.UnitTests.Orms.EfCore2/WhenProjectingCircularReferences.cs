@@ -14,11 +14,11 @@
         }
 
         [Fact]
-        public void ShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
-            => DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth();
+        public void ShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
+            => DoShouldProjectAOneToManyRelationshipToZeroethRecursionDepth();
 
         [Fact]
-        public void ShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
-            => DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth();
+        public void ShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
+            => DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth();
     }
 }

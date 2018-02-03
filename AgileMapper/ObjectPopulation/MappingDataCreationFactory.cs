@@ -7,6 +7,7 @@
 
     internal static class MappingDataCreationFactory
     {
+        [DebuggerStepThrough]
         public static Expression ForDerivedType(ObjectMapperData childMapperData)
         {
             UseAsConversion(childMapperData, out var asConversion);
@@ -14,6 +15,7 @@
             return asConversion;
         }
 
+        [DebuggerStepThrough]
         private static bool UseAsConversion(ObjectMapperData childMapperData, out Expression conversion)
         {
             if (childMapperData.Context.IsStandalone)

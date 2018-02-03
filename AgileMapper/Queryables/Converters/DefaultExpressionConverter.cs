@@ -2,11 +2,15 @@
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal static class DefaultExpressionConverter
     {
+        private static readonly MethodInfo _getDefaultValueMethod = typeof(DefaultExpressionConverter)
+            .GetNonPublicStaticMethod("GetDefaultValue");
+
         public static Expression Convert(Expression defaultExpression)
             => Convert((DefaultExpression)defaultExpression);
 
@@ -23,9 +27,7 @@
             var getDefaultValueCaller = GlobalContext.Instance.Cache.GetOrAdd(type, t =>
             {
                 var getDefaultValueCall = Expression
-                    .Call(typeof(DefaultExpressionConverter)
-                        .GetNonPublicStaticMethod("GetDefaultValue")
-                        .MakeGenericMethod(t))
+                    .Call(_getDefaultValueMethod.MakeGenericMethod(t))
                     .GetConversionToObject();
 
                 var getDefaultValueLambda = Expression.Lambda<Func<object>>(getDefaultValueCall);

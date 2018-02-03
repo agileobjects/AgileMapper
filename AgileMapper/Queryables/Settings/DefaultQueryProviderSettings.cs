@@ -39,7 +39,15 @@
             => call.Object.GetConversionTo<string>();
 
         public Expression ConvertGetValueOrDefaultCall(MethodCallExpression call)
-            => Expression.Convert(call.Object, call.Type);
+        {
+            var valueIsNotNull = call.Object.GetIsNotDefaultComparison();
+
+            // ReSharper disable once AssignNullToNotNullAttribute
+            var castValue = Expression.Convert(call.Object, call.Type);
+            var fallbackValue = DefaultExpressionConverter.Convert(call.Type.ToDefaultExpression());
+
+            return Expression.Condition(valueIsNotNull, castValue, fallbackValue);
+        }
 
         public Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
         {

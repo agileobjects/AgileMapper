@@ -68,14 +68,14 @@
 
         #region Project One-to-Many
 
+        protected void DoShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
+            => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(0, context));
+
+        protected void DoShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth()
+            => RunTestAndExpectThrow(context => ProjectAOneToManyRelationshipToRecursionDepth(0, context));
+
         protected void DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
             => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(1, context));
-
-        protected void DoShouldErrorProjectingAOneToManyRelationshipToFirstRecursionDepth()
-            => RunTestAndExpectThrow(context => ProjectAOneToManyRelationshipToRecursionDepth(1, context));
-
-        protected void DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
-            => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(2, context));
 
         protected void ProjectAOneToManyRelationshipToRecursionDepth(
             int depth,
@@ -90,7 +90,7 @@
 
             context.Categories.Add(topLevel);
 
-            if (depth > 1)
+            if (depth > 0)
             {
                 topLevel.SubCategories.First().AddSubCategories(
                     new Category { Name = "Top > One > One" },
@@ -104,7 +104,7 @@
                 topLevel.SubCategories.Third().AddSubCategories(
                     new Category { Name = "Top > Three > One" });
 
-                if (depth > 2)
+                if (depth > 1)
                 {
                     topLevel.SubCategories.Second().SubCategories.Second().AddSubCategories(
                         new Category { Name = "Top > Two > Two > One" },
@@ -116,7 +116,7 @@
 
             var topLevelDto = context
                 .Categories
-                .Project().To<CategoryDto>()
+                .Project().To<CategoryDto>(cfg => cfg.RecurseToDepth(depth))
                 .OrderBy(c => c.Id)
                 .First(c => c.Name == "Top Level");
 
@@ -136,7 +136,7 @@
             Verify(depth1Dtos.Second(), child2);
             Verify(depth1Dtos.Third(), child3);
 
-            if (!(depth > 1))
+            if (!(depth > 0))
             {
                 depth1Dtos.First().SubCategories.ShouldBeEmpty();
                 depth1Dtos.Second().SubCategories.ShouldBeEmpty();
@@ -164,7 +164,7 @@
 
             Verify(depth13Dtos.First(), child3.SubCategories.First());
 
-            if (!(depth > 2))
+            if (!(depth > 1))
             {
                 depth11Dtos.First().SubCategories.ShouldBeEmpty();
                 depth11Dtos.Second().SubCategories.ShouldBeEmpty();

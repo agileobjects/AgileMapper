@@ -40,5 +40,25 @@
                 personDto.AddressLine2.ShouldBe("Test Db Line 2");
             });
         }
+
+        [Fact]
+        public void ShouldHandleANullComplexTypeMember()
+        {
+            RunTest(context =>
+            {
+                var person = new Person { Name = "No Address!" };
+
+                context.Persons.Add(person);
+                context.SaveChanges();
+
+                var personDto = context.Persons.Project().To<PersonDto>().First();
+
+                personDto.Id.ShouldBe(person.PersonId);
+                personDto.Name.ShouldBe("No Address!");
+                personDto.AddressId.ShouldBeDefault();
+                personDto.AddressLine1.ShouldBeNull();
+                personDto.AddressLine2.ShouldBeNull();
+            });
+        }
     }
 }
