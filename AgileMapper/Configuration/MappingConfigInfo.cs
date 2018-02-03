@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq.Expressions;
-    using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
@@ -161,8 +160,7 @@
 
             var conditionNestedAccessesChecks = mapperData
                 .GetExpressionInfoFor(condition, targetCanBeNull)
-                .NestedAccesses
-                .GetIsNotDefaultComparisonsOrNull();
+                .NestedAccessChecks;
 
             if (conditionNestedAccessesChecks != null)
             {

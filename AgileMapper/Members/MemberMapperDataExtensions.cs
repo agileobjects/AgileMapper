@@ -19,16 +19,17 @@ namespace AgileObjects.AgileMapper.Members
             => mappingData.IsRoot || mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
 
         public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
-            => IsEntity(mapperData, mapperData.TargetType);
+            => IsEntity(mapperData, mapperData.TargetType, out var _);
 
-        public static bool IsEntity(this IMemberMapperData mapperData, Type type)
+        public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
         {
             if (type == null)
             {
+                idMember = null;
                 return false;
             }
 
-            var idMember = mapperData
+            idMember = mapperData
                 .MapperContext
                 .Naming
                 .GetIdentifierOrNull(TypeKey.ForTypeId(type));
@@ -122,14 +123,9 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
-            if (!mapperData.RuleSet.Settings.GuardMemberAccesses)
-            {
-                return ExpressionInfoFinder.ExpressionInfo.Empty;
-            }
-
-            return mapperData.ExpressionInfoFinder.FindIn(
-                value,
-                targetCanBeNull);
+            return mapperData.RuleSet.Settings.GuardMemberAccesses(value)
+                ? mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull)
+                : ExpressionInfoFinder.EmptyExpressionInfo;
         }
 
         public static bool SourceMemberIsStringKeyedDictionary(

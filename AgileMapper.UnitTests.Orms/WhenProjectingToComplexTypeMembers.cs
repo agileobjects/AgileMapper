@@ -35,9 +35,10 @@
 
                 personDto.Id.ShouldBe(person.PersonId);
                 personDto.Name.ShouldBe("Test Db");
-                personDto.AddressId.ShouldBe(person.Address.AddressId);
-                personDto.AddressLine1.ShouldBe("Test Db Line 1");
-                personDto.AddressLine2.ShouldBe("Test Db Line 2");
+                personDto.Address.ShouldNotBeNull();
+                personDto.Address.Id.ShouldBe(person.Address.AddressId);
+                personDto.Address.Line1.ShouldBe("Test Db Line 1");
+                personDto.Address.Line2.ShouldBe("Test Db Line 2");
             });
         }
 
@@ -55,9 +56,7 @@
 
                 personDto.Id.ShouldBe(person.PersonId);
                 personDto.Name.ShouldBe("No Address!");
-                personDto.AddressId.ShouldBeDefault();
-                personDto.AddressLine1.ShouldBeNull();
-                personDto.AddressLine2.ShouldBeNull();
+                personDto.Address.ShouldBeNull();
             });
         }
     }

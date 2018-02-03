@@ -1,5 +1,8 @@
 namespace AgileObjects.AgileMapper
 {
+    using System;
+    using System.Linq.Expressions;
+
     internal class MappingRuleSetSettings
     {
         public bool RootHasPopulatedTarget { get; set; }
@@ -12,7 +15,7 @@ namespace AgileObjects.AgileMapper
 
         public bool UseTryCatch { get; set; }
 
-        public bool GuardMemberAccesses { get; set; }
+        public Func<Expression, bool> GuardMemberAccesses { get; set; }
 
         public bool AllowEnumerableAssignment { get; set; }
 

@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper
             {
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardMemberAccesses = true,
+                GuardMemberAccesses = value => true,
                 AllowObjectTracking = true
             },
             new CopySourceEnumerablePopulationStrategy(),
@@ -33,7 +33,7 @@ namespace AgileObjects.AgileMapper
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardMemberAccesses = true,
+                GuardMemberAccesses = value => true,
                 AllowObjectTracking = true
             },
             new MergeEnumerablePopulationStrategy(),
@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
-                GuardMemberAccesses = true,
+                GuardMemberAccesses = value => true,
                 AllowObjectTracking = true
             },
             OverwriteEnumerablePopulationStrategy.Instance,
@@ -62,6 +62,7 @@ namespace AgileObjects.AgileMapper
             {
                 UseMemberInitialisation = true,
                 UseSingleRootMappingExpression = true,
+                GuardMemberAccesses = value => value.Type.IsComplex(),
                 AllowEnumerableAssignment = true
             },
             new ProjectSourceEnumerablePopulationStrategy(),

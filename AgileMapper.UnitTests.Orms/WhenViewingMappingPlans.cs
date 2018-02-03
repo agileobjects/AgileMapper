@@ -49,13 +49,13 @@
             {
                 mapper.GetPlanForProjecting(Context.Products).To<ProductDto>();
                 mapper.GetPlanForProjecting(Context.StringItems).To<PublicStringDto>();
-                mapper.GetPlanForProjecting(Context.Persons).To<PersonDto>();
+                mapper.GetPlanForProjecting(Context.Persons).To<PersonViewModel>();
 
                 var allPlans = mapper.GetPlansInCache();
 
                 allPlans.ShouldContain("IQueryable<Product> -> IQueryable<ProductDto>");
                 allPlans.ShouldContain("IQueryable<PublicString> -> IQueryable<PublicStringDto>");
-                allPlans.ShouldContain("IQueryable<Person> -> IQueryable<PersonDto>");
+                allPlans.ShouldContain("IQueryable<Person> -> IQueryable<PersonViewModel>");
             });
         }
     }
