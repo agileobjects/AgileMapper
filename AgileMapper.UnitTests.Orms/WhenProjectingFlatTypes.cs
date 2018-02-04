@@ -14,7 +14,7 @@
         }
 
         [Fact]
-        public void ShouldProjectAFlatTypeToAnArray()
+        public void ShouldProjectAFlatTypeToAFlatTypeArray()
         {
             RunTest(context =>
             {
@@ -34,10 +34,10 @@
                 productDtos.Length.ShouldBe(2);
 
                 productDtos[0].ProductId.ShouldBe(product1.ProductId);
-                productDtos[0].Name.ShouldBe(product1.Name);
+                productDtos[0].Name.ShouldBe("Product One");
 
                 productDtos[1].ProductId.ShouldBe(product2.ProductId);
-                productDtos[1].Name.ShouldBe(product2.Name);
+                productDtos[1].Name.ShouldBe("Product Two");
             });
         }
 

@@ -102,6 +102,7 @@
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
     <Compile Include="Enumerables\WhenProjectingToEnumerableMembers.cs" />
+    <Compile Include="WhenProjectingToFlatTypes.cs" />
     <Compile Include="WhenViewingMappingPlans.cs" />
   </ItemGroup>
   <ItemGroup>
