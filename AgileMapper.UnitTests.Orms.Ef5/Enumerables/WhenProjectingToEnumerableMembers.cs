@@ -1,7 +1,7 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.Enumerables
 {
-    using Enumerables;
     using Infrastructure;
+    using Orms.Enumerables;
     using Xunit;
 
     public class WhenProjectingToEnumerableMembers :

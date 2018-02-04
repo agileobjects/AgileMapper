@@ -1,15 +1,15 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.Enumerables
 {
-    using Enumerables;
     using Infrastructure;
+    using Orms.Enumerables;
     using Xunit;
 
     public class WhenProjectingToEnumerableMembers :
-        WhenProjectingToEnumerableMembers<EfCore2TestDbContext>,
+        WhenProjectingToEnumerableMembers<EfCore1TestDbContext>,
         ICollectionMemberProjectorTest,
         IEnumerableMemberProjectorTest
     {
-        public WhenProjectingToEnumerableMembers(InMemoryEfCore2TestContext context)
+        public WhenProjectingToEnumerableMembers(InMemoryEfCore1TestContext context)
             : base(context)
         {
         }
