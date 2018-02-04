@@ -18,12 +18,18 @@
                 return false;
             }
 
-            converted = settings.ConvertGetValueOrDefaultCall(methodCall);
+            // ReSharper disable once AssignNullToNotNullAttribute
+            converted = Expression.Condition(
+                methodCall.Object.GetIsNotDefaultComparison(),
+                Expression.Convert(methodCall.Object, methodCall.Type),
+                NullConstantExpressionFactory.CreateFor(methodCall.Type));
+
             return true;
         }
 
         private static bool IsNotGetValueOrDefaultCall(MethodCallExpression methodCall)
         {
+            // ReSharper disable once PossibleNullReferenceException
             return methodCall.Arguments.Any() ||
                    methodCall.Method.IsStatic ||
                   !methodCall.Object.Type.IsNullableType() ||

@@ -6,16 +6,15 @@
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal static class DefaultExpressionConverter
+    internal static class NullConstantExpressionFactory
     {
-        private static readonly MethodInfo _getDefaultValueMethod = typeof(DefaultExpressionConverter)
+        private static readonly MethodInfo _getDefaultValueMethod = typeof(NullConstantExpressionFactory)
             .GetNonPublicStaticMethod("GetDefaultValue");
 
-        public static Expression Convert(Expression defaultExpression)
-            => Convert((DefaultExpression)defaultExpression);
+        public static Expression CreateFor(Expression expression) => CreateFor(expression.Type);
 
-        public static Expression Convert(DefaultExpression defaultExpression)
-            => GetDefaultValueFor(defaultExpression.Type).ToConstantExpression(defaultExpression.Type);
+        public static Expression CreateFor(Type type)
+            => GetDefaultValueFor(type).ToConstantExpression(type);
 
         private static object GetDefaultValueFor(Type type)
         {

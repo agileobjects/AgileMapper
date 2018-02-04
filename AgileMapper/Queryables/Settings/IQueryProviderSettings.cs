@@ -18,13 +18,11 @@
 
         bool SupportsGetValueOrDefault { get; }
 
-        bool SupportsEmptyEnumerableCreation { get; }
+        bool SupportsComplexTypeToNullComparison { get; }
 
-        bool SupportsComplexTypeToNullComparisons { get; }
+        bool SupportsNonEntityNullConstants { get; }
 
         Expression ConvertToStringCall(MethodCallExpression call);
-
-        Expression ConvertGetValueOrDefaultCall(MethodCallExpression call);
 
         Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue);
 

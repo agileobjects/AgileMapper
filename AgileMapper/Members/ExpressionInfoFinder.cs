@@ -151,6 +151,11 @@ namespace AgileObjects.AgileMapper.Members
                        (memberAccess.Expression.Type.IsNullableType());
             }
 
+            protected override MemberBinding VisitMemberBinding(MemberBinding binding)
+            {
+                return base.VisitMemberBinding(binding);
+            }
+
             protected override Expression VisitMethodCall(MethodCallExpression methodCall)
             {
                 if ((methodCall.Object != _mappingDataObject) &&

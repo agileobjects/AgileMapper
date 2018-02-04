@@ -32,11 +32,7 @@
             SourceMember = sourceMember;
             Variables = variables;
             Value = value;
-
-            if (value.NodeType != ExpressionType.Default)
-            {
-                Condition = condition;
-            }
+            Condition = condition;
         }
 
         protected DataSourceBase(

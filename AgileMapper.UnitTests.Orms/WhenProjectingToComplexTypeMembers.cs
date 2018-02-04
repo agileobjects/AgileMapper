@@ -56,8 +56,21 @@
 
                 personDto.Id.ShouldBe(person.PersonId);
                 personDto.Name.ShouldBe("No Address!");
-                personDto.Address.ShouldBeNull();
+
+                if (QueryProviderNonEntityNullConstants)
+                {
+                    personDto.Address.ShouldBeNull();
+                    return;
+                }
+
+                personDto.Address.ShouldNotBeNull();
+                personDto.Address.Id.ShouldBeDefault();
+                personDto.Address.Line1.ShouldBeNull();
+                personDto.Address.Line2.ShouldBeNull();
+                personDto.Address.Postcode.ShouldBeNull();
             });
         }
+
+        public virtual bool QueryProviderNonEntityNullConstants => true;
     }
 }

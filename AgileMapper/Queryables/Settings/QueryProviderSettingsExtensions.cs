@@ -68,7 +68,7 @@
 
             if (fallbackValue.NodeType == ExpressionType.Default)
             {
-                fallbackValue = DefaultExpressionConverter.Convert(fallbackValue);
+                fallbackValue = NullConstantExpressionFactory.CreateFor(fallbackValue);
             }
 
             var createdDateTime = GetGuardedDateCreation(createDateTimeCall, sourceValue, fallbackValue, settings);

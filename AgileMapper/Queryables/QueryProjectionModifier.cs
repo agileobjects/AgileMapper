@@ -18,14 +18,43 @@
         }
 
         public static Expression Modify(Expression queryProjection, IObjectMappingData mappingData)
-        {
-            return new QueryProjectionModifier(mappingData).Modify(queryProjection);
-        }
+            => new QueryProjectionModifier(mappingData).Modify(queryProjection);
 
         private Expression Modify(Expression queryProjection)
+            => VisitAndConvert(queryProjection, "Modify");
+
+        protected override Expression VisitBinary(BinaryExpression binary)
         {
-            return VisitAndConvert(queryProjection, "Modify");
+            if (ComplexTypeToNullComparisonConverter.TryConvert(binary, _settings, _mapperData, out var converted))
+            {
+                return converted;
+            }
+
+            return base.VisitBinary(binary);
         }
+
+        protected override Expression VisitConditional(ConditionalExpression conditional)
+        {
+            if (ComplexTypeConditionalConverter.TryConvert(conditional, _settings, _mapperData, out var converted))
+            {
+                return Modify(converted);
+            }
+
+            return base.VisitConditional(conditional);
+        }
+
+        protected override Expression VisitConstant(ConstantExpression constant)
+        {
+            if (constant.Value is LambdaExpression lambda)
+            {
+                return Modify(lambda).ToConstantExpression(constant.Type);
+            }
+
+            return base.VisitConstant(constant);
+        }
+
+        protected override Expression VisitDefault(DefaultExpression defaultExpression)
+            => NullConstantExpressionFactory.CreateFor(defaultExpression);
 
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {
@@ -35,16 +64,6 @@
             }
 
             return base.VisitMemberAssignment(assignment);
-        }
-
-        protected override Expression VisitConstant(ConstantExpression constant)
-        {
-            if (constant.Value is LambdaExpression lambda)
-            {
-                return VisitAndConvert(lambda, "ModifyLambda").ToConstantExpression(constant.Type);
-            }
-
-            return base.VisitConstant(constant);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
@@ -66,18 +85,5 @@
 
             return base.VisitMethodCall(methodCall);
         }
-
-        protected override Expression VisitBinary(BinaryExpression binary)
-        {
-            if (ComplexTypeToNullComparisonConverter.TryConvert(binary, _settings, _mapperData, out var converted))
-            {
-                return converted;
-            }
-
-            return base.VisitBinary(binary);
-        }
-
-        protected override Expression VisitDefault(DefaultExpression defaultExpression)
-            => DefaultExpressionConverter.Convert(defaultExpression);
     }
 }

@@ -9,5 +9,7 @@
             : base(context)
         {
         }
+
+        public override bool QueryProviderNonEntityNullConstants => false;
     }
 }

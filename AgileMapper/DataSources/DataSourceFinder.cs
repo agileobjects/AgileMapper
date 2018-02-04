@@ -143,7 +143,8 @@
                 yield break;
             }
 
-            if (matchingSourceMemberDataSource.IsConditional)
+            if (matchingSourceMemberDataSource.IsConditional &&
+               (matchingSourceMemberDataSource.IsValid || configuredDataSources.Any()))
             {
                 yield return GetFallbackDataSourceFor(mappingData);
             }

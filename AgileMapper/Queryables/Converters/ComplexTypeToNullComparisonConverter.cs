@@ -16,7 +16,7 @@
             IMemberMapperData mapperData,
             out Expression converted)
         {
-            if (settings.SupportsComplexTypeToNullComparisons || !comparison.Right.Type.IsComplex())
+            if (settings.SupportsComplexTypeToNullComparison || !comparison.Right.Type.IsComplex())
             {
                 converted = null;
                 return false;

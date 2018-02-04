@@ -33,23 +33,12 @@
 
         public virtual bool SupportsGetValueOrDefault => true;
 
-        public virtual bool SupportsEmptyEnumerableCreation => true;
+        public virtual bool SupportsComplexTypeToNullComparison => true;
 
-        public virtual bool SupportsComplexTypeToNullComparisons => true;
+        public virtual bool SupportsNonEntityNullConstants => true;
 
         public virtual Expression ConvertToStringCall(MethodCallExpression call)
             => call.Object.GetConversionTo<string>();
-
-        public Expression ConvertGetValueOrDefaultCall(MethodCallExpression call)
-        {
-            var valueIsNotNull = call.Object.GetIsNotDefaultComparison();
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var castValue = Expression.Convert(call.Object, call.Type);
-            var fallbackValue = DefaultExpressionConverter.Convert(call.Type.ToDefaultExpression());
-
-            return Expression.Condition(valueIsNotNull, castValue, fallbackValue);
-        }
 
         public Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue)
         {
@@ -95,7 +84,7 @@
 
             if (fallbackValue.NodeType == ExpressionType.Default)
             {
-                fallbackValue = DefaultExpressionConverter.Convert(fallbackValue);
+                fallbackValue = NullConstantExpressionFactory.CreateFor(fallbackValue);
             }
 
             var nullString = default(string).ToConstantExpression();
