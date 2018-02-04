@@ -6,9 +6,9 @@
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal static class NullConstantExpressionFactory
+    internal static class DefaultValueConstantExpressionFactory
     {
-        private static readonly MethodInfo _getDefaultValueMethod = typeof(NullConstantExpressionFactory)
+        private static readonly MethodInfo _getDefaultValueMethod = typeof(DefaultValueConstantExpressionFactory)
             .GetNonPublicStaticMethod("GetDefaultValue");
 
         public static Expression CreateFor(Expression expression) => CreateFor(expression.Type);

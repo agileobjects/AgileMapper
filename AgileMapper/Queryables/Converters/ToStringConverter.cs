@@ -2,22 +2,21 @@
 {
     using System.Linq.Expressions;
     using Extensions.Internal;
-    using Settings;
 
     internal static class ToStringConverter
     {
         public static bool TryConvert(
             MethodCallExpression methodCall,
-            IQueryProviderSettings settings,
+            IQueryProjectionModifier context,
             out Expression converted)
         {
-            if (settings.SupportsToString || IsNotToStringCall(methodCall))
+            if (context.Settings.SupportsToString || IsNotToStringCall(methodCall))
             {
                 converted = null;
                 return false;
             }
 
-            converted = settings.ConvertToStringCall(methodCall);
+            converted = context.Settings.ConvertToStringCall(methodCall);
             return true;
         }
 

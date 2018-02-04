@@ -86,7 +86,7 @@
 
             if (fallbackValue.NodeType == ExpressionType.Default)
             {
-                fallbackValue = NullConstantExpressionFactory.CreateFor(fallbackValue);
+                fallbackValue = DefaultValueConstantExpressionFactory.CreateFor(fallbackValue);
             }
 
             var nullString = default(string).ToConstantExpression();

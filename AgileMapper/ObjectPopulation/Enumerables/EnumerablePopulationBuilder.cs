@@ -14,31 +14,11 @@
     {
         #region Untyped MethodInfos
 
-        private static readonly MethodInfo _enumerableSelectWithoutIndexMethod = typeof(Enumerable)
-            .GetPublicStaticMethods("Select")
-            .First(m =>
-                (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 2));
-
-        private static readonly MethodInfo _enumerableSelectWithIndexMethod = typeof(Enumerable)
-            .GetPublicStaticMethods("Select")
-            .First(m =>
-                (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 3));
-
-        private static readonly MethodInfo _queryableSelectMethod = typeof(Queryable)
-            .GetPublicStaticMethods("Select")
-            .First(m =>
-                (m.GetParameters().Length == 2) &&
-                (m.GetParameters()[1].ParameterType.GetGenericTypeArguments()[0].GetGenericTypeArguments().Length == 2));
-
-        private static readonly MethodInfo _forEachMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods("ForEach")
-            .First();
-
-        private static readonly MethodInfo _forEachTupleMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods("ForEach")
-            .Last();
+        public static readonly MethodInfo EnumerableSelectWithoutIndexMethod;
+        private static readonly MethodInfo _enumerableSelectWithIndexMethod;
+        private static readonly MethodInfo _queryableSelectMethod;
+        private static readonly MethodInfo _forEachMethod;
+        private static readonly MethodInfo _forEachTupleMethod;
 
         #endregion
 
@@ -63,6 +43,40 @@
 
             _sourceAdapter = SourceEnumerableAdapterFactory.GetAdapterFor(this);
             _populationExpressions = new List<Expression>();
+        }
+
+        static EnumerablePopulationBuilder()
+        {
+            var linqSelectMethods = typeof(Enumerable)
+                .GetPublicStaticMethods("Select")
+                .Select(m => new
+                {
+                    Method = m,
+                    Parameters = m.GetParameters()
+                })
+                .Where(m => m.Parameters.Length == 2)
+                .Select(m => new
+                {
+                    m.Method,
+                    ProjectionLambdaParameterCount = m.Parameters[1].ParameterType.GetGenericTypeArguments().Length
+                })
+                .ToArray();
+
+            EnumerableSelectWithoutIndexMethod = linqSelectMethods
+                .First(m => m.ProjectionLambdaParameterCount == 2).Method;
+
+            _enumerableSelectWithIndexMethod = linqSelectMethods
+                .First(m => m.ProjectionLambdaParameterCount == 3).Method;
+
+            _queryableSelectMethod = typeof(Queryable)
+                .GetPublicStaticMethods("Select")
+                .First(m =>
+                    (m.GetParameters().Length == 2) &&
+                    (m.GetParameters()[1].ParameterType.GetGenericTypeArguments()[0].GetGenericTypeArguments().Length == 2));
+
+            var forEachMethods = typeof(EnumerableExtensions).GetPublicStaticMethods("ForEach").ToArray();
+            _forEachMethod = forEachMethods.First();
+            _forEachTupleMethod = forEachMethods.Last();
         }
 
         #region Operator
@@ -575,7 +589,7 @@
                 ? _queryableSelectMethod
                 : counterRequired
                     ? _enumerableSelectWithIndexMethod
-                    : _enumerableSelectWithoutIndexMethod;
+                    : EnumerableSelectWithoutIndexMethod;
 
             ParameterExpression[] projectionFuncParameters;
             Type[] funcTypes;

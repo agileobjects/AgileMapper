@@ -2,16 +2,15 @@
 {
     using System.Linq.Expressions;
     using NetStandardPolyfills;
-    using Settings;
 
     internal static class StringEqualsIgnoreCaseConverter
     {
         public static bool TryConvert(
             MethodCallExpression methodCall,
-            IQueryProviderSettings settings,
+            IQueryProjectionModifier context,
             out Expression converted)
         {
-            if (settings.SupportsStringEqualsIgnoreCase || IsNotEqualsIgnoreCaseCall(methodCall))
+            if (context.Settings.SupportsStringEqualsIgnoreCase || IsNotEqualsIgnoreCaseCall(methodCall))
             {
                 converted = null;
                 return false;

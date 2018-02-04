@@ -3,16 +3,15 @@
     using System.Linq.Expressions;
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
-    using Settings;
 
     internal static class GetValueOrDefaultConverter
     {
         public static bool TryConvert(
             MethodCallExpression methodCall,
-            IQueryProviderSettings settings,
+            IQueryProjectionModifier context,
             out Expression converted)
         {
-            if (settings.SupportsGetValueOrDefault || IsNotGetValueOrDefaultCall(methodCall))
+            if (context.Settings.SupportsGetValueOrDefault || IsNotGetValueOrDefaultCall(methodCall))
             {
                 converted = null;
                 return false;
@@ -22,7 +21,7 @@
             converted = Expression.Condition(
                 methodCall.Object.GetIsNotDefaultComparison(),
                 Expression.Convert(methodCall.Object, methodCall.Type),
-                NullConstantExpressionFactory.CreateFor(methodCall.Type));
+                DefaultValueConstantExpressionFactory.CreateFor(methodCall.Type));
 
             return true;
         }

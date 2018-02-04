@@ -2,13 +2,12 @@
 {
     using System.Linq.Expressions;
     using Extensions.Internal;
-    using Settings;
 
     internal static class TryParseAssignmentConverter
     {
         public static bool TryConvert(
             MemberAssignment assignment,
-            IQueryProviderSettings settings,
+            IQueryProjectionModifier modifier,
             out MemberAssignment converted)
         {
             if (assignment.Expression.NodeType != ExpressionType.Block)
@@ -42,7 +41,7 @@
                 return false;
             }
 
-            var convertedValue = settings.ConvertTryParseCall(methodCall, tryParseOrDefault.IfFalse);
+            var convertedValue = modifier.Settings.ConvertTryParseCall(methodCall, tryParseOrDefault.IfFalse);
 
             converted = assignment.Update(convertedValue);
             return true;

@@ -3,29 +3,31 @@
     using System.Linq.Expressions;
     using Converters;
     using Extensions.Internal;
+    using Members;
     using ObjectPopulation;
     using Settings;
 
-    internal class QueryProjectionModifier : ExpressionVisitor
+    internal class QueryProjectionModifier : ExpressionVisitor, IQueryProjectionModifier
     {
-        private readonly ObjectMapperData _mapperData;
-        private readonly IQueryProviderSettings _settings;
-
         private QueryProjectionModifier(IObjectMappingData mappingData)
         {
-            _mapperData = mappingData.MapperData;
-            _settings = mappingData.GetQueryProviderSettings();
+            MapperData = mappingData.MapperData;
+            Settings = mappingData.GetQueryProviderSettings();
         }
+
+        public IQueryProviderSettings Settings { get; }
+
+        public IMemberMapperData MapperData { get; }
 
         public static Expression Modify(Expression queryProjection, IObjectMappingData mappingData)
             => new QueryProjectionModifier(mappingData).Modify(queryProjection);
 
-        private Expression Modify(Expression queryProjection)
+        public Expression Modify(Expression queryProjection)
             => VisitAndConvert(queryProjection, "Modify");
 
         protected override Expression VisitBinary(BinaryExpression binary)
         {
-            if (ComplexTypeToNullComparisonConverter.TryConvert(binary, _settings, _mapperData, out var converted))
+            if (ComplexTypeToNullComparisonConverter.TryConvert(binary, this, out var converted))
             {
                 return converted;
             }
@@ -35,7 +37,7 @@
 
         protected override Expression VisitConditional(ConditionalExpression conditional)
         {
-            if (ComplexTypeConditionalConverter.TryConvert(conditional, _settings, _mapperData, out var converted))
+            if (ComplexTypeConditionalConverter.TryConvert(conditional, this, out var converted))
             {
                 return Modify(converted);
             }
@@ -54,16 +56,16 @@
         }
 
         protected override Expression VisitDefault(DefaultExpression defaultExpression)
-            => NullConstantExpressionFactory.CreateFor(defaultExpression);
+            => DefaultValueConstantExpressionFactory.CreateFor(defaultExpression);
 
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {
-            if (TryParseAssignmentConverter.TryConvert(assignment, _settings, out var converted))
+            if (TryParseAssignmentConverter.TryConvert(assignment, this, out var converted))
             {
                 return converted;
             }
 
-            if (NestedProjectionAssignmentConverter.TryConvert(assignment, _settings, Modify, out converted))
+            if (NestedProjectionAssignmentConverter.TryConvert(assignment, this, out converted))
             {
                 return converted;
             }
@@ -73,17 +75,17 @@
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if (ToStringConverter.TryConvert(methodCall, _settings, out var converted))
+            if (ToStringConverter.TryConvert(methodCall, this, out var converted))
             {
                 return converted;
             }
 
-            if (GetValueOrDefaultConverter.TryConvert(methodCall, _settings, out converted))
+            if (GetValueOrDefaultConverter.TryConvert(methodCall, this, out converted))
             {
                 return converted;
             }
 
-            if (StringEqualsIgnoreCaseConverter.TryConvert(methodCall, _settings, out converted))
+            if (StringEqualsIgnoreCaseConverter.TryConvert(methodCall, this, out converted))
             {
                 return converted;
             }

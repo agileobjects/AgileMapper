@@ -6,56 +6,55 @@
     using Extensions.Internal;
     using Members;
     using ReadableExpressions.Extensions;
-    using Settings;
 
     internal static class ComplexTypeToNullComparisonConverter
     {
         public static bool TryConvert(
             BinaryExpression comparison,
-            IQueryProviderSettings settings,
-            IMemberMapperData mapperData,
+            IQueryProjectionModifier context,
             out Expression converted)
         {
-            if (settings.SupportsComplexTypeToNullComparison || !comparison.Right.Type.IsComplex())
+            if (context.Settings.SupportsComplexTypeToNullComparison ||
+               !comparison.Right.Type.IsComplex())
             {
                 converted = null;
                 return false;
             }
 
-            converted = Convert(comparison, mapperData);
+            converted = Convert(comparison, context);
             return true;
         }
 
-        private static Expression Convert(BinaryExpression comparison, IMemberMapperData mapperData)
+        private static Expression Convert(BinaryExpression comparison, IQueryProjectionModifier context)
         {
-            if (!mapperData.IsEntity(comparison.Left.Type, out var idMember))
+            if (!context.MapperData.IsEntity(comparison.Left.Type, out var idMember))
             {
                 return true.ToConstantExpression();
             }
 
             var entityMemberAccess = comparison.Left;
-            var entityAccess = entityMemberAccess.GetParentOrNull();
-            var entityMemberIdMember = GetEntityMemberIdMemberOrNull(entityAccess, entityMemberAccess, idMember);
+            var entityParentAccess = entityMemberAccess.GetParentOrNull();
+            var entityMemberIdMember = GetEntityMemberIdMemberOrNull(entityParentAccess, entityMemberAccess, idMember);
 
             if (entityMemberIdMember == null)
             {
                 return true.ToConstantExpression();
             }
 
-            var entityMemberIdMemberAccess = entityMemberIdMember.GetAccess(entityAccess);
+            var entityMemberIdMemberAccess = entityMemberIdMember.GetAccess(entityParentAccess);
 
             return entityMemberIdMemberAccess.GetIsNotDefaultComparison();
         }
 
         private static Member GetEntityMemberIdMemberOrNull(
-            Expression entityAccess,
+            Expression entityParentAccess,
             Expression entityMemberAccess,
             Member entityIdMember)
         {
             var sourceMembers = GlobalContext
                 .Instance
                 .MemberCache
-                .GetSourceMembers(entityAccess.Type)
+                .GetSourceMembers(entityParentAccess.Type)
                 .Where(m => m.IsSimple)
                 .ToArray();
 

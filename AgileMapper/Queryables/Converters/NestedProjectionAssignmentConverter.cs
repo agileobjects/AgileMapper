@@ -1,23 +1,20 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
-    using System;
     using System.Linq.Expressions;
     using Extensions.Internal;
-    using Settings;
 
     internal static class NestedProjectionAssignmentConverter
     {
         public static bool TryConvert(
             MemberAssignment assignment,
-            IQueryProviderSettings settings,
-            Func<Expression, Expression> modifyCallback,
+            IQueryProjectionModifier modifier,
             out MemberAssignment converted)
         {
-            if (settings.SupportsEnumerableMaterialisation &&
+            if (modifier.Settings.SupportsEnumerableMaterialisation &&
                (assignment.Expression.NodeType == ExpressionType.Call) &&
                 assignment.Expression.Type.IsEnumerable())
             {
-                converted = ConvertToMaterialisation(assignment, modifyCallback);
+                converted = ConvertToMaterialisation(assignment, modifier);
                 return true;
             }
 
@@ -27,10 +24,10 @@
 
         private static MemberAssignment ConvertToMaterialisation(
             MemberAssignment assignment,
-            Func<Expression, Expression> modifyCallback)
+            IQueryProjectionModifier context)
         {
             var materialisedNestedProjection = GetMaterialisedNestedProjection(assignment.Expression);
-            var modifiedProjection = modifyCallback.Invoke(materialisedNestedProjection);
+            var modifiedProjection = context.Modify(materialisedNestedProjection);
 
             return assignment.Update(modifiedProjection);
         }

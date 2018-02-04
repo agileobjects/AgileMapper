@@ -1,21 +1,17 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
-    using System;
     using System.Linq.Expressions;
     using Extensions.Internal;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
-    using Settings;
 
     internal static class ComplexTypeConditionalConverter
     {
         public static bool TryConvert(
             ConditionalExpression conditional,
-            IQueryProviderSettings settings,
-            ObjectMapperData mapperData,
+            IQueryProjectionModifier modifier,
             out Expression converted)
         {
-            if (settings.SupportsNonEntityNullConstants || !conditional.Type.IsComplex())
+            if (modifier.Settings.SupportsNonEntityNullConstants || !conditional.Type.IsComplex())
             {
                 converted = null;
                 return false;
@@ -54,7 +50,7 @@
                 var bindingValueOrNull = Expression.Condition(
                     _conditional.Test,
                     memberBinding.Expression,
-                    NullConstantExpressionFactory.CreateFor(memberBinding.Expression));
+                    DefaultValueConstantExpressionFactory.CreateFor(memberBinding.Expression));
 
                 return memberBinding.Update(bindingValueOrNull);
             }
