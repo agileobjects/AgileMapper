@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
+    using System.Threading.Tasks;
+
     public interface IStringConversionValidationFailureTest
     {
-        void ShouldErrorProjectingAnUnparseableString();
+        Task ShouldErrorProjectingAnUnparseableString();
     }
 }

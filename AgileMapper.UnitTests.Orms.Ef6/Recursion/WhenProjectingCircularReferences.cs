@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6.Recursion
 {
+    using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Recursion;
     using Xunit;
@@ -14,7 +15,7 @@
         }
 
         [Fact]
-        public void ShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth()
+        public Task ShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth()
             => DoShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth();
     }
 }

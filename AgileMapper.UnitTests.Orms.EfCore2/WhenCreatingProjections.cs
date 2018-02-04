@@ -30,6 +30,8 @@
                     stringDtos.ShouldBeEmpty();
                 }
 
+                mapper.RootMapperCountShouldBeOne();
+
                 using (var context2 = new EfCore2TestDbContext())
                 {
                     context2.StringItems.Add(new PublicString { Id = 1, Value = "New!" });

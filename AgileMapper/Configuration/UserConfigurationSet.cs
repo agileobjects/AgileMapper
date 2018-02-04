@@ -245,7 +245,7 @@
                 return true;
             }
 
-            return RecursionDepthSettings.FindMatch(mapperData)?.IsWithinDepth(mapperData) != true;
+            return RecursionDepthSettings.FindMatch(mapperData)?.IsBeyondDepth(mapperData) != false;
         }
 
         #endregion

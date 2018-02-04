@@ -1,7 +1,15 @@
 namespace AgileObjects.AgileMapper.UnitTests.Orms.Recursion
 {
+    using System.Threading.Tasks;
+
     public interface IOneToManyRecursionProjectorTest
     {
-        void ShouldProjectAOneToManyRelationshipToZeroethRecursionDepth();
+        Task ShouldProjectAOneToManyRelationshipToZeroethRecursionDepth();
+
+        Task ShouldProjectAOneToManyRelationshipToFirstRecursionDepth();
+
+        Task ShouldProjectAOneToManyRelationshipToSecondRecursionDepth();
+
+        Task ShouldProjectAOneToManyRelationshipToDefaultRecursionDepth();
     }
 }

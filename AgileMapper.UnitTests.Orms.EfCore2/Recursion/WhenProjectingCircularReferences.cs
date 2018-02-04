@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Recursion
 {
+    using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Recursion;
     using Xunit;
@@ -14,15 +15,19 @@
         }
 
         [Fact]
-        public void ShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
+        public Task ShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
             => DoShouldProjectAOneToManyRelationshipToZeroethRecursionDepth();
 
         [Fact]
-        public void ShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
+        public Task ShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
             => DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth();
 
         [Fact]
-        public void ShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
+        public Task ShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
             => DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth();
+
+        [Fact]
+        public Task ShouldProjectAOneToManyRelationshipToDefaultRecursionDepth()
+            => DoShouldProjectAOneToManyRelationshipToDefaultRecursionDepth();
     }
 }

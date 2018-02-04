@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6.SimpleTypeConversion
 {
+    using System.Threading.Tasks;
     using Infrastructure;
     using Orms.SimpleTypeConversion;
     using Xunit;
@@ -14,11 +15,11 @@
         }
 
         [Fact]
-        public void ShouldErrorProjectingAParseableString()
+        public Task ShouldErrorProjectingAParseableString()
             => RunShouldErrorProjectingAParseableStringToAGuid();
 
         [Fact]
-        public void ShouldErrorProjectingANullString()
+        public Task ShouldErrorProjectingANullString()
             => RunShouldErrorProjectingANullStringToAGuid();
     }
 }

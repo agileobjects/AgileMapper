@@ -81,8 +81,11 @@
         protected Task DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
             => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(2, context));
 
+        protected Task DoShouldProjectAOneToManyRelationshipToDefaultRecursionDepth()
+            => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(null, context));
+
         protected async Task ProjectAOneToManyRelationshipToRecursionDepth(
-            int depth,
+            int? depth,
             TOrmContext context)
         {
             var topLevel = new Category { Name = "Top Level" };
@@ -118,9 +121,13 @@
 
             await context.SaveChanges();
 
-            var topLevelDto = context
-                .Categories
-                .Project().To<CategoryDto>(cfg => cfg.RecurseToDepth(depth))
+            var query = depth.HasValue
+                ? context.Categories
+                    .Project().To<CategoryDto>(cfg => cfg.RecurseToDepth(depth.Value))
+                : context.Categories
+                    .Project().To<CategoryDto>();
+
+            var topLevelDto = query
                 .OrderBy(c => c.Id)
                 .First(c => c.Name == "Top Level");
 

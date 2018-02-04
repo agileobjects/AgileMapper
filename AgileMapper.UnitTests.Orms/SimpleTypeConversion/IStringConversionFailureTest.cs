@@ -1,9 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
+    using System.Threading.Tasks;
+
     public interface IStringConversionFailureTest
     {
-        void ShouldErrorProjectingAParseableString();
+        Task ShouldErrorProjectingAParseableString();
 
-        void ShouldErrorProjectingANullString();
+        Task ShouldErrorProjectingANullString();
     }
 }

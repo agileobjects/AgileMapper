@@ -12,11 +12,11 @@
             _recursionDepth = recursionDepth;
         }
 
-        public bool IsWithinDepth(IBasicMapperData mapperData)
+        public bool IsBeyondDepth(IBasicMapperData mapperData)
         {
             if (_recursionDepth == 0)
             {
-                return false;
+                return true;
             }
 
             var recursionDepth = -1;
@@ -31,7 +31,7 @@
                 mapperData = mapperData.Parent;
             }
 
-            return recursionDepth <= _recursionDepth;
+            return recursionDepth > _recursionDepth;
         }
     }
 }

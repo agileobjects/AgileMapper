@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.LocalDb.SimpleTypeConversion
 {
+    using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Infrastructure;
     using Orms.SimpleTypeConversion;
@@ -16,15 +17,15 @@
         }
 
         [Fact]
-        public void ShouldProjectAParseableString()
+        public Task ShouldProjectAParseableString()
             => RunShouldProjectAParseableStringToADateTime();
 
         [Fact]
-        public void ShouldProjectANullString()
+        public Task ShouldProjectANullString()
             => RunShouldProjectANullStringToADateTime();
 
         [Fact]
-        public void ShouldProjectAnUnparseableString()
+        public Task ShouldProjectAnUnparseableString()
             => RunShouldProjectAnUnparseableStringToADateTime();
     }
 }
