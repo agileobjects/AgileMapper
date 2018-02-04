@@ -69,9 +69,6 @@
 
         #region Project One-to-Many
 
-        protected Task DoShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
-            => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(0, context));
-
         protected Task DoShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth()
             => RunTestAndExpectThrow(context => ProjectAOneToManyRelationshipToRecursionDepth(0, context));
 

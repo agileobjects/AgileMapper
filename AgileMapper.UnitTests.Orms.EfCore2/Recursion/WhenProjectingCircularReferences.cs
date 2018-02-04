@@ -15,8 +15,8 @@
         }
 
         [Fact]
-        public Task ShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
-            => DoShouldProjectAOneToManyRelationshipToZeroethRecursionDepth();
+        public Task ShouldProjectAOneToManyRelationshipToDefaultRecursionDepth()
+            => DoShouldProjectAOneToManyRelationshipToDefaultRecursionDepth();
 
         [Fact]
         public Task ShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
@@ -25,9 +25,5 @@
         [Fact]
         public Task ShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
             => DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth();
-
-        [Fact]
-        public Task ShouldProjectAOneToManyRelationshipToDefaultRecursionDepth()
-            => DoShouldProjectAOneToManyRelationshipToDefaultRecursionDepth();
     }
 }
