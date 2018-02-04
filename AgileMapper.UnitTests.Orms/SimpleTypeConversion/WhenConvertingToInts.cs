@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
     using Xunit;
@@ -14,12 +15,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAShortToAnInt()
+        public Task ShouldProjectAShortToAnInt()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.ShortItems.Add(new PublicShort { Value = 123 });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var intItem = context.ShortItems.Project().To<PublicIntDto>().First();
 
@@ -28,12 +29,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAnInRangeLongToAnInt()
+        public Task ShouldProjectAnInRangeLongToAnInt()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.LongItems.Add(new PublicLong { Value = 12345L });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var intItem = context.LongItems.Project().To<PublicIntDto>().First();
 
@@ -42,12 +43,12 @@
         }
 
         [Fact]
-        public void ShouldProjectATooBigLongToAnInt()
+        public Task ShouldProjectATooBigLongToAnInt()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.LongItems.Add(new PublicLong { Value = long.MaxValue });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var intItem = context.LongItems.Project().To<PublicIntDto>().First();
 
@@ -56,12 +57,12 @@
         }
 
         [Fact]
-        public void ShouldProjectATooSmallLongToAnInt()
+        public Task ShouldProjectATooSmallLongToAnInt()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.LongItems.Add(new PublicLong { Value = int.MinValue - 1L });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var intItem = context.LongItems.Project().To<PublicIntDto>().First();
 
@@ -71,16 +72,16 @@
 
         #region Parseable String -> Int
 
-        protected void RunShouldProjectAParseableStringToAnInt()
+        protected Task RunShouldProjectAParseableStringToAnInt()
             => RunTest(ProjectParseableStringToInt);
 
-        protected void RunShouldErrorProjectingAParseableStringToAnInt()
+        protected Task RunShouldErrorProjectingAParseableStringToAnInt()
             => RunTestAndExpectThrow(ProjectParseableStringToInt);
 
-        private static void ProjectParseableStringToInt(TOrmContext context)
+        private static async Task ProjectParseableStringToInt(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = "738" });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var intItem = context.StringItems.Project().To<PublicIntDto>().First();
 
@@ -91,16 +92,16 @@
 
         #region Null String -> Int
 
-        protected void RunShouldProjectANullStringToAnInt()
+        protected Task RunShouldProjectANullStringToAnInt()
             => RunTest(ProjectNullStringToInt);
 
-        protected void RunShouldErrorProjectingANullStringToAnInt()
+        protected Task RunShouldErrorProjectingANullStringToAnInt()
             => RunTestAndExpectThrow(ProjectNullStringToInt);
 
-        private static void ProjectNullStringToInt(TOrmContext context)
+        private static async Task ProjectNullStringToInt(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = default(string) });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var intItem = context.StringItems.Project().To<PublicIntDto>().First();
 
@@ -111,16 +112,16 @@
 
         #region Unparseable String -> Int
 
-        protected void RunShouldProjectAnUnparseableStringToAnInt()
+        protected Task RunShouldProjectAnUnparseableStringToAnInt()
             => RunTest(ProjectUnparseableStringToInt);
 
-        protected void RunShouldErrorProjectingAnUnparseableStringToAnInt()
+        protected Task RunShouldErrorProjectingAnUnparseableStringToAnInt()
             => RunTestAndExpectThrow(ProjectUnparseableStringToInt);
 
-        private static void ProjectUnparseableStringToInt(TOrmContext context)
+        private static async Task ProjectUnparseableStringToInt(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = "hsejk" });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             context.StringItems.Project().To<PublicIntDto>().First();

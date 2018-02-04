@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
 
@@ -16,13 +17,13 @@
 
         #region Project -> Collection
 
-        protected void RunShouldProjectToAComplexTypeCollectionMember()
+        protected Task RunShouldProjectToAComplexTypeCollectionMember()
             => RunTest(ProjectToComplexTypeCollectionMember);
 
-        protected void RunShouldErrorProjectingToAComplexTypeCollectionMember()
+        protected Task RunShouldErrorProjectingToAComplexTypeCollectionMember()
             => RunTestAndExpectThrow(ProjectToComplexTypeCollectionMember);
 
-        protected void ProjectToComplexTypeCollectionMember(TOrmContext context)
+        protected async Task ProjectToComplexTypeCollectionMember(TOrmContext context)
         {
             var rotaEntry1 = new RotaEntry
             {
@@ -62,7 +63,7 @@
             };
 
             context.Rotas.Add(rota);
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var rotaDto = context.Rotas.Where(r => r.Id == 1).Project().To<RotaDto>().First();
 
@@ -94,10 +95,10 @@
 
         #region Project -> Enumerable
 
-        protected void RunShouldProjectToAComplexTypeEnumerableMember()
+        protected Task RunShouldProjectToAComplexTypeEnumerableMember()
             => RunTest(ProjectToComplexTypeEnumerableMember);
 
-        protected void ProjectToComplexTypeEnumerableMember(TOrmContext context)
+        protected async Task ProjectToComplexTypeEnumerableMember(TOrmContext context)
         {
             var item1 = new OrderItem();
             var item2 = new OrderItem();
@@ -109,7 +110,7 @@
             };
 
             context.Orders.Add(order);
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var rotaDto = context.Orders.Where(r => r.Id == 1).Project().To<OrderDto>().First();
 

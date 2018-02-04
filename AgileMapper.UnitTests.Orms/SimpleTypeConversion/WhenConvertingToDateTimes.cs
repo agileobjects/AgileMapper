@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
 
@@ -15,18 +16,18 @@
 
         #region Parseable String -> DateTime
 
-        protected void RunShouldProjectAParseableStringToADateTime()
+        protected Task RunShouldProjectAParseableStringToADateTime()
             => RunTest(ProjectParseableStringToADateTime);
 
-        protected void RunShouldErrorProjectingAParseableStringToADateTime()
+        protected Task RunShouldErrorProjectingAParseableStringToADateTime()
             => RunTestAndExpectThrow(ProjectParseableStringToADateTime);
 
-        private static void ProjectParseableStringToADateTime(TOrmContext context)
+        private static async Task ProjectParseableStringToADateTime(TOrmContext context)
         {
             var now = DateTime.Now;
 
             context.StringItems.Add(new PublicString { Value = now.ToString("s") });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
 
@@ -37,16 +38,16 @@
 
         #region Null String -> DateTime
 
-        protected void RunShouldProjectANullStringToADateTime()
+        protected Task RunShouldProjectANullStringToADateTime()
             => RunTest(ProjectANullStringToADateTime);
 
-        protected void RunShouldErrorProjectingANullStringToADateTime()
+        protected Task RunShouldErrorProjectingANullStringToADateTime()
             => RunTestAndExpectThrow(ProjectANullStringToADateTime);
 
-        private static void ProjectANullStringToADateTime(TOrmContext context)
+        private static async Task ProjectANullStringToADateTime(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = default(string) });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
 
@@ -57,16 +58,16 @@
 
         #region Unparseable String -> DateTime
 
-        protected void RunShouldProjectAnUnparseableStringToADateTime()
+        protected Task RunShouldProjectAnUnparseableStringToADateTime()
             => RunTest(ProjectAnUnparseableStringToADateTime);
 
-        protected void RunShouldErrorProjectingAnUnparseableStringToADateTime()
+        protected Task RunShouldErrorProjectingAnUnparseableStringToADateTime()
             => RunTestAndExpectThrow(ProjectAnUnparseableStringToADateTime);
 
-        private static void ProjectAnUnparseableStringToADateTime(TOrmContext context)
+        private static async Task ProjectAnUnparseableStringToADateTime(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = "htgijfoekld" });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
 

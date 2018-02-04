@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using MoreTestClasses;
     using ObjectPopulation;
@@ -16,9 +17,9 @@
         }
 
         [Fact]
-        public void ShouldCreateAQueryProjectionPlanForASpecificQueryProvider()
+        public Task ShouldCreateAQueryProjectionPlanForASpecificQueryProvider()
         {
-            RunTest(mapper =>
+            return RunTest(mapper =>
             {
                 string plan = mapper
                     .GetPlanForProjecting(Context.Products)
@@ -39,13 +40,15 @@
                 var usedMapper = (IObjectMapper)mapper.RootMapperCountShouldBeOne();
 
                 usedMapper.ShouldBe(cachedMapper);
+
+                return Task.CompletedTask;
             });
         }
 
         [Fact]
-        public void ShouldReturnCachedQueryProjectionPlansInAllCachedPlans()
+        public Task ShouldReturnCachedQueryProjectionPlansInAllCachedPlans()
         {
-            RunTest(mapper =>
+            return RunTest(mapper =>
             {
                 mapper.GetPlanForProjecting(Context.Products).To<ProductDto>();
                 mapper.GetPlanForProjecting(Context.StringItems).To<PublicStringDto>();
@@ -56,6 +59,8 @@
                 allPlans.ShouldContain("IQueryable<Product> -> IQueryable<ProductDto>");
                 allPlans.ShouldContain("IQueryable<PublicString> -> IQueryable<PublicStringDto>");
                 allPlans.ShouldContain("IQueryable<Person> -> IQueryable<PersonViewModel>");
+
+                return Task.CompletedTask;
             });
         }
     }

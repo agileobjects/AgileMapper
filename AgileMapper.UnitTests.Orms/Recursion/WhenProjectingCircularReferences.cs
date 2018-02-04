@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
     using Xunit;
@@ -15,9 +16,9 @@
         }
 
         [Fact]
-        public void ShouldProjectAOneToOneRelationship()
+        public Task ShouldProjectAOneToOneRelationship()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 var company = new Company
                 {
@@ -26,7 +27,7 @@
                 };
 
                 context.Companies.Add(company);
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var ceo = new Employee
                 {
@@ -38,13 +39,13 @@
                 };
 
                 context.Employees.Add(ceo);
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 company.CeoId = ceo.Id;
                 company.Ceo = ceo;
                 company.HeadOfficeId = company.HeadOffice.AddressId;
 
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var companyDto = context.Companies.Project().To<CompanyDto>().ShouldHaveSingleItem();
 
@@ -68,19 +69,19 @@
 
         #region Project One-to-Many
 
-        protected void DoShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
+        protected Task DoShouldProjectAOneToManyRelationshipToZeroethRecursionDepth()
             => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(0, context));
 
-        protected void DoShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth()
+        protected Task DoShouldErrorProjectingAOneToManyRelationshipToZeroethRecursionDepth()
             => RunTestAndExpectThrow(context => ProjectAOneToManyRelationshipToRecursionDepth(0, context));
 
-        protected void DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
+        protected Task DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
             => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(1, context));
 
-        protected void DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
+        protected Task DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
             => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(2, context));
 
-        protected void ProjectAOneToManyRelationshipToRecursionDepth(
+        protected async Task ProjectAOneToManyRelationshipToRecursionDepth(
             int depth,
             TOrmContext context)
         {
@@ -115,7 +116,7 @@
                 }
             }
 
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var topLevelDto = context
                 .Categories

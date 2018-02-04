@@ -1,7 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2
 {
-    using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
+    using Microsoft.EntityFrameworkCore;
     using MoreTestClasses;
     using Orms.Infrastructure;
     using TestClasses;
@@ -15,16 +16,16 @@
         }
 
         [Fact]
-        public void ShouldReuseACachedProjectionMapper()
+        public Task ShouldReuseACachedProjectionMapper()
         {
-            RunTest(mapper =>
+            return RunTest(async mapper =>
             {
                 using (var context1 = new EfCore2TestDbContext())
                 {
-                    var stringDtos = context1
+                    var stringDtos = await context1
                         .StringItems
                         .Project().To<PublicStringDto>(c => c.Using(mapper))
-                        .ToArray();
+                        .ToListAsync();
 
                     stringDtos.ShouldBeEmpty();
                 }
@@ -32,12 +33,12 @@
                 using (var context2 = new EfCore2TestDbContext())
                 {
                     context2.StringItems.Add(new PublicString { Id = 1, Value = "New!" });
-                    context2.SaveChanges();
+                    await context2.SaveChangesAsync();
 
-                    var moreStringDtos = context2
+                    var moreStringDtos = await context2
                         .StringItems
                         .Project().To<PublicStringDto>(c => c.Using(mapper))
-                        .ToArray();
+                        .ToArrayAsync();
 
                     moreStringDtos.ShouldHaveSingleItem();
                 }

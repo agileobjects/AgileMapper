@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
     using Xunit;
@@ -14,12 +15,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAShortToADouble()
+        public Task ShouldProjectAShortToADouble()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.ShortItems.Add(new PublicShort { Value = 123 });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var doubleItem = context.ShortItems.Project().To<PublicDoubleDto>().First();
 
@@ -28,12 +29,12 @@
         }
 
         [Fact]
-        public void ShouldProjectALongToADouble()
+        public Task ShouldProjectALongToADouble()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.LongItems.Add(new PublicLong { Value = 12345L });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var doubleItem = context.LongItems.Project().To<PublicDoubleDto>().First();
 
@@ -43,16 +44,16 @@
 
         #region Parseable String -> Double
 
-        protected void RunShouldProjectAParseableStringToADouble()
+        protected Task RunShouldProjectAParseableStringToADouble()
             => RunTest(ProjectParseableStringToDouble);
 
-        protected void RunShouldErrorProjectingAParseableStringToADouble()
+        protected Task RunShouldErrorProjectingAParseableStringToADouble()
             => RunTestAndExpectThrow(ProjectParseableStringToDouble);
 
-        private static void ProjectParseableStringToDouble(TOrmContext context)
+        private static async Task ProjectParseableStringToDouble(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = "738.01" });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var doubleItem = context.StringItems.Project().To<PublicDoubleDto>().First();
 
@@ -63,16 +64,16 @@
 
         #region Null String -> Double
 
-        protected void RunShouldProjectANullStringToADouble()
+        protected Task RunShouldProjectANullStringToADouble()
             => RunTest(ProjectNullStringToDouble);
 
-        protected void RunShouldErrorProjectingANullStringToADouble()
+        protected Task RunShouldErrorProjectingANullStringToADouble()
             => RunTestAndExpectThrow(ProjectNullStringToDouble);
 
-        private static void ProjectNullStringToDouble(TOrmContext context)
+        private static async Task ProjectNullStringToDouble(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = default(string) });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var doubleItem = context.StringItems.Project().To<PublicDoubleDto>().First();
 
@@ -83,16 +84,16 @@
 
         #region Unparseable String -> Double
 
-        protected void RunShouldProjectAnUnparseableStringToADouble()
+        protected Task RunShouldProjectAnUnparseableStringToADouble()
             => RunTest(ProjectUnparseableStringToDouble);
 
-        protected void RunShouldErrorProjectingAnUnparseableStringToADouble()
+        protected Task RunShouldErrorProjectingAnUnparseableStringToADouble()
             => RunTestAndExpectThrow(ProjectUnparseableStringToDouble);
 
-        private static void ProjectUnparseableStringToDouble(TOrmContext context)
+        private static async Task ProjectUnparseableStringToDouble(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = "poioiujygy" });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             context.StringItems.Project().To<PublicDoubleDto>().First();

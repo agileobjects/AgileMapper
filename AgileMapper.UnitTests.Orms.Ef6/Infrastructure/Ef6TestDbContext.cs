@@ -2,6 +2,7 @@
 {
     using System.Data.Common;
     using System.Data.Entity;
+    using System.Threading.Tasks;
     using Effort;
     using Orms.Infrastructure;
     using TestClasses;
@@ -106,7 +107,7 @@
         IDbSetWrapper<PublicString> ITestDbContext.StringItems
             => new Ef6DbSetWrapper<PublicString>(StringItems);
 
-        void ITestDbContext.SaveChanges() => SaveChanges();
+        Task ITestDbContext.SaveChanges() => SaveChangesAsync();
 
         #endregion
     }

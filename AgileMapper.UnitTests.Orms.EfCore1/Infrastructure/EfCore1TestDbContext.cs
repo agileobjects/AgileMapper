@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.Infrastructure
 {
+    using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Orms.Infrastructure;
     using TestClasses;
@@ -110,7 +111,7 @@
         IDbSetWrapper<PublicString> ITestDbContext.StringItems
             => new EfCore1DbSetWrapper<PublicString>(StringItems);
 
-        void ITestDbContext.SaveChanges() => SaveChanges();
+        Task ITestDbContext.SaveChanges() => SaveChangesAsync();
 
         #endregion
     }

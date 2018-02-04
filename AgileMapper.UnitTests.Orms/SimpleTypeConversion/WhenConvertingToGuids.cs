@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
 
@@ -15,18 +16,18 @@
 
         #region Parseable String -> Guid
 
-        protected void RunShouldProjectAParseableStringToAGuid()
+        protected Task RunShouldProjectAParseableStringToAGuid()
             => RunTest(ProjectAParseableStringToAGuid);
 
-        protected void RunShouldErrorProjectingAParseableStringToAGuid()
+        protected Task RunShouldErrorProjectingAParseableStringToAGuid()
             => RunTestAndExpectThrow(ProjectAParseableStringToAGuid);
 
-        private static void ProjectAParseableStringToAGuid(TOrmContext context)
+        private static async Task ProjectAParseableStringToAGuid(TOrmContext context)
         {
             var guid = Guid.NewGuid();
 
             context.StringItems.Add(new PublicString { Value = guid.ToString() });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var guidItem = context.StringItems.Project().To<PublicGuidDto>().First();
 
@@ -37,16 +38,16 @@
 
         #region Null String -> Guid
 
-        protected void RunShouldProjectANullStringToAGuid()
+        protected Task RunShouldProjectANullStringToAGuid()
             => RunTest(ProjectANullStringToAGuid);
 
-        protected void RunShouldErrorProjectingANullStringToAGuid()
+        protected Task RunShouldErrorProjectingANullStringToAGuid()
             => RunTestAndExpectThrow(ProjectANullStringToAGuid);
 
-        private static void ProjectANullStringToAGuid(TOrmContext context)
+        private static async Task ProjectANullStringToAGuid(TOrmContext context)
         {
             context.StringItems.Add(new PublicString { Value = default(string) });
-            context.SaveChanges();
+            await context.SaveChanges();
 
             var guidItem = context.StringItems.Project().To<PublicGuidDto>().First();
 

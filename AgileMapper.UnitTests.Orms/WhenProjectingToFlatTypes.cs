@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
     using Xunit;
@@ -14,9 +15,9 @@
         }
 
         [Fact]
-        public void ShouldProjectAComplexTypeMemberToAFlatTypeList()
+        public Task ShouldProjectAComplexTypeMemberToAFlatTypeList()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 var person1 = new Person
                 {
@@ -33,7 +34,7 @@
 
                 context.Persons.Add(person1);
                 context.Persons.Add(person2);
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var personViewModels = context
                     .Persons

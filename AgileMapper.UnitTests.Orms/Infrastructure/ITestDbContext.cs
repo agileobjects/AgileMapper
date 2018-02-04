@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Infrastructure
 {
     using System;
+    using System.Threading.Tasks;
     using TestClasses;
 
     public interface ITestDbContext : IDisposable
@@ -35,6 +36,6 @@
 
         IDbSetWrapper<PublicString> StringItems { get; }
 
-        void SaveChanges();
+        Task SaveChanges();
     }
 }

@@ -1,15 +1,16 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
+    using System.Threading.Tasks;
 
     public static class Should
     {
-        public static TException Throw<TException>(Action testAction)
+        public static TException Throw<TException>(Action test)
             where TException : Exception
         {
             return Throw<TException>(() =>
             {
-                testAction.Invoke();
+                test.Invoke();
 
                 return new object();
             });
@@ -21,6 +22,32 @@
             try
             {
                 testFunc.Invoke();
+            }
+            catch (TException ex)
+            {
+                return ex;
+            }
+
+            throw new Exception("Expected exception of type " + typeof(TException).Name);
+        }
+
+        public static Task<TException> ThrowAsync<TException>(Func<Task> test)
+            where TException : Exception
+        {
+            return ThrowAsync<TException>(async () =>
+            {
+                await test.Invoke();
+
+                return new object();
+            });
+        }
+
+        public static async Task<TException> ThrowAsync<TException>(Func<Task<object>> test)
+            where TException : Exception
+        {
+            try
+            {
+                await test.Invoke();
             }
             catch (TException ex)
             {

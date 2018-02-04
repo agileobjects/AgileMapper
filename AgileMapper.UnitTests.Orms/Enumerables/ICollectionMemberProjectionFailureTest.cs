@@ -1,7 +1,9 @@
 namespace AgileObjects.AgileMapper.UnitTests.Orms.Enumerables
 {
+    using System.Threading.Tasks;
+
     public interface ICollectionMemberProjectionFailureTest
     {
-        void ShouldErrorProjectingToAComplexTypeCollectionMember();
+        Task ShouldErrorProjectingToAComplexTypeCollectionMember();
     }
 }

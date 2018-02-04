@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
     using Xunit;
@@ -14,16 +15,16 @@
         }
 
         [Fact]
-        public void ShouldProjectAFlatTypeToAFlatTypeArray()
+        public Task ShouldProjectAFlatTypeToAFlatTypeArray()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 var product1 = new Product { Name = "Product One" };
                 var product2 = new Product { Name = "Product Two" };
 
                 context.Products.Add(product1);
                 context.Products.Add(product2);
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var productDtos = context
                     .Products
@@ -42,14 +43,14 @@
         }
 
         [Fact]
-        public void ShouldProjectAFlatTypeToANonMatchingTypeList()
+        public Task ShouldProjectAFlatTypeToANonMatchingTypeList()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 var product = new Product { Name = "Uno" };
 
                 context.Products.Add(product);
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var productDtos = context.Products.Project().To<PublicStringDto>().ToList();
 

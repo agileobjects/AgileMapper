@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Infrastructure
 {
     using System;
+    using System.Threading.Tasks;
     using Xunit;
 
     [Collection(TestConstants.OrmCollectionName)]
@@ -14,20 +15,20 @@
 
         protected TOrmContext Context { get; }
 
-        protected Exception RunTestAndExpectThrow(Action<TOrmContext> testAction)
-            => RunTestAndExpectThrow<Exception>(testAction);
+        protected Task<Exception> RunTestAndExpectThrow(Func<TOrmContext, Task> test)
+            => RunTestAndExpectThrow<Exception>(test);
 
-        protected TException RunTestAndExpectThrow<TException>(Action<TOrmContext> testAction)
+        protected Task<TException> RunTestAndExpectThrow<TException>(Func<TOrmContext, Task> test)
             where TException : Exception
         {
-            return Should.Throw<TException>(() => RunTest(testAction));
+            return Should.ThrowAsync<TException>(() => RunTest(test));
         }
 
-        protected void RunTest(Action<TOrmContext> testAction)
+        protected async Task RunTest(Func<TOrmContext, Task> test)
         {
             try
             {
-                testAction.Invoke(Context);
+                await test.Invoke(Context);
             }
             finally
             {
@@ -35,13 +36,13 @@
             }
         }
 
-        protected void RunTest(Action<IMapper> testAction)
+        protected async Task RunTest(Func<IMapper, Task> test)
         {
             try
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    testAction.Invoke(mapper);
+                    await test.Invoke(mapper);
                 }
             }
             finally

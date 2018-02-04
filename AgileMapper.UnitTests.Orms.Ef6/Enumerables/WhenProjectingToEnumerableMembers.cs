@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6.Enumerables
 {
+    using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Enumerables;
     using Xunit;
@@ -15,11 +16,11 @@
         }
 
         [Fact]
-        public void ShouldProjectToAComplexTypeCollectionMember()
+        public Task ShouldProjectToAComplexTypeCollectionMember()
             => RunShouldProjectToAComplexTypeCollectionMember();
 
         [Fact]
-        public void ShouldProjectToAComplexTypeEnumerableMember()
+        public Task ShouldProjectToAComplexTypeEnumerableMember()
             => RunShouldProjectToAComplexTypeEnumerableMember();
     }
 }

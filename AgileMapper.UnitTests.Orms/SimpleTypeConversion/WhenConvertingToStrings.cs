@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
     using Xunit;
@@ -14,12 +15,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAnIntToAString()
+        public Task ShouldProjectAnIntToAString()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.IntItems.Add(new PublicInt { Value = 763483 });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var stringItem = context.IntItems.Project().To<PublicStringDto>().First();
 
@@ -28,12 +29,12 @@
         }
 
         [Fact]
-        public void ShouldProjectABoolToAString()
+        public Task ShouldProjectABoolToAString()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.BoolItems.Add(new PublicBool { Value = true });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var stringItem = context.BoolItems.Project().To<PublicStringDto>().First();
 

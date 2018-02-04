@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
     using Xunit;
@@ -14,12 +15,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAnIntOneToTrue()
+        public Task ShouldProjectAnIntOneToTrue()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.IntItems.Add(new PublicInt { Value = 1 });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.IntItems.Project().To<PublicBoolDto>().First();
 
@@ -28,12 +29,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAnIntZeroToFalse()
+        public Task ShouldProjectAnIntZeroToFalse()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.IntItems.Add(new PublicInt { Value = 0 });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.IntItems.Project().To<PublicBoolDto>().First();
 
@@ -42,12 +43,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAStringTrueToTrue()
+        public Task ShouldProjectAStringTrueToTrue()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.StringItems.Add(new PublicString { Value = "true" });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
@@ -56,12 +57,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAStringTrueToTrueIgnoringCase()
+        public Task ShouldProjectAStringTrueToTrueIgnoringCase()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.StringItems.Add(new PublicString { Value = "tRuE" });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
@@ -70,12 +71,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAStringOneToTrue()
+        public Task ShouldProjectAStringOneToTrue()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.StringItems.Add(new PublicString { Value = "1" });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
@@ -84,12 +85,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAStringFalseToFalse()
+        public Task ShouldProjectAStringFalseToFalse()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.StringItems.Add(new PublicString { Value = "false" });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
@@ -98,12 +99,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAStringZeroToFalse()
+        public Task ShouldProjectAStringZeroToFalse()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.StringItems.Add(new PublicString { Value = "0" });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
@@ -112,12 +113,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAStringNonBooleanValueToFalse()
+        public Task ShouldProjectAStringNonBooleanValueToFalse()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.StringItems.Add(new PublicString { Value = "uokyujhygt" });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
@@ -126,12 +127,12 @@
         }
 
         [Fact]
-        public void ShouldProjectAStringNullToFalse()
+        public Task ShouldProjectAStringNullToFalse()
         {
-            RunTest(context =>
+            return RunTest(async context =>
             {
                 context.StringItems.Add(new PublicString { Value = null });
-                context.SaveChanges();
+                await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
 
