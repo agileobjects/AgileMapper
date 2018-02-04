@@ -63,6 +63,11 @@
                 return converted;
             }
 
+            if (NestedProjectionAssignmentConverter.TryConvert(assignment, _settings, Modify, out converted))
+            {
+                return converted;
+            }
+
             return base.VisitMemberAssignment(assignment);
         }
 

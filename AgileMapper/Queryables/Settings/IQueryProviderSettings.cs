@@ -22,6 +22,8 @@
 
         bool SupportsNonEntityNullConstants { get; }
 
+        bool SupportsEnumerableMaterialisation { get; }
+
         Expression ConvertToStringCall(MethodCallExpression call);
 
         Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue);

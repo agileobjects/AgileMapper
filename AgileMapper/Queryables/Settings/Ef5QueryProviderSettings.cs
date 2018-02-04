@@ -15,6 +15,8 @@
 
         public override bool SupportsNonEntityNullConstants => false;
 
+        public override bool SupportsEnumerableMaterialisation => false;
+
 #if !NET_STANDARD
         protected override Type LoadCanonicalFunctionsType()
             => GetTypeOrNull("System.Data.Entity", "System.Data.Objects.EntityFunctions");

@@ -131,7 +131,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return instance.WithToCollectionCall(ElementType);
             }
 
-            return instance.WithToListCall(ElementType);
+            return instance.WithToListLinqCall(ElementType);
         }
 
         private static bool ValueIsNotEnumerableInterface(Expression instance)

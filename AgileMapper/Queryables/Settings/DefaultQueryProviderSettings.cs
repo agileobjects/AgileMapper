@@ -37,6 +37,8 @@
 
         public virtual bool SupportsNonEntityNullConstants => true;
 
+        public virtual bool SupportsEnumerableMaterialisation => true;
+
         public virtual Expression ConvertToStringCall(MethodCallExpression call)
             => call.Object.GetConversionTo<string>();
 

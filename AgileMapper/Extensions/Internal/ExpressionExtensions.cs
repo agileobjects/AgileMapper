@@ -12,20 +12,25 @@
 
     internal static partial class ExpressionExtensions
     {
-        private static readonly MethodInfo _listToArrayMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods("ToArray").First();
+        private static readonly MethodInfo _listToArrayMethod;
+        private static readonly MethodInfo _collectionToArrayMethod;
+        private static readonly MethodInfo _linqToArrayMethod;
+        private static readonly MethodInfo _linqToListMethod;
+        private static readonly MethodInfo _stringEqualsMethod;
 
-        private static readonly MethodInfo _collectionToArrayMethod = typeof(EnumerableExtensions)
-            .GetPublicStaticMethods("ToArray").ElementAt(1);
+        static ExpressionExtensions()
+        {
+            var toArrayExtensionMethods = typeof(EnumerableExtensions).GetPublicStaticMethods("ToArray").ToArray();
+            _listToArrayMethod = toArrayExtensionMethods.First();
+            _collectionToArrayMethod = toArrayExtensionMethods.ElementAt(1);
 
-        private static readonly MethodInfo _linqToArrayMethod = typeof(Enumerable)
-            .GetPublicStaticMethod("ToArray");
+            var linqEnumerableMethods = typeof(Enumerable).GetPublicStaticMethods().ToArray();
+            _linqToArrayMethod = linqEnumerableMethods.First(m => m.Name == "ToArray");
+            _linqToListMethod = linqEnumerableMethods.First(m => m.Name == "ToList");
 
-        public static readonly MethodInfo LinqToListMethod = typeof(Enumerable)
-            .GetPublicStaticMethod("ToList");
-
-        private static readonly MethodInfo _stringEqualsMethod = typeof(string)
-            .GetPublicStaticMethod("Equals", parameterCount: 3);
+            _stringEqualsMethod = typeof(string)
+                .GetPublicStaticMethod("Equals", parameterCount: 3);
+        }
 
         [DebuggerStepThrough]
         public static BinaryExpression AssignTo(this Expression subject, Expression value)
@@ -186,6 +191,9 @@
             return Expression.Convert(expression, targetType);
         }
 
+        public static Expression WithToArrayLinqCall(this Expression enumerable, Type elementType)
+            => GetToEnumerableCall(enumerable, _linqToArrayMethod, elementType);
+
         public static Expression WithToArrayCall(this Expression enumerable, Type elementType)
         {
             var conversionMethod = GetToArrayConversionMethod(enumerable, elementType);
@@ -271,8 +279,8 @@
             return GetCollectionCreation(typeHelper, toArrayCall);
         }
 
-        public static Expression WithToListCall(this Expression enumerable, Type elementType)
-            => GetToEnumerableCall(enumerable, LinqToListMethod, elementType);
+        public static Expression WithToListLinqCall(this Expression enumerable, Type elementType)
+            => GetToEnumerableCall(enumerable, _linqToListMethod, elementType);
 
         private static Expression GetToEnumerableCall(Expression enumerable, MethodInfo method, Type elementType)
         {
