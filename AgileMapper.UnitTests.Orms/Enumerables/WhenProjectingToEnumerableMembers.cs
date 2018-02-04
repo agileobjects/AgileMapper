@@ -99,13 +99,8 @@
 
         protected void ProjectToComplexTypeEnumerableMember(TOrmContext context)
         {
-            var item1 = new OrderItem
-            {
-            };
-
-            var item2 = new OrderItem
-            {
-            };
+            var item1 = new OrderItem();
+            var item2 = new OrderItem();
 
             var order = new Order
             {

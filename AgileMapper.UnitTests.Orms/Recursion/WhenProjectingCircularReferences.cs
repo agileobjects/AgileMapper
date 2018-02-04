@@ -77,6 +77,9 @@
         protected void DoShouldProjectAOneToManyRelationshipToFirstRecursionDepth()
             => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(1, context));
 
+        protected void DoShouldProjectAOneToManyRelationshipToSecondRecursionDepth()
+            => RunTest(context => ProjectAOneToManyRelationshipToRecursionDepth(2, context));
+
         protected void ProjectAOneToManyRelationshipToRecursionDepth(
             int depth,
             TOrmContext context)
@@ -164,17 +167,26 @@
 
             Verify(depth13Dtos.First(), child3.SubCategories.First());
 
+            depth11Dtos.First().SubCategories.ShouldBeEmpty();
+            depth11Dtos.Second().SubCategories.ShouldBeEmpty();
+
+            depth12Dtos.First().SubCategories.ShouldBeEmpty();
+            depth12Dtos.Third().SubCategories.ShouldBeEmpty();
+
+            depth13Dtos.First().SubCategories.ShouldBeEmpty();
+
             if (!(depth > 1))
             {
-                depth11Dtos.First().SubCategories.ShouldBeEmpty();
-                depth11Dtos.Second().SubCategories.ShouldBeEmpty();
-
-                depth12Dtos.First().SubCategories.ShouldBeEmpty();
                 depth12Dtos.Second().SubCategories.ShouldBeEmpty();
-                depth12Dtos.Third().SubCategories.ShouldBeEmpty();
-
-                depth13Dtos.First().SubCategories.ShouldBeEmpty();
+                return;
             }
+
+            var depth122Dtos = GetOrderedSubCategories(depth12Dtos.Second());
+
+            depth122Dtos.Length.ShouldBe(2);
+
+            Verify(depth122Dtos.First(), child2.SubCategories.Second().SubCategories.First());
+            Verify(depth122Dtos.Second(), child2.SubCategories.Second().SubCategories.Second());
         }
 
         private static CategoryDto[] GetOrderedSubCategories(CategoryDto parentDto)
