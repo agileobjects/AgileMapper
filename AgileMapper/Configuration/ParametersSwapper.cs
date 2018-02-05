@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             new ParametersSwapper(0, (ct, ft) => true, SwapNothing),
             new ParametersSwapper(1, IsContext, SwapForContextParameter),
-            new ParametersSwapper(1, IsSource, SwapForSource),
+            new ParametersSwapper(1, IsSourceOnly, SwapForSource),
             new ParametersSwapper(2, IsSourceAndTarget, SwapForSourceAndTarget),
             new ParametersSwapper(3, IsSourceTargetAndIndex, SwapForSourceTargetAndIndex),
             new ParametersSwapper(3, IsSourceTargetAndCreatedObject, SwapForSourceTargetAndCreatedObject),
@@ -54,7 +54,10 @@ namespace AgileObjects.AgileMapper.Configuration
             return parametersChecker.Invoke(contextTypes, contextTypeArgument.GetGenericTypeArguments());
         }
 
-        private static bool IsSource(Type[] contextTypes, Type[] funcArguments)
+        private static bool IsSourceOnly(Type[] contextTypes, Type[] funcArguments)
+            => (contextTypes.Length == 1) && IsSource(contextTypes, funcArguments);
+
+        private static bool IsSource(IList<Type> contextTypes, IList<Type> funcArguments)
             => contextTypes[0].IsAssignableTo(funcArguments[0]);
 
         private static bool IsSourceAndTarget(Type[] contextTypes, Type[] funcArguments)
@@ -295,7 +298,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 Func<IMemberMapperData, Expression, Type, Expression> targetValueFactory)
             {
                 Lambda = lambda;
-                ContextTypes = contextTypes;
+                ContextTypes = (contextTypes.Length > 1) ? contextTypes : contextTypes.Append(typeof(object));
                 MapperData = mapperData;
                 TargetValueFactory = targetValueFactory;
             }

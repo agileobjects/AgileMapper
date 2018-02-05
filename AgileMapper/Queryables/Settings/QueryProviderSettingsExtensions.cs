@@ -66,10 +66,7 @@
                 GetDatePartCall(datePartMethod, "mi", sourceValue),
                 GetDatePartCall(datePartMethod, "ss", sourceValue).GetConversionTo<double?>());
 
-            if (fallbackValue.NodeType == ExpressionType.Default)
-            {
-                fallbackValue = DefaultValueConstantExpressionFactory.CreateFor(fallbackValue);
-            }
+            fallbackValue = settings.GetDefaultValueFor(fallbackValue);
 
             var createdDateTime = GetGuardedDateCreation(createDateTimeCall, sourceValue, fallbackValue, settings);
 

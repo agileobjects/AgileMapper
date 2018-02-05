@@ -64,6 +64,7 @@
                     var productDtos = context
                         .Products
                         .ProjectUsing(mapper).To<ProductDto>()
+                        .OrderBy(p => p.ProductId)
                         .ToArray();
 
                     productDtos.Length.ShouldBe(2);
@@ -184,18 +185,21 @@
                 context.Products.Add(product2);
                 await context.SaveChanges();
 
+                var product1Id = product1.ProductId;
+
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .From<Product>()
                         .ProjectedTo<ProductDto>()
-                        .If(p => p.ProductId > 1)
+                        .If(p => p.ProductId > product1Id)
                         .Map(p => p.Name + "?!")
                         .To(dto => dto.Name);
 
                     var productDtos = context
                         .Products
                         .ProjectUsing(mapper).To<ProductDto>()
+                        .OrderBy(p => p.ProductId)
                         .ToArray();
 
                     productDtos.Length.ShouldBe(2);
@@ -235,6 +239,7 @@
                     var productDtos = context
                         .Products
                         .ProjectUsing(mapper).To<ProductDto>()
+                        .OrderBy(p => p.ProductId)
                         .ToArray();
 
                     productDtos.Length.ShouldBe(2);
@@ -244,6 +249,50 @@
 
                     productDtos.Second().ProductId.ShouldBe(product2.ProductId);
                     productDtos.Second().Name.ShouldBe("P.2!");
+                }
+            });
+        }
+
+        protected Task DoShouldHandleANullMemberInACondition()
+        {
+            return RunTest(async context =>
+            {
+                var person1 = new Person { Name = "Frank", Address = new Address { Line1 = "Philly" } };
+                var person2 = new Person { Name = "Dee" };
+
+                context.Persons.Add(person1);
+                context.Persons.Add(person2);
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .ProjectedTo<PersonViewModel>()
+                        .If(p => p.Address.Line2 == null)
+                        .Map("None")
+                        .To(dto => dto.AddressLine2);
+
+                    var personDtos = context
+                        .Persons
+                        .ProjectUsing(mapper).To<PersonViewModel>()
+                        .ToArray();
+
+                    personDtos.Length.ShouldBe(2);
+
+                    personDtos.First().Id.ShouldBe(person1.PersonId);
+                    personDtos.First().Name.ShouldBe("Frank");
+                    personDtos.First().AddressId.ShouldBe(person1.Address.AddressId);
+                    personDtos.First().AddressLine1.ShouldBe("Philly");
+                    personDtos.First().AddressLine2.ShouldBe("None");
+                    personDtos.First().AddressPostcode.ShouldBeNull();
+
+                    personDtos.Second().Id.ShouldBe(person2.PersonId);
+                    personDtos.Second().Name.ShouldBe("Dee");
+                    personDtos.Second().AddressId.ShouldBeDefault();
+                    personDtos.Second().AddressLine1.ShouldBeNull();
+                    personDtos.Second().AddressLine2.ShouldBe("None");
+                    personDtos.Second().AddressPostcode.ShouldBeNull();
                 }
             });
         }

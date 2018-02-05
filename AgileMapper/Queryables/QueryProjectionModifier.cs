@@ -56,7 +56,7 @@
         }
 
         protected override Expression VisitDefault(DefaultExpression defaultExpression)
-            => DefaultValueConstantExpressionFactory.CreateFor(defaultExpression);
+            => Settings.GetDefaultValueFor(defaultExpression);
 
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {

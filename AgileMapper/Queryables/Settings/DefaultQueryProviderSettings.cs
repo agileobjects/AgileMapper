@@ -39,6 +39,9 @@
 
         public virtual bool SupportsEnumerableMaterialisation => true;
 
+        public virtual Expression GetDefaultValueFor(Expression value)
+            => value.NodeType != ExpressionType.Default ? value.Type.ToDefaultExpression() : value;
+
         public virtual Expression ConvertToStringCall(MethodCallExpression call)
             => call.Object.GetConversionTo<string>();
 
@@ -76,18 +79,14 @@
         protected virtual Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
             => null;
 
-        private static Expression GetConvertStringToGuid(MethodCallExpression guidTryParseCall, Expression fallbackValue)
+        private Expression GetConvertStringToGuid(MethodCallExpression guidTryParseCall, Expression fallbackValue)
         {
             var parseMethod = typeof(Guid)
                 .GetPublicStaticMethod("Parse", parameterCount: 1);
 
             var sourceValue = guidTryParseCall.Arguments.First();
             var guidConversion = Expression.Call(parseMethod, sourceValue);
-
-            if (fallbackValue.NodeType == ExpressionType.Default)
-            {
-                fallbackValue = DefaultValueConstantExpressionFactory.CreateFor(fallbackValue);
-            }
+            fallbackValue = GetDefaultValueFor(fallbackValue);
 
             var nullString = default(string).ToConstantExpression();
             var sourceIsNotNull = Expression.NotEqual(sourceValue, nullString);

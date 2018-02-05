@@ -35,5 +35,8 @@
         [Fact]
         public Task ShouldApplyConditionalAndUnconditionalDataSourcesInOrder()
             => DoShouldApplyConditionalAndUnconditionalDataSourcesInOrder();
+
+        [Fact]
+        public Task ShouldHandleANullMemberInACondition() => DoShouldHandleANullMemberInACondition();
     }
 }

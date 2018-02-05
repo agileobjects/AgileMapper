@@ -1,8 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Settings
 {
+    using System.Linq.Expressions;
+    using Converters;
 #if !NET_STANDARD
     using System;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
 #endif
@@ -64,5 +65,7 @@
         protected override Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
             => this.GetCreateDateTimeFromStringOrNull(call, fallbackValue);
 #endif
+        public override Expression GetDefaultValueFor(Expression value)
+            => DefaultValueConstantExpressionFactory.CreateFor(value);
     }
 }

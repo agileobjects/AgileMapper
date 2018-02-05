@@ -431,8 +431,8 @@ namespace AgileObjects.AgileMapper.Members
 
         private static Expression GetFinalContextAccess(
             Expression contextAccess,
-            Type[] contextTypes,
-            Type[] contextAccessTypes = null)
+            IList<Type> contextTypes,
+            IList<Type> contextAccessTypes = null)
         {
             if ((contextAccessTypes == null) && !contextAccess.Type.IsGenericType())
             {
@@ -453,9 +453,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
-        {
-            return mapperData.TargetMember.GetPopulation(value, mapperData);
-        }
+            => mapperData.TargetMember.GetPopulation(value, mapperData);
 
         public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);

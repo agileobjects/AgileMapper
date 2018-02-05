@@ -3,6 +3,7 @@
     using System.Linq.Expressions;
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
+    using Settings;
 
     internal static class ComplexTypeConditionalConverter
     {
@@ -17,16 +18,18 @@
                 return false;
             }
 
-            converted = new NonNullableMemberBinder(conditional).GuardMemberAccesses();
+            converted = new NonNullableMemberBinder(modifier, conditional).GuardMemberAccesses();
             return true;
         }
 
         public class NonNullableMemberBinder : ExpressionVisitor
         {
+            private readonly IQueryProviderSettings _settings;
             private readonly ConditionalExpression _conditional;
 
-            public NonNullableMemberBinder(ConditionalExpression conditional)
+            public NonNullableMemberBinder(IQueryProjectionModifier modifier, ConditionalExpression conditional)
             {
+                _settings = modifier.Settings;
                 _conditional = conditional;
             }
 
@@ -50,7 +53,7 @@
                 var bindingValueOrNull = Expression.Condition(
                     _conditional.Test,
                     memberBinding.Expression,
-                    DefaultValueConstantExpressionFactory.CreateFor(memberBinding.Expression));
+                    _settings.GetDefaultValueFor(memberBinding.Expression));
 
                 return memberBinding.Update(bindingValueOrNull);
             }

@@ -2,8 +2,9 @@
 {
 #if !NET_STANDARD
     using System;
-    using System.Linq.Expressions;
 #endif
+    using System.Linq.Expressions;
+    using Converters;
 
     internal class Ef6QueryProviderSettings : DefaultQueryProviderSettings
     {
@@ -21,5 +22,7 @@
         protected override Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
             => this.GetCreateDateTimeFromStringOrNull(call, fallbackValue);
 #endif
+        public override Expression GetDefaultValueFor(Expression value)
+            => DefaultValueConstantExpressionFactory.CreateFor(value);
     }
 }

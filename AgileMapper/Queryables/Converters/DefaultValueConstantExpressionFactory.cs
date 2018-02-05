@@ -11,10 +11,8 @@
         private static readonly MethodInfo _getDefaultValueMethod = typeof(DefaultValueConstantExpressionFactory)
             .GetNonPublicStaticMethod("GetDefaultValue");
 
-        public static Expression CreateFor(Expression expression) => CreateFor(expression.Type);
-
-        public static Expression CreateFor(Type type)
-            => GetDefaultValueFor(type).ToConstantExpression(type);
+        public static Expression CreateFor(Expression expression)
+            => GetDefaultValueFor(expression.Type).ToConstantExpression(expression.Type);
 
         private static object GetDefaultValueFor(Type type)
         {

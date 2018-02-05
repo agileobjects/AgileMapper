@@ -32,7 +32,7 @@
             }
             finally
             {
-                EmptyDbContext();
+                await EmptyDbContext();
             }
         }
 
@@ -51,7 +51,7 @@
             }
         }
 
-        private void EmptyDbContext()
+        private async Task EmptyDbContext()
         {
             Context.Companies.Clear();
             Context.Employees.Clear();
@@ -66,7 +66,8 @@
             Context.IntItems.Clear();
             Context.LongItems.Clear();
             Context.StringItems.Clear();
-            Context.SaveChanges();
+
+            await Context.SaveChanges();
         }
     }
 }

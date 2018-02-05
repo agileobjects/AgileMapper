@@ -22,6 +22,9 @@
 
         public IFullMappingConfigurator<TSource, TTarget> But => CreateNewConfigurator();
 
+        IFullProjectionConfigurator<TSource, TTarget> IProjectionConfigContinuation<TSource, TTarget>.But
+            => CreateNewConfigurator();
+
         private MappingConfigurator<TSource, TTarget> CreateNewConfigurator()
             => new MappingConfigurator<TSource, TTarget>(_configInfo.Clone());
     }

@@ -21,7 +21,7 @@
             converted = Expression.Condition(
                 methodCall.Object.GetIsNotDefaultComparison(),
                 Expression.Convert(methodCall.Object, methodCall.Type),
-                DefaultValueConstantExpressionFactory.CreateFor(methodCall.Type));
+                context.Settings.GetDefaultValueFor(methodCall));
 
             return true;
         }

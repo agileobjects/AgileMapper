@@ -49,7 +49,7 @@
                 return funcArguments[0].GetGenericTypeArguments();
             }
 
-            return new[] { funcArguments[0], typeof(object) };
+            return new[] { funcArguments[0] };
         }
 
         public static ConfiguredLambdaInfo ForFunc<TFunc>(TFunc func, params Type[] argumentTypes)
