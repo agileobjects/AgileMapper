@@ -85,6 +85,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Infrastructure\Ef5DbSetWrapper.cs" />
     <Compile Include="Infrastructure\InMemoryEf5TestDefinition.cs" />
     <Compile Include="Infrastructure\InMemoryEf5TestContext.cs" />

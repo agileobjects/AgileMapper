@@ -205,6 +205,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Infrastructure\EfCore1DbSetWrapper.cs" />
     <Compile Include="Infrastructure\EfCore1TestDbContext.cs" />
     <Compile Include="Infrastructure\InMemoryEfCore1TestContext.cs" />
