@@ -76,5 +76,40 @@
                 }
             });
         }
+
+        protected Task DoShouldApplyAConfiguredConstantToANestedMember()
+        {
+            return RunTest(async context =>
+            {
+                var person = new Person
+                {
+                    Name = "Person 1",
+                    Address = new Address { Line1 = "Line 1", Postcode = "Postcode" }
+                };
+
+                context.Persons.Add(person);
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .ProjectedTo<PersonDto>()
+                        .Map("LINE ONE!?")
+                        .To(dto => dto.Address.Line1);
+
+                    var personDto = context
+                        .Persons
+                        .ProjectUsing(mapper).To<PersonDto>()
+                        .ShouldHaveSingleItem();
+
+                    personDto.Id.ShouldBe(person.PersonId);
+                    personDto.Name.ShouldBe("Person 1");
+                    personDto.Address.ShouldNotBeNull();
+                    personDto.Address.Line1.ShouldBe("LINE ONE!?");
+                    personDto.Address.Postcode.ShouldBe("Postcode");
+                }
+            });
+        }
     }
 }
