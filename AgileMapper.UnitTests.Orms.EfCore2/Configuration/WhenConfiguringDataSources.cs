@@ -27,11 +27,13 @@
         public Task ShouldApplyAConfiguredMember() => DoShouldApplyAConfiguredMember();
 
         [Fact]
-        public Task ShouldApplyMultipleConfiguredMembers()
-            => DoShouldApplyMultipleConfiguredMembers();
+        public Task ShouldApplyMultipleConfiguredMembers() => DoShouldApplyMultipleConfiguredMembers();
 
         [Fact]
-        public void ShouldConditionallyApplyAConfiguredMember()
-            => DoShouldConditionallyApplyAConfiguredMember();
+        public Task ShouldConditionallyApplyAConfiguredMember() => DoShouldConditionallyApplyAConfiguredMember();
+
+        [Fact]
+        public Task ShouldApplyConditionalAndUnconditionalDataSourcesInOrder()
+            => DoShouldApplyConditionalAndUnconditionalDataSourcesInOrder();
     }
 }

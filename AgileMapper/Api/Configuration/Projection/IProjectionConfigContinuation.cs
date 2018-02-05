@@ -12,5 +12,11 @@
         /// being configured. This property exists purely to provide a more fluent configuration interface.
         /// </summary>
         IFullProjectionConfigurator<TSourceElement, TResultElement> And { get; }
+
+        /// <summary>
+        /// Perform an alternative configuration of how this mapper projects to and from the source and result 
+        /// types being configured. This property exists purely to provide a more fluent configuration interface.
+        /// </summary>
+        IFullProjectionConfigurator<TSourceElement, TResultElement> But { get; }
     }
 }

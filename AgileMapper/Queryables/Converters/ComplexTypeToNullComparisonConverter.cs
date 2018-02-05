@@ -15,7 +15,8 @@
             out Expression converted)
         {
             if (context.Settings.SupportsComplexTypeToNullComparison ||
-               !comparison.Right.Type.IsComplex())
+               (comparison.Left.Type == typeof(object)) ||
+               !comparison.Left.Type.IsComplex())
             {
                 converted = null;
                 return false;

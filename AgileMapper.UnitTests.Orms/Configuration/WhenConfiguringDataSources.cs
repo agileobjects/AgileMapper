@@ -208,5 +208,44 @@
                 }
             });
         }
+
+        protected Task DoShouldApplyConditionalAndUnconditionalDataSourcesInOrder()
+        {
+            return RunTest(async context =>
+            {
+                var product1 = new Product { Name = "P.1" };
+                var product2 = new Product { Name = "P.2" };
+
+                context.Products.Add(product1);
+                context.Products.Add(product2);
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Product>()
+                        .ProjectedTo<ProductDto>()
+                        .Map(p => p.Name + '!')
+                        .To(dto => dto.Name)
+                        .But
+                        .If(p => p.Name.Contains("1"))
+                        .Map(p => p.Name + '?')
+                        .To(dto => dto.Name);
+
+                    var productDtos = context
+                        .Products
+                        .ProjectUsing(mapper).To<ProductDto>()
+                        .ToArray();
+
+                    productDtos.Length.ShouldBe(2);
+
+                    productDtos.First().ProductId.ShouldBe(product1.ProductId);
+                    productDtos.First().Name.ShouldBe("P.1?");
+
+                    productDtos.Second().ProductId.ShouldBe(product2.ProductId);
+                    productDtos.Second().Name.ShouldBe("P.2!");
+                }
+            });
+        }
     }
 }
