@@ -12,14 +12,8 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Making .Flatten() API consistent between extension methods and mapper API
-- Including entity key mapping when deep cloning
-- Skipping mapping of nested recursive members where the only the recursion is mapped
-- Improving detection of non-generic enumerable element types, re: issue #50
-- Not mapping zero onto nullable, numeric [EntityMemberName]Id members
-- Fixing custom element key pattern configuration for source dictionary to nested enumerable mapping
-- Erroring during configuration if an unmappable target member is ignored
-- Performance improvements
+- Support for using to-String operators to convert values to strings, re issue #51
+- Surfacing static Mapper.ResetDefaultInstance() method
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
