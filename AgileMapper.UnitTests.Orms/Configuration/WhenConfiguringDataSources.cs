@@ -31,7 +31,7 @@
 
                     var productDto = context
                         .Products
-                        .Project().To<ProductDto>(_ => _.Using(mapper))
+                        .Project(_ => _.Using(mapper)).To<ProductDto>()
                         .ShouldHaveSingleItem();
 
                     productDto.ProductId.ShouldBe(product.ProductId);

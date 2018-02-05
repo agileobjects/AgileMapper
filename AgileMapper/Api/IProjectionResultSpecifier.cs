@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Linq.Expressions;
     using Configuration.Projection;
-    using Queryables.Api;
 
     /// <summary>
     /// Provides options for specifying the query projection result Type.
@@ -28,23 +27,6 @@
         /// enumerated by a call to .ToArray() or similar.
         /// </returns>
         IQueryable<TResultElement> To<TResultElement>()
-            where TResultElement : class;
-
-        /// <summary>
-        /// Project the elements of the source IQueryable{T} to instances of the given 
-        /// <typeparamref name="TResultElement"/>, using the mapper specified by the given 
-        /// <paramref name="mapperSelector"/>.
-        /// </summary>
-        /// <param name="mapperSelector">A func providing the mapper with which the projection should be performed.</param>
-        /// <typeparam name="TResultElement">
-        /// The result Type to which the elements of the source IQueryable{T} should be projected.
-        /// </typeparam>
-        /// <returns>
-        /// An IQueryable{TResultElement} of the source IQueryable{T} projected to instances of the given 
-        /// <typeparamref name="TResultElement"/>. The projection is not performed until the Queryable is 
-        /// enumerated by a call to .ToArray() or similar.
-        /// </returns>
-        IQueryable<TResultElement> To<TResultElement>(Func<ProjectionMapperSelector, IMapper> mapperSelector)
             where TResultElement : class;
 
         /// <summary>

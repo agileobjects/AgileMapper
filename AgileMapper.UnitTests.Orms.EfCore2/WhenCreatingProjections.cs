@@ -24,7 +24,7 @@
                 {
                     var stringDtos = await context1
                         .StringItems
-                        .Project().To<PublicStringDto>(c => c.Using(mapper))
+                        .Project(_ => _.Using(mapper)).To<PublicStringDto>()
                         .ToListAsync();
 
                     stringDtos.ShouldBeEmpty();
@@ -39,7 +39,7 @@
 
                     var moreStringDtos = await context2
                         .StringItems
-                        .Project().To<PublicStringDto>(c => c.Using(mapper))
+                        .Project(_ => _.Using(mapper)).To<PublicStringDto>()
                         .ToArrayAsync();
 
                     moreStringDtos.ShouldHaveSingleItem();

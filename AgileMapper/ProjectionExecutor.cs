@@ -6,49 +6,35 @@
     using Api;
     using Api.Configuration.Projection;
     using ObjectPopulation;
-    using Queryables.Api;
 
     internal class ProjectionExecutor<TSourceElement> : IProjectionResultSpecifier<TSourceElement>
     {
+        private readonly MapperContext _mapperContext;
         private readonly IQueryable<TSourceElement> _sourceQueryable;
 
-        public ProjectionExecutor(IQueryable<TSourceElement> sourceQueryable)
+        public ProjectionExecutor(MapperContext mapperContext, IQueryable<TSourceElement> sourceQueryable)
         {
+            _mapperContext = mapperContext;
             _sourceQueryable = sourceQueryable;
         }
 
         #region To Overloads
 
         IQueryable<TResultElement> IProjectionResultSpecifier<TSourceElement>.To<TResultElement>()
-        {
-            return PerformProjection<TResultElement>(Mapper.Default);
-        }
-
-        IQueryable<TResultElement> IProjectionResultSpecifier<TSourceElement>.To<TResultElement>(
-            Func<ProjectionMapperSelector, IMapper> mapperSelector)
-        {
-            var mapper = mapperSelector.Invoke(ProjectionMapperSelector.Instance);
-
-            return PerformProjection<TResultElement>(mapper);
-        }
+            => PerformProjection<TResultElement>(_mapperContext);
 
         IQueryable<TResultElement> IProjectionResultSpecifier<TSourceElement>.To<TResultElement>(
             Expression<Action<IFullProjectionInlineConfigurator<TSourceElement, TResultElement>>> configuration)
         {
-            return PerformProjection(Mapper.Default, new[] { configuration });
+            return PerformProjection(new[] { configuration });
         }
 
         #endregion
 
-        private IQueryable<TResultElement> PerformProjection<TResultElement>(IMapper mapper)
-            => PerformProjection<TResultElement>(((IMapperInternal)mapper).Context);
-
         private IQueryable<TResultElement> PerformProjection<TResultElement>(
-            IMapper mapper,
             Expression<Action<IFullProjectionInlineConfigurator<TSourceElement, TResultElement>>>[] configurations)
         {
-            var mapperContext = ((IMapperInternal)mapper).Context;
-            var inlineMapperContext = mapperContext.InlineContexts.GetContextFor(configurations, this);
+            var inlineMapperContext = _mapperContext.InlineContexts.GetContextFor(configurations, this);
 
             return PerformProjection<TResultElement>(inlineMapperContext);
         }
