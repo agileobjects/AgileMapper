@@ -118,7 +118,7 @@
 
         #endregion
 
-        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
+        public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
             new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
@@ -126,7 +126,7 @@
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
-        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
+        public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
         {
             new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
 
@@ -174,12 +174,12 @@
 
         #region Ignoring Members
 
-        public MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>()
+        public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>()
         {
             return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
         }
 
-        public MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
+        public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
             var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
@@ -189,7 +189,7 @@
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
-        public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
+        public IMappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
         {
             foreach (var targetMember in targetMembers)
             {
@@ -213,43 +213,41 @@
 
         #region Map Overloads
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TSourceValue>> valueFactoryExpression)
         {
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
         {
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
         {
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
             Func<TSource, TSourceValue> valueFunc)
             => GetConstantValueTargetMemberSpecifier(valueFunc);
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
-        {
-            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
+            => GetConstantValueTargetMemberSpecifier(value);
 
-            return (valueLambdaInfo != null)
-                ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                    ConfigInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
-                    valueLambdaInfo)
-                : GetConstantValueTargetMemberSpecifier(value);
+        ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.Map<TSourceValue>(
+            TSourceValue value)
+        {
+            return GetConstantValueTargetMemberSpecifier(value);
         }
 
         #region Map Helpers
@@ -265,6 +263,15 @@
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
             TSourceValue value)
         {
+            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
+
+            if (valueLambdaInfo != null)
+            {
+                return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+                    ConfigInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
+                    valueLambdaInfo);
+            }
+
             var valueConstant = value.ToConstantExpression();
             var valueLambda = Expression.Lambda<Func<TSourceValue>>(valueConstant);
 
@@ -275,7 +282,7 @@
 
         #endregion
 
-        public MappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
+        public IMappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
             where TDerivedTarget : TTarget
         {
             var derivedTypePair = new DerivedPairTargetTypeSpecifier<TSource, TSource, TTarget>(ConfigInfo);
@@ -283,7 +290,7 @@
             return derivedTypePair.To<TDerivedTarget>();
         }
 
-        public MappingConfigContinuation<TSource, TTarget> MapToNull()
+        public IMappingConfigContinuation<TSource, TTarget> MapToNull()
         {
             var condition = new MapToNullCondition(ConfigInfo);
 

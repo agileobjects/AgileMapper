@@ -81,19 +81,19 @@
                 Expression<Func<TSource, TTarget, TObject, int?, bool>> condition)
             => SetCondition(condition);
 
-        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<IObjectCreationMappingData<TSource, TTarget, TObject>> callback)
             => CreateCallbackFactory(callback);
 
-        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget> callback)
             => CreateCallbackFactory(callback);
 
-        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget, TObject> callback)
             => CreateCallbackFactory(callback);
 
-        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget, TObject, int?> callback)
             => CreateCallbackFactory(callback);
 

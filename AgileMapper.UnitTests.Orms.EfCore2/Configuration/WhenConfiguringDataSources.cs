@@ -25,5 +25,9 @@
 
         [Fact]
         public Task ShouldApplyAConfiguredMember() => DoShouldApplyAConfiguredMember();
+
+        [Fact]
+        public Task ShouldApplyMultipleConfiguredMembers()
+            => DoShouldApplyMultipleConfiguredMembers();
     }
 }

@@ -18,10 +18,10 @@
         /// </summary>
         /// <param name="callback">The callback to call.</param>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(
+        IMappingConfigContinuation<TSource, TTarget> Call(
             Action<IObjectCreationMappingData<TSource, TTarget, TObject>> callback);
 
         /// <summary>
@@ -30,10 +30,10 @@
         /// </summary>
         /// <param name="callback">The callback to call.</param>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
 
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed the current 
@@ -41,10 +41,10 @@
         /// </summary>
         /// <param name="callback">The callback to call.</param>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, TObject> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, TObject> callback);
 
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed the current 
@@ -52,9 +52,9 @@
         /// </summary>
         /// <param name="callback">The callback to call.</param>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, TObject, int?> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, TObject, int?> callback);
     }
 }

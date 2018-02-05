@@ -20,7 +20,7 @@
         /// A CustomDataSourceTargetMemberSpecifier with which to specify the result member to which the custom 
         /// value should be applied.
         /// </returns>
-        CustomDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(
+        ICustomProjectionDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(
             Expression<Func<TSourceElement, TSourceValue>> valueFactoryExpression);
 
         /// <summary>
@@ -33,6 +33,6 @@
         /// A CustomDataSourceTargetMemberSpecifier with which to specify the result member to which the custom 
         /// constant value should be applied.
         /// </returns>
-        CustomDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(TSourceValue value);
+        ICustomProjectionDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(TSourceValue value);
     }
 }

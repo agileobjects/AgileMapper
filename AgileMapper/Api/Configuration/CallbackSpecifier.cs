@@ -49,13 +49,13 @@
             return this;
         }
 
-        public MappingConfigContinuation<TSource, TTarget> Call(Action<IMappingData<TSource, TTarget>> callback)
+        public IMappingConfigContinuation<TSource, TTarget> Call(Action<IMappingData<TSource, TTarget>> callback)
             => CreateCallbackFactory(callback);
 
-        public MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback)
+        public IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback)
             => CreateCallbackFactory(callback);
 
-        public MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback)
+        public IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback)
             => CreateCallbackFactory(callback);
 
         private MappingConfigContinuation<TSource, TTarget> CreateCallbackFactory<TAction>(TAction callback)

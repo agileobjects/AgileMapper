@@ -139,5 +139,38 @@
                 }
             });
         }
+
+        protected Task DoShouldApplyMultipleConfiguredMembers()
+        {
+            return RunTest(async context =>
+            {
+                var product = new Product { Name = "Product1" };
+
+                context.Products.Add(product);
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Product>()
+                        .ProjectedTo<PersonDto>()
+                        .Map(p => p.ProductId)
+                        .To(dto => dto.Name)
+                        .And
+                        .Map(p => p.Name)
+                        .To(p => p.Address.Line1);
+
+                    var personDto = context
+                        .Products
+                        .ProjectUsing(mapper).To<PersonDto>()
+                        .ShouldHaveSingleItem();
+
+                    personDto.Id.ShouldBe(product.ProductId);
+                    personDto.Name.ShouldBe(product.ProductId);
+                    personDto.Address.ShouldNotBeNull();
+                    personDto.Address.Line1.ShouldBe("Product1");
+                }
+            });
+        }
     }
 }

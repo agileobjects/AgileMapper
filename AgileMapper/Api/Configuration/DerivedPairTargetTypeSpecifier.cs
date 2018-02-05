@@ -30,10 +30,10 @@
         /// The derived target type to create for the configured derived source type.
         /// </typeparam>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        public MappingConfigContinuation<TSource, TTarget> To<TDerivedTarget>()
+        public IMappingConfigContinuation<TSource, TTarget> To<TDerivedTarget>()
             where TDerivedTarget : TTarget
         {
             var derivedTypePair = DerivedTypePair

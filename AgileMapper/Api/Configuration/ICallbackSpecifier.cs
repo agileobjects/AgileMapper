@@ -17,10 +17,10 @@
         /// </summary>
         /// <param name="callback">The callback to execute.</param>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<IMappingData<TSource, TTarget>> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<IMappingData<TSource, TTarget>> callback);
 
         /// <summary>
         /// Specify a callback to be executed. The condition expression is passed the current mapping's source 
@@ -28,10 +28,10 @@
         /// </summary>
         /// <param name="callback">The callback to execute.</param>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
 
         /// <summary>
         /// Specify a callback to be executed. The condition expression is passed the current mapping's source 
@@ -39,9 +39,9 @@
         /// </summary>
         /// <param name="callback">The callback to execute.</param>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback);
     }
 }

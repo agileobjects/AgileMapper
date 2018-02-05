@@ -65,8 +65,8 @@
         /// </summary>
         /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
         /// <param name="secondEnumMember">The second enum member in the pair.</param>
-        /// <returns>A MappingConfigContinuation with which to configure other aspects of mapping.</returns>
-        public MappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(TSecondEnum secondEnumMember)
+        /// <returns>An IMappingConfigContinuation with which to configure other aspects of mapping.</returns>
+        public IMappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(TSecondEnum secondEnumMember)
             where TSecondEnum : struct
             => With(new[] { secondEnumMember });
 
@@ -76,8 +76,8 @@
         /// </summary>
         /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
         /// <param name="secondEnumMembers">The second set of enum members in the pairs.</param>
-        /// <returns>A MappingConfigContinuation with which to configure other aspects of mapping.</returns>
-        public MappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(params TSecondEnum[] secondEnumMembers)
+        /// <returns>An IMappingConfigContinuation with which to configure other aspects of mapping.</returns>
+        public IMappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(params TSecondEnum[] secondEnumMembers)
             where TSecondEnum : struct
         {
             ThrowIfNotEnumType<TSecondEnum>();
