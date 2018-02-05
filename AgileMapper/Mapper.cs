@@ -157,7 +157,11 @@
         /// <returns>A TargetSelector with which to specify the type of mapping to perform.</returns>
         public static ITargetSelector<TSource> Map<TSource>(TSource source) => Default.Map(source);
 
-        internal static void ResetDefaultInstance() => Default.Dispose();
+        /// <summary>
+        /// Removes the default Mapper's cached data. Can be useful when testing code which uses
+        /// the static Mapper API.
+        /// </summary>
+        public static void ResetDefaultInstance() => Default.Dispose();
 
         #endregion
 
