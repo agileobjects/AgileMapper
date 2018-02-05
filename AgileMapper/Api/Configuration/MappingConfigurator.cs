@@ -15,7 +15,8 @@
     internal class MappingConfigurator<TSource, TTarget> :
         IFullMappingInlineConfigurator<TSource, TTarget>,
         IFullProjectionInlineConfigurator<TSource, TTarget>,
-        IConditionalRootMappingConfigurator<TSource, TTarget>
+        IConditionalRootMappingConfigurator<TSource, TTarget>,
+        IConditionalRootProjectionConfigurator<TSource, TTarget>
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
         {
@@ -90,13 +91,18 @@
             return this;
         }
 
+        public IConditionalRootProjectionConfigurator<TSource, TTarget> If(Expression<Func<TSource, bool>> condition)
+            => SetCondition(condition);
+
         #endregion
 
         #region If Overloads
 
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(
             Expression<Func<IMappingData<TSource, TTarget>, bool>> condition)
-            => SetCondition(condition);
+        {
+            return SetCondition(condition);
+        }
 
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, bool>> condition)
             => SetCondition(condition);
@@ -104,7 +110,7 @@
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
-        private IConditionalRootMappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
+        private MappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
         {
             ConfigInfo.AddConditionOrThrow(conditionLambda);
             return this;

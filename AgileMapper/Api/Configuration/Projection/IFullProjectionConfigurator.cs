@@ -1,11 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration.Projection
 {
+    using System;
+    using System.Linq.Expressions;
+
     /// <summary>
     /// Provides options for configuring query projections from and to given source and result element Types.
     /// </summary>
     /// <typeparam name="TSourceElement">The source element Type to which the configuration should apply.</typeparam>
     /// <typeparam name="TResultElement">The result element Type to which the configuration should apply.</typeparam>
-    public interface IFullProjectionConfigurator<TSourceElement, TResultElement>
+    public interface IFullProjectionConfigurator<TSourceElement, TResultElement> :
+        IRootProjectionConfigurator<TSourceElement, TResultElement>
     {
         /// <summary>
         /// Project recursive relationships to the specified <paramref name="recursionDepth"/>.
@@ -19,15 +23,12 @@
         IFullProjectionInlineConfigurator<TSourceElement, TResultElement> RecurseToDepth(int recursionDepth);
 
         /// <summary>
-        /// Configure a constant value for a particular target member when projecting from and to the source and 
-        /// result types being configured.
+        /// Configure a condition which must evaluate to true for the configuration to apply. The condition
+        /// expression is passed the source element being projected.
         /// </summary>
-        /// <typeparam name="TSourceValue">The type of the custom constant value being configured.</typeparam>
-        /// <param name="value">The constant value to map to the configured result member.</param>
-        /// <returns>
-        /// A CustomDataSourceTargetMemberSpecifier with which to specify the result member to which the custom 
-        /// constant value should be applied.
-        /// </returns>
-        CustomDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(TSourceValue value);
+        /// <param name="condition">The condition to evaluate.</param>
+        /// <returns>An IConditionalRootProjectionConfigurator with which to complete the configuration.</returns>
+        IConditionalRootProjectionConfigurator<TSourceElement, TResultElement> If(
+            Expression<Func<TSourceElement, bool>> condition);
     }
 }

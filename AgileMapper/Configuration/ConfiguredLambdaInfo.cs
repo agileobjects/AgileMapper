@@ -11,14 +11,17 @@
     internal class ConfiguredLambdaInfo
     {
         private readonly LambdaExpression _lambda;
+        private readonly Type[] _contextTypes;
         private readonly ParametersSwapper _parametersSwapper;
 
         private ConfiguredLambdaInfo(
             LambdaExpression lambda,
+            Type[] contextTypes,
             Type returnType,
             ParametersSwapper parametersSwapper)
         {
             _lambda = lambda;
+            _contextTypes = contextTypes;
             _parametersSwapper = parametersSwapper;
             ReturnType = returnType;
         }
@@ -28,10 +31,25 @@
         public static ConfiguredLambdaInfo For(LambdaExpression lambda)
         {
             var funcArguments = lambda.Parameters.Select(p => p.Type).ToArray();
-            var contextTypes = (funcArguments.Length != 1) ? funcArguments : funcArguments[0].GetGenericTypeArguments();
+            var contextTypes = GetContextTypes(funcArguments);
             var parameterSwapper = ParametersSwapper.For(contextTypes, funcArguments);
 
-            return new ConfiguredLambdaInfo(lambda, lambda.ReturnType, parameterSwapper);
+            return new ConfiguredLambdaInfo(lambda, contextTypes, lambda.ReturnType, parameterSwapper);
+        }
+
+        private static Type[] GetContextTypes(Type[] funcArguments)
+        {
+            if (funcArguments.Length != 1)
+            {
+                return funcArguments;
+            }
+
+            if (funcArguments[0].IsGenericType())
+            {
+                return funcArguments[0].GetGenericTypeArguments();
+            }
+
+            return new[] { funcArguments[0], typeof(object) };
         }
 
         public static ConfiguredLambdaInfo ForFunc<TFunc>(TFunc func, params Type[] argumentTypes)
@@ -97,6 +115,7 @@
 
             return new ConfiguredLambdaInfo(
                 valueFactoryLambda,
+                contextTypes,
                 returnTypeFactory.Invoke(funcTypes),
                 parameterSwapper);
         }
@@ -129,8 +148,8 @@
             QualifiedMember targetMember = null)
         {
             return position.IsPriorToObjectCreation(targetMember)
-                ? _parametersSwapper.Swap(_lambda, mapperData, ParametersSwapper.UseTargetMember)
-                : _parametersSwapper.Swap(_lambda, mapperData, ParametersSwapper.UseTargetInstance);
+                ? _parametersSwapper.Swap(_lambda, _contextTypes, mapperData, ParametersSwapper.UseTargetMember)
+                : _parametersSwapper.Swap(_lambda, _contextTypes, mapperData, ParametersSwapper.UseTargetInstance);
         }
     }
 }
