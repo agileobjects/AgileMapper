@@ -139,6 +139,7 @@
     <Compile Include="WhenViewingMappingPlans.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

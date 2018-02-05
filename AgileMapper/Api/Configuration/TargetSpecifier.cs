@@ -1,10 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using System.Collections.Generic;
     using AgileMapper.Configuration;
-    using AgileMapper.Configuration.Dictionaries;
     using Dictionaries;
     using Dynamics;
+    using Projection;
 
     /// <summary>
     /// Provides options for specifying the target type and mapping rule set to which the configuration should
@@ -22,7 +21,8 @@
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
-        /// (create new, overwrite, etc), to the target type specified by the type argument.
+        /// (create new, overwrite, etc), to the target type specified by the given <typeparamref name="TTarget"/> 
+        /// argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
@@ -30,17 +30,18 @@
             => new MappingConfigurator<TSource, TTarget>(_configInfo.ForAllRuleSets());
 
         /// <summary>
-        /// Configure how this mapper performs mappings from the source type being configured to the target 
-        /// type specified by the type argument when mapping to new objects.
+        /// Configure how this mapper performs mappings from the source type being configured to the result 
+        /// type specified by the given <typeparamref name="TResult"/> argument when mapping to new objects.
         /// </summary>
-        /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
+        /// <typeparam name="TResult">The result type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<TSource, TTarget> ToANew<TTarget>()
-            => UsingRuleSet<TTarget>(Constants.CreateNew);
+        public IFullMappingConfigurator<TSource, TResult> ToANew<TResult>()
+            => UsingRuleSet<TResult>(Constants.CreateNew);
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured to the target 
-        /// type specified by the type argument when performing OnTo (merge) mappings.
+        /// type specified by the given <typeparamref name="TTarget"/> argument when performing OnTo (merge) 
+        /// mappings.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
@@ -49,12 +50,22 @@
 
         /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured to the target 
-        /// type specified by the type argument when performing Over (overwrite) mappings.
+        /// type specified by the given <typeparamref name="TTarget"/> argument when performing Over (overwrite) 
+        /// mappings.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
         public IFullMappingConfigurator<TSource, TTarget> Over<TTarget>()
             => UsingRuleSet<TTarget>(Constants.Overwrite);
+
+        /// <summary>
+        /// Configure how this mapper performs query projections from the source type being configured to the 
+        /// result type specified by the given <typeparamref name="TResult"/> argument.
+        /// </summary>
+        /// <typeparam name="TResult">The result type to which the configuration will apply.</typeparam>
+        /// <returns>An IFullProjectionConfigurator with which to complete the configuration.</returns>
+        public IFullProjectionConfigurator<TSource, TResult> ProjectedTo<TResult>()
+            => UsingRuleSet<TResult>(Constants.Project);
 
         private MappingConfigurator<TSource, TTarget> UsingRuleSet<TTarget>(string name)
             => new MappingConfigurator<TSource, TTarget>(_configInfo.ForRuleSet(name));

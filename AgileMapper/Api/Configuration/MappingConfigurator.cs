@@ -4,14 +4,17 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Projection;
     using Dictionaries;
     using Dynamics;
     using Extensions.Internal;
     using Members;
+    using Projection;
     using Validation;
 
     internal class MappingConfigurator<TSource, TTarget> :
         IFullMappingInlineConfigurator<TSource, TTarget>,
+        IFullProjectionInlineConfigurator<TSource, TTarget>,
         IConditionalRootMappingConfigurator<TSource, TTarget>
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
@@ -74,6 +77,18 @@
         }
 
         #endregion
+
+        #endregion
+
+        #region IFullProjectionInlineConfigurator Members
+
+        public IFullProjectionInlineConfigurator<TSource, TTarget> RecurseToDepth(int recursionDepth)
+        {
+            var depthSettings = new RecursionDepthSettings(ConfigInfo, recursionDepth);
+
+            ConfigInfo.MapperContext.UserConfigurations.Add(depthSettings);
+            return this;
+        }
 
         #endregion
 

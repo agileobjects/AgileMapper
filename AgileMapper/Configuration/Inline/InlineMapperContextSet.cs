@@ -25,7 +25,7 @@
         {
             return GetContextFor<TSource, TTarget, IFullMappingInlineConfigurator<TSource, TTarget>>(
                 configurations,
-                configInfo => new MappingConfigurator<TSource, TTarget>(configInfo),
+                CreateMappingConfigurator<TSource, TTarget>,
                 executor);
         }
 
@@ -35,8 +35,14 @@
         {
             return GetContextFor<TSourceElement, TResultElement, IFullProjectionInlineConfigurator<TSourceElement, TResultElement>>(
                 configurations,
-                configInfo => new ProjectionConfigurator<TSourceElement, TResultElement>(configInfo),
+                CreateMappingConfigurator<TSourceElement, TResultElement>,
                 _queryProjectionMappingContext);
+        }
+
+        private static MappingConfigurator<TSource, TTarget> CreateMappingConfigurator<TSource, TTarget>(
+            MappingConfigInfo configInfo)
+        {
+            return new MappingConfigurator<TSource, TTarget>(configInfo);
         }
 
         private MapperContext GetContextFor<TSource, TTarget, TConfigurator>(
