@@ -13,8 +13,7 @@
         }
 
         [Fact]
-        public Task ShouldApplyAConfiguredConstant()
-            => DoShouldApplyAConfiguredConstant();
+        public Task ShouldApplyAConfiguredConstant() => DoShouldApplyAConfiguredConstant();
 
         [Fact]
         public Task ShouldConditionallyApplyAConfiguredConstant()
@@ -23,5 +22,8 @@
         [Fact]
         public Task ShouldApplyAConfiguredConstantToANestedMember()
             => DoShouldApplyAConfiguredConstantToANestedMember();
+
+        [Fact]
+        public Task ShouldApplyAConfiguredMember() => DoShouldApplyAConfiguredMember();
     }
 }

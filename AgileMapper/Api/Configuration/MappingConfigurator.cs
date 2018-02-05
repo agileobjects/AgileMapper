@@ -216,25 +216,25 @@
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
+        }
+
+        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+            Expression<Func<TSource, TSourceValue>> valueFactoryExpression)
+        {
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
         public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
@@ -253,6 +253,14 @@
         }
 
         #region Map Helpers
+
+        private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetValueFactoryTargetMemberSpecifier<TSourceValue>(
+            LambdaExpression valueFactoryExpression)
+        {
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+                ConfigInfo.ForSourceValueType<TSourceValue>(),
+                valueFactoryExpression);
+        }
 
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
             TSourceValue value)
