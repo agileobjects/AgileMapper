@@ -32,7 +32,7 @@
 
                     var productDto = context
                         .Products
-                        .Project(_ => _.Using(mapper)).To<ProductDto>()
+                        .ProjectUsing(mapper).To<ProductDto>()
                         .ShouldHaveSingleItem();
 
                     productDto.ProductId.ShouldBe(product.ProductId);
@@ -63,7 +63,7 @@
 
                     var productDtos = context
                         .Products
-                        .Project(_ => _.Using(mapper)).To<ProductDto>()
+                        .ProjectUsing(mapper).To<ProductDto>()
                         .ToArray();
 
                     productDtos.Length.ShouldBe(2);
