@@ -29,5 +29,9 @@
         [Fact]
         public Task ShouldApplyMultipleConfiguredMembers()
             => DoShouldApplyMultipleConfiguredMembers();
+
+        [Fact]
+        public void ShouldConditionallyApplyAConfiguredMember()
+            => DoShouldConditionallyApplyAConfiguredMember();
     }
 }
