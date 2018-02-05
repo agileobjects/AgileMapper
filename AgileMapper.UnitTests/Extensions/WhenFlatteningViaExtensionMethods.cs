@@ -43,7 +43,7 @@
                     new Address { Line1 = "3_1", Line2 = "3_2" }
                 };
 
-                var result = source.Flatten(_ => _.Using(mapper)).ToDynamic();
+                var result = source.FlattenUsing(mapper).ToDynamic();
 
                 ((string)result._0Line1).ShouldBe("1_1");
                 ((string)result._0Line2).ShouldBe("1_2");
@@ -93,7 +93,7 @@
                     new Address { Line1 = "3_1", Line2 = "3_2" }
                 };
 
-                var result = source.Flatten(_ => _.Using(mapper)).ToDynamic(cfg => cfg
+                var result = source.FlattenUsing(mapper).ToDynamic(cfg => cfg
                     .ForDynamics
                     .UseElementKeyPattern("_i_"));
 
@@ -144,7 +144,7 @@
                     new Address { Line1 = "3_1", Line2 = "3_2" }
                 };
 
-                var result = source.Flatten(_ => _.Using(mapper)).ToDictionary();
+                var result = source.FlattenUsing(mapper).ToDictionary();
 
                 result["-0-Line1"].ShouldBe("1_1");
                 result["-0-Line2"].ShouldBe("1_2");
@@ -199,7 +199,7 @@
                     new Address { Line1 = "2_1", Line2 = "2_2" }
                 };
 
-                var result = source.Flatten(_ => _.Using(mapper)).ToDictionary(cfg => cfg
+                var result = source.FlattenUsing(mapper).ToDictionary(cfg => cfg
                     .ForDictionaries
                     .UseElementKeyPattern("(i)"));
 
@@ -248,7 +248,7 @@
                     new Address { Line1 = "3_1", Line2 = "3_2" }
                 };
 
-                var result = source.Flatten(_ => _.Using(mapper)).ToDictionary<string>();
+                var result = source.FlattenUsing(mapper).ToDictionary<string>();
 
                 result["-0-Line1"].ShouldBe("1_1");
                 result["-0-Line2"].ShouldBe("1_2");
