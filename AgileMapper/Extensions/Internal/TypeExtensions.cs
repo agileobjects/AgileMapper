@@ -168,15 +168,6 @@
                    (type == typeof(ICollection));
         }
 
-        public static bool IsPublic(this Type type)
-        {
-#if NET_STANDARD
-            return type.GetTypeInfo().IsPublic;
-#else
-            return type.IsPublic;
-#endif
-        }
-
         public static bool IsFromBcl(this Type type) => ReferenceEquals(type.GetAssembly(), _msCorLib);
 
         public static bool IsEnumerable(this Type type)
@@ -248,9 +239,6 @@
 
             return interfaceType;
         }
-
-        public static bool IsClosedTypeOf(this Type type, Type genericTypeDefinition)
-            => type.IsGenericType() && (type.GetGenericTypeDefinition() == genericTypeDefinition);
 
         private static KeyValuePair<Type, Type> GetDictionaryTypesFrom(Type type)
         {

@@ -40,7 +40,7 @@
 
             plan.ShouldContain("Map AnonymousType<string, int> -> MysteryCustomer");
             plan.ShouldContain("mysteryCustomer.Name = fatsiToMcData.Source.Name;");
-            plan.ShouldContain("mysteryCustomer.Discount = (decimal)fatsiToMcData.Source.Discount;");
+            plan.ShouldContain("mysteryCustomer.Discount = fatsiToMcData.Source.Discount;");
             plan.ShouldContain("// No data source for Report");
         }
 

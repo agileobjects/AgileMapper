@@ -21,8 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.2.1" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.10.1" />
+    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.3.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.11.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">

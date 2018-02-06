@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections;
+    using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -136,7 +137,14 @@
             out ParameterExpression valueVariable)
         {
             var tryParseMethod = typeof(Enum)
-                .GetPublicStaticMethod("TryParse", parameterCount: 3)
+                .GetPublicStaticMethods("TryParse")
+                .Select(m => new
+                {
+                    Method = m,
+                    Parameters = m.GetParameters()
+                })
+                .First(m => m.Parameters.Length == 3 && m.Parameters[1].ParameterType == typeof(bool))
+                .Method
                 .MakeGenericMethod(nonNullableTargetEnumType);
 
             valueVariable = Expression.Variable(

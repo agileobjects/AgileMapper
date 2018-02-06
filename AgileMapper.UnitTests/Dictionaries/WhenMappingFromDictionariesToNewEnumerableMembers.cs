@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-#if !NET_STANDARD
+#if !NETCOREAPP1_0
     using Microsoft.Extensions.Primitives;
 #endif
     using TestClasses;
@@ -115,8 +115,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
             result.Value.Second().HowMega.ShouldBe(0.99);
         }
 
-#if !NET_STANDARD
-
+#if !NETCOREAPP1_0
         // See https://github.com/agileobjects/AgileMapper/issues/50
         // See https://github.com/agileobjects/AgileMapper/issues/51
         [Fact]
@@ -161,7 +160,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
 
         #endregion
 #endif
-
         [Fact]
         public void ShouldHandleAnUnconvertibleValueForACollection()
         {

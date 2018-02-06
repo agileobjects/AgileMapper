@@ -9,23 +9,34 @@
 
     internal static class StringExpressionExtensions
     {
-        private static readonly MethodInfo _stringJoinMethod = typeof(string)
-            .GetPublicStaticMethods("Join")
-            .First(m => (m.GetParameters().Length == 2) &&
-                        (m.GetParameters()[1].ParameterType == typeof(string[])));
+        private static readonly MethodInfo _stringJoinMethod;
+        private static readonly MethodInfo[] _stringConcatMethods;
 
-        private static readonly MethodInfo[] _stringConcatMethods = typeof(string)
-            .GetPublicStaticMethods("Concat")
-            .Select(m => new
-            {
-                Method = m,
-                Parameters = m.GetParameters(),
-                FirstParameterType = m.GetParameters().First().ParameterType
-            })
-            .Where(m => m.FirstParameterType == typeof(string))
-            .OrderBy(m => m.Parameters.Length)
-            .Select(m => m.Method)
-            .ToArray();
+        static StringExpressionExtensions()
+        {
+            var stringMethods = typeof(string)
+                .GetPublicStaticMethods()
+                .Where(m => m.Name == "Join" || m.Name == "Concat")
+                .Select(m => new
+                {
+                    Method = m,
+                    Parameters = m.GetParameters(),
+                    FirstParameterType = m.GetParameters().First().ParameterType
+                })
+                .ToArray();
+
+            _stringJoinMethod = stringMethods.First(m =>
+                (m.Method.Name == "Join") &&
+                (m.Parameters.Length == 2) &&
+                (m.Parameters[0].ParameterType == typeof(string)) &&
+                (m.Parameters[1].ParameterType == typeof(string[]))).Method;
+
+            _stringConcatMethods = stringMethods
+                .Where(m => (m.Method.Name == "Concat") && (m.FirstParameterType == typeof(string)))
+                .OrderBy(m => m.Parameters.Length)
+                .Select(m => m.Method)
+                .ToArray();
+        }
 
         public static Expression GetStringConcatCall(this IList<Expression> expressions)
         {

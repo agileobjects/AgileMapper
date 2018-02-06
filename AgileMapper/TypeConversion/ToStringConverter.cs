@@ -48,12 +48,8 @@
         public bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)
         {
             operatorMethod = nonNullableSourceType
-                .GetPublicStaticMembers()
-                .Where(m => (m.Name == "op_Implicit") || (m.Name == "op_Explicit"))
-                .Cast<MethodInfo>()
-                .FirstOrDefault(m =>
-                    (m.ReturnType == typeof(string)) &&
-                    (m.GetParameters()[0].ParameterType == nonNullableSourceType));
+                .GetOperators(o => o.To<string>())
+                .FirstOrDefault();
 
             return operatorMethod != null;
         }
