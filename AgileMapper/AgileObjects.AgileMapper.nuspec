@@ -12,8 +12,7 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Support for using to-String operators to convert values to strings, re issue #51
-- Surfacing static Mapper.ResetDefaultInstance() method
+- Fixing support for NetCoreApp2 projects; enum mapping, string.Join and cast operator use
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
