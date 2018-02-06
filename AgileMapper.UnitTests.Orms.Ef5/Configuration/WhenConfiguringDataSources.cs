@@ -13,7 +13,27 @@
         }
 
         [Fact]
-        public Task ShouldApplyAConfiguredConstant()
-            => DoShouldApplyAConfiguredConstant();
+        public Task ShouldApplyAConfiguredConstant() => DoShouldApplyAConfiguredConstant();
+
+        [Fact]
+        public Task ShouldConditionallyApplyAConfiguredConstant()
+            => DoShouldConditionallyApplyAConfiguredConstant();
+
+        [Fact]
+        public Task ShouldApplyAConfiguredConstantToANestedMember()
+            => DoShouldApplyAConfiguredConstantToANestedMember();
+
+        [Fact]
+        public Task ShouldConditionallyApplyAConfiguredMember() => DoShouldConditionallyApplyAConfiguredMember();
+
+        [Fact]
+        public Task ShouldApplyConditionalAndUnconditionalDataSourcesInOrder()
+            => DoShouldApplyConditionalAndUnconditionalDataSourcesInOrder();
+
+        [Fact]
+        public Task ShouldHandleANullMemberInACondition() => DoShouldHandleANullMemberInACondition();
+
+        [Fact]
+        public Task ShouldSupportMultipleDivergedMappers() => DoShouldSupportMultipleDivergedMappers();
     }
 }

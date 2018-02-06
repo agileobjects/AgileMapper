@@ -32,6 +32,11 @@
                 return converted;
             }
 
+            if (StringConcatConverter.TryConvert(binary, this, out converted))
+            {
+                return converted;
+            }
+
             return base.VisitBinary(binary);
         }
 

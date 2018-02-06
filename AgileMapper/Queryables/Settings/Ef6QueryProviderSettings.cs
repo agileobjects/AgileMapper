@@ -12,6 +12,9 @@
 
         public override bool SupportsEnumerableMaterialisation => false;
 
+        // Does not support character constants:
+        public override bool SupportsAllPrimitiveConstants => false;
+
 #if !NET_STANDARD
         protected override Type LoadCanonicalFunctionsType()
             => GetTypeOrNull("EntityFramework", "System.Data.Entity.DbFunctions");

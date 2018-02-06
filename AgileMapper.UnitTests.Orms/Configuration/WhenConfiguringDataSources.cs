@@ -276,6 +276,7 @@
                     var personDtos = context
                         .Persons
                         .ProjectUsing(mapper).To<PersonViewModel>()
+                        .OrderBy(p => p.Id)
                         .ToArray();
 
                     personDtos.Length.ShouldBe(2);

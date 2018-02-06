@@ -35,6 +35,8 @@
 
         public virtual bool SupportsComplexTypeToNullComparison => true;
 
+        public virtual bool SupportsAllPrimitiveConstants => true;
+
         public virtual bool SupportsNonEntityNullConstants => true;
 
         public virtual bool SupportsEnumerableMaterialisation => true;

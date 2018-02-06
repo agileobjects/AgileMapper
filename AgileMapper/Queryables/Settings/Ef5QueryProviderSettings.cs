@@ -14,6 +14,9 @@
 
         public override bool SupportsGetValueOrDefault => false;
 
+        // Does not support character constants:
+        public override bool SupportsAllPrimitiveConstants => false;
+
         public override bool SupportsNonEntityNullConstants => false;
 
         public override bool SupportsEnumerableMaterialisation => false;

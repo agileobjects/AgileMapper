@@ -20,6 +20,8 @@
 
         bool SupportsComplexTypeToNullComparison { get; }
 
+        bool SupportsAllPrimitiveConstants { get; }
+
         bool SupportsNonEntityNullConstants { get; }
 
         bool SupportsEnumerableMaterialisation { get; }
