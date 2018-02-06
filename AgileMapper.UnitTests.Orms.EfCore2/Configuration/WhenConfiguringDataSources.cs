@@ -38,5 +38,8 @@
 
         [Fact]
         public Task ShouldHandleANullMemberInACondition() => DoShouldHandleANullMemberInACondition();
+
+        [Fact]
+        public Task ShouldSupportMultipleDivergedMappers() => DoShouldSupportMultipleDivergedMappers();
     }
 }

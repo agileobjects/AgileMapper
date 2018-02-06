@@ -296,5 +296,46 @@
                 }
             });
         }
+
+        protected Task DoShouldSupportMultipleDivergedMappers()
+        {
+            return RunTest(async context =>
+            {
+                var address = new Address { Line1 = "Philly", Postcode = "PH1 1LY" };
+
+                context.Addresses.Add(address);
+                await context.SaveChanges();
+
+                using (var mapper1 = Mapper.CreateNew())
+                using (var mapper2 = Mapper.CreateNew())
+                {
+                    mapper2.WhenMapping
+                        .From<Address>()
+                        .ProjectedTo<AddressDto>()
+                        .Map(p => p.Line1)
+                        .To(dto => dto.Line2);
+
+                    var addressDto1 = context
+                        .Addresses
+                        .ProjectUsing(mapper1).To<AddressDto>()
+                        .ShouldHaveSingleItem();
+
+                    addressDto1.Id.ShouldBe(address.AddressId);
+                    addressDto1.Line1.ShouldBe("Philly");
+                    addressDto1.Line2.ShouldBeNull();
+                    addressDto1.Postcode.ShouldBe("PH1 1LY");
+
+                    var addressDto2 = context
+                        .Addresses
+                        .ProjectUsing(mapper2).To<AddressDto>()
+                        .First();
+
+                    addressDto2.Id.ShouldBe(address.AddressId);
+                    addressDto2.Line1.ShouldBe("Philly");
+                    addressDto2.Line2.ShouldBe("Philly");
+                    addressDto2.Postcode.ShouldBe("PH1 1LY");
+                }
+            });
+        }
     }
 }
