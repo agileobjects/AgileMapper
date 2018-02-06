@@ -241,7 +241,11 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
+#if NETCOREAPP2_0
+                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
+#else
                     .Map(ctx => ctx.Source.Value.Split(':'))
+#endif
                     .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = "8:7:6:5" };
@@ -259,7 +263,11 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
-                    .Map(ctx => ctx.Source.Value.Split(','))
+#if NETCOREAPP2_0
+                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
+#else
+                    .Map(ctx => ctx.Source.Value.Split(':'))
+#endif
                     .To(x => x.Value);
 
                 var source = new PublicProperty<string> { Value = null };

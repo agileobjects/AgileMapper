@@ -26,6 +26,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.MoreTestClasses", "AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj", "{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore2", "AgileMapper.UnitTests.NetCore2\AgileMapper.UnitTests.NetCore2.csproj", "{EBE1A3AE-1DE2-40A2-ACD3-2C15A5D10D66}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef6", "AgileMapper.UnitTests.Orms.Ef6\AgileMapper.UnitTests.Orms.Ef6.csproj", "{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms", "AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj", "{66522D44-19F5-4AF5-9D43-483A3CD6F958}"
@@ -70,6 +72,10 @@ Global
 		{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBE1A3AE-1DE2-40A2-ACD3-2C15A5D10D66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBE1A3AE-1DE2-40A2-ACD3-2C15A5D10D66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBE1A3AE-1DE2-40A2-ACD3-2C15A5D10D66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBE1A3AE-1DE2-40A2-ACD3-2C15A5D10D66}.Release|Any CPU.Build.0 = Release|Any CPU
 		{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}.Release|Any CPU.ActiveCfg = Release|Any CPU
