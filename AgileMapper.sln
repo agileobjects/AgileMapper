@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef6.LocalDb", "AgileMapper.UnitTests.Orms.Ef6.LocalDb\AgileMapper.UnitTests.Orms.Ef6.LocalDb.csproj", "{B75D1A61-006A-4951-82FE-A2943296A872}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms.EfCore2.NetCore2", "AgileMapper.UnitTests.Orms.EFCore2.NetCore2\AgileMapper.UnitTests.Orms.EfCore2.NetCore2.csproj", "{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,10 @@ Global
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

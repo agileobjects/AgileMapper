@@ -139,6 +139,12 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Infrastructure\EfCore2DbSetWrapper.cs" />
     <Compile Include="Infrastructure\EfCore2TestDbContext.cs" />
