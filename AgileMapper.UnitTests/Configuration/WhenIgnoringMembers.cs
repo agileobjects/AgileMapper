@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<PersonViewModel>()
                     .ToANew<Person>()
-                    .Ignore(x => x.Name);
+                    .Ignore(pvm => pvm.Name);
 
                 var source = new PersonViewModel { Name = "Jon" };
                 var result = mapper.Map(source).ToANew<Person>();

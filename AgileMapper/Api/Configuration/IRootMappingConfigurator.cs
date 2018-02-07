@@ -64,8 +64,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class;
 
         /// <summary>
-        /// Ignore the target member(s) identified by the <paramref name="targetMembers"/> argument when mapping
-        /// from and to the source and target types being configured.
+        /// Ignore the given <paramref name="targetMembers"/> when mappingfrom and to the source and target types 
+        /// being configured.
         /// </summary>
         /// <param name="targetMembers">The target member(s) which should be ignored.</param>
         /// <returns>

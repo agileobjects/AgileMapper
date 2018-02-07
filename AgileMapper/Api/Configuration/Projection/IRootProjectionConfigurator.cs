@@ -11,6 +11,18 @@
     public interface IRootProjectionConfigurator<TSourceElement, TResultElement>
     {
         /// <summary>
+        /// Ignore the specified <paramref name="resultMembers"/> when projecting from and to the source and 
+        /// result types being configured.
+        /// </summary>
+        /// <param name="resultMembers">The result member(s) which should be ignored.</param>
+        /// <returns>
+        /// An IProjectionConfigContinuation to enable further configuration of mappings from and to the source 
+        /// and result type being configured.
+        /// </returns>
+        IProjectionConfigContinuation<TSourceElement, TResultElement> Ignore(
+            params Expression<Func<TResultElement, object>>[] resultMembers);
+
+        /// <summary>
         /// Configure a custom data source for a particular result member when mapping from and to the source and 
         /// result types being configured. The factory expression is passed the source element being projected.
         /// </summary>
@@ -34,5 +46,7 @@
         /// constant value should be applied.
         /// </returns>
         ICustomProjectionDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(TSourceValue value);
+
+
     }
 }

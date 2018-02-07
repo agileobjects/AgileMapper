@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
@@ -190,6 +191,16 @@
         }
 
         public IMappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
+            => IgnoreMembers(targetMembers);
+
+        IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.Ignore(
+            params Expression<Func<TTarget, object>>[] resultMembers)
+        {
+            return IgnoreMembers(resultMembers);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> IgnoreMembers(
+            IEnumerable<Expression<Func<TTarget, object>>> targetMembers)
         {
             foreach (var targetMember in targetMembers)
             {

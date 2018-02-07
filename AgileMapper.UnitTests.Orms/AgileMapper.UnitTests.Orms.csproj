@@ -73,6 +73,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectionFailureTest.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectorTest.cs" />
     <Compile Include="Enumerables\IEnumerableMemberProjectorTest.cs" />
