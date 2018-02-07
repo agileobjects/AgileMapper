@@ -212,6 +212,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
+    <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Infrastructure\EfCore1DbSetWrapper.cs" />
     <Compile Include="Infrastructure\EfCore1TestDbContext.cs" />
     <Compile Include="Infrastructure\InMemoryEfCore1TestContext.cs" />

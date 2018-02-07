@@ -72,5 +72,46 @@
                 }
             });
         }
+
+        protected Task DoShouldIgnorePropertiesByPropertyInfoMatcher()
+        {
+            return RunTest(async context =>
+            {
+                var person = new Person
+                {
+                    Name = "Frankie",
+                    Address = new Address { Line1 = "1", Line2 = "2", Postcode = "3" }
+                };
+
+                context.Persons.Add(person);
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .To<AddressDto>()
+                        .IgnoreTargetMembersWhere(member =>
+                            member.IsPropertyMatching(p => p.GetGetMethod().Name.StartsWith("get_Line2")));
+
+                    mapper.WhenMapping
+                        .From<Address>()
+                        .ProjectedTo<AddressDto>()
+                        .IgnoreTargetMembersWhere(member =>
+                            member.IsPropertyMatching(p => p.GetSetMethod().Name.EndsWith("Line1")));
+
+                    var personDto = context
+                        .Persons
+                        .ProjectUsing(mapper).To<PersonDto>()
+                        .ShouldHaveSingleItem();
+
+                    personDto.Id.ShouldBe(person.PersonId);
+                    personDto.Name.ShouldBe("Frankie");
+                    personDto.Address.ShouldNotBeNull();
+                    personDto.Address.Line1.ShouldBeNull();
+                    personDto.Address.Line2.ShouldBeNull();
+                    personDto.Address.Postcode.ShouldBe("3");
+                }
+            });
+        }
     }
 }

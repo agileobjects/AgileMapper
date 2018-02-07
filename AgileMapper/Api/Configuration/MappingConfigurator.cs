@@ -183,6 +183,18 @@
         public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
+            return IgnoreMembersByFilter(memberFilter);
+        }
+
+        IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.IgnoreTargetMembersWhere(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter)
+        {
+            return IgnoreMembersByFilter(memberFilter);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> IgnoreMembersByFilter(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter)
+        {
             var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
 
             MapperContext.UserConfigurations.Add(configuredIgnoredMember);

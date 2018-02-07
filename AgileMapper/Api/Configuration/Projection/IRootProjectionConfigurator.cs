@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using AgileMapper.Configuration;
 
     /// <summary>
     /// Provides options for configuring projections from and to a given source and result type.
@@ -21,6 +22,18 @@
         /// </returns>
         IProjectionConfigContinuation<TSourceElement, TResultElement> Ignore(
             params Expression<Func<TResultElement, object>>[] resultMembers);
+
+        /// <summary>
+        /// Ignore all result member(s) matching the given <paramref name="memberFilter"/> when projecting
+        /// from and to the source and result types being configured.
+        /// </summary>
+        /// <param name="memberFilter">The matching function with which to select result members to ignore.</param>
+        /// <returns>
+        /// An IProjectionConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// result types being configured.
+        /// </returns>
+        IProjectionConfigContinuation<TSourceElement, TResultElement> IgnoreTargetMembersWhere(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter);
 
         /// <summary>
         /// Configure a custom data source for a particular result member when mapping from and to the source and 

@@ -92,9 +92,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
         /// <returns>
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
+        /// target types being configured.
         /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter);
+        IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter);
 
         /// <summary>
         /// Configure a custom data source for a particular target member when mapping from and to the source and 
