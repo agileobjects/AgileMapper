@@ -31,5 +31,15 @@
         /// and result type being configured.
         /// </returns>
         IProjectionConfigContinuation<TSourceElement, TResultElement> ToCtor<TTargetParam>();
+
+        /// <summary>
+        /// Apply the configuration to the constructor parameter with the specified <paramref name="parameterName"/>.
+        /// </summary>
+        /// <param name="parameterName">The result constructor parameter's name.</param>
+        /// <returns>
+        /// An IProjectionConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// result type being configured.
+        /// </returns>
+        IProjectionConfigContinuation<TSourceElement, TResultElement> ToCtor(string parameterName);
     }
 }

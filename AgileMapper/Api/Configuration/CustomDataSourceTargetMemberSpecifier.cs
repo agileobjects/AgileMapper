@@ -148,6 +148,12 @@
         public IMappingConfigContinuation<TSource, TTarget> ToCtor(string parameterName)
             => RegisterDataSource<object>(() => CreateForCtorParam(parameterName));
 
+        IProjectionConfigContinuation<TSource, TTarget> ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>.ToCtor(
+            string parameterName)
+        {
+            return RegisterDataSource<object>(() => CreateForCtorParam(parameterName));
+        }
+
         #region Ctor Helpers
 
         private ConfiguredDataSourceFactory CreateForCtorParam<TParam>()

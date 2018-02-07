@@ -1,13 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.Configuration
 {
     using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Configuration;
     using Xunit;
 
-    public class WhenConfiguringConstructorDataSources : WhenConfiguringConstructorDataSources<EfCore2TestDbContext>
+    public class WhenConfiguringConstructorDataSources : WhenConfiguringConstructorDataSources<EfCore1TestDbContext>
     {
-        public WhenConfiguringConstructorDataSources(InMemoryEfCore2TestContext context)
+        public WhenConfiguringConstructorDataSources(InMemoryEfCore1TestContext context)
             : base(context)
         {
         }
