@@ -18,5 +18,12 @@
         [Fact]
         public Task ShouldIgnoreAConfiguredMemberConditionally() =>
             DoShouldIgnoreAConfiguredMemberConditionally();
+
+        [Fact]
+        public Task ShouldIgnorePropertiesByPropertyInfoMatcher()
+            => DoShouldIgnorePropertiesByPropertyInfoMatcher();
+
+        [Fact]
+        public Task ShouldIgnoreMembersByTypeAndTargetType() => DoShouldIgnoreMembersByTypeAndTargetType();
     }
 }

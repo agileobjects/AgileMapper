@@ -88,6 +88,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
+    <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Infrastructure\Ef6DbSetWrapper.cs" />
     <Compile Include="Infrastructure\InMemoryEf6TestContext.cs" />
     <Compile Include="Infrastructure\InMemoryEf6TestDefinition.cs" />

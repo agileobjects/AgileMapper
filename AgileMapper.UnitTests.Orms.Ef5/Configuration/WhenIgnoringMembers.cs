@@ -1,13 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.Configuration
 {
     using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Configuration;
     using Xunit;
 
-    public class WhenIgnoringMembers : WhenIgnoringMembers<EfCore2TestDbContext>
+    public class WhenIgnoringMembers : WhenIgnoringMembers<Ef5TestDbContext>
     {
-        public WhenIgnoringMembers(InMemoryEfCore2TestContext context)
+        public WhenIgnoringMembers(InMemoryEf5TestContext context)
             : base(context)
         {
         }

@@ -24,6 +24,17 @@
             params Expression<Func<TResultElement, object>>[] resultMembers);
 
         /// <summary>
+        /// Ignore all result member(s) of the given <typeparamref name="TMember">Type</typeparamref> when projecting
+        /// from and to the source and result types being configured.
+        /// </summary>
+        /// <typeparam name="TMember">The Type of result member to ignore.</typeparam>
+        /// <returns>
+        /// An IProjectionConfigContinuation to enable further configuration of projections from and to the source and 
+        /// result types being configured.
+        /// </returns>
+        IProjectionConfigContinuation<TSourceElement, TResultElement> IgnoreTargetMembersOfType<TMember>();
+
+        /// <summary>
         /// Ignore all result member(s) matching the given <paramref name="memberFilter"/> when projecting
         /// from and to the source and result types being configured.
         /// </summary>

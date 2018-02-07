@@ -176,9 +176,10 @@
         #region Ignoring Members
 
         public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>()
-        {
-            return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
-        }
+            => IgnoreMembersByFilter(member => member.HasType<TMember>());
+
+        IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.IgnoreTargetMembersOfType<TMember>()
+            => IgnoreMembersByFilter(member => member.HasType<TMember>());
 
         public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)

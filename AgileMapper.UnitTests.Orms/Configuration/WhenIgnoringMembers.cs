@@ -73,6 +73,43 @@
             });
         }
 
+        protected Task DoShouldIgnoreMembersByTypeAndTargetType()
+        {
+            return RunTest(async context =>
+            {
+                var person = new Person
+                {
+                    Name = "Mac",
+                    Address = new Address { Line1 = "1", Line2 = "2", Postcode = "3" }
+                };
+
+                context.Persons.Add(person);
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Address>()
+                        .ProjectedTo<AddressDto>()
+                        .IgnoreTargetMembersOfType<int>();
+
+                    var personDto = context
+                        .Persons
+                        .ProjectUsing(mapper).To<PersonDto>()
+                        .ShouldHaveSingleItem();
+
+                    personDto.Id.ShouldBe(person.PersonId);
+                    personDto.Name.ShouldBe("Mac");
+                    personDto.Address.ShouldNotBeNull();
+                    personDto.Address.Id.ShouldNotBe(person.Address.AddressId);
+                    personDto.Address.Id.ShouldBeDefault();
+                    personDto.Address.Line1.ShouldBe("1");
+                    personDto.Address.Line2.ShouldBe("2");
+                    personDto.Address.Postcode.ShouldBe("3");
+                }
+            });
+        }
+
         protected Task DoShouldIgnorePropertiesByPropertyInfoMatcher()
         {
             return RunTest(async context =>

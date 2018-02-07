@@ -81,7 +81,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
         /// <returns>
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
+        /// target types being configured.
         /// </returns>
         IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>();
 
