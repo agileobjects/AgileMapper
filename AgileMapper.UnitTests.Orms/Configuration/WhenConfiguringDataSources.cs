@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
+    using Xunit;
 
     public abstract class WhenConfiguringDataSources<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
@@ -13,7 +14,8 @@
         {
         }
 
-        protected Task DoShouldApplyAConfiguredConstant()
+        [Fact]
+        public Task ShouldApplyAConfiguredConstant()
         {
             return RunTest(async context =>
             {
@@ -41,7 +43,8 @@
             });
         }
 
-        protected Task DoShouldConditionallyApplyAConfiguredConstant()
+        [Fact]
+        public Task ShouldConditionallyApplyAConfiguredConstant()
         {
             return RunTest(async context =>
             {
@@ -78,7 +81,8 @@
             });
         }
 
-        protected Task DoShouldApplyAConfiguredConstantToANestedMember()
+        [Fact]
+        public Task ShouldApplyAConfiguredConstantToANestedMember()
         {
             return RunTest(async context =>
             {
@@ -174,7 +178,8 @@
             });
         }
 
-        protected Task DoShouldConditionallyApplyAConfiguredMember()
+        [Fact]
+        public Task ShouldConditionallyApplyAConfiguredMember()
         {
             return RunTest(async context =>
             {
@@ -213,7 +218,8 @@
             });
         }
 
-        protected Task DoShouldApplyConditionalAndUnconditionalDataSourcesInOrder()
+        [Fact]
+        public Task ShouldApplyConditionalAndUnconditionalDataSourcesInOrder()
         {
             return RunTest(async context =>
             {
@@ -253,7 +259,8 @@
             });
         }
 
-        protected Task DoShouldHandleANullMemberInACondition()
+        [Fact]
+        public Task ShouldHandleANullMemberInACondition()
         {
             return RunTest(async context =>
             {
@@ -298,7 +305,8 @@
             });
         }
 
-        protected Task DoShouldSupportMultipleDivergedMappers()
+        [Fact]
+        public Task ShouldSupportMultipleDivergedMappers()
         {
             return RunTest(async context =>
             {

@@ -2,10 +2,10 @@
 {
     public struct ProductDtoStruct
     {
-        public ProductDtoStruct(int productId)
+        public ProductDtoStruct(string name)
         {
-            ProductId = productId;
-            Name = default(string);
+            ProductId = default(int);
+            Name = name;
         }
 
         public int ProductId { get; set; }

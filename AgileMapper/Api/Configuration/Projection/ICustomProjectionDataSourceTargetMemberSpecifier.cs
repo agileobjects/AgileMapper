@@ -21,5 +21,15 @@
         /// </returns>
         IProjectionConfigContinuation<TSourceElement, TResultElement> To<TResultValue>(
             Expression<Func<TResultElement, TResultValue>> resultMember);
+
+        /// <summary>
+        /// Apply the configuration to the constructor parameter with the type specified by the type argument.
+        /// </summary>
+        /// <typeparam name="TTargetParam">The result constructor parameter's type.</typeparam>
+        /// <returns>
+        /// An IProjectionConfigContinuation to enable further configuration of mappings from and to the source 
+        /// and result type being configured.
+        /// </returns>
+        IProjectionConfigContinuation<TSourceElement, TResultElement> ToCtor<TTargetParam>();
     }
 }

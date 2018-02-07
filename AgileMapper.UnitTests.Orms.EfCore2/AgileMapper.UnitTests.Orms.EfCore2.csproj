@@ -145,6 +145,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Infrastructure\EfCore2DbSetWrapper.cs" />
