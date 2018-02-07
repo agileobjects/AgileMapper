@@ -19,7 +19,9 @@ namespace AgileObjects.AgileMapper
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
                 GuardMemberAccesses = value => true,
-                AllowObjectTracking = true
+                AllowObjectTracking = true,
+                AllowGetMethods = true,
+                AllowSetMethods = true
             },
             new CopySourceEnumerablePopulationStrategy(),
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,
@@ -34,7 +36,9 @@ namespace AgileObjects.AgileMapper
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
                 GuardMemberAccesses = value => true,
-                AllowObjectTracking = true
+                AllowObjectTracking = true,
+                AllowGetMethods = true,
+                AllowSetMethods = true
             },
             new MergeEnumerablePopulationStrategy(),
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,
@@ -49,7 +53,9 @@ namespace AgileObjects.AgileMapper
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
                 GuardMemberAccesses = value => true,
-                AllowObjectTracking = true
+                AllowObjectTracking = true,
+                AllowGetMethods = true,
+                AllowSetMethods = true
             },
             OverwriteEnumerablePopulationStrategy.Instance,
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,

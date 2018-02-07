@@ -82,7 +82,7 @@
         private static MappingPlan GetMappingPlan<TTarget>(
             IMappingContext planContext,
             Func<IMappingContext, IObjectMappingData> mappingDataFactory,
-            IEnumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations = null)
+            ICollection<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations = null)
         {
             if (configurations?.Any() == true)
             {

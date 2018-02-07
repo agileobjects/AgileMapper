@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef6
 {
+    using System.Threading.Tasks;
     using Infrastructure;
+    using Xunit;
 
     public class WhenProjectingToFlatTypes : WhenProjectingToFlatTypes<Ef6TestDbContext>
     {
@@ -8,5 +10,9 @@
             : base(context)
         {
         }
+
+        [Fact]
+        public Task ShouldProjectAComplexTypeMemberToAFlatTypeList()
+            => DoShouldProjectAComplexTypeMemberToAFlatTypeList();
     }
 }

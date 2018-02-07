@@ -14,8 +14,7 @@
         {
         }
 
-        [Fact]
-        public Task ShouldProjectAComplexTypeMemberToAFlatTypeList()
+        protected Task DoShouldProjectAComplexTypeMemberToAFlatTypeList()
         {
             return RunTest(async context =>
             {

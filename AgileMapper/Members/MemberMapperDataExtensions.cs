@@ -162,6 +162,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool TargetMemberIsUnmappable(this IMemberMapperData mapperData, out string reason)
         {
+            if (!mapperData.RuleSet.Settings.AllowSetMethods &&
+                (mapperData.TargetMember.LeafMember.MemberType == MemberType.SetMethod))
+            {
+                reason = "Set methods are unsupported by rule set '" + mapperData.RuleSet.Name + "'";
+                return true;
+            }
+
             return TargetMemberIsUnmappable(
                 mapperData,
                 mapperData.TargetMember,

@@ -4,7 +4,11 @@
     {
         public int Id { get; set; }
 
+        public string Title { get; set; }
+
         public string Name { get; set; }
+
+        public void SetName(string name) => Name = name;
 
         public int? AddressId { get; set; }
 

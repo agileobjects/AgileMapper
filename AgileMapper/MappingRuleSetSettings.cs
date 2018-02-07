@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper
 {
     using System;
     using System.Linq.Expressions;
+    using Members;
 
     internal class MappingRuleSetSettings
     {
@@ -20,5 +21,9 @@ namespace AgileObjects.AgileMapper
         public bool AllowEnumerableAssignment { get; set; }
 
         public bool AllowObjectTracking { get; set; }
+
+        public bool AllowGetMethods { get; set; }
+
+        public bool AllowSetMethods { get; set; }
     }
 }

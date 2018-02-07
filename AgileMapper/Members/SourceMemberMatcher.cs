@@ -70,8 +70,9 @@
         {
             var sourceMember = QuerySourceMembers(
                 parentSourceMember,
-                m => targetData.MapperData.TargetMember.LeafMember.Equals(m) ||
-                     targetData.MapperData.TargetMember.JoinedNames.Match(new[] { m.Name }))
+                targetData,
+                (m, data) => data.MapperData.TargetMember.LeafMember.Equals(m) ||
+                             data.MapperData.TargetMember.JoinedNames.Match(new[] { m.Name }))
                 .FirstOrDefault();
 
             if ((sourceMember == null) ||
@@ -87,13 +88,18 @@
 
         private static IEnumerable<Member> QuerySourceMembers(
             IQualifiedMember parentMember,
-            Func<Member, bool> filter)
+            IChildMemberMappingData mappingData,
+            Func<Member, IChildMemberMappingData, bool> filter)
         {
-            return GlobalContext
+            var members = GlobalContext
                 .Instance
                 .MemberCache
                 .GetSourceMembers(parentMember.Type)
-                .Where(filter);
+                .Where(m => filter.Invoke(m, mappingData));
+
+            return mappingData.RuleSet.Settings.AllowGetMethods
+                ? members
+                : members.Where(m => m.MemberType != MemberType.GetMethod);
         }
 
         private static IQualifiedMember GetFinalSourceMember(
@@ -133,7 +139,8 @@
 
             var relevantSourceMembers = QuerySourceMembers(
                 parentMember,
-                sourceMember => MembersHaveCompatibleTypes(sourceMember, rootData));
+                rootData,
+                MembersHaveCompatibleTypes);
 
             foreach (var sourceMember in relevantSourceMembers)
             {
@@ -170,13 +177,9 @@
         }
 
         private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMapperData mapperData)
-        {
-            return mapperData.TargetMember.Matches(sourceMember) && TypesAreCompatible(sourceMember.Type, mapperData);
-        }
+            => mapperData.TargetMember.Matches(sourceMember) && TypesAreCompatible(sourceMember.Type, mapperData);
 
         private static bool TypesAreCompatible(Type sourceType, IMemberMapperData mapperData)
-        {
-            return mapperData.MapperContext.ValueConverters.CanConvert(sourceType, mapperData.TargetMember.Type);
-        }
+            => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, mapperData.TargetMember.Type);
     }
 }

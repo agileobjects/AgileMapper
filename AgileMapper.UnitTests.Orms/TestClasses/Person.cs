@@ -7,6 +7,8 @@
         [Key]
         public int PersonId { get; set; }
 
+        public string GetTitle() => "Dr";
+
         public string Name { get; set; }
 
         public int? AddressId { get; set; }
