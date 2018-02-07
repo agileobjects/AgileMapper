@@ -115,7 +115,9 @@ namespace AgileObjects.AgileMapper.Members.Population
                 return _dataSources.GetValueExpression();
             }
 
-            var population = MapperData.UseMemberInitialisation()
+            var useSingleExpression = MapperData.UseMemberInitialisation();
+
+            var population = useSingleExpression
                 ? GetBinding()
                 : MapperData.TargetMember.IsReadOnly
                     ? GetReadOnlyMemberPopulation()
@@ -126,7 +128,7 @@ namespace AgileObjects.AgileMapper.Members.Population
                 population = Expression.Block(_dataSources.Variables, population);
             }
 
-            if (_populateCondition != null)
+            if (!useSingleExpression && (_populateCondition != null))
             {
                 population = Expression.IfThen(_populateCondition, population);
             }
@@ -137,6 +139,15 @@ namespace AgileObjects.AgileMapper.Members.Population
         private Expression GetBinding()
         {
             var bindingValue = _dataSources.GetValueExpression();
+
+            if (_populateCondition != null)
+            {
+                bindingValue = Expression.Condition(
+                    _populateCondition,
+                    bindingValue,
+                    bindingValue.Type.ToDefaultExpression());
+            }
+
             var binding = MapperData.GetTargetMemberPopulation(bindingValue);
 
             return binding;
