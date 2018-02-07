@@ -3,6 +3,8 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Configuration;
+    using NetStandardPolyfills;
     using TestClasses;
     using Xunit;
 
@@ -272,6 +274,31 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .From<PersonViewModel>()
                     .To<Person>()
                     .Ignore(x => x.Name);
+            }
+        }
+
+        [Fact]
+        public void ShouldCompareIgnoredMembersConsistently()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.To<PublicField<string>>().Ignore(pf => pf.Value);
+                mapper.WhenMapping.To<PublicProperty<string>>().Ignore(pp => pp.Value);
+
+                var configurations = ((IMapperInternal)mapper).Context.UserConfigurations;
+                var ignoredMembersProperty = configurations.GetType().GetNonPublicInstanceProperty("IgnoredMembers");
+                var ignoredMembersValue = ignoredMembersProperty.GetValue(configurations, Enumerable<object>.EmptyArray);
+                var ignoredMembers = (IList<ConfiguredIgnoredMember>)ignoredMembersValue;
+
+                ignoredMembers.Count.ShouldBe(2);
+
+                var ignore1 = (IComparable<UserConfiguredItemBase>)ignoredMembers.First();
+                var ignore2 = (IComparable<UserConfiguredItemBase>)ignoredMembers.Second();
+
+                var compareResult1 = ignore1.CompareTo(ignoredMembers.Second());
+                var compareResult2 = ignore2.CompareTo(ignoredMembers.First());
+
+                compareResult1.ShouldNotBe(compareResult2);
             }
         }
     }

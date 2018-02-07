@@ -158,7 +158,7 @@
         {
             if (AreEqual(expectedValue, value))
             {
-                Asplode(expectedValue.ToString(), value.ToString());
+                Asplode("Not " + expectedValue, value.ToString());
             }
         }
 

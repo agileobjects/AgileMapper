@@ -161,7 +161,13 @@
                     return GetConditionOrder(other) ?? 0;
                 }
 
-                return ConfigInfo.IsForTargetType(other.ConfigInfo) ? 1 : -1;
+                if (ConfigInfo.IsForTargetType(other.ConfigInfo))
+                {
+                    // Derived target type
+                    return 1;
+                }
+
+                return OrderAlphabetically(other);
             }
 
             if (ConfigInfo.IsForSourceType(other.ConfigInfo))
@@ -171,22 +177,35 @@
             }
 
             // Unrelated source and target types
-            return GetConditionOrder(other) ?? -1;
+            return GetConditionOrder(other) ?? OrderAlphabetically(other);
         }
 
         private int? GetConditionOrder(UserConfiguredItemBase other)
         {
-            if (!HasConfiguredCondition && other.HasConfiguredCondition)
+            if (HasConfiguredCondition == other.HasConfiguredCondition)
             {
-                return 1;
+                return 0;
             }
 
-            if (HasConfiguredCondition && !other.HasConfiguredCondition)
+            if (HasConfiguredCondition)
             {
                 return -1;
             }
 
+            if (other.HasConfiguredCondition)
+            {
+                return 1;
+            }
+
             return null;
+        }
+
+        private int OrderAlphabetically(UserConfiguredItemBase other)
+        {
+            return string.Compare(
+                ConfigInfo.TargetType.Name,
+                other.ConfigInfo.TargetType.Name,
+                StringComparison.Ordinal);
         }
     }
 }
