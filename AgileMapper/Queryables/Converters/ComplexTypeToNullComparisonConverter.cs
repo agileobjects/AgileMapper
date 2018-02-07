@@ -23,23 +23,26 @@
             }
 
             converted = Convert(comparison, context);
-            return true;
+            return converted != null;
         }
 
         private static Expression Convert(BinaryExpression comparison, IQueryProjectionModifier context)
         {
             if (!context.MapperData.IsEntity(comparison.Left.Type, out var idMember))
             {
-                return true.ToConstantExpression();
+                return null;
             }
 
             var entityMemberAccess = comparison.Left;
             var entityParentAccess = entityMemberAccess.GetParentOrNull();
-            var entityMemberIdMember = GetEntityMemberIdMemberOrNull(entityParentAccess, entityMemberAccess, idMember);
 
-            if (entityMemberIdMember == null)
+            if (!TryGetEntityMemberIdMemberOrNull(
+                    entityParentAccess,
+                    entityMemberAccess,
+                    idMember,
+                    out var entityMemberIdMember))
             {
-                return true.ToConstantExpression();
+                return null;
             }
 
             var entityMemberIdMemberAccess = entityMemberIdMember.GetAccess(entityParentAccess);
@@ -47,10 +50,11 @@
             return entityMemberIdMemberAccess.GetIsNotDefaultComparison();
         }
 
-        private static Member GetEntityMemberIdMemberOrNull(
+        private static bool TryGetEntityMemberIdMemberOrNull(
             Expression entityParentAccess,
             Expression entityMemberAccess,
-            Member entityIdMember)
+            Member entityIdMember,
+            out Member entityMemberIdMember)
         {
             var sourceMembers = GlobalContext
                 .Instance
@@ -61,24 +65,25 @@
 
             var entityMemberName = entityMemberAccess.GetMemberName();
 
-            if (TryGetEntityMemberIdMember(entityMemberName + entityIdMember.Name, sourceMembers, out var member))
+            if (TryGetEntityMemberIdMember(entityMemberName + entityIdMember.Name, sourceMembers, out entityMemberIdMember))
             {
-                return member;
+                return true;
             }
 
             if (!entityIdMember.Name.EqualsIgnoreCase("Id") &&
-                TryGetEntityMemberIdMember(entityMemberName + "Id", sourceMembers, out member))
+                TryGetEntityMemberIdMember(entityMemberName + "Id", sourceMembers, out entityMemberIdMember))
             {
-                return member;
+                return true;
             }
 
             if (!entityIdMember.Name.EqualsIgnoreCase("Identifer") &&
-                TryGetEntityMemberIdMember(entityMemberName + "Identifer", sourceMembers, out member))
+                TryGetEntityMemberIdMember(entityMemberName + "Identifer", sourceMembers, out entityMemberIdMember))
             {
-                return member;
+                return true;
             }
 
-            return null;
+            entityMemberIdMember = null;
+            return false;
         }
 
         private static bool TryGetEntityMemberIdMember(
