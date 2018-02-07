@@ -2,11 +2,11 @@ namespace AgileObjects.AgileMapper.Members.Population
 {
     using System.Linq.Expressions;
 
-    internal interface IMemberPopulation
+    internal interface IMemberPopulator
     {
         IMemberMapperData MapperData { get; }
 
-        bool IsSuccessful { get; }
+        bool CanPopulate { get; }
 
         Expression GetPopulation();
     }

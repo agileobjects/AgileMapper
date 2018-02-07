@@ -136,7 +136,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            var expressionFactory = mappingData.MapperData.UseMemberInitialisation()
+            var expressionFactory = mappingData.MapperData.UseMemberInitialisations()
                 ? _memberInitPopulationFactory
                 : _multiStatementPopulationFactory;
 

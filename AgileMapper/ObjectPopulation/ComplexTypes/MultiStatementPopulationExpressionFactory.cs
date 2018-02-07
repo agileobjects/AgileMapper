@@ -9,19 +9,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     internal class MultiStatementPopulationExpressionFactory : PopulationExpressionFactoryBase
     {
         protected override IEnumerable<Expression> GetPopulationExpressionsFor(
-            IMemberPopulation memberPopulation,
+            IMemberPopulator memberPopulator,
             IObjectMappingData mappingData)
         {
-            var prePopulationCallback = GetPopulationCallbackOrNull(Before, memberPopulation, mappingData);
+            var prePopulationCallback = GetPopulationCallbackOrNull(Before, memberPopulator, mappingData);
 
             if (prePopulationCallback != null)
             {
                 yield return prePopulationCallback;
             }
 
-            yield return memberPopulation.GetPopulation();
+            yield return memberPopulator.GetPopulation();
 
-            var postPopulationCallback = GetPopulationCallbackOrNull(After, memberPopulation, mappingData);
+            var postPopulationCallback = GetPopulationCallbackOrNull(After, memberPopulator, mappingData);
 
             if (postPopulationCallback != null)
             {
@@ -31,10 +31,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetPopulationCallbackOrNull(
             CallbackPosition position,
-            IMemberPopulation memberPopulation,
+            IMemberPopulator memberPopulator,
             IObjectMappingData mappingData)
         {
-            return memberPopulation.MapperData.GetMappingCallbackOrNull(position, mappingData.MapperData);
+            return memberPopulator.MapperData.GetMappingCallbackOrNull(position, mappingData.MapperData);
         }
     }
 }

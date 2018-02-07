@@ -44,15 +44,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)
         {
-            foreach (var memberPopulation in MemberPopulationFactory.Default.Create(mappingData))
+            foreach (var memberPopulator in MemberPopulatorFactory.Default.Create(mappingData))
             {
-                if (!memberPopulation.IsSuccessful)
+                if (!memberPopulator.CanPopulate)
                 {
-                    yield return memberPopulation.GetPopulation();
+                    yield return memberPopulator.GetPopulation();
                     continue;
                 }
 
-                foreach (var expression in GetPopulationExpressionsFor(memberPopulation, mappingData))
+                foreach (var expression in GetPopulationExpressionsFor(memberPopulator, mappingData))
                 {
                     yield return expression;
                 }
@@ -60,7 +60,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         protected abstract IEnumerable<Expression> GetPopulationExpressionsFor(
-            IMemberPopulation memberPopulation,
+            IMemberPopulator memberPopulator,
             IObjectMappingData mappingData);
 
         private Expression GetLocalVariableInstantiation(

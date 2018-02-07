@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
+    using Members.Population;
     using NetStandardPolyfills;
     using ReadableExpressions;
 
@@ -18,11 +19,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly MappingExpressionFactoryBase Instance = new DictionaryMappingExpressionFactory();
 
-        private readonly MemberPopulationFactory _memberPopulationFactory;
+        private readonly MemberPopulatorFactory _memberPopulatorFactory;
 
         private DictionaryMappingExpressionFactory()
         {
-            _memberPopulationFactory = new MemberPopulationFactory(GetAllTargetMembers);
+            _memberPopulatorFactory = new MemberPopulatorFactory(GetAllTargetMembers);
         }
 
         #region Target Member Generation
@@ -457,7 +458,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return GetEnumerableToDictionaryMapping(mappingData);
             }
 
-            var memberPopulations = _memberPopulationFactory
+            var memberPopulations = _memberPopulatorFactory
                 .Create(mappingData)
                 .Select(memberPopulation => memberPopulation.GetPopulation())
                 .ToArray();

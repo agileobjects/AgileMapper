@@ -12,14 +12,14 @@ namespace AgileObjects.AgileMapper
             MappingRuleSetSettings settings,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
             IRecursiveMemberMappingStrategy recursiveMemberMappingStrategy,
-            IMemberPopulationGuardFactory populationGuardFactory,
+            IMemberPopulationFactory populationFactory,
             IDataSourceFactory fallbackDataSourceFactory)
         {
             Name = name;
             Settings = settings;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             RecursiveMemberMappingStrategy = recursiveMemberMappingStrategy;
-            PopulationGuardFactory = populationGuardFactory;
+            PopulationFactory = populationFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
         }
 
@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper
 
         public IRecursiveMemberMappingStrategy RecursiveMemberMappingStrategy { get; }
 
-        public IMemberPopulationGuardFactory PopulationGuardFactory { get; }
+        public IMemberPopulationFactory PopulationFactory { get; }
 
         public IDataSourceFactory FallbackDataSourceFactory { get; }
     }

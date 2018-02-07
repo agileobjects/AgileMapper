@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper
             },
             new CopySourceEnumerablePopulationStrategy(),
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,
-            NullMemberPopulationGuardFactory.Instance,
+            DefaultMemberPopulationFactory.Instance,
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
         private static readonly MappingRuleSet _merge = new MappingRuleSet(
@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper
             },
             new MergeEnumerablePopulationStrategy(),
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,
-            new PreserveExistingValueMemberPopulationGuardFactory(),
+            new MemberMergePopulationFactory(),
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper
             },
             OverwriteEnumerablePopulationStrategy.Instance,
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,
-            NullMemberPopulationGuardFactory.Instance,
+            DefaultMemberPopulationFactory.Instance,
             DefaultValueDataSourceFactory.Instance);
 
         private static readonly MappingRuleSet _project = new MappingRuleSet(
@@ -67,7 +67,7 @@ namespace AgileObjects.AgileMapper
             },
             new ProjectSourceEnumerablePopulationStrategy(),
             new MapToDepthRecursiveMemberMappingStrategy(),
-            NullMemberPopulationGuardFactory.Instance,
+            DefaultMemberPopulationFactory.Instance,
             DefaultValueDataSourceFactory.Instance);
 
         #endregion

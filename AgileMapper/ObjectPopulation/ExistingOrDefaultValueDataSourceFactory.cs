@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         : mapperData.GetFallbackCollectionValue();
                 }
 
-                if (mapperData.TargetMember.IsReadable && !mapperData.UseMemberInitialisation())
+                if (mapperData.TargetMember.IsReadable && !mapperData.UseMemberInitialisations())
                 {
                     return mapperData.GetTargetMemberAccess();
                 }

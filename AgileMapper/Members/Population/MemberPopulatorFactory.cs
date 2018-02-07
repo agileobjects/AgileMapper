@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation
+namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Collections.Generic;
@@ -8,11 +8,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using DataSources;
     using Extensions.Internal;
     using Members;
-    using Members.Population;
+    using ObjectPopulation;
 
-    internal class MemberPopulationFactory
+    internal class MemberPopulatorFactory
     {
-        public static readonly MemberPopulationFactory Default = new MemberPopulationFactory(mapperData =>
+        public static readonly MemberPopulatorFactory Default = new MemberPopulatorFactory(mapperData =>
             GlobalContext.Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
@@ -20,12 +20,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private readonly Func<ObjectMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
 
-        public MemberPopulationFactory(Func<ObjectMapperData, IEnumerable<QualifiedMember>> targetMembersFactory)
+        public MemberPopulatorFactory(Func<ObjectMapperData, IEnumerable<QualifiedMember>> targetMembersFactory)
         {
             _targetMembersFactory = targetMembersFactory;
         }
 
-        public IEnumerable<IMemberPopulation> Create(IObjectMappingData mappingData)
+        public IEnumerable<IMemberPopulator> Create(IObjectMappingData mappingData)
         {
             return _targetMembersFactory
                 .Invoke(mappingData.MapperData)
@@ -33,7 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     var memberPopulation = Create(tm, mappingData);
 
-                    if (memberPopulation.IsSuccessful ||
+                    if (memberPopulation.CanPopulate ||
                         mappingData.MappingContext.AddUnsuccessfulMemberPopulations)
                     {
                         return memberPopulation;
@@ -44,13 +44,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .WhereNotNull();
         }
 
-        private static IMemberPopulation Create(QualifiedMember targetMember, IObjectMappingData mappingData)
+        private static IMemberPopulator Create(QualifiedMember targetMember, IObjectMappingData mappingData)
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 
             if (childMapperData.TargetMemberIsUnmappable(out var reason))
             {
-                return MemberPopulation.Unmappable(childMapperData, reason);
+                return MemberPopulator.Unmappable(childMapperData, reason);
             }
 
             if (TargetMemberIsUnconditionallyIgnored(
@@ -58,7 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     out var configuredIgnore,
                     out var populateCondition))
             {
-                return MemberPopulation.IgnoredMember(childMapperData, configuredIgnore);
+                return MemberPopulator.IgnoredMember(childMapperData, configuredIgnore);
             }
 
             var childMappingData = mappingData.GetChildMappingData(childMapperData);
@@ -66,10 +66,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (dataSources.None)
             {
-                return MemberPopulation.NoDataSource(childMapperData);
+                return MemberPopulator.NoDataSource(childMapperData);
             }
 
-            return MemberPopulation.WithRegistration(childMappingData, dataSources, populateCondition);
+            return MemberPopulator.WithRegistration(childMappingData, dataSources, populateCondition);
         }
 
         private static bool TargetMemberIsUnconditionallyIgnored(

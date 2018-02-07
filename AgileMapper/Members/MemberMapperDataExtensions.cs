@@ -40,7 +40,7 @@ namespace AgileObjects.AgileMapper.Members
         public static bool UseSingleMappingExpression(this IBasicMapperData mapperData)
             => mapperData.IsRoot && mapperData.RuleSet.Settings.UseSingleRootMappingExpression;
 
-        public static bool UseMemberInitialisation(this IMemberMapperData mapperData)
+        public static bool UseMemberInitialisations(this IMemberMapperData mapperData)
             => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping();
 
         public static bool MapToNullCollections(this IMemberMapperData mapperData)

@@ -8,10 +8,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     internal class MemberInitPopulationExpressionFactory : PopulationExpressionFactoryBase
     {
         protected override IEnumerable<Expression> GetPopulationExpressionsFor(
-            IMemberPopulation memberPopulation,
+            IMemberPopulator memberPopulator,
             IObjectMappingData mappingData)
         {
-            yield return memberPopulation.GetPopulation();
+            yield return memberPopulator.GetPopulation();
         }
 
         protected override Expression GetNewObjectCreation(IObjectMappingData mappingData, IList<Expression> memberPopulations)
