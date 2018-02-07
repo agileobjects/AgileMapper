@@ -23,7 +23,7 @@
         protected Task RunShouldErrorProjectingToAComplexTypeCollectionMember()
             => RunTestAndExpectThrow(ProjectToComplexTypeCollectionMember);
 
-        protected async Task ProjectToComplexTypeCollectionMember(TOrmContext context)
+        private static async Task ProjectToComplexTypeCollectionMember(TOrmContext context)
         {
             var rotaEntry1 = new RotaEntry
             {

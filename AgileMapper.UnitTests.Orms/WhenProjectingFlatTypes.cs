@@ -15,7 +15,7 @@
         }
 
         [Fact]
-        public Task ShouldProjectAFlatTypeToAFlatTypeArray()
+        public Task ShouldProjectToAFlatTypeArray()
         {
             return RunTest(async context =>
             {
@@ -42,8 +42,34 @@
             });
         }
 
+        #region Project -> Struct Ctor Parameters
+
+        protected Task RunShouldProjectStructCtorParameters()
+            => RunTest(DoShouldProjectStructCtorParameters);
+
+        protected Task RunShouldErrorProjectingStructCtorParameters()
+            => RunTestAndExpectThrow(DoShouldProjectStructCtorParameters);
+
+        private static async Task DoShouldProjectStructCtorParameters(TOrmContext context)
+        {
+            var product = new Product { Name = "Product One" };
+
+            context.Products.Add(product);
+            await context.SaveChanges();
+
+            var productDto = context
+                .Products
+                .Project().To<ProductDtoStruct>()
+                .ShouldHaveSingleItem();
+
+            productDto.ProductId.ShouldBe(product.ProductId);
+            productDto.Name.ShouldBe("Product One");
+        }
+
+        #endregion
+
         [Fact]
-        public Task ShouldProjectAFlatTypeToANonMatchingTypeList()
+        public Task ShouldProjectToANonMatchingTypeList()
         {
             return RunTest(async context =>
             {

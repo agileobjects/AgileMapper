@@ -109,6 +109,7 @@
     <Compile Include="TestClasses\Person.cs" />
     <Compile Include="TestClasses\PersonDto.cs" />
     <Compile Include="TestClasses\PersonViewModel.cs" />
+    <Compile Include="TestClasses\ProductDtoStruct.cs" />
     <Compile Include="TestClasses\PublicDateTimeDto.cs" />
     <Compile Include="TestClasses\PublicGuidDto.cs" />
     <Compile Include="TestClasses\PublicDoubleDto.cs" />

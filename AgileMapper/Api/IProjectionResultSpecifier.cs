@@ -26,8 +26,7 @@
         /// <typeparamref name="TResultElement"/>. The projection is not performed until the Queryable is 
         /// enumerated by a call to .ToArray() or similar.
         /// </returns>
-        IQueryable<TResultElement> To<TResultElement>()
-            where TResultElement : class;
+        IQueryable<TResultElement> To<TResultElement>();
 
         /// <summary>
         /// Project the elements of the source IQueryable{T} to instances of the given 
@@ -48,7 +47,6 @@
         /// enumerated by a call to .ToArray() or similar.
         /// </returns>
         IQueryable<TResultElement> To<TResultElement>(
-            Expression<Action<IFullProjectionInlineConfigurator<TSourceElement, TResultElement>>> configuration)
-            where TResultElement : class;
+            Expression<Action<IFullProjectionInlineConfigurator<TSourceElement, TResultElement>>> configuration);
     }
 }
