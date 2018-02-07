@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Configuration
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
@@ -35,6 +36,39 @@
 
                     productDto.ProductId.ShouldBe(product.ProductId);
                     productDto.Name.ShouldBeNull();
+                }
+            });
+        }
+
+        protected Task DoShouldIgnoreAConfiguredMemberConditionally()
+        {
+            return RunTest(async context =>
+            {
+                var product1 = new Product { Name = "P.1" };
+                var product2 = new Product { Name = "P.2" };
+
+                context.Products.Add(product1);
+                context.Products.Add(product2);
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Product>()
+                        .ProjectedTo<ProductDto>()
+                        .If(p => p.Name.EndsWith(2 + ""))
+                        .Ignore(p => p.Name);
+
+                    var productDtos = context
+                        .Products
+                        .ProjectUsing(mapper).To<ProductDto>()
+                        .OrderBy(p => p.ProductId)
+                        .ToArray();
+
+                    productDtos.First().ProductId.ShouldBe(product1.ProductId);
+                    productDtos.First().Name.ShouldBe("P.1");
+                    productDtos.Second().ProductId.ShouldBe(product2.ProductId);
+                    productDtos.Second().Name.ShouldBeNull();
                 }
             });
         }

@@ -18,10 +18,9 @@
             IQueryProjectionModifier context,
             out Expression converted)
         {
-            if (context.Settings.SupportsAllPrimitiveConstants ||
-               (binary.NodeType != ExpressionType.Add) ||
-               !ReferenceEquals(binary.Method, _stringConcatObjectsMethod) ||
-              ((binary.Left.NodeType != ExpressionType.Convert) && (binary.Right.NodeType != ExpressionType.Convert)))
+            if ((binary.NodeType != ExpressionType.Add) ||
+                !ReferenceEquals(binary.Method, _stringConcatObjectsMethod) ||
+               ((binary.Left.NodeType != ExpressionType.Convert) && (binary.Right.NodeType != ExpressionType.Convert)))
             {
                 converted = null;
                 return false;
@@ -36,22 +35,46 @@
                 return false;
             }
 
+            if ((convertedLeft == null) || (convertedRight == null))
+            {
+                converted = convertedLeft ?? convertedRight;
+                return true;
+            }
+
             converted = Expression.Add(convertedLeft, convertedRight, _stringConcatStringsMethod);
             return true;
         }
 
         private static Expression ConvertOperand(Expression value)
         {
-            if ((value.NodeType != ExpressionType.Convert) || (value.Type == typeof(string)))
+            while (true)
             {
-                return value;
+                switch (value.NodeType)
+                {
+                    case ExpressionType.Constant:
+                        var constant = ((ConstantExpression)value).Value;
+
+                        return (constant == null)
+                            ? null
+                            : (value.Type != typeof(string))
+                                ? constant.ToString().ToConstantExpression()
+                                : ((string)constant != string.Empty) ? value : null;
+
+                    case ExpressionType.Convert:
+                        var conversion = (UnaryExpression)value;
+
+                        if ((conversion.Operand.NodeType == ExpressionType.Constant))
+                        {
+                            value = conversion.Operand;
+                            continue;
+                        }
+
+                        return value;
+
+                    default:
+                        return value;
+                }
             }
-
-            var conversion = (UnaryExpression)value;
-
-            return (conversion.Operand.NodeType == ExpressionType.Constant)
-                ? ((ConstantExpression)conversion.Operand).Value.ToString().ToConstantExpression()
-                : value;
         }
     }
 }

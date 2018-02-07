@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using Converters;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
@@ -34,8 +33,6 @@
         public virtual bool SupportsGetValueOrDefault => true;
 
         public virtual bool SupportsComplexTypeToNullComparison => true;
-
-        public virtual bool SupportsAllPrimitiveConstants => true;
 
         public virtual bool SupportsNonEntityNullConstants => true;
 

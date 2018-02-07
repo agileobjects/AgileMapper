@@ -14,5 +14,9 @@
 
         [Fact]
         public Task ShouldIgnoreAConfiguredMember() => DoShouldIgnoreAConfiguredMember();
+
+        [Fact]
+        public Task ShouldIgnoreAConfiguredMemberConditionally() =>
+            DoShouldIgnoreAConfiguredMemberConditionally();
     }
 }
