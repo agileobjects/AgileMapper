@@ -104,12 +104,31 @@
             Type nonNullableSourceType,
             Type nonNullableTargetEnumType)
         {
+            bool sourceIsAnEnum;
+
             if (sourceValue.Type != typeof(string))
             {
+                sourceIsAnEnum = nonNullableSourceType.IsEnum();
                 sourceValue = _toStringConverter.GetConversion(sourceValue);
+            }
+            else
+            {
+                sourceIsAnEnum = false;
             }
 
             var underlyingEnumType = Enum.GetUnderlyingType(nonNullableTargetEnumType);
+
+            var nameMatchingConversion = GetStringToEnumConversion(
+                sourceValue,
+                fallbackValue,
+                nonNullableTargetEnumType,
+                nonNullableTargetEnumType);
+
+            if (sourceIsAnEnum)
+            {
+                // Enums are matched by name, so no point checking the parsed numeric value
+                return nameMatchingConversion;
+            }
 
             var tryParseCall = GetNumericTryParseCall(
                 GetEnumTypeName(nonNullableTargetEnumType),
@@ -121,12 +140,6 @@
                 parseResultVariable,
                 fallbackValue,
                 nonNullableSourceType,
-                nonNullableTargetEnumType);
-
-            var nameMatchingConversion = GetStringToEnumConversion(
-                sourceValue,
-                fallbackValue,
-                nonNullableTargetEnumType,
                 nonNullableTargetEnumType);
 
             var numericOrNameConversion = Expression.Condition(
