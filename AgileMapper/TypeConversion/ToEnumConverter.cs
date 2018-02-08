@@ -55,7 +55,7 @@
                     nonNullableTargetEnumType);
             }
 
-            return GetTryParseConversion(
+            return GetStringValueConversion(
                 sourceValue,
                 fallbackValue,
                 nonNullableSourceType,
@@ -98,92 +98,100 @@
             return containsCall;
         }
 
-        private static Expression GetEnumIsDefinedCall(Type enumType, Expression value)
-        {
-            var convertedValue = value
-                .GetConversionTo(Enum.GetUnderlyingType(enumType))
-                .GetConversionToObject();
-
-            return Expression.Call(
-                typeof(Enum).GetPublicStaticMethod("IsDefined"),
-                enumType.ToConstantExpression(),
-                convertedValue);
-        }
-
-        private Expression GetTryParseConversion(
+        private Expression GetStringValueConversion(
             Expression sourceValue,
             Expression fallbackValue,
             Type nonNullableSourceType,
             Type nonNullableTargetEnumType)
         {
-            bool sourceIsAnEnum;
-
             if (sourceValue.Type != typeof(string))
             {
-                sourceIsAnEnum = nonNullableSourceType.IsEnum();
                 sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
-            else
-            {
-                sourceIsAnEnum = false;
-            }
 
-            var tryParseCall = GetTryParseCall(sourceValue, nonNullableTargetEnumType, out var valueVariable);
-            var parseSuccessBranch = GetParseSuccessBranch(sourceIsAnEnum, valueVariable, fallbackValue);
+            var underlyingEnumType = Enum.GetUnderlyingType(nonNullableTargetEnumType);
 
-            var parsedValueOrDefault = Expression.Condition(tryParseCall, parseSuccessBranch, fallbackValue);
-            var tryParseBlock = Expression.Block(new[] { valueVariable }, parsedValueOrDefault);
-
-            return tryParseBlock;
-        }
-
-        private static Expression GetTryParseCall(
-            Expression sourceValue,
-            Type nonNullableTargetEnumType,
-            out ParameterExpression valueVariable)
-        {
-            var tryParseMethod = typeof(Enum)
-                .GetPublicStaticMethods("TryParse")
-                .Select(m => new
-                {
-                    Method = m,
-                    Parameters = m.GetParameters()
-                })
-                .First(m => m.Parameters.Length == 3 && m.Parameters[1].ParameterType == typeof(bool))
-                .Method
-                .MakeGenericMethod(nonNullableTargetEnumType);
-
-            valueVariable = Expression.Variable(
-                nonNullableTargetEnumType,
-                nonNullableTargetEnumType.GetShortVariableName());
-
-            return Expression.Call(
-                tryParseMethod,
+            var tryParseCall = GetNumericTryParseCall(
+                GetEnumTypeName(nonNullableTargetEnumType),
+                underlyingEnumType,
                 sourceValue,
-                true.ToConstantExpression(), // <- IgnoreCase
-                valueVariable);
+                out var parseResultVariable);
+
+            var numericConversion = GetNumericToEnumConversion(
+                parseResultVariable,
+                fallbackValue,
+                nonNullableSourceType,
+                nonNullableTargetEnumType);
+
+            var nameMatchingConversion = GetStringToEnumConversion(
+                sourceValue,
+                fallbackValue,
+                nonNullableTargetEnumType,
+                nonNullableTargetEnumType);
+
+            var numericOrNameConversion = Expression.Condition(
+                tryParseCall,
+                numericConversion,
+                nameMatchingConversion);
+
+            return Expression.Block(new[] { parseResultVariable }, numericOrNameConversion);
         }
 
-        private static Expression GetParseSuccessBranch(
-            bool sourceIsAnEnum,
-            Expression valueVariable,
-            Expression defaultValue)
+        private static Expression GetNumericTryParseCall(
+            string enumTypeName,
+            Type underlyingEnumType,
+            Expression stringValue,
+            out ParameterExpression numericValueVariable)
         {
-            var successfulParseReturnValue = valueVariable.GetConversionTo(defaultValue.Type);
+            var tryParseMethod = underlyingEnumType
+                .GetPublicStaticMethod("TryParse", parameterCount: 2);
 
-            if (sourceIsAnEnum)
-            {
-                // Enums are parsed using the member name, so no need to 
-                // check if the value is defined if the parse succeeds:
-                return successfulParseReturnValue;
-            }
+            var sourceNumericValueVariableName = enumTypeName + underlyingEnumType.Name + "Value";
+            numericValueVariable = Expression.Parameter(underlyingEnumType, sourceNumericValueVariableName);
 
-            var definedValueOrDefault = Expression.Condition(
-                GetEnumIsDefinedCall(valueVariable.Type, valueVariable),
-                successfulParseReturnValue,
-                defaultValue);
+            var tryParseCall = Expression.Call(tryParseMethod, stringValue, numericValueVariable);
 
-            return definedValueOrDefault;
+            return tryParseCall;
+        }
+
+        private static Expression GetStringToEnumConversion(
+            Expression sourceValue,
+            Expression fallbackValue,
+            Type nonNullableTargetEnumType,
+            Type conversionResultType)
+        {
+            var getConversionMethod = typeof(ToEnumConverter)
+                .GetNonPublicStaticMethods("GetStringToEnumConversion")
+                .First(m => m.IsGenericMethod)
+                .MakeGenericMethod(nonNullableTargetEnumType, conversionResultType);
+
+            return (Expression)getConversionMethod.Invoke(
+                null,
+                new object[] { sourceValue, fallbackValue });
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static Expression GetStringToEnumConversion<TEnum, TResult>(
+            Expression sourceValue,
+            Expression fallbackValue)
+        {
+            var enumValues = Enum.GetValues(typeof(TEnum)).Cast<TResult>().Reverse();
+
+            return enumValues.Aggregate(
+                fallbackValue,
+                (valueSoFar, enumValue) => Expression.Condition(
+                    GetEnumNameCheck<TEnum, TResult>(sourceValue, enumValue),
+                    enumValue.ToConstantExpression(fallbackValue.Type),
+                    valueSoFar));
+        }
+
+        private static Expression GetEnumNameCheck<TEnum, TValue>(Expression sourceValue, TValue enumValue)
+        {
+            var comparisonValue = (typeof(TValue) == typeof(TEnum))
+                ? enumValue.ToString()
+                : ((TEnum)((object)enumValue)).ToString();
+
+            return sourceValue.GetCaseInsensitiveEquals(comparisonValue.ToConstantExpression());
         }
 
         private Expression GetFlagsEnumConversion(
@@ -192,11 +200,12 @@
             Type nonNullableSourceType,
             Type nonNullableTargetEnumType)
         {
-            var enumTypeName = nonNullableTargetEnumType.GetVariableNameInCamelCase();
+            var enumTypeName = GetEnumTypeName(nonNullableTargetEnumType);
             var underlyingEnumType = Enum.GetUnderlyingType(nonNullableTargetEnumType);
 
             var enumValueVariable = Expression.Variable(underlyingEnumType, enumTypeName + "Value");
-            var assignEnumValue = Expression.Assign(enumValueVariable, underlyingEnumType.ToDefaultExpression());
+            var underlyingTypeDefault = underlyingEnumType.ToDefaultExpression();
+            var assignEnumValue = Expression.Assign(enumValueVariable, underlyingTypeDefault);
 
             if (nonNullableSourceType.IsNumeric())
             {
@@ -221,8 +230,7 @@
                 typeof(string).GetPublicInstanceMethod("Split", parameterCount: 1),
                 Expression.NewArrayInit(typeof(char), ','.ToConstantExpression()));
 
-            var splitResultEnumerable = splitSourceValueCall.GetConversionTo<IEnumerable<string>>();
-            var assignSourceValues = GetValuesEnumeratorAssignment(sourceValuesVariable, splitResultEnumerable);
+            var assignSourceValues = GetValuesEnumeratorAssignment(sourceValuesVariable, splitSourceValueCall);
 
             var ifNotMoveNextBreak = GetLoopExitCheck(sourceValuesVariable, out var loopBreakTarget);
 
@@ -232,13 +240,11 @@
             var currentTrimmed = Expression.Call(enumeratorCurrent, stringTrimMethod);
             var assignLocalVariable = Expression.Assign(localSourceValueVariable, currentTrimmed);
 
-            var sourceNumericValueVariableName = enumTypeName + underlyingEnumType.Name + "Value";
-            var sourceNumericValueVariable = Expression.Parameter(underlyingEnumType, sourceNumericValueVariableName);
-
-            var numericTryParseCall = Expression.Call(
-                underlyingEnumType.GetPublicStaticMethod("TryParse", parameterCount: 2),
+            var numericTryParseCall = GetNumericTryParseCall(
+                enumTypeName,
+                underlyingEnumType,
                 localSourceValueVariable,
-                sourceNumericValueVariable);
+                out var sourceNumericValueVariable);
 
             var numericValuePopulationLoop = GetNumericToFlagsEnumPopulationLoop(
                 nonNullableTargetEnumType,
@@ -253,21 +259,21 @@
                 assignEnumValues,
                 numericValuePopulationLoop);
 
-            var stringHasValidValueCheck = GetTryParseCall(
+            var stringValueConversion = GetStringToEnumConversion(
                 localSourceValueVariable,
+                underlyingTypeDefault,
                 nonNullableTargetEnumType,
-                out var sourceEnumValueVariable);
+                underlyingEnumType);
 
-            var convertedEnumValue = sourceEnumValueVariable.GetConversionTo(enumValueVariable.Type);
-            var assignParsedEnumValue = Expression.OrAssign(enumValueVariable, convertedEnumValue);
+            var assignParsedEnumValue = Expression.OrAssign(enumValueVariable, stringValueConversion);
 
             var assignValidValuesIfPossible = Expression.IfThenElse(
                 numericTryParseCall,
                 numericValuePopulationBlock,
-                Expression.IfThen(stringHasValidValueCheck, assignParsedEnumValue));
+                assignParsedEnumValue);
 
             var loopBody = Expression.Block(
-                new[] { localSourceValueVariable, sourceNumericValueVariable, sourceEnumValueVariable },
+                new[] { localSourceValueVariable, sourceNumericValueVariable },
                 ifNotMoveNextBreak,
                 assignLocalVariable,
                 assignValidValuesIfPossible);
@@ -281,6 +287,9 @@
 
             return populationBlock;
         }
+
+        private static string GetEnumTypeName(Type enumType)
+            => enumType.GetVariableNameInCamelCase();
 
         private static Expression GetNumericToFlagsEnumConversion(
             Expression sourceValue,
