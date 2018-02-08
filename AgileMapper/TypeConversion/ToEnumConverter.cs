@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
@@ -96,7 +97,7 @@
         {
             var convertedValue = value
                 .GetConversionTo(Enum.GetUnderlyingType(enumType))
-                .GetConversionTo(typeof(object));
+                .GetConversionToObject();
 
             return Expression.Call(
                 typeof(Enum).GetPublicStaticMethod("IsDefined"),
@@ -208,22 +209,22 @@
                 sourceValue = _toStringConverter.GetConversion(sourceValue);
             }
 
-            var sourceValuesVariable = GetEnumValuesVariable(enumTypeName);
+            var sourceValuesVariable = GetEnumValuesVariable(enumTypeName, typeof(string));
 
             var splitSourceValueCall = Expression.Call(
                 sourceValue,
                 typeof(string).GetPublicInstanceMethod("Split", parameterCount: 1),
                 Expression.NewArrayInit(typeof(char), ','.ToConstantExpression()));
 
-            var assignSourceValues = GetValuesEnumeratorAssignment(sourceValuesVariable, splitSourceValueCall);
+            var splitResultEnumerable = splitSourceValueCall.GetConversionTo<IEnumerable<string>>();
+            var assignSourceValues = GetValuesEnumeratorAssignment(sourceValuesVariable, splitResultEnumerable);
 
             var ifNotMoveNextBreak = GetLoopExitCheck(sourceValuesVariable, out var loopBreakTarget);
 
             var localSourceValueVariable = Expression.Variable(typeof(string), enumTypeName);
             var enumeratorCurrent = Expression.Property(sourceValuesVariable, "Current");
-            var currentToString = Expression.Call(enumeratorCurrent, typeof(object).GetPublicInstanceMethod("ToString"));
             var stringTrimMethod = typeof(string).GetPublicInstanceMethod("Trim", parameterCount: 0);
-            var currentTrimmed = Expression.Call(currentToString, stringTrimMethod);
+            var currentTrimmed = Expression.Call(enumeratorCurrent, stringTrimMethod);
             var assignLocalVariable = Expression.Assign(localSourceValueVariable, currentTrimmed);
 
             var sourceNumericValueVariableName = enumTypeName + underlyingEnumType.Name + "Value";
@@ -323,20 +324,17 @@
             out Expression assignEnumValues)
         {
             var underlyingEnumType = enumValueVariable.Type;
-            enumValuesVariable = GetEnumValuesVariable(enumTypeName);
+            enumValuesVariable = GetEnumValuesVariable(enumTypeName, underlyingEnumType);
 
-            var enumGetValuesCall = Expression.Call(
-                typeof(Enum).GetPublicStaticMethod("GetValues"),
-                nonNullableTargetEnumType.ToConstantExpression());
+            var enumValues = GetEnumValuesConstant(nonNullableTargetEnumType, underlyingEnumType);
 
-            assignEnumValues = GetValuesEnumeratorAssignment(enumValuesVariable, enumGetValuesCall);
+            assignEnumValues = GetValuesEnumeratorAssignment(enumValuesVariable, enumValues);
 
             var ifNotMoveNextBreak = GetLoopExitCheck(enumValuesVariable, out var loopBreakTarget);
 
             var localEnumValueVariable = Expression.Variable(underlyingEnumType, enumTypeName);
             var enumeratorCurrent = Expression.Property(enumValuesVariable, "Current");
-            var currentAsEnumType = Expression.Convert(enumeratorCurrent, underlyingEnumType);
-            var assignLocalVariable = Expression.Assign(localEnumValueVariable, currentAsEnumType);
+            var assignLocalVariable = Expression.Assign(localEnumValueVariable, enumeratorCurrent);
 
             var localVariableAndSourceValue = Expression.And(localEnumValueVariable, sourceValueVariable);
             var andResultEqualsEnumValue = Expression.Equal(localVariableAndSourceValue, localEnumValueVariable);
@@ -354,8 +352,30 @@
             return Expression.Loop(loopBody, loopBreakTarget);
         }
 
-        private static ParameterExpression GetEnumValuesVariable(string enumTypeName)
-            => Expression.Variable(typeof(IEnumerator), enumTypeName + "Values");
+        private static ParameterExpression GetEnumValuesVariable(string enumTypeName, Type elementType)
+            => Expression.Variable(typeof(IEnumerator<>).MakeGenericType(elementType), enumTypeName + "Values");
+
+        private static Expression GetEnumValuesConstant(Type enumType, Type underlyingType)
+        {
+            if (underlyingType == typeof(int))
+            {
+                return GetEnumValuesConstant<int>(enumType);
+            }
+
+            return (Expression)typeof(ToEnumConverter)
+                .GetNonPublicStaticMethod("GetEnumValuesConstant")
+                .MakeGenericMethod(underlyingType)
+                .Invoke(null, new object[] { enumType });
+        }
+
+        private static Expression GetEnumValuesConstant<TUnderlyingType>(Type enumType)
+        {
+            return Enum
+                .GetValues(enumType)
+                .Cast<TUnderlyingType>()
+                .ToArray()
+                .ToConstantExpression<IEnumerable<TUnderlyingType>>();
+        }
 
         private static Expression GetValuesEnumeratorAssignment(
             Expression enumValuesVariable,
@@ -374,7 +394,7 @@
         {
             var enumeratorMoveNext = Expression.Call(
                 valuesEnumerator,
-                valuesEnumerator.Type.GetPublicInstanceMethod("MoveNext"));
+                typeof(IEnumerator).GetPublicInstanceMethod("MoveNext"));
 
             loopBreakTarget = Expression.Label();
 
