@@ -28,6 +28,28 @@
         }
 
         [Fact]
+        public void ShouldAllowMultipleSourceToSingleTargetPairing()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .PairEnums(PaymentTypeUk.Cheque, PaymentTypeUk.Cash).With(PaymentTypeUs.Check)
+                    .And
+                    .PairEnum(PaymentTypeUs.Check).With(PaymentTypeUk.Cheque);
+
+                var source = new PublicTwoFields<PaymentTypeUk, PaymentTypeUs>
+                {
+                    Value1 = PaymentTypeUk.Cheque,
+                    Value2 = PaymentTypeUs.Check
+                };
+                var result = mapper.Map(source).ToANew<PublicTwoParamCtor<PaymentTypeUs, PaymentTypeUk>>();
+
+                result.Value1.ShouldBe(PaymentTypeUs.Check);
+                result.Value2.ShouldBe(PaymentTypeUk.Cheque);
+            }
+        }
+
+        [Fact]
         public void ShouldRemovePairedEnumsFromEnumMismatchWarnings()
         {
             using (var mapper = Mapper.CreateNew())
@@ -122,7 +144,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfDifferentNumbersOfEnumMembersSpecified()
+        public void ShouldErrorIfIncompatibleNumbersOfEnumMembersSpecified()
         {
             var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -134,7 +156,7 @@
                 }
             });
 
-            enumMappingEx.Message.ShouldContain("same number of first and second enum values");
+            enumMappingEx.Message.ShouldContain("2 pairing enum values are required");
         }
 
         [Fact]
@@ -150,22 +172,6 @@
             });
 
             enumMappingEx.Message.ShouldContain("Cheque is already paired with PaymentTypeUs.Check");
-        }
-
-        [Fact]
-        public void ShouldErrorIfTargetEnumMemberConflictingPairSpecified()
-        {
-            var enumMappingEx = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .PairEnums(PaymentTypeUk.Cheque, PaymentTypeUk.Cash)
-                        .With(PaymentTypeUs.Check, PaymentTypeUs.Check);
-                }
-            });
-
-            enumMappingEx.Message.ShouldContain("Check is already paired with PaymentTypeUk.Cheque");
         }
     }
 }
