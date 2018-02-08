@@ -68,29 +68,34 @@
             Type nonNullableSourceType,
             Type nonNullableTargetEnumType)
         {
-            Expression convertedNumericValue = Expression.Convert(sourceValue, nonNullableTargetEnumType);
+            var underlyingEnumType = Enum.GetUnderlyingType(nonNullableTargetEnumType);
+            var convertedNumericValue = sourceValue.GetConversionTo(underlyingEnumType);
 
-            if (nonNullableTargetEnumType != fallbackValue.Type)
-            {
-                convertedNumericValue = convertedNumericValue.GetConversionTo(fallbackValue.Type);
-            }
-
-            var definedValueOrFallback = Expression.Condition(
-                GetEnumIsDefinedCall(nonNullableTargetEnumType, sourceValue),
-                convertedNumericValue,
+            var validValueOrFallback = Expression.Condition(
+                GetIsValidEnumValueCheck(nonNullableTargetEnumType, convertedNumericValue),
+                sourceValue.GetConversionTo(nonNullableTargetEnumType).GetConversionTo(fallbackValue.Type),
                 fallbackValue);
 
             if (sourceValue.Type == nonNullableSourceType)
             {
-                return definedValueOrFallback;
+                return validValueOrFallback;
             }
 
-            var nonNullDefinedValueOrFallback = Expression.Condition(
+            var nonNullValidValueOrFallback = Expression.Condition(
                 sourceValue.GetIsNotDefaultComparison(),
-                definedValueOrFallback,
+                validValueOrFallback,
                 fallbackValue);
 
-            return nonNullDefinedValueOrFallback;
+            return nonNullValidValueOrFallback;
+        }
+
+        private static Expression GetIsValidEnumValueCheck(Type enumType, Expression value)
+        {
+            var validEnumValues = GetEnumValuesConstant(enumType, value.Type);
+            var containsMethod = validEnumValues.Type.GetPublicInstanceMethod("Contains");
+            var containsCall = Expression.Call(validEnumValues, containsMethod, value);
+
+            return containsCall;
         }
 
         private static Expression GetEnumIsDefinedCall(Type enumType, Expression value)
@@ -374,16 +379,20 @@
                 .GetValues(enumType)
                 .Cast<TUnderlyingType>()
                 .ToArray()
-                .ToConstantExpression<IEnumerable<TUnderlyingType>>();
+                .ToConstantExpression<ICollection<TUnderlyingType>>();
         }
 
         private static Expression GetValuesEnumeratorAssignment(
             Expression enumValuesVariable,
             Expression enumeratedValues)
         {
+            var enumerableType = enumeratedValues.Type.IsClosedTypeOf(typeof(IEnumerable<>))
+                ? enumeratedValues.Type
+                : typeof(IEnumerable<>).MakeGenericType(enumeratedValues.Type.GetEnumerableElementType());
+
             var getValuesEnumeratorCall = Expression.Call(
                 enumeratedValues,
-                enumeratedValues.Type.GetPublicInstanceMethod("GetEnumerator"));
+                enumerableType.GetPublicInstanceMethod("GetEnumerator"));
 
             return enumValuesVariable.AssignTo(getValuesEnumeratorCall);
         }
