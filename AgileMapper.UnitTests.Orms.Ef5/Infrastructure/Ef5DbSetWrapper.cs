@@ -11,16 +11,14 @@
     {
         private readonly DbSet<TEntity> _dbSet;
 
-        public Ef5DbSetWrapper(DbSet<TEntity> dbSet)
-            : base(dbSet)
+        public Ef5DbSetWrapper(DbContext context)
+            : base(context.Set<TEntity>())
         {
-            _dbSet = dbSet;
+            _dbSet = context.Set<TEntity>();
         }
 
         public override void Include<TProperty>(Expression<Func<TEntity, TProperty>> navigationPropertyPath)
-        {
-            _dbSet.Include(navigationPropertyPath);
-        }
+            => _dbSet.Include(navigationPropertyPath);
 
         public override void Add(TEntity itemToAdd) => _dbSet.Add(itemToAdd);
 

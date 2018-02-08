@@ -47,8 +47,8 @@
     <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.1.3\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.1.5.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.1.5\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore.InMemory, Version=1.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.EntityFrameworkCore.InMemory.1.1.3\lib\net451\Microsoft.EntityFrameworkCore.InMemory.dll</HintPath>
@@ -189,7 +189,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -213,6 +215,7 @@
     </Compile>
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Infrastructure\EfCore1DbSetWrapper.cs" />
     <Compile Include="Infrastructure\EfCore1TestDbContext.cs" />

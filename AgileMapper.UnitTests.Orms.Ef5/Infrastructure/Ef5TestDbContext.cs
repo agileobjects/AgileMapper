@@ -62,50 +62,35 @@
 
         #region ITestDbContext Members
 
-        IDbSetWrapper<Company> ITestDbContext.Companies
-            => new Ef5DbSetWrapper<Company>(Companies);
+        IDbSetWrapper<Company> ITestDbContext.Companies => new Ef5DbSetWrapper<Company>(this);
 
-        IDbSetWrapper<Employee> ITestDbContext.Employees
-            => new Ef5DbSetWrapper<Employee>(Employees);
+        IDbSetWrapper<Employee> ITestDbContext.Employees => new Ef5DbSetWrapper<Employee>(this);
 
-        IDbSetWrapper<Category> ITestDbContext.Categories
-            => new Ef5DbSetWrapper<Category>(Categories);
+        IDbSetWrapper<Category> ITestDbContext.Categories => new Ef5DbSetWrapper<Category>(this);
 
-        IDbSetWrapper<Product> ITestDbContext.Products
-            => new Ef5DbSetWrapper<Product>(Products);
+        IDbSetWrapper<Product> ITestDbContext.Products => new Ef5DbSetWrapper<Product>(this);
 
-        IDbSetWrapper<Person> ITestDbContext.Persons
-            => new Ef5DbSetWrapper<Person>(Persons);
+        IDbSetWrapper<Person> ITestDbContext.Persons => new Ef5DbSetWrapper<Person>(this);
 
-        IDbSetWrapper<Address> ITestDbContext.Addresses
-            => new Ef5DbSetWrapper<Address>(Addresses);
+        IDbSetWrapper<Address> ITestDbContext.Addresses => new Ef5DbSetWrapper<Address>(this);
 
-        IDbSetWrapper<Rota> ITestDbContext.Rotas
-            => new Ef5DbSetWrapper<Rota>(Rotas);
+        IDbSetWrapper<Rota> ITestDbContext.Rotas => new Ef5DbSetWrapper<Rota>(this);
 
-        IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries
-            => new Ef5DbSetWrapper<RotaEntry>(RotaEntries);
+        IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries => new Ef5DbSetWrapper<RotaEntry>(this);
 
-        IDbSetWrapper<Order> ITestDbContext.Orders
-            => new Ef5DbSetWrapper<Order>(Orders);
+        IDbSetWrapper<Order> ITestDbContext.Orders => new Ef5DbSetWrapper<Order>(this);
 
-        IDbSetWrapper<OrderItem> ITestDbContext.OrderItems
-            => new Ef5DbSetWrapper<OrderItem>(OrderItems);
+        IDbSetWrapper<OrderItem> ITestDbContext.OrderItems => new Ef5DbSetWrapper<OrderItem>(this);
 
-        IDbSetWrapper<PublicBool> ITestDbContext.BoolItems
-            => new Ef5DbSetWrapper<PublicBool>(BoolItems);
+        IDbSetWrapper<PublicBool> ITestDbContext.BoolItems => new Ef5DbSetWrapper<PublicBool>(this);
 
-        IDbSetWrapper<PublicShort> ITestDbContext.ShortItems
-            => new Ef5DbSetWrapper<PublicShort>(ShortItems);
+        IDbSetWrapper<PublicShort> ITestDbContext.ShortItems => new Ef5DbSetWrapper<PublicShort>(this);
 
-        IDbSetWrapper<PublicInt> ITestDbContext.IntItems
-            => new Ef5DbSetWrapper<PublicInt>(IntItems);
+        IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new Ef5DbSetWrapper<PublicInt>(this);
 
-        IDbSetWrapper<PublicLong> ITestDbContext.LongItems
-            => new Ef5DbSetWrapper<PublicLong>(LongItems);
+        IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new Ef5DbSetWrapper<PublicLong>(this);
 
-        IDbSetWrapper<PublicString> ITestDbContext.StringItems
-            => new Ef5DbSetWrapper<PublicString>(StringItems);
+        IDbSetWrapper<PublicString> ITestDbContext.StringItems => new Ef5DbSetWrapper<PublicString>(this);
 
         Task ITestDbContext.SaveChanges()
         {

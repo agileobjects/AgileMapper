@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
     using System.Linq.Expressions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal static class StringEqualsIgnoreCaseConverter
@@ -34,9 +35,22 @@
                 methodCall.Arguments[0],
                 typeof(string).GetPublicInstanceMethod("ToLower", parameterCount: 0));
 
-            var comparison = Expression.Equal(subjectToLower, methodCall.Arguments[1]);
+            var comparisonValue = GetComparisonValue(methodCall.Arguments[1]);
+            var comparison = Expression.Equal(subjectToLower, comparisonValue);
 
             return comparison;
+        }
+
+        private static Expression GetComparisonValue(Expression value)
+        {
+            if (value.NodeType != ExpressionType.Constant)
+            {
+                return value;
+            }
+
+            var stringValue = ((ConstantExpression)value).Value?.ToString().ToLowerInvariant();
+
+            return stringValue.ToConstantExpression();
         }
     }
 }

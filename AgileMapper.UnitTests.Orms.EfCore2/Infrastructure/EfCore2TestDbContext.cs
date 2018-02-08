@@ -75,49 +75,49 @@
         #region ITestDbContext Members
 
         IDbSetWrapper<Company> ITestDbContext.Companies
-            => new EfCore2DbSetWrapper<Company>(Companies);
+            => new EfCore2DbSetWrapper<Company>(this);
 
         IDbSetWrapper<Employee> ITestDbContext.Employees
-            => new EfCore2DbSetWrapper<Employee>(Employees);
+            => new EfCore2DbSetWrapper<Employee>(this);
 
         IDbSetWrapper<Category> ITestDbContext.Categories
-            => new EfCore2DbSetWrapper<Category>(Categories);
+            => new EfCore2DbSetWrapper<Category>(this);
 
         IDbSetWrapper<Product> ITestDbContext.Products
-            => new EfCore2DbSetWrapper<Product>(Products);
+            => new EfCore2DbSetWrapper<Product>(this);
 
         IDbSetWrapper<Person> ITestDbContext.Persons
-            => new EfCore2DbSetWrapper<Person>(Persons);
+            => new EfCore2DbSetWrapper<Person>(this);
 
         IDbSetWrapper<Address> ITestDbContext.Addresses
-            => new EfCore2DbSetWrapper<Address>(Addresses);
+            => new EfCore2DbSetWrapper<Address>(this);
 
         IDbSetWrapper<Rota> ITestDbContext.Rotas
-            => new EfCore2DbSetWrapper<Rota>(Rotas);
+            => new EfCore2DbSetWrapper<Rota>(this);
 
         IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries
-            => new EfCore2DbSetWrapper<RotaEntry>(RotaEntries);
+            => new EfCore2DbSetWrapper<RotaEntry>(this);
 
         IDbSetWrapper<Order> ITestDbContext.Orders
-            => new EfCore2DbSetWrapper<Order>(Orders);
+            => new EfCore2DbSetWrapper<Order>(this);
 
         IDbSetWrapper<OrderItem> ITestDbContext.OrderItems
-            => new EfCore2DbSetWrapper<OrderItem>(OrderItems);
+            => new EfCore2DbSetWrapper<OrderItem>(this);
 
         IDbSetWrapper<PublicBool> ITestDbContext.BoolItems
-            => new EfCore2DbSetWrapper<PublicBool>(BoolItems);
+            => new EfCore2DbSetWrapper<PublicBool>(this);
 
         IDbSetWrapper<PublicShort> ITestDbContext.ShortItems
-            => new EfCore2DbSetWrapper<PublicShort>(ShortItems);
+            => new EfCore2DbSetWrapper<PublicShort>(this);
 
         IDbSetWrapper<PublicInt> ITestDbContext.IntItems
-            => new EfCore2DbSetWrapper<PublicInt>(IntItems);
+            => new EfCore2DbSetWrapper<PublicInt>(this);
 
         IDbSetWrapper<PublicLong> ITestDbContext.LongItems
-            => new EfCore2DbSetWrapper<PublicLong>(LongItems);
+            => new EfCore2DbSetWrapper<PublicLong>(this);
 
         IDbSetWrapper<PublicString> ITestDbContext.StringItems
-            => new EfCore2DbSetWrapper<PublicString>(StringItems);
+            => new EfCore2DbSetWrapper<PublicString>(this);
 
         Task ITestDbContext.SaveChanges() => SaveChangesAsync();
 

@@ -47,7 +47,7 @@
             }
             finally
             {
-                EmptyDbContext();
+                await EmptyDbContext();
             }
         }
 

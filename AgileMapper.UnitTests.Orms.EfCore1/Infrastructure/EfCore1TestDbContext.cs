@@ -66,50 +66,35 @@
 
         #region ITestDbContext Members
 
-        IDbSetWrapper<Company> ITestDbContext.Companies
-            => new EfCore1DbSetWrapper<Company>(Companies);
+        IDbSetWrapper<Company> ITestDbContext.Companies => new EfCore1DbSetWrapper<Company>(this);
 
-        IDbSetWrapper<Employee> ITestDbContext.Employees
-            => new EfCore1DbSetWrapper<Employee>(Employees);
+        IDbSetWrapper<Employee> ITestDbContext.Employees => new EfCore1DbSetWrapper<Employee>(this);
 
-        IDbSetWrapper<Category> ITestDbContext.Categories
-            => new EfCore1DbSetWrapper<Category>(Categories);
+        IDbSetWrapper<Category> ITestDbContext.Categories => new EfCore1DbSetWrapper<Category>(this);
 
-        IDbSetWrapper<Product> ITestDbContext.Products
-            => new EfCore1DbSetWrapper<Product>(Products);
+        IDbSetWrapper<Product> ITestDbContext.Products => new EfCore1DbSetWrapper<Product>(this);
 
-        IDbSetWrapper<Person> ITestDbContext.Persons
-            => new EfCore1DbSetWrapper<Person>(Persons);
+        IDbSetWrapper<Person> ITestDbContext.Persons => new EfCore1DbSetWrapper<Person>(this);
 
-        IDbSetWrapper<Address> ITestDbContext.Addresses
-            => new EfCore1DbSetWrapper<Address>(Addresses);
+        IDbSetWrapper<Address> ITestDbContext.Addresses => new EfCore1DbSetWrapper<Address>(this);
 
-        IDbSetWrapper<Rota> ITestDbContext.Rotas
-            => new EfCore1DbSetWrapper<Rota>(Rotas);
+        IDbSetWrapper<Rota> ITestDbContext.Rotas => new EfCore1DbSetWrapper<Rota>(this);
 
-        IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries
-            => new EfCore1DbSetWrapper<RotaEntry>(RotaEntries);
+        IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries => new EfCore1DbSetWrapper<RotaEntry>(this);
 
-        IDbSetWrapper<Order> ITestDbContext.Orders
-            => new EfCore1DbSetWrapper<Order>(Orders);
+        IDbSetWrapper<Order> ITestDbContext.Orders => new EfCore1DbSetWrapper<Order>(this);
 
-        IDbSetWrapper<OrderItem> ITestDbContext.OrderItems
-            => new EfCore1DbSetWrapper<OrderItem>(OrderItems);
+        IDbSetWrapper<OrderItem> ITestDbContext.OrderItems => new EfCore1DbSetWrapper<OrderItem>(this);
 
-        IDbSetWrapper<PublicBool> ITestDbContext.BoolItems
-            => new EfCore1DbSetWrapper<PublicBool>(BoolItems);
+        IDbSetWrapper<PublicBool> ITestDbContext.BoolItems => new EfCore1DbSetWrapper<PublicBool>(this);
 
-        IDbSetWrapper<PublicShort> ITestDbContext.ShortItems
-            => new EfCore1DbSetWrapper<PublicShort>(ShortItems);
+        IDbSetWrapper<PublicShort> ITestDbContext.ShortItems => new EfCore1DbSetWrapper<PublicShort>(this);
 
-        IDbSetWrapper<PublicInt> ITestDbContext.IntItems
-            => new EfCore1DbSetWrapper<PublicInt>(IntItems);
+        IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new EfCore1DbSetWrapper<PublicInt>(this);
 
-        IDbSetWrapper<PublicLong> ITestDbContext.LongItems
-            => new EfCore1DbSetWrapper<PublicLong>(LongItems);
+        IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new EfCore1DbSetWrapper<PublicLong>(this);
 
-        IDbSetWrapper<PublicString> ITestDbContext.StringItems
-            => new EfCore1DbSetWrapper<PublicString>(StringItems);
+        IDbSetWrapper<PublicString> ITestDbContext.StringItems => new EfCore1DbSetWrapper<PublicString>(this);
 
         Task ITestDbContext.SaveChanges() => SaveChangesAsync();
 

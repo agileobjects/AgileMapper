@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Configuration
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
@@ -20,13 +21,20 @@
         {
             return RunTest(async context =>
             {
-                var order = new Order
+                var order1 = new Order
                 {
                     DatePlaced = DateTime.Now,
                     PaymentType = PaymentTypeUk.Cheque
                 };
 
-                context.Orders.Add(order);
+                var order2 = new Order
+                {
+                    DatePlaced = DateTime.Now.AddMinutes(1),
+                    PaymentType = PaymentTypeUk.Cash
+                };
+
+                context.Orders.Add(order1);
+                context.Orders.Add(order2);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -38,13 +46,17 @@
                         .And
                         .PairEnum(PaymentTypeUk.Card).With(PaymentTypeUs.Check);
 
-                    var orderVm = context
+                    var orderVms = context
                         .Orders
                         .ProjectUsing(mapper).To<OrderViewModel>()
-                        .ShouldHaveSingleItem();
+                        .OrderBy(o => o.DatePlaced)
+                        .ToArray();
 
-                    orderVm.DatePlaced.ShouldBe(order.DatePlaced);
-                    orderVm.PaymentType.ShouldBe(PaymentTypeUs.Check);
+                    orderVms.First().DatePlaced.ShouldBe(order1.DatePlaced);
+                    orderVms.First().PaymentType.ShouldBe(PaymentTypeUs.Check);
+
+                    orderVms.Second().DatePlaced.ShouldBe(order2.DatePlaced);
+                    orderVms.Second().PaymentType.ShouldBe(PaymentTypeUs.Cash);
                 }
             });
         }
