@@ -150,6 +150,14 @@
         }
 
         [DebuggerStepThrough]
+        public static Expression GetConversionToObject(this Expression expression)
+            => GetConversionTo<object>(expression);
+
+        [DebuggerStepThrough]
+        public static Expression GetConversionTo<T>(this Expression expression)
+            => GetConversionTo(expression, typeof(T));
+
+        [DebuggerStepThrough]
         public static Expression GetConversionTo(this Expression expression, Type targetType)
         {
             if (expression.Type == targetType)

@@ -17,7 +17,7 @@
             var sourceParameter = Parameters.Create<T>("source");
             var sourceProperty = typeof(T).GetPublicInstanceProperties().First();
             var sourcePropertyAccess = Expression.Property(sourceParameter, sourceProperty);
-            var sourcePropertyCastToObject = sourcePropertyAccess.GetConversionTo(typeof(object));
+            var sourcePropertyCastToObject = sourcePropertyAccess.GetConversionToObject();
             var sourcePropertyLambda = Expression.Lambda<Func<T, object>>(sourcePropertyCastToObject, sourceParameter);
 
             return SourceMemberFor(sourceObject, sourcePropertyLambda);

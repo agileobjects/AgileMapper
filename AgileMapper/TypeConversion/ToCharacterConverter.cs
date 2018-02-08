@@ -44,7 +44,7 @@
 
             if (sourceValue.Type.GetNonNullableType().IsEnum())
             {
-                sourceValue = sourceValue.GetConversionTo(typeof(int));
+                sourceValue = sourceValue.GetConversionTo<int>();
             }
 
             return GetFromNumericConversion(sourceValue, targetType);
