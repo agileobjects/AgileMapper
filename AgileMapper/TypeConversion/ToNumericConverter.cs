@@ -21,8 +21,6 @@
         protected override bool CanConvert(Type nonNullableSourceType)
         {
             return base.CanConvert(nonNullableSourceType) ||
-                   nonNullableSourceType.IsEnum() ||
-                  (nonNullableSourceType == typeof(char)) ||
                    Constants.NumericTypes.Contains(nonNullableSourceType);
         }
 

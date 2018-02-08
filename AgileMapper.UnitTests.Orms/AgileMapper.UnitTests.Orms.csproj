@@ -74,6 +74,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectionFailureTest.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectorTest.cs" />
@@ -107,10 +108,11 @@
     <Compile Include="TestClasses\OrderDto.cs" />
     <Compile Include="TestClasses\OrderItem.cs" />
     <Compile Include="TestClasses\OrderItemDto.cs" />
+    <Compile Include="TestClasses\OrderViewModel.cs" />
     <Compile Include="TestClasses\Person.cs" />
     <Compile Include="TestClasses\PersonDto.cs" />
     <Compile Include="TestClasses\PersonViewModel.cs" />
-    <Compile Include="TestClasses\ProductDtoStruct.cs" />
+    <Compile Include="TestClasses\ProductStruct.cs" />
     <Compile Include="TestClasses\PublicDateTimeDto.cs" />
     <Compile Include="TestClasses\PublicGuidDto.cs" />
     <Compile Include="TestClasses\PublicDoubleDto.cs" />

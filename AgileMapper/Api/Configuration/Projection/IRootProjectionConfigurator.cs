@@ -70,7 +70,5 @@
         /// constant value should be applied.
         /// </returns>
         ICustomProjectionDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(TSourceValue value);
-
-
     }
 }

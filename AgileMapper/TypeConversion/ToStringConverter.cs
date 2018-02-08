@@ -10,7 +10,26 @@
 
     internal class ToStringConverter : ValueConverterBase
     {
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType) => nonNullableTargetType == typeof(string);
+        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+            => nonNullableTargetType == typeof(string);
+
+        public bool HasNativeStringRepresentation(Type nonNullableType)
+        {
+            return (nonNullableType == typeof(string)) ||
+                   (nonNullableType == typeof(object)) ||
+                    nonNullableType.IsEnum() ||
+                   (nonNullableType == typeof(char)) ||
+                    HasToStringOperator(nonNullableType, out var _);
+        }
+
+        private static bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)
+        {
+            operatorMethod = nonNullableSourceType
+                .GetOperators(o => o.To<string>())
+                .FirstOrDefault();
+
+            return operatorMethod != null;
+        }
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
@@ -20,6 +39,11 @@
 
         public Expression GetConversion(Expression sourceValue)
         {
+            if (sourceValue.Type == typeof(string))
+            {
+                return sourceValue;
+            }
+
             if (sourceValue.Type == typeof(byte[]))
             {
                 return GetByteArrayToBase64StringConversion(sourceValue);
@@ -48,15 +72,6 @@
             var toStringCall = Expression.Call(sourceValue, toStringMethod);
 
             return toStringCall;
-        }
-
-        public bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)
-        {
-            operatorMethod = nonNullableSourceType
-                .GetOperators(o => o.To<string>())
-                .FirstOrDefault();
-
-            return operatorMethod != null;
         }
 
         #region Byte[] Conversion

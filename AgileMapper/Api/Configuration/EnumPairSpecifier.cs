@@ -6,15 +6,12 @@
     using AgileMapper.Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using Projection;
     using ReadableExpressions.Extensions;
 
-    /// <summary>
-    /// Provides options for specifying the enum member to which the configured enum member should be paired.
-    /// </summary>
-    /// <typeparam name="TSource">The source type being configured.</typeparam>
-    /// <typeparam name="TTarget">The target type being configured.</typeparam>
-    /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
-    public class EnumPairSpecifier<TSource, TTarget, TFirstEnum>
+    internal class EnumPairSpecifier<TSource, TTarget, TFirstEnum> :
+        IMappingEnumPairSpecifier<TSource, TTarget>,
+        IProjectionEnumPairSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly TFirstEnum[] _firstEnumMembers;
@@ -29,17 +26,15 @@
 
         #region Factory Method
 
-        internal static EnumPairSpecifier<TSource, TTarget, TFirstEnum> For(
+        public static EnumPairSpecifier<TSource, TTarget, TFirstEnum> For(
             MappingConfigInfo configInfo,
-            TFirstEnum[] firstEnumMembers)
+            params TFirstEnum[] firstEnumMembers)
         {
             ThrowIfNotEnumType<TFirstEnum>();
             ThrowIfEmpty(firstEnumMembers);
 
             return new EnumPairSpecifier<TSource, TTarget, TFirstEnum>(configInfo, firstEnumMembers);
         }
-
-        private MapperContext MapperContext => _configInfo.MapperContext;
 
         private static void ThrowIfNotEnumType<T>()
         {
@@ -60,25 +55,33 @@
 
         #endregion
 
-        /// <summary>
-        /// Configure this mapper to map the specified first enum member to the given <paramref name="secondEnumMember"/>.
-        /// </summary>
-        /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
-        /// <param name="secondEnumMember">The second enum member in the pair.</param>
-        /// <returns>An IMappingConfigContinuation with which to configure other aspects of mapping.</returns>
+        private MapperContext MapperContext => _configInfo.MapperContext;
+
         public IMappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(TSecondEnum secondEnumMember)
             where TSecondEnum : struct
-            => With(new[] { secondEnumMember });
+        {
+            return PairEnums(secondEnumMember);
+        }
 
-        /// <summary>
-        /// Configure this mapper to map the previously-specified set of enum members to the given 
-        /// <paramref name="secondEnumMembers"/>.
-        /// </summary>
-        /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
-        /// <param name="secondEnumMembers">The second set of enum members in the pairs.</param>
-        /// <returns>An IMappingConfigContinuation with which to configure other aspects of mapping.</returns>
+        IProjectionConfigContinuation<TSource, TTarget> IProjectionEnumPairSpecifier<TSource, TTarget>.With<TSecondEnum>(
+            TSecondEnum secondEnumMember)
+        {
+            return PairEnums(secondEnumMember);
+        }
+
         public IMappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(params TSecondEnum[] secondEnumMembers)
             where TSecondEnum : struct
+        {
+            return PairEnums(secondEnumMembers);
+        }
+
+        IProjectionConfigContinuation<TSource, TTarget> IProjectionEnumPairSpecifier<TSource, TTarget>.With<TSecondEnum>(
+            params TSecondEnum[] secondEnumMembers)
+        {
+            return PairEnums(secondEnumMembers);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> PairEnums<TSecondEnum>(params TSecondEnum[] secondEnumMembers)
         {
             ThrowIfNotEnumType<TSecondEnum>();
             ThrowIfSameTypes<TSecondEnum>();

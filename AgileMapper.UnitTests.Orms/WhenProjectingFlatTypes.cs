@@ -59,7 +59,7 @@
 
             var productDto = context
                 .Products
-                .Project().To<ProductDtoStruct>()
+                .Project().To<ProductStruct>()
                 .ShouldHaveSingleItem();
 
             productDto.ProductId.ShouldBe(product.ProductId);

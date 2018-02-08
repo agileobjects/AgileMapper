@@ -8,6 +8,5 @@
     public interface IConditionalRootProjectionConfigurator<TSourceElement, TResultElement> :
         IRootProjectionConfigurator<TSourceElement, TResultElement>
     {
-
     }
 }

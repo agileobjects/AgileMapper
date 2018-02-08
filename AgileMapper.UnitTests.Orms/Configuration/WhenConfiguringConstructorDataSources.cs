@@ -31,13 +31,13 @@
             {
                 mapper.WhenMapping
                     .From<Product>()
-                    .ProjectedTo<ProductDtoStruct>()
+                    .ProjectedTo<ProductStruct>()
                     .Map("Bananas!")
                     .ToCtor<string>();
 
                 var productDto = context
                     .Products
-                    .ProjectUsing(mapper).To<ProductDtoStruct>()
+                    .ProjectUsing(mapper).To<ProductStruct>()
                     .ShouldHaveSingleItem();
 
                 productDto.ProductId.ShouldBe(product.ProductId);
@@ -65,13 +65,13 @@
             {
                 mapper.WhenMapping
                     .From<Product>()
-                    .ProjectedTo<ProductDtoStruct>()
+                    .ProjectedTo<ProductStruct>()
                     .Map(p => "2 * 3 = " + (2 * 3))
                     .ToCtor("name");
 
                 var productDto = context
                     .Products
-                    .ProjectUsing(mapper).To<ProductDtoStruct>()
+                    .ProjectUsing(mapper).To<ProductStruct>()
                     .ShouldHaveSingleItem();
 
                 productDto.ProductId.ShouldBe(product.ProductId);

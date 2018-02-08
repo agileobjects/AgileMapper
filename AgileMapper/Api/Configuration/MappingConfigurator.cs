@@ -167,11 +167,21 @@
             return this;
         }
 
-        public EnumPairSpecifier<TSource, TTarget, TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember)
+        public IMappingEnumPairSpecifier<TSource, TTarget> PairEnum<TFirstEnum>(TFirstEnum enumMember)
             where TFirstEnum : struct
-            => EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, new[] { enumMember });
+        {
+            return EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, enumMember);
+        }
+
+        IProjectionEnumPairSpecifier<TSource, TTarget> IFullProjectionSettings<TSource, TTarget>.PairEnum<TFirstEnum>(
+            TFirstEnum enumMember)
+        {
+            return EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, enumMember);
+        }
 
         IFullMappingConfigurator<TSource, TTarget> IFullMappingSettings<TSource, TTarget>.And => this;
+
+        IFullProjectionConfigurator<TSource, TTarget> IFullProjectionSettings<TSource, TTarget>.And => this;
 
         #region Ignoring Members
 

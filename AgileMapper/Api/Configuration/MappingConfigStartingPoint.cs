@@ -202,29 +202,31 @@
         }
 
         /// <summary>
-        /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another enum Type.
-        /// This pairing will apply to mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another 
+        /// enum Type. This pairing will apply to mappings between all types and MappingRuleSets (create new, 
+        /// overwrite, etc).
         /// </summary>
         /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
         /// <param name="enumMember">The first enum member in the pair.</param>
         /// <returns>
-        /// An EnumPairSpecifier with which to specify the enum member to which the given <paramref name="enumMember"/> 
-        /// should be paired.
+        /// An IMappingEnumPairSpecifier with which to specify the enum member to which the given 
+        /// <paramref name="enumMember"/> should be paired.
         /// </returns>
-        public EnumPairSpecifier<object, object, TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember) where TFirstEnum : struct
+        public IMappingEnumPairSpecifier<object, object> PairEnum<TFirstEnum>(TFirstEnum enumMember) where TFirstEnum : struct
             => PairEnums(enumMember);
 
         /// <summary>
-        /// Configure this mapper to pair the given <paramref name="enumMembers"/> with members of another enum Type.
-        /// Pairings will apply to mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// Configure this mapper to pair the given <paramref name="enumMembers"/> with members of another 
+        /// enum Type. Pairings will apply to mappings between all types and MappingRuleSets (create new, 
+        /// overwrite, etc).
         /// </summary>
         /// <typeparam name="TFirstEnum">The type of the first set of enum members being paired.</typeparam>
         /// <param name="enumMembers">The first set of enum members to pair.</param>
         /// <returns>
-        /// An EnumPairSpecifier with which to specify the set of enum members to which the given <paramref name="enumMembers"/> 
-        /// should be paired.
+        /// An IMappingEnumPairSpecifier with which to specify the set of enum members to which the given 
+        /// <paramref name="enumMembers"/> should be paired.
         /// </returns>
-        public EnumPairSpecifier<object, object, TFirstEnum> PairEnums<TFirstEnum>(params TFirstEnum[] enumMembers)
+        public IMappingEnumPairSpecifier<object, object> PairEnums<TFirstEnum>(params TFirstEnum[] enumMembers)
             where TFirstEnum : struct
         {
             return EnumPairSpecifier<object, object, TFirstEnum>.For(GlobalConfigInfo, enumMembers);
