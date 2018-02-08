@@ -23,14 +23,14 @@
         /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another 
         /// enum Type.
         /// </summary>
-        /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
+        /// <typeparam name="TPairingEnum">The type of the enum member to pair.</typeparam>
         /// <param name="enumMember">The first enum member in the pair.</param>
         /// <returns>
         /// An IProjectionEnumPairSpecifier with which to specify the enum member to which the given 
         /// <paramref name="enumMember"/> should be paired.
         /// </returns>
-        IProjectionEnumPairSpecifier<TSourceElement, TResultElement> PairEnum<TFirstEnum>(TFirstEnum enumMember)
-            where TFirstEnum : struct;
+        IProjectionEnumPairSpecifier<TSourceElement, TResultElement> PairEnum<TPairingEnum>(TPairingEnum enumMember)
+            where TPairingEnum : struct;
 
         /// <summary>
         /// Gets a link back to the full <see cref="IFullProjectionConfigurator{TSource, TTarget}"/>, for 

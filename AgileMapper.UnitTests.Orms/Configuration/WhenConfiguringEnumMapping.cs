@@ -34,7 +34,9 @@
                     mapper.WhenMapping
                         .From<Order>()
                         .ProjectedTo<OrderViewModel>()
-                        .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check);
+                        .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check)
+                        .And
+                        .PairEnum(PaymentTypeUk.Card).With(PaymentTypeUs.Check);
 
                     var orderVm = context
                         .Orders
