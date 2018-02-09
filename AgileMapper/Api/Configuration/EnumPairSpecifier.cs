@@ -13,30 +13,30 @@
     /// </summary>
     /// <typeparam name="TSource">The source type being configured.</typeparam>
     /// <typeparam name="TTarget">The target type being configured.</typeparam>
-    /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
-    public class EnumPairSpecifier<TSource, TTarget, TFirstEnum>
+    /// <typeparam name="TPairingEnum">The type of the first enum being paired.</typeparam>
+    public class EnumPairSpecifier<TSource, TTarget, TPairingEnum>
     {
         private readonly MappingConfigInfo _configInfo;
-        private readonly TFirstEnum[] _firstEnumMembers;
+        private readonly TPairingEnum[] _pairingEnumMembers;
 
         private EnumPairSpecifier(
             MappingConfigInfo configInfo,
-            TFirstEnum[] firstEnumMembers)
+            TPairingEnum[] pairingEnumMembers)
         {
             _configInfo = configInfo;
-            _firstEnumMembers = firstEnumMembers;
+            _pairingEnumMembers = pairingEnumMembers;
         }
 
         #region Factory Method
 
-        internal static EnumPairSpecifier<TSource, TTarget, TFirstEnum> For(
+        internal static EnumPairSpecifier<TSource, TTarget, TPairingEnum> For(
             MappingConfigInfo configInfo,
-            params TFirstEnum[] firstEnumMembers)
+            params TPairingEnum[] firstEnumMembers)
         {
-            ThrowIfNotEnumType<TFirstEnum>();
+            ThrowIfNotEnumType<TPairingEnum>();
             ThrowIfEmpty(firstEnumMembers);
 
-            return new EnumPairSpecifier<TSource, TTarget, TFirstEnum>(configInfo, firstEnumMembers);
+            return new EnumPairSpecifier<TSource, TTarget, TPairingEnum>(configInfo, firstEnumMembers);
         }
 
         private static void ThrowIfNotEnumType<T>()
@@ -48,7 +48,7 @@
             }
         }
 
-        private static void ThrowIfEmpty(ICollection<TFirstEnum> firstEnumMembers)
+        private static void ThrowIfEmpty(ICollection<TPairingEnum> firstEnumMembers)
         {
             if (firstEnumMembers.None())
             {
@@ -61,53 +61,53 @@
         private MapperContext MapperContext => _configInfo.MapperContext;
 
         /// <summary>
-        /// Configure this mapper to map the specified first enum member to the given <paramref name="secondEnumMember"/>.
+        /// Configure this mapper to map the specified first enum member to the given <paramref name="pairedEnumMember"/>.
         /// </summary>
-        /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
-        /// <param name="secondEnumMember">The second enum member in the pair.</param>
+        /// <typeparam name="TPairedEnum">The type of the second enum being paired.</typeparam>
+        /// <param name="pairedEnumMember">The second enum member in the pair.</param>
         /// <returns>A MappingConfigContinuation with which to configure other aspects of mapping.</returns>
-        public MappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(TSecondEnum secondEnumMember)
-            where TSecondEnum : struct
+        public MappingConfigContinuation<TSource, TTarget> With<TPairedEnum>(TPairedEnum pairedEnumMember)
+            where TPairedEnum : struct
         {
-            return PairEnums(secondEnumMember);
+            return PairEnums(pairedEnumMember);
         }
 
         /// <summary>
         /// Configure this mapper to map the previously-specified set of enum members to the given 
-        /// <paramref name="secondEnumMembers"/>.
+        /// <paramref name="pairedEnumMembers"/>.
         /// </summary>
-        /// <typeparam name="TSecondEnum">The type of the second enum being paired.</typeparam>
-        /// <param name="secondEnumMembers">The second set of enum members in the pairs.</param>
+        /// <typeparam name="TPairedEnum">The type of the second enum being paired.</typeparam>
+        /// <param name="pairedEnumMembers">The second set of enum members in the pairs.</param>
         /// <returns>A MappingConfigContinuation with which to configure other aspects of mapping.</returns>
-        public MappingConfigContinuation<TSource, TTarget> With<TSecondEnum>(params TSecondEnum[] secondEnumMembers)
-            where TSecondEnum : struct
+        public MappingConfigContinuation<TSource, TTarget> With<TPairedEnum>(params TPairedEnum[] pairedEnumMembers)
+            where TPairedEnum : struct
         {
-            return PairEnums(secondEnumMembers);
+            return PairEnums(pairedEnumMembers);
         }
 
-        private MappingConfigContinuation<TSource, TTarget> PairEnums<TSecondEnum>(params TSecondEnum[] secondEnumMembers)
+        private MappingConfigContinuation<TSource, TTarget> PairEnums<TPairedEnum>(params TPairedEnum[] pairedEnumMembers)
         {
-            ThrowIfNotEnumType<TSecondEnum>();
-            ThrowIfSameTypes<TSecondEnum>();
-            ThrowIfEmpty(secondEnumMembers);
-            ThrowIfIncompatibleNumbers(secondEnumMembers);
+            ThrowIfNotEnumType<TPairedEnum>();
+            ThrowIfSameTypes<TPairedEnum>();
+            ThrowIfEmpty(pairedEnumMembers);
+            ThrowIfIncompatibleNumbers(pairedEnumMembers);
 
-            var allSecondEnumsMembersTheSame = secondEnumMembers.Length == 1;
-            var firstSecondEnumMember = allSecondEnumsMembersTheSame ? secondEnumMembers[0] : default(TSecondEnum);
-            var createReversePairings = _firstEnumMembers.Length == secondEnumMembers.Length;
+            var hasSinglePairedEnumValue = pairedEnumMembers.Length == 1;
+            var firstPairedEnumMember = hasSinglePairedEnumValue ? pairedEnumMembers[0] : default(TPairedEnum);
+            var createReversePairings = _pairingEnumMembers.Length == pairedEnumMembers.Length;
 
-            for (var i = 0; i < _firstEnumMembers.Length; i++)
+            for (var i = 0; i < _pairingEnumMembers.Length; i++)
             {
-                var firstEnumMember = _firstEnumMembers[i];
-                var secondEnumMember = allSecondEnumsMembersTheSame ? firstSecondEnumMember : secondEnumMembers[i];
+                var pairingEnumMember = _pairingEnumMembers[i];
+                var pairedEnumMember = hasSinglePairedEnumValue ? firstPairedEnumMember : pairedEnumMembers[i];
 
-                ThrowIfAlreadyPaired<TSecondEnum>(firstEnumMember);
+                ThrowIfAlreadyPaired<TPairedEnum>(pairingEnumMember);
 
-                ConfigureEnumPair(firstEnumMember, secondEnumMember);
+                ConfigureEnumPair(pairingEnumMember, pairedEnumMember);
 
-                if (createReversePairings)
+                if (createReversePairings && ValueIsNotAlreadyPaired(pairedEnumMember))
                 {
-                    ConfigureEnumPair(secondEnumMember, firstEnumMember);
+                    ConfigureEnumPair(pairedEnumMember, pairingEnumMember);
                 }
             }
 
@@ -118,54 +118,48 @@
         {
             var pairing = EnumMemberPair.For(pairingEnumMember, pairedEnumMember);
 
-            MapperContext.ValueConverters.Add(pairing.ValueConverter);
             MapperContext.UserConfigurations.Add(pairing);
         }
 
-        private static void ThrowIfSameTypes<TSecondEnum>()
+        private static void ThrowIfSameTypes<TPairedEnum>()
         {
-            if (typeof(TFirstEnum) == typeof(TSecondEnum))
+            if (typeof(TPairingEnum) == typeof(TPairedEnum))
             {
                 throw new MappingConfigurationException(
                     "Enum pairing can only be configured between different enum types.");
             }
         }
 
-        private static void ThrowIfEmpty<TSecondEnum>(ICollection<TSecondEnum> secondEnumMembers)
+        private static void ThrowIfEmpty<TPairedEnum>(ICollection<TPairedEnum> pairedEnumMembers)
         {
-            if (secondEnumMembers.None())
+            if (pairedEnumMembers.None())
             {
                 throw new MappingConfigurationException("Target enum members must be provided.");
             }
         }
 
-        private void ThrowIfIncompatibleNumbers<TSecondEnum>(ICollection<TSecondEnum> secondEnumMembers)
+        private void ThrowIfIncompatibleNumbers<TPairedEnum>(ICollection<TPairedEnum> pairedEnumMembers)
         {
-            if (secondEnumMembers.Count != 1 &&
-              (_firstEnumMembers.Length != secondEnumMembers.Count))
+            if (pairedEnumMembers.Count != 1 &&
+              (_pairingEnumMembers.Length != pairedEnumMembers.Count))
             {
                 throw new MappingConfigurationException(
-                    $"If {secondEnumMembers.Count} paired enum values are provided, " +
-                    $"{secondEnumMembers.Count} pairing enum values are required.");
+                    $"If {pairedEnumMembers.Count} paired enum values are provided, " +
+                    $"{pairedEnumMembers.Count} pairing enum values are required.");
             }
         }
 
-        private void ThrowIfAlreadyPaired<TSecondEnum>(TFirstEnum firstEnumMember)
+        private void ThrowIfAlreadyPaired<TPairedEnum>(TPairingEnum pairingEnumValue)
         {
-            var relevantPairings = MapperContext
-                .UserConfigurations
-                .GetEnumPairingsFor(typeof(TFirstEnum), typeof(TSecondEnum))
-                .ToArray();
-
-            if (relevantPairings.None())
+            if (!TryGetRelevantPairings<TPairingEnum, TPairedEnum>(out var relevantPairings))
             {
                 return;
             }
 
-            var firstEnumMemberName = firstEnumMember.ToString();
+            var pairingEnumValueName = pairingEnumValue.ToString();
 
             var confictingPairing = relevantPairings
-                .FirstOrDefault(ep => ep.FirstEnumMemberName == firstEnumMemberName);
+                .FirstOrDefault(ep => ep.PairingEnumMemberName == pairingEnumValueName);
 
             if (confictingPairing == null)
             {
@@ -175,10 +169,32 @@
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}.{1} is already paired with {2}.{3}",
-                typeof(TFirstEnum).Name,
-                firstEnumMemberName,
-                typeof(TSecondEnum).Name,
-                confictingPairing.SecondEnumMemberName));
+                typeof(TPairingEnum).Name,
+                pairingEnumValueName,
+                typeof(TPairedEnum).Name,
+                confictingPairing.PairedEnumMemberName));
+        }
+
+        private bool TryGetRelevantPairings<TPairing, TPaired>(out EnumMemberPair[] relevantPairings)
+        {
+            relevantPairings = MapperContext
+                .UserConfigurations
+                .GetEnumPairingsFor(typeof(TPairing), typeof(TPaired))
+                .ToArray();
+
+            return relevantPairings.Any();
+        }
+
+        private bool ValueIsNotAlreadyPaired<TPairedEnum>(TPairedEnum pairedEnumValue)
+        {
+            if (!TryGetRelevantPairings<TPairedEnum, TPairingEnum>(out var relevantPairings))
+            {
+                return true;
+            }
+
+            var pairedEnumMemberName = pairedEnumValue.ToString();
+
+            return relevantPairings.None(pair => pair.PairingEnumMemberName == pairedEnumMemberName);
         }
     }
 }

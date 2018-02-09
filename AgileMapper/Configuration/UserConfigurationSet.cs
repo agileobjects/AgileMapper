@@ -152,8 +152,8 @@
 
         public void Add(EnumMemberPair enumPairing) => EnumPairings.Add(enumPairing);
 
-        public IEnumerable<EnumMemberPair> GetEnumPairingsFor(Type sourceType, Type targetType)
-            => _enumPairings?.Where(ep => ep.IsFor(sourceType, targetType)) ?? Enumerable<EnumMemberPair>.Empty;
+        public IEnumerable<EnumMemberPair> GetEnumPairingsFor(Type sourceEnumType, Type targetEnumType)
+            => _enumPairings?.Where(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.Empty;
 
         #endregion
 
