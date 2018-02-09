@@ -3,7 +3,7 @@
     using System;
     using UnitTests.TestClasses;
 
-    public class OrderViewModel
+    public class OrderUsViewModel
     {
         public DateTime DatePlaced { get; set; }
 

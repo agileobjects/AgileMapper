@@ -8,10 +8,10 @@
     using TestClasses;
     using Xunit;
 
-    public abstract class WhenViewingMappingPlans<TOrmContext> : OrmTestClassBase<TOrmContext>
+    public abstract class WhenViewingProjectionPlans<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
     {
-        protected WhenViewingMappingPlans(ITestContext<TOrmContext> context)
+        protected WhenViewingProjectionPlans(ITestContext<TOrmContext> context)
             : base(context)
         {
         }

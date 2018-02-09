@@ -41,7 +41,7 @@
 
         public DbSet<RotaEntry> RotaEntries { get; set; }
 
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderUk> Orders { get; set; }
 
         public DbSet<OrderItem> OrderItems { get; set; }
 
@@ -98,8 +98,8 @@
         IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries
             => new EfCore2DbSetWrapper<RotaEntry>(this);
 
-        IDbSetWrapper<Order> ITestDbContext.Orders
-            => new EfCore2DbSetWrapper<Order>(this);
+        IDbSetWrapper<OrderUk> ITestDbContext.Orders
+            => new EfCore2DbSetWrapper<OrderUk>(this);
 
         IDbSetWrapper<OrderItem> ITestDbContext.OrderItems
             => new EfCore2DbSetWrapper<OrderItem>(this);

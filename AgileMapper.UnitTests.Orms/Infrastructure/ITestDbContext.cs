@@ -22,7 +22,7 @@
 
         IDbSetWrapper<RotaEntry> RotaEntries { get; }
 
-        IDbSetWrapper<Order> Orders { get; }
+        IDbSetWrapper<OrderUk> Orders { get; }
 
         IDbSetWrapper<OrderItem> OrderItems { get; }
 

@@ -5,7 +5,7 @@
     using System.ComponentModel.DataAnnotations;
     using UnitTests.TestClasses;
 
-    public class Order
+    public class OrderUk
     {
         [Key]
         public int Id { get; set; }

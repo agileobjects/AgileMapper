@@ -107,7 +107,7 @@
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
     <Compile Include="Enumerables\WhenProjectingToEnumerableMembers.cs" />
     <Compile Include="WhenProjectingToFlatTypes.cs" />
-    <Compile Include="WhenViewingMappingPlans.cs" />
+    <Compile Include="WhenViewingProjectionPlans.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj">

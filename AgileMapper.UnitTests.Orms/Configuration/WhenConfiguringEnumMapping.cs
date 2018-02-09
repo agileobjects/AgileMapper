@@ -21,42 +21,54 @@
         {
             return RunTest(async context =>
             {
-                var order1 = new Order
+                var order1 = new OrderUk
                 {
                     DatePlaced = DateTime.Now,
                     PaymentType = PaymentTypeUk.Cheque
                 };
 
-                var order2 = new Order
+                var order2 = new OrderUk
                 {
                     DatePlaced = DateTime.Now.AddMinutes(1),
                     PaymentType = PaymentTypeUk.Cash
                 };
 
+                var order3 = new OrderUk
+                {
+                    DatePlaced = DateTime.Now.AddMinutes(2),
+                    PaymentType = PaymentTypeUk.Card
+                };
+
                 context.Orders.Add(order1);
                 context.Orders.Add(order2);
+                context.Orders.Add(order3);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .From<Order>()
-                        .ProjectedTo<OrderViewModel>()
+                        .From<OrderUk>()
+                        .ProjectedTo<OrderUsViewModel>()
                         .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check)
                         .And
                         .PairEnum(PaymentTypeUk.Card).With(PaymentTypeUs.Check);
 
                     var orderVms = context
                         .Orders
-                        .ProjectUsing(mapper).To<OrderViewModel>()
+                        .ProjectUsing(mapper).To<OrderUsViewModel>()
                         .OrderBy(o => o.DatePlaced)
                         .ToArray();
+
+                    orderVms.Length.ShouldBe(3);
 
                     orderVms.First().DatePlaced.ShouldBe(order1.DatePlaced);
                     orderVms.First().PaymentType.ShouldBe(PaymentTypeUs.Check);
 
                     orderVms.Second().DatePlaced.ShouldBe(order2.DatePlaced);
                     orderVms.Second().PaymentType.ShouldBe(PaymentTypeUs.Cash);
+
+                    orderVms.Third().DatePlaced.ShouldBe(order3.DatePlaced);
+                    orderVms.Third().PaymentType.ShouldBe(PaymentTypeUs.Check);
                 }
             });
         }

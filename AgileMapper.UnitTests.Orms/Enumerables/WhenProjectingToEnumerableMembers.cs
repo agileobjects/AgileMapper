@@ -103,7 +103,7 @@
             var item1 = new OrderItem();
             var item2 = new OrderItem();
 
-            var order = new Order
+            var order = new OrderUk
             {
                 DatePlaced = DateTime.Now,
                 Items = new List<OrderItem> { item1, item2 }
