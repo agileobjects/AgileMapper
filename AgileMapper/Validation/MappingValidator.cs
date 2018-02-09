@@ -8,6 +8,7 @@
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
+    using ReadableExpressions.Extensions;
 
     internal static class MappingValidator
     {
@@ -62,6 +63,7 @@
                 failureMessage
                     .Append(" Rule set: ").AppendLine(rootData.RuleSet.Name).AppendLine();
 
+                AddUnmappableTargetTypesInfo(mappingData.UnmappableTargetTypes, failureMessage);
                 AddUnmappedTargetMembersInfo(mappingData.UnmappedMembers, failureMessage, rootData);
                 AddUnpairedEnumsInfo(mappingData.UnpairedEnums, failureMessage);
             }
@@ -76,6 +78,10 @@
                 .Select(md => new
                 {
                     MapperData = md,
+                    IsUnmappable =
+                        !md.IsRoot &&
+                         md.TargetMember.IsComplex &&
+                         md.DataSourcesByTargetMember.None(),
                     UnmappedMembers = md
                         .DataSourcesByTargetMember
                         .Where(pair => !pair.Value.HasValue)
@@ -83,11 +89,15 @@
                         .ToArray(),
                     UnpairedEnums = EnumMappingMismatchFinder.FindMismatches(md)
                 })
-                .Where(d => d.UnmappedMembers.Any() || d.UnpairedEnums.Any())
+                .Where(d => d.IsUnmappable || d.UnmappedMembers.Any() || d.UnpairedEnums.Any())
                 .GroupBy(d => d.MapperData.GetRootMapperData())
                 .Select(g => new IncompleteMappingData
                 {
                     RootMapperData = g.Key,
+                    UnmappableTargetTypes = g
+                        .Where(d => d.IsUnmappable)
+                        .Select(d => d.MapperData)
+                        .ToList(),
                     UnmappedMembers = g
                         .SelectMany(d => d.UnmappedMembers)
                         .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
@@ -124,6 +134,30 @@
             previousRootMapperData = rootData;
         }
 
+        private static void AddUnmappableTargetTypesInfo(
+            ICollection<ObjectMapperData> unmappableTargetTypeData,
+            StringBuilder failureMessage)
+        {
+            if (unmappableTargetTypeData.None())
+            {
+                return;
+            }
+
+            failureMessage
+                .AppendLine(" Unconstructable target Types - fix by ignoring or configuring constructor parameters:")
+                .AppendLine();
+
+            foreach (var unmappableTypeData in unmappableTargetTypeData)
+            {
+                var sourceTypeName = unmappableTypeData.SourceType.GetFriendlyName();
+                var targetTypeName = unmappableTypeData.TargetType.GetFriendlyName();
+
+                failureMessage.Append("  - ").Append(sourceTypeName).Append(" -> ").AppendLine(targetTypeName);
+            }
+
+            failureMessage.AppendLine();
+        }
+
         private static void AddUnmappedTargetMembersInfo(
             Dictionary<QualifiedMember, DataSourceSet> unmappedMembers,
             StringBuilder failureMessage,
@@ -144,6 +178,8 @@
 
                 failureMessage.Append("  - ").AppendLine(targetMemberPath);
             }
+
+            failureMessage.AppendLine();
         }
 
         private static void AddUnpairedEnumsInfo(
@@ -173,15 +209,15 @@
         }
 
         private static IEnumerable<ObjectMapperData> GetAllMapperDatas(IEnumerable<ObjectMapperData> mapperDatas)
-        {
-            return mapperDatas.SelectMany(md => md.EnumerateAllMapperDatas());
-        }
+            => mapperDatas.SelectMany(md => md.EnumerateAllMapperDatas());
 
         #region Helper Class
 
         private class IncompleteMappingData
         {
             public IMemberMapperData RootMapperData { get; set; }
+
+            public ICollection<ObjectMapperData> UnmappableTargetTypes { get; set; }
 
             public Dictionary<QualifiedMember, DataSourceSet> UnmappedMembers { get; set; }
 
