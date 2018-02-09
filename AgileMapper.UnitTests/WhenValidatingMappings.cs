@@ -72,7 +72,7 @@
                     .From<PublicProperty<string>>().To<PublicField<int>>()
                     .Ignore(pf => pf.Value);
 
-                mapper.GetPlanFor<PublicProperty<string>>().OnTo<PublicField<int>>();
+                string plan = mapper.GetPlanFor<PublicProperty<string>>().OnTo<PublicField<int>>();
 
                 Should.NotThrow(() => mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
             }
@@ -106,6 +106,8 @@
                     mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
                 validationEx.Message.ShouldContain("PublicField<PublicField<int>> -> PublicProperty<PublicTwoParamCtor<int, int>>");
+                validationEx.Message.ShouldContain("Unconstructable target Types");
+                validationEx.Message.ShouldContain("PublicField<int> -> PublicTwoParamCtor<int, int>");
                 validationEx.Message.ShouldContain("Unmapped target members");
                 validationEx.Message.ShouldContain("PublicProperty<PublicTwoParamCtor<int, int>>.Value");
             }
@@ -142,6 +144,24 @@
                 validationEx.Message.ShouldContain("PublicField<Address> -> PublicProperty<ICollection<string>>");
                 validationEx.Message.ShouldContain("Unmapped target members");
                 validationEx.Message.ShouldContain("PublicProperty<ICollection<string>>.Value");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfEnumerableMemberHasUnconstructableElements()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .GetPlanFor<Address[]>()
+                    .ToANew<PublicCtor<string>[]>();
+
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
+
+                validationEx.Message.ShouldContain("Address[] -> PublicCtor<string>[]");
+                validationEx.Message.ShouldContain("Unconstructable target Types");
+                validationEx.Message.ShouldContain("Address -> PublicCtor<string>");
             }
         }
 
