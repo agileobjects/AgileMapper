@@ -26,7 +26,7 @@
             ObjectMapperFactory = new ObjectMapperFactory(Cache);
             UserConfigurations = new UserConfigurationSet(this);
             ConstructionFactory = new ComplexTypeConstructionFactory(Cache);
-            ValueConverters = new ConverterSet();
+            ValueConverters = new ConverterSet(UserConfigurations);
             RuleSets = new MappingRuleSetCollection();
             QueryProjectionMappingContext = new SimpleMappingContext(RuleSets.Project, this);
         }

@@ -38,19 +38,20 @@ namespace AgileObjects.AgileMapper.TypeConversion
         Expression GetConversion(Expression sourceValue, Type targetType);
 
         /// <summary>
-        /// Gets an Expression converting the given <paramref name="sourceValue"/> to the given 
-        /// <paramref name="targetType"/>, if the <see cref="IValueConverter"/>'s condition evaluates to true.
+        /// Gets an Expression converting the given <paramref name="sourceValue"/> if the 
+        /// <see cref="IValueConverter"/>'s condition evaluates to true, or delegating to the 
+        /// <paramref name="alternateConversion"/> otherwise.
         /// </summary>
         /// <param name="sourceValue">The source value to convert.</param>
-        /// <param name="targetType">The target type to which to convert to <paramref name="sourceValue"/>.</param>
-        /// <param name="conversionSoFar">
+        /// <param name="alternateConversion">
         /// An Expression containing the conversion which has been built so far by previous 
         /// <see cref="IValueConverter"/>s.
         /// </param>
         /// <returns>
-        /// An Expression converting the given <paramref name="sourceValue"/> to the given 
-        /// <paramref name="targetType"/>, if the <see cref="IValueConverter"/>'s condition evaluates to true.
+        /// An Expression converting the given <paramref name="sourceValue"/> if the 
+        /// <see cref="IValueConverter"/>'s condition evaluates to true, or delegating to the 
+        /// <paramref name="alternateConversion"/> otherwise.
         /// </returns>
-        Expression GetConversionOption(Expression sourceValue, Type targetType, Expression conversionSoFar);
+        Expression GetConversionOption(Expression sourceValue, Expression alternateConversion);
     }
 }

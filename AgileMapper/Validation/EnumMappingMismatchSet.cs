@@ -200,9 +200,9 @@
 
                 foreach (var enumParing in relevantEnumPairings)
                 {
-                    if (unmatchedSourceValues.Contains(enumParing.FirstEnumMemberName))
+                    if (unmatchedSourceValues.Contains(enumParing.PairingEnumMemberName))
                     {
-                        unmatchedSourceValues.Remove(enumParing.FirstEnumMemberName);
+                        unmatchedSourceValues.Remove(enumParing.PairingEnumMemberName);
                     }
                 }
             }

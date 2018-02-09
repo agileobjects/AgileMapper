@@ -5,16 +5,19 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class ToEnumConverter : ValueConverterBase
     {
         private readonly ToStringConverter _toStringConverter;
+        private readonly UserConfigurationSet _userConfigurations;
 
-        public ToEnumConverter(ToStringConverter toStringConverter)
+        public ToEnumConverter(ToStringConverter toStringConverter, UserConfigurationSet userConfigurations)
         {
             _toStringConverter = toStringConverter;
+            _userConfigurations = userConfigurations;
         }
 
         public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
@@ -74,7 +77,7 @@
             Type nonNullableSourceType,
             Type nonNullableTargetEnumType)
         {
-            var enumTypeName = GetEnumTypeName(nonNullableTargetEnumType);
+            var enumTypeName = GetVariableNameFor(nonNullableTargetEnumType);
             var underlyingEnumType = Enum.GetUnderlyingType(nonNullableTargetEnumType);
 
             var enumValueVariable = Expression.Variable(underlyingEnumType, enumTypeName + "Value");
@@ -161,7 +164,7 @@
             return populationBlock;
         }
 
-        private static string GetEnumTypeName(Type enumType)
+        private static string GetVariableNameFor(Type enumType)
             => enumType.GetVariableNameInCamelCase();
 
         private static Expression GetNumericToFlagsEnumConversion(
@@ -352,42 +355,69 @@
                     valueSoFar));
         }
 
-        private static Expression GetEnumToEnumConversion(
+        private Expression GetEnumToEnumConversion(
             Expression sourceValue,
             Expression fallbackValue,
-            Type nonNullableSourceType,
+            Type nonNullableSourceEnumType,
             Type nonNullableTargetEnumType)
         {
-            var sourceEnumValues = GetEnumValues(nonNullableSourceType);
+            var sourceEnumValues = GetEnumValues(nonNullableSourceEnumType);
             var targetEnumValues = GetEnumValues(nonNullableTargetEnumType);
+
+            var pairedMemberNames = _userConfigurations
+                .GetEnumPairingsFor(nonNullableSourceEnumType, nonNullableTargetEnumType)
+                .ToDictionary(pair => pair.PairingEnumMemberName, pair => pair.PairedEnumMemberName);
 
             var enumPairs = sourceEnumValues.ToDictionary(
                 sv => sv,
-                sv => targetEnumValues.FirstOrDefault(tv =>
-                          tv.Member.Name.EqualsIgnoreCase(sv.Member.Name)));
-
-            var enumPairsConversion = sourceEnumValues.Reverse().Aggregate(
-                fallbackValue,
-                (valueSoFar, enumValue) =>
+                sv =>
                 {
-                    var pairedValue = enumPairs[enumValue];
-
-                    if ((pairedValue == null) || (pairedValue == fallbackValue))
+                    if (pairedMemberNames.TryGetValue(sv.Member.Name, out var pairedMemberName))
                     {
-                        return valueSoFar;
+                        return new
+                        {
+                            Value = (Expression)targetEnumValues.First(tv => tv.Member.Name == pairedMemberName),
+                            IsCustom = true
+                        };
                     }
 
-                    return Expression.Condition(
-                        Expression.Equal(sourceValue, enumValue.GetConversionTo(sourceValue.Type)),
-                        pairedValue.GetConversionTo(fallbackValue.Type),
-                        valueSoFar);
+                    return new
+                    {
+                        Value = targetEnumValues
+                            .FirstOrDefault(tv => tv.Member.Name.EqualsIgnoreCase(sv.Member.Name)) ??
+                             fallbackValue,
+                        IsCustom = false
+                    };
                 });
+
+            var enumPairsConversion = sourceEnumValues
+                .Select(sv => new
+                {
+                    SourceValue = sv,
+                    PairedValue = enumPairs[sv]
+                })
+                .OrderByDescending(d => d.PairedValue.IsCustom)
+                .Reverse()
+                .Aggregate(
+                    fallbackValue,
+                    (valueSoFar, enumData) =>
+                    {
+                        if (enumData.PairedValue.Value == fallbackValue)
+                        {
+                            return valueSoFar;
+                        }
+
+                        return Expression.Condition(
+                            Expression.Equal(sourceValue, enumData.SourceValue.GetConversionTo(sourceValue.Type)),
+                            enumData.PairedValue.Value.GetConversionTo(fallbackValue.Type),
+                            valueSoFar);
+                    });
 
             return enumPairsConversion;
         }
 
         private static IList<MemberExpression> GetEnumValues(Type enumType)
-            => enumType.GetPublicStaticFields().Select(f => Expression.Field(null, f)).ToArray();
+            => enumType.GetPublicStaticFields().Select(f => Expression.Field(null, f)).ToList();
 
         private static Expression GetNumericToEnumConversion(
             Expression sourceValue,
@@ -444,7 +474,7 @@
                 nonNullableTargetEnumType);
 
             var tryParseCall = GetNumericTryParseCall(
-                GetEnumTypeName(nonNullableTargetEnumType),
+                GetVariableNameFor(nonNullableTargetEnumType),
                 underlyingEnumType,
                 sourceValue,
                 out var parseResultVariable);

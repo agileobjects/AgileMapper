@@ -124,7 +124,7 @@
                 }
             });
 
-            enumMappingEx.Message.ShouldContain("Source enum members");
+            enumMappingEx.Message.ShouldContain("Pairing enum members");
         }
 
         [Fact]
@@ -140,7 +140,7 @@
                 }
             });
 
-            enumMappingEx.Message.ShouldContain("Target enum members");
+            enumMappingEx.Message.ShouldContain("Paired enum members");
         }
 
         [Fact]

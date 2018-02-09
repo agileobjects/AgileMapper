@@ -13,7 +13,7 @@
     {
         private readonly List<IValueConverter> _converters;
 
-        public ConverterSet()
+        public ConverterSet(UserConfigurationSet userConfigurations)
         {
             var toStringConverter = new ToStringConverter();
 
@@ -22,7 +22,7 @@
                 toStringConverter,
                 new ToNumericConverter<int>(toStringConverter),
                 new ToBoolConverter(toStringConverter),
-                new ToEnumConverter(toStringConverter),
+                new ToEnumConverter(toStringConverter, userConfigurations),
                 new TryParseConverter<DateTime>(toStringConverter),
                 new TryParseConverter<Guid>(toStringConverter),
                 new ToNumericConverter<decimal>(toStringConverter),
@@ -91,8 +91,7 @@
 
             var conversion = converters.ReverseChain(
                 converter => converter.GetConversion(sourceValue, targetType),
-                (conversionSoFar, converter) =>
-                    converter.GetConversionOption(sourceValue, targetType, conversionSoFar));
+                (conversionSoFar, converter) => converter.GetConversionOption(sourceValue, conversionSoFar));
 
             return conversion;
         }

@@ -19,12 +19,13 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
         public abstract Expression GetConversion(Expression sourceValue, Type targetType);
 
-        public Expression GetConversionOption(Expression sourceValue, Type targetType, Expression conversionSoFar)
+        public Expression GetConversionOption(Expression sourceValue,
+            Expression alternateConversion)
         {
-            var condition = _conditionFactory.Invoke(sourceValue, targetType);
-            var conversion = GetConversion(sourceValue, targetType);
+            var condition = _conditionFactory.Invoke(sourceValue, alternateConversion.Type);
+            var conversion = GetConversion(sourceValue, alternateConversion.Type);
 
-            return Expression.Condition(condition, conversion, conversionSoFar);
+            return Expression.Condition(condition, conversion, alternateConversion);
         }
     }
 }

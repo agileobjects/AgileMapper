@@ -1,56 +1,44 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using System.Linq.Expressions;
     using Extensions.Internal;
-    using TypeConversion;
 
     internal class EnumMemberPair
     {
-        private readonly Type _firstEnumType;
-        private readonly Type _secondEnumType;
+        private readonly Type _pairingEnumType;
+        private readonly Type _pairedEnumType;
 
-        public EnumMemberPair(
-            Type firstEnumType,
-            string firstEnumMemberName,
-            Type secondEnumType,
-            string secondEnumMemberName,
-            IValueConverter valueConverter)
+        private EnumMemberPair(
+            Type pairingEnumType,
+            string pairingEnumMemberName,
+            Type pairedEnumType,
+            string pairedEnumMemberName)
         {
-            FirstEnumMemberName = firstEnumMemberName;
-            SecondEnumMemberName = secondEnumMemberName;
-            ValueConverter = valueConverter;
-            _firstEnumType = firstEnumType;
-            _secondEnumType = secondEnumType;
+            PairingEnumMemberName = pairingEnumMemberName;
+            PairedEnumMemberName = pairedEnumMemberName;
+            _pairingEnumType = pairingEnumType;
+            _pairedEnumType = pairedEnumType;
         }
 
         public static EnumMemberPair For<TFirstEnum, TSecondEnum>(
-            TFirstEnum firstEnumMember,
-            TSecondEnum secondEnumMember)
+            TFirstEnum pairingEnumMember,
+            TSecondEnum pairedEnumMember)
         {
-            var firstValue = firstEnumMember.ToConstantExpression();
-            var secondValue = secondEnumMember.ToConstantExpression();
-
-            var valueConverter = new ConfiguredValueConverter(
-                firstValue.Type,
-                secondValue,
-                (sourceValue, targetType) => Expression.Equal(sourceValue, firstValue));
+            var pairingValue = pairingEnumMember.ToConstantExpression();
+            var pairedValue = pairedEnumMember.ToConstantExpression();
 
             return new EnumMemberPair(
-                firstValue.Type,
-                firstEnumMember.ToString(),
-                secondValue.Type,
-                secondEnumMember.ToString(),
-                valueConverter);
+                pairingValue.Type,
+                pairingEnumMember.ToString(),
+                pairedValue.Type,
+                pairedEnumMember.ToString());
         }
 
-        public string FirstEnumMemberName { get; }
+        public string PairingEnumMemberName { get; }
 
-        public string SecondEnumMemberName { get; }
-
-        public IValueConverter ValueConverter { get; }
+        public string PairedEnumMemberName { get; }
 
         public bool IsFor(Type sourceEnumType, Type targetEnumType)
-            => (_firstEnumType == sourceEnumType) && (_secondEnumType == targetEnumType);
+            => (_pairingEnumType == sourceEnumType) && (_pairedEnumType == targetEnumType);
     }
 }
