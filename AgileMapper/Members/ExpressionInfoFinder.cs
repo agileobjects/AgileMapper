@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
     using static Member;
 
@@ -246,6 +247,11 @@ namespace AgileObjects.AgileMapper.Members
 
             private bool AddMemberAccess(Expression memberAccess)
             {
+                if (IsNonNullReturnMethodCall(memberAccess))
+                {
+                    return false;
+                }
+
                 if (memberAccess.Type.CannotBeNull() || !memberAccess.IsRootedIn(_mappingDataObject))
                 {
                     return false;
@@ -260,6 +266,27 @@ namespace AgileObjects.AgileMapper.Members
 
                 return !_nullCheckSubjects.Contains(memberAccessString) &&
                        !_nestedAccessesByPath.ContainsKey(memberAccessString);
+            }
+
+            private static bool IsNonNullReturnMethodCall(Expression memberAccess)
+            {
+                if (memberAccess.NodeType != ExpressionType.Call)
+                {
+                    return false;
+                }
+
+                var method = ((MethodCallExpression)memberAccess).Method;
+
+                switch (method.Name)
+                {
+                    case "ToString" when method.DeclaringType == typeof(object):
+                    case "Split" when method.DeclaringType == typeof(string):
+                    case "GetEnumerator" when method.DeclaringType.IsClosedTypeOf(typeof(IEnumerable<>)):
+                        return true;
+
+                    default:
+                        return false;
+                }
             }
         }
 
