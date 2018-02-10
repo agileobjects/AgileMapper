@@ -1,12 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Settings
 {
+    using System;
     using System.Linq.Expressions;
     using Converters;
-#if !NET_STANDARD
-    using System;
     using Extensions.Internal;
     using NetStandardPolyfills;
-#endif
 
     internal class Ef5QueryProviderSettings : DefaultQueryProviderSettings
     {
@@ -18,12 +16,19 @@
 
         public override bool SupportsEnumerableMaterialisation => false;
 
-#if !NET_STANDARD
         protected override Type LoadCanonicalFunctionsType()
-            => GetTypeOrNull("System.Data.Entity", "System.Data.Objects.EntityFunctions");
+        {
+            return GetTypeOrNull(
+                "System.Data.Entity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "System.Data.Objects.EntityFunctions");
+        }
 
         protected override Type LoadSqlFunctionsType()
-            => GetTypeOrNull("System.Data.Entity", "System.Data.Objects.SqlClient.SqlFunctions");
+        {
+            return GetTypeOrNull(
+                "System.Data.Entity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "System.Data.Objects.SqlClient.SqlFunctions");
+        }
 
         public override Expression ConvertToStringCall(MethodCallExpression call)
         {
@@ -64,7 +69,7 @@
 
         protected override Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
             => this.GetCreateDateTimeFromStringOrNull(call, fallbackValue);
-#endif
+
         public override Expression GetDefaultValueFor(Expression value)
             => DefaultValueConstantExpressionFactory.CreateFor(value);
     }

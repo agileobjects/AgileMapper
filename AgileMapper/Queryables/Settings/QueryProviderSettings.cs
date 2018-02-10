@@ -6,13 +6,13 @@
     internal static class QueryProviderSettings
     {
         private static readonly IQueryProviderSettings _ef5Settings = new Ef5QueryProviderSettings();
-        private static readonly IQueryProviderSettings _ef6Settings = new Ef6QueryProviderSettings();
         private static readonly IQueryProviderSettings _efCore2Settings = new EfCore2QueryProviderSettings();
         private static readonly IQueryProviderSettings _defaultSettings = new DefaultQueryProviderSettings();
 
         public static IQueryProviderSettings For(Type queryProviderType)
         {
-            var queryableProviderAssemblyName = queryProviderType.GetAssembly().GetName();
+            var queryProviderAssembly = queryProviderType.GetAssembly();
+            var queryableProviderAssemblyName = queryProviderAssembly.GetName();
             var queryableProviderName = queryableProviderAssemblyName.FullName;
 
             if (queryableProviderName.Contains("EntityFrameworkCore"))
@@ -28,7 +28,7 @@
                         return _ef5Settings;
 
                     case 6:
-                        return _ef6Settings;
+                        return new Ef6QueryProviderSettings(queryProviderAssembly);
                 }
             }
 

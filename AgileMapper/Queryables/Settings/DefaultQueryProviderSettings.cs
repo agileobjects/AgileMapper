@@ -3,12 +3,12 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class DefaultQueryProviderSettings : IQueryProviderSettings
     {
-#if !NET_STANDARD
         private readonly Lazy<Type> _canonicalFunctionsTypeLoader;
         private readonly Lazy<Type> _sqlFunctionsTypeLoader;
 
@@ -25,7 +25,7 @@
         public Type CanonicalFunctionsType => _canonicalFunctionsTypeLoader.Value;
 
         public Type SqlFunctionsType => _sqlFunctionsTypeLoader.Value;
-#endif
+
         public virtual bool SupportsStringEqualsIgnoreCase => false;
 
         public virtual bool SupportsToString => true;
@@ -94,14 +94,9 @@
             return convertedOrFallback;
         }
 
-#if !NET_STANDARD
         protected static Type GetTypeOrNull(string loadedAssemblyName, string typeName)
-        {
-            return AppDomain.CurrentDomain
-                .GetAssemblies()
-                .FirstOrDefault(assembly => assembly.GetName().Name == loadedAssemblyName)?
-                .GetType(typeName);
-        }
-#endif
+            => GetTypeOrNull(Assembly.Load(new AssemblyName(loadedAssemblyName)), typeName);
+
+        protected static Type GetTypeOrNull(Assembly assembly, string typeName) => assembly.GetType(typeName);
     }
 }

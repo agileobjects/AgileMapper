@@ -1,13 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Settings
 {
-#if !NET_STANDARD
     using System.Linq.Expressions;
     using System.Linq;
     using System.Reflection;
-    using Converters;
     using Extensions.Internal;
     using NetStandardPolyfills;
-#endif
     using ObjectPopulation;
 
     internal static class QueryProviderSettingsExtensions
@@ -25,7 +22,6 @@
             return providerSettings;
         }
 
-#if !NET_STANDARD
         public static Expression GetCreateDateTimeFromStringOrNull(
             this IQueryProviderSettings settings,
             MethodCallExpression dateTimeTryParseCall,
@@ -107,6 +103,5 @@
 
             return createdDateOrFallback;
         }
-#endif
     }
 }
