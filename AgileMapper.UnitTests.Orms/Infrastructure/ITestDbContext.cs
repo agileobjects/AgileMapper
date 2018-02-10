@@ -28,6 +28,8 @@
 
         IDbSetWrapper<PublicBool> BoolItems { get; }
 
+        IDbSetWrapper<PublicByte> ByteItems { get; }
+
         IDbSetWrapper<PublicShort> ShortItems { get; }
 
         IDbSetWrapper<PublicInt> IntItems { get; }
@@ -35,6 +37,8 @@
         IDbSetWrapper<PublicLong> LongItems { get; }
 
         IDbSetWrapper<PublicString> StringItems { get; }
+
+        IDbSetWrapper<PublicTitle> TitleItems { get; }
 
         Task SaveChanges();
     }

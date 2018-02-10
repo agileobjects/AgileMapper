@@ -39,6 +39,8 @@
 
         public DbSet<PublicBool> BoolItems { get; set; }
 
+        public DbSet<PublicByte> ByteItems { get; set; }
+
         public DbSet<PublicShort> ShortItems { get; set; }
 
         public DbSet<PublicInt> IntItems { get; set; }
@@ -46,6 +48,8 @@
         public DbSet<PublicLong> LongItems { get; set; }
 
         public DbSet<PublicString> StringItems { get; set; }
+
+        public DbSet<PublicTitle> TitleItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -88,6 +92,8 @@
 
         IDbSetWrapper<PublicBool> ITestDbContext.BoolItems => new EfCore1DbSetWrapper<PublicBool>(this);
 
+        IDbSetWrapper<PublicByte> ITestDbContext.ByteItems => new EfCore1DbSetWrapper<PublicByte>(this);
+
         IDbSetWrapper<PublicShort> ITestDbContext.ShortItems => new EfCore1DbSetWrapper<PublicShort>(this);
 
         IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new EfCore1DbSetWrapper<PublicInt>(this);
@@ -95,6 +101,8 @@
         IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new EfCore1DbSetWrapper<PublicLong>(this);
 
         IDbSetWrapper<PublicString> ITestDbContext.StringItems => new EfCore1DbSetWrapper<PublicString>(this);
+
+        IDbSetWrapper<PublicTitle> ITestDbContext.TitleItems => new EfCore1DbSetWrapper<PublicTitle>(this);
 
         Task ITestDbContext.SaveChanges() => SaveChangesAsync();
 

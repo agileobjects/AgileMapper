@@ -64,10 +64,12 @@
             Context.Rotas.Clear();
             Context.RotaEntries.Clear();
             Context.BoolItems.Clear();
+            Context.ByteItems.Clear();
             Context.ShortItems.Clear();
             Context.IntItems.Clear();
             Context.LongItems.Clear();
             Context.StringItems.Clear();
+            Context.TitleItems.Clear();
 
             await Context.SaveChanges();
         }

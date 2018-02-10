@@ -27,7 +27,8 @@
 
             var tryParseOrDefault = (ConditionalExpression)finalExpression;
 
-            if (tryParseOrDefault.Test.NodeType != ExpressionType.Call)
+            if ((tryParseOrDefault.Test.NodeType != ExpressionType.Call) ||
+                (tryParseOrDefault.IfTrue.NodeType != ExpressionType.Parameter))
             {
                 converted = null;
                 return false;

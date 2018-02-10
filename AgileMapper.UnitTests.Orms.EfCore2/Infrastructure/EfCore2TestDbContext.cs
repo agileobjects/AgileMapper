@@ -47,6 +47,8 @@
 
         public DbSet<PublicBool> BoolItems { get; set; }
 
+        public DbSet<PublicByte> ByteItems { get; set; }
+
         public DbSet<PublicShort> ShortItems { get; set; }
 
         public DbSet<PublicInt> IntItems { get; set; }
@@ -54,6 +56,8 @@
         public DbSet<PublicLong> LongItems { get; set; }
 
         public DbSet<PublicString> StringItems { get; set; }
+
+        public DbSet<PublicTitle> TitleItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -74,50 +78,39 @@
 
         #region ITestDbContext Members
 
-        IDbSetWrapper<Company> ITestDbContext.Companies
-            => new EfCore2DbSetWrapper<Company>(this);
+        IDbSetWrapper<Company> ITestDbContext.Companies => new EfCore2DbSetWrapper<Company>(this);
 
-        IDbSetWrapper<Employee> ITestDbContext.Employees
-            => new EfCore2DbSetWrapper<Employee>(this);
+        IDbSetWrapper<Employee> ITestDbContext.Employees => new EfCore2DbSetWrapper<Employee>(this);
 
-        IDbSetWrapper<Category> ITestDbContext.Categories
-            => new EfCore2DbSetWrapper<Category>(this);
+        IDbSetWrapper<Category> ITestDbContext.Categories => new EfCore2DbSetWrapper<Category>(this);
 
-        IDbSetWrapper<Product> ITestDbContext.Products
-            => new EfCore2DbSetWrapper<Product>(this);
+        IDbSetWrapper<Product> ITestDbContext.Products => new EfCore2DbSetWrapper<Product>(this);
 
-        IDbSetWrapper<Person> ITestDbContext.Persons
-            => new EfCore2DbSetWrapper<Person>(this);
+        IDbSetWrapper<Person> ITestDbContext.Persons => new EfCore2DbSetWrapper<Person>(this);
 
-        IDbSetWrapper<Address> ITestDbContext.Addresses
-            => new EfCore2DbSetWrapper<Address>(this);
+        IDbSetWrapper<Address> ITestDbContext.Addresses => new EfCore2DbSetWrapper<Address>(this);
 
-        IDbSetWrapper<Rota> ITestDbContext.Rotas
-            => new EfCore2DbSetWrapper<Rota>(this);
+        IDbSetWrapper<Rota> ITestDbContext.Rotas => new EfCore2DbSetWrapper<Rota>(this);
 
-        IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries
-            => new EfCore2DbSetWrapper<RotaEntry>(this);
+        IDbSetWrapper<RotaEntry> ITestDbContext.RotaEntries => new EfCore2DbSetWrapper<RotaEntry>(this);
 
-        IDbSetWrapper<OrderUk> ITestDbContext.Orders
-            => new EfCore2DbSetWrapper<OrderUk>(this);
+        IDbSetWrapper<OrderUk> ITestDbContext.Orders => new EfCore2DbSetWrapper<OrderUk>(this);
 
-        IDbSetWrapper<OrderItem> ITestDbContext.OrderItems
-            => new EfCore2DbSetWrapper<OrderItem>(this);
+        IDbSetWrapper<OrderItem> ITestDbContext.OrderItems => new EfCore2DbSetWrapper<OrderItem>(this);
 
-        IDbSetWrapper<PublicBool> ITestDbContext.BoolItems
-            => new EfCore2DbSetWrapper<PublicBool>(this);
+        IDbSetWrapper<PublicBool> ITestDbContext.BoolItems => new EfCore2DbSetWrapper<PublicBool>(this);
 
-        IDbSetWrapper<PublicShort> ITestDbContext.ShortItems
-            => new EfCore2DbSetWrapper<PublicShort>(this);
+        IDbSetWrapper<PublicByte> ITestDbContext.ByteItems => new EfCore2DbSetWrapper<PublicByte>(this);
 
-        IDbSetWrapper<PublicInt> ITestDbContext.IntItems
-            => new EfCore2DbSetWrapper<PublicInt>(this);
+        IDbSetWrapper<PublicShort> ITestDbContext.ShortItems => new EfCore2DbSetWrapper<PublicShort>(this);
 
-        IDbSetWrapper<PublicLong> ITestDbContext.LongItems
-            => new EfCore2DbSetWrapper<PublicLong>(this);
+        IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new EfCore2DbSetWrapper<PublicInt>(this);
 
-        IDbSetWrapper<PublicString> ITestDbContext.StringItems
-            => new EfCore2DbSetWrapper<PublicString>(this);
+        IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new EfCore2DbSetWrapper<PublicLong>(this);
+
+        IDbSetWrapper<PublicString> ITestDbContext.StringItems => new EfCore2DbSetWrapper<PublicString>(this);
+
+        IDbSetWrapper<PublicTitle> ITestDbContext.TitleItems => new EfCore2DbSetWrapper<PublicTitle>(this);
 
         Task ITestDbContext.SaveChanges() => SaveChangesAsync();
 

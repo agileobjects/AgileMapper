@@ -92,6 +92,7 @@
     <Compile Include="SimpleTypeConversion\IStringConverterTest.cs" />
     <Compile Include="SimpleTypeConversion\IStringConversionValidationFailureTest.cs" />
     <Compile Include="SimpleTypeConversion\IStringConversionValidatorTest.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToEnums.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
@@ -113,10 +114,14 @@
     <Compile Include="TestClasses\PersonDto.cs" />
     <Compile Include="TestClasses\PersonViewModel.cs" />
     <Compile Include="TestClasses\ProductStruct.cs" />
+    <Compile Include="TestClasses\PublicByte.cs" />
+    <Compile Include="TestClasses\PublicByteDto.cs" />
     <Compile Include="TestClasses\PublicDateTimeDto.cs" />
     <Compile Include="TestClasses\PublicGuidDto.cs" />
     <Compile Include="TestClasses\PublicDoubleDto.cs" />
     <Compile Include="TestClasses\PublicStringDto.cs" />
+    <Compile Include="TestClasses\PublicTitle.cs" />
+    <Compile Include="TestClasses\PublicTitleDto.cs" />
     <Compile Include="TestClasses\Rota.cs" />
     <Compile Include="TestClasses\RotaDto.cs" />
     <Compile Include="TestClasses\RotaEntry.cs" />

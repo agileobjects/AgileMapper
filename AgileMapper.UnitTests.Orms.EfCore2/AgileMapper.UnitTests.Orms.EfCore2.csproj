@@ -158,6 +158,7 @@
     <Compile Include="Infrastructure\InMemoryEfCore2TestContext.cs" />
     <Compile Include="Infrastructure\InMemoryEfCore2TestDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToEnums.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
