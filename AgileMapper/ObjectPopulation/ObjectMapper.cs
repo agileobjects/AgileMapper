@@ -46,6 +46,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
+        #region Setup
+
         private ICache<ObjectMapperKeyBase, IRecursionMapperFunc> CreateRecursionMapperFuncs()
         {
             var cache = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRecursionMapperFunc>();
@@ -79,8 +81,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return cache;
         }
-
-        #region Setup
 
         #endregion
 

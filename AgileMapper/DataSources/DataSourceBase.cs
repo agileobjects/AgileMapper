@@ -14,11 +14,11 @@
         {
         }
 
-        protected DataSourceBase(IDataSource wrappedDataSource, Expression value = null)
+        protected DataSourceBase(IDataSource wrappedDataSource, Expression value)
             : this(
                   wrappedDataSource.SourceMember,
                   wrappedDataSource.Variables,
-                  value ?? wrappedDataSource.Value,
+                  value,
                   wrappedDataSource.Condition)
         {
         }
