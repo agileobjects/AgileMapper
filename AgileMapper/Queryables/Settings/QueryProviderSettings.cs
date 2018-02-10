@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Settings
 {
     using System;
+    using EntityFramework;
     using NetStandardPolyfills;
 
     internal static class QueryProviderSettings

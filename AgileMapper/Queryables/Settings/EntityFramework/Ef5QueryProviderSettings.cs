@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Queryables.Settings
+﻿namespace AgileObjects.AgileMapper.Queryables.Settings.EntityFramework
 {
     using System;
     using System.Linq.Expressions;

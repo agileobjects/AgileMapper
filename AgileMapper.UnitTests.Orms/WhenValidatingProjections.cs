@@ -52,5 +52,27 @@
                 return Task.CompletedTask;
             });
         }
+
+        [Fact]
+        public Task ShouldErrorIfCachedProjectionTargetTypeIsUnconstructable()
+        {
+            return RunTest(context =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.GetPlanForProjecting(context.Addresses).To<ProductStruct>();
+
+                    var validationEx = Should.Throw<MappingValidationException>(() =>
+                        mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
+
+                    validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<ProductStruct>");
+                    validationEx.Message.ShouldContain("Rule set: Project");
+                    validationEx.Message.ShouldContain("Unconstructable target Types");
+                    validationEx.Message.ShouldContain("Address -> ProductStruct");
+                }
+
+                return Task.CompletedTask;
+            });
+        }
     }
 }
