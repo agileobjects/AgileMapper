@@ -142,6 +142,26 @@
         }
 
         [Fact]
+        public void ShouldMapANullStringOverANullableEnum()
+        {
+            var source = new PublicField<string> { Value = default(string) };
+            var target = new PublicProperty<Title?> { Value = Dr };
+
+            Mapper.Map(source).Over(target);
+
+            target.Value.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldMapAnEmptyStringOnToAnEnum()
+        {
+            var source = new PublicField<string> { Value = string.Empty };
+            var result = Mapper.Map(source).OnTo(new PublicProperty<Title>());
+
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
         public void ShouldMapAnEnumToAnEnum()
         {
             var source = new PublicProperty<TitleShortlist> { Value = TitleShortlist.Mrs };
