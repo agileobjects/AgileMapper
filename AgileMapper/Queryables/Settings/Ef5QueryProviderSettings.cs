@@ -2,19 +2,14 @@
 {
     using System;
     using System.Linq.Expressions;
-    using Converters;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal class Ef5QueryProviderSettings : DefaultQueryProviderSettings
+    internal class Ef5QueryProviderSettings : LegacyEfQueryProviderSettings
     {
         public override bool SupportsToString => false;
 
-        public override bool SupportsGetValueOrDefault => false;
-
         public override bool SupportsNonEntityNullConstants => false;
-
-        public override bool SupportsEnumerableMaterialisation => false;
 
         protected override Type LoadCanonicalFunctionsType()
         {
@@ -66,11 +61,5 @@
                 sqlFunctionsType.GetPublicStaticMethod("StringConvert", typeof(double?)),
                 subject);
         }
-
-        protected override Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
-            => this.GetCreateDateTimeFromStringOrNull(call, fallbackValue);
-
-        public override Expression GetDefaultValueFor(Expression value)
-            => DefaultValueConstantExpressionFactory.CreateFor(value);
     }
 }

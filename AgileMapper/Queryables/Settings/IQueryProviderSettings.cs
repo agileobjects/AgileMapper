@@ -8,9 +8,12 @@
         Type CanonicalFunctionsType { get; }
 
         Type SqlFunctionsType { get; }
-        bool SupportsStringEqualsIgnoreCase { get; }
 
         bool SupportsToString { get; }
+
+        bool SupportsStringEqualsIgnoreCase { get; }
+
+        bool SupportsStringToEnumConversion { get; }
 
         bool SupportsGetValueOrDefault { get; }
 
@@ -26,6 +29,8 @@
 
         Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue);
 
-        Expression ConvertEmptyArrayCreation(NewArrayExpression newEmptyArray);
+        Expression ConvertStringEqualsIgnoreCase(MethodCallExpression call);
+
+        Expression ConvertStringToEnumConversion(ConditionalExpression conversion);
     }
 }

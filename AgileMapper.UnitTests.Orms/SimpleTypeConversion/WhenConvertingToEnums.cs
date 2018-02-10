@@ -71,8 +71,7 @@
             });
         }
 
-        [Fact]
-        public Task ShouldProjectAMatchingStringToAnEnum()
+        protected Task DoShouldProjectAMatchingStringToAnEnum()
         {
             return RunTest(async context =>
             {
@@ -85,8 +84,7 @@
             });
         }
 
-        [Fact]
-        public Task ShouldProjectAMatchingNumericStringToAnEnum()
+        protected Task DoShouldProjectAMatchingNumericStringToAnEnum()
         {
             return RunTest(async context =>
             {
@@ -99,8 +97,7 @@
             });
         }
 
-        [Fact]
-        public Task ShouldProjectANonMatchingStringToAnEnum()
+        protected Task DoShouldProjectANonMatchingStringToAnEnum()
         {
             return RunTest(async context =>
             {

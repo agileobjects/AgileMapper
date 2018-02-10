@@ -47,6 +47,11 @@
                 return Modify(converted);
             }
 
+            if (StringToEnumConversionConverter.TryConvert(conditional, this, out converted))
+            {
+                return converted;
+            }
+
             return base.VisitConditional(conditional);
         }
 

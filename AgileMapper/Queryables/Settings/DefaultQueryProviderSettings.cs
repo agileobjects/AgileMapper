@@ -26,9 +26,11 @@
 
         public Type SqlFunctionsType => _sqlFunctionsTypeLoader.Value;
 
+        public virtual bool SupportsToString => true;
+
         public virtual bool SupportsStringEqualsIgnoreCase => false;
 
-        public virtual bool SupportsToString => true;
+        public virtual bool SupportsStringToEnumConversion => true;
 
         public virtual bool SupportsGetValueOrDefault => true;
 
@@ -73,10 +75,9 @@
             return conversion;
         }
 
-        public virtual Expression ConvertEmptyArrayCreation(NewArrayExpression newEmptyArray) => newEmptyArray;
+        public virtual Expression ConvertStringEqualsIgnoreCase(MethodCallExpression call) => call;
 
-        protected virtual Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
-            => null;
+        #region ConvertTryParseCall Helpers
 
         private Expression GetConvertStringToGuid(MethodCallExpression guidTryParseCall, Expression fallbackValue)
         {
@@ -93,6 +94,13 @@
 
             return convertedOrFallback;
         }
+
+        protected virtual Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
+            => null;
+
+        #endregion
+
+        public virtual Expression ConvertStringToEnumConversion(ConditionalExpression conversion) => conversion;
 
         protected static Type GetTypeOrNull(string loadedAssemblyName, string typeName)
             => GetTypeOrNull(Assembly.Load(new AssemblyName(loadedAssemblyName)), typeName);

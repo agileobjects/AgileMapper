@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Infrastructure
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using Xunit;
 
@@ -29,6 +30,11 @@
             try
             {
                 await test.Invoke(Context);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                throw;
             }
             finally
             {
