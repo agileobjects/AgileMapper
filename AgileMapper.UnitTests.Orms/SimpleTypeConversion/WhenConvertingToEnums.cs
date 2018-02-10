@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
+    using UnitTests.TestClasses;
     using Xunit;
     using static UnitTests.TestClasses.Title;
 
@@ -81,6 +82,34 @@
                 var enumItem = context.StringItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
 
                 enumItem.Value.ShouldBe(Mr);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectAMatchingNumericStringToAnEnum()
+        {
+            return RunTest(async context =>
+            {
+                context.StringItems.Add(new PublicString { Value = ((int)Mrs).ToString() });
+                await context.SaveChanges();
+
+                var enumItem = context.StringItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
+
+                enumItem.Value.ShouldBe(Mrs);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectANonMatchingStringToAnEnum()
+        {
+            return RunTest(async context =>
+            {
+                context.StringItems.Add(new PublicString { Value = "Horse Pills" });
+                await context.SaveChanges();
+
+                var enumItem = context.StringItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
+
+                enumItem.Value.ShouldBe(default(Title));
             });
         }
     }

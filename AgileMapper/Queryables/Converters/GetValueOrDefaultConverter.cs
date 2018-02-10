@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
+    using System;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
@@ -32,7 +33,7 @@
             return methodCall.Arguments.Any() ||
                    methodCall.Method.IsStatic ||
                   !methodCall.Object.Type.IsNullableType() ||
-                  (methodCall.Method.Name != "GetValueOrDefault");
+                  (methodCall.Method.Name != nameof(Nullable<int>.GetValueOrDefault));
         }
     }
 }

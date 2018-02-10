@@ -26,7 +26,7 @@
             return !methodCall.Method.IsStatic ||
                    (methodCall.Arguments.Count != 3) ||
                    (methodCall.Method.DeclaringType != typeof(string)) ||
-                   (methodCall.Method.Name != "Equals");
+                   (methodCall.Method.Name != nameof(string.Equals));
         }
 
         private static Expression Convert(MethodCallExpression methodCall)

@@ -36,7 +36,7 @@
 
             var methodCall = (MethodCallExpression)tryParseOrDefault.Test;
 
-            if (!methodCall.Method.IsStatic || (methodCall.Method.Name != "TryParse"))
+            if (!methodCall.Method.IsStatic || (methodCall.Method.Name != nameof(int.TryParse)))
             {
                 converted = null;
                 return false;

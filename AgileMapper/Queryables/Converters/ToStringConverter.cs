@@ -24,7 +24,7 @@
         {
             return methodCall.Arguments.Any() ||
                    methodCall.Method.IsStatic ||
-                  (methodCall.Method.Name != "ToString");
+                  (methodCall.Method.Name != nameof(ToString));
         }
     }
 }
