@@ -21,7 +21,7 @@
             {
                 var product = new Product { Name = "P1" };
 
-                context.Products.Add(product);
+                await context.Products.Add(product);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -51,8 +51,7 @@
                 var product1 = new Product { Name = "P1" };
                 var product2 = new Product { Name = "P2" };
 
-                context.Products.Add(product1);
-                context.Products.Add(product2);
+                await context.Products.AddRange(product1, product2);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -92,7 +91,7 @@
                     Address = new Address { Line1 = "Line 1", Postcode = "Postcode" }
                 };
 
-                context.Persons.Add(person);
+                await context.Persons.Add(person);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -123,7 +122,7 @@
             {
                 var product = new Product { Name = "P1" };
 
-                context.Products.Add(product);
+                await context.Products.Add(product);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -151,7 +150,7 @@
             {
                 var product = new Product { Name = "Product1" };
 
-                context.Products.Add(product);
+                await context.Products.Add(product);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -186,8 +185,7 @@
                 var product1 = new Product { Name = "P.1" };
                 var product2 = new Product { Name = "P.2" };
 
-                context.Products.Add(product1);
-                context.Products.Add(product2);
+                await context.Products.AddRange(product1, product2);
                 await context.SaveChanges();
 
                 var product1Id = product1.ProductId;
@@ -226,8 +224,7 @@
                 var product1 = new Product { Name = "P.1" };
                 var product2 = new Product { Name = "P.2" };
 
-                context.Products.Add(product1);
-                context.Products.Add(product2);
+                await context.Products.AddRange(product1, product2);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -267,8 +264,7 @@
                 var person1 = new Person { Name = "Frank", Address = new Address { Line1 = "Philly" } };
                 var person2 = new Person { Name = "Dee" };
 
-                context.Persons.Add(person1);
-                context.Persons.Add(person2);
+                await context.Persons.AddRange(person1, person2);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -312,7 +308,7 @@
             {
                 var address = new Address { Line1 = "Philly", Postcode = "PH1 1LY" };
 
-                context.Addresses.Add(address);
+                await context.Addresses.Add(address);
                 await context.SaveChanges();
 
                 using (var mapper1 = Mapper.CreateNew())

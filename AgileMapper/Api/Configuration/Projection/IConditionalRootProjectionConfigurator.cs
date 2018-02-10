@@ -8,5 +8,16 @@
     public interface IConditionalRootProjectionConfigurator<TSourceElement, TResultElement> :
         IRootProjectionConfigurator<TSourceElement, TResultElement>
     {
+        /// <summary>
+        /// Map the source type being configured to the derived result type specified by 
+        /// <typeparamref name="TDerivedResult"/> if the preceding condition evaluates to true.
+        /// </summary>
+        /// <typeparam name="TDerivedResult">The derived result type to create.</typeparam>
+        /// <returns>
+        /// An IProjectionConfigContinuation to enable further configuration of mappings from and to the source 
+        /// and result type being configured.
+        /// </returns>
+        IProjectionConfigContinuation<TSourceElement, TResultElement> MapTo<TDerivedResult>()
+            where TDerivedResult : TResultElement;
     }
 }

@@ -19,7 +19,7 @@
         {
             return RunTest(async context =>
             {
-                context.IntItems.Add(new PublicInt { Value = 1 });
+                await context.IntItems.Add(new PublicInt { Value = 1 });
                 await context.SaveChanges();
 
                 var boolItem = context.IntItems.Project().To<PublicBoolDto>().First();
@@ -33,7 +33,7 @@
         {
             return RunTest(async context =>
             {
-                context.IntItems.Add(new PublicInt { Value = 0 });
+                await context.IntItems.Add(new PublicInt { Value = 0 });
                 await context.SaveChanges();
 
                 var boolItem = context.IntItems.Project().To<PublicBoolDto>().First();
@@ -47,7 +47,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = "true" });
+                await context.StringItems.Add(new PublicString { Value = "true" });
                 await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
@@ -61,7 +61,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = "tRuE" });
+                await context.StringItems.Add(new PublicString { Value = "tRuE" });
                 await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
@@ -75,7 +75,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = "1" });
+                await context.StringItems.Add(new PublicString { Value = "1" });
                 await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
@@ -89,7 +89,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = "false" });
+                await context.StringItems.Add(new PublicString { Value = "false" });
                 await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
@@ -103,7 +103,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = "0" });
+                await context.StringItems.Add(new PublicString { Value = "0" });
                 await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
@@ -117,7 +117,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = "uokyujhygt" });
+                await context.StringItems.Add(new PublicString { Value = "uokyujhygt" });
                 await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();
@@ -131,7 +131,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = null });
+                await context.StringItems.Add(new PublicString { Value = null });
                 await context.SaveChanges();
 
                 var boolItem = context.StringItems.Project().To<PublicBoolDto>().First();

@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
+    using Xunit;
 
     public abstract class WhenIgnoringMembers<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
@@ -13,13 +14,14 @@
         {
         }
 
-        protected Task DoShouldIgnoreAConfiguredMember()
+        [Fact]
+        public Task DoShouldIgnoreAConfiguredMember()
         {
             return RunTest(async context =>
             {
                 var product = new Product { Name = "P1" };
 
-                context.Products.Add(product);
+                await context.Products.Add(product);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -40,15 +42,15 @@
             });
         }
 
-        protected Task DoShouldIgnoreAConfiguredMemberConditionally()
+        [Fact]
+        public Task DoShouldIgnoreAConfiguredMemberConditionally()
         {
             return RunTest(async context =>
             {
                 var product1 = new Product { Name = "P.1" };
                 var product2 = new Product { Name = "P.2" };
 
-                context.Products.Add(product1);
-                context.Products.Add(product2);
+                await context.Products.AddRange(product1, product2);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -73,7 +75,8 @@
             });
         }
 
-        protected Task DoShouldIgnoreMembersByTypeAndTargetType()
+        [Fact]
+        public Task DoShouldIgnoreMembersByTypeAndTargetType()
         {
             return RunTest(async context =>
             {
@@ -83,7 +86,7 @@
                     Address = new Address { Line1 = "1", Line2 = "2", Postcode = "3" }
                 };
 
-                context.Persons.Add(person);
+                await context.Persons.Add(person);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())
@@ -110,7 +113,8 @@
             });
         }
 
-        protected Task DoShouldIgnorePropertiesByPropertyInfoMatcher()
+        [Fact]
+        public Task DoShouldIgnorePropertiesByPropertyInfoMatcher()
         {
             return RunTest(async context =>
             {
@@ -120,7 +124,7 @@
                     Address = new Address { Line1 = "1", Line2 = "2", Postcode = "3" }
                 };
 
-                context.Persons.Add(person);
+                await context.Persons.Add(person);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())

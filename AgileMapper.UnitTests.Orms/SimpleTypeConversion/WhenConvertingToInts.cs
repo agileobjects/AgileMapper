@@ -19,7 +19,7 @@
         {
             return RunTest(async context =>
             {
-                context.ShortItems.Add(new PublicShort { Value = 123 });
+                await context.ShortItems.Add(new PublicShort { Value = 123 });
                 await context.SaveChanges();
 
                 var intItem = context.ShortItems.Project().To<PublicIntDto>().First();
@@ -33,7 +33,7 @@
         {
             return RunTest(async context =>
             {
-                context.LongItems.Add(new PublicLong { Value = 12345L });
+                await context.LongItems.Add(new PublicLong { Value = 12345L });
                 await context.SaveChanges();
 
                 var intItem = context.LongItems.Project().To<PublicIntDto>().First();
@@ -47,7 +47,7 @@
         {
             return RunTest(async context =>
             {
-                context.LongItems.Add(new PublicLong { Value = long.MaxValue });
+                await context.LongItems.Add(new PublicLong { Value = long.MaxValue });
                 await context.SaveChanges();
 
                 var intItem = context.LongItems.Project().To<PublicIntDto>().First();
@@ -61,7 +61,7 @@
         {
             return RunTest(async context =>
             {
-                context.LongItems.Add(new PublicLong { Value = int.MinValue - 1L });
+                await context.LongItems.Add(new PublicLong { Value = int.MinValue - 1L });
                 await context.SaveChanges();
 
                 var intItem = context.LongItems.Project().To<PublicIntDto>().First();
@@ -80,7 +80,7 @@
 
         private static async Task ProjectParseableStringToInt(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = "738" });
+            await context.StringItems.Add(new PublicString { Value = "738" });
             await context.SaveChanges();
 
             var intItem = context.StringItems.Project().To<PublicIntDto>().First();
@@ -100,7 +100,7 @@
 
         private static async Task ProjectNullStringToInt(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = default(string) });
+            await context.StringItems.Add(new PublicString { Value = default(string) });
             await context.SaveChanges();
 
             var intItem = context.StringItems.Project().To<PublicIntDto>().First();
@@ -120,7 +120,7 @@
 
         private static async Task ProjectUnparseableStringToInt(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = "hsejk" });
+            await context.StringItems.Add(new PublicString { Value = "hsejk" });
             await context.SaveChanges();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed

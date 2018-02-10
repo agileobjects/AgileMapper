@@ -9,8 +9,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         : IRootMappingConfigurator<TSource, TTarget>
     {
         /// <summary>
-        /// Map the source type being configured to the derived target type specified by the type argument if
-        /// the preceding condition evaluates to true.
+        /// Map the source type being configured to the derived target type specified by 
+        /// <typeparamref name="TDerivedTarget"/> if the preceding condition evaluates to true.
         /// </summary>
         /// <typeparam name="TDerivedTarget">The derived target type to create.</typeparam>
         /// <returns>

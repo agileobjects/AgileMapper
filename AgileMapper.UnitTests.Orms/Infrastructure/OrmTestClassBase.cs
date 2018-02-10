@@ -59,6 +59,7 @@
 
         private async Task EmptyDbContext()
         {
+            Context.Animals.Clear();
             Context.Companies.Clear();
             Context.Employees.Clear();
             Context.Categories.Clear();

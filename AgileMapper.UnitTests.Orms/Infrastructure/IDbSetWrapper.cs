@@ -9,7 +9,9 @@
     {
         void Include<TProperty>(Expression<Func<TEntity, TProperty>> navigationPropertyPath);
 
-        void Add(TEntity itemToAdd);
+        Task Add(TEntity itemToAdd);
+
+        Task AddRange(params TEntity[] itemsToAdd);
 
         void Clear();
     }

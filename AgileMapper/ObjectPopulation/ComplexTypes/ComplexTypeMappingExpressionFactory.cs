@@ -46,6 +46,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             var targetType = mappingData.MapperData.TargetType;
 
+            if (targetType.IsAbstract() && mappingData.MapperData.GetDerivedTargetTypes().Any())
+            {
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+            }
+
             nullMappingBlock = Expression.Block(
                 ReadableExpression.Comment("Cannot construct an instance of " + targetType.GetFriendlyName()),
                 targetType.ToDefaultExpression());

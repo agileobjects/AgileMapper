@@ -62,7 +62,7 @@
                 Entries = new List<RotaEntry> { rotaEntry1, rotaEntry2, rotaEntry3 }
             };
 
-            context.Rotas.Add(rota);
+            await context.Rotas.Add(rota);
             await context.SaveChanges();
 
             var rotaDto = context.Rotas.Where(r => r.Id == 1).Project().To<RotaDto>().First();
@@ -109,7 +109,7 @@
                 Items = new List<OrderItem> { item1, item2 }
             };
 
-            context.Orders.Add(order);
+            await context.Orders.Add(order);
             await context.SaveChanges();
 
             var rotaDto = context.Orders.Where(r => r.Id == 1).Project().To<OrderDto>().First();

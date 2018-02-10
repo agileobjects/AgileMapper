@@ -324,6 +324,14 @@
             return derivedTypePair.To<TDerivedTarget>();
         }
 
+        IProjectionConfigContinuation<TSource, TTarget> IConditionalRootProjectionConfigurator<TSource, TTarget>.MapTo<TDerivedResult>()
+        {
+            IProjectionDerivedPairTargetTypeSpecifier<TSource, TTarget> derivedTypePair =
+                new DerivedPairTargetTypeSpecifier<TSource, TSource, TTarget>(ConfigInfo);
+
+            return derivedTypePair.To<TDerivedResult>();
+        }
+
         public IMappingConfigContinuation<TSource, TTarget> MapToNull()
         {
             var condition = new MapToNullCondition(ConfigInfo);
@@ -333,8 +341,11 @@
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
-        public DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
-            => new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(ConfigInfo);
+        public IMappingDerivedPairTargetTypeSpecifier<TSource, TTarget> Map<TDerivedSource>()
+            where TDerivedSource : TSource
+        {
+            return new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(ConfigInfo);
+        }
 
         #endregion
     }

@@ -24,7 +24,7 @@
         {
             var product = new Product { Name = "Prod.One" };
 
-            context.Products.Add(product);
+            await context.Products.Add(product);
             await context.SaveChanges();
 
             using (var mapper = Mapper.CreateNew())
@@ -58,7 +58,7 @@
         {
             var product = new Product { Name = "Prod.One" };
 
-            context.Products.Add(product);
+            await context.Products.Add(product);
             await context.SaveChanges();
 
             using (var mapper = Mapper.CreateNew())

@@ -3,6 +3,7 @@
     using System;
     using System.Data.Entity;
     using System.Linq.Expressions;
+    using System.Threading.Tasks;
     using Orms.Infrastructure;
 
     public class Ef6DbSetWrapper<TEntity> : DbSetWrapperBase<TEntity>
@@ -19,7 +20,19 @@
         public override void Include<TProperty>(Expression<Func<TEntity, TProperty>> navigationPropertyPath)
             => _dbSet.Include(navigationPropertyPath);
 
-        public override void Add(TEntity itemToAdd) => _dbSet.Add(itemToAdd);
+        public override Task Add(TEntity itemToAdd)
+        {
+            _dbSet.Add(itemToAdd);
+
+            return Task.CompletedTask;
+        }
+
+        public override Task AddRange(TEntity[] itemsToAdd)
+        {
+            _dbSet.AddRange(itemsToAdd);
+
+            return Task.CompletedTask;
+        }
 
         public override void Clear() => _dbSet.RemoveRange(_dbSet);
     }

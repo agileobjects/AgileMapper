@@ -23,8 +23,10 @@
         /// <typeparam name="TDerivedSource">
         /// The derived source type for which to configure a matching derived target type.
         /// </typeparam>
-        /// <returns>A DerivedPairTargetTypeSpecifier with which to specify the matching derived target type.</returns>
-        DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget> Map<TDerivedSource>()
+        /// <returns>
+        /// A IMappingDerivedPairTargetTypeSpecifier with which to specify the matching derived target type.
+        /// </returns>
+        IMappingDerivedPairTargetTypeSpecifier<TSource, TTarget> Map<TDerivedSource>()
             where TDerivedSource : TSource;
     }
 }

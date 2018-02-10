@@ -26,7 +26,7 @@
         {
             var now = DateTime.Now;
 
-            context.StringItems.Add(new PublicString { Value = now.ToString("s") });
+            await context.StringItems.Add(new PublicString { Value = now.ToString("s") });
             await context.SaveChanges();
 
             var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
@@ -46,7 +46,7 @@
 
         private static async Task ProjectANullStringToADateTime(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = default(string) });
+            await context.StringItems.Add(new PublicString { Value = default(string) });
             await context.SaveChanges();
 
             var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
@@ -66,7 +66,7 @@
 
         private static async Task ProjectAnUnparseableStringToADateTime(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = "htgijfoekld" });
+            await context.StringItems.Add(new PublicString { Value = "htgijfoekld" });
             await context.SaveChanges();
 
             var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();

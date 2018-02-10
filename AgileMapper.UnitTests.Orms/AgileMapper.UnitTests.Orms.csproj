@@ -74,6 +74,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
     <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectionFailureTest.cs" />
@@ -99,10 +100,14 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\AddressDto.cs" />
+    <Compile Include="TestClasses\Animal.cs" />
+    <Compile Include="TestClasses\AnimalDtoBase.cs" />
     <Compile Include="TestClasses\Category.cs" />
     <Compile Include="TestClasses\CategoryDto.cs" />
     <Compile Include="TestClasses\Company.cs" />
     <Compile Include="TestClasses\CompanyDto.cs" />
+    <Compile Include="TestClasses\DogDto.cs" />
+    <Compile Include="TestClasses\ElephantDto.cs" />
     <Compile Include="TestClasses\Employee.cs" />
     <Compile Include="TestClasses\EmployeeDto.cs" />
     <Compile Include="TestClasses\OrderUk.cs" />
@@ -126,6 +131,7 @@
     <Compile Include="TestClasses\RotaDto.cs" />
     <Compile Include="TestClasses\RotaEntry.cs" />
     <Compile Include="TestClasses\RotaEntryDto.cs" />
+    <Compile Include="TestClasses\SnakeDto.cs" />
     <Compile Include="TestConstants.cs" />
     <Compile Include="Infrastructure\InMemoryOrmTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -3,9 +3,9 @@
     using Infrastructure;
     using Orms.Configuration;
 
-    public class WhenIgnoringMembers : WhenIgnoringMembers<EfCore2TestDbContext>
+    public class WhenConfiguringDerivedTypes : WhenConfiguringDerivedTypes<EfCore2TestDbContext>
     {
-        public WhenIgnoringMembers(InMemoryEfCore2TestContext context)
+        public WhenConfiguringDerivedTypes(InMemoryEfCore2TestContext context)
             : base(context)
         {
         }

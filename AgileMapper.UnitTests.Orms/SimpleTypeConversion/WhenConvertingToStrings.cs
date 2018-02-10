@@ -19,7 +19,7 @@
         {
             return RunTest(async context =>
             {
-                context.IntItems.Add(new PublicInt { Value = 763483 });
+                await context.IntItems.Add(new PublicInt { Value = 763483 });
                 await context.SaveChanges();
 
                 var stringItem = context.IntItems.Project().To<PublicStringDto>().First();
@@ -33,7 +33,7 @@
         {
             return RunTest(async context =>
             {
-                context.BoolItems.Add(new PublicBool { Value = true });
+                await context.BoolItems.Add(new PublicBool { Value = true });
                 await context.SaveChanges();
 
                 var stringItem = context.BoolItems.Project().To<PublicStringDto>().First();

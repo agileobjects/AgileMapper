@@ -26,7 +26,7 @@
                     HeadOffice = new Address { Line1 = "Acme Park", Postcode = "AC3 3ME" }
                 };
 
-                context.Companies.Add(company);
+                await context.Companies.Add(company);
                 await context.SaveChanges();
 
                 var ceo = new Employee
@@ -38,7 +38,7 @@
                     Company = company
                 };
 
-                context.Employees.Add(ceo);
+                await context.Employees.Add(ceo);
                 await context.SaveChanges();
 
                 company.CeoId = ceo.Id;
@@ -92,7 +92,7 @@
                 new Category { Name = "Top > Two" },
                 new Category { Name = "Top > Three" });
 
-            context.Categories.Add(topLevel);
+            await context.Categories.Add(topLevel);
 
             if (depth > 0)
             {

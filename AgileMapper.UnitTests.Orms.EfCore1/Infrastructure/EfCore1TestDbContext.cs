@@ -17,6 +17,8 @@
         {
         }
 
+        public DbSet<Animal> Animals { get; }
+        
         public DbSet<Company> Companies { get; set; }
 
         public DbSet<Employee> Employees { get; set; }
@@ -69,6 +71,8 @@
         }
 
         #region ITestDbContext Members
+
+        IDbSetWrapper<Animal> ITestDbContext.Animals => new EfCore1DbSetWrapper<Animal>(this);
 
         IDbSetWrapper<Company> ITestDbContext.Companies => new EfCore1DbSetWrapper<Company>(this);
 

@@ -6,6 +6,8 @@
 
     public interface ITestDbContext : IDisposable
     {
+        IDbSetWrapper<Animal> Animals { get; }
+
         IDbSetWrapper<Company> Companies { get; }
 
         IDbSetWrapper<Employee> Employees { get; }

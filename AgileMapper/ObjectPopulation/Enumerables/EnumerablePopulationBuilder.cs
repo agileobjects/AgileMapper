@@ -558,24 +558,24 @@
 
         public Expression GetSourceItemsProjection(
             Expression sourceEnumerableValue,
-            Func<Expression, Expression> projectionFuncFactory)
+            Func<Expression, Expression> projectionLambdaFactory)
         {
             return CreateSourceItemsProjection(
                 sourceEnumerableValue,
-                (sourceParameter, counter) => projectionFuncFactory.Invoke(sourceParameter),
+                (sourceParameter, counter) => projectionLambdaFactory.Invoke(sourceParameter),
                 counterRequired: false);
         }
 
         public Expression GetSourceItemsProjection(
             Expression sourceEnumerableValue,
-            Func<Expression, Expression, Expression> projectionFuncFactory)
+            Func<Expression, Expression, Expression> projectionLambdaFactory)
         {
-            return CreateSourceItemsProjection(sourceEnumerableValue, projectionFuncFactory, counterRequired: true);
+            return CreateSourceItemsProjection(sourceEnumerableValue, projectionLambdaFactory, counterRequired: true);
         }
 
         private Expression CreateSourceItemsProjection(
             Expression sourceEnumerableValue,
-            Func<Expression, Expression, Expression> projectionFuncFactory,
+            Func<Expression, Expression, Expression> projectionLambdaFactory,
             bool counterRequired)
         {
             var isRootQueryableMapping = MapperData.SourceType.IsQueryable();
@@ -591,35 +591,29 @@
                     ? _enumerableSelectWithIndexMethod
                     : EnumerableSelectWithoutIndexMethod;
 
-            ParameterExpression[] projectionFuncParameters;
+            ParameterExpression[] projectionLambdaParameters;
             Type[] funcTypes;
 
             if (counterRequired)
             {
-                projectionFuncParameters = new[] { _sourceElementParameter, Counter };
+                projectionLambdaParameters = new[] { _sourceElementParameter, Counter };
                 funcTypes = new[] { Context.SourceElementType, Counter.Type, Context.TargetElementType };
             }
             else
             {
-                projectionFuncParameters = new[] { _sourceElementParameter };
+                projectionLambdaParameters = new[] { _sourceElementParameter };
                 funcTypes = new[] { Context.SourceElementType, Context.TargetElementType };
             }
 
             var projectionFuncType = Expression.GetFuncType(funcTypes);
 
-            Expression projectionFunc = Expression.Lambda(
+            Expression projectionLambda = Expression.Lambda(
                 projectionFuncType,
-                projectionFuncFactory.Invoke(_sourceElementParameter, Counter),
-                projectionFuncParameters);
-
-            if (isRootQueryableMapping)
-            {
-                projectionFuncType = typeof(Expression<>).MakeGenericType(projectionFuncType);
-                projectionFunc = projectionFunc.ToConstantExpression(projectionFuncType);
-            }
+                projectionLambdaFactory.Invoke(_sourceElementParameter, Counter),
+                projectionLambdaParameters);
 
             var typedSelectMethod = linqSelectOverload.MakeGenericMethod(Context.ElementTypes);
-            var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionFunc);
+            var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionLambda);
 
             return typedSelectCall;
         }

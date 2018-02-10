@@ -39,9 +39,7 @@
                     PaymentType = PaymentTypeUk.Card
                 };
 
-                context.Orders.Add(order1);
-                context.Orders.Add(order2);
-                context.Orders.Add(order3);
+                await context.Orders.AddRange(order1, order2, order3);
                 await context.SaveChanges();
 
                 using (var mapper = Mapper.CreateNew())

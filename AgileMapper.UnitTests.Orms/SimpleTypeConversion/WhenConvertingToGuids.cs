@@ -26,7 +26,7 @@
         {
             var guid = Guid.NewGuid();
 
-            context.StringItems.Add(new PublicString { Value = guid.ToString() });
+            await context.StringItems.Add(new PublicString { Value = guid.ToString() });
             await context.SaveChanges();
 
             var guidItem = context.StringItems.Project().To<PublicGuidDto>().First();
@@ -46,7 +46,7 @@
 
         private static async Task ProjectANullStringToAGuid(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = default(string) });
+            await context.StringItems.Add(new PublicString { Value = default(string) });
             await context.SaveChanges();
 
             var guidItem = context.StringItems.Project().To<PublicGuidDto>().First();

@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     key,
                     out var newingConstructorRequired);
 
-                if (newingConstructorRequired)
+                if (newingConstructorRequired && !key.MappingData.MapperData.TargetType.IsAbstract())
                 {
                     AddNewingConstruction(constructions, key);
                 }

@@ -29,7 +29,7 @@
                     }
                 };
 
-                context.Persons.Add(person);
+                await context.Persons.Add(person);
                 await context.SaveChanges();
 
                 var personDto = context.Persons.Project().To<PersonDto>().First();
@@ -50,7 +50,7 @@
             {
                 var person = new Person { Name = "No Address!" };
 
-                context.Persons.Add(person);
+                await context.Persons.Add(person);
                 await context.SaveChanges();
 
                 var personDto = context.Persons.Project().To<PersonDto>().First();

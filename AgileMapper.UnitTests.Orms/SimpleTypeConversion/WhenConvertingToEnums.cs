@@ -20,7 +20,7 @@
         {
             return RunTest(async context =>
             {
-                context.ByteItems.Add(new PublicByte { Value = (byte)Dr });
+                await context.ByteItems.Add(new PublicByte { Value = (byte)Dr });
                 await context.SaveChanges();
 
                 var enumItem = context.ByteItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
@@ -34,7 +34,7 @@
         {
             return RunTest(async context =>
             {
-                context.ShortItems.Add(new PublicShort { Value = (short)Count });
+                await context.ShortItems.Add(new PublicShort { Value = (short)Count });
                 await context.SaveChanges();
 
                 var enumItem = context.ShortItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
@@ -48,7 +48,7 @@
         {
             return RunTest(async context =>
             {
-                context.IntItems.Add(new PublicInt { Value = (int)Duke });
+                await context.IntItems.Add(new PublicInt { Value = (int)Duke });
                 await context.SaveChanges();
 
                 var enumItem = context.IntItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
@@ -62,7 +62,7 @@
         {
             return RunTest(async context =>
             {
-                context.LongItems.Add(new PublicLong { Value = (long)Ms });
+                await context.LongItems.Add(new PublicLong { Value = (long)Ms });
                 await context.SaveChanges();
 
                 var enumItem = context.LongItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
@@ -76,7 +76,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = Mr.ToString() });
+                await context.StringItems.Add(new PublicString { Value = Mr.ToString() });
                 await context.SaveChanges();
 
                 var enumItem = context.StringItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
@@ -90,7 +90,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = ((int)Mrs).ToString() });
+                await context.StringItems.Add(new PublicString { Value = ((int)Mrs).ToString() });
                 await context.SaveChanges();
 
                 var enumItem = context.StringItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
@@ -104,7 +104,7 @@
         {
             return RunTest(async context =>
             {
-                context.StringItems.Add(new PublicString { Value = "Horse Pills" });
+                await context.StringItems.Add(new PublicString { Value = "Horse Pills" });
                 await context.SaveChanges();
 
                 var enumItem = context.StringItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();

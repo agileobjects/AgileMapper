@@ -22,8 +22,7 @@
                 var product1 = new Product { Name = "Product One" };
                 var product2 = new Product { Name = "Product Two" };
 
-                context.Products.Add(product1);
-                context.Products.Add(product2);
+                await context.Products.AddRange(product1, product2);
                 await context.SaveChanges();
 
                 var productDtos = context
@@ -54,7 +53,7 @@
         {
             var product = new Product { Name = "Product One" };
 
-            context.Products.Add(product);
+            await context.Products.Add(product);
             await context.SaveChanges();
 
             var productDto = context
@@ -75,7 +74,7 @@
             {
                 var product = new Product { Name = "Uno" };
 
-                context.Products.Add(product);
+                await context.Products.Add(product);
                 await context.SaveChanges();
 
                 var productDtos = context.Products.Project().To<PublicStringDto>().ToList();

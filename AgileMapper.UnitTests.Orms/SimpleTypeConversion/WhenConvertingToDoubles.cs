@@ -19,7 +19,7 @@
         {
             return RunTest(async context =>
             {
-                context.ShortItems.Add(new PublicShort { Value = 123 });
+                await context.ShortItems.Add(new PublicShort { Value = 123 });
                 await context.SaveChanges();
 
                 var doubleItem = context.ShortItems.Project().To<PublicDoubleDto>().First();
@@ -33,7 +33,7 @@
         {
             return RunTest(async context =>
             {
-                context.LongItems.Add(new PublicLong { Value = 12345L });
+                await context.LongItems.Add(new PublicLong { Value = 12345L });
                 await context.SaveChanges();
 
                 var doubleItem = context.LongItems.Project().To<PublicDoubleDto>().First();
@@ -52,7 +52,7 @@
 
         private static async Task ProjectParseableStringToDouble(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = "738.01" });
+            await context.StringItems.Add(new PublicString { Value = "738.01" });
             await context.SaveChanges();
 
             var doubleItem = context.StringItems.Project().To<PublicDoubleDto>().First();
@@ -72,7 +72,7 @@
 
         private static async Task ProjectNullStringToDouble(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = default(string) });
+            await context.StringItems.Add(new PublicString { Value = default(string) });
             await context.SaveChanges();
 
             var doubleItem = context.StringItems.Project().To<PublicDoubleDto>().First();
@@ -92,7 +92,7 @@
 
         private static async Task ProjectUnparseableStringToDouble(TOrmContext context)
         {
-            context.StringItems.Add(new PublicString { Value = "poioiujygy" });
+            await context.StringItems.Add(new PublicString { Value = "poioiujygy" });
             await context.SaveChanges();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed

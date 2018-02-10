@@ -4,6 +4,7 @@
     using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Threading.Tasks;
     using Orms.Infrastructure;
 
     public class Ef5DbSetWrapper<TEntity> : DbSetWrapperBase<TEntity>
@@ -20,7 +21,22 @@
         public override void Include<TProperty>(Expression<Func<TEntity, TProperty>> navigationPropertyPath)
             => _dbSet.Include(navigationPropertyPath);
 
-        public override void Add(TEntity itemToAdd) => _dbSet.Add(itemToAdd);
+        public override Task Add(TEntity itemToAdd)
+        {
+            _dbSet.Add(itemToAdd);
+
+            return Task.CompletedTask;
+        }
+
+        public override Task AddRange(TEntity[] itemsToAdd)
+        {
+            foreach (var entity in itemsToAdd)
+            {
+                _dbSet.Add(entity);
+            }
+
+            return Task.CompletedTask;
+        }
 
         public override void Clear()
         {

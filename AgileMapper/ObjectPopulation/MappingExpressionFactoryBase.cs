@@ -74,14 +74,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             derivedTypeMappings = GetDerivedTypeMappings(mappingData);
 
-            if (derivedTypeMappings.NodeType != Goto)
+            switch (derivedTypeMappings.NodeType)
             {
-                return false;
-            }
+                case Conditional:
+                    return true;
 
-            var returnExpression = (GotoExpression)derivedTypeMappings;
-            derivedTypeMappings = returnExpression.Value;
-            return true;
+                case Goto:
+                    var returnExpression = (GotoExpression)derivedTypeMappings;
+                    derivedTypeMappings = returnExpression.Value;
+                    return true;
+
+                default:
+                    return false;
+            }
         }
 
         protected virtual Expression GetDerivedTypeMappings(IObjectMappingData mappingData) => Constants.EmptyExpression;

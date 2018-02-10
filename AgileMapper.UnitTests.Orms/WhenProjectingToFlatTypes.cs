@@ -32,8 +32,7 @@
 
                 var person2 = new Person { Name = "Person Two" };
 
-                context.Persons.Add(person1);
-                context.Persons.Add(person2);
+                await context.Persons.AddRange(person1, person2);
                 await context.SaveChanges();
 
                 var personViewModels = context
