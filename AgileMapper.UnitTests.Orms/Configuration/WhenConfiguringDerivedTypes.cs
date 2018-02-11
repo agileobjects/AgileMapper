@@ -170,6 +170,13 @@
                     circleVm.Id.ShouldBe(circle.Id);
                     circleVm.Name.ShouldBe(circle.Name);
                     circleVm.Diameter.ShouldBe(circle.Diameter);
+
+                    var mappedSquareVm = mapper.Map(square).ToANew<SquareViewModel>();
+
+                    mappedSquareVm.Id.ShouldBe(square.Id);
+                    mappedSquareVm.Name.ShouldBe(square.Name);
+                    mappedSquareVm.NumberOfSides.ShouldBe(square.NumberOfSides);
+                    mappedSquareVm.SideLength.ShouldBe(square.SideLength);
                 }
             });
         }

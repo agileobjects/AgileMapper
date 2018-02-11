@@ -31,10 +31,12 @@
 
         public override bool Equals(object obj)
         {
-            var otherKey = (QueryProjectorKey)obj;
+            var otherKey = (IRootMapperKey)obj;
 
             // ReSharper disable once PossibleNullReferenceException
-            return TypesMatch(otherKey) && (otherKey.QueryProviderType == QueryProviderType);
+            return (otherKey.RuleSet == RuleSet) &&
+                    TypesMatch(otherKey) &&
+                 (((QueryProjectorKey)otherKey).QueryProviderType == QueryProviderType);
         }
 
         #region ExcludeFromCodeCoverage
