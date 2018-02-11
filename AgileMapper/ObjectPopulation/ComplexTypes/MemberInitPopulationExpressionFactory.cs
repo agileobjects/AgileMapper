@@ -18,6 +18,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var objectCreation = base.GetNewObjectCreation(mappingData, memberPopulations);
 
+            if (objectCreation == null)
+            {
+                memberPopulations.Clear();
+            }
+
             if (memberPopulations.None())
             {
                 return objectCreation;

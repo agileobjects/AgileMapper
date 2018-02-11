@@ -118,6 +118,10 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData.TargetMember.GetAccess(subjectMapperData.TargetInstance, mapperData);
         }
 
+        [DebuggerStepThrough]
+        public static Expression GetTargetMemberDefault(this IBasicMapperData mapperData)
+            => mapperData.TargetMember.Type.ToDefaultExpression();
+
         public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
             this IMemberMapperData mapperData,
             Expression value,

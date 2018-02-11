@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Recursion
 {
     using System.Linq.Expressions;
-    using Extensions.Internal;
+    using Members;
     using ObjectPopulation;
     using ObjectPopulation.Recursion;
 
@@ -20,7 +20,7 @@
 
             var mappingValues = new MappingValues(
                 sourceValue,
-                childMappingData.MapperData.TargetMember.Type.ToDefaultExpression(),
+                childMappingData.MapperData.GetTargetMemberDefault(),
                 declaredTypeMapperData.EnumerableIndex);
 
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(

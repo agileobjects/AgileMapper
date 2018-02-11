@@ -74,19 +74,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             derivedTypeMappings = GetDerivedTypeMappings(mappingData);
 
-            switch (derivedTypeMappings.NodeType)
+            if (derivedTypeMappings.NodeType != Goto)
             {
-                case Conditional:
-                    return true;
-
-                case Goto:
-                    var returnExpression = (GotoExpression)derivedTypeMappings;
-                    derivedTypeMappings = returnExpression.Value;
-                    return true;
-
-                default:
-                    return false;
+                return false;
             }
+
+            var returnExpression = (GotoExpression)derivedTypeMappings;
+            derivedTypeMappings = returnExpression.Value;
+            return true;
         }
 
         protected virtual Expression GetDerivedTypeMappings(IObjectMappingData mappingData) => Constants.EmptyExpression;
@@ -197,8 +192,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingExtras.MapperData;
 
-            Expression returnExpression;
-
             AdjustForSingleExpressionBlockIfApplicable(ref mappingExpressions);
 
             if (mapperData.UseSingleMappingExpression())
@@ -211,6 +204,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 goto CreateFullMappingBlock;
             }
 
+            Expression returnExpression;
+
             if (mappingExpressions[0].NodeType != Block)
             {
                 if (mappingExpressions[0].NodeType == MemberAccess)
@@ -218,33 +213,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return GetReturnExpression(mappingExpressions[0], mappingExtras);
                 }
 
-                if (!mapperData.Context.UseLocalVariable)
+                if (TryAdjustForUnusedLocalVariableIfApplicable(
+                    mappingExpressions,
+                    mappingExtras,
+                    mapperData,
+                    out returnExpression))
                 {
-                    goto CreateFullMappingBlock;
+                    return returnExpression;
                 }
-
-                var localVariableAssignment = (BinaryExpression)mappingExpressions.First(exp => exp.NodeType == Assign);
-
-                if ((localVariableAssignment.Left.NodeType == Parameter) &&
-                    (mappingExpressions.Last() == localVariableAssignment))
-                {
-                    var assignedValue = localVariableAssignment.Right;
-
-                    returnExpression = (assignedValue.NodeType == Invoke)
-                        ? Expression.Block(
-                              new[] { (ParameterExpression)localVariableAssignment.Left },
-                              GetReturnExpression(localVariableAssignment, mappingExtras))
-                        : GetReturnExpression(assignedValue, mappingExtras);
-
-                    if (mappingExpressions.HasOne())
-                    {
-                        return returnExpression;
-                    }
-
-                    mappingExpressions[mappingExpressions.Count - 1] = mapperData.GetReturnLabel(returnExpression);
-
-                    return Expression.Block(mappingExpressions);
-                }
+            }
+            else if (TryAdjustForUnusedLocalVariableIfApplicable(
+                mappingExpressions,
+                mappingExtras,
+                mapperData,
+                out returnExpression))
+            {
+                return returnExpression;
             }
 
             CreateFullMappingBlock:
@@ -273,6 +257,56 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 mappingExpressions = new List<Expression>(block.Expressions);
             }
+        }
+
+        private static bool TryAdjustForUnusedLocalVariableIfApplicable(
+            IList<Expression> mappingExpressions,
+            MappingExtras mappingExtras,
+            ObjectMapperData mapperData,
+            out Expression returnExpression)
+        {
+            if (!mapperData.Context.UseLocalVariable)
+            {
+                returnExpression = null;
+                return false;
+            }
+
+            if (!TryGetVariableAssignment(mappingExpressions, out var localVariableAssignment))
+            {
+                returnExpression = null;
+                return false;
+            }
+
+            if ((localVariableAssignment.Left.NodeType != Parameter) ||
+                (localVariableAssignment != mappingExpressions.Last()))
+            {
+                returnExpression = null;
+                return false;
+            }
+
+            var assignedValue = localVariableAssignment.Right;
+
+            returnExpression = (assignedValue.NodeType == Invoke)
+                ? Expression.Block(
+                    new[] { (ParameterExpression)localVariableAssignment.Left },
+                    GetReturnExpression(localVariableAssignment, mappingExtras))
+                : GetReturnExpression(assignedValue, mappingExtras);
+
+            if (mappingExpressions.HasOne())
+            {
+                return true;
+            }
+
+            mappingExpressions[mappingExpressions.Count - 1] = mapperData.GetReturnLabel(returnExpression);
+            returnExpression = Expression.Block(mappingExpressions);
+            return true;
+        }
+
+        private static bool TryGetVariableAssignment(IEnumerable<Expression> mappingExpressions, out BinaryExpression binaryExpression)
+        {
+            binaryExpression = mappingExpressions.FirstOrDefault(exp => exp.NodeType == Assign) as BinaryExpression;
+            
+            return binaryExpression != null;
         }
 
         private static Expression GetReturnExpression(Expression returnValue, MappingExtras mappingExtras)

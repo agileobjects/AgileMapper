@@ -39,6 +39,16 @@
             return base.VisitBinary(binary);
         }
 
+        protected override Expression VisitBlock(BlockExpression block)
+        {
+            if (DerivedTypeMappingConverter.TryConvert(block, this, out var converted))
+            {
+                return converted;
+            }
+
+            return base.VisitBlock(block);
+        }
+
         protected override Expression VisitConditional(ConditionalExpression conditional)
         {
             if (ComplexTypeConditionalConverter.TryConvert(conditional, this, out var converted))

@@ -22,7 +22,7 @@
             return true;
         }
 
-        public class NonNullableMemberBinder : ExpressionVisitor
+        private class NonNullableMemberBinder : ExpressionVisitor
         {
             private readonly IQueryProviderSettings _settings;
             private readonly ConditionalExpression _conditional;
