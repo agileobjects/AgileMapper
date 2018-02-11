@@ -2,6 +2,10 @@
 {
     public class DogDto : AnimalDtoBase
     {
-        public override string Sound => "Woof";
+        public override string Sound
+        {
+            get => "Woof";
+            set { }
+        }
     }
 }

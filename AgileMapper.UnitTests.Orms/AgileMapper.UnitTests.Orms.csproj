@@ -101,6 +101,7 @@
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\AddressDto.cs" />
     <Compile Include="TestClasses\Animal.cs" />
+    <Compile Include="TestClasses\AnimalDto.cs" />
     <Compile Include="TestClasses\AnimalDtoBase.cs" />
     <Compile Include="TestClasses\Category.cs" />
     <Compile Include="TestClasses\CategoryDto.cs" />

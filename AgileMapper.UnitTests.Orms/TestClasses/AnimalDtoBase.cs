@@ -6,6 +6,6 @@
 
         public string Name { get; set; }
 
-        public abstract string Sound { get; }
+        public abstract string Sound { get; set; }
     }
 }
