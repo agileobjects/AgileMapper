@@ -33,7 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _sourceMemberTypeTester = typeTestLambda.Compile();
         }
 
-        protected bool SourceHasRequiredTypes(SourceMemberTypeDependentKeyBase otherKey)
+        protected bool SourceHasRequiredTypes(IMappingDataOwner otherKey)
             => (_sourceMemberTypeTester == null) || _sourceMemberTypeTester.Invoke(otherKey.MappingData);
     }
 }

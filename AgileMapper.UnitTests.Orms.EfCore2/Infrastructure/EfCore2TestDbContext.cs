@@ -26,7 +26,9 @@
         }
 
         public DbSet<Animal> Animals { get; set; }
-        
+
+        public DbSet<Shape> Shapes { get; set; }
+
         public DbSet<Company> Companies { get; set; }
 
         public DbSet<Employee> Employees { get; set; }
@@ -75,12 +77,17 @@
                 .WithMany(c => c.SubCategories)
                 .HasForeignKey(c => c.ParentCategoryId);
 
+            modelBuilder.Entity<Square>();
+            modelBuilder.Entity<Circle>();
+
             base.OnModelCreating(modelBuilder);
         }
 
         #region ITestDbContext Members
 
         IDbSetWrapper<Animal> ITestDbContext.Animals => new EfCore2DbSetWrapper<Animal>(this);
+
+        IDbSetWrapper<Shape> ITestDbContext.Shapes => new EfCore2DbSetWrapper<Shape>(this);
 
         IDbSetWrapper<Company> ITestDbContext.Companies => new EfCore2DbSetWrapper<Company>(this);
 

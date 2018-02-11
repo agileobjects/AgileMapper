@@ -93,7 +93,7 @@
                         .To(x => x.Value);
 
                     mapper.WhenMapping
-                        .From<Customer>()
+                        .From<Person>()
                         .To<PublicField<string>>()
                         .Map((p, x) => p.Id)
                         .To(x => x.Value);

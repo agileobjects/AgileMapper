@@ -21,6 +21,8 @@
 
         public DbSet<Animal> Animals { get; set; }
 
+        public DbSet<Shape> Shapes { get; set;  }
+
         public DbSet<Company> Companies { get; set; }
 
         public DbSet<Employee> Employees { get; set; }
@@ -69,6 +71,8 @@
         #region ITestDbContext Members
 
         IDbSetWrapper<Animal> ITestDbContext.Animals => new Ef5DbSetWrapper<Animal>(this);
+        
+        IDbSetWrapper<Shape> ITestDbContext.Shapes => new Ef5DbSetWrapper<Shape>(this);
 
         IDbSetWrapper<Company> ITestDbContext.Companies => new Ef5DbSetWrapper<Company>(this);
 

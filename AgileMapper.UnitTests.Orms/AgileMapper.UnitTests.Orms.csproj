@@ -105,6 +105,8 @@
     <Compile Include="TestClasses\AnimalDtoBase.cs" />
     <Compile Include="TestClasses\Category.cs" />
     <Compile Include="TestClasses\CategoryDto.cs" />
+    <Compile Include="TestClasses\Circle.cs" />
+    <Compile Include="TestClasses\CircleViewModel.cs" />
     <Compile Include="TestClasses\Company.cs" />
     <Compile Include="TestClasses\CompanyDto.cs" />
     <Compile Include="TestClasses\DogDto.cs" />
@@ -132,7 +134,11 @@
     <Compile Include="TestClasses\RotaDto.cs" />
     <Compile Include="TestClasses\RotaEntry.cs" />
     <Compile Include="TestClasses\RotaEntryDto.cs" />
+    <Compile Include="TestClasses\Shape.cs" />
+    <Compile Include="TestClasses\ShapeViewModel.cs" />
     <Compile Include="TestClasses\SnakeDto.cs" />
+    <Compile Include="TestClasses\Square.cs" />
+    <Compile Include="TestClasses\SquareViewModel.cs" />
     <Compile Include="TestConstants.cs" />
     <Compile Include="Infrastructure\InMemoryOrmTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

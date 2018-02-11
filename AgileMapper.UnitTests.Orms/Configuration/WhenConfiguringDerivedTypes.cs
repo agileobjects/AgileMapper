@@ -114,5 +114,64 @@
                 }
             });
         }
+
+        [Fact]
+        public Task ShouldNotAttemptToApplyDerivedSourceTypePairing()
+        {
+            return RunTest(async context =>
+            {
+                var square = new Square { Name = "Square", NumberOfSides = 4, SideLength = 10 };
+                var circle = new Circle { Name = "Circle", Diameter = 5 };
+
+                var shapes = new Shape[] { square, circle };
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    var mappedShapeVms = mapper.Map(shapes).ToANew<ShapeViewModel[]>();
+
+                    mappedShapeVms.Length.ShouldBe(2);
+
+                    mappedShapeVms.First().ShouldBeOfType<SquareViewModel>();
+                    mappedShapeVms.Second().ShouldBeOfType<CircleViewModel>();
+
+                    await context.Shapes.AddRange(square, circle);
+                    await context.SaveChanges();
+
+                    mapper.WhenMapping
+                        .From<Shape>()
+                        .ProjectedTo<ShapeViewModel>()
+                        .If(s => s.Name == "Square")
+                        .MapTo<SquareViewModel>()
+                        .But
+                        .If(s => s.Name == "Circle")
+                        .MapTo<CircleViewModel>();
+
+                    var shapeVms = context
+                        .Shapes
+                        .ProjectUsing(mapper).To<ShapeViewModel>()
+                        .OrderBy(a => a.Id)
+                        .ToArray();
+
+                    shapeVms.Length.ShouldBe(2);
+
+                    var squareVm = shapeVms.First() as SquareViewModel;
+                    squareVm.ShouldNotBeNull();
+
+                    // ReSharper disable once PossibleNullReferenceException
+                    squareVm.Id.ShouldBe(square.Id);
+                    squareVm.Name.ShouldBe(square.Name);
+                    squareVm.NumberOfSides.ShouldBe(square.NumberOfSides);
+                    squareVm.SideLength.ShouldBe(square.SideLength);
+
+                    var circleVm = shapeVms.Second() as CircleViewModel;
+                    circleVm.ShouldNotBeNull();
+
+                    // ReSharper disable once PossibleNullReferenceException
+                    circleVm.Id.ShouldBe(circle.Id);
+                    circleVm.Name.ShouldBe(circle.Name);
+                    circleVm.Diameter.ShouldBe(circle.Diameter);
+                }
+            });
+        }
     }
 }

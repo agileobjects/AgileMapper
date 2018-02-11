@@ -8,6 +8,8 @@
     {
         IDbSetWrapper<Animal> Animals { get; }
 
+        IDbSetWrapper<Shape> Shapes { get; }
+
         IDbSetWrapper<Company> Companies { get; }
 
         IDbSetWrapper<Employee> Employees { get; }

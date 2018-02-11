@@ -5,7 +5,7 @@
     using Members.Sources;
     using ObjectPopulation;
 
-    internal class QueryProjectorKey : ObjectMapperKeyBase
+    internal class QueryProjectorKey : ObjectMapperKeyBase, IRootMapperKey
     {
         private readonly MapperContext _mapperContext;
 
@@ -18,6 +18,8 @@
             QueryProviderType = queryProviderType;
             _mapperContext = mapperContext;
         }
+
+        public MappingRuleSet RuleSet => _mapperContext.RuleSets.Project;
 
         public Type QueryProviderType { get; }
 

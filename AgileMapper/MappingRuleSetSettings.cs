@@ -16,6 +16,8 @@ namespace AgileObjects.AgileMapper
 
         public bool UseTryCatch { get; set; }
 
+        public bool CheckDerivedSourceTypes { get; set; }
+
         public Func<Expression, bool> GuardMemberAccesses { get; set; }
 
         public bool AllowEnumerableAssignment { get; set; }

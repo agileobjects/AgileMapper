@@ -167,7 +167,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Helper Classes
 
-        private class ConstructionKey : SourceMemberTypeDependentKeyBase
+        private class ConstructionKey : SourceMemberTypeDependentKeyBase, IMappingDataOwner
         {
             private readonly MappingRuleSet _ruleSet;
             private readonly IQualifiedMember _sourceMember;

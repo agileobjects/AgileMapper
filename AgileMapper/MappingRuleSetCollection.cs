@@ -18,6 +18,7 @@ namespace AgileObjects.AgileMapper
             {
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
+                CheckDerivedSourceTypes = true,
                 GuardMemberAccesses = value => true,
                 AllowObjectTracking = true,
                 AllowGetMethods = true,
@@ -35,6 +36,7 @@ namespace AgileObjects.AgileMapper
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
+                CheckDerivedSourceTypes = true,
                 GuardMemberAccesses = value => true,
                 AllowObjectTracking = true,
                 AllowGetMethods = true,
@@ -52,6 +54,7 @@ namespace AgileObjects.AgileMapper
                 RootHasPopulatedTarget = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
+                CheckDerivedSourceTypes = true,
                 GuardMemberAccesses = value => true,
                 AllowObjectTracking = true,
                 AllowGetMethods = true,

@@ -18,9 +18,7 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
         #region Member Access Evaluation
 
         private static bool MemberAccessesAreEqual(ExpressionEquator equator, MemberExpression x, MemberExpression y)
-        {
-            return MemberAccessesAreEquivalent(equator, x, y) && equator.Equals(x.Expression, y.Expression);
-        }
+            => MemberAccessesAreEquivalent(equator, x, y) && equator.Equals(x.Expression, y.Expression);
 
         private static bool MemberAccessesAreEquivalent(ExpressionEquator equator, MemberExpression x, MemberExpression y)
         {
@@ -59,7 +57,6 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
                     {
                         case ExpressionType.Call:
                             return AreEqual((MethodCallExpression)x, (MethodCallExpression)y);
-
 
                         case ExpressionType.Conditional:
                             return AreEqual((ConditionalExpression)x, (ConditionalExpression)y);
