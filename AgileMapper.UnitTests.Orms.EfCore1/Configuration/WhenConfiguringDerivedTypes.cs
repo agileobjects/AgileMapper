@@ -1,13 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.Configuration
 {
     using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Configuration;
     using Xunit;
 
-    public class WhenConfiguringDerivedTypes : WhenConfiguringDerivedTypes<EfCore2TestDbContext>
+    public class WhenConfiguringDerivedTypes : WhenConfiguringDerivedTypes<EfCore1TestDbContext>
     {
-        public WhenConfiguringDerivedTypes(InMemoryEfCore2TestContext context)
+        public WhenConfiguringDerivedTypes(InMemoryEfCore1TestContext context)
             : base(context)
         {
         }
