@@ -45,17 +45,23 @@
             return this;
         }
 
-        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
+        MappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
             Action<IMappingData<TSource, TTarget>> callback)
-            => CreateCallbackFactory(callback);
+        {
+            return CreateCallbackFactory(callback);
+        }
 
-        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
+        MappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
             Action<TSource, TTarget> callback)
-            => CreateCallbackFactory(callback);
+        {
+            return CreateCallbackFactory(callback);
+        }
 
-        void IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
+        MappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
             Action<TSource, TTarget, int?> callback)
-            => CreateCallbackFactory(callback);
+        {
+            return CreateCallbackFactory(callback);
+        }
 
         #endregion
 

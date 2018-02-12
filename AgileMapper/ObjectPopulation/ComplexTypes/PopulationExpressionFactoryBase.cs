@@ -45,7 +45,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             out Expression preCreationCallback,
             out Expression postCreationCallback)
         {
-            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression)
+            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
+                mapperData.TargetIsDefinitelyPopulated())
             {
                 preCreationCallback = postCreationCallback = null;
                 return;
