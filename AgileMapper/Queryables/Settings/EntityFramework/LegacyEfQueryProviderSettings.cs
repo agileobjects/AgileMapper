@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Converters;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
@@ -16,9 +15,6 @@
         public override bool SupportsGetValueOrDefault => false;
 
         public override bool SupportsEnumerableMaterialisation => false;
-
-        public override Expression GetDefaultValueFor(Expression value)
-            => DefaultValueConstantExpressionFactory.CreateFor(value);
 
         protected override Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
         {

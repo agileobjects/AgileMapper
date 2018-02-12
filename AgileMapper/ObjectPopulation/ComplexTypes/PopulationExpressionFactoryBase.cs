@@ -14,8 +14,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         public IEnumerable<Expression> GetPopulation(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var preCreationCallback = GetCreationCallbackOrNull(Before, mapperData);
-            var postCreationCallback = GetCreationCallbackOrNull(After, mapperData);
+
+            GetCreationCallbacks(mapperData, out var preCreationCallback, out var postCreationCallback);
+
             var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToList();
 
             yield return preCreationCallback;
@@ -37,6 +38,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             mappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(mappingData);
+        }
+
+        private static void GetCreationCallbacks(
+            IMemberMapperData mapperData,
+            out Expression preCreationCallback,
+            out Expression postCreationCallback)
+        {
+            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression)
+            {
+                preCreationCallback = postCreationCallback = null;
+                return;
+            }
+
+            preCreationCallback = GetCreationCallbackOrNull(Before, mapperData);
+            postCreationCallback = GetCreationCallbackOrNull(After, mapperData);
         }
 
         private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)

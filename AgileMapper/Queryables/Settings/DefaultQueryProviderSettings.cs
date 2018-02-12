@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Converters;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
@@ -39,9 +40,6 @@
         public virtual bool SupportsNonEntityNullConstants => true;
 
         public virtual bool SupportsEnumerableMaterialisation => true;
-
-        public virtual Expression GetDefaultValueFor(Expression value)
-            => value.NodeType != ExpressionType.Default ? value.Type.ToDefaultExpression() : value;
 
         public virtual Expression ConvertToStringCall(MethodCallExpression call)
             => call.Object.GetConversionTo<string>();
@@ -79,7 +77,7 @@
 
         #region ConvertTryParseCall Helpers
 
-        private Expression GetConvertStringToGuid(MethodCallExpression guidTryParseCall, Expression fallbackValue)
+        private static Expression GetConvertStringToGuid(MethodCallExpression guidTryParseCall, Expression fallbackValue)
         {
             var parseMethod = typeof(Guid)
                 .GetPublicStaticMethod("Parse", parameterCount: 1);
@@ -94,6 +92,9 @@
 
             return convertedOrFallback;
         }
+
+        protected static Expression GetDefaultValueFor(Expression value)
+            => DefaultValueConstantExpressionFactory.CreateFor(value);
 
         protected virtual Expression GetParseStringToDateTimeOrNull(MethodCallExpression call, Expression fallbackValue)
             => null;

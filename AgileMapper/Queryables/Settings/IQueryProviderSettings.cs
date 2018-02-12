@@ -23,8 +23,6 @@
 
         bool SupportsEnumerableMaterialisation { get; }
 
-        Expression GetDefaultValueFor(Expression value);
-
         Expression ConvertToStringCall(MethodCallExpression call);
 
         Expression ConvertTryParseCall(MethodCallExpression call, Expression fallbackValue);
