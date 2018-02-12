@@ -56,7 +56,11 @@ namespace AgileObjects.AgileMapper.Members
             _matchedTargetMemberJoinedNames = matchedTargetMemberJoinedNames;
             _mapperContext = mapperContext;
             _childMembers = childMembers ?? new[] { Member.RootSource(name, type) };
-            _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>();
+
+            if (!isSimple)
+            {
+                _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>();
+            }
         }
 
         public Type Type { get; }
