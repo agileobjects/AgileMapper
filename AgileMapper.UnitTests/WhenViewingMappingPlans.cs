@@ -267,6 +267,27 @@
         }
 
         [Fact]
+        public void ShouldNotAttemptUnnecessaryObjectCreationCallbacks()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .Over<PublicField<string>>()
+                    .Before
+                    .CreatingInstances
+                    .Call(ctx => Console.WriteLine("Nope!"))
+                    .And
+                    .After
+                    .CreatingInstances
+                    .Call(ctx => Console.WriteLine("No way!"));
+
+                string plan = mapper.GetPlanFor<PublicField<string>>().Over<PublicField<string>>();
+
+                plan.ShouldNotContain("Invoke");
+            }
+        }
+
+        [Fact]
         public void ShouldShowEnumMismatches()
         {
             string plan = Mapper.GetPlanFor<OrderUs>().ToANew<OrderUk>();

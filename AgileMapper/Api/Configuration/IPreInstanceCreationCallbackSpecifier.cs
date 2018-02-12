@@ -9,27 +9,40 @@
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
-    public interface IPreInstanceCreationCallbackSpecifier<out TSource, out TTarget>
+    public interface IPreInstanceCreationCallbackSpecifier<TSource, TTarget>
     {
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed a context 
         /// object containing the current mapping's source and target objects.
         /// </summary>
         /// <param name="callback">The callback to call.</param>
-        void Call(Action<IMappingData<TSource, TTarget>> callback);
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        /// <returns></returns>
+        MappingConfigContinuation<TSource, TTarget> Call(Action<IMappingData<TSource, TTarget>> callback);
 
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed the current 
         /// mapping's source and target objects.
         /// </summary>
         /// <param name="callback">The callback to call.</param>
-        void Call(Action<TSource, TTarget> callback);
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
 
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed the current 
         /// mapping's source and target objects and the current enumerable index, if applicable.
         /// </summary>
         /// <param name="callback">The callback to call.</param>
-        void Call(Action<TSource, TTarget, int?> callback);
+        /// <returns>
+        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback);
     }
 }
