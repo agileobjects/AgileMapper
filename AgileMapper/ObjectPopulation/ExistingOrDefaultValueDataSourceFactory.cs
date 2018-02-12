@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
     using DataSources;
-    using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
 
@@ -25,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 if (mapperData.TargetMember.IsEnumerable)
                 {
                     return FallbackToNull(mapperData)
-                        ? mapperData.TargetMember.Type.ToDefaultExpression()
+                        ? mapperData.GetTargetMemberDefault()
                         : mapperData.GetFallbackCollectionValue();
                 }
 
@@ -34,7 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return mapperData.GetTargetMemberAccess();
                 }
 
-                return mapperData.TargetMember.Type.ToDefaultExpression();
+                return mapperData.GetTargetMemberDefault();
             }
 
             private static bool FallbackToNull(IBasicMapperData mapperData)

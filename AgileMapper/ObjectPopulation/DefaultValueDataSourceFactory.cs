@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using DataSources;
-    using Extensions.Internal;
     using Members;
 
     internal class DefaultValueDataSourceFactory : IDataSourceFactory
@@ -14,7 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private class DefaultValueDataSource : DataSourceBase
         {
             public DefaultValueDataSource(IMemberMapperData mapperData)
-                : base(mapperData.SourceMember, mapperData.TargetMember.Type.ToDefaultExpression())
+                : base(mapperData.SourceMember, mapperData.GetTargetMemberDefault())
             {
             }
         }

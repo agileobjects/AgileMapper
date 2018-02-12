@@ -42,13 +42,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 mapperData.TargetMember.IsReadOnly = true;
 
-                // Use the existing target object if the mapper can't create an instance:
-                return mapperData.TargetObject;
+                // Use the existing target object if it might have a value and
+                // the mapper can't create an instance:
+                return mapperData.TargetCouldBePopulated()
+                    ? mapperData.TargetObject
+                    : mapperData.GetTargetMemberDefault();
             }
 
             if (UseNullFallbackValue(mapperData, objectValue, memberPopulations))
             {
-                objectValue = mapperData.TargetMember.Type.ToDefaultExpression();
+                objectValue = mapperData.GetTargetMemberDefault();
                 mapperData.Context.UsesMappingDataObjectAsParameter = false;
             }
             else

@@ -13,8 +13,8 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(Enumerable<Member>.EmptyArray, null, null);
-        public static readonly QualifiedMember None = new QualifiedMember(Enumerable<Member>.EmptyArray, null, null);
+        public static readonly QualifiedMember All = new QualifiedMember(default(Member), null);
+        public static readonly QualifiedMember None = new QualifiedMember(default(Member), null);
 
         private readonly MapperContext _mapperContext;
         private readonly Func<string> _pathFactory;
@@ -36,13 +36,8 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private QualifiedMember(Member[] memberChain, ICollection<string> joinedNames, MapperContext mapperContext)
-            : this(memberChain.LastOrDefault(), mapperContext)
+            : this(memberChain.Last(), mapperContext)
         {
-            if (LeafMember == null)
-            {
-                return;
-            }
-
             MemberChain = memberChain;
             JoinedNames = joinedNames;
             _pathFactory = () => MemberChain.GetFullName();
