@@ -157,6 +157,7 @@
     <Compile Include="Configuration\WhenConfiguringObjectCreation.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectTracking.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
+    <Compile Include="Configuration\WhenMappingToNull.cs" />
     <Compile Include="Infrastructure\EfCore2DbSetWrapper.cs" />
     <Compile Include="Infrastructure\EfCore2TestDbContext.cs" />
     <Compile Include="Infrastructure\InMemoryEfCore2TestContext.cs" />

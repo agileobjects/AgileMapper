@@ -25,16 +25,14 @@
             return Should.ThrowAsync<TException>(() => RunTest(test));
         }
 
+        protected Task RunTest(Func<TOrmContext, IMapper, Task> test)
+            => RunTest(mapper => test.Invoke(Context, mapper));
+
         protected async Task RunTest(Func<TOrmContext, Task> test)
         {
             try
             {
                 await test.Invoke(Context);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                throw;
             }
             finally
             {

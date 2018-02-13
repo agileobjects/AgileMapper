@@ -78,6 +78,7 @@
     <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectCreation.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
+    <Compile Include="Configuration\WhenMappingToNull.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectionFailureTest.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectorTest.cs" />
     <Compile Include="Enumerables\IEnumerableMemberProjectorTest.cs" />

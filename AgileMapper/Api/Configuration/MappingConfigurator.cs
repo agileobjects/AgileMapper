@@ -355,6 +355,12 @@
         }
 
         public IMappingConfigContinuation<TSource, TTarget> MapToNull()
+            => RegisterMapToNullCondition();
+
+        IProjectionConfigContinuation<TSource, TTarget> IConditionalRootProjectionConfigurator<TSource, TTarget>.MapToNull()
+            => RegisterMapToNullCondition();
+
+        private MappingConfigContinuation<TSource, TTarget> RegisterMapToNullCondition()
         {
             var condition = new MapToNullCondition(ConfigInfo);
 
