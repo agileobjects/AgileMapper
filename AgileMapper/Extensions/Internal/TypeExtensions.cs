@@ -289,6 +289,9 @@
         public static bool IsWholeNumberNumeric(this Type type)
             => Constants.WholeNumberNumericTypes.Contains(type);
 
+        public static bool IsNonWholeNumberNumeric(this Type type)
+            => IsNumeric(type) && !IsWholeNumberNumeric(type);
+
         private static double GetMaxValueFor(Type type)
             => GetValueFor(type, Constants.NumericTypeMaxValuesByType, values => values.Max());
 

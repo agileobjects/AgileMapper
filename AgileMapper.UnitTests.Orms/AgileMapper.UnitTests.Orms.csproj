@@ -129,8 +129,10 @@
     <Compile Include="TestClasses\PublicByteDto.cs" />
     <Compile Include="TestClasses\PublicDateTime.cs" />
     <Compile Include="TestClasses\PublicDateTimeDto.cs" />
+    <Compile Include="TestClasses\PublicDouble.cs" />
     <Compile Include="TestClasses\PublicGuidDto.cs" />
     <Compile Include="TestClasses\PublicDoubleDto.cs" />
+    <Compile Include="TestClasses\PublicDecimal.cs" />
     <Compile Include="TestClasses\PublicStringCtorDto.cs" />
     <Compile Include="TestClasses\PublicStringDto.cs" />
     <Compile Include="TestClasses\PublicTitle.cs" />

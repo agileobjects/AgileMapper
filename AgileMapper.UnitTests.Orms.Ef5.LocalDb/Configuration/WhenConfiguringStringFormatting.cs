@@ -16,5 +16,8 @@
         [Fact]
         public Task ShouldFormatDateTimes()
             => DoShouldFormatDateTimes(d => d.ToString("yyyy-%M-%d %H:%m:%s"));
+
+        [Fact]
+        public Task ShouldFormatDecimals() => DoShouldFormatDecimals(d => d.ToString(".000000"));
     }
 }

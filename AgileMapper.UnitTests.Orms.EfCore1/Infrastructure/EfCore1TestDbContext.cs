@@ -51,6 +51,10 @@
 
         public DbSet<PublicLong> LongItems { get; set; }
 
+        public DbSet<PublicDecimal> DecimalItems { get; set; }
+
+        public DbSet<PublicDouble> DoubleItems { get; set; }
+
         public DbSet<PublicDateTime> DateTimeItems { get; set; }
 
         public DbSet<PublicString> StringItems { get; set; }
@@ -112,6 +116,10 @@
         IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new EfCore1DbSetWrapper<PublicInt>(this);
 
         IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new EfCore1DbSetWrapper<PublicLong>(this);
+
+        IDbSetWrapper<PublicDecimal> ITestDbContext.DecimalItems => new EfCore1DbSetWrapper<PublicDecimal>(this);
+
+        IDbSetWrapper<PublicDouble> ITestDbContext.DoubleItems => new EfCore1DbSetWrapper<PublicDouble>(this);
 
         IDbSetWrapper<PublicDateTime> ITestDbContext.DateTimeItems => new EfCore1DbSetWrapper<PublicDateTime>(this);
 

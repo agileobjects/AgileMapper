@@ -14,5 +14,8 @@
 
         [Fact]
         public Task ShouldFormatDateTimes() => DoShouldFormatDateTimes(d => d.ToString("o"));
+
+        [Fact]
+        public Task ShouldFormatDecimals() => DoShouldFormatDecimals(d => d.ToString("C"));
     }
 }

@@ -40,6 +40,10 @@
 
         IDbSetWrapper<PublicLong> LongItems { get; }
 
+        IDbSetWrapper<PublicDecimal> DecimalItems { get; }
+
+        IDbSetWrapper<PublicDouble> DoubleItems { get; }
+
         IDbSetWrapper<PublicDateTime> DateTimeItems { get; }
 
         IDbSetWrapper<PublicString> StringItems { get; }

@@ -39,7 +39,10 @@
             return GetStringConvertCall(call.Object, sqlFunctionsType);
         }
 
-        private static Expression GetStringConvertCall(Expression subject, Type sqlFunctionsType)
+        private static Expression GetStringConvertCall(
+            Expression subject,
+            Type sqlFunctionsType,
+            bool includeDecimalPlaces = true)
         {
             var subjectType = subject.Type.GetNonNullableType();
 
@@ -48,30 +51,49 @@
                 return GetParseDateTimeToStringOrNull(subject, sqlFunctionsType);
             }
 
-            if (subjectType == typeof(decimal))
-            {
-                return GetTrimmedStringConvertCall<decimal?>(sqlFunctionsType, subject);
-            }
-
-            if (subjectType != typeof(double))
-            {
-                subject = Expression.Convert(subject, typeof(double?));
-            }
-
-            return GetTrimmedStringConvertCall<double?>(sqlFunctionsType, subject);
+            return (subjectType == typeof(decimal))
+                ? GetTrimmedStringConvertCall<decimal?>(sqlFunctionsType, subject, subjectType, includeDecimalPlaces)
+                : GetTrimmedStringConvertCall<double?>(sqlFunctionsType, subject, subjectType, includeDecimalPlaces);
         }
 
-        private static Expression GetTrimmedStringConvertCall<TArgument>(Type sqlFunctionsType, Expression subject)
+        private static Expression GetTrimmedStringConvertCall<TSubject>(
+            Type sqlFunctionsType,
+            Expression subject,
+            Type subjectType,
+            bool includeDecimalPlaces)
         {
-            var stringConvertCall = Expression.Call(
-                sqlFunctionsType.GetPublicStaticMethod("StringConvert", typeof(TArgument)),
-                subject);
+            if (includeDecimalPlaces)
+            {
+                includeDecimalPlaces = subjectType.IsNonWholeNumberNumeric();
+            }
+
+            subject = subject.GetConversionTo<TSubject>();
+
+            Expression stringConvertCall;
+
+            if (includeDecimalPlaces)
+            {
+                stringConvertCall = Expression.Call(
+                    GetConvertMethod(sqlFunctionsType, typeof(TSubject), typeof(int?), typeof(int?)),
+                    subject.GetConversionTo<TSubject>(),
+                    20.ToConstantExpression(typeof(int?)),  // <-- Total Length
+                    6.ToConstantExpression(typeof(int?))); // <-- Decimal places
+            }
+            else
+            {
+                stringConvertCall = Expression.Call(
+                    GetConvertMethod(sqlFunctionsType, typeof(TSubject)),
+                    subject);
+            }
 
             var trimMethod = typeof(string).GetPublicInstanceMethod("Trim", parameterCount: 0);
             var trimCall = Expression.Call(stringConvertCall, trimMethod);
 
             return trimCall;
         }
+
+        private static MethodInfo GetConvertMethod(Type sqlFunctionsType, params Type[] argumentTypes)
+            => sqlFunctionsType.GetPublicStaticMethod("StringConvert", argumentTypes);
 
         private static Expression GetParseDateTimeToStringOrNull(Expression dateValue, Type sqlFunctionsType)
         {
@@ -146,7 +168,7 @@
                 GetDatePart(dateTimePattern, datePartStartIndex, datePartEndIndex),
                 dateValue);
 
-            return GetStringConvertCall(datePartNameCall, sqlFunctionsType);
+            return GetStringConvertCall(datePartNameCall, sqlFunctionsType, false);
         }
 
         private static string GetDatePart(

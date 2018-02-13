@@ -37,5 +37,30 @@
                 stringDto.Value.ShouldBe(expectedDateStringFactory.Invoke(source.Value));
             });
         }
+
+        protected Task DoShouldFormatDecimals(Func<decimal, string> expectedDecimalStringFactory)
+        {
+            return RunTest(async (context, mapper) =>
+            {
+                mapper.WhenMapping
+                    .StringsFrom<decimal>(c => c.FormatUsing("C"));
+
+                var source = new PublicDecimal { Value = 674378.52m };
+                var result = mapper.Map(source).ToANew<PublicStringDto>();
+
+                result.Value.ShouldBe(source.Value.ToString("C"));
+
+                await context.DecimalItems.Add(source);
+                await context.SaveChanges();
+
+                var stringDto = context
+                    .DecimalItems
+                    .ProjectUsing(mapper)
+                    .To<PublicStringDto>()
+                    .ShouldHaveSingleItem();
+
+                stringDto.Value.ShouldBe(expectedDecimalStringFactory.Invoke(source.Value));
+            });
+        }
     }
 }
