@@ -11,6 +11,7 @@
     using Dynamics;
     using Extensions.Internal;
     using Members;
+    using Projection;
     using static Constants;
     using static AgileMapper.Configuration.Dictionaries.DictionaryType;
 
@@ -434,26 +435,26 @@
             => GetTargetTypeSpecifier<TSource>(ci => ci.ForSourceType<TSource>());
 
         /// <summary>
-        /// Configure how this mapper performs mappings from all source types and MappingRuleSets (create new, overwrite, 
-        /// etc), to the target type specified by the type argument.
+        /// Configure how this mapper performs mappings from all source types and MappingRuleSets (create new, 
+        /// overwrite, etc), to the <typeparamref name="TTarget"/> Type.
         /// </summary>
-        /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
+        /// <typeparam name="TTarget">The target Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
         public IFullMappingConfigurator<object, TTarget> To<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForAllRuleSets()).To<TTarget>();
 
         /// <summary>
-        /// Configure how this mapper performs object creation mappings from any source type to the target type 
-        /// specified by the type argument.
+        /// Configure how this mapper performs object creation mappings from any source type to the 
+        /// <typeparamref name="TResult"/> Type.
         /// </summary>
-        /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
+        /// <typeparam name="TResult">The result Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> ToANew<TTarget>()
-            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(CreateNew)).ToANew<TTarget>();
+        public IFullMappingConfigurator<object, TResult> ToANew<TResult>()
+            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(CreateNew)).ToANew<TResult>();
 
         /// <summary>
-        /// Configure how this mapper performs OnTo (merge) mappings from any source type to the target type 
-        /// specified by the type argument.
+        /// Configure how this mapper performs OnTo (merge) mappings from any source type to the 
+        /// <typeparamref name="TTarget"/> Type.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
@@ -461,13 +462,22 @@
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Merge)).OnTo<TTarget>();
 
         /// <summary>
-        /// Configure how this mapper performs Over (overwrite) mappings from any source type to the target type 
-        /// specified by the type argument.
+        /// Configure how this mapper performs Over (overwrite) mappings from any source type to the 
+        /// <typeparamref name="TTarget"/> Type.
         /// </summary>
-        /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
+        /// <typeparam name="TTarget">The target Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
         public IFullMappingConfigurator<object, TTarget> Over<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Overwrite)).Over<TTarget>();
+
+        /// <summary>
+        /// Configure how this mapper performs query projection mappings from any source type to the
+        /// <typeparamref name="TResult"/> Type.
+        /// </summary>
+        /// <typeparam name="TResult">The result Type to which the configuration will apply.</typeparam>
+        /// <returns>An IFullProjectionConfigurator with which to complete the configuration.</returns>
+        public IFullProjectionConfigurator<object, TResult> ProjectionsTo<TResult>()
+            => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Project)).ProjectedTo<TResult>();
 
         private TargetSpecifier<object> GetAllSourcesTargetTypeSpecifier(
             Func<MappingConfigInfo, MappingConfigInfo> configInfoConfigurator)

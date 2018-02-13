@@ -18,13 +18,17 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         }
 
         public void Using(Expression<Func<IMappingData<TSource, TTarget>, TObject>> factory)
+            => Using((LambdaExpression)factory);
+
+        public void Using(LambdaExpression factory)
         {
             var objectFactory = ConfiguredObjectFactory.For(_configInfo, typeof(TObject), factory);
 
             _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
         }
 
-        public void Using<TFactory>(TFactory factory) where TFactory : class
+        public void Using<TFactory>(TFactory factory)
+            where TFactory : class
         {
             var factoryInfo = ConfiguredLambdaInfo.ForFunc(factory, typeof(TSource), typeof(TTarget));
 

@@ -119,23 +119,45 @@
 
         #endregion
 
+        #region Instance Creation
+
         public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
-            new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
-
-            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+            return RegisterFactory(factory);
         }
 
-        public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
+        public IProjectionConfigContinuation<TSource, TTarget> CreateInstancesUsing(
+            Expression<Func<TSource, TTarget>> factory)
         {
-            new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
+            return RegisterFactory(factory);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> RegisterFactory(LambdaExpression factory)
+        {
+            CreateFactorySpecifier<TTarget>().Using(factory);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
-        public IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class
+        public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory)
+            where TFactory : class
+        {
+            CreateFactorySpecifier<TTarget>().Using(factory);
+
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+        }
+
+        public IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>()
+            where TObject : class
+        {
+            return CreateFactorySpecifier<TObject>();
+        }
+
+        private FactorySpecifier<TSource, TTarget, TObject> CreateFactorySpecifier<TObject>()
             => new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);
+
+        #endregion
 
         public IFullMappingSettings<TSource, TTarget> SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 

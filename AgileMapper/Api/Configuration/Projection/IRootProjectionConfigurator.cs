@@ -12,6 +12,21 @@
     public interface IRootProjectionConfigurator<TSourceElement, TResultElement>
     {
         /// <summary>
+        /// Use the given <paramref name="factory"/> expression to create instances of the result type being 
+        /// configured. The factory expression is passed the source element being projected, and must be 
+        /// translatable by the QueryProvider being used.
+        /// </summary>
+        /// <param name="factory">
+        /// The factory expression to use to create instances of the Type being configured.
+        /// </param>
+        /// <returns>
+        /// An IProjectionConfigContinuation to enable further configuration of projections from and to the 
+        /// source and result Type being configured.
+        /// </returns>
+        IProjectionConfigContinuation<TSourceElement, TResultElement> CreateInstancesUsing(
+            Expression<Func<TSourceElement, TResultElement>> factory);
+
+        /// <summary>
         /// Ignore the specified <paramref name="resultMembers"/> when projecting from and to the source and 
         /// result types being configured.
         /// </summary>

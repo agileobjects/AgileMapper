@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
     /// <summary>
     /// Provides options for configuring custom factory objects with which to create instances of the type 
-    /// specified by the <typeparamref name="TObject"/> type argument when mapping from and to the given
+    /// specified by the <typeparamref name="TObject"/> type argument, when mapping from and to the given
     /// source and target types.
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>

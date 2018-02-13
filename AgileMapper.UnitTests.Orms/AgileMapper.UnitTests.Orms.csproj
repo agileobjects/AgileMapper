@@ -76,6 +76,7 @@
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
     <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectCreation.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectionFailureTest.cs" />
     <Compile Include="Enumerables\ICollectionMemberProjectorTest.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="TestClasses\PublicDateTimeDto.cs" />
     <Compile Include="TestClasses\PublicGuidDto.cs" />
     <Compile Include="TestClasses\PublicDoubleDto.cs" />
+    <Compile Include="TestClasses\PublicStringCtorDto.cs" />
     <Compile Include="TestClasses\PublicStringDto.cs" />
     <Compile Include="TestClasses\PublicTitle.cs" />
     <Compile Include="TestClasses\PublicTitleDto.cs" />

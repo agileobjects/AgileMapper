@@ -52,7 +52,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class;
+        IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) 
+            where TFactory : class;
 
         /// <summary>
         /// Configure a factory to use to create instances of the type specified by the type argument.
@@ -61,7 +62,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <returns>
         /// An IFactorySpecifier with which to configure the factory for the type specified by the type argument.
         /// </returns>
-        IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class;
+        IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() 
+            where TObject : class;
 
         /// <summary>
         /// Ignore the given <paramref name="targetMembers"/> when mappingfrom and to the source and target types 

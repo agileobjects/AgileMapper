@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.Configuration
         private static readonly ParametersSwapper[] _implementations =
         {
             new ParametersSwapper(0, (ct, ft) => true, SwapNothing),
-            new ParametersSwapper(1, IsContext, SwapForContextParameter),
+            new ParametersSwapper(1, IsContext, SwapForContextParameter, true),
             new ParametersSwapper(1, IsSourceOnly, SwapForSource),
             new ParametersSwapper(2, IsSourceAndTarget, SwapForSourceAndTarget),
             new ParametersSwapper(3, IsSourceTargetAndIndex, SwapForSourceTargetAndIndex),
@@ -179,26 +179,29 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #endregion
 
+        private readonly int _numberOfParameters;
         private readonly Func<Type[], Type[], bool> _applicabilityPredicate;
         private readonly Func<SwapArgs, Expression> _parametersSwapper;
 
         private ParametersSwapper(
             int numberOfParameters,
             Func<Type[], Type[], bool> applicabilityPredicate,
-            Func<SwapArgs, Expression> parametersSwapper)
+            Func<SwapArgs, Expression> parametersSwapper,
+            bool hasMappingContextParameter = false)
         {
-            NumberOfParameters = numberOfParameters;
+            _numberOfParameters = numberOfParameters;
             _applicabilityPredicate = applicabilityPredicate;
             _parametersSwapper = parametersSwapper;
+            HasMappingContextParameter = hasMappingContextParameter;
         }
 
         public static ParametersSwapper For(Type[] contextTypes, Type[] funcArguments)
             => _implementations.FirstOrDefault(pso => pso.AppliesTo(contextTypes, funcArguments));
 
-        public int NumberOfParameters { get; }
+        public bool HasMappingContextParameter { get; }
 
         public bool AppliesTo(Type[] contextTypes, Type[] funcArguments)
-            => (funcArguments.Length == NumberOfParameters) && _applicabilityPredicate.Invoke(contextTypes, funcArguments);
+            => (funcArguments.Length == _numberOfParameters) && _applicabilityPredicate.Invoke(contextTypes, funcArguments);
 
         public static Expression UseTargetMember(IMemberMapperData mapperData, Expression contextAccess, Type targetType)
             => mapperData.GetTargetAccess(contextAccess, targetType);

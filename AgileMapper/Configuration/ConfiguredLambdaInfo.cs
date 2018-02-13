@@ -122,7 +122,7 @@
 
         #endregion
 
-        public bool UsesMappingDataObjectParameter => _parametersSwapper.NumberOfParameters == 1;
+        public bool UsesMappingDataObjectParameter => _parametersSwapper.HasMappingContextParameter;
 
         public Type ReturnType { get; }
 
