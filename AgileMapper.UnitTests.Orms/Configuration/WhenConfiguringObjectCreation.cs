@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Configuration
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
@@ -74,6 +75,37 @@
                     personDto.Address.Line1.ShouldBe("1!");
                     personDto.Address.Line2.ShouldBe("2?");
                     personDto.Address.Postcode.ShouldBe("BA7 8RD");
+                }
+            });
+        }
+
+        [Fact]
+        public Task ShouldUseAConditionalObjectFactory()
+        {
+            return RunTest(async context =>
+            {
+                await context.IntItems.Add(new PublicInt { Value = 1 });
+                await context.IntItems.Add(new PublicInt { Value = 2 });
+                await context.IntItems.Add(new PublicInt { Value = 3 });
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicInt>()
+                        .ProjectedTo<PublicStringCtorDto>()
+                        .If(p => p.Value % 2 == 0)
+                        .CreateInstancesUsing(p => new PublicStringCtorDto((p.Value * 2).ToString()));
+
+                    var stringDtos = context
+                        .IntItems
+                        .ProjectUsing(mapper)
+                        .To<PublicStringCtorDto>()
+                        .ToArray();
+
+                    stringDtos.First().Value.ShouldBe("1");
+                    stringDtos.Second().Value.ShouldBe("4");
+                    stringDtos.Third().Value.ShouldBe("3");
                 }
             });
         }
