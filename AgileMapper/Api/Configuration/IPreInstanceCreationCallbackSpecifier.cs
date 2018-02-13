@@ -21,7 +21,7 @@
         /// target type being configured.
         /// </returns>
         /// <returns></returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<IMappingData<TSource, TTarget>> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<IMappingData<TSource, TTarget>> callback);
 
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed the current 
@@ -32,7 +32,7 @@
         /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget> callback);
 
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed the current 
@@ -43,6 +43,6 @@
         /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback);
+        IMappingConfigContinuation<TSource, TTarget> Call(Action<TSource, TTarget, int?> callback);
     }
 }
