@@ -30,11 +30,7 @@
                 return null;
             }
 
-            var datePartMethod = SqlFunctionsType
-                .GetPublicStaticMethods("DatePart")
-                .FirstOrDefault(m => m.GetParameters().All(p => p.ParameterType == typeof(string)));
-
-            if (datePartMethod == null)
+            if (!TryGetDatePartMethod<string>(SqlFunctionsType, out var datePartMethod))
             {
                 return null;
             }
@@ -63,7 +59,15 @@
 
         #region GetCreateDateTimeFromStringOrNull Helpers
 
-        private static Expression GetDatePartCall(
+        protected static bool TryGetDatePartMethod<TArgument>(Type sqlFunctionsType, out MethodInfo datePartMethod)
+        {
+            datePartMethod = sqlFunctionsType
+                .GetPublicStaticMethod("DatePart", typeof(string), typeof(TArgument));
+
+            return datePartMethod != null;
+        }
+
+        protected static Expression GetDatePartCall(
             MethodInfo datePartMethod,
             string datePart,
             Expression sourceValue)

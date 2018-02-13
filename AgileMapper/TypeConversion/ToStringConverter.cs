@@ -66,12 +66,7 @@
                 return Expression.Call(operatorMethod, sourceValue);
             }
 
-            var toStringMethod = sourceValue.Type
-                .GetPublicInstanceMethod("ToString", parameterCount: 0);
-
-            var toStringCall = Expression.Call(sourceValue, toStringMethod);
-
-            return toStringCall;
+            return sourceValue.WithToStringCall();
         }
 
         #region Byte[] Conversion

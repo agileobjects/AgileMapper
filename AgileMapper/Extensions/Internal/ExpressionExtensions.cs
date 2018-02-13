@@ -238,6 +238,10 @@
         private static MethodInfo GetNonListToArrayConversionMethod(EnumerableTypeHelper typeHelper)
             => typeHelper.HasCollectionInterface ? _collectionToArrayMethod : _linqToArrayMethod;
 
+        [DebuggerStepThrough]
+        public static MethodCallExpression WithToStringCall(this Expression value)
+            => Expression.Call(value, value.Type.GetPublicInstanceMethod("ToString", parameterCount: 0));
+
         public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, Type elementType)
         {
             var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);

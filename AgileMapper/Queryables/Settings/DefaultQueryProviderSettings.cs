@@ -29,6 +29,8 @@
 
         public virtual bool SupportsToString => true;
 
+        public virtual bool SupportsToStringWithFormat => false;
+
         public virtual bool SupportsStringEqualsIgnoreCase => false;
 
         public virtual bool SupportsStringToEnumConversion => true;

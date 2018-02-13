@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using Infrastructure;
@@ -12,6 +13,20 @@
         protected WhenConvertingToStrings(ITestContext<TOrmContext> context)
             : base(context)
         {
+        }
+
+        [Fact]
+        public Task ShouldProjectABoolToAString()
+        {
+            return RunTest(async context =>
+            {
+                await context.BoolItems.Add(new PublicBool { Value = true });
+                await context.SaveChanges();
+
+                var stringItem = context.BoolItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe("true");
+            });
         }
 
         [Fact]
@@ -28,17 +43,18 @@
             });
         }
 
-        [Fact]
-        public Task ShouldProjectABoolToAString()
+        protected Task DoShouldProjectADateTimeToAString(Func<DateTime, string> expectedDateStringFactory)
         {
             return RunTest(async context =>
             {
-                await context.BoolItems.Add(new PublicBool { Value = true });
+                var now = DateTime.Now;
+
+                await context.DateTimeItems.Add(new PublicDateTime { Value = now });
                 await context.SaveChanges();
 
-                var stringItem = context.BoolItems.Project().To<PublicStringDto>().First();
+                var stringItem = context.DateTimeItems.Project().To<PublicStringDto>().First();
 
-                stringItem.Value.ShouldBe("true");
+                stringItem.Value.ShouldBe(expectedDateStringFactory.Invoke(now));
             });
         }
     }

@@ -11,6 +11,8 @@
 
         bool SupportsToString { get; }
 
+        bool SupportsToStringWithFormat { get; }
+
         bool SupportsStringEqualsIgnoreCase { get; }
 
         bool SupportsStringToEnumConversion { get; }

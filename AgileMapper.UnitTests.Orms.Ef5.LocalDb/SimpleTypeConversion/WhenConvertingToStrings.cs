@@ -1,8 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Ef5.LocalDb.SimpleTypeConversion
 {
+    using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Infrastructure;
     using Orms.SimpleTypeConversion;
+    using Xunit;
 
     public class WhenConvertingToStrings : WhenConvertingToStrings<Ef5TestLocalDbContext>
     {
@@ -10,5 +12,9 @@
             : base(context)
         {
         }
+
+        [Fact]
+        public Task ShouldProjectADateTimeToAString()
+            => DoShouldProjectADateTimeToAString(d => d.ToString("yyyy-%M-dd HH:mm:ss"));
     }
 }

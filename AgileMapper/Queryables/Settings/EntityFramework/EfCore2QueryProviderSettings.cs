@@ -2,6 +2,8 @@
 {
     internal class EfCore2QueryProviderSettings : DefaultQueryProviderSettings
     {
+        public override bool SupportsToStringWithFormat => true;
+
         public override bool SupportsStringEqualsIgnoreCase => true;
 
         // EF Core translates navigation property-to-null comparisons to compare 
