@@ -21,7 +21,7 @@
 
         public DbSet<Animal> Animals { get; set; }
 
-        public DbSet<Shape> Shapes { get; set;  }
+        public DbSet<Shape> Shapes { get; set; }
 
         public DbSet<Company> Companies { get; set; }
 
@@ -53,6 +53,8 @@
 
         public DbSet<PublicLong> LongItems { get; set; }
 
+        public DbSet<PublicDateTime> DateTimeItems { get; set; }
+
         public DbSet<PublicString> StringItems { get; set; }
 
         public DbSet<PublicTitle> TitleItems { get; set; }
@@ -71,7 +73,7 @@
         #region ITestDbContext Members
 
         IDbSetWrapper<Animal> ITestDbContext.Animals => new Ef5DbSetWrapper<Animal>(this);
-        
+
         IDbSetWrapper<Shape> ITestDbContext.Shapes => new Ef5DbSetWrapper<Shape>(this);
 
         IDbSetWrapper<Company> ITestDbContext.Companies => new Ef5DbSetWrapper<Company>(this);
@@ -103,6 +105,8 @@
         IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new Ef5DbSetWrapper<PublicInt>(this);
 
         IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new Ef5DbSetWrapper<PublicLong>(this);
+
+        IDbSetWrapper<PublicDateTime> ITestDbContext.DateTimeItems => new Ef5DbSetWrapper<PublicDateTime>(this);
 
         IDbSetWrapper<PublicString> ITestDbContext.StringItems => new Ef5DbSetWrapper<PublicString>(this);
 

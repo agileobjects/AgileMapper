@@ -59,6 +59,8 @@
 
         public DbSet<PublicLong> LongItems { get; set; }
 
+        public DbSet<PublicDateTime> DateTimeItems { get; set; }
+
         public DbSet<PublicString> StringItems { get; set; }
 
         public DbSet<PublicTitle> TitleItems { get; set; }
@@ -118,6 +120,8 @@
         IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new EfCore2DbSetWrapper<PublicInt>(this);
 
         IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new EfCore2DbSetWrapper<PublicLong>(this);
+
+        IDbSetWrapper<PublicDateTime> ITestDbContext.DateTimeItems => new EfCore2DbSetWrapper<PublicDateTime>(this);
 
         IDbSetWrapper<PublicString> ITestDbContext.StringItems => new EfCore2DbSetWrapper<PublicString>(this);
 

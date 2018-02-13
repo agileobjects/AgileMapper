@@ -70,6 +70,7 @@
             Context.ShortItems.Clear();
             Context.IntItems.Clear();
             Context.LongItems.Clear();
+            Context.DateTimeItems.Clear();
             Context.StringItems.Clear();
             Context.TitleItems.Clear();
 

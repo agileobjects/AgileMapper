@@ -40,6 +40,8 @@
 
         IDbSetWrapper<PublicLong> LongItems { get; }
 
+        IDbSetWrapper<PublicDateTime> DateTimeItems { get; }
+
         IDbSetWrapper<PublicString> StringItems { get; }
 
         IDbSetWrapper<PublicTitle> TitleItems { get; }
