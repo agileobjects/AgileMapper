@@ -148,11 +148,11 @@
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
-        public IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>()
-            where TObject : class
-        {
-            return CreateFactorySpecifier<TObject>();
-        }
+        public IMappingFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>()
+            => CreateFactorySpecifier<TObject>();
+
+        IProjectionFactorySpecifier<TSource, TTarget, TObject> IRootProjectionConfigurator<TSource, TTarget>.CreateInstancesOf<TObject>()
+            => CreateFactorySpecifier<TObject>();
 
         private FactorySpecifier<TSource, TTarget, TObject> CreateFactorySpecifier<TObject>()
             => new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);

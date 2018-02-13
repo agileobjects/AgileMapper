@@ -37,5 +37,45 @@
                 }
             });
         }
+
+        [Fact]
+        public Task ShouldUseACustomObjectFactoryForASpecifiedType()
+        {
+            return RunTest(async context =>
+            {
+                var person = new Person
+                {
+                    Name = "Fatima",
+                    Address = new Address { Line1 = "1", Line2 = "2" }
+                };
+
+                await context.Persons.Add(person);
+                await context.SaveChanges();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .ProjectedTo<PersonDto>()
+                        .CreateInstancesOf<AddressDto>().Using(p => new AddressDto
+                        {
+                            Line1 = p.Address.Line1 + "!",
+                            Line2 = p.Address.Line2 + "?",
+                            Postcode = "BA7 8RD"
+                        });
+
+                    var personDto = context
+                        .Persons
+                        .ProjectUsing(mapper)
+                        .To<PersonDto>()
+                        .ShouldHaveSingleItem();
+
+                    personDto.Address.ShouldNotBeNull();
+                    personDto.Address.Line1.ShouldBe("1!");
+                    personDto.Address.Line2.ShouldBe("2?");
+                    personDto.Address.Postcode.ShouldBe("BA7 8RD");
+                }
+            });
+        }
     }
 }

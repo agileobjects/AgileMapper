@@ -27,6 +27,16 @@
             Expression<Func<TSourceElement, TResultElement>> factory);
 
         /// <summary>
+        /// Configure a factory to use to create instances of the <typeparamref name="TObject"/> Type.
+        /// </summary>
+        /// <typeparam name="TObject">The Type of object the creation of which is to be configured.</typeparam>
+        /// <returns>
+        /// An IProjectionFactorySpecifier with which to configure the factory for the 
+        /// <typeparamref name="TObject"/> Type.
+        /// </returns>
+        IProjectionFactorySpecifier<TSourceElement, TResultElement, TObject> CreateInstancesOf<TObject>();
+
+        /// <summary>
         /// Ignore the specified <paramref name="resultMembers"/> when projecting from and to the source and 
         /// result types being configured.
         /// </summary>
@@ -84,6 +94,7 @@
         /// A CustomDataSourceTargetMemberSpecifier with which to specify the result member to which the custom 
         /// constant value should be applied.
         /// </returns>
-        ICustomProjectionDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(TSourceValue value);
+        ICustomProjectionDataSourceTargetMemberSpecifier<TSourceElement, TResultElement> Map<TSourceValue>(
+            TSourceValue value);
     }
 }
