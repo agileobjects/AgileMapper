@@ -25,13 +25,13 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .ProjectionsTo<PublicStringCtorDto>()
-                        .CreateInstancesUsing(o => new PublicStringCtorDto("PANTS"));
+                        .ProjectionsTo<PublicStringDto>()
+                        .CreateInstancesUsing(o => new PublicStringDto { Value = "PANTS" });
 
                     var ctorDto = context
                         .StringItems
                         .ProjectUsing(mapper)
-                        .To<PublicStringCtorDto>()
+                        .To<PublicStringDto>()
                         .ShouldHaveSingleItem();
 
                     ctorDto.Value.ShouldBe("PANTS");
@@ -79,35 +79,42 @@
             });
         }
 
-        [Fact]
-        public Task ShouldUseAConditionalObjectFactory()
+        #region Project -> Conditional Factory
+
+        protected Task RunShouldUseAConditionalObjectFactory()
+            => RunTest(DoShouldUseAConditionalObjectFactory);
+
+        protected Task RunShouldErrorUsingAConditionalObjectFactory()
+            => RunTestAndExpectThrow(DoShouldUseAConditionalObjectFactory);
+
+        private static async Task DoShouldUseAConditionalObjectFactory(TOrmContext context)
         {
-            return RunTest(async context =>
+            await context.IntItems.Add(new PublicInt { Value = 1 });
+            await context.IntItems.Add(new PublicInt { Value = 2 });
+            await context.IntItems.Add(new PublicInt { Value = 3 });
+            await context.SaveChanges();
+
+            using (var mapper = Mapper.CreateNew())
             {
-                await context.IntItems.Add(new PublicInt { Value = 1 });
-                await context.IntItems.Add(new PublicInt { Value = 2 });
-                await context.IntItems.Add(new PublicInt { Value = 3 });
-                await context.SaveChanges();
+                mapper.WhenMapping
+                    .From<PublicInt>()
+                    .ProjectedTo<PublicStringCtorDto>()
+                    .If(p => p.Value % 2 == 0)
+                    .CreateInstancesUsing(p => new PublicStringCtorDto((p.Value * 2).ToString()));
 
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<PublicInt>()
-                        .ProjectedTo<PublicStringCtorDto>()
-                        .If(p => p.Value % 2 == 0)
-                        .CreateInstancesUsing(p => new PublicStringCtorDto((p.Value * 2).ToString()));
+                var stringDtos = context
+                    .IntItems
+                    .OrderBy(p => p.Id)
+                    .ProjectUsing(mapper)
+                    .To<PublicStringCtorDto>()
+                    .ToArray();
 
-                    var stringDtos = context
-                        .IntItems
-                        .ProjectUsing(mapper)
-                        .To<PublicStringCtorDto>()
-                        .ToArray();
-
-                    stringDtos.First().Value.ShouldBe("1");
-                    stringDtos.Second().Value.ShouldBe("4");
-                    stringDtos.Third().Value.ShouldBe("3");
-                }
-            });
+                stringDtos.First().Value.ShouldBe("1");
+                stringDtos.Second().Value.ShouldBe("4");
+                stringDtos.Third().Value.ShouldBe("3");
+            }
         }
+
+        #endregion
     }
 }

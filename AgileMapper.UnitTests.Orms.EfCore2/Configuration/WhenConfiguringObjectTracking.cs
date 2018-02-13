@@ -37,6 +37,7 @@
                         .Shapes
                         .ProjectUsing(mapper)
                         .To<Circle>()
+                        .OrderBy(c => c.Diameter)
                         .ToArrayAsync();
 
                     circleVms.Length.ShouldBe(3);
