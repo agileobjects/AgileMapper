@@ -1,13 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.Configuration
 {
     using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Configuration;
     using Xunit;
 
-    public class WhenMappingToNull : WhenMappingToNull<EfCore2TestDbContext>
+    public class WhenMappingToNull : WhenMappingToNull<EfCore1TestDbContext>
     {
-        public WhenMappingToNull(InMemoryEfCore2TestContext context)
+        public WhenMappingToNull(InMemoryEfCore1TestContext context)
             : base(context)
         {
         }
