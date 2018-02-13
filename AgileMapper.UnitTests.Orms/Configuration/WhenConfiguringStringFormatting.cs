@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
-    using Xunit;
 
     public abstract class WhenConfiguringStringFormatting<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
@@ -14,8 +13,7 @@
         {
         }
 
-        [Fact]
-        public Task ShouldFormatDateTimesMapperWide()
+        protected Task DoShouldFormatDateTimes(Func<DateTime, string> expectedDateStringFactory)
         {
             return RunTest(async (context, mapper) =>
             {
@@ -36,7 +34,7 @@
                     .To<PublicStringDto>()
                     .ShouldHaveSingleItem();
 
-                stringDto.Value.ShouldBe(source.Value.ToString("o"));
+                stringDto.Value.ShouldBe(expectedDateStringFactory.Invoke(source.Value));
             });
         }
     }

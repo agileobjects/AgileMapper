@@ -92,6 +92,7 @@
     <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
     <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectCreation.cs" />
+    <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Configuration\WhenMappingToNull.cs" />
     <Compile Include="Infrastructure\Ef6DbSetWrapper.cs" />

@@ -81,6 +81,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
     <Compile Include="Infrastructure\Ef5TestLocalDbContext.cs" />
     <Compile Include="Infrastructure\Ef5TestLocalDbDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

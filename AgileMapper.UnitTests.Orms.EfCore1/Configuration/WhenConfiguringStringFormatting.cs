@@ -1,13 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1.Configuration
 {
     using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Configuration;
     using Xunit;
 
-    public class WhenConfiguringStringFormatting : WhenConfiguringStringFormatting<EfCore2TestDbContext>
+    public class WhenConfiguringStringFormatting : WhenConfiguringStringFormatting<EfCore1TestDbContext>
     {
-        public WhenConfiguringStringFormatting(InMemoryEfCore2TestContext context)
+        public WhenConfiguringStringFormatting(InMemoryEfCore1TestContext context)
             : base(context)
         {
         }

@@ -15,6 +15,6 @@
 
         [Fact]
         public Task ShouldProjectADateTimeToAString()
-            => DoShouldProjectADateTimeToAString(d => d.ToString("yyyy-%M-dd HH:mm:ss"));
+            => DoShouldProjectADateTimeToAString(d => d.ToString("yyyy-%M-%d %H:%m:%s"));
     }
 }
