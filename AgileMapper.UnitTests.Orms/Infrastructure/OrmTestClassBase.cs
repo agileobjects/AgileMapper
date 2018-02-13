@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Infrastructure
 {
     using System;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using Xunit;
 
@@ -16,14 +15,11 @@
 
         protected TOrmContext Context { get; }
 
-        protected Task<Exception> RunTestAndExpectThrow(Func<TOrmContext, Task> test)
-            => RunTestAndExpectThrow<Exception>(test);
+        protected Task<Exception> RunTestAndExpectThrow(Func<TOrmContext, IMapper, Task> test)
+            => Should.ThrowAsync(() => RunTest(test));
 
-        protected Task<TException> RunTestAndExpectThrow<TException>(Func<TOrmContext, Task> test)
-            where TException : Exception
-        {
-            return Should.ThrowAsync<TException>(() => RunTest(test));
-        }
+        protected Task<Exception> RunTestAndExpectThrow(Func<TOrmContext, Task> test)
+            => Should.ThrowAsync(() => RunTest(test));
 
         protected Task RunTest(Func<TOrmContext, IMapper, Task> test)
             => RunTest(mapper => test.Invoke(Context, mapper));

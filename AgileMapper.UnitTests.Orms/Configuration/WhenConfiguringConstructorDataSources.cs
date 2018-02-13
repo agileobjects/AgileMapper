@@ -20,29 +20,26 @@
         protected Task RunShouldErrorApplyingAConfiguredConstantByParameterType()
             => RunTestAndExpectThrow(DoShouldApplyAConfiguredConstantByParameterType);
 
-        private static async Task DoShouldApplyAConfiguredConstantByParameterType(TOrmContext context)
+        private static async Task DoShouldApplyAConfiguredConstantByParameterType(TOrmContext context, IMapper mapper)
         {
             var product = new Product { Name = "Prod.One" };
 
             await context.Products.Add(product);
             await context.SaveChanges();
 
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Product>()
-                    .ProjectedTo<ProductStruct>()
-                    .Map("Bananas!")
-                    .ToCtor<string>();
+            mapper.WhenMapping
+                .From<Product>()
+                .ProjectedTo<ProductStruct>()
+                .Map("Bananas!")
+                .ToCtor<string>();
 
-                var productDto = context
-                    .Products
-                    .ProjectUsing(mapper).To<ProductStruct>()
-                    .ShouldHaveSingleItem();
+            var productDto = context
+                .Products
+                .ProjectUsing(mapper).To<ProductStruct>()
+                .ShouldHaveSingleItem();
 
-                productDto.ProductId.ShouldBe(product.ProductId);
-                productDto.Name.ShouldBe("Bananas!");
-            }
+            productDto.ProductId.ShouldBe(product.ProductId);
+            productDto.Name.ShouldBe("Bananas!");
         }
 
         #endregion
@@ -54,29 +51,26 @@
         protected Task RunShouldErrorApplyingAConfiguredExpressionByParameterName()
             => RunTestAndExpectThrow(DoShouldApplyAConfiguredExpressionByParameterName);
 
-        private static async Task DoShouldApplyAConfiguredExpressionByParameterName(TOrmContext context)
+        private static async Task DoShouldApplyAConfiguredExpressionByParameterName(TOrmContext context, IMapper mapper)
         {
             var product = new Product { Name = "Prod.One" };
 
             await context.Products.Add(product);
             await context.SaveChanges();
 
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Product>()
-                    .ProjectedTo<ProductStruct>()
-                    .Map(p => "2 * 3 = " + (2 * 3))
-                    .ToCtor("name");
+            mapper.WhenMapping
+                .From<Product>()
+                .ProjectedTo<ProductStruct>()
+                .Map(p => "2 * 3 = " + (2 * 3))
+                .ToCtor("name");
 
-                var productDto = context
-                    .Products
-                    .ProjectUsing(mapper).To<ProductStruct>()
-                    .ShouldHaveSingleItem();
+            var productDto = context
+                .Products
+                .ProjectUsing(mapper).To<ProductStruct>()
+                .ShouldHaveSingleItem();
 
-                productDto.ProductId.ShouldBe(product.ProductId);
-                productDto.Name.ShouldBe("2 * 3 = 6");
-            }
+            productDto.ProductId.ShouldBe(product.ProductId);
+            productDto.Name.ShouldBe("2 * 3 = 6");
         }
 
         #endregion

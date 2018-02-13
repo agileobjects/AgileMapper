@@ -18,7 +18,7 @@
         [Fact]
         public Task ShouldIgnoreObjectTracking()
         {
-            return RunTest(async context =>
+            return RunTest(async (context, mapper) =>
             {
                 var circle1 = new Circle { Diameter = 1 };
                 var circle2 = new Circle { Diameter = 2 };
@@ -27,25 +27,22 @@
                 await context.Shapes.AddRangeAsync(circle1, circle2, circle3);
                 await context.SaveChangesAsync();
 
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .To<CircleViewModel>()
-                        .MaintainIdentityIntegrity();
+                mapper.WhenMapping
+                    .To<CircleViewModel>()
+                    .MaintainIdentityIntegrity();
 
-                    var circleVms = await context
-                        .Shapes
-                        .ProjectUsing(mapper)
-                        .To<Circle>()
-                        .OrderBy(c => c.Diameter)
-                        .ToArrayAsync();
+                var circleVms = await context
+                    .Shapes
+                    .ProjectUsing(mapper)
+                    .To<Circle>()
+                    .OrderBy(c => c.Diameter)
+                    .ToArrayAsync();
 
-                    circleVms.Length.ShouldBe(3);
+                circleVms.Length.ShouldBe(3);
 
-                    circleVms.First().Diameter.ShouldBe(1);
-                    circleVms.Second().Diameter.ShouldBe(2);
-                    circleVms.Third().Diameter.ShouldBe(3);
-                }
+                circleVms.First().Diameter.ShouldBe(1);
+                circleVms.Second().Diameter.ShouldBe(2);
+                circleVms.Third().Diameter.ShouldBe(3);
             });
         }
     }

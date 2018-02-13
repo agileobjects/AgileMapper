@@ -31,30 +31,18 @@
             throw new Exception("Expected exception of type " + typeof(TException).Name);
         }
 
-        public static Task<TException> ThrowAsync<TException>(Func<Task> test)
-            where TException : Exception
-        {
-            return ThrowAsync<TException>(async () =>
-            {
-                await test.Invoke();
-
-                return new object();
-            });
-        }
-
-        public static async Task<TException> ThrowAsync<TException>(Func<Task<object>> test)
-            where TException : Exception
+        public static async Task<Exception> ThrowAsync(Func<Task> test)
         {
             try
             {
                 await test.Invoke();
             }
-            catch (TException ex)
+            catch (Exception ex)
             {
                 return ex;
             }
 
-            throw new Exception("Expected exception of type " + typeof(TException).Name);
+            throw new Exception("Expected exception");
         }
 
         public static void NotThrow(Action testAction) => NotThrow<Exception>(testAction);

@@ -17,14 +17,11 @@
         [Fact]
         public Task ShouldSupportCachedProjectionValidation()
         {
-            return RunTest(context =>
+            return RunTest((context, mapper) =>
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.GetPlanForProjecting(context.Addresses).To<AddressDto>();
+                mapper.GetPlanForProjecting(context.Addresses).To<AddressDto>();
 
-                    Should.NotThrow(() => mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
-                }
+                Should.NotThrow(mapper.ThrowNowIfAnyMappingPlanIsIncomplete);
 
                 return Task.CompletedTask;
             });
@@ -33,21 +30,18 @@
         [Fact]
         public Task ShouldErrorIfCachedProjectionMembersHaveNoDataSources()
         {
-            return RunTest(context =>
+            return RunTest((context, mapper) =>
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.GetPlanForProjecting(context.RotaEntries).To<RotaEntryDto>();
+                mapper.GetPlanForProjecting(context.RotaEntries).To<RotaEntryDto>();
 
-                    var validationEx = Should.Throw<MappingValidationException>(() =>
-                        mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
-                    validationEx.Message.ShouldContain("IQueryable<RotaEntry> -> IQueryable<RotaEntryDto>");
-                    validationEx.Message.ShouldContain("Rule set: Project");
-                    validationEx.Message.ShouldContain("Unmapped target members");
-                    validationEx.Message.ShouldContain("IQueryable<RotaEntryDto>[i].StartTime");
-                    validationEx.Message.ShouldContain("IQueryable<RotaEntryDto>[i].EndTime");
-                }
+                validationEx.Message.ShouldContain("IQueryable<RotaEntry> -> IQueryable<RotaEntryDto>");
+                validationEx.Message.ShouldContain("Rule set: Project");
+                validationEx.Message.ShouldContain("Unmapped target members");
+                validationEx.Message.ShouldContain("IQueryable<RotaEntryDto>[i].StartTime");
+                validationEx.Message.ShouldContain("IQueryable<RotaEntryDto>[i].EndTime");
 
                 return Task.CompletedTask;
             });
@@ -56,20 +50,17 @@
         [Fact]
         public Task ShouldErrorIfCachedProjectionTargetTypeIsUnconstructable()
         {
-            return RunTest(context =>
+            return RunTest((context, mapper) =>
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.GetPlanForProjecting(context.Addresses).To<ProductStruct>();
+                mapper.GetPlanForProjecting(context.Addresses).To<ProductStruct>();
 
-                    var validationEx = Should.Throw<MappingValidationException>(() =>
-                        mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
+                var validationEx = Should.Throw<MappingValidationException>(() =>
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
-                    validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<ProductStruct>");
-                    validationEx.Message.ShouldContain("Rule set: Project");
-                    validationEx.Message.ShouldContain("Unconstructable target Types");
-                    validationEx.Message.ShouldContain("Address -> ProductStruct");
-                }
+                validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<ProductStruct>");
+                validationEx.Message.ShouldContain("Rule set: Project");
+                validationEx.Message.ShouldContain("Unconstructable target Types");
+                validationEx.Message.ShouldContain("Address -> ProductStruct");
 
                 return Task.CompletedTask;
             });
