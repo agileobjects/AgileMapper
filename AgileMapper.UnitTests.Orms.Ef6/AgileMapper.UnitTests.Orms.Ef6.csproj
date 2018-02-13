@@ -87,7 +87,6 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\WhenConfiguringCallbacks.cs" />
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
