@@ -18,5 +18,8 @@
 
         [Fact]
         public Task ShouldFormatDecimals() => DoShouldFormatDecimals(d => d + "");
+
+        [Fact]
+        public Task ShouldFormatDoubles() => DoShouldFormatDoubles(d => d + "");
     }
 }

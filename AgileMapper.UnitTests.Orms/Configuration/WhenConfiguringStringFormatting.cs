@@ -13,8 +13,13 @@
         {
         }
 
-        protected Task DoShouldFormatDateTimes(Func<DateTime, string> expectedDateStringFactory)
+        protected Task DoShouldFormatDateTimes(Func<DateTime, string> expectedDateStringFactory = null)
         {
+            if (expectedDateStringFactory == null)
+            {
+                expectedDateStringFactory = d => d.ToString("o");
+            }
+
             return RunTest(async (context, mapper) =>
             {
                 mapper.WhenMapping
@@ -38,8 +43,13 @@
             });
         }
 
-        protected Task DoShouldFormatDecimals(Func<decimal, string> expectedDecimalStringFactory)
+        protected Task DoShouldFormatDecimals(Func<decimal, string> expectedDecimalStringFactory = null)
         {
+            if (expectedDecimalStringFactory == null)
+            {
+                expectedDecimalStringFactory = d => d.ToString("C");
+            }
+
             return RunTest(async (context, mapper) =>
             {
                 mapper.WhenMapping
@@ -60,6 +70,36 @@
                     .ShouldHaveSingleItem();
 
                 stringDto.Value.ShouldBe(expectedDecimalStringFactory.Invoke(source.Value));
+            });
+        }
+
+        protected Task DoShouldFormatDoubles(Func<double, string> expectedDoubleStringFactory = null)
+        {
+            if (expectedDoubleStringFactory == null)
+            {
+                expectedDoubleStringFactory = d => d.ToString("0.000");
+            }
+
+            return RunTest(async (context, mapper) =>
+            {
+                mapper.WhenMapping
+                    .StringsFrom<double>(c => c.FormatUsing("0.000"));
+
+                var source = new PublicDouble { Value = 6778.52423 };
+                var result = mapper.Map(source).ToANew<PublicStringDto>();
+
+                result.Value.ShouldBe(source.Value.ToString("0.000"));
+
+                await context.DoubleItems.Add(source);
+                await context.SaveChanges();
+
+                var stringDto = context
+                    .DoubleItems
+                    .ProjectUsing(mapper)
+                    .To<PublicStringDto>()
+                    .ShouldHaveSingleItem();
+
+                stringDto.Value.ShouldBe(expectedDoubleStringFactory.Invoke(source.Value));
             });
         }
     }

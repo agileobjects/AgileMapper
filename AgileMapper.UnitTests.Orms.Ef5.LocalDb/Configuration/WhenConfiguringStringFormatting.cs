@@ -19,5 +19,8 @@
 
         [Fact]
         public Task ShouldFormatDecimals() => DoShouldFormatDecimals(d => d.ToString(".000000"));
+
+        [Fact]
+        public Task ShouldFormatDoubles() => DoShouldFormatDoubles(d => d.ToString(".000000"));
     }
 }
