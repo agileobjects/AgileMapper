@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Configuration
 {
+    using System;
     using System.Threading.Tasks;
     using Infrastructure;
     using Orms.Infrastructure;
@@ -213,6 +214,36 @@
                 mapper.Map(circle).Over(circleVm);
 
                 callbackCalled.ShouldBeTrue();
+            });
+        }
+
+        [Fact]
+        public Task ShouldBeTolerantOfGlobalExceptionSwallowing()
+        {
+            return RunTest(async (context, mapper) =>
+            {
+                mapper.WhenMapping
+                    .SwallowAllExceptions()
+                    .AndWhenMapping
+                    .To<CircleViewModel>()
+                    .After
+                    .CreatingInstances
+                    .Call(ctx => throw new InvalidOperationException("BOOM"));
+
+                var circle = new Circle { Diameter = 10 };
+
+                await context.Shapes.AddAsync(circle);
+                await context.SaveChangesAsync();
+
+                var circleVm = context
+                    .Shapes
+                    .ProjectUsing(mapper)
+                    .To<CircleViewModel>()
+                    .ShouldHaveSingleItem();
+
+                circleVm.Diameter.ShouldBe(10);
+
+                Should.NotThrow(() => mapper.Map(circle).ToANew<CircleViewModel>());
             });
         }
     }
