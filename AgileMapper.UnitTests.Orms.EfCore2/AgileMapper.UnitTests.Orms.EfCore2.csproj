@@ -151,6 +151,7 @@
     </Compile>
     <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringConstructorDataSourcesInline.cs" />
+    <Compile Include="Configuration\Inline\WhenValidatingProjectionsInline.cs" />
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />

@@ -32,8 +32,9 @@
 
         /// <summary>
         /// Throw an exception upon execution of this statement if the mapping being configured has any target members 
-        /// which will not be mapped, or maps from a source enum to a target enum which does not support all of its 
-        /// values. Use calls to this method to validate a mapping plan; remove them in production code.
+        /// which will not be mapped, maps from a source enum to a target enum which does not support all of its values,
+        /// or includes complex types which cannot be constructed. Use calls to this method to validate a mapping plan; 
+        /// remove them in production code.
         /// </summary>
         void ThrowNowIfMappingPlanIsIncomplete();
 

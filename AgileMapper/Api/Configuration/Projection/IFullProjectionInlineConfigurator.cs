@@ -14,5 +14,14 @@
         /// of any other Types.
         /// </summary>
         MappingConfigStartingPoint WhenMapping { get; }
+
+        /// <summary>
+        /// Throw an exception upon execution of this statement if the projection being configured has any result 
+        /// members which will not be mapped, projects from a source enum to a target enum which does not support 
+        /// all of its values, or includes complex types which cannot be constructed. Use calls to this method to 
+        /// validate a mapping plan; remove them in production 
+        /// code.
+        /// </summary>
+        void ThrowNowIfMappingPlanIsIncomplete();
     }
 }
