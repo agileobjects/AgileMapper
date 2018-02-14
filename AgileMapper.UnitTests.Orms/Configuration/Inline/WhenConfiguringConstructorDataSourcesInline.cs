@@ -20,7 +20,7 @@
         protected Task RunShouldErrorApplyingAConfiguredConstantByParameterTypeInline()
             => RunTestAndExpectThrow(DoShouldApplyAConfiguredConstantByParameterType);
 
-        private static async Task DoShouldApplyAConfiguredConstantByParameterType(TOrmContext context, IMapper mapper)
+        private static async Task DoShouldApplyAConfiguredConstantByParameterType(TOrmContext context)
         {
             var product = new Product { Name = "Prod.1" };
 
@@ -29,7 +29,7 @@
 
             var productDto = context
                 .Products
-                .ProjectUsing(mapper).To<ProductStruct>(cfg => cfg
+                .Project().To<ProductStruct>(cfg => cfg
                     .Map("GRAPES!")
                     .ToCtor<string>())
                 .ShouldHaveSingleItem();
