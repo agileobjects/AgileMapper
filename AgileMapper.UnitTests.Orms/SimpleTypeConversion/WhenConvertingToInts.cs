@@ -52,7 +52,7 @@
 
                 var intItem = context.LongItems.Project().To<PublicIntDto>().First();
 
-                intItem.Value.ShouldBe(0);
+                intItem.Value.ShouldBeDefault();
             });
         }
 
@@ -66,7 +66,119 @@
 
                 var intItem = context.LongItems.Project().To<PublicIntDto>().First();
 
-                intItem.Value.ShouldBe(0);
+                intItem.Value.ShouldBeDefault();
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectAnInRangeDecimalToAnInt()
+        {
+            return RunTest(async context =>
+            {
+                await context.DecimalItems.Add(new PublicDecimal { Value = 73872 });
+                await context.SaveChanges();
+
+                var intItem = context.DecimalItems.Project().To<PublicIntDto>().First();
+
+                intItem.Value.ShouldBe(73872);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectATooBigDecimalToAnInt()
+        {
+            return RunTest(async context =>
+            {
+                await context.DecimalItems.Add(new PublicDecimal { Value = decimal.MaxValue });
+                await context.SaveChanges();
+
+                var intItem = context.DecimalItems.Project().To<PublicIntDto>().First();
+
+                intItem.Value.ShouldBeDefault();
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectATooSmallDecimalToAnInt()
+        {
+            return RunTest(async context =>
+            {
+                await context.DecimalItems.Add(new PublicDecimal { Value = int.MinValue - 1.0m });
+                await context.SaveChanges();
+
+                var intItem = context.DecimalItems.Project().To<PublicIntDto>().First();
+
+                intItem.Value.ShouldBeDefault();
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectANonWholeNumberDecimalToAnInt()
+        {
+            return RunTest(async context =>
+            {
+                await context.DecimalItems.Add(new PublicDecimal { Value = 829.26m });
+                await context.SaveChanges();
+
+                var intItem = context.DecimalItems.Project().To<PublicIntDto>().First();
+
+                intItem.Value.ShouldBeDefault();
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectAnInRangeDoubleToAnInt()
+        {
+            return RunTest(async context =>
+            {
+                await context.DoubleItems.Add(new PublicDouble { Value = 7382.00 });
+                await context.SaveChanges();
+
+                var intItem = context.DoubleItems.Project().To<PublicIntDto>().First();
+
+                intItem.Value.ShouldBe(7382);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectATooBigDoubleToAnInt()
+        {
+            return RunTest(async context =>
+            {
+                await context.DoubleItems.Add(new PublicDouble { Value = double.MaxValue });
+                await context.SaveChanges();
+
+                var intItem = context.DoubleItems.Project().To<PublicIntDto>().First();
+
+                intItem.Value.ShouldBeDefault();
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectATooSmallDoubleToAnInt()
+        {
+            return RunTest(async context =>
+            {
+                await context.DoubleItems.Add(new PublicDouble { Value = int.MinValue - 1.00 });
+                await context.SaveChanges();
+
+                var intItem = context.DoubleItems.Project().To<PublicIntDto>().First();
+
+                intItem.Value.ShouldBeDefault();
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectANonWholeNumberDoubleToAnInt()
+        {
+            return RunTest(async context =>
+            {
+                await context.DoubleItems.Add(new PublicDouble { Value = 82.271 });
+                await context.SaveChanges();
+
+                var intItem = context.DoubleItems.Project().To<PublicIntDto>().First();
+
+                intItem.Value.ShouldBeDefault();
             });
         }
 

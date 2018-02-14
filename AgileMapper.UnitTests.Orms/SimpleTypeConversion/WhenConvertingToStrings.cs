@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.SimpleTypeConversion
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
     using Infrastructure;
@@ -43,8 +44,49 @@
             });
         }
 
-        protected Task DoShouldProjectADateTimeToAString(Func<DateTime, string> expectedDateStringFactory)
+        protected Task DoShouldProjectADecimalToAString(Func<decimal, string> expectedDecimalStringFactory = null)
         {
+            if (expectedDecimalStringFactory == null)
+            {
+                expectedDecimalStringFactory = d => d + "";
+            }
+
+            return RunTest(async context =>
+            {
+                await context.DecimalItems.Add(new PublicDecimal { Value = 728.261m });
+                await context.SaveChanges();
+
+                var stringItem = context.DecimalItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedDecimalStringFactory.Invoke(728.261m));
+            });
+        }
+
+        protected Task DoShouldProjectADoubleToAString(Func<double, string> expectedDoubleStringFactory = null)
+        {
+            if (expectedDoubleStringFactory == null)
+            {
+                expectedDoubleStringFactory = d => d + "";
+            }
+
+            return RunTest(async context =>
+            {
+                await context.DoubleItems.Add(new PublicDouble { Value = 7212.34 });
+                await context.SaveChanges();
+
+                var stringItem = context.DoubleItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedDoubleStringFactory.Invoke(7212.34));
+            });
+        }
+
+        protected Task DoShouldProjectADateTimeToAString(Func<DateTime, string> expectedDateStringFactory = null)
+        {
+            if (expectedDateStringFactory == null)
+            {
+                expectedDateStringFactory = d => d.ToString(CultureInfo.CurrentCulture.DateTimeFormat);
+            }
+
             return RunTest(async context =>
             {
                 var now = DateTime.Now;

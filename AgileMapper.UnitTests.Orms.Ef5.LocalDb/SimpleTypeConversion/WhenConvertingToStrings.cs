@@ -14,6 +14,14 @@
         }
 
         [Fact]
+        public Task ShouldProjectADecimalToAString()
+            => DoShouldProjectADecimalToAString(d => d.ToString("0.00") + "0000");
+
+        [Fact]
+        public Task ShouldProjectADoubleToAString()
+            => DoShouldProjectADoubleToAString(d => d.ToString("0.00") + "0000");
+
+        [Fact]
         public Task ShouldProjectADateTimeToAString()
             => DoShouldProjectADateTimeToAString(d => d.ToString("yyyy-%M-%d %H:%m:%s"));
     }

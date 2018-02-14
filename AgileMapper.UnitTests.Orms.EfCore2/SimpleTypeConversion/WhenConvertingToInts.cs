@@ -16,12 +16,10 @@
         }
 
         [Fact]
-        public Task ShouldProjectAParseableString()
-            => RunShouldProjectAParseableStringToAnInt();
+        public Task ShouldProjectAParseableString() => RunShouldProjectAParseableStringToAnInt();
 
         [Fact]
-        public Task ShouldProjectANullString()
-            => RunShouldProjectANullStringToAnInt();
+        public Task ShouldProjectANullString() => RunShouldProjectANullStringToAnInt();
 
         [Fact]
         public Task ShouldErrorProjectingAnUnparseableString()

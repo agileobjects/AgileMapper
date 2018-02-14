@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.SimpleTypeConversion
 {
-    using System.Globalization;
     using System.Threading.Tasks;
     using Infrastructure;
     using Orms.SimpleTypeConversion;
@@ -14,7 +13,12 @@
         }
 
         [Fact]
-        public Task ShouldProjectADateTimeToAString()
-            => DoShouldProjectADateTimeToAString(d => d.ToString(CultureInfo.CurrentCulture.DateTimeFormat));
+        public Task ShouldProjectADecimalToAString() => DoShouldProjectADecimalToAString();
+
+        [Fact]
+        public Task ShouldProjectADoubleToAString() => DoShouldProjectADoubleToAString();
+
+        [Fact]
+        public Task ShouldProjectADateTimeToAString() => DoShouldProjectADateTimeToAString();
     }
 }

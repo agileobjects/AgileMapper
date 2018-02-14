@@ -13,6 +13,12 @@
         }
 
         [Fact]
+        public Task ShouldProjectADecimalToAString() => DoShouldProjectADecimalToAString();
+
+        [Fact]
+        public Task ShouldProjectADoubleToAString() => DoShouldProjectADoubleToAString();
+
+        [Fact]
         public Task ShouldProjectADateTimeToAString()
             => DoShouldProjectADateTimeToAString(d => d.ToString("MM/dd/yyyy HH:mm:ss"));
     }
