@@ -10,7 +10,7 @@
     /// apply.
     /// </summary>
     /// <typeparam name="TSource">The source type being configured.</typeparam>
-    public class TargetSpecifier<TSource>
+    public class TargetSpecifier<TSource> : IProjectionResultSelector<TSource>
     {
         private readonly MappingConfigInfo _configInfo;
 

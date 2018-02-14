@@ -151,6 +151,9 @@
     </Compile>
     <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringConstructorDataSourcesInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringEnumMappingInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringStringFormattingInline.cs" />
+    <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenValidatingProjectionsInline.cs" />
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />

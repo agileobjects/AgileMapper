@@ -6,7 +6,7 @@
     /// <summary>
     /// Provides options for globally configuring how all mappers will perform mappings.
     /// </summary>
-    public interface IGlobalConfigSettings
+    public interface IGlobalMappingSettings
     {
         #region Exception Handling
 
@@ -15,9 +15,9 @@
         /// encounter an Exception will return null.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings SwallowAllExceptions();
+        IGlobalMappingSettings SwallowAllExceptions();
 
         /// <summary>
         /// Pass Exceptions thrown during a mapping to the given <paramref name="callback"/> instead of throwing 
@@ -28,9 +28,9 @@
         /// swallowed, it should be rethrown inside the callback.
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings PassExceptionsTo(Action<IMappingExceptionData> callback);
+        IGlobalMappingSettings PassExceptionsTo(Action<IMappingExceptionData> callback);
 
         #endregion
 
@@ -42,9 +42,9 @@
         /// </summary>
         /// <param name="prefix">The prefix to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings UseNamePrefix(string prefix);
+        IGlobalMappingSettings UseNamePrefix(string prefix);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have any of the given name <paramref name="prefixes"/>.
@@ -52,9 +52,9 @@
         /// </summary>
         /// <param name="prefixes">The prefixes to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings UseNamePrefixes(params string[] prefixes);
+        IGlobalMappingSettings UseNamePrefixes(params string[] prefixes);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have the given name <paramref name="suffix"/>.
@@ -62,9 +62,9 @@
         /// </summary>
         /// <param name="suffix">The suffix to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings UseNameSuffix(string suffix);
+        IGlobalMappingSettings UseNameSuffix(string suffix);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have any of the given name <paramref name="suffixes"/>.
@@ -72,9 +72,9 @@
         /// </summary>
         /// <param name="suffixes">The suffixes to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings UseNameSuffixes(params string[] suffixes);
+        IGlobalMappingSettings UseNameSuffixes(params string[] suffixes);
 
         /// <summary>
         /// Expect members of all source and target types to potentially match the given name <paramref name="pattern"/>.
@@ -85,9 +85,9 @@
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings UseNamePattern(string pattern);
+        IGlobalMappingSettings UseNamePattern(string pattern);
 
         /// <summary>
         /// Expect members of all source and target types to potentially match the given name <paramref name="patterns"/>.
@@ -98,9 +98,9 @@
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings UseNamePatterns(params string[] patterns);
+        IGlobalMappingSettings UseNamePatterns(params string[] patterns);
 
         #endregion
 
@@ -111,9 +111,9 @@
         /// this option is not necessary just to map circular relationships.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings MaintainIdentityIntegrity();
+        IGlobalMappingSettings MaintainIdentityIntegrity();
 
         /// <summary>
         /// Disable tracking of objects during circular relationship mapping between all source and target types. 
@@ -123,17 +123,17 @@
         /// only once, disabling object tracking will increase mapping performance.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings DisableObjectTracking();
+        IGlobalMappingSettings DisableObjectTracking();
 
         /// <summary>
         /// Map null source collections to null instead of an empty collection, for all source and target types.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        IGlobalConfigSettings MapNullCollectionsToNull();
+        IGlobalMappingSettings MapNullCollectionsToNull();
 
         /// <summary>
         /// Gets a link back to the full <see cref="MappingConfigStartingPoint"/>, for api fluency.

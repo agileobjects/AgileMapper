@@ -18,7 +18,10 @@
     /// <summary>
     /// Provides options for configuring how a mapper performs a mapping.
     /// </summary>
-    public class MappingConfigStartingPoint : IGlobalConfigSettings
+    public class MappingConfigStartingPoint :
+        IGlobalMappingSettings,
+        IGlobalProjectionSettings,
+        IProjectionConfigStartingPoint
     {
         private readonly MappingConfigInfo _configInfo;
 
@@ -38,9 +41,9 @@
         /// encounter an Exception will return null.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings SwallowAllExceptions() => PassExceptionsTo(ctx => { });
+        public IGlobalMappingSettings SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
         /// <summary>
         /// Pass Exceptions thrown during a mapping to the given <paramref name="callback"/> instead of throwing 
@@ -51,9 +54,9 @@
         /// swallowed, it should be rethrown inside the callback.
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings PassExceptionsTo(Action<IMappingExceptionData> callback)
+        public IGlobalMappingSettings PassExceptionsTo(Action<IMappingExceptionData> callback)
         {
             var exceptionCallback = new ExceptionCallback(GlobalConfigInfo, callback.ToConstantExpression());
 
@@ -71,9 +74,9 @@
         /// </summary>
         /// <param name="prefix">The prefix to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
+        public IGlobalMappingSettings UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have any of the given name <paramref name="prefixes"/>.
@@ -81,9 +84,9 @@
         /// </summary>
         /// <param name="prefixes">The prefixes to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings UseNamePrefixes(params string[] prefixes)
+        public IGlobalMappingSettings UseNamePrefixes(params string[] prefixes)
         {
             MapperContext.Naming.AddNamePrefixes(prefixes);
             return this;
@@ -95,9 +98,9 @@
         /// </summary>
         /// <param name="suffix">The suffix to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
+        public IGlobalMappingSettings UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
 
         /// <summary>
         /// Expect members of all source and target types to potentially have any of the given name <paramref name="suffixes"/>.
@@ -105,9 +108,9 @@
         /// </summary>
         /// <param name="suffixes">The suffixes to ignore when matching source and target members.</param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings UseNameSuffixes(params string[] suffixes)
+        public IGlobalMappingSettings UseNameSuffixes(params string[] suffixes)
         {
             MapperContext.Naming.AddNameSuffixes(suffixes);
             return this;
@@ -122,9 +125,9 @@
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings UseNamePattern(string pattern) => UseNamePatterns(pattern);
+        public IGlobalMappingSettings UseNamePattern(string pattern) => UseNamePatterns(pattern);
 
         /// <summary>
         /// Expect members of all source and target types to potentially match the given name <paramref name="patterns"/>.
@@ -135,9 +138,9 @@
         /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
         /// </param>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings UseNamePatterns(params string[] patterns)
+        public IGlobalMappingSettings UseNamePatterns(params string[] patterns)
         {
             MapperContext.Naming.AddNameMatchers(patterns);
             return this;
@@ -152,9 +155,9 @@
         /// this option is not necessary when mapping circular relationships.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings MaintainIdentityIntegrity()
+        public IGlobalMappingSettings MaintainIdentityIntegrity()
         {
             MapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheAll);
             return this;
@@ -168,9 +171,9 @@
         /// only once, disabling object tracking will increase mapping performance.
         /// </summary>
         /// <returns>
-        /// An <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings DisableObjectTracking()
+        public IGlobalMappingSettings DisableObjectTracking()
         {
             MapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheNone);
             return this;
@@ -180,9 +183,9 @@
         /// Map null source collections to null instead of an empty collection, for all source and target types.
         /// </summary>
         /// <returns>
-        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings MapNullCollectionsToNull()
+        public IGlobalMappingSettings MapNullCollectionsToNull()
         {
             MapperContext.UserConfigurations.Add(new NullCollectionsSetting(GlobalConfigInfo));
             return this;
@@ -194,9 +197,9 @@
         /// cannot be constructed. Call this method to validate mapping plans during development; remove it in production code.
         /// </summary>
         /// <returns>
-        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings ThrowIfAnyMappingPlanIsIncomplete()
+        public IGlobalMappingSettings ThrowIfAnyMappingPlanIsIncomplete()
         {
             MapperContext.UserConfigurations.ValidateMappingPlans = true;
             return this;
@@ -242,9 +245,9 @@
         /// </summary>
         /// <param name="assemblies">The assemblies in which to look for derived types.</param>
         /// <returns>
-        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings LookForDerivedTypesIn(params Assembly[] assemblies)
+        public IGlobalMappingSettings LookForDerivedTypesIn(params Assembly[] assemblies)
         {
             SetDerivedTypeAssemblies(assemblies);
             return this;
@@ -277,9 +280,9 @@
         /// </summary>
         /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
         /// <returns>
-        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings IgnoreTargetMembersOfType<TMember>()
+        public IGlobalMappingSettings IgnoreTargetMembersOfType<TMember>()
         {
             return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
         }
@@ -290,9 +293,9 @@
         /// </summary>
         /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
         /// <returns>
-        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
+        public IGlobalMappingSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
             var configuredIgnoredMember = new ConfiguredIgnoredMember(GlobalConfigInfo, memberFilter);
 
@@ -309,9 +312,19 @@
         /// <typeparam name="TSourceValue">The source value type to which to apply a formatting string.</typeparam>
         /// <param name="formatSelector">An action which supplies the formatting string.</param>
         /// <returns>
-        /// This <see cref="IGlobalConfigSettings"/> with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalConfigSettings StringsFrom<TSourceValue>(Action<StringFormatSpecifier> formatSelector)
+        public IGlobalMappingSettings StringsFrom<TSourceValue>(Action<StringFormatSpecifier> formatSelector)
+            => RegisterStringFormatter<TSourceValue>(formatSelector);
+
+        IGlobalProjectionSettings IProjectionConfigStartingPoint.StringsFrom<TSourceValue>(
+            Action<StringFormatSpecifier> formatSelector)
+        {
+            return RegisterStringFormatter<TSourceValue>(formatSelector);
+        }
+
+        private MappingConfigStartingPoint RegisterStringFormatter<TSourceValue>(
+            Action<StringFormatSpecifier> formatSelector)
         {
             var formatSpecifier = new StringFormatSpecifier(MapperContext, typeof(TSourceValue));
 
@@ -322,7 +335,9 @@
             return this;
         }
 
-        MappingConfigStartingPoint IGlobalConfigSettings.AndWhenMapping => this;
+        MappingConfigStartingPoint IGlobalMappingSettings.AndWhenMapping => this;
+
+        IProjectionConfigStartingPoint IGlobalProjectionSettings.AndWhenMapping => this;
 
         private MappingConfigInfo GlobalConfigInfo =>
             _configInfo.ForAllRuleSets().ForAllSourceTypes().ForAllTargetTypes();
@@ -433,6 +448,9 @@
         /// <returns>A TargetSpecifier with which to specify to which target type the configuration will apply.</returns>
         public TargetSpecifier<TSource> From<TSource>()
             => GetTargetTypeSpecifier<TSource>(ci => ci.ForSourceType<TSource>());
+
+        IProjectionResultSelector<TSource> IProjectionConfigStartingPoint.From<TSource>()
+            => From<TSource>();
 
         /// <summary>
         /// Configure how this mapper performs mappings from all source types and MappingRuleSets (create new, 

@@ -15,7 +15,7 @@
         }
 
         [Fact]
-        public Task DoShouldIgnoreAConfiguredMember()
+        public Task ShouldIgnoreAConfiguredMember()
         {
             return RunTest(async (context, mapper) =>
             {
@@ -40,7 +40,7 @@
         }
 
         [Fact]
-        public Task DoShouldIgnoreAConfiguredMemberConditionally()
+        public Task ShouldIgnoreAConfiguredMemberConditionally()
         {
             return RunTest(async (context, mapper) =>
             {
@@ -70,7 +70,7 @@
         }
 
         [Fact]
-        public Task DoShouldIgnoreMembersByTypeAndTargetType()
+        public Task ShouldIgnoreMembersByTypeAndTargetType()
         {
             return RunTest(async (context, mapper) =>
             {
@@ -105,7 +105,7 @@
         }
 
         [Fact]
-        public Task DoShouldIgnorePropertiesByPropertyInfoMatcher()
+        public Task ShouldIgnorePropertiesByPropertyInfoMatcher()
         {
             return RunTest(async (context, mapper) =>
             {

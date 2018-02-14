@@ -13,7 +13,7 @@
         /// configuration of the root Types on which the projection is being performed to configuration 
         /// of any other Types.
         /// </summary>
-        MappingConfigStartingPoint WhenMapping { get; }
+        IProjectionConfigStartingPoint WhenMapping { get; }
 
         /// <summary>
         /// Throw an exception upon execution of this statement if the projection being configured has any result 

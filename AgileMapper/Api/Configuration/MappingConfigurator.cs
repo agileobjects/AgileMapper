@@ -38,6 +38,9 @@
         public MappingConfigStartingPoint WhenMapping
             => new MappingConfigStartingPoint(MapperContext);
 
+        IProjectionConfigStartingPoint IFullProjectionInlineConfigurator<TSource, TTarget>.WhenMapping
+            => WhenMapping;
+
         public ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries
             => new TargetDictionaryMappingConfigurator<TSource, TTarget>(ConfigInfo);
 
