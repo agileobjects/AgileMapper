@@ -98,6 +98,40 @@
         public IConditionalRootProjectionConfigurator<TSource, TTarget> If(Expression<Func<TSource, bool>> condition)
             => SetCondition(condition);
 
+        #region Naming
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePrefix(
+            string prefix) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNamePrefixes(prefix);
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePrefixes(
+            params string[] prefixes)
+        {
+            MapperContext.Naming.AddNamePrefixes(prefixes);
+            return this;
+        }
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNameSuffix(
+            string suffix) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNameSuffixes(suffix);
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNameSuffixes(
+            params string[] suffixes)
+        {
+            MapperContext.Naming.AddNameSuffixes(suffixes);
+            return this;
+        }
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePattern(
+            string pattern) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNamePatterns(pattern);
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePatterns(
+            params string[] patterns)
+        {
+            MapperContext.Naming.AddNameMatchers(patterns);
+            return this;
+        }
+
+        #endregion
+
         #endregion
 
         #region If Overloads

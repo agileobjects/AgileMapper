@@ -153,9 +153,11 @@
     <Compile Include="Configuration\Inline\WhenConfiguringConstructorDataSourcesInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringDerivedTypesInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringEnumMappingInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringNameMatchingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringObjectCreationInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringStringFormattingInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
+    <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
     <Compile Include="Configuration\Inline\WhenValidatingProjectionsInline.cs" />
     <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
