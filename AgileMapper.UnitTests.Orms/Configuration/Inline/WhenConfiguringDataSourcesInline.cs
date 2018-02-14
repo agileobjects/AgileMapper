@@ -34,5 +34,37 @@
                 productDto.Name.ShouldBe("PROD!!");
             });
         }
+
+        [Fact]
+        public Task ShouldApplyAConfiguredConstantToANestedMemberInline()
+        {
+            return RunTest(async context =>
+            {
+                var person = new Person
+                {
+                    Name = "Person One",
+                    Address = new Address { Line1 = "Line One", Postcode = "Postcode" }
+                };
+
+                await context.Persons.Add(person);
+                await context.SaveChanges();
+
+                var personDto = context
+                    .Persons
+                    .Project().To<PersonDto>(cfg => cfg
+                        .WhenMapping
+                        .ProjectionsTo<AddressDto>()
+                        .Map("LINE TWO?!")
+                        .To(a => a.Line2))
+                    .ShouldHaveSingleItem();
+
+                personDto.Id.ShouldBe(person.PersonId);
+                personDto.Name.ShouldBe("Person One");
+                personDto.Address.ShouldNotBeNull();
+                personDto.Address.Line1.ShouldBe("Line One");
+                personDto.Address.Line2.ShouldBe("LINE TWO?!");
+                personDto.Address.Postcode.ShouldBe("Postcode");
+            });
+        }
     }
 }

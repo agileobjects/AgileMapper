@@ -8,5 +8,11 @@
     public interface IFullProjectionInlineConfigurator<TSourceElement, TResultElement> :
         IFullProjectionConfigurator<TSourceElement, TResultElement>
     {
+        /// <summary>
+        /// Configure how this mapper performs a projection, inline. Use this property to switch from 
+        /// configuration of the root Types on which the projection is being performed to configuration 
+        /// of any other Types.
+        /// </summary>
+        MappingConfigStartingPoint WhenMapping { get; }
     }
 }
