@@ -115,7 +115,7 @@
         IDbSetWrapper<PublicDouble> ITestDbContext.DoubleItems => new Ef6DbSetWrapper<PublicDouble>(this);
 
         IDbSetWrapper<PublicDateTime> ITestDbContext.DateTimeItems => new Ef6DbSetWrapper<PublicDateTime>(this);
-        
+
         IDbSetWrapper<PublicString> ITestDbContext.StringItems => new Ef6DbSetWrapper<PublicString>(this);
 
         IDbSetWrapper<PublicTitle> ITestDbContext.TitleItems => new Ef6DbSetWrapper<PublicTitle>(this);

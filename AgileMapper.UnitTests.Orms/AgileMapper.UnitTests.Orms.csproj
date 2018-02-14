@@ -135,6 +135,7 @@
     <Compile Include="TestClasses\PublicDecimal.cs" />
     <Compile Include="TestClasses\PublicStringCtorDto.cs" />
     <Compile Include="TestClasses\PublicStringDto.cs" />
+    <Compile Include="TestClasses\PublicStringNames.cs" />
     <Compile Include="TestClasses\PublicTitle.cs" />
     <Compile Include="TestClasses\PublicTitleDto.cs" />
     <Compile Include="TestClasses\Rota.cs" />

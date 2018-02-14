@@ -154,6 +154,7 @@
     <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
     <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
     <Compile Include="Configuration\WhenConfiguringCallbacks.cs" />
+    <Compile Include="Configuration\WhenConfiguringNameMatching.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectCreation.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectTracking.cs" />
     <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />

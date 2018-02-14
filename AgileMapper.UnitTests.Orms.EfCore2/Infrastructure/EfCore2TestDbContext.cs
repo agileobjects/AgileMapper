@@ -67,6 +67,8 @@
 
         public DbSet<PublicString> StringItems { get; set; }
 
+        public DbSet<PublicStringNames> StringNameItems { get; set; }
+
         public DbSet<PublicTitle> TitleItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -135,7 +137,12 @@
 
         IDbSetWrapper<PublicTitle> ITestDbContext.TitleItems => new EfCore2DbSetWrapper<PublicTitle>(this);
 
-        Task ITestDbContext.SaveChanges() => SaveChangesAsync();
+        Task ITestDbContext.SaveChanges()
+        {
+            StringNameItems.RemoveRange(StringNameItems);
+
+            return SaveChangesAsync();
+        }
 
         #endregion
     }
