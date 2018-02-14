@@ -83,9 +83,11 @@
 
         private static async Task DoShouldUseAConditionalObjectFactory(TOrmContext context, IMapper mapper)
         {
-            await context.IntItems.Add(new PublicInt { Value = 1 });
-            await context.IntItems.Add(new PublicInt { Value = 2 });
-            await context.IntItems.Add(new PublicInt { Value = 3 });
+            await context.IntItems.AddRange(
+                new PublicInt { Value = 1 },
+                new PublicInt { Value = 2 },
+                new PublicInt { Value = 3 });
+
             await context.SaveChanges();
 
             mapper.WhenMapping
