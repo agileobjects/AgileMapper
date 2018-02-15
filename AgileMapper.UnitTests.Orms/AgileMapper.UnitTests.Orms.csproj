@@ -100,6 +100,9 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
+    <Compile Include="TestClasses\Account.cs" />
+    <Compile Include="TestClasses\AccountAddress.cs" />
+    <Compile Include="TestClasses\AccountDto.cs" />
     <Compile Include="TestClasses\Address.cs" />
     <Compile Include="TestClasses\AddressDto.cs" />
     <Compile Include="TestClasses\Animal.cs" />

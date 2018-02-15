@@ -37,6 +37,8 @@
 
         public DbSet<Product> Products { get; set; }
 
+        public DbSet<Account> Accounts { get; set; }
+
         public DbSet<Person> Persons { get; set; }
 
         public DbSet<Address> Addresses { get; set; }
@@ -88,6 +90,14 @@
             modelBuilder.Entity<Square>();
             modelBuilder.Entity<Circle>();
 
+            modelBuilder.Entity<AccountAddress>()
+                .HasKey(aa => new { aa.AccountId, aa.AddressId });
+
+            modelBuilder.Entity<AccountAddress>()
+                .HasOne(aa => aa.Account)
+                .WithMany(a => a.DeliveryAddresses)
+                .HasForeignKey(aa => aa.AccountId);
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -104,6 +114,8 @@
         IDbSetWrapper<Category> ITestDbContext.Categories => new EfCore2DbSetWrapper<Category>(this);
 
         IDbSetWrapper<Product> ITestDbContext.Products => new EfCore2DbSetWrapper<Product>(this);
+
+        IDbSetWrapper<Account> ITestDbContext.Accounts => new EfCore2DbSetWrapper<Account>(this);
 
         IDbSetWrapper<Person> ITestDbContext.Persons => new EfCore2DbSetWrapper<Person>(this);
 

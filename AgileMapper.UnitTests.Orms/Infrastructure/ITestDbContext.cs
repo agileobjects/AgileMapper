@@ -18,6 +18,8 @@
 
         IDbSetWrapper<Product> Products { get; }
 
+        IDbSetWrapper<Account> Accounts { get; }
+
         IDbSetWrapper<Person> Persons { get; }
 
         IDbSetWrapper<Address> Addresses { get; }

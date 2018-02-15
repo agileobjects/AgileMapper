@@ -31,6 +31,8 @@
 
         public DbSet<Product> Products { get; set; }
 
+        public DbSet<Account> Accounts { get; set; }
+
         public DbSet<Person> Persons { get; set; }
 
         public DbSet<Address> Addresses { get; set; }
@@ -87,6 +89,8 @@
         IDbSetWrapper<Category> ITestDbContext.Categories => new Ef5DbSetWrapper<Category>(this);
 
         IDbSetWrapper<Product> ITestDbContext.Products => new Ef5DbSetWrapper<Product>(this);
+
+        IDbSetWrapper<Account> ITestDbContext.Accounts => new Ef5DbSetWrapper<Account>(this);
 
         IDbSetWrapper<Person> ITestDbContext.Persons => new Ef5DbSetWrapper<Person>(this);
 

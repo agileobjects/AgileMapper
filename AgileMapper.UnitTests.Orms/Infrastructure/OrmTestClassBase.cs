@@ -60,6 +60,7 @@
             Context.Categories.Clear();
             Context.Products.Clear();
             Context.Addresses.Clear();
+            Context.Accounts.Clear();
             Context.Persons.Clear();
             Context.OrderItems.Clear();
             Context.Orders.Clear();

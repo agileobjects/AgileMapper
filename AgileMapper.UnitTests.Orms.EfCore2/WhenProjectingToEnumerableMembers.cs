@@ -14,5 +14,8 @@
         [Fact]
         public Task ShouldProjectToAComplexTypeCollectionMember()
             => RunShouldProjectToAComplexTypeCollectionMember();
+
+        [Fact]
+        public Task ShouldProjectViaLinkingType() => RunShouldProjectViaLinkingType();
     }
 }
