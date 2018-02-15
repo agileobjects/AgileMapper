@@ -134,59 +134,56 @@
             });
         }
 
-        #region Project -> Via Linking Type
-
-        protected Task RunShouldProjectViaLinkingType()
-            => RunTest(DoShouldProjectViaLinkingType);
-
-        private static async Task DoShouldProjectViaLinkingType(TOrmContext context)
+        [Fact]
+        public Task ShouldProjectViaLinkingType()
         {
-            var account = new Account
+            return RunTest(async context =>
             {
-                User = new Person
+                var account = new Account
                 {
-                    Name = "Mario",
-                    Address = new Address { Line1 = "Here", Postcode = "HS93HS" }
-                }
-            };
+                    User = new Person
+                    {
+                        Name = "Mario",
+                        Address = new Address { Line1 = "Here", Postcode = "HS93HS" }
+                    }
+                };
 
-            account.AddDeliveryAddress(new Address { Line1 = "There", Postcode = "JS95TH" });
-            account.AddDeliveryAddress(new Address { Line1 = "Somewhere", Postcode = "KA02ID" });
+                account.AddDeliveryAddress(new Address { Line1 = "There", Postcode = "JS95TH" });
+                account.AddDeliveryAddress(new Address { Line1 = "Somewhere", Postcode = "KA02ID" });
 
-            await context.Accounts.Add(account);
-            await context.SaveChanges();
+                await context.Accounts.Add(account);
+                await context.SaveChanges();
 
-            var accountDto = context
-                .Accounts
-                .Project()
-                .To<AccountDto>(cfg => cfg
-                    .Map(a => a.DeliveryAddresses.Select(da => da.Address))
-                    .To(dto => dto.DeliveryAddresses))
-                .ShouldHaveSingleItem();
+                var accountDto = context
+                    .Accounts
+                    .Project()
+                    .To<AccountDto>(cfg => cfg
+                        .Map(a => a.DeliveryAddresses.Select(da => da.Address))
+                        .To(dto => dto.DeliveryAddresses))
+                    .ShouldHaveSingleItem();
 
-            accountDto.Id.ShouldBe(account.Id);
+                accountDto.Id.ShouldBe(account.Id);
 
-            accountDto.User.Id.ShouldBe(account.User.PersonId);
-            accountDto.User.Name.ShouldBe(account.User.Name);
-            accountDto.User.Address.Id.ShouldBe(account.User.Address.AddressId);
-            accountDto.User.Address.Line1.ShouldBe(account.User.Address.Line1);
-            accountDto.User.Address.Postcode.ShouldBe(account.User.Address.Postcode);
+                accountDto.User.Id.ShouldBe(account.User.PersonId);
+                accountDto.User.Name.ShouldBe(account.User.Name);
+                accountDto.User.Address.Id.ShouldBe(account.User.Address.AddressId);
+                accountDto.User.Address.Line1.ShouldBe(account.User.Address.Line1);
+                accountDto.User.Address.Postcode.ShouldBe(account.User.Address.Postcode);
 
-            accountDto.DeliveryAddresses.Count().ShouldBe(2);
+                accountDto.DeliveryAddresses.Count().ShouldBe(2);
 
-            var addressDto1 = accountDto.DeliveryAddresses.First();
-            var address1 = account.DeliveryAddresses.First().Address;
-            addressDto1.Id.ShouldBe(address1.AddressId);
-            addressDto1.Line1.ShouldBe(address1.Line1);
-            addressDto1.Postcode.ShouldBe(address1.Postcode);
+                var addressDto1 = accountDto.DeliveryAddresses.First();
+                var address1 = account.DeliveryAddresses.First().Address;
+                addressDto1.Id.ShouldBe(address1.AddressId);
+                addressDto1.Line1.ShouldBe(address1.Line1);
+                addressDto1.Postcode.ShouldBe(address1.Postcode);
 
-            var addressDto2 = accountDto.DeliveryAddresses.Second();
-            var address2 = account.DeliveryAddresses.Second().Address;
-            addressDto2.Id.ShouldBe(address2.AddressId);
-            addressDto2.Line1.ShouldBe(address2.Line1);
-            addressDto2.Postcode.ShouldBe(address2.Postcode);
+                var addressDto2 = accountDto.DeliveryAddresses.Second();
+                var address2 = account.DeliveryAddresses.Second().Address;
+                addressDto2.Id.ShouldBe(address2.AddressId);
+                addressDto2.Line1.ShouldBe(address2.Line1);
+                addressDto2.Postcode.ShouldBe(address2.Postcode);
+            });
         }
-
-        #endregion
     }
 }

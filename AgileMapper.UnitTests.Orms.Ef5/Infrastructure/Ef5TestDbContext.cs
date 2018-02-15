@@ -73,6 +73,9 @@
                 .WithOptional(c => c.ParentCategory)
                 .HasForeignKey(c => c.ParentCategoryId);
 
+            modelBuilder.Entity<AccountAddress>()
+                .HasKey(aa => new { aa.AccountId, aa.AddressId });
+
             base.OnModelCreating(modelBuilder);
         }
 
