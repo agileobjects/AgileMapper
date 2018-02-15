@@ -82,9 +82,6 @@
     <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
     <Compile Include="Configuration\WhenIgnoringMembers.cs" />
     <Compile Include="Configuration\WhenMappingToNull.cs" />
-    <Compile Include="Enumerables\ICollectionMemberProjectionFailureTest.cs" />
-    <Compile Include="Enumerables\ICollectionMemberProjectorTest.cs" />
-    <Compile Include="Enumerables\IEnumerableMemberProjectorTest.cs" />
     <Compile Include="Infrastructure\DbSetWrapperBase.cs" />
     <Compile Include="Infrastructure\IDbSetWrapper.cs" />
     <Compile Include="Infrastructure\ITestContext.cs" />
@@ -167,7 +164,7 @@
     <Compile Include="Recursion\WhenProjectingCircularReferences.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
-    <Compile Include="Enumerables\WhenProjectingToEnumerableMembers.cs" />
+    <Compile Include="WhenProjectingToEnumerableMembers.cs" />
     <Compile Include="WhenProjectingToFlatTypes.cs" />
     <Compile Include="WhenValidatingProjections.cs" />
     <Compile Include="WhenViewingProjectionPlans.cs" />

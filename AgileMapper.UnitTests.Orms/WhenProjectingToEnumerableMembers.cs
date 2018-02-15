@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Enumerables
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
+    using Xunit;
 
     public abstract class WhenProjectingToEnumerableMembers<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()
@@ -93,43 +94,40 @@
 
         #endregion
 
-        #region Project -> Enumerable
-
-        protected Task RunShouldProjectToAComplexTypeEnumerableMember()
-            => RunTest(ProjectToComplexTypeEnumerableMember);
-
-        protected async Task ProjectToComplexTypeEnumerableMember(TOrmContext context)
+        [Fact]
+        public Task ShouldProjectToComplexTypeEnumerableMember()
         {
-            var item1 = new OrderItem();
-            var item2 = new OrderItem();
-
-            var order = new OrderUk
+            return RunTest(async context =>
             {
-                DatePlaced = DateTime.Now,
-                Items = new List<OrderItem> { item1, item2 }
-            };
+                var item1 = new OrderItem();
+                var item2 = new OrderItem();
 
-            await context.Orders.Add(order);
-            await context.SaveChanges();
+                var order = new OrderUk
+                {
+                    DatePlaced = DateTime.Now,
+                    Items = new List<OrderItem> { item1, item2 }
+                };
 
-            var rotaDto = context.Orders.Where(r => r.Id == 1).Project().To<OrderDto>().First();
+                await context.Orders.Add(order);
+                await context.SaveChanges();
 
-            rotaDto.Id.ShouldBe(1);
-            rotaDto.DatePlaced.ShouldBe(order.DatePlaced);
-            rotaDto.Items.Count().ShouldBe(order.Items.Count);
+                var rotaDto = context.Orders.Where(r => r.Id == 1).Project().To<OrderDto>().First();
 
-            var i = 0;
+                rotaDto.Id.ShouldBe(1);
+                rotaDto.DatePlaced.ShouldBe(order.DatePlaced);
+                rotaDto.Items.Count().ShouldBe(order.Items.Count);
 
-            foreach (var orderItem in order.Items)
-            {
-                var orderItemDto = order.Items.ElementAt(i);
+                var i = 0;
 
-                orderItemDto.Id.ShouldBe(orderItem.Id);
+                foreach (var orderItem in order.Items)
+                {
+                    var orderItemDto = order.Items.ElementAt(i);
 
-                ++i;
-            }
+                    orderItemDto.Id.ShouldBe(orderItem.Id);
+
+                    ++i;
+                }
+            });
         }
-
-        #endregion
     }
 }
