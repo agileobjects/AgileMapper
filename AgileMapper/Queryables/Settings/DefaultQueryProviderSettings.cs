@@ -106,8 +106,28 @@
         public virtual Expression ConvertStringToEnumConversion(ConditionalExpression conversion) => conversion;
 
         protected static Type GetTypeOrNull(string loadedAssemblyName, string typeName)
-            => GetTypeOrNull(Assembly.Load(new AssemblyName(loadedAssemblyName)), typeName);
+            => GetTypeOrNull(GetAssemblyOrNull(loadedAssemblyName), typeName);
 
-        protected static Type GetTypeOrNull(Assembly assembly, string typeName) => assembly.GetType(typeName);
+        private static Assembly GetAssemblyOrNull(string loadedAssemblyName)
+        {
+#if NET_STANDARD
+            try
+            {
+                return Assembly.Load(new AssemblyName(loadedAssemblyName));
+            }
+            catch
+            {
+                return null;
+            }
+#else
+            var assemblyName = loadedAssemblyName.Substring(0, loadedAssemblyName.IndexOf(','));
+
+            return AppDomain.CurrentDomain
+                .GetAssemblies()
+                .FirstOrDefault(assembly => assembly.GetName().Name == assemblyName);
+#endif
+        }
+
+        protected static Type GetTypeOrNull(Assembly assembly, string typeName) => assembly?.GetType(typeName);
     }
 }
