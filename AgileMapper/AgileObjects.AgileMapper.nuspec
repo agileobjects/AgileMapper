@@ -12,7 +12,10 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Fixing support for NetCoreApp2 projects; enum mapping, string.Join and cast operator use
+- Support for IQueryable{T} projection
+- Optimising enum mapping
+- Including target complex type constructability in mapping validation
+- Performance improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>

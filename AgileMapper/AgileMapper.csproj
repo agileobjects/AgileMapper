@@ -2,8 +2,8 @@
   <Import Project="..\common.props" />
 
   <PropertyGroup>
-    <Summary>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.</Summary>
-    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.</Description>
+    <Summary>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.</Summary>
+    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.</Description>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
     <TargetFrameworks>netstandard1.0;netstandard1.3;net40</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
