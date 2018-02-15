@@ -9,24 +9,24 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         : IRootMappingConfigurator<TSource, TTarget>
     {
         /// <summary>
-        /// Map the source type being configured to the derived target type specified by the type argument if
-        /// the preceding condition evaluates to true.
+        /// Map the source type being configured to the derived target type specified by 
+        /// <typeparamref name="TDerivedTarget"/> if the preceding condition evaluates to true.
         /// </summary>
         /// <typeparam name="TDerivedTarget">The derived target type to create.</typeparam>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
+        IMappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
             where TDerivedTarget : TTarget;
 
         /// <summary>
         /// Map the target type being configured to null if the preceding condition evaluates to true.
         /// </summary>
         /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
         /// target type being configured.
         /// </returns>
-        MappingConfigContinuation<TSource, TTarget> MapToNull();
+        IMappingConfigContinuation<TSource, TTarget> MapToNull();
     }
 }

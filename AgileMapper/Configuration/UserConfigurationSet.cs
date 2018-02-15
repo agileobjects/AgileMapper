@@ -9,6 +9,7 @@
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
+    using Projection;
 
     internal class UserConfigurationSet
     {
@@ -26,6 +27,7 @@
         private List<ObjectCreationCallbackFactory> _creationCallbackFactories;
         private List<ExceptionCallback> _exceptionCallbackFactories;
         private DerivedTypePairSet _derivedTypes;
+        private List<RecursionDepthSettings> _recursionDepthSettings;
 
         public UserConfigurationSet(MapperContext mapperContext)
         {
@@ -34,7 +36,7 @@
 
         public bool ValidateMappingPlans { get; set; }
 
-        #region Mapped Object Caching Settings
+        #region MappedObjectCachingSettings
 
         private List<MappedObjectCachingSettings> MappedObjectCachingSettings
             => _mappedObjectCachingSettings ?? (_mappedObjectCachingSettings = new List<MappedObjectCachingSettings>());
@@ -179,7 +181,7 @@
             DataSourceFactories.AddSortFilter(dataSourceFactory);
         }
 
-        public ICollection<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
+        public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
             => QueryDataSourceFactories(mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
 
         public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IBasicMapperData mapperData)
@@ -225,6 +227,28 @@
         #endregion
 
         public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet());
+
+        #region RecursionDepthSettings
+
+        private List<RecursionDepthSettings> RecursionDepthSettings
+            => _recursionDepthSettings ?? (_recursionDepthSettings = new List<RecursionDepthSettings>());
+
+        public void Add(RecursionDepthSettings settings)
+        {
+            RecursionDepthSettings.Add(settings);
+        }
+
+        public bool ShortCircuitRecursion(IBasicMapperData mapperData)
+        {
+            if (_recursionDepthSettings == null)
+            {
+                return true;
+            }
+
+            return RecursionDepthSettings.FindMatch(mapperData)?.IsBeyondDepth(mapperData) != false;
+        }
+
+        #endregion
 
         #region Validation
 

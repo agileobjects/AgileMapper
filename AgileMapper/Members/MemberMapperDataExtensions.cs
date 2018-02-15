@@ -19,22 +19,32 @@ namespace AgileObjects.AgileMapper.Members
             => mappingData.IsRoot || mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
 
         public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
-            => IsEntity(mapperData, mapperData.TargetType);
+            => IsEntity(mapperData, mapperData.TargetType, out var _);
 
-        public static bool IsEntity(this IMemberMapperData mapperData, Type type)
+        public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
         {
             if (type == null)
             {
+                idMember = null;
                 return false;
             }
 
-            var idMember = mapperData
+            idMember = mapperData
                 .MapperContext
                 .Naming
                 .GetIdentifierOrNull(TypeKey.ForTypeId(type));
 
             return idMember?.IsEntityId() == true;
         }
+
+        public static bool UseSingleMappingExpression(this IBasicMapperData mapperData)
+            => mapperData.IsRoot && mapperData.RuleSet.Settings.UseSingleRootMappingExpression;
+
+        public static bool UseMemberInitialisations(this IMemberMapperData mapperData)
+            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping();
+
+        public static bool MapToNullCollections(this IMemberMapperData mapperData)
+            => mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
 
         public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
@@ -77,15 +87,12 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool TargetIsDefinitelyPopulated(this IBasicMapperData mapperData)
         {
-            return mapperData.RuleSet.RootHasPopulatedTarget &&
+            return mapperData.RuleSet.Settings.RootHasPopulatedTarget &&
                   (mapperData.IsRoot || mapperData.TargetMemberIsUserStruct());
         }
 
         public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)
-        {
-            return mapperData.Context.IsForNewElement ||
-                  (mapperData.TargetMember.IsRoot && !mapperData.RuleSet.RootHasPopulatedTarget);
-        }
+            => mapperData.Context.IsForNewElement || (mapperData.TargetMember.IsRoot && !mapperData.RuleSet.Settings.RootHasPopulatedTarget);
 
         public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
         {
@@ -120,28 +127,9 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
-            return mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull);
-        }
-
-        public static bool DoNotMapRecursion(this IMemberMapperData mapperData)
-        {
-            if (mapperData.SourceType.IsDictionary())
-            {
-                return true;
-            }
-
-            while (mapperData != null)
-            {
-                if (mapperData.TargetType.Name.EndsWith("Dto", StringComparison.Ordinal) ||
-                    mapperData.TargetType.Name.EndsWith("DataTransferObject", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-
-                mapperData = mapperData.Parent;
-            }
-
-            return false;
+            return mapperData.RuleSet.Settings.GuardMemberAccesses(value)
+                ? mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull)
+                : ExpressionInfoFinder.EmptyExpressionInfo;
         }
 
         public static bool SourceMemberIsStringKeyedDictionary(
@@ -178,6 +166,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool TargetMemberIsUnmappable(this IMemberMapperData mapperData, out string reason)
         {
+            if (!mapperData.RuleSet.Settings.AllowSetMethods &&
+                (mapperData.TargetMember.LeafMember.MemberType == MemberType.SetMethod))
+            {
+                reason = "Set methods are unsupported by rule set '" + mapperData.RuleSet.Name + "'";
+                return true;
+            }
+
             return TargetMemberIsUnmappable(
                 mapperData,
                 mapperData.TargetMember,
@@ -215,7 +210,7 @@ namespace AgileObjects.AgileMapper.Members
 
         [DebuggerStepThrough]
         public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)
-            => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping;
+            => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping();
 
         [DebuggerStepThrough]
         public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)
@@ -294,7 +289,6 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)
         {
             var targetMember = mapperData.TargetMember;
-            var mapToNullCollections = mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
 
             Expression emptyEnumerable;
 
@@ -302,7 +296,7 @@ namespace AgileObjects.AgileMapper.Members
             {
                 var existingValue = mapperData.GetTargetMemberAccess();
 
-                if (mapToNullCollections)
+                if (mapperData.MapToNullCollections())
                 {
                     return existingValue;
                 }
@@ -312,7 +306,7 @@ namespace AgileObjects.AgileMapper.Members
                 return Expression.Coalesce(existingValue, emptyEnumerable);
             }
 
-            if (mapToNullCollections)
+            if (mapperData.MapToNullCollections())
             {
                 return targetMember.Type.ToDefaultExpression();
             }
@@ -448,8 +442,8 @@ namespace AgileObjects.AgileMapper.Members
 
         private static Expression GetFinalContextAccess(
             Expression contextAccess,
-            Type[] contextTypes,
-            Type[] contextAccessTypes = null)
+            IList<Type> contextTypes,
+            IList<Type> contextAccessTypes = null)
         {
             if ((contextAccessTypes == null) && !contextAccess.Type.IsGenericType())
             {
@@ -470,9 +464,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
-        {
-            return mapperData.TargetMember.GetPopulation(value, mapperData);
-        }
+            => mapperData.TargetMember.GetPopulation(value, mapperData);
 
         public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);

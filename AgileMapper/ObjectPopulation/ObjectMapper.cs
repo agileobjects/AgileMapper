@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Caching;
+    using Recursion;
     using NetStandardPolyfills;
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper

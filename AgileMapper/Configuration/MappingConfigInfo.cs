@@ -4,14 +4,13 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq.Expressions;
-    using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
 
     internal class MappingConfigInfo : ITypePair
     {
-        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", true, null, null, null);
+        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null, null);
 
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
@@ -161,8 +160,7 @@
 
             var conditionNestedAccessesChecks = mapperData
                 .GetExpressionInfoFor(condition, targetCanBeNull)
-                .NestedAccesses
-                .GetIsNotDefaultComparisonsOrNull();
+                .NestedAccessChecks;
 
             if (conditionNestedAccessesChecks != null)
             {

@@ -10,7 +10,26 @@
 
     internal class ToStringConverter : ValueConverterBase
     {
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType) => nonNullableTargetType == typeof(string);
+        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+            => nonNullableTargetType == typeof(string);
+
+        public bool HasNativeStringRepresentation(Type nonNullableType)
+        {
+            return (nonNullableType == typeof(string)) ||
+                   (nonNullableType == typeof(object)) ||
+                    nonNullableType.IsEnum() ||
+                   (nonNullableType == typeof(char)) ||
+                    HasToStringOperator(nonNullableType, out var _);
+        }
+
+        private static bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)
+        {
+            operatorMethod = nonNullableSourceType
+                .GetOperators(o => o.To<string>())
+                .FirstOrDefault();
+
+            return operatorMethod != null;
+        }
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
@@ -20,6 +39,11 @@
 
         public Expression GetConversion(Expression sourceValue)
         {
+            if (sourceValue.Type == typeof(string))
+            {
+                return sourceValue;
+            }
+
             if (sourceValue.Type == typeof(byte[]))
             {
                 return GetByteArrayToBase64StringConversion(sourceValue);
@@ -32,26 +56,17 @@
                 return GetDateTimeToStringConversion(sourceValue, nonNullableSourceType);
             }
 
+            if (nonNullableSourceType == typeof(bool))
+            {
+                return GetBoolToStringConversion(sourceValue, nonNullableSourceType);
+            }
+
             if (HasToStringOperator(nonNullableSourceType, out var operatorMethod))
             {
                 return Expression.Call(operatorMethod, sourceValue);
             }
 
-            var toStringMethod = sourceValue.Type
-                .GetPublicInstanceMethod("ToString", parameterCount: 0);
-
-            var toStringCall = Expression.Call(sourceValue, toStringMethod);
-
-            return toStringCall;
-        }
-
-        public bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)
-        {
-            operatorMethod = nonNullableSourceType
-                .GetOperators(o => o.To<string>())
-                .FirstOrDefault();
-
-            return operatorMethod != null;
+            return sourceValue.WithToStringCall();
         }
 
         #region Byte[] Conversion
@@ -95,6 +110,29 @@
                 .Method;
 
             return toStringMethod;
+        }
+
+        private static Expression GetBoolToStringConversion(Expression sourceValue, Type nonNullableSourceType)
+        {
+            if (sourceValue.Type == nonNullableSourceType)
+            {
+                return GetTrueOrFalseTernary(sourceValue);
+            }
+
+            var nullTrueOrFalse = Expression.Condition(
+                Expression.Property(sourceValue, "HasValue"),
+                GetTrueOrFalseTernary(Expression.Property(sourceValue, "Value")),
+                typeof(string).ToDefaultExpression());
+
+            return nullTrueOrFalse;
+        }
+
+        private static Expression GetTrueOrFalseTernary(Expression sourceValue)
+        {
+            return Expression.Condition(
+                sourceValue,
+                "true".ToConstantExpression(),
+                "false".ToConstantExpression());
         }
     }
 }

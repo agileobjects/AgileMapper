@@ -12,20 +12,19 @@
     using Members;
     using Members.Dictionaries;
     using NetStandardPolyfills;
+    using Projection;
     using ReadableExpressions.Extensions;
 
-    /// <summary>
-    /// Provides options for specifying a target member to which a configuration option should apply.
-    /// </summary>
-    /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
-    /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
-    public class CustomDataSourceTargetMemberSpecifier<TSource, TTarget>
+
+    internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
+        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget>,
+        ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly LambdaExpression _customValueLambda;
         private readonly ConfiguredLambdaInfo _customValueLambdaInfo;
 
-        internal CustomDataSourceTargetMemberSpecifier(
+        public CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
             LambdaExpression customValueLambda)
             : this(configInfo, default(ConfiguredLambdaInfo))
@@ -33,7 +32,7 @@
             _customValueLambda = customValueLambda;
         }
 
-        internal CustomDataSourceTargetMemberSpecifier(
+        public CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo customValueLambda)
         {
@@ -41,29 +40,20 @@
             _customValueLambdaInfo = customValueLambda;
         }
 
-        /// <summary>
-        /// Apply the configuration to the given <paramref name="targetMember"/>.
-        /// </summary>
-        /// <typeparam name="TTargetValue">The target member's type.</typeparam>
-        /// <param name="targetMember">The target member to which to apply the configuration.</param>
-        /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
-        /// </returns>
-        public MappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
-            Expression<Func<TTarget, TTargetValue>> targetMember)
-            => RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetMember));
 
-        /// <summary>
-        /// Apply the configuration to the given <paramref name="targetSetMethod"/>.
-        /// </summary>
-        /// <typeparam name="TTargetValue">The type of the target set method's argument.</typeparam>
-        /// <param name="targetSetMethod">The target set method to which to apply the configuration.</param>
-        /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
-        /// </returns>
-        public MappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
+        public IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
+            Expression<Func<TTarget, TTargetValue>> targetMember)
+        {
+            return RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetMember));
+        }
+
+        IProjectionConfigContinuation<TSource, TTarget> ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>.To<TResultValue>(
+            Expression<Func<TTarget, TResultValue>> resultMember)
+        {
+            return RegisterDataSource<TResultValue>(() => CreateFromLambda<TResultValue>(resultMember));
+        }
+
+        public IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
             => RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetSetMethod));
 
@@ -149,27 +139,22 @@
             return valueLambdaInfo;
         }
 
-        /// <summary>
-        /// Apply the configuration to the constructor parameter with the type specified by the type argument.
-        /// </summary>
-        /// <typeparam name="TTargetParam">The target constructor parameter's type.</typeparam>
-        /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
-        /// </returns>
-        public MappingConfigContinuation<TSource, TTarget> ToCtor<TTargetParam>()
+        public IMappingConfigContinuation<TSource, TTarget> ToCtor<TTargetParam>()
             => RegisterDataSource<TTargetParam>(CreateForCtorParam<TTargetParam>);
 
-        /// <summary>
-        /// Apply the configuration to the constructor parameter with the specified <paramref name="parameterName"/>.
-        /// </summary>
-        /// <param name="parameterName">The target constructor parameter's name.</param>
-        /// <returns>
-        /// A MappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
-        /// </returns>
-        public MappingConfigContinuation<TSource, TTarget> ToCtor(string parameterName)
+        IProjectionConfigContinuation<TSource, TTarget> ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>.ToCtor<TTargetParam>()
+            => RegisterDataSource<TTargetParam>(CreateForCtorParam<TTargetParam>);
+
+        public IMappingConfigContinuation<TSource, TTarget> ToCtor(string parameterName)
             => RegisterDataSource<object>(() => CreateForCtorParam(parameterName));
+
+        IProjectionConfigContinuation<TSource, TTarget> ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>.ToCtor(
+            string parameterName)
+        {
+            return RegisterDataSource<object>(() => CreateForCtorParam(parameterName));
+        }
+
+        #region Ctor Helpers
 
         private ConfiguredDataSourceFactory CreateForCtorParam<TParam>()
             => CreateForCtorParam<TParam>(GetUniqueConstructorParameterOrThrow<TParam>());
@@ -248,6 +233,8 @@
 
             return new ConfiguredDataSourceFactory(_configInfo, valueLambda, constructorParameter);
         }
+
+        #endregion
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(
             Func<ConfiguredDataSourceFactory> factoryFactory)

@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     {
         private static readonly Type[] _supportedSourceTypes = Constants
             .NumericTypes
-            .Append(typeof(bool), typeof(string), typeof(object), typeof(char));
+            .Append(typeof(bool));
 
         private readonly ToStringConverter _toStringConverter;
 
@@ -22,7 +22,11 @@ namespace AgileObjects.AgileMapper.TypeConversion
         }
 
         public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
-            => (nonNullableTargetType == typeof(bool)) && _supportedSourceTypes.Contains(nonNullableSourceType);
+        {
+            return (nonNullableTargetType == typeof(bool)) &&
+                 ((_supportedSourceTypes.Contains(nonNullableSourceType)) ||
+                   _toStringConverter.HasNativeStringRepresentation(nonNullableSourceType));
+        }
 
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
@@ -102,7 +106,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
         private Expression GetValueTest(Expression sourceValue, ConstantExpression testValue)
         {
-            if (sourceValue.Type == typeof(object))
+            if (sourceValue.Type != testValue.Type)
             {
                 sourceValue = _toStringConverter.GetConversion(sourceValue);
             }

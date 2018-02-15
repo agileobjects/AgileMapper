@@ -13,14 +13,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     {
         public static readonly MappingExpressionFactoryBase Instance = new ComplexTypeMappingExpressionFactory();
 
-        private readonly PopulationExpressionFactoryBase _structPopulationFactory;
-        private readonly PopulationExpressionFactoryBase _classPopulationFactory;
+        private readonly PopulationExpressionFactoryBase _memberInitPopulationFactory;
+        private readonly PopulationExpressionFactoryBase _multiStatementPopulationFactory;
         private readonly IEnumerable<ISourceShortCircuitFactory> _shortCircuitFactories;
 
         private ComplexTypeMappingExpressionFactory()
         {
-            _structPopulationFactory = new StructPopulationExpressionFactory();
-            _classPopulationFactory = new ClassPopulationExpressionFactory();
+            _memberInitPopulationFactory = new MemberInitPopulationExpressionFactory();
+            _multiStatementPopulationFactory = new MultiStatementPopulationExpressionFactory();
 
             _shortCircuitFactories = new[]
             {
@@ -36,22 +36,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 // If a target complex type is readonly or unconstructable 
                 // we still try to map to it using an existing non-null value:
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             if (mappingData.MapperData.MapperContext.ConstructionFactory.GetNewObjectCreation(mappingData) != null)
             {
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             var targetType = mappingData.MapperData.TargetType;
 
             if (targetType.IsAbstract() && mappingData.MapperData.GetDerivedTargetTypes().Any())
             {
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             nullMappingBlock = Expression.Block(
@@ -73,6 +70,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(mapperData);
+
             if (alreadyMappedShortCircuit != null)
             {
                 yield return alreadyMappedShortCircuit;
@@ -96,7 +94,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return false;
             }
 
-            if (mapperData.TargetMemberIsEnumerableElement())
+            if (mapperData.RuleSet.Settings.SourceElementsCouldBeNull && mapperData.TargetMemberIsEnumerableElement())
             {
                 return !mapperData.HasSameSourceAsParent();
             }
@@ -106,13 +104,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetAlreadyMappedObjectShortCircuitOrNull(ObjectMapperData mapperData)
         {
-            if (!mapperData.CacheMappedObjects || mapperData.TargetTypeHasNotYetBeenMapped)
+            if (!mapperData.RuleSet.Settings.AllowObjectTracking ||
+                !mapperData.CacheMappedObjects ||
+                 mapperData.TargetTypeHasNotYetBeenMapped)
             {
                 return null;
             }
 
-            // ReSharper disable once PossibleNullReferenceException
-            var tryGetMethod = typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("TryGet")
+            var tryGetMethod = typeof(IObjectMappingDataUntyped)
+                .GetPublicInstanceMethod("TryGet")
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             var tryGetCall = Expression.Call(
@@ -141,13 +141,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            var expressionFactory = mappingData.MapperData.TargetMemberIsUserStruct()
-                ? _structPopulationFactory
-                : _classPopulationFactory;
+            var expressionFactory = mappingData.MapperData.UseMemberInitialisations()
+                ? _memberInitPopulationFactory
+                : _multiStatementPopulationFactory;
 
             return expressionFactory.GetPopulation(mappingData);
         }
-
-        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
     }
 }

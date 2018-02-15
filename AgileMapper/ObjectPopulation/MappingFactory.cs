@@ -54,18 +54,14 @@
 
             if (childMapperData.TargetMemberEverRecurses())
             {
-                if (childMapperData.DoNotMapRecursion())
-                {
-                    return Constants.EmptyExpression;
-                }
-
-                childMapperData.CacheMappedObjects = true;
-
-                var mapRecursionCall = GetMapRecursionCallFor(
-                    childMappingData,
-                    mappingValues.SourceValue,
-                    dataSourceIndex,
-                    declaredTypeMapperData);
+                var mapRecursionCall = childMapperData
+                    .RuleSet
+                    .RecursiveMemberMappingStrategy
+                    .GetMapRecursionCallFor(
+                        childMappingData,
+                        mappingValues.SourceValue,
+                        dataSourceIndex,
+                        declaredTypeMapperData);
 
                 return mapRecursionCall;
             }
@@ -76,24 +72,6 @@
                 MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childMapperData));
 
             return inlineMappingBlock;
-        }
-
-        private static Expression GetMapRecursionCallFor(
-            IObjectMappingData childMappingData,
-            Expression sourceValue,
-            int dataSourceIndex,
-            ObjectMapperData declaredTypeMapperData)
-        {
-            var childMapperData = childMappingData.MapperData;
-
-            childMapperData.RegisterRequiredMapperFunc(childMappingData);
-
-            var mapRecursionCall = declaredTypeMapperData.GetMapRecursionCall(
-                sourceValue,
-                childMapperData.TargetMember,
-                dataSourceIndex);
-
-            return mapRecursionCall;
         }
 
         public static Expression GetElementMapping(
@@ -194,7 +172,7 @@
                 createMappingDataCall);
         }
 
-        public static Expression GetDirectAccessMapping(
+        private static Expression GetDirectAccessMapping(
             Expression mapping,
             ObjectMapperData mapperData,
             MappingValues mappingValues,
@@ -241,7 +219,8 @@
             IMemberMapperData mapperData)
         {
             return (sourceValue.NodeType != ExpressionType.Parameter) &&
-                   SourceAccessFinder.MultipleAccessesExist(mapperData, mapping);
+                   !mapperData.RuleSet.Settings.UseMemberInitialisation &&
+                    SourceAccessFinder.MultipleAccessesExist(mapperData, mapping);
         }
 
         private static string GetSourceValueVariableName(IMemberMapperData mapperData, Type sourceType = null)
@@ -267,7 +246,9 @@
             Expression mappingExpression,
             ObjectMapperData mapperData)
         {
-            if (mapperData.Context.IsForDerivedType || !mapperData.Context.IsStandalone)
+            if (mapperData.Context.IsForDerivedType ||
+               !mapperData.Context.IsStandalone ||
+                mapperData.UseSingleMappingExpression())
             {
                 return mappingExpression;
             }

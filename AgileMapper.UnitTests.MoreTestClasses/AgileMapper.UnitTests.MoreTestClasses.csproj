@@ -7,4 +7,8 @@
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.MoreTestClasses</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,9 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
+    using Queryables.Api;
 
     /// <summary>
     /// Provides mapping and mapping configuration services.
@@ -17,7 +19,7 @@
         IMapper CloneSelf();
 
         /// <summary>
-        /// Create and compile mapping functions for a particular type of mapping of the source type specified by 
+        /// Create and compile a mapping function for a particular type of mapping of the source type specified by 
         /// the given <paramref name="exampleInstance"/>. Use this overload for anonymous types.
         /// </summary>
         /// <typeparam name="TSource">The type of the given <paramref name="exampleInstance"/>.</typeparam>
@@ -25,21 +27,37 @@
         /// An instance specifying the source type for which a mapping plan should be created.
         /// </param>
         /// <returns>
-        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the function for which 
         /// should be cached.
         /// </returns>
         IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance);
 
         /// <summary>
-        /// Create and compile mapping functions for a particular type of mapping of the source type
+        /// Create and compile a mapping function for a particular type of mapping of the source type
         /// specified by the type argument.
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
-        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the functions for which 
+        /// An IPlanTargetAndRuleSetSelector with which to specify the type of mapping the function for which 
         /// should be cached.
         /// </returns>
         IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>();
+
+        /// <summary>
+        /// Create and compile a query projection function from the source IQueryable Type specified by the given 
+        /// <paramref name="exampleQueryable"/>.
+        /// </summary>
+        /// <typeparam name="TSourceElement">
+        /// The type of element contained in the source IQueryable from which the projection function to be created will project.
+        /// </typeparam>
+        /// <param name="exampleQueryable">
+        /// An IQueryable instance specifying the source IQueryable for which a query projection mapping plan should be created.
+        /// </param>
+        /// <returns>
+        /// An IProjectionPlanTargetSelector with which to specify the target Type to which the query projection function to 
+        /// be created should be cached.
+        /// </returns>
+        IProjectionPlanTargetSelector<TSourceElement> GetPlanForProjecting<TSourceElement>(IQueryable<TSourceElement> exampleQueryable);
 
         /// <summary>
         /// Create and compile mapping functions for mapping from the source type specified by the given 

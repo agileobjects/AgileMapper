@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using MoreTestClasses;
     using TestClasses;
     using Xunit;
 
@@ -365,7 +366,7 @@
                 plan.ShouldContain("Rule Set: Merge");
                 plan.ShouldContain("Rule Set: Overwrite");
 
-                mapper.RootMappers().Count.ShouldBe(5);
+                mapper.RootMapperCountShouldBe(5);
             }
         }
     }

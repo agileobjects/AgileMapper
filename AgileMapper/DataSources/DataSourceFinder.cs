@@ -28,7 +28,7 @@
                 .Where(ds => ds.IsValid)
                 .ToArray();
 
-            return new DataSourceSet(validDataSources);
+            return new DataSourceSet(childMappingData.MapperData, validDataSources);
         }
 
         private IEnumerable<IDataSource> EnumerateDataSources(IChildMemberMappingData childMappingData)
@@ -77,7 +77,7 @@
 
         private static bool DataSourcesAreConfigured(
             IMemberMapperData mapperData,
-            out IEnumerable<IConfiguredDataSource> configuredDataSources)
+            out IList<IConfiguredDataSource> configuredDataSources)
         {
             configuredDataSources = mapperData
                 .MapperContext
@@ -105,7 +105,7 @@
         }
 
         private static IEnumerable<IDataSource> GetSourceMemberDataSources(
-            IEnumerable<IConfiguredDataSource> configuredDataSources,
+            IList<IConfiguredDataSource> configuredDataSources,
             int dataSourceIndex,
             IChildMemberMappingData mappingData)
         {
@@ -118,7 +118,7 @@
             var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(bestMatchingSourceMember, contextMappingData);
 
             if ((matchingSourceMemberDataSource == null) ||
-                configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
+                 configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
                 if (dataSourceIndex == 0)
                 {
@@ -128,7 +128,7 @@
                         yield return new ComplexTypeMappingDataSource(dataSourceIndex, mappingData);
                     }
                 }
-                else
+                else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)
                 {
                     yield return GetFallbackDataSourceFor(mappingData);
                 }
@@ -143,7 +143,8 @@
                 yield break;
             }
 
-            if (matchingSourceMemberDataSource.IsConditional)
+            if (matchingSourceMemberDataSource.IsConditional &&
+               (matchingSourceMemberDataSource.IsValid || configuredDataSources.Any()))
             {
                 yield return GetFallbackDataSourceFor(mappingData);
             }

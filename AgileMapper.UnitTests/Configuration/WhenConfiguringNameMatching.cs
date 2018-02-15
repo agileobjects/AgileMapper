@@ -10,13 +10,11 @@
     public class WhenConfiguringNameMatching
     {
         [Fact]
-        public void ShouldHandleACustomPrefix()
+        public void ShouldUseACustomPrefix()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNamePrefix("_p");
+                mapper.WhenMapping.UseNamePrefix("_p");
 
                 var source = new { _pValue = "Help!" };
                 var result = mapper.Map(source).ToANew<PublicProperty<string>>();
@@ -26,13 +24,11 @@
         }
 
         [Fact]
-        public void ShouldHandleMultipleCustomPrefixes()
+        public void ShouldUseMultipleCustomPrefixes()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNamePrefixes("_p", "_f");
+                mapper.WhenMapping.UseNamePrefixes("_p", "_f");
 
                 var source = new { _fValue = "Oops!" };
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
@@ -42,13 +38,11 @@
         }
 
         [Fact]
-        public void ShouldHandleACustomSuffix()
+        public void ShouldUseACustomSuffix()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNameSuffix("Str");
+                mapper.WhenMapping.UseNameSuffix("Str");
 
                 var source = new { ValueStr = "La la la!" };
                 var result = mapper.Map(source).ToANew<PublicProperty<string>>();
@@ -58,13 +52,11 @@
         }
 
         [Fact]
-        public void ShouldHandleMultipleCustomSuffixes()
+        public void ShouldUseMultipleCustomSuffixes()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNameSuffixes("Str", "Int");
+                mapper.WhenMapping.UseNameSuffixes("Str", "Int");
 
                 var source = new { ValueInt = 12345 };
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
@@ -74,7 +66,7 @@
         }
 
         [Fact]
-        public void ShouldHandleACustomNamingPattern()
+        public void ShouldUseACustomNamingPattern()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -109,13 +101,11 @@
         }
 
         [Fact]
-        public void ShouldHandleACustomNamingPrefixPattern()
+        public void ShouldUseACustomNamingPrefixPattern()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNamePattern("^__(.+)$");
+                mapper.WhenMapping.UseNamePattern("^__(.+)$");
 
                 var source = new { __Value = 911 };
                 var result = mapper.Map(source).ToANew<PublicField<string>>();
@@ -125,13 +115,11 @@
         }
 
         [Fact]
-        public void ShouldHandleACustomNamingSuffixPattern()
+        public void ShouldUseACustomNamingSuffixPattern()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNamePattern("^(.+)__$");
+                mapper.WhenMapping.UseNamePattern("^(.+)__$");
 
                 var source = new { Value__ = 878 };
                 var result = mapper.Map(source).ToANew<PublicField<long>>();
@@ -141,13 +129,11 @@
         }
 
         [Fact]
-        public void ShouldHandleCustomNamingPatterns()
+        public void ShouldUseCustomNamingPatterns()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNamePatterns("^_abc(.+)xyz_$", "^__(.+)__$");
+                mapper.WhenMapping.UseNamePatterns("^_abc(.+)xyz_$", "^__(.+)__$");
 
                 var source = new { __Value__ = 456 };
                 var result = mapper.Map(source).ToANew<PublicField<int>>();
@@ -163,9 +149,7 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper
-                        .WhenMapping
-                        .UseNamePatterns("^_[Name]_$");
+                    mapper.WhenMapping.UseNamePatterns("^_[Name]_$");
                 }
             });
         }
@@ -193,8 +177,7 @@ _$");
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper.WhenMapping
-                        .UseNamePattern(null);
+                    mapper.WhenMapping.UseNamePattern(null);
                 }
             });
         }
@@ -206,9 +189,7 @@ _$");
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper
-                        .WhenMapping
-                        .UseNamePatterns();
+                    mapper.WhenMapping.UseNamePatterns();
                 }
             });
         }
@@ -220,9 +201,7 @@ _$");
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper
-                        .WhenMapping
-                        .UseNamePattern("(.+)");
+                    mapper.WhenMapping.UseNamePattern("(.+)");
                 }
             });
         }

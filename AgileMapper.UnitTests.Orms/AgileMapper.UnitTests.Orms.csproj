@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\xunit.core.2.3.1\build\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.3.1\build\xunit.core.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{66522D44-19F5-4AF5-9D43-483A3CD6F958}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Orms</RootNamespace>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Orms</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.abstractions.2.0.1\lib\net35\xunit.abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.3.1.3858, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.assert.2.3.1\lib\netstandard1.1\xunit.assert.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.3.1.3858, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.core.2.3.1\lib\netstandard1.1\xunit.core.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.3.1.3858, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.execution.2.3.1\lib\net452\xunit.execution.desktop.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringConstructorDataSourcesInline.cs" />
+    <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
+    <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectCreation.cs" />
+    <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
+    <Compile Include="Configuration\WhenIgnoringMembers.cs" />
+    <Compile Include="Configuration\WhenMappingToNull.cs" />
+    <Compile Include="Infrastructure\DbSetWrapperBase.cs" />
+    <Compile Include="Infrastructure\IDbSetWrapper.cs" />
+    <Compile Include="Infrastructure\ITestContext.cs" />
+    <Compile Include="Infrastructure\ITestDbContext.cs" />
+    <Compile Include="Infrastructure\ITestLocalDbContext.cs" />
+    <Compile Include="Infrastructure\LocalDbTestContext.cs" />
+    <Compile Include="Infrastructure\OrmTestClassBase.cs" />
+    <Compile Include="Recursion\IOneToManyRecursionProjectionFailureTest.cs" />
+    <Compile Include="Recursion\IOneToManyRecursionProjectorTest.cs" />
+    <Compile Include="SimpleTypeConversion\IStringConversionFailureTest.cs" />
+    <Compile Include="SimpleTypeConversion\IStringConverterTest.cs" />
+    <Compile Include="SimpleTypeConversion\IStringConversionValidationFailureTest.cs" />
+    <Compile Include="SimpleTypeConversion\IStringConversionValidatorTest.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToEnums.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
+    <Compile Include="TestClasses\Account.cs" />
+    <Compile Include="TestClasses\AccountAddress.cs" />
+    <Compile Include="TestClasses\AccountDto.cs" />
+    <Compile Include="TestClasses\Address.cs" />
+    <Compile Include="TestClasses\AddressDto.cs" />
+    <Compile Include="TestClasses\Animal.cs" />
+    <Compile Include="TestClasses\AnimalDto.cs" />
+    <Compile Include="TestClasses\AnimalDtoBase.cs" />
+    <Compile Include="TestClasses\Category.cs" />
+    <Compile Include="TestClasses\CategoryDto.cs" />
+    <Compile Include="TestClasses\Circle.cs" />
+    <Compile Include="TestClasses\CircleViewModel.cs" />
+    <Compile Include="TestClasses\Company.cs" />
+    <Compile Include="TestClasses\CompanyDto.cs" />
+    <Compile Include="TestClasses\DogDto.cs" />
+    <Compile Include="TestClasses\ElephantDto.cs" />
+    <Compile Include="TestClasses\Employee.cs" />
+    <Compile Include="TestClasses\EmployeeDto.cs" />
+    <Compile Include="TestClasses\OrderUk.cs" />
+    <Compile Include="TestClasses\OrderDto.cs" />
+    <Compile Include="TestClasses\OrderItem.cs" />
+    <Compile Include="TestClasses\OrderItemDto.cs" />
+    <Compile Include="TestClasses\OrderUsViewModel.cs" />
+    <Compile Include="TestClasses\Person.cs" />
+    <Compile Include="TestClasses\PersonDto.cs" />
+    <Compile Include="TestClasses\PersonViewModel.cs" />
+    <Compile Include="TestClasses\ProductStruct.cs" />
+    <Compile Include="TestClasses\PublicByte.cs" />
+    <Compile Include="TestClasses\PublicByteDto.cs" />
+    <Compile Include="TestClasses\PublicDateTime.cs" />
+    <Compile Include="TestClasses\PublicDateTimeDto.cs" />
+    <Compile Include="TestClasses\PublicDouble.cs" />
+    <Compile Include="TestClasses\PublicGuidDto.cs" />
+    <Compile Include="TestClasses\PublicDoubleDto.cs" />
+    <Compile Include="TestClasses\PublicDecimal.cs" />
+    <Compile Include="TestClasses\PublicStringCtorDto.cs" />
+    <Compile Include="TestClasses\PublicStringDto.cs" />
+    <Compile Include="TestClasses\PublicStringNames.cs" />
+    <Compile Include="TestClasses\PublicTitle.cs" />
+    <Compile Include="TestClasses\PublicTitleDto.cs" />
+    <Compile Include="TestClasses\Rota.cs" />
+    <Compile Include="TestClasses\RotaDto.cs" />
+    <Compile Include="TestClasses\RotaEntry.cs" />
+    <Compile Include="TestClasses\RotaEntryDto.cs" />
+    <Compile Include="TestClasses\Shape.cs" />
+    <Compile Include="TestClasses\ShapeViewModel.cs" />
+    <Compile Include="TestClasses\SnakeDto.cs" />
+    <Compile Include="TestClasses\Square.cs" />
+    <Compile Include="TestClasses\SquareViewModel.cs" />
+    <Compile Include="TestConstants.cs" />
+    <Compile Include="Infrastructure\InMemoryOrmTestContext.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
+    <Compile Include="TestClasses\Product.cs" />
+    <Compile Include="TestClasses\ProductDto.cs" />
+    <Compile Include="TestClasses\PublicBool.cs" />
+    <Compile Include="TestClasses\PublicBoolDto.cs" />
+    <Compile Include="TestClasses\PublicInt.cs" />
+    <Compile Include="TestClasses\PublicIntDto.cs" />
+    <Compile Include="TestClasses\PublicLong.cs" />
+    <Compile Include="TestClasses\PublicShort.cs" />
+    <Compile Include="TestClasses\PublicString.cs" />
+    <Compile Include="TestExtensions.cs" />
+    <Compile Include="Recursion\WhenProjectingCircularReferences.cs" />
+    <Compile Include="WhenProjectingFlatTypes.cs" />
+    <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
+    <Compile Include="WhenProjectingToEnumerableMembers.cs" />
+    <Compile Include="WhenProjectingToFlatTypes.cs" />
+    <Compile Include="WhenValidatingProjections.cs" />
+    <Compile Include="WhenViewingProjectionPlans.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
+      <Project>{049E1EE5-48CE-441A-B166-3CF6BEC17957}</Project>
+      <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AgileMapper.UnitTests\AgileMapper.UnitTests.csproj">
+      <Project>{a3f2d405-8c0b-4033-9ec5-1b64007593fb}</Project>
+      <Name>AgileMapper.UnitTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
+      <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
+      <Name>AgileMapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\xunit.core.2.3.1\build\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.3.1\build\xunit.core.props'))" />
+    <Error Condition="!Exists('..\packages\xunit.core.2.3.1\build\xunit.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.3.1\build\xunit.core.targets'))" />
+  </Target>
+  <Import Project="..\packages\xunit.core.2.3.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.3.1\build\xunit.core.targets')" />
+</Project>

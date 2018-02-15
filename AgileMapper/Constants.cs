@@ -25,6 +25,8 @@
 
         public const string Overwrite = "Overwrite";
 
+        public const string Project = "Project";
+
         public const int BeforeLoopExitCheck = 0;
 
         public const int AfterLoopExitCheck = 1;

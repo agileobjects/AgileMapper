@@ -30,9 +30,9 @@
             Expression condition = null)
         {
             SourceMember = sourceMember;
-            Condition = condition;
             Variables = variables;
             Value = value;
+            Condition = condition;
         }
 
         protected DataSourceBase(
@@ -45,10 +45,10 @@
             ProcessMemberAccesses(
                 mapperData,
                 ref value,
-                out var nestedAccesses,
+                out var nestedAccessChecks,
                 out var variables);
 
-            Condition = GetCondition(nestedAccesses, mapperData);
+            Condition = GetCondition(nestedAccessChecks, mapperData);
             Variables = variables;
             Value = value;
         }
@@ -58,11 +58,11 @@
         private static void ProcessMemberAccesses(
             IMemberMapperData mapperData,
             ref Expression value,
-            out IList<Expression> nestedAccesses,
+            out Expression nestedAccessChecks,
             out IList<ParameterExpression> variables)
         {
             var valueInfo = mapperData.GetExpressionInfoFor(value, targetCanBeNull: false);
-            nestedAccesses = valueInfo.NestedAccesses;
+            nestedAccessChecks = valueInfo.NestedAccessChecks;
 
             if (valueInfo.MultiInvocations.None())
             {
@@ -91,18 +91,16 @@
             value = Expression.Block(valueExpressions);
         }
 
-        private Expression GetCondition(IList<Expression> nestedAccesses, IMemberMapperData mapperData)
+        private Expression GetCondition(Expression nestedAccessChecks, IMemberMapperData mapperData)
         {
-            if (nestedAccesses.None())
+            if (nestedAccessChecks == null)
             {
                 return null;
             }
 
-            var notNullChecks = nestedAccesses.GetIsNotDefaultComparisonsOrNull();
-
-            if (!IsOptionalEntityMemberId(mapperData))
+            if (IsNotOptionalEntityMemberId(mapperData))
             {
-                return notNullChecks;
+                return nestedAccessChecks;
             }
 
             var sourceMemberValue = SourceMember.GetQualifiedAccess(mapperData);
@@ -110,7 +108,7 @@
 
             if (!sourceValueType.IsNumeric())
             {
-                return notNullChecks;
+                return nestedAccessChecks;
             }
 
             if (sourceMemberValue.Type.IsNullableType())
@@ -121,16 +119,16 @@
             var zero = 0.ToConstantExpression(sourceValueType);
             var sourceValueNonZero = Expression.NotEqual(sourceMemberValue, zero);
 
-            return Expression.AndAlso(notNullChecks, sourceValueNonZero);
+            return Expression.AndAlso(nestedAccessChecks, sourceValueNonZero);
         }
 
-        private static bool IsOptionalEntityMemberId(IMemberMapperData mapperData)
+        private static bool IsNotOptionalEntityMemberId(IMemberMapperData mapperData)
         {
             var targetMember = mapperData.TargetMember;
 
             if (!targetMember.Type.IsNullableType())
             {
-                return false;
+                return true;
             }
 
             var targetMemberNameSuffix = default(string);
@@ -151,12 +149,12 @@
                     break;
 
                 default:
-                    return false;
+                    return true;
             }
 
             if (!mapperData.TargetTypeIsEntity())
             {
-                return false;
+                return true;
             }
 
             var entityMemberNameLength = targetMember.Name.Length - targetMemberNameSuffix.Length;
@@ -168,7 +166,7 @@
                 .GetTargetMembers(mapperData.TargetType)
                 .FirstOrDefault(m => m.Name == entityMemberName);
 
-            return mapperData.IsEntity(entityMember?.Type);
+            return !mapperData.IsEntity(entityMember?.Type, out var _);
         }
 
         #endregion
@@ -197,8 +195,5 @@
                 ? Expression.IfThenElse(Condition, value, alternateBranch)
                 : Expression.IfThen(Condition, value);
         }
-
-        public Expression GetTargetMemberPopulation(IMemberMapperData mapperData)
-            => mapperData.GetTargetMemberPopulation(Value);
     }
 }

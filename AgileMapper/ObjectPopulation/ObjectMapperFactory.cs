@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ComplexTypes;
     using Enumerables;
     using Extensions.Internal;
+    using Queryables;
     using Validation;
 
     internal class ObjectMapperFactory
@@ -19,6 +20,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             _mappingExpressionFactories = new[]
             {
+                QueryProjectionExpressionFactory.Instance,
                 DictionaryMappingExpressionFactory.Instance,
                 SimpleTypeMappingExpressionFactory.Instance,
                 EnumerableMappingExpressionFactory.Instance,

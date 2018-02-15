@@ -27,6 +27,8 @@
 
         public MappingRuleSet RuleSet { get; private set; }
 
+        public bool AddUnsuccessfulMemberPopulations => false;
+
         #region ToANew Overloads
 
         public TResult ToANew<TResult>() => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));

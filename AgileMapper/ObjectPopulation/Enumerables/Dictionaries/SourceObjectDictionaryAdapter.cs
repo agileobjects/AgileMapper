@@ -18,9 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             : base(builder)
         {
             _instanceDictionaryAdapter = new SourceInstanceDictionaryAdapter(sourceMember, builder);
-
-            var targetEnumerableType = TargetTypeHelper.EnumerableInterfaceType;
-            _emptyTarget = targetEnumerableType.GetEmptyInstanceCreation(TargetTypeHelper.ElementType);
+            _emptyTarget = TargetTypeHelper.GetEmptyInstanceCreation(TargetTypeHelper.EnumerableInterfaceType);
         }
 
         public override Expression GetSourceValues()
@@ -106,7 +104,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
                 .GetSourceEnumerableFoundTest(_emptyTarget, Builder);
 
             var projectionAsTargetType = Expression.TypeAs(Builder.SourceValue, Builder.MapperData.TargetType);
-            var convertedProjection = TargetTypeHelper.GetEnumerableConversion(Builder.SourceValue);
+            var allowEnumerableAssignment = Builder.MapperData.RuleSet.Settings.AllowEnumerableAssignment;
+            var convertedProjection = TargetTypeHelper.GetEnumerableConversion(Builder.SourceValue, allowEnumerableAssignment);
             var projectionResult = Expression.Coalesce(projectionAsTargetType, convertedProjection);
             var returnConvertedProjection = Expression.Return(Builder.MapperData.ReturnLabelTarget, projectionResult);
             var ifProjectedReturn = Expression.IfThen(sourceEnumerableFoundTest, returnConvertedProjection);

@@ -38,6 +38,9 @@
                 .ToArray();
         }
 
+        public static MethodInfo GetConcatMethod(int parameterCount)
+            => _stringConcatMethods.First(m => m.GetParameters().Length == parameterCount);
+
         public static Expression GetStringConcatCall(this IList<Expression> expressions)
         {
             if (expressions.None())

@@ -12,5 +12,7 @@
         public MapperContext MapperContext { get; }
 
         public MappingRuleSet RuleSet { get; }
+
+        public bool AddUnsuccessfulMemberPopulations { get; set; }
     }
 }

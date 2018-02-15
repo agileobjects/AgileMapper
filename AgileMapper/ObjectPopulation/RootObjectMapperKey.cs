@@ -6,10 +6,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ReadableExpressions.Extensions;
 #endif
 
-    internal class RootObjectMapperKey : ObjectMapperKeyBase
+    internal class RootObjectMapperKey : ObjectMapperKeyBase, IRootMapperKey
     {
         private readonly MapperContext _mapperContext;
-        private readonly MappingRuleSet _ruleSet;
 
         public RootObjectMapperKey(MappingTypes mappingTypes, IMappingContext mappingContext)
             : this(mappingContext.RuleSet, mappingTypes, mappingContext.MapperContext)
@@ -20,23 +19,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             : base(mappingTypes)
         {
             _mapperContext = mapperContext;
-            _ruleSet = ruleSet;
+            RuleSet = ruleSet;
         }
+
+        public MappingRuleSet RuleSet { get; }
 
         public override IMembersSource GetMembersSource(IObjectMappingData parentMappingData)
             => _mapperContext.RootMembersSource;
 
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
-            => new RootObjectMapperKey(_ruleSet, newMappingTypes, _mapperContext);
+            => new RootObjectMapperKey(RuleSet, newMappingTypes, _mapperContext);
 
         public override bool Equals(object obj)
         {
-            var otherKey = (RootObjectMapperKey)obj;
+            var otherKey = (IRootMapperKey)obj;
 
             // ReSharper disable once PossibleNullReferenceException
-            return TypesMatch(otherKey) &&
-                  (otherKey._ruleSet == _ruleSet) &&
-                   SourceHasRequiredTypes(otherKey);
+            return (otherKey.RuleSet == RuleSet) &&
+                    TypesMatch(otherKey) &&
+                    SourceHasRequiredTypes(otherKey);
         }
 
         #region ExcludeFromCodeCoverage
@@ -54,7 +55,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var sourceTypeName = MappingTypes.SourceType.GetFriendlyName();
             var targetTypeName = MappingTypes.TargetType.GetFriendlyName();
 
-            return $"{_ruleSet.Name}: {sourceTypeName} -> {targetTypeName}";
+            return $"{RuleSet.Name}: {sourceTypeName} -> {targetTypeName}";
         }
 #endif
         #endregion

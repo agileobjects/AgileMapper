@@ -11,6 +11,9 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class ExpressionInfoFinder
     {
+        public static readonly ExpressionInfo EmptyExpressionInfo =
+            new ExpressionInfo(null, Enumerable<Expression>.EmptyArray);
+
         private readonly Expression _mappingDataObject;
 
         public ExpressionInfoFinder(Expression mappingDataObject)
@@ -29,39 +32,37 @@ namespace AgileObjects.AgileMapper.Members
         private class ExpressionInfoFinderInstance : ExpressionVisitor
         {
             private readonly Expression _mappingDataObject;
+            private readonly bool _includeTargetNullChecking;
             private readonly ICollection<Expression> _stringMemberAccessSubjects;
             private readonly ICollection<Expression> _allInvocations;
             private readonly ICollection<Expression> _multiInvocations;
             private readonly ICollection<string> _nullCheckSubjects;
             private readonly Dictionary<string, Expression> _nestedAccessesByPath;
-            private readonly bool _includeTargetNullChecking;
 
-            public ExpressionInfoFinderInstance(
-                Expression mappingDataObject,
-                bool targetCanBeNull)
+            public ExpressionInfoFinderInstance(Expression mappingDataObject, bool targetCanBeNull)
             {
                 _mappingDataObject = mappingDataObject;
+                _includeTargetNullChecking = targetCanBeNull;
                 _stringMemberAccessSubjects = new List<Expression>();
                 _allInvocations = new List<Expression>();
                 _multiInvocations = new List<Expression>();
                 _nullCheckSubjects = new List<string>();
                 _nestedAccessesByPath = new Dictionary<string, Expression>();
-                _includeTargetNullChecking = targetCanBeNull;
             }
 
             public ExpressionInfo FindIn(Expression expression)
             {
                 Visit(expression);
 
-                var nestedAccesses = _nestedAccessesByPath.None()
-                    ? Enumerable<Expression>.EmptyArray
-                    : _nestedAccessesByPath.Values.Reverse().ToArray();
+                var nestedAccessChecks = _nestedAccessesByPath.Any()
+                    ? _nestedAccessesByPath.Values.Reverse().ToArray().GetIsNotDefaultComparisonsOrNull()
+                    : null;
 
                 var multiInvocations = _multiInvocations
                     .OrderBy(inv => inv.ToString())
                     .ToArray();
 
-                return new ExpressionInfo(nestedAccesses, multiInvocations);
+                return new ExpressionInfo(nestedAccessChecks, multiInvocations);
             }
 
             protected override Expression VisitBinary(BinaryExpression binary)
@@ -121,6 +122,7 @@ namespace AgileObjects.AgileMapper.Members
             {
                 if (memberAccess.Member.Name == "Parent")
                 {
+                    // ReSharper disable once PossibleNullReferenceException
                     return !memberAccess.Member.DeclaringType.Name
                         .StartsWith(nameof(IMappingData), StringComparison.Ordinal);
                 }
@@ -148,6 +150,11 @@ namespace AgileObjects.AgileMapper.Members
                 return (memberAccess.Expression != null) &&
                        (memberAccess.Member.Name == "HasValue") &&
                        (memberAccess.Expression.Type.IsNullableType());
+            }
+
+            protected override MemberBinding VisitMemberBinding(MemberBinding binding)
+            {
+                return base.VisitMemberBinding(binding);
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCall)
@@ -182,7 +189,7 @@ namespace AgileObjects.AgileMapper.Members
 
             private void AddStringMemberAccessSubjectIfAppropriate(Expression member)
             {
-                if ((member != null) && (member.Type == typeof(string)) && AccessSubjectCouldBeNull(member))
+                if ((member?.Type == typeof(string)) && AccessSubjectCouldBeNull(member))
                 {
                     _stringMemberAccessSubjects.Add(member);
                 }
@@ -293,14 +300,14 @@ namespace AgileObjects.AgileMapper.Members
         public class ExpressionInfo
         {
             public ExpressionInfo(
-                IList<Expression> nestedAccesses,
+                Expression nestedAccessChecks,
                 IList<Expression> multiInvocations)
             {
-                NestedAccesses = nestedAccesses;
+                NestedAccessChecks = nestedAccessChecks;
                 MultiInvocations = multiInvocations;
             }
 
-            public IList<Expression> NestedAccesses { get; }
+            public Expression NestedAccessChecks { get; }
 
             public IList<Expression> MultiInvocations { get; }
         }

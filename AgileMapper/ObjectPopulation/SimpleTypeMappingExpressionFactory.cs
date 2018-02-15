@@ -10,21 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly MappingExpressionFactoryBase Instance = new SimpleTypeMappingExpressionFactory();
 
         public override bool IsFor(IObjectMappingData mappingData)
-        {
-            return mappingData.MapperKey.MappingTypes.TargetType.IsSimple();
-        }
-
-        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
-        {
-            nullMappingBlock = null;
-            return false;
-        }
-
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
-            => Enumerable<Expression>.Empty;
-
-        protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
-            => Constants.EmptyExpression;
+            => mappingData.MapperKey.MappingTypes.TargetType.IsSimple();
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
@@ -38,7 +24,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             yield return mapperData.TargetObject;
         }
-
-        protected override Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
     }
 }

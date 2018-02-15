@@ -177,6 +177,11 @@
                    type.IsAssignableTo(typeof(IEnumerable)));
         }
 
+        public static bool IsQueryable(this Type type)
+        {
+            return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(IQueryable<>);
+        }
+
         public static bool IsComplex(this Type type)
         {
             return !type.IsSimple() && !type.IsEnumerable();
@@ -283,6 +288,9 @@
 
         public static bool IsWholeNumberNumeric(this Type type)
             => Constants.WholeNumberNumericTypes.Contains(type);
+
+        public static bool IsNonWholeNumberNumeric(this Type type)
+            => IsNumeric(type) && !IsWholeNumberNumeric(type);
 
         private static double GetMaxValueFor(Type type)
             => GetValueFor(type, Constants.NumericTypeMaxValuesByType, values => values.Max());

@@ -45,7 +45,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             out Expression preCreationCallback,
             out Expression postCreationCallback)
         {
-            if (mapperData.TargetIsDefinitelyPopulated())
+            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
+                mapperData.TargetIsDefinitelyPopulated())
             {
                 preCreationCallback = postCreationCallback = null;
                 return;
@@ -60,15 +61,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)
         {
-            foreach (var memberPopulation in MemberPopulationFactory.Default.Create(mappingData))
+            foreach (var memberPopulator in MemberPopulatorFactory.Default.Create(mappingData))
             {
-                if (!memberPopulation.IsSuccessful)
+                if (!memberPopulator.CanPopulate)
                 {
-                    yield return memberPopulation.GetPopulation();
+                    yield return memberPopulator.GetPopulation();
                     continue;
                 }
 
-                foreach (var expression in GetPopulationExpressionsFor(memberPopulation, mappingData))
+                foreach (var expression in GetPopulationExpressionsFor(memberPopulator, mappingData))
                 {
                     yield return expression;
                 }
@@ -76,7 +77,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         protected abstract IEnumerable<Expression> GetPopulationExpressionsFor(
-            IMemberPopulation memberPopulation,
+            IMemberPopulator memberPopulator,
             IObjectMappingData mappingData);
 
         private Expression GetLocalVariableInstantiation(
@@ -110,7 +111,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {
-            if (!mapperData.CacheMappedObjects || mapperData.TargetTypeWillNotBeMappedAgain)
+            if (!mapperData.RuleSet.Settings.AllowObjectTracking ||
+                !mapperData.CacheMappedObjects ||
+                 mapperData.TargetTypeWillNotBeMappedAgain)
             {
                 return null;
             }

@@ -1,18 +1,23 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Projection;
     using Dictionaries;
     using Dynamics;
     using Extensions.Internal;
     using Members;
+    using Projection;
     using Validation;
 
     internal class MappingConfigurator<TSource, TTarget> :
         IFullMappingInlineConfigurator<TSource, TTarget>,
-        IConditionalRootMappingConfigurator<TSource, TTarget>
+        IFullProjectionInlineConfigurator<TSource, TTarget>,
+        IConditionalRootMappingConfigurator<TSource, TTarget>,
+        IConditionalRootProjectionConfigurator<TSource, TTarget>
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
         {
@@ -32,6 +37,9 @@
 
         public MappingConfigStartingPoint WhenMapping
             => new MappingConfigStartingPoint(MapperContext);
+
+        IProjectionConfigStartingPoint IFullProjectionInlineConfigurator<TSource, TTarget>.WhenMapping
+            => WhenMapping;
 
         public ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries
             => new TargetDictionaryMappingConfigurator<TSource, TTarget>(ConfigInfo);
@@ -77,11 +85,62 @@
 
         #endregion
 
+        #region IFullProjectionInlineConfigurator Members
+
+        public IFullProjectionInlineConfigurator<TSource, TTarget> RecurseToDepth(int recursionDepth)
+        {
+            var depthSettings = new RecursionDepthSettings(ConfigInfo, recursionDepth);
+
+            ConfigInfo.MapperContext.UserConfigurations.Add(depthSettings);
+            return this;
+        }
+
+        public IConditionalRootProjectionConfigurator<TSource, TTarget> If(Expression<Func<TSource, bool>> condition)
+            => SetCondition(condition);
+
+        #region Naming
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePrefix(
+            string prefix) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNamePrefixes(prefix);
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePrefixes(
+            params string[] prefixes)
+        {
+            MapperContext.Naming.AddNamePrefixes(prefixes);
+            return this;
+        }
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNameSuffix(
+            string suffix) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNameSuffixes(suffix);
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNameSuffixes(
+            params string[] suffixes)
+        {
+            MapperContext.Naming.AddNameSuffixes(suffixes);
+            return this;
+        }
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePattern(
+            string pattern) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNamePatterns(pattern);
+
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePatterns(
+            params string[] patterns)
+        {
+            MapperContext.Naming.AddNameMatchers(patterns);
+            return this;
+        }
+
+        #endregion
+
+        #endregion
+
         #region If Overloads
 
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(
             Expression<Func<IMappingData<TSource, TTarget>, bool>> condition)
-            => SetCondition(condition);
+        {
+            return SetCondition(condition);
+        }
 
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, bool>> condition)
             => SetCondition(condition);
@@ -89,7 +148,7 @@
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
-        private IConditionalRootMappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
+        private MappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
         {
             ConfigInfo.AddConditionOrThrow(conditionLambda);
             return this;
@@ -97,23 +156,45 @@
 
         #endregion
 
-        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
+        #region Instance Creation
+
+        public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
-            new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
-
-            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+            return RegisterFactory(factory);
         }
 
-        public MappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory) where TFactory : class
+        public IProjectionConfigContinuation<TSource, TTarget> CreateInstancesUsing(
+            Expression<Func<TSource, TTarget>> factory)
         {
-            new FactorySpecifier<TSource, TTarget, TTarget>(ConfigInfo).Using(factory);
+            return RegisterFactory(factory);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> RegisterFactory(LambdaExpression factory)
+        {
+            CreateFactorySpecifier<TTarget>().Using(factory);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
-        public IFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>() where TObject : class
+        public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory)
+            where TFactory : class
+        {
+            CreateFactorySpecifier<TTarget>().Using(factory);
+
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+        }
+
+        public IMappingFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>()
+            => CreateFactorySpecifier<TObject>();
+
+        IProjectionFactorySpecifier<TSource, TTarget, TObject> IRootProjectionConfigurator<TSource, TTarget>.CreateInstancesOf<TObject>()
+            => CreateFactorySpecifier<TObject>();
+
+        private FactorySpecifier<TSource, TTarget, TObject> CreateFactorySpecifier<TObject>()
             => new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);
+
+        #endregion
 
         public IFullMappingSettings<TSource, TTarget> SwallowAllExceptions() => PassExceptionsTo(ctx => { });
 
@@ -145,20 +226,43 @@
             return this;
         }
 
-        public EnumPairSpecifier<TSource, TTarget, TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember)
+        public IMappingEnumPairSpecifier<TSource, TTarget> PairEnum<TFirstEnum>(TFirstEnum enumMember)
             where TFirstEnum : struct
-            => EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, new[] { enumMember });
+        {
+            return EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, enumMember);
+        }
+
+        IProjectionEnumPairSpecifier<TSource, TTarget> IFullProjectionSettings<TSource, TTarget>.PairEnum<TFirstEnum>(
+            TFirstEnum enumMember)
+        {
+            return EnumPairSpecifier<TSource, TTarget, TFirstEnum>.For(ConfigInfo, enumMember);
+        }
 
         IFullMappingConfigurator<TSource, TTarget> IFullMappingSettings<TSource, TTarget>.And => this;
 
+        IFullProjectionConfigurator<TSource, TTarget> IFullProjectionSettings<TSource, TTarget>.And => this;
+
         #region Ignoring Members
 
-        public MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>()
+        public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>()
+            => IgnoreMembersByFilter(member => member.HasType<TMember>());
+
+        IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.IgnoreTargetMembersOfType<TMember>()
+            => IgnoreMembersByFilter(member => member.HasType<TMember>());
+
+        public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
+            return IgnoreMembersByFilter(memberFilter);
         }
 
-        public MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
+        IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.IgnoreTargetMembersWhere(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter)
+        {
+            return IgnoreMembersByFilter(memberFilter);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> IgnoreMembersByFilter(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
             var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
@@ -168,7 +272,17 @@
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
-        public MappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
+        public IMappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
+            => IgnoreMembers(targetMembers);
+
+        IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.Ignore(
+            params Expression<Func<TTarget, object>>[] resultMembers)
+        {
+            return IgnoreMembers(resultMembers);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> IgnoreMembers(
+            IEnumerable<Expression<Func<TTarget, object>>> targetMembers)
         {
             foreach (var targetMember in targetMembers)
             {
@@ -192,50 +306,65 @@
 
         #region Map Overloads
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+            Expression<Func<TSource, TSourceValue>> valueFactoryExpression)
+        {
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
+        }
+
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
         {
-            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
             Func<TSource, TSourceValue> valueFunc)
             => GetConstantValueTargetMemberSpecifier(valueFunc);
 
-        public CustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
-        {
-            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
+        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
+            => GetConstantValueTargetMemberSpecifier(value);
 
-            return (valueLambdaInfo != null)
-                ? new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                    ConfigInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
-                    valueLambdaInfo)
-                : GetConstantValueTargetMemberSpecifier(value);
+        ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.Map<TSourceValue>(
+            TSourceValue value)
+        {
+            return GetConstantValueTargetMemberSpecifier(value);
         }
 
         #region Map Helpers
 
+        private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetValueFactoryTargetMemberSpecifier<TSourceValue>(
+            LambdaExpression valueFactoryExpression)
+        {
+            return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+                ConfigInfo.ForSourceValueType<TSourceValue>(),
+                valueFactoryExpression);
+        }
+
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
             TSourceValue value)
         {
+            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
+
+            if (valueLambdaInfo != null)
+            {
+                return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
+                    ConfigInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
+                    valueLambdaInfo);
+            }
+
             var valueConstant = value.ToConstantExpression();
             var valueLambda = Expression.Lambda<Func<TSourceValue>>(valueConstant);
 
@@ -246,7 +375,7 @@
 
         #endregion
 
-        public MappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
+        public IMappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
             where TDerivedTarget : TTarget
         {
             var derivedTypePair = new DerivedPairTargetTypeSpecifier<TSource, TSource, TTarget>(ConfigInfo);
@@ -254,7 +383,21 @@
             return derivedTypePair.To<TDerivedTarget>();
         }
 
-        public MappingConfigContinuation<TSource, TTarget> MapToNull()
+        IProjectionConfigContinuation<TSource, TTarget> IConditionalRootProjectionConfigurator<TSource, TTarget>.MapTo<TDerivedResult>()
+        {
+            IProjectionDerivedPairTargetTypeSpecifier<TSource, TTarget> derivedTypePair =
+                new DerivedPairTargetTypeSpecifier<TSource, TSource, TTarget>(ConfigInfo);
+
+            return derivedTypePair.To<TDerivedResult>();
+        }
+
+        public IMappingConfigContinuation<TSource, TTarget> MapToNull()
+            => RegisterMapToNullCondition();
+
+        IProjectionConfigContinuation<TSource, TTarget> IConditionalRootProjectionConfigurator<TSource, TTarget>.MapToNull()
+            => RegisterMapToNullCondition();
+
+        private MappingConfigContinuation<TSource, TTarget> RegisterMapToNullCondition()
         {
             var condition = new MapToNullCondition(ConfigInfo);
 
@@ -263,8 +406,11 @@
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
-        public DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget> Map<TDerivedSource>() where TDerivedSource : TSource
-            => new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(ConfigInfo);
+        public IMappingDerivedPairTargetTypeSpecifier<TSource, TTarget> Map<TDerivedSource>()
+            where TDerivedSource : TSource
+        {
+            return new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(ConfigInfo);
+        }
 
         #endregion
     }

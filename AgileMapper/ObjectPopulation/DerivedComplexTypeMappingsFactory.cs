@@ -19,7 +19,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Constants.EmptyExpression;
             }
 
-            var derivedSourceTypes = declaredTypeMapperData.GetDerivedSourceTypes();
+            var derivedSourceTypes = declaredTypeMapperData.RuleSet.Settings.CheckDerivedSourceTypes
+                ? declaredTypeMapperData.GetDerivedSourceTypes()
+                : Enumerable<Type>.EmptyArray;
+
             var derivedTargetTypes = GetDerivedTargetTypesIfNecessary(declaredTypeMappingData);
             var derivedTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
 
@@ -61,7 +64,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return typedObjectVariables.Any()
                 ? Expression.Block(typedObjectVariables, derivedTypeMappingExpressions)
-                : Expression.Block(derivedTypeMappingExpressions);
+                : derivedTypeMappingExpressions.HasOne()
+                    ? derivedTypeMappingExpressions.First()
+                    : Expression.Block(derivedTypeMappingExpressions);
         }
 
         private static ICollection<Type> GetDerivedTargetTypesIfNecessary(IObjectMappingData mappingData)
@@ -126,18 +131,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static void AddDerivedSourceTypeMappings(
-            IEnumerable<Type> derivedSourceTypes,
+            ICollection<Type> derivedSourceTypes,
             IObjectMappingData declaredTypeMappingData,
             ICollection<ParameterExpression> typedObjectVariables,
             IList<Expression> derivedTypeMappingExpressions)
         {
+            if (derivedSourceTypes.None())
+            {
+                return;
+            }
+
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
             var insertionOffset = derivedTypeMappingExpressions.Count;
 
-            derivedSourceTypes = derivedSourceTypes
+            var orderedDerivedSourceTypes = derivedSourceTypes
                 .OrderBy(t => t, TypeComparer.MostToLeastDerived);
 
-            foreach (var derivedSourceType in derivedSourceTypes)
+            foreach (var derivedSourceType in orderedDerivedSourceTypes)
             {
                 var derivedSourceCheck = new DerivedSourceTypeCheck(derivedSourceType);
                 var typedVariableAssignment = derivedSourceCheck.GetTypedVariableAssignment(declaredTypeMapperData);

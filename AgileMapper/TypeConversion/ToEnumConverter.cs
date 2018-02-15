@@ -27,11 +27,8 @@
                 return false;
             }
 
-            return nonNullableSourceType.IsEnum() ||
-                  (nonNullableSourceType == typeof(string)) ||
-                  (nonNullableSourceType == typeof(object)) ||
-                  (nonNullableSourceType == typeof(char)) ||
-                   nonNullableSourceType.IsNumeric();
+            return nonNullableSourceType.IsNumeric() ||
+                  _toStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
         }
 
         public override Expression GetConversion(Expression sourceValue, Type targetEnumType)

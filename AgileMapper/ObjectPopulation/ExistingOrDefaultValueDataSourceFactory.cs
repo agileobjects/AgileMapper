@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         : mapperData.GetFallbackCollectionValue();
                 }
 
-                if (mapperData.TargetMember.IsReadable && !mapperData.TargetMemberIsUserStruct())
+                if (mapperData.TargetMember.IsReadable && !mapperData.UseMemberInitialisations())
                 {
                     return mapperData.GetTargetMemberAccess();
                 }

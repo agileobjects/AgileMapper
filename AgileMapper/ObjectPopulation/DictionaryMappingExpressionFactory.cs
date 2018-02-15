@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
+    using Members.Population;
     using NetStandardPolyfills;
     using ReadableExpressions;
 
@@ -18,11 +19,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static readonly MappingExpressionFactoryBase Instance = new DictionaryMappingExpressionFactory();
 
-        private readonly MemberPopulationFactory _memberPopulationFactory;
+        private readonly MemberPopulatorFactory _memberPopulatorFactory;
 
         private DictionaryMappingExpressionFactory()
         {
-            _memberPopulationFactory = new MemberPopulationFactory(GetAllTargetMembers);
+            _memberPopulatorFactory = new MemberPopulatorFactory(GetAllTargetMembers);
         }
 
         #region Target Member Generation
@@ -252,16 +253,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (mappingData.MapperKey.MappingTypes.SourceType.IsDictionary())
             {
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             var targetMember = (DictionaryTargetMember)mappingData.MapperData.TargetMember;
 
             if ((targetMember.KeyType == typeof(string)) || (targetMember.KeyType == typeof(object)))
             {
-                nullMappingBlock = null;
-                return false;
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
             nullMappingBlock = Expression.Block(
@@ -270,12 +269,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return true;
         }
-
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
-            => Enumerable<Expression>.Empty;
-
-        protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
-            => Constants.EmptyExpression;
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
@@ -428,8 +421,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)
         {
-            var valueType = mappingData.MapperData.EnumerablePopulationBuilder.TargetTypeHelper.ElementType;
-            var newDictionary = mappingData.MapperData.TargetType.GetEmptyInstanceCreation(valueType);
+            var helper = mappingData.MapperData.EnumerablePopulationBuilder.TargetTypeHelper;
+            var newDictionary = helper.GetEmptyInstanceCreation();
 
             return GetDictionaryAssignment(newDictionary, mappingData);
         }
@@ -465,10 +458,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return GetEnumerableToDictionaryMapping(mappingData);
             }
 
-            var memberPopulations = _memberPopulationFactory
+            var memberPopulations = _memberPopulatorFactory
                 .Create(mappingData)
                 .Select(memberPopulation => memberPopulation.GetPopulation())
                 .ToArray();
+
+            if (memberPopulations.None())
+            {
+                return null;
+            }
 
             if (memberPopulations.HasOne())
             {
@@ -493,8 +491,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return builder;
         }
-
-        protected override Expression GetReturnValue(ObjectMapperData mapperData)
-            => mapperData.TargetInstance;
     }
 }

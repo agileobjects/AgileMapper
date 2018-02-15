@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Linq;
     using Extensions.Internal;
     using Members;
@@ -46,6 +47,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return false;
             }
 
+            if (mapperData.UseSingleMappingExpression())
+            {
+                return false;
+            }
+
             if (mapperData.TargetMember.IsComplex &&
                (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated()) &&
                !mapperData.TargetMemberIsUserStruct())
@@ -85,26 +91,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool UseLocalVariable { get; }
 
-        public bool UseMappingTryCatch => _mapperData.IsRoot || !IsPartOfUserStructMapping;
+        public bool UseMappingTryCatch
+            => _mapperData.RuleSet.Settings.UseTryCatch && (_mapperData.IsRoot || !IsPartOfUserStructMapping());
 
-        public bool IsPartOfUserStructMapping
+        public bool IsPartOfUserStructMapping()
+            => CheckHierarchy(mapperData => mapperData.TargetMemberIsUserStruct());
+
+        public bool IsPartOfQueryableMapping()
+            => CheckHierarchy(mapperData => mapperData.SourceType.IsQueryable());
+
+        private bool CheckHierarchy(Func<IBasicMapperData, bool> predicate)
         {
-            get
+            var mapperData = _mapperData;
+
+            while (mapperData != null)
             {
-                var mapperData = _mapperData;
-
-                while (mapperData != null)
+                if (predicate.Invoke(mapperData))
                 {
-                    if (mapperData.TargetMemberIsUserStruct())
-                    {
-                        return true;
-                    }
-
-                    mapperData = mapperData.Parent;
+                    return true;
                 }
 
-                return false;
+                mapperData = mapperData.Parent;
             }
+
+            return false;
         }
 
         public bool UsesMappingDataObjectAsParameter

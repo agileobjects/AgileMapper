@@ -45,19 +45,19 @@
             return this;
         }
 
-        MappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
             Action<IMappingData<TSource, TTarget>> callback)
         {
             return CreateCallbackFactory(callback);
         }
 
-        MappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
             Action<TSource, TTarget> callback)
         {
             return CreateCallbackFactory(callback);
         }
 
-        MappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPreInstanceCreationCallbackSpecifier<TSource, TTarget>.Call(
             Action<TSource, TTarget, int?> callback)
         {
             return CreateCallbackFactory(callback);
@@ -87,19 +87,19 @@
                 Expression<Func<TSource, TTarget, TObject, int?, bool>> condition)
             => SetCondition(condition);
 
-        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<IObjectCreationMappingData<TSource, TTarget, TObject>> callback)
             => CreateCallbackFactory(callback);
 
-        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget> callback)
             => CreateCallbackFactory(callback);
 
-        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget, TObject> callback)
             => CreateCallbackFactory(callback);
 
-        MappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
+        IMappingConfigContinuation<TSource, TTarget> IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>.Call(
             Action<TSource, TTarget, TObject, int?> callback)
             => CreateCallbackFactory(callback);
 

@@ -9,7 +9,7 @@
     public class WhenValidatingMappings
     {
         [Fact]
-        public void ShouldSupportCachedMappingMemberValidation()
+        public void ShouldSupportCachedMapperValidation()
         {
             using (var mapper = Mapper.CreateNew())
             {

@@ -1,11 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System.Diagnostics;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
 
     internal static class MappingDataCreationFactory
     {
+        [DebuggerStepThrough]
         public static Expression ForDerivedType(ObjectMapperData childMapperData)
         {
             UseAsConversion(childMapperData, out var asConversion);
@@ -13,6 +15,7 @@
             return asConversion;
         }
 
+        [DebuggerStepThrough]
         private static bool UseAsConversion(ObjectMapperData childMapperData, out Expression conversion)
         {
             if (childMapperData.Context.IsStandalone)
@@ -27,6 +30,7 @@
             return false;
         }
 
+        [DebuggerStepThrough]
         public static Expression ForChild(
             MappingValues mappingValues,
             int dataSourceIndex,
@@ -56,6 +60,7 @@
             return createCall;
         }
 
+        [DebuggerStepThrough]
         public static Expression ForElement(
             MappingValues mappingValues,
             Expression enumerableMappingDataObject,

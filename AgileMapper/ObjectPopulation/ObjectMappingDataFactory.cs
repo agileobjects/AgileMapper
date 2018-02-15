@@ -9,21 +9,57 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
+    using Queryables;
 
     internal class ObjectMappingDataFactory : IObjectMappingDataFactoryBridge
     {
         private static readonly IObjectMappingDataFactoryBridge _bridge = new ObjectMappingDataFactory();
 
         public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
+            IMappingContext mappingContext)
+        {
+            return ForRootFixedTypes(default(TSource), default(TTarget), mappingContext);
+        }
+
+        public static ObjectMappingData<IQueryable<TSourceElement>, IQueryable<TResultElement>> ForProjection<TSourceElement, TResultElement>(
+            IQueryable<TSourceElement> sourceQueryable,
+            IMappingContext mappingContext)
+        {
+            var projectorKey = new QueryProjectorKey(
+                MappingTypes<TSourceElement, TResultElement>.Fixed,
+                sourceQueryable.Provider.GetType(),
+                mappingContext.MapperContext);
+
+            return ForRootFixedTypes(
+                sourceQueryable,
+                default(IQueryable<TResultElement>),
+                projectorKey,
+                mappingContext);
+        }
+
+        public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
             TSource source,
             TTarget target,
+            IMappingContext mappingContext)
+        {
+            return ForRootFixedTypes(
+                source,
+                target,
+                new RootObjectMapperKey(MappingTypes<TSource, TTarget>.Fixed, mappingContext),
+                mappingContext);
+        }
+
+        private static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
+            TSource source,
+            TTarget target,
+            ObjectMapperKeyBase mapperKey,
             IMappingContext mappingContext)
         {
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
                 null, // <- No enumerable index because we're at the root
-                new RootObjectMapperKey(MappingTypes<TSource, TTarget>.Fixed, mappingContext),
+                mapperKey,
                 mappingContext,
                 parent: null);
         }

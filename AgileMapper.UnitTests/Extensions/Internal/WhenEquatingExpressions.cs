@@ -15,7 +15,7 @@
             Expression<Func<int, int, int>> bindingsOne = (x, y) => checked(x + y);
             Expression<Func<int, int, int>> bindingsTwo = (x, y) => checked(x + y);
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -24,7 +24,7 @@
             Expression<Func<int, int, int>> bindingsOne = (x, y) => checked(x - y);
             Expression<Func<int, int, int>> bindingsTwo = (x, y) => checked(x - y);
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -33,7 +33,7 @@
             Expression<Func<int, int, int>> bindingsOne = (x, y) => checked(x * y);
             Expression<Func<int, int, int>> bindingsTwo = (x, y) => checked(x * y);
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
         [Fact]
         public void ShouldEquateAModuloOperation()
@@ -41,7 +41,7 @@
             Expression<Func<int, int, bool>> bindingsOne = (x, y) => x % y == 0;
             Expression<Func<int, int, bool>> bindingsTwo = (x, y) => x % y == 0;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -50,7 +50,7 @@
             Expression<Func<int, bool>> bindingsOne = x => !(x > default(int));
             Expression<Func<int, bool>> bindingsTwo = x => !(x > default(int));
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -59,7 +59,7 @@
             Expression<Func<object, bool>> bindingsOne = x => x is Person;
             Expression<Func<object, bool>> bindingsTwo = x => x is Person;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -68,7 +68,7 @@
             Expression<Func<object, Person>> bindingsOne = x => x as Person;
             Expression<Func<object, Person>> bindingsTwo = x => x as Person;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -77,7 +77,7 @@
             Expression<Func<int, bool>> bindingsOne = x => x > 0 && x < 100;
             Expression<Func<int, bool>> bindingsTwo = x => x > 0 && x < 100;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -86,7 +86,7 @@
             Expression<Func<int, bool>> bindingsOne = x => x > 0 & x < 100;
             Expression<Func<int, bool>> bindingsTwo = x => x > 0 & x < 100;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -95,7 +95,7 @@
             Expression<Func<int, bool>> bindingsOne = x => x > 0 || x < 100;
             Expression<Func<int, bool>> bindingsTwo = x => x > 0 || x < 100;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -104,7 +104,7 @@
             Expression<Func<int, bool>> bindingsOne = x => x > 0 | x < 100;
             Expression<Func<int, bool>> bindingsTwo = x => x > 0 | x < 100;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -113,7 +113,25 @@
             Expression<Func<int, bool>> bindingsOne = x => x > 0 ^ x < 100;
             Expression<Func<int, bool>> bindingsTwo = x => x > 0 ^ x < 100;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldEquateMemberAccesses()
+        {
+            Expression<Func<MemberExpression, ExpressionType>> accessOne = m => m.Expression.NodeType;
+            Expression<Func<MemberExpression, ExpressionType>> accessTwo = m => m.Expression.NodeType;
+
+            ExpressionEvaluation.AreEqual(accessOne, accessTwo).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldEquivalateMemberAccesses()
+        {
+            Expression<Func<MemberExpression, ExpressionType>> accessOne = m => m.Expression.NodeType;
+            Expression<Func<Expression, ExpressionType>> accessTwo = e => e.NodeType;
+
+            ExpressionEvaluation.AreEquivalent(accessOne, accessTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -122,7 +140,7 @@
             Expression<Func<List<int>>> bindingsOne = () => new List<int> { 1, 2, 3 };
             Expression<Func<List<int>>> bindingsTwo = () => new List<int> { 1, 2, 3 };
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -131,7 +149,7 @@
             Expression<Func<int, int, int>> bindingsOne = (x, y) => x << y;
             Expression<Func<int, int, int>> bindingsTwo = (x, y) => x << y;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -140,7 +158,7 @@
             Expression<Func<int, int, int>> bindingsOne = (x, y) => x >> y;
             Expression<Func<int, int, int>> bindingsTwo = (x, y) => x >> y;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -149,7 +167,7 @@
             Expression<Func<int?, int, int>> bindingsOne = (x, y) => x ?? y;
             Expression<Func<int?, int, int>> bindingsTwo = (x, y) => x ?? y;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -158,7 +176,7 @@
             Expression<Func<int, int>> bindingsOne = x => -x;
             Expression<Func<int, int>> bindingsTwo = x => -x;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -167,7 +185,7 @@
             Expression<Func<int, int>> bindingsOne = x => checked(-x);
             Expression<Func<int, int>> bindingsTwo = x => checked(-x);
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -176,7 +194,7 @@
             Expression<Func<int, int[]>> bindingsOne = x => new int[x];
             Expression<Func<int, int[]>> bindingsTwo = x => new int[x];
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -185,7 +203,7 @@
             Expression<Func<int[], int>> bindingsOne = x => x[0];
             Expression<Func<int[], int>> bindingsTwo = x => x[0];
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -194,7 +212,7 @@
             Expression<Func<int[], bool>> bindingsOne = x => x.Length == 1;
             Expression<Func<int[], bool>> bindingsTwo = x => x.Length == 1;
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -203,7 +221,7 @@
             Expression<Func<PublicField<List<int>>>> bindingsOne = () => new PublicField<List<int>> { Value = { 1 } };
             Expression<Func<PublicField<List<int>>>> bindingsTwo = () => new PublicField<List<int>> { Value = { 1 } };
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeTrue();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeTrue();
         }
 
         [Fact]
@@ -212,7 +230,7 @@
             Expression<Func<List<int>>> bindingsOne = () => new List<int> { 1, 2, 3 };
             Expression<Func<List<int>>> bindingsTwo = () => new List<int> { 1, 2 };
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeFalse();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeFalse();
         }
 
         [Fact]
@@ -221,7 +239,7 @@
             Expression<Func<PublicField<List<int>>>> bindingsOne = () => new PublicField<List<int>> { Value = { 1 } };
             Expression<Func<PublicField<List<int>>>> bindingsTwo = () => new PublicField<List<int>> { Value = { 1, 2 } };
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeFalse();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeFalse();
         }
 
         [Fact]
@@ -230,7 +248,7 @@
             Expression<Func<Address>> oneBinding = () => new Address { Line1 = "One!" };
             Expression<Func<Address>> twoBindings = () => new Address { Line1 = "One!", Line2 = "Two!" };
 
-            ExpressionEquator.Instance.Equals(oneBinding, twoBindings).ShouldBeFalse();
+            ExpressionEvaluation.AreEqual(oneBinding, twoBindings).ShouldBeFalse();
         }
 
         [Fact]
@@ -248,7 +266,7 @@
                 Value1 = "One!"
             };
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeFalse();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeFalse();
         }
 
         [Fact]
@@ -257,7 +275,7 @@
             Expression<Func<Person>> bindingsOne = () => new Person { Address = { Line1 = "One!" } };
             Expression<Func<Person>> bindingsTwo = () => new Person { Address = { Line1 = "One!", Line2 = "Two!" } };
 
-            ExpressionEquator.Instance.Equals(bindingsOne, bindingsTwo).ShouldBeFalse();
+            ExpressionEvaluation.AreEqual(bindingsOne, bindingsTwo).ShouldBeFalse();
         }
     }
 }

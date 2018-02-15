@@ -5,6 +5,8 @@ namespace AgileObjects.AgileMapper
     using Members.Population;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
+    using ObjectPopulation.Recursion;
+    using Queryables.Recursion;
 
     internal class MappingRuleSetCollection
     {
@@ -12,23 +14,69 @@ namespace AgileObjects.AgileMapper
 
         private static readonly MappingRuleSet _createNew = new MappingRuleSet(
             Constants.CreateNew,
-            false,
-            CopySourceEnumerablePopulationStrategy.Instance,
-            NullMemberPopulationGuardFactory.Instance,
+            new MappingRuleSetSettings
+            {
+                SourceElementsCouldBeNull = true,
+                UseTryCatch = true,
+                CheckDerivedSourceTypes = true,
+                GuardMemberAccesses = value => true,
+                AllowObjectTracking = true,
+                AllowGetMethods = true,
+                AllowSetMethods = true
+            },
+            new CopySourceEnumerablePopulationStrategy(),
+            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
+            DefaultMemberPopulationFactory.Instance,
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
         private static readonly MappingRuleSet _merge = new MappingRuleSet(
             Constants.Merge,
-            true,
-            MergeEnumerablePopulationStrategy.Instance,
-            PreserveExistingValueMemberPopulationGuardFactory.Instance,
+            new MappingRuleSetSettings
+            {
+                RootHasPopulatedTarget = true,
+                SourceElementsCouldBeNull = true,
+                UseTryCatch = true,
+                CheckDerivedSourceTypes = true,
+                GuardMemberAccesses = value => true,
+                AllowObjectTracking = true,
+                AllowGetMethods = true,
+                AllowSetMethods = true
+            },
+            new MergeEnumerablePopulationStrategy(),
+            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
+            new MemberMergePopulationFactory(),
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
             Constants.Overwrite,
-            true,
+            new MappingRuleSetSettings
+            {
+                RootHasPopulatedTarget = true,
+                SourceElementsCouldBeNull = true,
+                UseTryCatch = true,
+                CheckDerivedSourceTypes = true,
+                GuardMemberAccesses = value => true,
+                AllowObjectTracking = true,
+                AllowGetMethods = true,
+                AllowSetMethods = true
+            },
             OverwriteEnumerablePopulationStrategy.Instance,
-            NullMemberPopulationGuardFactory.Instance,
+            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
+            DefaultMemberPopulationFactory.Instance,
+            DefaultValueDataSourceFactory.Instance);
+
+        private static readonly MappingRuleSet _project = new MappingRuleSet(
+            Constants.Project,
+            new MappingRuleSetSettings
+            {
+                UseMemberInitialisation = true,
+                UseSingleRootMappingExpression = true,
+                GuardMemberAccesses = value => value.Type.IsComplex(),
+                AllowEnumerableAssignment = true
+            },
+            new ProjectSourceEnumerablePopulationStrategy(),
+            new MapToDepthRecursiveMemberMappingStrategy(),
+            DefaultMemberPopulationFactory.Instance,
             DefaultValueDataSourceFactory.Instance);
 
         #endregion
@@ -37,7 +85,7 @@ namespace AgileObjects.AgileMapper
 
         public MappingRuleSetCollection()
         {
-            _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite };
+            _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite, Project };
         }
 
         public IEnumerable<MappingRuleSet> All => _ruleSets;
@@ -47,6 +95,8 @@ namespace AgileObjects.AgileMapper
         public MappingRuleSet Merge => _merge;
 
         public MappingRuleSet Overwrite => _overwrite;
+
+        public MappingRuleSet Project => _project;
 
         public MappingRuleSet GetByName(string name) => _ruleSets.First(rs => rs.Name == name);
     }

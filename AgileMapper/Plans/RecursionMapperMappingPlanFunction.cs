@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
-    using ObjectPopulation;
+    using ObjectPopulation.Recursion;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 

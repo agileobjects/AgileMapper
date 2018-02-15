@@ -64,9 +64,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
             var filteredEntries = Expression.Call(linqWhereMethod, dictionaryAccess, keyMatchesLambda);
 
-            var linqSelectMethod = typeof(Enumerable)
-                .GetPublicStaticMethods("Select")
-                .First(m => m.GetParameters()[1].ParameterType.GetGenericTypeArguments().Length == 2)
+            var linqSelectMethod = EnumerablePopulationBuilder
+                .EnumerableSelectWithoutIndexMethod
                 .MakeGenericMethod(kvpType, SourceMember.ValueType);
 
             var kvpValueLambda = Expression.Lambda(

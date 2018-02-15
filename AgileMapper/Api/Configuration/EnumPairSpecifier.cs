@@ -6,15 +6,12 @@
     using AgileMapper.Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using Projection;
     using ReadableExpressions.Extensions;
 
-    /// <summary>
-    /// Provides options for specifying the enum member to which the configured enum member should be paired.
-    /// </summary>
-    /// <typeparam name="TSource">The source type being configured.</typeparam>
-    /// <typeparam name="TTarget">The target type being configured.</typeparam>
-    /// <typeparam name="TPairingEnum">The type of the first enum being paired.</typeparam>
-    public class EnumPairSpecifier<TSource, TTarget, TPairingEnum>
+    internal class EnumPairSpecifier<TSource, TTarget, TPairingEnum> :
+        IMappingEnumPairSpecifier<TSource, TTarget>,
+        IProjectionEnumPairSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly TPairingEnum[] _pairingEnumMembers;
@@ -29,14 +26,14 @@
 
         #region Factory Method
 
-        internal static EnumPairSpecifier<TSource, TTarget, TPairingEnum> For(
+        public static EnumPairSpecifier<TSource, TTarget, TPairingEnum> For(
             MappingConfigInfo configInfo,
-            params TPairingEnum[] firstEnumMembers)
+            params TPairingEnum[] pairingEnumMembers)
         {
             ThrowIfNotEnumType<TPairingEnum>();
-            ThrowIfEmpty(firstEnumMembers);
+            ThrowIfEmpty(pairingEnumMembers);
 
-            return new EnumPairSpecifier<TSource, TTarget, TPairingEnum>(configInfo, firstEnumMembers);
+            return new EnumPairSpecifier<TSource, TTarget, TPairingEnum>(configInfo, pairingEnumMembers);
         }
 
         private static void ThrowIfNotEnumType<T>()
@@ -48,11 +45,11 @@
             }
         }
 
-        private static void ThrowIfEmpty(ICollection<TPairingEnum> firstEnumMembers)
+        private static void ThrowIfEmpty(ICollection<TPairingEnum> pairingEnumMembers)
         {
-            if (firstEnumMembers.None())
+            if (pairingEnumMembers.None())
             {
-                throw new MappingConfigurationException("Source enum members must be provided.");
+                throw new MappingConfigurationException("Pairing enum members must be provided.");
             }
         }
 
@@ -60,27 +57,14 @@
 
         private MapperContext MapperContext => _configInfo.MapperContext;
 
-        /// <summary>
-        /// Configure this mapper to map the specified first enum member to the given <paramref name="pairedEnumMember"/>.
-        /// </summary>
-        /// <typeparam name="TPairedEnum">The type of the second enum being paired.</typeparam>
-        /// <param name="pairedEnumMember">The second enum member in the pair.</param>
-        /// <returns>A MappingConfigContinuation with which to configure other aspects of mapping.</returns>
-        public MappingConfigContinuation<TSource, TTarget> With<TPairedEnum>(TPairedEnum pairedEnumMember)
+        public IMappingConfigContinuation<TSource, TTarget> With<TPairedEnum>(params TPairedEnum[] pairedEnumMembers)
             where TPairedEnum : struct
         {
-            return PairEnums(pairedEnumMember);
+            return PairEnums(pairedEnumMembers);
         }
 
-        /// <summary>
-        /// Configure this mapper to map the previously-specified set of enum members to the given 
-        /// <paramref name="pairedEnumMembers"/>.
-        /// </summary>
-        /// <typeparam name="TPairedEnum">The type of the second enum being paired.</typeparam>
-        /// <param name="pairedEnumMembers">The second set of enum members in the pairs.</param>
-        /// <returns>A MappingConfigContinuation with which to configure other aspects of mapping.</returns>
-        public MappingConfigContinuation<TSource, TTarget> With<TPairedEnum>(params TPairedEnum[] pairedEnumMembers)
-            where TPairedEnum : struct
+        IProjectionConfigContinuation<TSource, TTarget> IProjectionEnumPairSpecifier<TSource, TTarget>.With<TPairedEnum>(
+            params TPairedEnum[] pairedEnumMembers)
         {
             return PairEnums(pairedEnumMembers);
         }
@@ -134,7 +118,7 @@
         {
             if (pairedEnumMembers.None())
             {
-                throw new MappingConfigurationException("Target enum members must be provided.");
+                throw new MappingConfigurationException("Paired enum members must be provided.");
             }
         }
 

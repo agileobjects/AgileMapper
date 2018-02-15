@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Sources;
 
-    internal abstract class ObjectMapperKeyBase : SourceMemberTypeDependentKeyBase
+    internal abstract class ObjectMapperKeyBase : SourceMemberTypeDependentKeyBase, ITypedMapperKey
     {
         protected ObjectMapperKeyBase(MappingTypes mappingTypes)
         {
@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MappingTypes MappingTypes { get; }
 
-        protected bool TypesMatch(ObjectMapperKeyBase otherKey) => otherKey.MappingTypes.Equals(MappingTypes);
+        protected bool TypesMatch(ITypedMapperKey otherKey) => otherKey.MappingTypes.Equals(MappingTypes);
 
         public abstract IMembersSource GetMembersSource(IObjectMappingData parentMappingData);
 

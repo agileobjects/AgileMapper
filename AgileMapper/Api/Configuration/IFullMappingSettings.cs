@@ -71,16 +71,17 @@
         IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull();
 
         /// <summary>
-        /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another enum Type.
+        /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another 
+        /// enum Type.
         /// </summary>
-        /// <typeparam name="TFirstEnum">The type of the first enum being paired.</typeparam>
+        /// <typeparam name="TPairingEnum">The type of the enum member to pair.</typeparam>
         /// <param name="enumMember">The first enum member in the pair.</param>
         /// <returns>
-        /// An EnumPairSpecifier with which to specify the enum member to which the given <paramref name="enumMember"/> 
-        /// should be paired.
+        /// An IMappingEnumPairSpecifier with which to specify the enum member to which the given 
+        /// <paramref name="enumMember"/> should be paired.
         /// </returns>
-        EnumPairSpecifier<TSource, TTarget, TFirstEnum> PairEnum<TFirstEnum>(TFirstEnum enumMember)
-            where TFirstEnum : struct;
+        IMappingEnumPairSpecifier<TSource, TTarget> PairEnum<TPairingEnum>(TPairingEnum enumMember)
+            where TPairingEnum : struct;
 
         /// <summary>
         /// Gets a link back to the full <see cref="IFullMappingConfigurator{TSource, TTarget}"/>, for api fluency.

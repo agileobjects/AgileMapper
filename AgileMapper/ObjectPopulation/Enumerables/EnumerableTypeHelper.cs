@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.ObjectModel;
     using System.Linq.Expressions;
     using Extensions.Internal;
+    using Members;
     using NetStandardPolyfills;
 
     internal class EnumerableTypeHelper
@@ -16,6 +17,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type _readOnlyCollectionType;
         private Type _collectionInterfaceType;
         private Type _enumerableInterfaceType;
+
+        public EnumerableTypeHelper(QualifiedMember member)
+            : this(member.Type, member.ElementType)
+        {
+        }
 
         public EnumerableTypeHelper(Type enumerableType, Type elementType)
         {
@@ -77,27 +83,39 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Type WrapperType => typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(ElementType);
 
-        public Expression GetEmptyInstanceCreation()
+        public Expression GetNewInstanceCreation()
         {
-            if (IsReadOnly || EnumerableType.IsInterface())
+            return IsReadOnly || EnumerableType.IsInterface()
+                ? Expression.New(ListType)
+                : GetEmptyInstanceCreation();
+        }
+
+        public Expression GetEmptyInstanceCreation(Type enumerableType = null)
+        {
+            if ((enumerableType == EnumerableType) || (enumerableType == null))
             {
-                return Expression.New(ListType);
+                return EnumerableType.GetEmptyInstanceCreation(ElementType, this);
             }
 
-            return EnumerableType.GetEmptyInstanceCreation(ElementType);
+            return enumerableType.GetEmptyInstanceCreation(ElementType);
         }
 
         public Expression GetWrapperConstruction(Expression existingItems, Expression newItemsCount)
         {
-            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.New(
                 WrapperType.GetPublicInstanceConstructor(ListInterfaceType, typeof(int)),
                 existingItems,
                 newItemsCount);
         }
 
-        public Expression GetEnumerableConversion(Expression instance)
+        public Expression GetEnumerableConversion(Expression instance, bool allowEnumerableAssignment)
         {
+            if (instance.Type.IsAssignableTo(EnumerableType) &&
+               (allowEnumerableAssignment || ValueIsNotEnumerableInterface(instance)))
+            {
+                return instance;
+            }
+
             if (IsArray)
             {
                 return instance.WithToArrayCall(ElementType);
@@ -113,7 +131,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return instance.WithToCollectionCall(ElementType);
             }
 
-            return instance.WithToListCall(ElementType);
+            return instance.WithToListLinqCall(ElementType);
+        }
+
+        private static bool ValueIsNotEnumerableInterface(Expression instance)
+        {
+            return instance.Type != typeof(IEnumerable<>).MakeGenericType(instance.Type.GetEnumerableElementType());
         }
     }
 }

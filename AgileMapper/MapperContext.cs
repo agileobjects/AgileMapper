@@ -28,6 +28,7 @@
             ConstructionFactory = new ComplexTypeConstructionFactory(Cache);
             ValueConverters = new ConverterSet(UserConfigurations);
             RuleSets = new MappingRuleSetCollection();
+            QueryProjectionMappingContext = new SimpleMappingContext(RuleSets.Project, this);
         }
 
         public CacheSet Cache { get; }
@@ -51,6 +52,8 @@
         public ConverterSet ValueConverters { get; }
 
         public MappingRuleSetCollection RuleSets { get; }
+
+        public IMappingContext QueryProjectionMappingContext { get; }
 
         public MapperContext Clone()
         {
