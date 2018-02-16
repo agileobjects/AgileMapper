@@ -4,7 +4,7 @@
     using global::AutoMapper;
     using TestClasses;
 
-    internal class AutoMapperComplexTypeMapper : ComplexTypeMapperBase
+    internal class AutoMapperUnflatteningMapper : UnflatteningMapperBase
     {
         private IMapper _mapper;
 
@@ -12,15 +12,15 @@
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<Foo, Foo>();
+                cfg.CreateMap<ModelObject, ModelDto>().ReverseMap();
             });
 
             _mapper = config.CreateMapper();
         }
 
-        protected override Foo Clone(Foo foo)
+        protected override ModelObject Unflatten(ModelDto dto)
         {
-            return _mapper.Map<Foo, Foo>(foo);
+            return _mapper.Map<ModelDto, ModelObject>(dto);
         }
     }
 }

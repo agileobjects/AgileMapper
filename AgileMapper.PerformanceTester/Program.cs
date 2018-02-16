@@ -5,7 +5,7 @@
 // AgileMapper and AutoMapper perform better with this attribute applied,
 // but ExpressMapper and Mapster throw exceptions - uncomment to test the
 // Agile and Auto at their fastest:
-[assembly: System.Security.AllowPartiallyTrustedCallers]
+//[assembly: System.Security.AllowPartiallyTrustedCallers]
 
 namespace AgileObjects.AgileMapper.PerformanceTester
 {
@@ -34,9 +34,7 @@ namespace AgileObjects.AgileMapper.PerformanceTester
         {
             Console.WriteLine("Starting...");
 
-            string[] mappersToTest, testsToRun;
-
-            if (!TryGetMappersToTest(args, out mappersToTest))
+            if (!TryGetMappersToTest(args, out var mappersToTest))
             {
                 Console.WriteLine(
                     "Invalid mapper(s) specified: {0}{1}Available mapper ids: {2}",
@@ -45,7 +43,7 @@ namespace AgileObjects.AgileMapper.PerformanceTester
                     string.Join(", ", _mapperIds));
             }
 
-            if (!TryGetTestsToRun(args, out testsToRun))
+            if (!TryGetTestsToRun(args, out var testsToRun))
             {
                 Console.WriteLine(
                     "Invalid test(s) specified: {0}{1}Available tests: {2}",
@@ -94,9 +92,9 @@ namespace AgileObjects.AgileMapper.PerformanceTester
                 {
                     useManual? new ManualUnflatteningMapper() : null,
                     useAgileMapper? new AgileMapperUnflatteningMapper() : null,
-                    //new AutoMapperUnflatteningMapper(),    // Not supported
-                    //new ExpressMapperUnflatteningMapper(), // Not supported
-                    //new MapsterUnflatteningMapper(),       // Not supported
+                    useAutoMapper? new AutoMapperUnflatteningMapper(): null,
+                    //new ExpressMapperUnflatteningMapper(), // Not supported, NullReferenceException
+                    //new MapsterUnflatteningMapper(),       // Not supported, complex type members unpopulated
                     useValueInjecter ? new ValueInjecterUnflatteningMapper() : null
                 },
                 new IObjectMapper[]

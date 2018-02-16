@@ -5,13 +5,16 @@
 
     internal class AgileMapperCtorMapper : CtorMapperBase
     {
+        private IMapper _mapper;
+
         public override void Initialise()
         {
+            _mapper = Mapper.CreateNew();
         }
 
         protected override ConstructedObject Construct(ValueObject valueObject)
         {
-            return Mapper.Map(valueObject).ToANew<ConstructedObject>();
+            return _mapper.Map(valueObject).ToANew<ConstructedObject>();
         }
     }
 }

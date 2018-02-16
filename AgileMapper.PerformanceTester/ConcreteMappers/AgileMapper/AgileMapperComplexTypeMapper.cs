@@ -5,14 +5,17 @@
 
     internal class AgileMapperComplexTypeMapper : ComplexTypeMapperBase
     {
+        private IMapper _mapper;
+
         public override void Initialise()
         {
-            Mapper.WhenMapping.DisableObjectTracking();
+            _mapper = Mapper.CreateNew();
+            _mapper.WhenMapping.DisableObjectTracking();
         }
 
         protected override Foo Clone(Foo foo)
         {
-            return Mapper.DeepClone(foo);
+            return _mapper.DeepClone(foo);
         }
     }
 }

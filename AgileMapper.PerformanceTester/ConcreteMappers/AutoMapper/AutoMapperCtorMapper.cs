@@ -6,14 +6,21 @@
 
     internal class AutoMapperCtorMapper : CtorMapperBase
     {
+        private IMapper _mapper;
+
         public override void Initialise()
         {
-            Mapper.Initialize(cfg => cfg.CreateMap<ValueObject, ConstructedObject>());
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<ValueObject, ConstructedObject>();
+            });
+
+            _mapper = config.CreateMapper();
         }
 
         protected override ConstructedObject Construct(ValueObject valueObject)
         {
-            return Mapper.Map<ValueObject, ConstructedObject>(valueObject);
+            return _mapper.Map<ValueObject, ConstructedObject>(valueObject);
         }
     }
 }

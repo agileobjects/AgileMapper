@@ -6,14 +6,21 @@
 
     internal class AutoMapperFlatteningMapper : FlatteningMapperBase
     {
+        private IMapper _mapper;
+
         public override void Initialise()
         {
-            Mapper.Initialize(cfg => cfg.CreateMap<ModelObject, ModelDto>());
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<ModelObject, ModelDto>();
+            });
+
+            _mapper = config.CreateMapper();
         }
 
         protected override ModelDto Flatten(ModelObject model)
         {
-            return Mapper.Map<ModelObject, ModelDto>(model);
+            return _mapper.Map<ModelObject, ModelDto>(model);
         }
     }
 }
