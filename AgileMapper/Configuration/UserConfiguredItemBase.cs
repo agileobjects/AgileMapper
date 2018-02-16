@@ -103,6 +103,7 @@
         {
             return ConfigInfo.IsFor(mapperData.RuleSet) &&
                    TargetMembersMatch(mapperData) &&
+                   HasCompatibleCondition(mapperData) &&
                    MemberPathMatches(mapperData);
         }
 
@@ -128,6 +129,9 @@
                    (mapperData.TargetMember.Name == TargetMember.Name) &&
                     TargetMember.LeafMember.DeclaringType.IsAssignableTo(mapperData.TargetMember.LeafMember.DeclaringType);
         }
+
+        private bool HasCompatibleCondition(IBasicMapperData mapperData)
+            => !HasConfiguredCondition || ConfigInfo.ConditionSupports(mapperData.RuleSet);
 
         protected virtual bool MemberPathMatches(IBasicMapperData mapperData)
             => MemberPathHasMatchingSourceAndTargetTypes(mapperData);
