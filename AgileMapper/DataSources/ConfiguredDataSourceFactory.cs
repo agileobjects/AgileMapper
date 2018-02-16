@@ -56,6 +56,8 @@
             return dataSourceLambdasAreTheSame;
         }
 
+        #region ConflictsWith Helpers
+
         private bool HasSameDataSourceLambdaAs(ConfiguredDataSourceFactory otherDataSource)
         {
             return _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
@@ -64,6 +66,8 @@
         protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
             => TargetMember.LeafMember.Equals(otherConfiguredItem.TargetMember.LeafMember);
 
+        #endregion
+
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
         {
             var lambdasAreTheSame = HasSameDataSourceLambdaAs(conflictingDataSource);
@@ -71,6 +75,9 @@
 
             return $"{TargetMember.GetPath()} already has {conflictIdentifier} configured data source";
         }
+
+        public override bool AppliesTo(IBasicMapperData mapperData)
+            => base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);
 
         public IConfiguredDataSource Create(IMemberMapperData mapperData)
         {
