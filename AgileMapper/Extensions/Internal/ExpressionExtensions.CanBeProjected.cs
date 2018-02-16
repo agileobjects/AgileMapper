@@ -51,7 +51,7 @@
             {
                 if (memberAccess.Member.DeclaringType.IsClosedTypeOf(typeof(IMappingData<,>)))
                 {
-                    return memberAccess.Member.Name == nameof(IMappingData<object, object>.Source);
+                    return memberAccess.Member.Name != nameof(IMappingData<object, object>.Source);
                 }
 
                 return false;

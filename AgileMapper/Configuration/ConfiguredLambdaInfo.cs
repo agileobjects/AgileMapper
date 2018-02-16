@@ -127,7 +127,7 @@
         public Type ReturnType { get; }
 
         public bool Supports(MappingRuleSet ruleSet)
-            => ruleSet.Settings.ExpressionIsSupported(_lambda);
+            => ruleSet.Settings?.ExpressionIsSupported(_lambda) != false;
 
         public bool IsSameAs(ConfiguredLambdaInfo otherLambdaInfo)
         {

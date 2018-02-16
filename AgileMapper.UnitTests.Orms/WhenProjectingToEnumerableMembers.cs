@@ -158,7 +158,7 @@
                     .Accounts
                     .Project()
                     .To<AccountDto>(cfg => cfg
-                        .Map(a => a.DeliveryAddresses.Select(da => da.Address))
+                        .Map(a => a.DeliveryAddresses.OrderBy(da => da.AddressId).Select(da => da.Address))
                         .To(dto => dto.DeliveryAddresses))
                     .ShouldHaveSingleItem();
 
