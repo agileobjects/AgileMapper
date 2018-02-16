@@ -20,6 +20,7 @@ namespace AgileObjects.AgileMapper
                 UseTryCatch = true,
                 CheckDerivedSourceTypes = true,
                 GuardMemberAccesses = value => true,
+                ExpressionIsSupported = value => true,
                 AllowObjectTracking = true,
                 AllowGetMethods = true,
                 AllowSetMethods = true
@@ -38,6 +39,7 @@ namespace AgileObjects.AgileMapper
                 UseTryCatch = true,
                 CheckDerivedSourceTypes = true,
                 GuardMemberAccesses = value => true,
+                ExpressionIsSupported = value => true,
                 AllowObjectTracking = true,
                 AllowGetMethods = true,
                 AllowSetMethods = true
@@ -56,6 +58,7 @@ namespace AgileObjects.AgileMapper
                 UseTryCatch = true,
                 CheckDerivedSourceTypes = true,
                 GuardMemberAccesses = value => true,
+                ExpressionIsSupported = value => true,
                 AllowObjectTracking = true,
                 AllowGetMethods = true,
                 AllowSetMethods = true
@@ -72,6 +75,7 @@ namespace AgileObjects.AgileMapper
                 UseMemberInitialisation = true,
                 UseSingleRootMappingExpression = true,
                 GuardMemberAccesses = value => value.Type.IsComplex(),
+                ExpressionIsSupported = value => value.CanBeProjected(),
                 AllowEnumerableAssignment = true
             },
             new ProjectSourceEnumerablePopulationStrategy(),

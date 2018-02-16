@@ -1,13 +1,10 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Recursion
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2
 {
     using System.Threading.Tasks;
     using Infrastructure;
-    using Orms.Recursion;
     using Xunit;
 
-    public class WhenProjectingCircularReferences :
-        WhenProjectingCircularReferences<EfCore2TestDbContext>,
-        IOneToManyRecursionProjectorTest
+    public class WhenProjectingCircularReferences : WhenProjectingCircularReferences<EfCore2TestDbContext>
     {
         public WhenProjectingCircularReferences(InMemoryEfCore2TestContext context)
             : base(context)

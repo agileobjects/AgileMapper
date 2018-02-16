@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper
 {
     using System;
     using System.Linq.Expressions;
-    using Members;
 
     internal class MappingRuleSetSettings
     {
@@ -19,6 +18,8 @@ namespace AgileObjects.AgileMapper
         public bool CheckDerivedSourceTypes { get; set; }
 
         public Func<Expression, bool> GuardMemberAccesses { get; set; }
+
+        public Func<LambdaExpression, bool> ExpressionIsSupported { get; set; }
 
         public bool AllowEnumerableAssignment { get; set; }
 

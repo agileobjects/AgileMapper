@@ -2,7 +2,9 @@
 {
     using System.Threading.Tasks;
     using Infrastructure;
+    using Microsoft.EntityFrameworkCore;
     using Orms.Configuration;
+    using TestClasses;
     using Xunit;
 
     public class WhenConfiguringObjectCreation : WhenConfiguringObjectCreation<EfCore2TestDbContext>
@@ -14,5 +16,28 @@
 
         [Fact]
         public Task ShouldUseAConditionalObjectFactory() => RunShouldUseAConditionalObjectFactory();
+
+        [Fact]
+        public Task ShouldNotUseMappingDataConfiguredSourceAndTargetDataSource()
+        {
+            return RunTest(async (context, mapper) =>
+            {
+                mapper.WhenMapping
+                    .From<PublicInt>()
+                    .To<PublicIntDto>()
+                    .CreateInstancesUsing(ctx => new PublicIntDto { Value = ctx.EnumerableIndex.GetValueOrDefault() });
+
+                await context.IntItems.AddAsync(new PublicInt { Value = 17 });
+                await context.SaveChangesAsync();
+
+                var intDto = await context
+                    .IntItems
+                    .ProjectUsing(mapper)
+                    .To<PublicIntDto>()
+                    .FirstAsync();
+
+                intDto.Value.ShouldBe(17);
+            });
+        }
     }
 }

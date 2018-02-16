@@ -103,6 +103,8 @@
 
         public bool HasCondition => _conditionLambda != null;
 
+        public bool ConditionSupports(MappingRuleSet ruleSet) => _conditionLambda.Supports(ruleSet);
+
         public void AddConditionOrThrow(LambdaExpression conditionLambda)
         {
             ErrorIfConditionHasTypeTest(conditionLambda);

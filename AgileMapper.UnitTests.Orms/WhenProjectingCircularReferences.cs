@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Recursion
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms
 {
     using System;
     using System.Linq;
