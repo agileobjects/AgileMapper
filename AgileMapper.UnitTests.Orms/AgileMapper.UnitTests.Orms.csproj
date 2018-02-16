@@ -89,8 +89,6 @@
     <Compile Include="Infrastructure\ITestLocalDbContext.cs" />
     <Compile Include="Infrastructure\LocalDbTestContext.cs" />
     <Compile Include="Infrastructure\OrmTestClassBase.cs" />
-    <Compile Include="Recursion\IOneToManyRecursionProjectionFailureTest.cs" />
-    <Compile Include="Recursion\IOneToManyRecursionProjectorTest.cs" />
     <Compile Include="SimpleTypeConversion\IStringConversionFailureTest.cs" />
     <Compile Include="SimpleTypeConversion\IStringConverterTest.cs" />
     <Compile Include="SimpleTypeConversion\IStringConversionValidationFailureTest.cs" />
@@ -164,7 +162,7 @@
     <Compile Include="TestClasses\PublicShort.cs" />
     <Compile Include="TestClasses\PublicString.cs" />
     <Compile Include="TestExtensions.cs" />
-    <Compile Include="Recursion\WhenProjectingCircularReferences.cs" />
+    <Compile Include="WhenProjectingCircularReferences.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
     <Compile Include="WhenProjectingToEnumerableMembers.cs" />
