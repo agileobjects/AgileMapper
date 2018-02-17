@@ -76,12 +76,14 @@
             Context.ByteItems.Clear();
             Context.ShortItems.Clear();
             Context.IntItems.Clear();
+            Context.NullableIntItems.Clear();
             Context.LongItems.Clear();
             Context.DecimalItems.Clear();
             Context.DoubleItems.Clear();
             Context.DateTimeItems.Clear();
             Context.StringItems.Clear();
             Context.TitleItems.Clear();
+            Context.NullableTitleItems.Clear();
 
             await Context.SaveChanges();
         }

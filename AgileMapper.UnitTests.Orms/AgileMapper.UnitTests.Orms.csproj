@@ -133,6 +133,8 @@
     <Compile Include="TestClasses\PublicGuidDto.cs" />
     <Compile Include="TestClasses\PublicDoubleDto.cs" />
     <Compile Include="TestClasses\PublicDecimal.cs" />
+    <Compile Include="TestClasses\PublicNullableInt.cs" />
+    <Compile Include="TestClasses\PublicNullableTitle.cs" />
     <Compile Include="TestClasses\PublicStringCtorDto.cs" />
     <Compile Include="TestClasses\PublicStringDto.cs" />
     <Compile Include="TestClasses\PublicStringNames.cs" />

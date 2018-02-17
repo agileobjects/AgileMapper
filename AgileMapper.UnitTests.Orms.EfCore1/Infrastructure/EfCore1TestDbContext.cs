@@ -51,6 +51,8 @@
 
         public DbSet<PublicInt> IntItems { get; set; }
 
+        public DbSet<PublicNullableInt> NullableIntItems { get; set; }
+
         public DbSet<PublicLong> LongItems { get; set; }
 
         public DbSet<PublicDecimal> DecimalItems { get; set; }
@@ -62,6 +64,8 @@
         public DbSet<PublicString> StringItems { get; set; }
 
         public DbSet<PublicTitle> TitleItems { get; set; }
+
+        public DbSet<PublicNullableTitle> NullableTitleItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -127,6 +131,8 @@
 
         IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new EfCore1DbSetWrapper<PublicInt>(this);
 
+        IDbSetWrapper<PublicNullableInt> ITestDbContext.NullableIntItems => new EfCore1DbSetWrapper<PublicNullableInt>(this);
+
         IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new EfCore1DbSetWrapper<PublicLong>(this);
 
         IDbSetWrapper<PublicDecimal> ITestDbContext.DecimalItems => new EfCore1DbSetWrapper<PublicDecimal>(this);
@@ -138,6 +144,8 @@
         IDbSetWrapper<PublicString> ITestDbContext.StringItems => new EfCore1DbSetWrapper<PublicString>(this);
 
         IDbSetWrapper<PublicTitle> ITestDbContext.TitleItems => new EfCore1DbSetWrapper<PublicTitle>(this);
+
+        IDbSetWrapper<PublicNullableTitle> ITestDbContext.NullableTitleItems => new EfCore1DbSetWrapper<PublicNullableTitle>(this);
 
         Task ITestDbContext.SaveChanges() => SaveChangesAsync();
 

@@ -29,6 +29,34 @@
         }
 
         [Fact]
+        public Task ShouldProjectANullableIntToADouble()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableIntItems.Add(new PublicNullableInt { Value = 927 });
+                await context.SaveChanges();
+
+                var doubleItem = context.NullableIntItems.Project().To<PublicDoubleDto>().First();
+
+                doubleItem.Value.ShouldBe(927d);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectANullNullableIntToADouble()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableIntItems.Add(new PublicNullableInt { Value = default(int?) });
+                await context.SaveChanges();
+
+                var doubleItem = context.NullableIntItems.Project().To<PublicDoubleDto>().First();
+
+                doubleItem.Value.ShouldBeDefault();
+            });
+        }
+
+        [Fact]
         public Task ShouldProjectALongToADouble()
         {
             return RunTest(async context =>

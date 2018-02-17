@@ -40,6 +40,8 @@
 
         IDbSetWrapper<PublicInt> IntItems { get; }
 
+        IDbSetWrapper<PublicNullableInt> NullableIntItems { get; }
+
         IDbSetWrapper<PublicLong> LongItems { get; }
 
         IDbSetWrapper<PublicDecimal> DecimalItems { get; }
@@ -51,6 +53,8 @@
         IDbSetWrapper<PublicString> StringItems { get; }
 
         IDbSetWrapper<PublicTitle> TitleItems { get; }
+
+        IDbSetWrapper<PublicNullableTitle> NullableTitleItems { get; }
 
         Task SaveChanges();
     }
