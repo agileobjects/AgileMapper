@@ -59,24 +59,6 @@
             });
         }
 
-        protected Task DoShouldProjectAnEnumToAString(Func<Title, string> expectedEnumStringFactory = null)
-        {
-            if (expectedEnumStringFactory == null)
-            {
-                expectedEnumStringFactory = t => t.ToString();
-            }
-
-            return RunTest(async context =>
-            {
-                await context.TitleItems.Add(new PublicTitle { Value = Title.Dr });
-                await context.SaveChanges();
-
-                var stringItem = context.TitleItems.Project().To<PublicStringDto>().First();
-
-                stringItem.Value.ShouldBe(expectedEnumStringFactory.Invoke(Title.Dr));
-            });
-        }
-
         protected Task DoShouldProjectADecimalToAString(Func<decimal, string> expectedDecimalStringFactory = null)
         {
             if (expectedDecimalStringFactory == null)
@@ -130,6 +112,55 @@
                 var stringItem = context.DateTimeItems.Project().To<PublicStringDto>().First();
 
                 stringItem.Value.ShouldBe(expectedDateStringFactory.Invoke(now));
+            });
+        }
+
+        protected Task DoShouldProjectAnEnumToAString(Func<Title, string> expectedEnumStringFactory = null)
+        {
+            if (expectedEnumStringFactory == null)
+            {
+                expectedEnumStringFactory = t => t.ToString();
+            }
+
+            return RunTest(async context =>
+            {
+                await context.TitleItems.Add(new PublicTitle { Value = Title.Dr });
+                await context.SaveChanges();
+
+                var stringItem = context.TitleItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedEnumStringFactory.Invoke(Title.Dr));
+            });
+        }
+
+        protected Task DoShouldProjectANullableEnumToAString(Func<Title?, string> expectedEnumStringFactory = null)
+        {
+            if (expectedEnumStringFactory == null)
+            {
+                expectedEnumStringFactory = t => t.ToString();
+            }
+
+            return RunTest(async context =>
+            {
+                await context.NullableTitleItems.Add(new PublicNullableTitle { Value = Title.Lady });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableTitleItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedEnumStringFactory.Invoke(Title.Lady));
+            });
+        }
+
+        protected Task DoShouldProjectANullNullableEnumToAString()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableTitleItems.Add(new PublicNullableTitle { Value = default(Title?) });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableTitleItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBeNull();
             });
         }
     }

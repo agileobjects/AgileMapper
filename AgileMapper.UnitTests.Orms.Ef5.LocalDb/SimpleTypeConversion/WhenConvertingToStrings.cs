@@ -14,10 +14,6 @@
         }
 
         [Fact]
-        public Task ShouldProjectAnEnumToAString()
-            => DoShouldProjectAnEnumToAString(t => ((int)t).ToString());
-
-        [Fact]
         public Task ShouldProjectADecimalToAString()
             => DoShouldProjectADecimalToAString(d => d.ToString("0.00") + "0000");
 
@@ -28,5 +24,16 @@
         [Fact]
         public Task ShouldProjectADateTimeToAString()
             => DoShouldProjectADateTimeToAString(d => d.ToString("yyyy-%M-%d %H:%m:%s"));
+
+        [Fact]
+        public Task ShouldProjectAnEnumToAString()
+            => DoShouldProjectAnEnumToAString(t => ((int)t).ToString());
+
+        [Fact]
+        public Task ShouldProjectANullableEnumToAString()
+            => DoShouldProjectANullableEnumToAString(t => ((int)t.GetValueOrDefault()).ToString());
+
+        [Fact]
+        public Task ShouldProjectANullNullableEnumToAString() => DoShouldProjectANullNullableEnumToAString();
     }
 }

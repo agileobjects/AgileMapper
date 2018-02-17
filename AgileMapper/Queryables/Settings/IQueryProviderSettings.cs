@@ -16,6 +16,8 @@
         bool SupportsStringEqualsIgnoreCase { get; }
 
         bool SupportsStringToEnumConversion { get; }
+        
+        bool SupportsEnumToStringConversion { get; }
 
         bool SupportsGetValueOrDefault { get; }
 

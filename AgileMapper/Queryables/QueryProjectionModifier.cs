@@ -69,7 +69,12 @@
 
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {
-            if (TryParseAssignmentConverter.TryConvert(assignment, this, out var converted))
+            if (NullableConversionConverter.TryConvert(assignment, this, out var converted))
+            {
+                return converted;
+            }
+
+            if (TryParseAssignmentConverter.TryConvert(assignment, this, out converted))
             {
                 return converted;
             }

@@ -13,9 +13,6 @@
         }
 
         [Fact]
-        public Task ShouldProjectAnEnumToAString() => DoShouldProjectAnEnumToAString();
-
-        [Fact]
         public Task ShouldProjectADecimalToAString() => DoShouldProjectADecimalToAString();
 
         [Fact]
@@ -23,5 +20,14 @@
 
         [Fact]
         public Task ShouldProjectADateTimeToAString() => DoShouldProjectADateTimeToAString();
+
+        [Fact]
+        public Task ShouldProjectAnEnumToAString() => DoShouldProjectAnEnumToAString();
+
+        [Fact]
+        public Task ShouldProjectANullableEnumToAString() => DoShouldProjectANullableEnumToAString();
+
+        [Fact]
+        public Task ShouldProjectANullNullableEnumToAString() => DoShouldProjectANullNullableEnumToAString();
     }
 }

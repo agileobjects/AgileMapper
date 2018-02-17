@@ -13,9 +13,6 @@
         }
 
         [Fact]
-        public Task ShouldProjectAnEnumToAString() => DoShouldProjectAnEnumToAString();
-
-        [Fact]
         public Task ShouldProjectADecimalToAString() => DoShouldProjectADecimalToAString();
 
         [Fact]
@@ -24,5 +21,16 @@
         [Fact]
         public Task ShouldProjectADateTimeToAString()
             => DoShouldProjectADateTimeToAString(d => d.ToString("MM/dd/yyyy HH:mm:ss"));
+
+        [Fact]
+        public Task ShouldProjectAnEnumToAString()
+            => DoShouldProjectAnEnumToAString(t => ((int)t).ToString());
+
+        [Fact]
+        public Task ShouldProjectANullableEnumToAString()
+            => DoShouldProjectANullableEnumToAString(t => ((int)t.GetValueOrDefault()).ToString());
+
+        [Fact]
+        public Task ShouldProjectANullNullableEnumToAString() => DoShouldProjectANullNullableEnumToAString();
     }
 }
