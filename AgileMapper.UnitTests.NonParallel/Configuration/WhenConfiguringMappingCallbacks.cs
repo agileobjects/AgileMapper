@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using TestClasses;
-    // ReSharper disable once RedundantUsingDirective
-    using Shouldly; // <- this using is required even though ReSharper thinks it isn't
     using Xunit;
 
     public class WhenConfiguringMappingCallbacks : NonParallelTestsBase
@@ -90,7 +88,7 @@
 
                 Mapper.Map(new Customer { Discount = 0.2m }).Over(customer1);
 
-                customersWithDiscounts.ShouldBe(new[] { customer1 });
+                customersWithDiscounts.ShouldHaveSingleItem().ShouldBe(customer1);
                 customersAdded.ShouldBe(1);
                 customersRemoved.ShouldBe(0);
 
@@ -98,7 +96,7 @@
 
                 Mapper.Map(new Customer { Discount = 0.0m }).Over(customer2);
 
-                customersWithDiscounts.ShouldBe(new[] { customer1 });
+                customersWithDiscounts.ShouldHaveSingleItem().ShouldBe(customer1);
                 customersAdded.ShouldBe(2);
                 customersRemoved.ShouldBe(1);
             });

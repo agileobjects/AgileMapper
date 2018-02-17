@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel
 {
-    using Shouldly;
     using TestClasses;
     using Xunit;
 
@@ -31,9 +30,9 @@
 
                 plan.ShouldContain("MysteryCustomer -> MysteryCustomerViewModel");
                 plan.ShouldContain("MegaProduct -> ProductDtoMega");
-                plan.ShouldContain("Rule set: CreateNew");
-                plan.ShouldContain("Rule set: Merge");
-                plan.ShouldContain("Rule set: Overwrite");
+                plan.ShouldContain("Rule Set: CreateNew");
+                plan.ShouldContain("Rule Set: Merge");
+                plan.ShouldContain("Rule Set: Overwrite");
             });
         }
     }
