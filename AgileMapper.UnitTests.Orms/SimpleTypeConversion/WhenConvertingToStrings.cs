@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
+    using UnitTests.TestClasses;
     using Xunit;
 
     public abstract class WhenConvertingToStrings<TOrmContext> : OrmTestClassBase<TOrmContext>
@@ -41,6 +42,38 @@
                 var stringItem = context.IntItems.Project().To<PublicStringDto>().First();
 
                 stringItem.Value.ShouldBe("763483");
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectAnNullNullableIntToAString()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableIntItems.Add(new PublicNullableInt { Value = default(int?) });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableIntItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBeNull();
+            });
+        }
+
+        protected Task DoShouldProjectAnEnumToAString(Func<Title, string> expectedEnumStringFactory = null)
+        {
+            if (expectedEnumStringFactory == null)
+            {
+                expectedEnumStringFactory = t => t.ToString();
+            }
+
+            return RunTest(async context =>
+            {
+                await context.TitleItems.Add(new PublicTitle { Value = Title.Dr });
+                await context.SaveChanges();
+
+                var stringItem = context.TitleItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedEnumStringFactory.Invoke(Title.Dr));
             });
         }
 

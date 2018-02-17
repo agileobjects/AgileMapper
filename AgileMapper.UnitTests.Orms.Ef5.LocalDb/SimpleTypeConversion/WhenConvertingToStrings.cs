@@ -14,6 +14,10 @@
         }
 
         [Fact]
+        public Task ShouldProjectAnEnumToAString()
+            => DoShouldProjectAnEnumToAString(t => ((int)t).ToString());
+
+        [Fact]
         public Task ShouldProjectADecimalToAString()
             => DoShouldProjectADecimalToAString(d => d.ToString("0.00") + "0000");
 

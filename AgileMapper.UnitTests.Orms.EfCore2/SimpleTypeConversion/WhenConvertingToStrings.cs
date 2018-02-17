@@ -13,6 +13,9 @@
         }
 
         [Fact]
+        public Task ShouldProjectAnEnumToAString() => DoShouldProjectAnEnumToAString();
+
+        [Fact]
         public Task ShouldProjectADecimalToAString() => DoShouldProjectADecimalToAString();
 
         [Fact]
