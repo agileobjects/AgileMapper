@@ -3,7 +3,6 @@
     using Caching;
     using Configuration;
     using Configuration.Inline;
-    using DataSources;
     using Members;
     using Members.Sources;
     using ObjectPopulation;
@@ -19,7 +18,6 @@
         public MapperContext()
         {
             Cache = new CacheSet();
-            DataSources = DataSourceFinder.Instance;
             Naming = new NamingSettings(Cache);
             QualifiedMemberFactory = new QualifiedMemberFactory(this);
             RootMembersSource = new RootMembersSource(QualifiedMemberFactory);
@@ -32,8 +30,6 @@
         }
 
         public CacheSet Cache { get; }
-
-        public DataSourceFinder DataSources { get; }
 
         public NamingSettings Naming { get; }
 

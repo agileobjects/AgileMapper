@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
     using Configuration;
     using DataSources;
+    using DataSources.Finders;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
@@ -62,7 +63,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             }
 
             var childMappingData = mappingData.GetChildMappingData(childMapperData);
-            var dataSources = DataSourceFinder.FindDataSources(childMappingData);
+            var dataSources = DataSourceFinder.FindFor(childMappingData);
 
             if (dataSources.None)
             {
