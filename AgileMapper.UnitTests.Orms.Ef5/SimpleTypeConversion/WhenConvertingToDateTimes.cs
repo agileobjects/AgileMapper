@@ -13,6 +13,14 @@
         }
 
         [Fact]
+        public Task ShouldProjectANullableDateTimeToADateTime()
+            => DoShouldProjectANullableDateTimeToADateTime();
+
+        [Fact]
+        public Task ShouldProjectANullNullableDateTimeToADateTime()
+            => DoShouldProjectANullNullableDateTimeToADateTime();
+
+        [Fact]
         public Task ShouldErrorProjectingAnUnparseableString()
             => RunShouldErrorProjectingAnUnparseableStringToADateTime();
     }

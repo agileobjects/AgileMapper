@@ -14,6 +14,34 @@
         {
         }
 
+        protected Task DoShouldProjectANullableDateTimeToADateTime()
+        {
+            return RunTest(async context =>
+            {
+                var now = DateTime.Now;
+
+                await context.NullableDateTimeItems.Add(new PublicNullableDateTime { Value = now });
+                await context.SaveChanges();
+
+                var dateTimeItem = context.NullableDateTimeItems.Project().To<PublicDateTimeDto>().First();
+
+                dateTimeItem.Value.ShouldBe(now, TimeSpan.FromSeconds(1));
+            });
+        }
+
+        protected Task DoShouldProjectANullNullableDateTimeToADateTime()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableDateTimeItems.Add(new PublicNullableDateTime { Value = default(DateTime?) });
+                await context.SaveChanges();
+
+                var dateTimeItem = context.NullableDateTimeItems.Project().To<PublicDateTimeDto>().First();
+
+                dateTimeItem.Value.ShouldBeDefault();
+            });
+        }
+
         protected Task DoShouldProjectAParseableStringToADateTime()
         {
             return RunTest(async context =>
