@@ -22,6 +22,12 @@
         public Task ShouldProjectADateTimeToAString() => DoShouldProjectADateTimeToAString();
 
         [Fact]
+        public Task ShouldProjectANullableDateTimeToAString() => DoShouldProjectANullableDateTimeToAString();
+
+        [Fact]
+        public Task ShouldProjectANullNullableDateTimeToAString() => DoShouldProjectANullNullableDateTimeToAString();
+
+        [Fact]
         public Task ShouldProjectAnEnumToAString() => DoShouldProjectAnEnumToAString();
 
         [Fact]

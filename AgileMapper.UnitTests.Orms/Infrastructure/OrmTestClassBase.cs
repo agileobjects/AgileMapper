@@ -81,6 +81,7 @@
             Context.DecimalItems.Clear();
             Context.DoubleItems.Clear();
             Context.DateTimeItems.Clear();
+            Context.NullableDateTimeItems.Clear();
             Context.StringItems.Clear();
             Context.TitleItems.Clear();
             Context.NullableTitleItems.Clear();

@@ -5,10 +5,7 @@
     using Orms.SimpleTypeConversion;
     using Xunit;
 
-    public class WhenConvertingToInts :
-        WhenConvertingToInts<EfCore1TestDbContext>,
-        IStringConverterTest,
-        IStringConversionValidationFailureTest
+    public class WhenConvertingToInts : WhenConvertingToInts<EfCore1TestDbContext>
     {
         public WhenConvertingToInts(InMemoryEfCore1TestContext context)
             : base(context)

@@ -61,6 +61,8 @@
 
         public DbSet<PublicDateTime> DateTimeItems { get; set; }
 
+        public DbSet<PublicNullableDateTime> NullableDateTimeItems { get; set; }
+
         public DbSet<PublicString> StringItems { get; set; }
 
         public DbSet<PublicTitle> TitleItems { get; set; }
@@ -140,6 +142,8 @@
         IDbSetWrapper<PublicDouble> ITestDbContext.DoubleItems => new EfCore1DbSetWrapper<PublicDouble>(this);
 
         IDbSetWrapper<PublicDateTime> ITestDbContext.DateTimeItems => new EfCore1DbSetWrapper<PublicDateTime>(this);
+
+        IDbSetWrapper<PublicNullableDateTime> ITestDbContext.NullableDateTimeItems => new EfCore1DbSetWrapper<PublicNullableDateTime>(this);
 
         IDbSetWrapper<PublicString> ITestDbContext.StringItems => new EfCore1DbSetWrapper<PublicString>(this);
 

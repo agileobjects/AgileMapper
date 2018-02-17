@@ -115,6 +115,39 @@
             });
         }
 
+        protected Task DoShouldProjectANullableDateTimeToAString(Func<DateTime?, string> expectedDateStringFactory = null)
+        {
+            if (expectedDateStringFactory == null)
+            {
+                expectedDateStringFactory = d => d.GetValueOrDefault().ToString(CultureInfo.CurrentCulture.DateTimeFormat);
+            }
+
+            return RunTest(async context =>
+            {
+                var now = DateTime.Now;
+
+                await context.NullableDateTimeItems.Add(new PublicNullableDateTime { Value = now });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableDateTimeItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedDateStringFactory.Invoke(now));
+            });
+        }
+
+        protected Task DoShouldProjectANullNullableDateTimeToAString()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableDateTimeItems.Add(new PublicNullableDateTime { Value = default(DateTime?) });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableDateTimeItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBeNull();
+            });
+        }
+
         protected Task DoShouldProjectAnEnumToAString(Func<Title, string> expectedEnumStringFactory = null)
         {
             if (expectedEnumStringFactory == null)

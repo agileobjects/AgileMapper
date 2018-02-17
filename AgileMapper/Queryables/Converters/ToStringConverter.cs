@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal static class ToStringConverter
     {
@@ -80,10 +81,30 @@
             MethodCallExpression toStringCall,
             Type subjectNonNullableType)
         {
-            // ReSharper disable once PossibleNullReferenceException
-            return (toStringCall.Object.Type != subjectNonNullableType)
-                ? GetNullCheckedToStringCall(toStringCall.Object, subjectNonNullableType)
+            var toStringSubject = GetToStringSubject(toStringCall);
+
+            return (toStringSubject.Type != subjectNonNullableType)
+                ? GetNullCheckedToStringCall(toStringSubject, subjectNonNullableType)
                 : toStringCall;
+        }
+
+        private static Expression GetToStringSubject(MethodCallExpression toStringCall)
+        {
+            var toStringSubject = toStringCall.Object;
+
+            // ReSharper disable once PossibleNullReferenceException
+            if (toStringSubject.NodeType == ExpressionType.MemberAccess)
+            {
+                var memberAccess = (MemberExpression)toStringSubject;
+
+                if ((memberAccess.Member.Name == nameof(Nullable<int>.Value)) &&
+                     memberAccess.Expression.Type.IsNullableType())
+                {
+                    toStringSubject = memberAccess.Expression;
+                }
+            }
+
+            return toStringSubject;
         }
 
         private static Expression GetNullCheckedToStringCall(

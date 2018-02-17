@@ -50,6 +50,8 @@
 
         IDbSetWrapper<PublicDateTime> DateTimeItems { get; }
 
+        IDbSetWrapper<PublicNullableDateTime> NullableDateTimeItems { get; }
+
         IDbSetWrapper<PublicString> StringItems { get; }
 
         IDbSetWrapper<PublicTitle> TitleItems { get; }

@@ -26,6 +26,14 @@
             => DoShouldProjectADateTimeToAString(d => d.ToString("yyyy-%M-%d %H:%m:%s"));
 
         [Fact]
+        public Task ShouldProjectANullableDateTimeToAString()
+            => DoShouldProjectANullableDateTimeToAString(d => d.GetValueOrDefault().ToString("yyyy-%M-%d %H:%m:%s"));
+
+        [Fact]
+        public Task ShouldProjectANullNullableDateTimeToAString()
+            => DoShouldProjectANullNullableDateTimeToAString();
+
+        [Fact]
         public Task ShouldProjectAnEnumToAString()
             => DoShouldProjectAnEnumToAString(t => ((int)t).ToString());
 
