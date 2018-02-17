@@ -12,6 +12,8 @@
             _entityFrameworkAssembly = entityFrameworkAssembly;
         }
 
+        public override bool SupportsEnumToStringConversion => false;
+
         protected override Type LoadCanonicalFunctionsType()
             => GetTypeOrNull(_entityFrameworkAssembly, "System.Data.Entity.DbFunctions");
 

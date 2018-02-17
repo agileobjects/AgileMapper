@@ -6,10 +6,7 @@
     using Orms.SimpleTypeConversion;
     using Xunit;
 
-    public class WhenConvertingToDateTimes :
-        WhenConvertingToDateTimes<Ef5TestLocalDbContext>,
-        IStringConverterTest,
-        IStringConversionValidatorTest
+    public class WhenConvertingToDateTimes : WhenConvertingToDateTimes<Ef5TestLocalDbContext>
     {
         public WhenConvertingToDateTimes(LocalDbTestContext<Ef5TestLocalDbContext> context)
             : base(context)
@@ -18,11 +15,11 @@
 
         [Fact]
         public Task ShouldProjectAParseableString()
-            => RunShouldProjectAParseableStringToADateTime();
+            => DoShouldProjectAParseableStringToADateTime();
 
         [Fact]
         public Task ShouldProjectANullString()
-            => RunShouldProjectANullStringToADateTime();
+            => DoShouldProjectANullStringToADateTime();
 
         [Fact]
         public Task ShouldProjectAnUnparseableString()

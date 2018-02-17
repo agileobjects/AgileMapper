@@ -53,6 +53,8 @@
 
         public DbSet<PublicInt> IntItems { get; set; }
 
+        public DbSet<PublicNullableInt> NullableIntItems { get; set; }
+
         public DbSet<PublicLong> LongItems { get; set; }
 
         public DbSet<PublicDecimal> DecimalItems { get; set; }
@@ -61,9 +63,13 @@
 
         public DbSet<PublicDateTime> DateTimeItems { get; set; }
 
+        public DbSet<PublicNullableDateTime> NullableDateTimeItems { get; set; }
+
         public DbSet<PublicString> StringItems { get; set; }
 
         public DbSet<PublicTitle> TitleItems { get; set; }
+
+        public DbSet<PublicNullableTitle> NullableTitleItems { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -115,6 +121,8 @@
 
         IDbSetWrapper<PublicInt> ITestDbContext.IntItems => new Ef5DbSetWrapper<PublicInt>(this);
 
+        IDbSetWrapper<PublicNullableInt> ITestDbContext.NullableIntItems => new Ef5DbSetWrapper<PublicNullableInt>(this);
+
         IDbSetWrapper<PublicLong> ITestDbContext.LongItems => new Ef5DbSetWrapper<PublicLong>(this);
 
         IDbSetWrapper<PublicDecimal> ITestDbContext.DecimalItems => new Ef5DbSetWrapper<PublicDecimal>(this);
@@ -123,9 +131,13 @@
 
         IDbSetWrapper<PublicDateTime> ITestDbContext.DateTimeItems => new Ef5DbSetWrapper<PublicDateTime>(this);
 
+        IDbSetWrapper<PublicNullableDateTime> ITestDbContext.NullableDateTimeItems => new Ef5DbSetWrapper<PublicNullableDateTime>(this);
+
         IDbSetWrapper<PublicString> ITestDbContext.StringItems => new Ef5DbSetWrapper<PublicString>(this);
 
         IDbSetWrapper<PublicTitle> ITestDbContext.TitleItems => new Ef5DbSetWrapper<PublicTitle>(this);
+
+        IDbSetWrapper<PublicNullableTitle> ITestDbContext.NullableTitleItems => new Ef5DbSetWrapper<PublicNullableTitle>(this);
 
         Task ITestDbContext.SaveChanges()
         {

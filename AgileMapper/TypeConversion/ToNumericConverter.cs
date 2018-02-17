@@ -27,8 +27,9 @@
         public override Expression GetConversion(Expression sourceValue, Type targetType)
         {
             var sourceType = GetNonEnumSourceType(sourceValue);
+            var nonNullableSourceType = sourceType.GetNonNullableType();
 
-            if (IsCoercible(sourceType))
+            if (IsCoercible(nonNullableSourceType))
             {
                 if (!targetType.IsWholeNumberNumeric())
                 {
@@ -38,13 +39,15 @@
                 return sourceValue.GetConversionTo(targetType);
             }
 
-            return IsNumericType(sourceType)
+            return IsNumericType(nonNullableSourceType)
                 ? GetCheckedNumericConversion(sourceValue, targetType)
                 : base.GetConversion(sourceValue, targetType);
         }
 
         private static Type GetNonEnumSourceType(Expression sourceValue)
             => sourceValue.Type.IsEnum() ? Enum.GetUnderlyingType(sourceValue.Type) : sourceValue.Type;
+
+        private static bool IsCoercible(Type sourceType) => _coercibleNumericTypes.Contains(sourceType);
 
         private static bool IsNumericType(Type type)
         {
@@ -58,8 +61,6 @@
 
             return Constants.NumericTypes.Contains(type);
         }
-
-        private static bool IsCoercible(Type sourceType) => _coercibleNumericTypes.Contains(sourceType);
 
         private static Expression GetCheckedNumericConversion(Expression sourceValue, Type targetType)
         {

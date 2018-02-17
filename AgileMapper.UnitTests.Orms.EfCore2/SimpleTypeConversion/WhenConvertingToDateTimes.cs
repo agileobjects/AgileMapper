@@ -5,10 +5,7 @@
     using Orms.SimpleTypeConversion;
     using Xunit;
 
-    public class WhenConvertingToDateTimes :
-        WhenConvertingToDateTimes<EfCore2TestDbContext>,
-        IStringConverterTest,
-        IStringConversionValidationFailureTest
+    public class WhenConvertingToDateTimes : WhenConvertingToDateTimes<EfCore2TestDbContext>
     {
         public WhenConvertingToDateTimes(InMemoryEfCore2TestContext context)
             : base(context)
@@ -16,12 +13,20 @@
         }
 
         [Fact]
+        public Task ShouldProjectANullableDateTimeToADateTime()
+            => DoShouldProjectANullableDateTimeToADateTime();
+
+        [Fact]
+        public Task ShouldProjectANullNullableDateTimeToADateTime()
+            => DoShouldProjectANullNullableDateTimeToADateTime();
+
+        [Fact]
         public Task ShouldProjectAParseableString()
-            => RunShouldProjectAParseableStringToADateTime();
+            => DoShouldProjectAParseableStringToADateTime();
 
         [Fact]
         public Task ShouldProjectANullString()
-            => RunShouldProjectANullStringToADateTime();
+            => DoShouldProjectANullStringToADateTime();
 
         [Fact]
         public Task ShouldErrorProjectingAnUnparseableString()

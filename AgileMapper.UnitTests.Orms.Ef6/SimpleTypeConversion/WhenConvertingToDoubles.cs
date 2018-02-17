@@ -5,10 +5,7 @@
     using Orms.SimpleTypeConversion;
     using Xunit;
 
-    public class WhenConvertingToDoubles :
-        WhenConvertingToDoubles<Ef6TestDbContext>,
-        IStringConversionFailureTest,
-        IStringConversionValidationFailureTest
+    public class WhenConvertingToDoubles : WhenConvertingToDoubles<Ef6TestDbContext>
 
     {
         public WhenConvertingToDoubles(InMemoryEf6TestContext context)

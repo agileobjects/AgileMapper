@@ -44,6 +44,15 @@
         }
 
         [Fact]
+        public void ShouldMapANullableIntToADouble()
+        {
+            var source = new PublicField<int?> { Value = 321 };
+            var result = Mapper.Map(source).ToANew<PublicProperty<double>>();
+
+            result.Value.ShouldBe(321);
+        }
+
+        [Fact]
         public void ShouldMapAnUnsignedIntToADouble()
         {
             var source = new PublicField<uint> { Value = 32658 };

@@ -58,6 +58,34 @@
         }
 
         [Fact]
+        public Task ShouldProjectANullableIntToAnEnum()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableIntItems.Add(new PublicNullableInt { Value = (int?)Duke });
+                await context.SaveChanges();
+
+                var enumItem = context.NullableIntItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
+
+                enumItem.Value.ShouldBe(Duke);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectANullNullableIntToAnEnum()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableIntItems.Add(new PublicNullableInt { Value = default(int?) });
+                await context.SaveChanges();
+
+                var enumItem = context.NullableIntItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
+
+                enumItem.Value.ShouldBeDefault();
+            });
+        }
+
+        [Fact]
         public Task ShouldProjectALongToAnEnum()
         {
             return RunTest(async context =>
@@ -68,6 +96,34 @@
                 var enumItem = context.LongItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
 
                 enumItem.Value.ShouldBe(Ms);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectANullableEnumToAnEnum()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableTitleItems.Add(new PublicNullableTitle { Value = Lady });
+                await context.SaveChanges();
+
+                var enumItem = context.NullableTitleItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
+
+                enumItem.Value.ShouldBe(Lady);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectANullNullableEnumToAnEnum()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableTitleItems.Add(new PublicNullableTitle { Value = default(Title?) });
+                await context.SaveChanges();
+
+                var enumItem = context.NullableTitleItems.Project().To<PublicTitleDto>().ShouldHaveSingleItem();
+
+                enumItem.Value.ShouldBeDefault();
             });
         }
 

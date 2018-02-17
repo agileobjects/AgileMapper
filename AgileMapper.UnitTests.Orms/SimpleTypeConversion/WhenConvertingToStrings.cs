@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
+    using UnitTests.TestClasses;
     using Xunit;
 
     public abstract class WhenConvertingToStrings<TOrmContext> : OrmTestClassBase<TOrmContext>
@@ -41,6 +42,20 @@
                 var stringItem = context.IntItems.Project().To<PublicStringDto>().First();
 
                 stringItem.Value.ShouldBe("763483");
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectAnNullNullableIntToAString()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableIntItems.Add(new PublicNullableInt { Value = default(int?) });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableIntItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBeNull();
             });
         }
 
@@ -97,6 +112,88 @@
                 var stringItem = context.DateTimeItems.Project().To<PublicStringDto>().First();
 
                 stringItem.Value.ShouldBe(expectedDateStringFactory.Invoke(now));
+            });
+        }
+
+        protected Task DoShouldProjectANullableDateTimeToAString(Func<DateTime?, string> expectedDateStringFactory = null)
+        {
+            if (expectedDateStringFactory == null)
+            {
+                expectedDateStringFactory = d => d.GetValueOrDefault().ToString(CultureInfo.CurrentCulture.DateTimeFormat);
+            }
+
+            return RunTest(async context =>
+            {
+                var now = DateTime.Now;
+
+                await context.NullableDateTimeItems.Add(new PublicNullableDateTime { Value = now });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableDateTimeItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedDateStringFactory.Invoke(now));
+            });
+        }
+
+        protected Task DoShouldProjectANullNullableDateTimeToAString()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableDateTimeItems.Add(new PublicNullableDateTime { Value = default(DateTime?) });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableDateTimeItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBeNull();
+            });
+        }
+
+        protected Task DoShouldProjectAnEnumToAString(Func<Title, string> expectedEnumStringFactory = null)
+        {
+            if (expectedEnumStringFactory == null)
+            {
+                expectedEnumStringFactory = t => t.ToString();
+            }
+
+            return RunTest(async context =>
+            {
+                await context.TitleItems.Add(new PublicTitle { Value = Title.Dr });
+                await context.SaveChanges();
+
+                var stringItem = context.TitleItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedEnumStringFactory.Invoke(Title.Dr));
+            });
+        }
+
+        protected Task DoShouldProjectANullableEnumToAString(Func<Title?, string> expectedEnumStringFactory = null)
+        {
+            if (expectedEnumStringFactory == null)
+            {
+                expectedEnumStringFactory = t => t.ToString();
+            }
+
+            return RunTest(async context =>
+            {
+                await context.NullableTitleItems.Add(new PublicNullableTitle { Value = Title.Lady });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableTitleItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBe(expectedEnumStringFactory.Invoke(Title.Lady));
+            });
+        }
+
+        protected Task DoShouldProjectANullNullableEnumToAString()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableTitleItems.Add(new PublicNullableTitle { Value = default(Title?) });
+                await context.SaveChanges();
+
+                var stringItem = context.NullableTitleItems.Project().To<PublicStringDto>().First();
+
+                stringItem.Value.ShouldBeNull();
             });
         }
     }

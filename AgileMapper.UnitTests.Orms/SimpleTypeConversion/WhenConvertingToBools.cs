@@ -29,6 +29,20 @@
         }
 
         [Fact]
+        public Task ShouldProjectANullableIntOneToTrue()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableIntItems.Add(new PublicNullableInt { Value = 1 });
+                await context.SaveChanges();
+
+                var boolItem = context.NullableIntItems.Project().To<PublicBoolDto>().First();
+
+                boolItem.Value.ShouldBeTrue();
+            });
+        }
+
+        [Fact]
         public Task ShouldProjectAnIntZeroToFalse()
         {
             return RunTest(async context =>
@@ -39,6 +53,34 @@
                 var boolItem = context.IntItems.Project().To<PublicBoolDto>().First();
 
                 boolItem.Value.ShouldBeFalse();
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectANullableIntNullToTrue()
+        {
+            return RunTest(async context =>
+            {
+                await context.NullableIntItems.Add(new PublicNullableInt { Value = default(int?) });
+                await context.SaveChanges();
+
+                var boolItem = context.NullableIntItems.Project().To<PublicBoolDto>().First();
+
+                boolItem.Value.ShouldBeFalse();
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectADecimalOneToTrue()
+        {
+            return RunTest(async context =>
+            {
+                await context.DecimalItems.Add(new PublicDecimal { Value = 1.0m });
+                await context.SaveChanges();
+
+                var boolItem = context.DecimalItems.Project().To<PublicBoolDto>().First();
+
+                boolItem.Value.ShouldBeTrue();
             });
         }
 

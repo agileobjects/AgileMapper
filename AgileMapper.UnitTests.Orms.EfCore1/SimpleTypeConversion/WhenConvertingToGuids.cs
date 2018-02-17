@@ -5,9 +5,7 @@
     using Orms.SimpleTypeConversion;
     using Xunit;
 
-    public class WhenConvertingToGuids :
-        WhenConvertingToGuids<EfCore1TestDbContext>,
-        IStringConverterTest
+    public class WhenConvertingToGuids : WhenConvertingToGuids<EfCore1TestDbContext>
     {
         public WhenConvertingToGuids(InMemoryEfCore1TestContext context)
             : base(context)
@@ -15,11 +13,9 @@
         }
 
         [Fact]
-        public Task ShouldProjectAParseableString()
-            => RunShouldProjectAParseableStringToAGuid();
+        public Task ShouldProjectAParseableString() => RunShouldProjectAParseableStringToAGuid();
 
         [Fact]
-        public Task ShouldProjectANullString()
-            => RunShouldProjectANullStringToAGuid();
+        public Task ShouldProjectANullString() => RunShouldProjectANullStringToAGuid();
     }
 }

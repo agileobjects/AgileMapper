@@ -35,6 +35,8 @@
 
         public virtual bool SupportsStringToEnumConversion => true;
 
+        public virtual bool SupportsEnumToStringConversion => true;
+
         public virtual bool SupportsGetValueOrDefault => true;
 
         public virtual bool SupportsComplexTypeToNullComparison => true;

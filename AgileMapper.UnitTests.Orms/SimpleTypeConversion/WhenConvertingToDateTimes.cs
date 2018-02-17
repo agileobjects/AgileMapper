@@ -14,47 +14,61 @@
         {
         }
 
-        #region Parseable String -> DateTime
-
-        protected Task RunShouldProjectAParseableStringToADateTime()
-            => RunTest(ProjectParseableStringToADateTime);
-
-        protected Task RunShouldErrorProjectingAParseableStringToADateTime()
-            => RunTestAndExpectThrow(ProjectParseableStringToADateTime);
-
-        private static async Task ProjectParseableStringToADateTime(TOrmContext context)
+        protected Task DoShouldProjectANullableDateTimeToADateTime()
         {
-            var now = DateTime.Now;
+            return RunTest(async context =>
+            {
+                var now = DateTime.Now;
 
-            await context.StringItems.Add(new PublicString { Value = now.ToString("s") });
-            await context.SaveChanges();
+                await context.NullableDateTimeItems.Add(new PublicNullableDateTime { Value = now });
+                await context.SaveChanges();
 
-            var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
+                var dateTimeItem = context.NullableDateTimeItems.Project().To<PublicDateTimeDto>().First();
 
-            dateTimeItem.Value.ShouldBe(now, TimeSpan.FromSeconds(1));
+                dateTimeItem.Value.ShouldBe(now, TimeSpan.FromSeconds(1));
+            });
         }
 
-        #endregion
-
-        #region Null String -> DateTime
-
-        protected Task RunShouldProjectANullStringToADateTime()
-            => RunTest(ProjectANullStringToADateTime);
-
-        protected Task RunShouldErrorProjectingANullStringToADateTime()
-            => RunTestAndExpectThrow(ProjectANullStringToADateTime);
-
-        private static async Task ProjectANullStringToADateTime(TOrmContext context)
+        protected Task DoShouldProjectANullNullableDateTimeToADateTime()
         {
-            await context.StringItems.Add(new PublicString { Value = default(string) });
-            await context.SaveChanges();
+            return RunTest(async context =>
+            {
+                await context.NullableDateTimeItems.Add(new PublicNullableDateTime { Value = default(DateTime?) });
+                await context.SaveChanges();
 
-            var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
+                var dateTimeItem = context.NullableDateTimeItems.Project().To<PublicDateTimeDto>().First();
 
-            dateTimeItem.Value.ShouldBe(default(DateTime));
+                dateTimeItem.Value.ShouldBeDefault();
+            });
         }
 
-        #endregion
+        protected Task DoShouldProjectAParseableStringToADateTime()
+        {
+            return RunTest(async context =>
+            {
+                var now = DateTime.Now;
+
+                await context.StringItems.Add(new PublicString { Value = now.ToString("s") });
+                await context.SaveChanges();
+
+                var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
+
+                dateTimeItem.Value.ShouldBe(now, TimeSpan.FromSeconds(1));
+            });
+        }
+
+        protected Task DoShouldProjectANullStringToADateTime()
+        {
+            return RunTest(async context =>
+            {
+                await context.StringItems.Add(new PublicString { Value = default(string) });
+                await context.SaveChanges();
+
+                var dateTimeItem = context.StringItems.Project().To<PublicDateTimeDto>().First();
+
+                dateTimeItem.Value.ShouldBe(default(DateTime));
+            });
+        }
 
         #region Unparseable String -> DateTime
 

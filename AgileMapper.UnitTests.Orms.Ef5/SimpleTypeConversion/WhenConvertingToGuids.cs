@@ -5,9 +5,7 @@
     using Orms.SimpleTypeConversion;
     using Xunit;
 
-    public class WhenConvertingToGuids :
-        WhenConvertingToGuids<Ef5TestDbContext>,
-        IStringConversionFailureTest
+    public class WhenConvertingToGuids : WhenConvertingToGuids<Ef5TestDbContext>
     {
         public WhenConvertingToGuids(InMemoryEf5TestContext context)
             : base(context)

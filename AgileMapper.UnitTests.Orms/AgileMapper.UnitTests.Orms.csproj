@@ -89,10 +89,6 @@
     <Compile Include="Infrastructure\ITestLocalDbContext.cs" />
     <Compile Include="Infrastructure\LocalDbTestContext.cs" />
     <Compile Include="Infrastructure\OrmTestClassBase.cs" />
-    <Compile Include="SimpleTypeConversion\IStringConversionFailureTest.cs" />
-    <Compile Include="SimpleTypeConversion\IStringConverterTest.cs" />
-    <Compile Include="SimpleTypeConversion\IStringConversionValidationFailureTest.cs" />
-    <Compile Include="SimpleTypeConversion\IStringConversionValidatorTest.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToEnums.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
@@ -133,6 +129,9 @@
     <Compile Include="TestClasses\PublicGuidDto.cs" />
     <Compile Include="TestClasses\PublicDoubleDto.cs" />
     <Compile Include="TestClasses\PublicDecimal.cs" />
+    <Compile Include="TestClasses\PublicNullableDateTime.cs" />
+    <Compile Include="TestClasses\PublicNullableInt.cs" />
+    <Compile Include="TestClasses\PublicNullableTitle.cs" />
     <Compile Include="TestClasses\PublicStringCtorDto.cs" />
     <Compile Include="TestClasses\PublicStringDto.cs" />
     <Compile Include="TestClasses\PublicStringNames.cs" />
