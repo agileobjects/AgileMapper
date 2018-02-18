@@ -6,16 +6,21 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class MappingTypes
     {
+        private readonly int _hashCode;
+
         public MappingTypes(
             Type sourceType,
             Type targetType,
-            bool runtimeTypesAreTheSame,
-            bool isEnumerable)
+            bool runtimeTypesAreTheSame)
         {
             SourceType = sourceType;
             TargetType = targetType;
             RuntimeTypesAreTheSame = runtimeTypesAreTheSame;
-            IsEnumerable = isEnumerable;
+
+            unchecked
+            {
+                _hashCode = (sourceType.GetHashCode() * 397) ^ targetType.GetHashCode();
+            }
         }
 
         #region Factory Method
@@ -85,8 +90,7 @@ namespace AgileObjects.AgileMapper.Members
             return new MappingTypes(
                 sourceType,
                 targetType,
-                false, // <- runtimeTypesAreTheSame
-                isEnumerable);
+                false);
         }
 
         #endregion
@@ -99,25 +103,14 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool RuntimeTypesAreTheSame { get; }
 
-        public bool IsEnumerable { get; }
-
-        public bool Equals(MappingTypes otherTypes)
-        {
-            if (otherTypes == this)
-            {
-                return true;
-            }
-
-            return (otherTypes.SourceType == SourceType) && (otherTypes.TargetType == TargetType);
-        }
+        public bool Equals(MappingTypes otherTypes) => otherTypes._hashCode == _hashCode;
 
         public MappingTypes WithTypes<TNewSource, TNewTarget>()
         {
             return new MappingTypes(
                 typeof(TNewSource),
                 typeof(TNewTarget),
-                RuntimeTypesAreTheSame,
-                IsEnumerable);
+                RuntimeTypesAreTheSame);
         }
     }
 
@@ -129,7 +122,6 @@ namespace AgileObjects.AgileMapper.Members
         public static readonly MappingTypes Fixed = new MappingTypes(
             typeof(TSource),
             typeof(TTarget),
-            true, // <- runtimeTypesAreTheSame
-            TypeInfo<TTarget>.IsEnumerable);
+            true);
     }
 }

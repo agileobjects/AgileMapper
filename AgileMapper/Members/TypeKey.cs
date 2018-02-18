@@ -4,13 +4,17 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class TypeKey
     {
-        private readonly KeyType _keyType;
+        private readonly int _hashCode;
 
         private TypeKey(Type type, KeyType keyType, string name = null)
         {
             Type = type;
             Name = name;
-            _keyType = keyType;
+
+            unchecked
+            {
+                _hashCode = ((int)keyType * 397) ^ type.GetHashCode();
+            }
         }
 
         public static TypeKey ForSourceMembers(Type type) => new TypeKey(type, KeyType.SourceMembers);
@@ -27,10 +31,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public override bool Equals(object obj)
         {
-            var otherKey = (TypeKey)obj;
-
             // ReSharper disable once PossibleNullReferenceException
-            return (_keyType == otherKey._keyType) && (Type == otherKey.Type);
+            return obj.GetHashCode() == _hashCode;
         }
 
         #region ExcludeFromCodeCoverage
@@ -38,7 +40,7 @@ namespace AgileObjects.AgileMapper.Members
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public override int GetHashCode() => 0;
+        public override int GetHashCode() => _hashCode;
 
         private enum KeyType { SourceMembers, TargetMembers, TypeId, Parameter }
     }

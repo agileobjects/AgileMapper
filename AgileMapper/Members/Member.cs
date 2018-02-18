@@ -1,9 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-#if NET_STANDARD
-    using System.Linq;
-#endif
     using System.Linq.Expressions;
     using System.Reflection;
     using Dictionaries;
@@ -18,6 +15,7 @@ namespace AgileObjects.AgileMapper.Members
         public const string RootTargetMemberName = "Target";
 
         private readonly Func<Expression, MemberInfo, Expression> _accessFactory;
+        private readonly int _hashCode;
 
         private Member(
             MemberType memberType,
@@ -54,6 +52,13 @@ namespace AgileObjects.AgileMapper.Members
             _accessFactory = accessFactory;
             IsWriteable = isWriteable;
             IsRoot = isRoot;
+
+            _hashCode = declaringType.GetHashCode();
+
+            unchecked
+            {
+                _hashCode = (_hashCode * 397) ^ name.GetHashCode();
+            }
 
             JoiningName = (isRoot || this.IsEnumerableElement()) ? name : "." + name;
             IsReadable = memberType.IsReadable();
@@ -231,15 +236,7 @@ namespace AgileObjects.AgileMapper.Members
             public static readonly Member MemberInstance = RootTarget(typeof(T));
         }
 
-        public bool Equals(Member otherMember)
-        {
-            if (ReferenceEquals(otherMember, this))
-            {
-                return true;
-            }
-
-            return (otherMember.DeclaringType == DeclaringType) && (otherMember.Name == Name);
-        }
+        public bool Equals(Member otherMember) => otherMember._hashCode == _hashCode;
 
         #region ExcludeFromCodeCoverage
 #if DEBUG
