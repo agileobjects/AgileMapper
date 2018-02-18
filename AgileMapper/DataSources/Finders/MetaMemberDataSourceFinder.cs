@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
 
@@ -33,7 +34,10 @@
                 yield break;
             }
 
-            
+            var metaMemberAccess = metaMember.GetAccess(context.ChildMappingData);
+            var mappingDataSource = new AdHocDataSource(metaMember.SourceMember, metaMemberAccess, metaMember.MapperData);
+
+            yield return context.GetFinalDataSource(mappingDataSource);
         }
 
         private static bool TryGetMetaMemberParts(
@@ -103,6 +107,11 @@
 
         private interface IMetaMemberPart
         {
+            IQualifiedMember SourceMember { get; }
+
+            IMemberMapperData MapperData { get; }
+
+            Expression GetAccess(IChildMemberMappingData mappingData);
         }
 
         private class HasMetaMemberPart : IMetaMemberPart
@@ -123,6 +132,27 @@
 
                 metaMemberPart = new HasMetaMemberPart(metaMemberPart);
                 return true;
+            }
+
+            public IQualifiedMember SourceMember => _queried.SourceMember;
+
+            public IMemberMapperData MapperData => _queried.MapperData;
+
+            public Expression GetAccess(IChildMemberMappingData mappingData)
+            {
+                var queriedMemberAccess = _queried.GetAccess(mappingData);
+
+                if (_queried.SourceMember.IsEnumerable)
+                {
+
+                }
+
+                if (_queried.SourceMember.IsSimple)
+                {
+
+                }
+
+                return queriedMemberAccess.GetIsNotDefaultComparison();
             }
         }
 
@@ -145,6 +175,15 @@
                 metaMemberPart = new FirstMetaMemberPart(metaMemberPart);
                 return true;
             }
+
+            public IQualifiedMember SourceMember => _enumerable.SourceMember;
+
+            public IMemberMapperData MapperData => _enumerable.MapperData;
+
+            public Expression GetAccess(IChildMemberMappingData mappingData)
+            {
+                return null;
+            }
         }
 
         private class LastMetaMemberPart : IMetaMemberPart
@@ -166,17 +205,40 @@
                 metaMemberPart = new LastMetaMemberPart(metaMemberPart);
                 return true;
             }
+
+            public IQualifiedMember SourceMember => _enumerable.SourceMember;
+
+            public IMemberMapperData MapperData => _enumerable.MapperData;
+
+            public Expression GetAccess(IChildMemberMappingData mappingData)
+            {
+                return null;
+            }
         }
 
         private class SourceMemberMetaMemberPart : IMetaMemberPart
         {
-            private readonly IQualifiedMember _sourceMember;
-            private readonly IMetaMemberPart _parent;
+            private readonly IMemberMapperData _mapperData;
+            private readonly IMetaMemberPart _nextPart;
 
-            private SourceMemberMetaMemberPart(IQualifiedMember sourceMember, IMetaMemberPart parent)
+            private SourceMemberMetaMemberPart(
+                IQualifiedMember sourceMember,
+                IMetaMemberPart nextPart,
+                IMemberMapperData mapperData)
             {
-                _sourceMember = sourceMember;
-                _parent = parent;
+                _mapperData = mapperData;
+                _nextPart = nextPart;
+
+                if (nextPart != null)
+                {
+                    SourceMember = nextPart.SourceMember;
+                    MapperData = nextPart.MapperData;
+                }
+                else
+                {
+                    SourceMember = sourceMember;
+                    MapperData = mapperData;
+                }
             }
 
             public static bool TryCreateFor(
@@ -205,8 +267,27 @@
                     out var _,
                     searchParentContexts: false);
 
-                metaMemberPart = new SourceMemberMetaMemberPart(matchingSourceMember, metaMemberPart);
+                metaMemberPart = new SourceMemberMetaMemberPart(
+                    matchingSourceMember,
+                    metaMemberPart,
+                    context.MapperData);
+
                 return true;
+            }
+
+            public IQualifiedMember SourceMember { get; }
+
+            public IMemberMapperData MapperData { get; }
+
+            public Expression GetAccess(IChildMemberMappingData mappingData)
+            {
+                var memberAccess = SourceMember.GetQualifiedAccess(_mapperData);
+
+                if (_nextPart != null)
+                {
+                }
+
+                return memberAccess;
             }
         }
     }

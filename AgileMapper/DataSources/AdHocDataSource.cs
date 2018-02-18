@@ -9,5 +9,10 @@
             : base(targetMember, value)
         {
         }
+
+        public AdHocDataSource(IQualifiedMember targetMember, Expression value, IMemberMapperData mapperData)
+            : base(targetMember, value, mapperData)
+        {
+        }
     }
 }
