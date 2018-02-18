@@ -111,11 +111,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public bool Matches(IQualifiedMember otherMember) => _wrappedSourceMember.Matches(otherMember);
 
-        public Expression GetQualifiedAccess(IMemberMapperData mapperData)
+        public Expression GetQualifiedAccess(Expression parentInstance)
         {
             return IsEntireDictionaryMatch
-                ? _wrappedSourceMember.GetQualifiedAccess(mapperData)
-                : EntryMember.GetQualifiedAccess(mapperData);
+                ? _wrappedSourceMember.GetQualifiedAccess(parentInstance)
+                : EntryMember.GetQualifiedAccess(parentInstance);
         }
 
         #region ExcludeFromCodeCoverage

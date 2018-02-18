@@ -27,7 +27,9 @@
                     yield break;
                 }
 
-                memberNameParts.Insert(0, targetMemberName.Substring(i, previousNamePartEndIndex - i));
+                var memberNamePart = targetMemberName.Substring(i, previousNamePartEndIndex - i);
+
+                memberNameParts.Insert(0, memberNamePart);
                 previousNamePartEndIndex = i;
             }
 
@@ -41,7 +43,7 @@
                 yield break;
             }
 
-            var metaMemberAccess = metaMember.GetAccess(context.ChildMappingData);
+            var metaMemberAccess = metaMember.GetAccess(context.MapperData.SourceObject);
             var mappingDataSource = new AdHocDataSource(metaMember.SourceMember, metaMemberAccess, metaMember.MapperData);
 
             yield return context.GetFinalDataSource(mappingDataSource);
@@ -118,7 +120,7 @@
 
             IMemberMapperData MapperData { get; }
 
-            Expression GetAccess(IChildMemberMappingData mappingData);
+            Expression GetAccess(Expression parentInstance);
         }
 
         private class HasMetaMemberPart : IMetaMemberPart
@@ -145,9 +147,9 @@
 
             public IMemberMapperData MapperData => _queried.MapperData;
 
-            public Expression GetAccess(IChildMemberMappingData mappingData)
+            public Expression GetAccess(Expression parentInstance)
             {
-                var queriedMemberAccess = _queried.GetAccess(mappingData);
+                var queriedMemberAccess = _queried.GetAccess(parentInstance);
 
                 if (_queried.SourceMember.IsEnumerable)
                 {
@@ -194,7 +196,7 @@
 
             public IMemberMapperData MapperData => _enumerable.MapperData;
 
-            public Expression GetAccess(IChildMemberMappingData mappingData)
+            public Expression GetAccess(Expression parentInstance)
             {
                 return null;
             }
@@ -224,7 +226,7 @@
 
             public IMemberMapperData MapperData => _enumerable.MapperData;
 
-            public Expression GetAccess(IChildMemberMappingData mappingData)
+            public Expression GetAccess(Expression parentInstance)
             {
                 return null;
             }
@@ -232,7 +234,6 @@
 
         private class SourceMemberMetaMemberPart : IMetaMemberPart
         {
-            private readonly IMemberMapperData _mapperData;
             private readonly IMetaMemberPart _nextPart;
 
             private SourceMemberMetaMemberPart(
@@ -240,7 +241,6 @@
                 IMetaMemberPart nextPart,
                 IMemberMapperData mapperData)
             {
-                _mapperData = mapperData;
                 _nextPart = nextPart;
 
                 if (nextPart != null)
@@ -298,15 +298,13 @@
 
             public IMemberMapperData MapperData { get; }
 
-            public Expression GetAccess(IChildMemberMappingData mappingData)
+            public Expression GetAccess(Expression parentInstance)
             {
-                var memberAccess = SourceMember.GetQualifiedAccess(_mapperData);
+                var memberAccess = SourceMember.GetQualifiedAccess(parentInstance);
 
-                if (_nextPart != null)
-                {
-                }
-
-                return memberAccess;
+                return (_nextPart != null)
+                    ? _nextPart.GetAccess(memberAccess)
+                    : memberAccess;
             }
         }
     }

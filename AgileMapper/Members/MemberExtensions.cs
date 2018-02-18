@@ -115,11 +115,14 @@
         public static Expression GetAccess(this QualifiedMember member, IMemberMapperData mapperData)
             => member.GetAccess(mapperData.TargetInstance, mapperData);
 
-        public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, IMemberMapperData mapperData)
+        public static Expression GetQualifiedAccess(this IQualifiedMember sourceMember, IMemberMapperData mapperData)
+            => sourceMember.GetQualifiedAccess(mapperData.SourceObject);
+
+        public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression parentInstance)
         {
             // Skip(1) because the 0th member is the mapperData.SourceObject:
             return memberChain.Skip(1).Aggregate(
-                mapperData.SourceObject,
+                parentInstance,
                 (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 

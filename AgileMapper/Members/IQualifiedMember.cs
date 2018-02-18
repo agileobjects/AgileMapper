@@ -31,6 +31,6 @@ namespace AgileObjects.AgileMapper.Members
 
         bool Matches(IQualifiedMember otherMember);
 
-        Expression GetQualifiedAccess(IMemberMapperData mapperData);
+        Expression GetQualifiedAccess(Expression parentInstance);
     }
 }

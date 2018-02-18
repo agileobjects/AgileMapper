@@ -115,7 +115,8 @@ namespace AgileObjects.AgileMapper.Members
             return false;
         }
 
-        public Expression GetQualifiedAccess(IMemberMapperData mapperData) => _childMembers.GetQualifiedAccess(mapperData);
+        public Expression GetQualifiedAccess(Expression parentInstance)
+            => _childMembers.GetQualifiedAccess(parentInstance);
 
         public IQualifiedMember WithType(Type runtimeType)
         {

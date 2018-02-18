@@ -318,8 +318,8 @@ namespace AgileObjects.AgileMapper.Members
         public virtual Expression GetAccess(Expression instance, IMemberMapperData mapperData)
             => LeafMember.GetAccess(instance);
 
-        public Expression GetQualifiedAccess(IMemberMapperData mapperData)
-            => MemberChain.GetQualifiedAccess(mapperData);
+        public Expression GetQualifiedAccess(Expression parentInstance)
+            => MemberChain.GetQualifiedAccess(parentInstance);
 
         public virtual bool CheckExistingElementValue => false;
 
