@@ -78,8 +78,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             return filteredValues;
         }
 
-        public Expression GetSourceCountAccess()
-            => Expression.Property(SourceValue, "Count");
+        public Expression GetSourceCountAccess() => Expression.Property(SourceValue, "Count");
 
         public override bool UseReadOnlyTargetWrapper
             => base.UseReadOnlyTargetWrapper && Builder.Context.ElementTypesAreSimple;

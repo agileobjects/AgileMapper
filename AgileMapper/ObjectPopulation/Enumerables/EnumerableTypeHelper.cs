@@ -148,10 +148,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             if (IsArray)
             {
-                return Expression.Property(instance, "Length");
+                return Expression.ArrayLength(instance);
             }
 
-            return null;
+            var countProperty =
+                instance.Type.GetPublicInstanceProperty("Count") ??
+                CollectionInterfaceType.GetPublicInstanceProperty("Count");
+
+            return Expression.Property(instance, countProperty);
         }
     }
 }

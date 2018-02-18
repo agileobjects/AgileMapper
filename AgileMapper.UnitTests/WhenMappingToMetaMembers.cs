@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
+    using System.Collections.Generic;
     using TestClasses;
     using Xunit;
 
@@ -73,6 +74,42 @@
         public void ShouldPopulateAEmptyHasArrayMemberNameMemberWithFalse()
         {
             var source = new PublicField<Address[]> { Value = Enumerable<Address>.EmptyArray };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
+
+            result.HasValue.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldPopulateAHasCollectionMemberNameMember()
+        {
+            var source = new PublicField<ICollection<Address>>
+            {
+                Value = new List<Address> { new Address { Line1 = "Yay!" } }
+            };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
+
+            result.HasValue.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldPopulateANullHasCollectionMemberNameMemberWithFalse()
+        {
+            var source = new PublicField<ICollection<Address>>
+            {
+                Value = default(ICollection<Address>)
+            };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
+
+            result.HasValue.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldPopulateAEmptyHasCollectionMemberNameMemberWithFalse()
+        {
+            var source = new PublicField<ICollection<Address>>
+            {
+                Value = Enumerable<Address>.EmptyArray
+            };
             var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
 
             result.HasValue.ShouldBeFalse();
