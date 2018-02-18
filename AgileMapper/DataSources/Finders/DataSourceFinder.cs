@@ -10,7 +10,8 @@
         {
             new ConfiguredDataSourceFinder(),
             new MaptimeDataSourceFinder(),
-            new SourceMemberDataSourceFinder()
+            new SourceMemberDataSourceFinder(),
+            new MetaMemberDataSourceFinder()
         };
 
         public static DataSourceSet FindFor(IChildMemberMappingData childMappingData)
