@@ -23,6 +23,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
         }
 
+        public EnumerableTypeHelper(IQualifiedMember member)
+            : this(member.Type, member.Type.GetEnumerableElementType())
+        {
+        }
+
         public EnumerableTypeHelper(Type enumerableType, Type elementType)
         {
             EnumerableType = enumerableType;
@@ -137,6 +142,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private static bool ValueIsNotEnumerableInterface(Expression instance)
         {
             return instance.Type != typeof(IEnumerable<>).MakeGenericType(instance.Type.GetEnumerableElementType());
+        }
+
+        public Expression GetCountFor(Expression instance)
+        {
+            if (IsArray)
+            {
+                return Expression.Property(instance, "Length");
+            }
+
+            return null;
         }
     }
 }

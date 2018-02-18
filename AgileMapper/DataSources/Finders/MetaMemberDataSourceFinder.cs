@@ -1,11 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
+    using ObjectPopulation.Enumerables;
 
     internal class MetaMemberDataSourceFinder : IDataSourceFinder
     {
@@ -17,16 +17,23 @@
 
             for (var i = previousNamePartEndIndex - 1; i >= 0; --i)
             {
-                if (char.IsUpper(targetMemberName[i]))
+                if (!char.IsUpper(targetMemberName[i]))
                 {
-                    if ((i == 0) && memberNameParts.None())
-                    {
-                        yield break;
-                    }
-
-                    memberNameParts.Insert(0, targetMemberName.Substring(i, previousNamePartEndIndex - i));
-                    previousNamePartEndIndex = i;
+                    continue;
                 }
+
+                if ((i == 0) && memberNameParts.None())
+                {
+                    yield break;
+                }
+
+                memberNameParts.Insert(0, targetMemberName.Substring(i, previousNamePartEndIndex - i));
+                previousNamePartEndIndex = i;
+            }
+
+            if (memberNameParts.None())
+            {
+                yield break;
             }
 
             if (!TryGetMetaMemberParts(memberNameParts, context, out var metaMember))
@@ -144,15 +151,22 @@
 
                 if (_queried.SourceMember.IsEnumerable)
                 {
+                    var helper = new EnumerableTypeHelper(_queried.SourceMember);
+                    var enumerableCount = helper.GetCountFor(queriedMemberAccess);
+                    var zero = 0.ToConstantExpression(enumerableCount.Type);
+                    var countGreaterThanZero = Expression.GreaterThan(enumerableCount, zero);
 
+                    return countGreaterThanZero;
                 }
+
+                var queriedMemberNotDefault = queriedMemberAccess.GetIsNotDefaultComparison();
 
                 if (_queried.SourceMember.IsSimple)
                 {
-
+                    return queriedMemberNotDefault;
                 }
 
-                return queriedMemberAccess.GetIsNotDefaultComparison();
+                return queriedMemberNotDefault;
             }
         }
 
@@ -266,6 +280,11 @@
                     memberMappingData,
                     out var _,
                     searchParentContexts: false);
+
+                if (matchingSourceMember == null)
+                {
+                    return false;
+                }
 
                 metaMemberPart = new SourceMemberMetaMemberPart(
                     matchingSourceMember,

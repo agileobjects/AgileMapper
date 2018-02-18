@@ -60,6 +60,24 @@
             result.HasValue.ShouldBeFalse();
         }
 
+        [Fact]
+        public void ShouldPopulateAHasArrayMemberNameMember()
+        {
+            var source = new PublicField<Address[]> { Value = new[] { new Address { Line1 = "Yay!" } } };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
+
+            result.HasValue.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldPopulateAEmptyHasArrayMemberNameMemberWithFalse()
+        {
+            var source = new PublicField<Address[]> { Value = Enumerable<Address>.EmptyArray };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
+
+            result.HasValue.ShouldBeFalse();
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<T>
