@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal abstract class SourceMemberTypeDependentKeyBase
     {
         private Func<IMappingData, bool> _sourceMemberTypeTester;
+        private bool _hasTypeTester;
 
         public IObjectMappingData MappingData { get; set; }
 
@@ -31,9 +32,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, Parameters.MappingData);
 
             _sourceMemberTypeTester = typeTestLambda.Compile();
+            _hasTypeTester = true;
         }
 
         protected bool SourceHasRequiredTypes(IMappingDataOwner otherKey)
-            => (_sourceMemberTypeTester == null) || _sourceMemberTypeTester.Invoke(otherKey.MappingData);
+            => !_hasTypeTester || _sourceMemberTypeTester.Invoke(otherKey.MappingData);
     }
 }

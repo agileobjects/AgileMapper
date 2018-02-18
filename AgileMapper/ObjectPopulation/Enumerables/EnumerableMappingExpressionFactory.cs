@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public static readonly MappingExpressionFactoryBase Instance = new EnumerableMappingExpressionFactory();
 
         public override bool IsFor(IObjectMappingData mappingData)
-            => mappingData.MapperKey.MappingTypes.IsEnumerable;
+            => mappingData.MapperData.TargetMember.IsEnumerable;
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {

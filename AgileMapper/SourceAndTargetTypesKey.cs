@@ -4,10 +4,17 @@ namespace AgileObjects.AgileMapper
 
     internal class SourceAndTargetTypesKey
     {
+        private readonly int _hashCode;
+
         public SourceAndTargetTypesKey(Type sourceType, Type targetType)
         {
             SourceType = sourceType;
             TargetType = targetType;
+
+            unchecked
+            {
+                _hashCode = (sourceType.GetHashCode() * 397) ^ targetType.GetHashCode();
+            }
         }
 
         public Type SourceType { get; }
@@ -16,11 +23,8 @@ namespace AgileObjects.AgileMapper
 
         public override bool Equals(object obj)
         {
-            var otherKey = (SourceAndTargetTypesKey)obj;
-
             // ReSharper disable once PossibleNullReferenceException
-            return (otherKey.SourceType == SourceType) &&
-                   (otherKey.TargetType == TargetType);
+            return obj.GetHashCode() == _hashCode;
         }
 
         #region ExcludeFromCodeCoverage
@@ -28,6 +32,6 @@ namespace AgileObjects.AgileMapper
         [ExcludeFromCodeCoverage]
 #endif
         #endregion
-        public override int GetHashCode() => 0;
+        public override int GetHashCode() => _hashCode;
     }
 }
