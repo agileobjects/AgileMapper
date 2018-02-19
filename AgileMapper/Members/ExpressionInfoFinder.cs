@@ -54,15 +54,49 @@ namespace AgileObjects.AgileMapper.Members
             {
                 Visit(expression);
 
-                var nestedAccessChecks = _nestedAccessesByPath.Any()
-                    ? _nestedAccessesByPath.Values.Reverse().ToArray().GetIsNotDefaultComparisonsOrNull()
-                    : null;
+                if (_nestedAccessesByPath.None() && _multiInvocations.None())
+                {
+                    return EmptyExpressionInfo;
+                }
 
-                var multiInvocations = _multiInvocations
-                    .OrderBy(inv => inv.ToString())
-                    .ToArray();
+                var nestedAccessChecks = GetNestedAccessChecks();
+
+                var multiInvocations = _multiInvocations.Any()
+                    ? _multiInvocations.OrderBy(inv => inv.ToString()).ToArray()
+                    : Enumerable<Expression>.EmptyArray;
 
                 return new ExpressionInfo(nestedAccessChecks, multiInvocations);
+            }
+
+            private Expression GetNestedAccessChecks()
+            {
+                if (_nestedAccessesByPath.None())
+                {
+                    return null;
+                }
+
+                return _nestedAccessesByPath
+                    .Values
+                    .Reverse()
+                    .Select(GetAccessCheck)
+                    .Aggregate(
+                        default(Expression),
+                        (accessChecksSoFar, accessCheck) => (accessChecksSoFar != null)
+                            ? Expression.AndAlso(accessChecksSoFar, accessCheck)
+                            : accessCheck);
+            }
+
+            private static Expression GetAccessCheck(Expression access)
+            {
+                if (access is BinaryExpression arrayIndexAccess)
+                {
+                    return Expression.GreaterThan(
+                        Expression.ArrayLength(arrayIndexAccess.Left),
+                        0.ToConstantExpression());
+
+                }
+
+                return access.GetIsNotDefaultComparison();
             }
 
             protected override Expression VisitBinary(BinaryExpression binary)
@@ -71,6 +105,13 @@ namespace AgileObjects.AgileMapper.Members
                     TryGetNullComparison(binary.Right, binary.Left, binary, out comparedValue))
                 {
                     AddExistingNullCheck(comparedValue);
+
+                    return base.VisitBinary(binary);
+                }
+
+                if (IsRelevantArrayIndexAccess(binary))
+                {
+                    AddMemberAccess(binary);
                 }
 
                 return base.VisitBinary(binary);
@@ -94,8 +135,14 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                comparedValue = AddMemberAccess(comparedOperand) ? comparedOperand : null;
+                comparedValue = GuardMemberAccess(comparedOperand) ? comparedOperand : null;
                 return comparedValue != null;
+            }
+
+            private static bool IsRelevantArrayIndexAccess(BinaryExpression binary)
+            {
+                return (binary.NodeType == ExpressionType.ArrayIndex) &&
+                       (binary.Right.NodeType != ExpressionType.Parameter);
             }
 
             protected override Expression VisitMember(MemberExpression memberAccess)
@@ -246,13 +293,13 @@ namespace AgileObjects.AgileMapper.Members
 
             private void AddMemberAccessIfAppropriate(Expression memberAccess)
             {
-                if (AddMemberAccess(memberAccess))
+                if (GuardMemberAccess(memberAccess))
                 {
-                    _nestedAccessesByPath.Add(memberAccess.ToString(), memberAccess);
+                    AddMemberAccess(memberAccess);
                 }
             }
 
-            private bool AddMemberAccess(Expression memberAccess)
+            private bool GuardMemberAccess(Expression memberAccess)
             {
                 if (IsNonNullReturnMethodCall(memberAccess))
                 {
@@ -269,10 +316,7 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                var memberAccessString = memberAccess.ToString();
-
-                return !_nullCheckSubjects.Contains(memberAccessString) &&
-                       !_nestedAccessesByPath.ContainsKey(memberAccessString);
+                return true;
             }
 
             private static bool IsNonNullReturnMethodCall(Expression memberAccess)
@@ -294,6 +338,19 @@ namespace AgileObjects.AgileMapper.Members
                     default:
                         return false;
                 }
+            }
+
+            private void AddMemberAccess(Expression memberAccess)
+            {
+                var memberAccessString = memberAccess.ToString();
+
+                if (_nullCheckSubjects.Contains(memberAccessString) ||
+                    _nestedAccessesByPath.ContainsKey(memberAccessString))
+                {
+                    return;
+                }
+
+                _nestedAccessesByPath.Add(memberAccessString, memberAccess);
             }
         }
 

@@ -90,27 +90,6 @@
                 StringComparison.OrdinalIgnoreCase.ToConstantExpression());
         }
 
-        public static Expression GetIsNotDefaultComparisonsOrNull(this IList<Expression> expressions)
-        {
-            if (expressions.None())
-            {
-                return null;
-            }
-
-            if (expressions.HasOne())
-            {
-                return expressions[0].GetIsNotDefaultComparison();
-            }
-
-            var notNullChecks = expressions
-                .Select(exp => exp.GetIsNotDefaultComparison())
-                .ToArray();
-
-            var allNotNullCheck = notNullChecks.Chain(firstCheck => firstCheck, Expression.AndAlso);
-
-            return allNotNullCheck;
-        }
-
         public static Expression GetIsDefaultComparison(this Expression expression)
             => Expression.Equal(expression, ToDefaultExpression(expression.Type));
 

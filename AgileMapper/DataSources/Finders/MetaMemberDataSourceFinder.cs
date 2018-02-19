@@ -44,21 +44,16 @@
                 yield break;
             }
 
-            if (!TryGetMetaMemberParts(memberNameParts, context, out var metaMember))
+            if (TryGetMetaMemberParts(memberNameParts, context, out var metaMember))
             {
-                yield break;
+                yield return metaMember.GetDataSource(context);
             }
-
-            var metaMemberAccess = metaMember.GetAccess(context.MapperData.SourceObject);
-            var mappingDataSource = new AdHocDataSource(metaMember.SourceMember, metaMemberAccess, metaMember.MapperData);
-
-            yield return context.GetFinalDataSource(mappingDataSource);
         }
 
         private static bool TryGetMetaMemberParts(
             IList<string> memberNameParts,
             DataSourceFindContext context,
-            out IMetaMemberPart metaMember)
+            out MetaMemberPartBase metaMember)
         {
             // Has<MemberName>   -> Enumerable?.Any() or ComplexType != null or Simple != default
             // First<MemberName> -> Enumerable?.First()
@@ -75,7 +70,7 @@
             //  3. Find matchingSourceMember
             //  4. Build check
 
-            metaMember = default(IMetaMemberPart);
+            metaMember = default(MetaMemberPartBase);
 
             for (var i = 0; i < memberNameParts.Count; ++i)
             {
@@ -120,25 +115,42 @@
             return true;
         }
 
-        private interface IMetaMemberPart
+        private abstract class MetaMemberPartBase
         {
-            IQualifiedMember SourceMember { get; }
+            protected MetaMemberPartBase(
+                IQualifiedMember sourceMember,
+                IMemberMapperData mapperData)
+            {
+                SourceMember = sourceMember;
+                MapperData = mapperData;
+            }
 
-            IMemberMapperData MapperData { get; }
+            public IQualifiedMember SourceMember { get; }
 
-            Expression GetAccess(Expression parentInstance);
+            public IMemberMapperData MapperData { get; }
+
+            public IDataSource GetDataSource(DataSourceFindContext context)
+            {
+                var metaMemberAccess = GetAccess(MapperData.SourceObject);
+                var mappingDataSource = new AdHocDataSource(SourceMember, metaMemberAccess, MapperData);
+
+                return context.GetFinalDataSource(mappingDataSource);
+            }
+
+            public abstract Expression GetAccess(Expression parentInstance);
         }
 
-        private class HasMetaMemberPart : IMetaMemberPart
+        private class HasMetaMemberPart : MetaMemberPartBase
         {
-            private readonly IMetaMemberPart _queried;
+            private readonly MetaMemberPartBase _queried;
 
-            private HasMetaMemberPart(IMetaMemberPart queried)
+            private HasMetaMemberPart(MetaMemberPartBase queried)
+                : base(queried.SourceMember, queried.MapperData)
             {
                 _queried = queried;
             }
 
-            public static bool TryCreateFor(ref IMetaMemberPart metaMemberPart)
+            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart)
             {
                 if (metaMemberPart == null)
                 {
@@ -149,11 +161,7 @@
                 return true;
             }
 
-            public IQualifiedMember SourceMember => _queried.SourceMember;
-
-            public IMemberMapperData MapperData => _queried.MapperData;
-
-            public Expression GetAccess(Expression parentInstance)
+            public override Expression GetAccess(Expression parentInstance)
             {
                 var queriedMemberAccess = _queried.GetAccess(parentInstance);
 
@@ -193,17 +201,17 @@
             }
         }
 
-        private class FirstMetaMemberPart : IMetaMemberPart
+        private class FirstMetaMemberPart : MetaMemberPartBase
         {
-            private readonly IMetaMemberPart _enumerable;
+            private readonly MetaMemberPartBase _enumerable;
 
-            private FirstMetaMemberPart(IMetaMemberPart enumerable)
+            private FirstMetaMemberPart(MetaMemberPartBase enumerable)
+                : base(enumerable.SourceMember.GetElementMember(), enumerable.MapperData)
             {
                 _enumerable = enumerable;
-                SourceMember = enumerable.SourceMember.GetElementMember();
             }
 
-            public static bool TryCreateFor(ref IMetaMemberPart metaMemberPart)
+            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart)
             {
                 if (metaMemberPart == null)
                 {
@@ -214,11 +222,7 @@
                 return true;
             }
 
-            public IQualifiedMember SourceMember { get; }
-
-            public IMemberMapperData MapperData => _enumerable.MapperData;
-
-            public Expression GetAccess(Expression parentInstance)
+            public override Expression GetAccess(Expression parentInstance)
             {
                 var enumerableAccess = _enumerable.GetAccess(parentInstance);
 
@@ -233,16 +237,17 @@
             }
         }
 
-        private class LastMetaMemberPart : IMetaMemberPart
+        private class LastMetaMemberPart : MetaMemberPartBase
         {
-            private readonly IMetaMemberPart _enumerable;
+            private readonly MetaMemberPartBase _enumerable;
 
-            private LastMetaMemberPart(IMetaMemberPart enumerable)
+            private LastMetaMemberPart(MetaMemberPartBase enumerable)
+                : base(enumerable.SourceMember.GetElementMember(), enumerable.MapperData)
             {
                 _enumerable = enumerable;
             }
 
-            public static bool TryCreateFor(ref IMetaMemberPart metaMemberPart)
+            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart)
             {
                 if (metaMemberPart == null)
                 {
@@ -253,42 +258,28 @@
                 return true;
             }
 
-            public IQualifiedMember SourceMember => _enumerable.SourceMember;
-
-            public IMemberMapperData MapperData => _enumerable.MapperData;
-
-            public Expression GetAccess(Expression parentInstance)
+            public override Expression GetAccess(Expression parentInstance)
             {
                 return null;
             }
         }
 
-        private class SourceMemberMetaMemberPart : IMetaMemberPart
+        private class SourceMemberMetaMemberPart : MetaMemberPartBase
         {
-            private readonly IMetaMemberPart _nextPart;
+            private readonly MetaMemberPartBase _nextPart;
 
             private SourceMemberMetaMemberPart(
                 IQualifiedMember sourceMember,
-                IMetaMemberPart nextPart,
+                MetaMemberPartBase nextPart,
                 IMemberMapperData mapperData)
+                : base(nextPart?.SourceMember ?? sourceMember, nextPart?.MapperData ?? mapperData)
             {
                 _nextPart = nextPart;
-
-                if (nextPart != null)
-                {
-                    SourceMember = nextPart.SourceMember;
-                    MapperData = nextPart.MapperData;
-                }
-                else
-                {
-                    SourceMember = sourceMember;
-                    MapperData = mapperData;
-                }
             }
 
             public static bool TryCreateFor(
                 string memberNamePart,
-                ref IMetaMemberPart metaMemberPart,
+                ref MetaMemberPartBase metaMemberPart,
                 DataSourceFindContext context)
             {
                 var matchingTargetMember = GlobalContext.Instance
@@ -325,11 +316,7 @@
                 return true;
             }
 
-            public IQualifiedMember SourceMember { get; }
-
-            public IMemberMapperData MapperData { get; }
-
-            public Expression GetAccess(Expression parentInstance)
+            public override Expression GetAccess(Expression parentInstance)
             {
                 var memberAccess = SourceMember.GetQualifiedAccess(parentInstance);
 

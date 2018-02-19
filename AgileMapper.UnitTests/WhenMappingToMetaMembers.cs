@@ -137,7 +137,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAFirstMemberNameMember()
+        public void ShouldPopulateAFirstArrayMemberNameMember()
         {
             var source = new PublicField<Address[]>
             {
@@ -148,6 +148,19 @@
             result.Value.ShouldHaveSingleItem();
             result.FirstValue.ShouldNotBeNull();
             result.FirstValue.Line1.ShouldBe("Yay!");
+        }
+
+        [Fact]
+        public void ShouldPopulateAFirstArrayMemberNameMemberToNull()
+        {
+            var source = new PublicField<Address[]>
+            {
+                Value = Enumerable<Address>.EmptyArray
+            };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+
+            result.Value.ShouldBeEmpty();
+            result.FirstValue.ShouldBeNull();
         }
 
         #region Helper Classes
