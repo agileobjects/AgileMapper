@@ -227,12 +227,11 @@
         {
             var source = new PublicField<ReadOnlyCollection<string>>
             {
-                Value = new ReadOnlyCollection<string>(new[] { "Yayhayhayhay!" })
+                Value = new ReadOnlyCollection<string>(new[] { "Whaaaaaat?!", "Yayhayhayhay!" })
             };
             var result = Mapper.Map(source).ToANew<PublicFirstValue<string, string[]>>();
 
-            result.Value.ShouldHaveSingleItem();
-            result.FirstValue.ShouldBe("Yayhayhayhay!");
+            result.FirstValue.ShouldBe("Whaaaaaat?!");
         }
 
         [Fact]
@@ -271,6 +270,27 @@
         {
             var source = new PublicField<DateTime?[]> { Value = null };
             var result = Mapper.Map(source).ToANew<PublicLastValue<DateTime?, DateTime?[]>>();
+
+            result.LastValue.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldPopulateALastEnumerableMemberNameMember()
+        {
+            var source = new PublicField<IEnumerable<string>>
+            {
+                Value = new List<string> { "Yayhayhayhay!", "Whooooaaaaa!" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicLastValue<string, string[]>>();
+
+            result.LastValue.ShouldBe("Whooooaaaaa!");
+        }
+
+        [Fact]
+        public void ShouldPopulateANullLastEnumerableMemberNameMemberToNull()
+        {
+            var source = new PublicField<IEnumerable<string>> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicLastValue<string, string[]>>();
 
             result.LastValue.ShouldBeNull();
         }
