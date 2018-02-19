@@ -137,6 +137,30 @@
             return Expression.MakeIndex(indexedExpression, indexer, new[] { indexValue });
         }
 
+        public static Expression GetCount(
+            this Expression collectionAccess,
+            Func<Expression, Type> collectionInterfaceTypeFactory = null)
+        {
+            var countProperty = collectionAccess.Type.GetPublicInstanceProperty("Count");
+
+            if (countProperty != null)
+            {
+                return Expression.Property(collectionAccess, countProperty);
+            }
+
+            if (collectionInterfaceTypeFactory == null)
+            {
+                collectionInterfaceTypeFactory = exp => typeof(ICollection<>)
+                    .MakeGenericType(exp.Type.GetEnumerableElementType());
+            }
+
+            countProperty = collectionInterfaceTypeFactory
+                .Invoke(collectionAccess)
+                .GetPublicInstanceProperty("Count");
+
+            return Expression.Property(collectionAccess, countProperty);
+        }
+
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
         {
             var parameterlessGetValueOrDefault = nullableExpression.Type

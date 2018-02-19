@@ -71,7 +71,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAEmptyHasArrayMemberNameMemberWithFalse()
+        public void ShouldPopulateAnEmptyHasArrayMemberNameMemberWithFalse()
         {
             var source = new PublicField<Address[]> { Value = Enumerable<Address>.EmptyArray };
             var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
@@ -104,7 +104,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAEmptyHasCollectionMemberNameMemberWithFalse()
+        public void ShouldPopulateAnEmptyHasCollectionMemberNameMemberWithFalse()
         {
             var source = new PublicField<ICollection<Address>>
             {
@@ -128,7 +128,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAEmptyHasEnumerableMemberNameMemberWithFalse()
+        public void ShouldPopulateAnEmptyHasEnumerableMemberNameMemberWithFalse()
         {
             var source = new PublicField<IEnumerable<Address>> { Value = Enumerable<Address>.EmptyArray };
             var result = Mapper.Map(source).ToANew<PublicHasValue<IList<Address>>>();
@@ -151,11 +151,47 @@
         }
 
         [Fact]
-        public void ShouldPopulateAFirstArrayMemberNameMemberToNull()
+        public void ShouldPopulateANullFirstArrayMemberNameMemberToNull()
+        {
+            var source = new PublicField<Address[]> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+
+            result.FirstValue.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldPopulateAnEmptyFirstArrayMemberNameMemberToNull()
         {
             var source = new PublicField<Address[]>
             {
                 Value = Enumerable<Address>.EmptyArray
+            };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+
+            result.Value.ShouldBeEmpty();
+            result.FirstValue.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldPopulateAFirstListMemberNameMember()
+        {
+            var source = new PublicField<List<Address>>
+            {
+                Value = new List<Address> { new Address { Line1 = "Yayhay!" } }
+            };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+
+            result.Value.ShouldHaveSingleItem();
+            result.FirstValue.ShouldNotBeNull();
+            result.FirstValue.Line1.ShouldBe("Yayhay!");
+        }
+
+        [Fact]
+        public void ShouldPopulateAnEmptyFirstListMemberNameMemberToNull()
+        {
+            var source = new PublicField<List<Address>>
+            {
+                Value = new List<Address>(0)
             };
             var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
 

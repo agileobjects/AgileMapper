@@ -141,16 +141,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetCountFor(Expression instance)
         {
-            if (IsArray)
-            {
-                return Expression.ArrayLength(instance);
-            }
-
-            var countProperty =
-                instance.Type.GetPublicInstanceProperty("Count") ??
-                CollectionInterfaceType.GetPublicInstanceProperty("Count");
-
-            return Expression.Property(instance, countProperty);
+            return IsArray
+                ? Expression.ArrayLength(instance)
+                : instance.GetCount(exp => CollectionInterfaceType);
         }
     }
 }
