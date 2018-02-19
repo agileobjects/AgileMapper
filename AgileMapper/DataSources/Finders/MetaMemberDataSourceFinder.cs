@@ -239,7 +239,7 @@
                 DataSourceFindContext context)
                 where TPart : EnumerablePositionMetaMemberPart
             {
-                if (metaMemberPart == null)
+                if ((metaMemberPart == null) || !metaMemberPart.SourceMember.IsEnumerable)
                 {
                     return false;
                 }

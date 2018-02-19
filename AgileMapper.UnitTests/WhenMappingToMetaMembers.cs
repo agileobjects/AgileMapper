@@ -347,6 +347,18 @@
             result.LastValue.ShouldBeDefault();
         }
 
+        [Fact]
+        public void ShouldNotPopulateALastNonEnumerableMemberNameMember()
+        {
+            var source = new PublicField<DateTime>
+            {
+                Value = DateTime.Now
+            };
+            var result = Mapper.Map(source).ToANew<PublicLastValue<DateTime, DateTime>>();
+
+            result.LastValue.ShouldBeDefault();
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<THasValue, TValue>
