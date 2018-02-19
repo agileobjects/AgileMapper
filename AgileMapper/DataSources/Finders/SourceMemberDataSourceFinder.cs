@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
     using System.Collections.Generic;
-    using System.Linq;
     using Extensions.Internal;
     using Members;
 
@@ -11,7 +10,6 @@
         {
             if (context.MapperData.TargetMember.IsCustom)
             {
-                context.FindComplete = true;
                 yield break;
             }
 
@@ -27,13 +25,11 @@
                     if (targetMember.IsComplex && (targetMember.Type != typeof(object)))
                     {
                         yield return new ComplexTypeMappingDataSource(context.DataSourceIndex, context.ChildMappingData);
-                        context.FindComplete = true;
                     }
                 }
                 else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)
                 {
                     yield return context.GetFallbackDataSourceFor();
-                    context.FindComplete = true;
                 }
 
                 yield break;
@@ -47,8 +43,6 @@
             {
                 yield return context.GetFallbackDataSourceFor();
             }
-
-            context.FindComplete = true;
         }
 
         private static IDataSource GetSourceMemberDataSourceOrNull(DataSourceFindContext context)

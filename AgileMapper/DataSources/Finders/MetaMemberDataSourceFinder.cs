@@ -13,7 +13,7 @@
         public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
         {
             var targetMemberName = context.MapperData.TargetMember.Name;
-            var memberNameParts = new List<string>();
+            var memberNameParts = default(List<string>);
             var previousNamePartEndIndex = targetMemberName.Length;
 
             for (var i = previousNamePartEndIndex - 1; i >= 0; --i)
@@ -23,18 +23,23 @@
                     continue;
                 }
 
-                if ((i == 0) && memberNameParts.None())
+                if (memberNameParts == null)
                 {
-                    yield break;
+                    if (i == 0)
+                    {
+                        yield break;
+                    }
+
+                    memberNameParts = new List<string>();
                 }
 
                 var memberNamePart = targetMemberName.Substring(i, previousNamePartEndIndex - i);
 
-                memberNameParts.Insert(0, memberNamePart);
+                memberNameParts.Add(memberNamePart);
                 previousNamePartEndIndex = i;
             }
 
-            if (memberNameParts.None())
+            if ((memberNameParts == null) || memberNameParts.None())
             {
                 yield break;
             }
@@ -72,7 +77,7 @@
 
             metaMember = default(IMetaMemberPart);
 
-            for (var i = memberNameParts.Count - 1; i >= 0; --i)
+            for (var i = 0; i < memberNameParts.Count; ++i)
             {
                 var memberNamePart = memberNameParts[i];
 
@@ -167,9 +172,9 @@
                 return queriedMemberNotDefault;
             }
 
-            private Expression GetHasEnumerableCheck(Expression enumerableAccess)
+            private static Expression GetHasEnumerableCheck(Expression enumerableAccess)
             {
-                var helper = new EnumerableTypeHelper(_queried.SourceMember);
+                var helper = new EnumerableTypeHelper(enumerableAccess.Type);
 
                 if (helper.IsEnumerableInterface)
                 {
@@ -195,6 +200,7 @@
             private FirstMetaMemberPart(IMetaMemberPart enumerable)
             {
                 _enumerable = enumerable;
+                SourceMember = enumerable.SourceMember.GetElementMember();
             }
 
             public static bool TryCreateFor(ref IMetaMemberPart metaMemberPart)
@@ -208,12 +214,21 @@
                 return true;
             }
 
-            public IQualifiedMember SourceMember => _enumerable.SourceMember;
+            public IQualifiedMember SourceMember { get; }
 
             public IMemberMapperData MapperData => _enumerable.MapperData;
 
             public Expression GetAccess(Expression parentInstance)
             {
+                var enumerableAccess = _enumerable.GetAccess(parentInstance);
+
+                var helper = new EnumerableTypeHelper(enumerableAccess.Type);
+
+                if (helper.HasListInterface)
+                {
+                    return enumerableAccess.GetIndexAccess(0.ToConstantExpression());
+                }
+
                 return null;
             }
         }

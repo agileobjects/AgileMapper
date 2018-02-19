@@ -23,15 +23,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
         }
 
-        public EnumerableTypeHelper(IQualifiedMember member)
-            : this(member.Type, member.Type.GetEnumerableElementType())
-        {
-        }
-
-        public EnumerableTypeHelper(Type enumerableType, Type elementType)
+        public EnumerableTypeHelper(Type enumerableType, Type elementType = null)
         {
             EnumerableType = enumerableType;
-            ElementType = elementType;
+            ElementType = elementType ?? enumerableType.GetEnumerableElementType();
         }
 
         public bool IsArray => EnumerableType.IsArray;

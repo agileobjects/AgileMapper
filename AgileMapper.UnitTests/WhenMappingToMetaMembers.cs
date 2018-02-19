@@ -136,6 +136,20 @@
             result.HasValue.ShouldBeFalse();
         }
 
+        [Fact]
+        public void ShouldPopulateAFirstMemberNameMember()
+        {
+            var source = new PublicField<Address[]>
+            {
+                Value = new[] { new Address { Line1 = "Yay!" } }
+            };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+
+            result.Value.ShouldHaveSingleItem();
+            result.FirstValue.ShouldNotBeNull();
+            result.FirstValue.Line1.ShouldBe("Yay!");
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<T>
@@ -143,6 +157,13 @@
             public bool HasValue { get; set; }
 
             public T Value { get; set; }
+        }
+
+        public class PublicFirstValue<T, TEnumerable>
+        {
+            public T FirstValue { get; set; }
+
+            public TEnumerable Value { get; set; }
         }
 
         #endregion

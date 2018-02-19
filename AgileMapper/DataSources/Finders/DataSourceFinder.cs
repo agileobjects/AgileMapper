@@ -17,10 +17,7 @@
         public static DataSourceSet FindFor(IChildMemberMappingData childMappingData)
         {
             var findContext = new DataSourceFindContext(childMappingData);
-
-            var validDataSources = EnumerateDataSources(findContext)
-                .Where(ds => ds.IsValid)
-                .ToArray();
+            var validDataSources = EnumerateDataSources(findContext).ToArray();
 
             return new DataSourceSet(findContext.MapperData, validDataSources);
         }
@@ -31,10 +28,18 @@
             {
                 foreach (var dataSource in finder.FindFor(context))
                 {
-                    yield return dataSource;
+                    if (dataSource.IsValid)
+                    {
+                        yield return dataSource;
+
+                        if (!dataSource.IsConditional)
+                        {
+                            yield break;
+                        }
+                    }
                 }
 
-                if (context.FindComplete)
+                if (context.StopFind)
                 {
                     yield break;
                 }

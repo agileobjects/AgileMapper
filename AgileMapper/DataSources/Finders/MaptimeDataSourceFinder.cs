@@ -17,6 +17,8 @@
                 yield break;
             }
 
+            context.StopFind = true;
+
             foreach (var maptimeDataSource in maptimeDataSources)
             {
                 yield return context.GetFinalDataSource(maptimeDataSource);
@@ -26,12 +28,10 @@
                     continue;
                 }
 
-                context.FindComplete = true;
                 yield break;
             }
 
             yield return context.GetFallbackDataSourceFor();
-            context.FindComplete = true;
         }
 
         private static bool UseMaptimeDataSources(
@@ -43,7 +43,7 @@
 
             if (applicableFactory == null)
             {
-                maptimeDataSources = Enumerable<IDataSource>.Empty;
+                maptimeDataSources = null;
                 return false;
             }
 

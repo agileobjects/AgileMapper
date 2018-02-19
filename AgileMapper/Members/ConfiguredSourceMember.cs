@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {
-        private readonly ICollection<string> _matchedTargetMemberJoinedNames;
+        private readonly IList<string> _matchedTargetMemberJoinedNames;
         private readonly MapperContext _mapperContext;
         private readonly Member[] _childMembers;
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.Members
             bool isEnumerable,
             bool isSimple,
             string name,
-            ICollection<string> matchedTargetMemberJoinedNames,
+            IList<string> matchedTargetMemberJoinedNames,
             MapperContext mapperContext,
             Member[] childMembers = null)
         {

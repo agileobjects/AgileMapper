@@ -17,7 +17,7 @@
 
         public int DataSourceIndex { get; set; }
 
-        public bool FindComplete { get; set; }
+        public bool StopFind { get; set; }
 
         public IList<IConfiguredDataSource> ConfiguredDataSources { get; set; }
 

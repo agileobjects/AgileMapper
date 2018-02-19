@@ -18,7 +18,6 @@
 
                 if (!configuredDataSource.IsConditional)
                 {
-                    context.FindComplete = true;
                     yield break;
                 }
 
