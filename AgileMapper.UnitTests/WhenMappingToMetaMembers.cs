@@ -235,6 +235,19 @@
         }
 
         [Fact]
+        public void ShouldPopulateAConvertedFirstCollectionMemberNameMember()
+        {
+            var source = new PublicField<Collection<string>>
+            {
+                Value = new Collection<string> { "123", "456", "789" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<int, int[]>>();
+
+            result.Value.ShouldBe(123, 456, 789);
+            result.FirstValue.ShouldBe(123);
+        }
+
+        [Fact]
         public void ShouldPopulateALastArrayMemberNameMember()
         {
             var source = new PublicField<Address[]>

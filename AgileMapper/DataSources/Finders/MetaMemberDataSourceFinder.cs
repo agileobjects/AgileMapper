@@ -131,13 +131,13 @@
 
             public IDataSource GetDataSource(DataSourceFindContext context)
             {
-                var metaMemberAccess = GetAccess(MapperData.SourceObject);
+                var metaMemberAccess = GetAccess(MapperData.SourceObject, MapperData);
                 var mappingDataSource = new AdHocDataSource(SourceMember, metaMemberAccess, MapperData);
 
                 return context.GetFinalDataSource(mappingDataSource);
             }
 
-            public abstract Expression GetAccess(Expression parentInstance);
+            public abstract Expression GetAccess(Expression parentInstance, IMemberMapperData mapperData);
 
             protected static Expression GetLinqMethodCall(
                 string methodName,
@@ -173,9 +173,9 @@
                 return true;
             }
 
-            public override Expression GetAccess(Expression parentInstance)
+            public override Expression GetAccess(Expression parentInstance, IMemberMapperData mapperData)
             {
-                var queriedMemberAccess = _queried.GetAccess(parentInstance);
+                var queriedMemberAccess = _queried.GetAccess(parentInstance, mapperData);
 
                 if (_queried.SourceMember.IsEnumerable)
                 {
@@ -221,18 +221,27 @@
 
             protected abstract string LinqMethodName { get; }
 
-            public override Expression GetAccess(Expression parentInstance)
+            public override Expression GetAccess(Expression parentInstance, IMemberMapperData mapperData)
             {
-                var enumerableAccess = _enumerable.GetAccess(parentInstance);
+                var enumerableAccess = _enumerable.GetAccess(parentInstance, mapperData);
 
                 var helper = new EnumerableTypeHelper(enumerableAccess.Type);
 
-                if (helper.HasListInterface)
+                var elementAccess = helper.HasListInterface
+                    ? enumerableAccess.GetIndexAccess(GetIndex(enumerableAccess))
+                    : GetLinqMethodCall(LinqMethodName, enumerableAccess, helper);
+
+                if (!mapperData.TargetMember.IsSimple)
                 {
-                    return enumerableAccess.GetIndexAccess(GetIndex(enumerableAccess));
+                    return elementAccess;
                 }
 
-                return GetLinqMethodCall(LinqMethodName, enumerableAccess, helper);
+                var convertedValue = mapperData
+                    .MapperContext
+                    .ValueConverters
+                    .GetConversion(elementAccess, mapperData.TargetMember.Type);
+
+                return convertedValue;
             }
 
             protected abstract Expression GetIndex(Expression enumerableAccess);
@@ -338,12 +347,12 @@
                 return true;
             }
 
-            public override Expression GetAccess(Expression parentInstance)
+            public override Expression GetAccess(Expression parentInstance, IMemberMapperData mapperData)
             {
                 var memberAccess = SourceMember.GetQualifiedAccess(parentInstance);
 
                 return (_nextPart != null)
-                    ? _nextPart.GetAccess(memberAccess)
+                    ? _nextPart.GetAccess(memberAccess, mapperData)
                     : memberAccess;
             }
         }
