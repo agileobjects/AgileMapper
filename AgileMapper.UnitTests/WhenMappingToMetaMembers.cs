@@ -147,6 +147,15 @@
         }
 
         [Fact]
+        public void ShouldNotPopulateAnUnconvertibleHasMemberNameMember()
+        {
+            var source = new PublicField<IEnumerable<int>> { Value = new[] { 1, 2, 3 } };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<DateTime?, IList<Address>>>();
+
+            result.HasValue.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldPopulateAFirstArrayMemberNameMember()
         {
             var source = new PublicField<Address[]>

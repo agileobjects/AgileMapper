@@ -81,7 +81,7 @@
                 switch (memberNamePart)
                 {
                     case "Has":
-                        if (HasMetaMemberPart.TryCreateFor(ref metaMember))
+                        if (HasMetaMemberPart.TryCreateFor(ref metaMember, context))
                         {
                             continue;
                         }
@@ -164,9 +164,14 @@
                 _queried = queried;
             }
 
-            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart)
+            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart, DataSourceFindContext context)
             {
                 if (metaMemberPart == null)
+                {
+                    return false;
+                }
+
+                if (!context.MapperData.CanConvert(typeof(bool), context.MapperData.TargetMember.Type))
                 {
                     return false;
                 }
