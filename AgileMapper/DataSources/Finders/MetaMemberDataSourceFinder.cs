@@ -209,14 +209,40 @@
             }
         }
 
-        private class FirstMetaMemberPart : MetaMemberPartBase
+        private abstract class EnumerablePositionMetaMemberPart : MetaMemberPartBase
         {
             private readonly MetaMemberPartBase _enumerable;
 
-            private FirstMetaMemberPart(MetaMemberPartBase enumerable)
+            protected EnumerablePositionMetaMemberPart(MetaMemberPartBase enumerable)
                 : base(enumerable.SourceMember.GetElementMember(), enumerable.MapperData)
             {
                 _enumerable = enumerable;
+            }
+
+            protected abstract string LinqMethodName { get; }
+
+            public override Expression GetAccess(Expression parentInstance)
+            {
+                var enumerableAccess = _enumerable.GetAccess(parentInstance);
+
+                var helper = new EnumerableTypeHelper(enumerableAccess.Type);
+
+                if (helper.HasListInterface)
+                {
+                    return enumerableAccess.GetIndexAccess(GetIndex(enumerableAccess));
+                }
+
+                return GetLinqMethodCall(LinqMethodName, enumerableAccess, helper);
+            }
+
+            protected abstract Expression GetIndex(Expression enumerableAccess);
+        }
+
+        private class FirstMetaMemberPart : EnumerablePositionMetaMemberPart
+        {
+            private FirstMetaMemberPart(MetaMemberPartBase enumerable)
+                : base(enumerable)
+            {
             }
 
             public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart)
@@ -230,29 +256,17 @@
                 return true;
             }
 
-            public override Expression GetAccess(Expression parentInstance)
-            {
-                var enumerableAccess = _enumerable.GetAccess(parentInstance);
+            protected override string LinqMethodName => nameof(Enumerable.First);
 
-                var helper = new EnumerableTypeHelper(enumerableAccess.Type);
-
-                if (helper.HasListInterface)
-                {
-                    return enumerableAccess.GetIndexAccess(0.ToConstantExpression());
-                }
-
-                return GetLinqMethodCall(nameof(Enumerable.First), enumerableAccess, helper);
-            }
+            protected override Expression GetIndex(Expression enumerableAccess)
+                => 0.ToConstantExpression();
         }
 
-        private class LastMetaMemberPart : MetaMemberPartBase
+        private class LastMetaMemberPart : EnumerablePositionMetaMemberPart
         {
-            private readonly MetaMemberPartBase _enumerable;
-
             private LastMetaMemberPart(MetaMemberPartBase enumerable)
-                : base(enumerable.SourceMember.GetElementMember(), enumerable.MapperData)
+                : base(enumerable)
             {
-                _enumerable = enumerable;
             }
 
             public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart)
@@ -266,10 +280,10 @@
                 return true;
             }
 
-            public override Expression GetAccess(Expression parentInstance)
-            {
-                return null;
-            }
+            protected override string LinqMethodName => nameof(Enumerable.Last);
+
+            protected override Expression GetIndex(Expression enumerableAccess)
+                => Expression.Subtract(enumerableAccess.GetCount(), 1.ToConstantExpression());
         }
 
         private class SourceMemberMetaMemberPart : MetaMemberPartBase

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using TestClasses;
     using Xunit;
 
@@ -221,6 +222,59 @@
             result.FirstValue.ShouldBeNull();
         }
 
+        [Fact]
+        public void ShouldPopulateAFirstReadOnlyCollectionMemberNameMember()
+        {
+            var source = new PublicField<ReadOnlyCollection<string>>
+            {
+                Value = new ReadOnlyCollection<string>(new[] { "Yayhayhayhay!" })
+            };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<string, string[]>>();
+
+            result.Value.ShouldHaveSingleItem();
+            result.FirstValue.ShouldBe("Yayhayhayhay!");
+        }
+
+        [Fact]
+        public void ShouldPopulateALastArrayMemberNameMember()
+        {
+            var source = new PublicField<Address[]>
+            {
+                Value = new[]
+                {
+                    new Address { Line1 = "First!" },
+                    new Address { Line1 = "Second!" }
+                }
+            };
+            var result = Mapper.Map(source).ToANew<PublicLastValue<Address, Address[]>>();
+
+            result.Value.Length.ShouldBe(2);
+            result.LastValue.ShouldNotBeNull();
+            result.LastValue.Line1.ShouldBe("Second!");
+        }
+
+        [Fact]
+        public void ShouldPopulateAnEmptyLastArrayMemberNameMemberToNull()
+        {
+            var source = new PublicField<int[]>
+            {
+                Value = Enumerable<int>.EmptyArray
+            };
+            var result = Mapper.Map(source).ToANew<PublicLastValue<int, int[]>>();
+
+            result.Value.ShouldBeEmpty();
+            result.LastValue.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldPopulateANullLastArrayMemberNameMemberToNull()
+        {
+            var source = new PublicField<DateTime?[]> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicLastValue<DateTime?, DateTime?[]>>();
+
+            result.LastValue.ShouldBeNull();
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<T>
@@ -233,6 +287,13 @@
         public class PublicFirstValue<T, TEnumerable>
         {
             public T FirstValue { get; set; }
+
+            public TEnumerable Value { get; set; }
+        }
+
+        public class PublicLastValue<T, TEnumerable>
+        {
+            public T LastValue { get; set; }
 
             public TEnumerable Value { get; set; }
         }
