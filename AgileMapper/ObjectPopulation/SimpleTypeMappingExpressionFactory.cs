@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.MapperContext.ValueConverters.CanConvert(mapperData.SourceType, mapperData.TargetType))
+            if (mapperData.CanConvert(mapperData.SourceType, mapperData.TargetType))
             {
                 yield return mapperData.GetValueConversion(mapperData.SourceObject, mapperData.TargetType);
                 yield break;

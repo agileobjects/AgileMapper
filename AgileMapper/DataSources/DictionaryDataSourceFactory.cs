@@ -53,7 +53,7 @@
                 targetType = mapperData.TargetMember.Type;
             }
 
-            return mapperData.MapperContext.ValueConverters.CanConvert(valueType, targetType);
+            return mapperData.CanConvert(valueType, targetType);
         }
 
         public IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)

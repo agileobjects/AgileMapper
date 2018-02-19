@@ -86,8 +86,7 @@
                              data.MapperData.TargetMember.JoinedNames.Match(new[] { m.Name }))
                 .FirstOrDefault();
 
-            if ((sourceMember == null) ||
-                !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
+            if ((sourceMember == null) || !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
             {
                 matchingMember = null;
                 return false;
@@ -191,6 +190,6 @@
             => mapperData.TargetMember.Matches(sourceMember) && TypesAreCompatible(sourceMember.Type, mapperData);
 
         private static bool TypesAreCompatible(Type sourceType, IMemberMapperData mapperData)
-            => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, mapperData.TargetMember.Type);
+            => mapperData.CanConvert(sourceType, mapperData.TargetMember.Type);
     }
 }

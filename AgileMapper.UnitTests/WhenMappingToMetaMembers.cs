@@ -308,6 +308,18 @@
             result.LastValue.ShouldBeNull();
         }
 
+        [Fact]
+        public void ShouldNotPopulateAnUnconvertibleLastEnumerableMemberNameMember()
+        {
+            var source = new PublicField<ICollection<DateTime>>
+            {
+                Value = new List<DateTime> { DateTime.Now }
+            };
+            var result = Mapper.Map(source).ToANew<PublicLastValue<byte, DateTime[]>>();
+
+            result.LastValue.ShouldBeDefault();
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<T>

@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -87,7 +88,7 @@
                         return false;
 
                     case "First":
-                        if (FirstMetaMemberPart.TryCreateFor(ref metaMember))
+                        if (FirstMetaMemberPart.TryCreateFor(ref metaMember, context))
                         {
                             continue;
                         }
@@ -95,7 +96,7 @@
                         return false;
 
                     case "Last":
-                        if (LastMetaMemberPart.TryCreateFor(ref metaMember))
+                        if (LastMetaMemberPart.TryCreateFor(ref metaMember, context))
                         {
                             continue;
                         }
@@ -219,6 +220,32 @@
                 _enumerable = enumerable;
             }
 
+            protected static bool TryCreateFor<TPart>(
+                ref MetaMemberPartBase metaMemberPart,
+                Func<MetaMemberPartBase, TPart> partFactory,
+                DataSourceFindContext context)
+                where TPart : EnumerablePositionMetaMemberPart
+            {
+                if (metaMemberPart == null)
+                {
+                    return false;
+                }
+
+                var elementType = metaMemberPart
+                    .SourceMember
+                    .Type
+                    .GetEnumerableElementType();
+
+                if (elementType.IsSimple() &&
+                   !context.MapperData.CanConvert(elementType, context.MapperData.TargetMember.Type))
+                {
+                    return false;
+                }
+
+                metaMemberPart = partFactory.Invoke(metaMemberPart);
+                return true;
+            }
+
             protected abstract string LinqMethodName { get; }
 
             public override Expression GetAccess(Expression parentInstance, IMemberMapperData mapperData)
@@ -231,17 +258,12 @@
                     ? enumerableAccess.GetIndexAccess(GetIndex(enumerableAccess))
                     : GetLinqMethodCall(LinqMethodName, enumerableAccess, helper);
 
-                if (!mapperData.TargetMember.IsSimple)
+                if (mapperData.TargetMember.IsSimple)
                 {
-                    return elementAccess;
+                    return mapperData.GetValueConversion(elementAccess, mapperData.TargetMember.Type);
                 }
 
-                var convertedValue = mapperData
-                    .MapperContext
-                    .ValueConverters
-                    .GetConversion(elementAccess, mapperData.TargetMember.Type);
-
-                return convertedValue;
+                return elementAccess;
             }
 
             protected abstract Expression GetIndex(Expression enumerableAccess);
@@ -254,16 +276,8 @@
             {
             }
 
-            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart)
-            {
-                if (metaMemberPart == null)
-                {
-                    return false;
-                }
-
-                metaMemberPart = new FirstMetaMemberPart(metaMemberPart);
-                return true;
-            }
+            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart, DataSourceFindContext context)
+                => TryCreateFor(ref metaMemberPart, part => new FirstMetaMemberPart(part), context);
 
             protected override string LinqMethodName => nameof(Enumerable.First);
 
@@ -278,16 +292,8 @@
             {
             }
 
-            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart)
-            {
-                if (metaMemberPart == null)
-                {
-                    return false;
-                }
-
-                metaMemberPart = new LastMetaMemberPart(metaMemberPart);
-                return true;
-            }
+            public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart, DataSourceFindContext context)
+                => TryCreateFor(ref metaMemberPart, part => new LastMetaMemberPart(part), context);
 
             protected override string LinqMethodName => nameof(Enumerable.Last);
 
