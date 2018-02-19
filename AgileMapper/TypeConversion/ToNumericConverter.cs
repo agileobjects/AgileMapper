@@ -13,6 +13,9 @@
                 .GetCoercibleNumericTypes()
                 .ToArray();
 
+        public static readonly Expression One = Convert.ChangeType(1, typeof(TNumeric)).ToConstantExpression(typeof(TNumeric));
+        public static readonly Expression Zero = Convert.ChangeType(0, typeof(TNumeric)).ToConstantExpression(typeof(TNumeric));
+
         public ToNumericConverter(ToStringConverter toStringConverter)
             : base(toStringConverter)
         {
@@ -21,6 +24,7 @@
         protected override bool CanConvert(Type nonNullableSourceType)
         {
             return base.CanConvert(nonNullableSourceType) ||
+                  (nonNullableSourceType == typeof(bool)) ||
                    Constants.NumericTypes.Contains(nonNullableSourceType);
         }
 
@@ -28,6 +32,11 @@
         {
             var sourceType = GetNonEnumSourceType(sourceValue);
             var nonNullableSourceType = sourceType.GetNonNullableType();
+
+            if (nonNullableSourceType == typeof(bool))
+            {
+                return GetBoolToNumericConversion(sourceValue, targetType);
+            }
 
             if (IsCoercible(nonNullableSourceType))
             {
@@ -46,6 +55,30 @@
 
         private static Type GetNonEnumSourceType(Expression sourceValue)
             => sourceValue.Type.IsEnum() ? Enum.GetUnderlyingType(sourceValue.Type) : sourceValue.Type;
+
+        private static Expression GetBoolToNumericConversion(Expression sourceValue, Type targetType)
+        {
+            var sourceIsNotNullable = sourceValue.Type == typeof(bool);
+
+            var testValue = sourceIsNotNullable
+                ? sourceValue
+                : sourceValue.GetConversionTo<bool>();
+
+            var boolConversion = Expression.Condition(
+                Expression.IsTrue(testValue),
+                One.GetConversionTo(targetType),
+                Zero.GetConversionTo(targetType));
+
+            if (sourceIsNotNullable)
+            {
+                return boolConversion;
+            }
+
+            return Expression.Condition(
+                sourceValue.GetIsNotDefaultComparison(),
+                boolConversion,
+                boolConversion.Type.ToDefaultExpression());
+        }
 
         private static bool IsCoercible(Type sourceType) => _coercibleNumericTypes.Contains(sourceType);
 

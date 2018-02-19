@@ -138,6 +138,15 @@
         }
 
         [Fact]
+        public void ShouldPopulateAnIntHasMemberNameMember()
+        {
+            var source = new PublicField<IEnumerable<int>> { Value = new[] { 1, 2, 3 } };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<int, IList<Address>>>();
+
+            result.HasValue.ShouldBe(1);
+        }
+
+        [Fact]
         public void ShouldPopulateAFirstArrayMemberNameMember()
         {
             var source = new PublicField<Address[]>
@@ -322,11 +331,15 @@
 
         #region Helper Classes
 
-        public class PublicHasValue<T>
+        public class PublicHasValue<THasValue, TValue>
         {
-            public bool HasValue { get; set; }
+            public THasValue HasValue { get; set; }
 
-            public T Value { get; set; }
+            public TValue Value { get; set; }
+        }
+
+        public class PublicHasValue<TValue> : PublicHasValue<bool, TValue>
+        {
         }
 
         public class PublicFirstValue<T, TEnumerable>

@@ -60,6 +60,7 @@
 
             result.Value.ShouldBe(32658);
         }
+
         [Fact]
         public void ShouldMapALongToADouble()
         {
@@ -130,6 +131,24 @@
             var target = Mapper.Map(source).Over(new PublicProperty<double>());
 
             target.Value.ShouldBe(938378.637);
+        }
+
+        [Fact]
+        public void ShouldMapANullableBoolTrueToDoubleOne()
+        {
+            var source = new PublicProperty<bool?> { Value = true };
+            var result = Mapper.Map(source).ToANew<PublicField<double>>();
+
+            result.Value.ShouldBe(1d);
+        }
+
+        [Fact]
+        public void ShouldMapANullNullableBoolToNullableDoubleNull()
+        {
+            var source = new PublicProperty<bool?> { Value = default(bool?) };
+            var result = Mapper.Map(source).ToANew<PublicField<double?>>();
+
+            result.Value.ShouldBeNull();
         }
 
         [Fact]

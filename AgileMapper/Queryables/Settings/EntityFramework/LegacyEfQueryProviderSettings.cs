@@ -7,6 +7,7 @@
     using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using TypeConversion;
 
     internal abstract class LegacyEfQueryProviderSettings : DefaultQueryProviderSettings
     {
@@ -90,8 +91,7 @@
             }
 
             var isDateCall = Expression.Call(isDateMethod, sourceValue);
-            var one = 1.ToConstantExpression(typeof(int?));
-            var isDateIsTrue = Expression.Equal(isDateCall, one);
+            var isDateIsTrue = Expression.Equal(isDateCall, ToNumericConverter<int?>.One);
             var createdDateOrFallback = Expression.Condition(isDateIsTrue, createdDateTime, fallbackValue);
 
             return createdDateOrFallback;

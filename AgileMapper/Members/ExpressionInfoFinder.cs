@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
     using static System.Linq.Expressions.ExpressionType;
     using static Member;
 
@@ -105,7 +106,7 @@ namespace AgileObjects.AgileMapper.Members
                         return access.GetIsNotDefaultComparison();
                 }
 
-                return Expression.GreaterThan(count, 0.ToConstantExpression());
+                return Expression.GreaterThan(count, ToNumericConverter<int>.Zero);
             }
 
             protected override Expression VisitBinary(BinaryExpression binary)

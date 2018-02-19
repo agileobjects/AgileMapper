@@ -159,6 +159,15 @@
         }
 
         [Fact]
+        public void ShouldMapANullableBoolFalseToNullableDecimalOne()
+        {
+            var source = new PublicProperty<bool?> { Value = false };
+            var result = Mapper.Map(source).ToANew<PublicField<decimal?>>();
+
+            result.Value.ShouldBe(decimal.Zero);
+        }
+
+        [Fact]
         public void ShouldMapAnEnumOverADecimal()
         {
             var source = new PublicField<Title> { Value = Title.Miss };

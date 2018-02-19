@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
     using Extensions.Internal;
+    using TypeConversion;
 
     internal static class PopulationLoopDataExtensions
     {
@@ -31,7 +32,7 @@
 
             var population = Expression.Block(
                 new[] { builder.Counter },
-                builder.Counter.AssignTo(0.ToConstantExpression()),
+                builder.Counter.AssignTo(ToNumericConverter<int>.Zero),
                 adaptedLoop);
 
             return population;

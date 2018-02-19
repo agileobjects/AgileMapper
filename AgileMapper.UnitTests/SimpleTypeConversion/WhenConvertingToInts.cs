@@ -173,9 +173,18 @@
         public void ShouldMapATooSmallWholeNumberDoubleOverAnInt()
         {
             var source = new PublicProperty<double> { Value = double.MinValue };
-            var target = Mapper.Map(source).Over(new PublicSetMethod<int>());
+            var result = Mapper.Map(source).Over(new PublicSetMethod<int>());
 
-            target.Value.ShouldBeDefault();
+            result.Value.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldMapABoolTrueToIntOne()
+        {
+            var source = new PublicProperty<bool> { Value = true };
+            var result = Mapper.Map(source).Over(new PublicSetMethod<int>());
+
+            result.Value.ShouldBe(1);
         }
 
         [Fact]

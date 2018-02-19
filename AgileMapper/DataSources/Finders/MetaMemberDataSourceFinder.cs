@@ -8,6 +8,7 @@
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation.Enumerables;
+    using TypeConversion;
 
     internal class MetaMemberDataSourceFinder : IDataSourceFinder
     {
@@ -178,6 +179,13 @@
             {
                 var queriedMemberAccess = _queried.GetAccess(parentInstance, mapperData);
 
+                var hasCheck = GetHasCheck(queriedMemberAccess);
+
+                return mapperData.GetValueConversion(hasCheck, mapperData.TargetMember.Type);
+            }
+
+            private Expression GetHasCheck(Expression queriedMemberAccess)
+            {
                 if (_queried.SourceMember.IsEnumerable)
                 {
                     return GetHasEnumerableCheck(queriedMemberAccess);
@@ -281,8 +289,7 @@
 
             protected override string LinqMethodName => nameof(Enumerable.First);
 
-            protected override Expression GetIndex(Expression enumerableAccess)
-                => 0.ToConstantExpression();
+            protected override Expression GetIndex(Expression enumerableAccess) => ToNumericConverter<int>.Zero;
         }
 
         private class LastMetaMemberPart : EnumerablePositionMetaMemberPart
@@ -298,7 +305,7 @@
             protected override string LinqMethodName => nameof(Enumerable.Last);
 
             protected override Expression GetIndex(Expression enumerableAccess)
-                => Expression.Subtract(enumerableAccess.GetCount(), 1.ToConstantExpression());
+                => Expression.Subtract(enumerableAccess.GetCount(), ToNumericConverter<int>.One);
         }
 
         private class SourceMemberMetaMemberPart : MetaMemberPartBase
