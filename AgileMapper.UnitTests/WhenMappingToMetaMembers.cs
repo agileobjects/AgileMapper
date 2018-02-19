@@ -156,6 +156,15 @@
         }
 
         [Fact]
+        public void ShouldNotPopulateAComplexTypeHasMemberNameMember()
+        {
+            var source = new PublicField<Address[]> { Value = new[] { new Address { Line1 = "Here" } } };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<Address, IList<Address>>>();
+
+            result.HasValue.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldPopulateAFirstArrayMemberNameMember()
         {
             var source = new PublicField<Address[]>

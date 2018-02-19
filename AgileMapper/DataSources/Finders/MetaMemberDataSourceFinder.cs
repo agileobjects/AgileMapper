@@ -166,7 +166,7 @@
 
             public static bool TryCreateFor(ref MetaMemberPartBase metaMemberPart, DataSourceFindContext context)
             {
-                if (metaMemberPart == null)
+                if ((metaMemberPart == null) || !context.MapperData.TargetMember.IsSimple)
                 {
                     return false;
                 }
