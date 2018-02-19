@@ -147,6 +147,15 @@
         }
 
         [Fact]
+        public void ShouldPopulateATwoLevelHasComplexTypeMemberNameMember()
+        {
+            var source = new { Parent = new PublicField<int> { Value = 894 } };
+            var result = Mapper.Map(source).ToANew<PublicParentHasValue<PublicField<int>>>();
+
+            result.ParentHasValue.ShouldBeTrue();
+        }
+
+        [Fact]
         public void ShouldNotPopulateAnUnconvertibleHasMemberNameMember()
         {
             var source = new PublicField<IEnumerable<int>> { Value = new[] { 1, 2, 3 } };
@@ -293,7 +302,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAnEmptyLastArrayMemberNameMemberToNull()
+        public void ShouldPopulateAnEmptyLastArrayMemberNameMember()
         {
             var source = new PublicField<int[]>
             {
@@ -370,6 +379,13 @@
 
         public class PublicHasValue<TValue> : PublicHasValue<bool, TValue>
         {
+        }
+
+        public class PublicParentHasValue<TValue>
+        {
+            public bool ParentHasValue { get; set; }
+
+            public TValue Parent { get; set; }
         }
 
         public class PublicFirstValue<T, TEnumerable>
