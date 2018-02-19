@@ -115,6 +115,27 @@
             result.HasValue.ShouldBeFalse();
         }
 
+        [Fact]
+        public void ShouldPopulateAHasEnumerableMemberNameMember()
+        {
+            var source = new PublicField<IEnumerable<Address>>
+            {
+                Value = new[] { new Address { Line1 = "Yay!" } }
+            };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
+
+            result.HasValue.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldPopulateAEmptyHasEnumerableMemberNameMemberWithFalse()
+        {
+            var source = new PublicField<IEnumerable<Address>> { Value = Enumerable<Address>.EmptyArray };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<IList<Address>>>();
+
+            result.HasValue.ShouldBeFalse();
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<T>

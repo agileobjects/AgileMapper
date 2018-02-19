@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation.Enumerables;
 
     internal class MetaMemberDataSourceFinder : IDataSourceFinder
@@ -153,12 +154,7 @@
 
                 if (_queried.SourceMember.IsEnumerable)
                 {
-                    var helper = new EnumerableTypeHelper(_queried.SourceMember);
-                    var enumerableCount = helper.GetCountFor(queriedMemberAccess);
-                    var zero = 0.ToConstantExpression(enumerableCount.Type);
-                    var countGreaterThanZero = Expression.GreaterThan(enumerableCount, zero);
-
-                    return countGreaterThanZero;
+                    return GetHasEnumerableCheck(queriedMemberAccess);
                 }
 
                 var queriedMemberNotDefault = queriedMemberAccess.GetIsNotDefaultComparison();
@@ -169,6 +165,26 @@
                 }
 
                 return queriedMemberNotDefault;
+            }
+
+            private Expression GetHasEnumerableCheck(Expression enumerableAccess)
+            {
+                var helper = new EnumerableTypeHelper(_queried.SourceMember);
+
+                if (helper.IsEnumerableInterface)
+                {
+                    return Expression.Call(
+                        typeof(Enumerable)
+                            .GetPublicStaticMethod("Any", parameterCount: 1)
+                            .MakeGenericMethod(helper.ElementType),
+                        enumerableAccess);
+                }
+
+                var enumerableCount = helper.GetCountFor(enumerableAccess);
+                var zero = 0.ToConstantExpression(enumerableCount.Type);
+                var countGreaterThanZero = Expression.GreaterThan(enumerableCount, zero);
+
+                return countGreaterThanZero;
             }
         }
 
