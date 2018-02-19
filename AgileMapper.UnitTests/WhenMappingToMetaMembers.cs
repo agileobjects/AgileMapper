@@ -199,6 +199,28 @@
             result.FirstValue.ShouldBeNull();
         }
 
+        [Fact]
+        public void ShouldPopulateAFirstEnumerableMemberNameMember()
+        {
+            var source = new PublicField<IEnumerable<string>>
+            {
+                Value = new List<string> { "Yayhayhayhay!" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<string, string[]>>();
+
+            result.Value.ShouldHaveSingleItem();
+            result.FirstValue.ShouldBe("Yayhayhayhay!");
+        }
+
+        [Fact]
+        public void ShouldPopulateANullFirstEnumerableMemberNameMemberToNull()
+        {
+            var source = new PublicField<IEnumerable<string>> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicFirstValue<string, string[]>>();
+
+            result.FirstValue.ShouldBeNull();
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<T>

@@ -138,6 +138,18 @@
             }
 
             public abstract Expression GetAccess(Expression parentInstance);
+
+            protected static Expression GetLinqMethodCall(
+                string methodName,
+                Expression enumerable,
+                EnumerableTypeHelper helper)
+            {
+                return Expression.Call(
+                    typeof(Enumerable)
+                        .GetPublicStaticMethod(methodName, parameterCount: 1)
+                        .MakeGenericMethod(helper.ElementType),
+                    enumerable);
+            }
         }
 
         private class HasMetaMemberPart : MetaMemberPartBase
@@ -186,11 +198,7 @@
 
                 if (helper.IsEnumerableInterface)
                 {
-                    return Expression.Call(
-                        typeof(Enumerable)
-                            .GetPublicStaticMethod("Any", parameterCount: 1)
-                            .MakeGenericMethod(helper.ElementType),
-                        enumerableAccess);
+                    return GetLinqMethodCall(nameof(Enumerable.Any), enumerableAccess, helper);
                 }
 
                 var enumerableCount = helper.GetCountFor(enumerableAccess);
@@ -233,7 +241,7 @@
                     return enumerableAccess.GetIndexAccess(0.ToConstantExpression());
                 }
 
-                return null;
+                return GetLinqMethodCall(nameof(Enumerable.First), enumerableAccess, helper);
             }
         }
 
