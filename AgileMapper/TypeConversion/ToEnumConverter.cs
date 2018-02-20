@@ -301,7 +301,7 @@
             return Expression.Call(
                 typeof(char).GetPublicStaticMethod("IsDigit", typeof(string), typeof(int)),
                 stringValue,
-                0.ToConstantExpression());
+                ToNumericConverter<int>.Zero);
         }
 
         public static Expression GetStringParseCall(Expression sourceValue, Type underlyingEnumType)

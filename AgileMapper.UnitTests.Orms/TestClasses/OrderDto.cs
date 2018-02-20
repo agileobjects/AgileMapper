@@ -9,6 +9,8 @@
 
         public DateTime DatePlaced { get; set; }
 
+        public int HasItems { get; set; }
+
         public IEnumerable<OrderItemDto> Items { get; set; }
     }
 }

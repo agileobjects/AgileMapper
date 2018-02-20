@@ -10,9 +10,7 @@
             IQueryProjectionModifier modifier,
             out MemberAssignment converted)
         {
-            if (modifier.Settings.SupportsEnumerableMaterialisation &&
-               (assignment.Expression.NodeType == ExpressionType.Call) &&
-                assignment.Expression.Type.IsEnumerable())
+            if (ShouldConvert(assignment, modifier))
             {
                 converted = ConvertToMaterialisation(assignment, modifier);
                 return true;
@@ -22,12 +20,25 @@
             return false;
         }
 
+        private static bool ShouldConvert(
+            MemberAssignment assignment,
+            IQueryProjectionModifier modifier)
+        {
+            if (modifier.Settings.SupportsEnumerableMaterialisation &&
+               (assignment.Expression.NodeType == ExpressionType.Call))
+            {
+                return ((MethodCallExpression)assignment.Expression).IsLinqToArrayOrToListCall();
+            }
+
+            return false;
+        }
+
         private static MemberAssignment ConvertToMaterialisation(
             MemberAssignment assignment,
-            IQueryProjectionModifier context)
+            IQueryProjectionModifier modifier)
         {
             var materialisedNestedProjection = GetMaterialisedNestedProjection(assignment.Expression);
-            var modifiedProjection = context.Modify(materialisedNestedProjection);
+            var modifiedProjection = modifier.Modify(materialisedNestedProjection);
 
             return assignment.Update(modifiedProjection);
         }

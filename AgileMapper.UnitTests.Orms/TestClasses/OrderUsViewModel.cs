@@ -8,5 +8,7 @@
         public DateTime DatePlaced { get; set; }
 
         public PaymentTypeUs PaymentType { get; set; }
+
+        public bool FirstItemHasProductName { get; set; }
     }
 }

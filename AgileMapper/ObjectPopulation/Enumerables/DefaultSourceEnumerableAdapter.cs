@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Linq.Expressions;
-    using NetStandardPolyfills;
 
     internal class DefaultSourceEnumerableAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {
@@ -10,19 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
         }
 
-        public Expression GetSourceCountAccess()
-        {
-            if (SourceTypeHelper.IsArray)
-            {
-                return Expression.ArrayLength(SourceValue);
-            }
-
-            var countPropertyInfo =
-                SourceValue.Type.GetPublicInstanceProperty("Count") ??
-                SourceTypeHelper.CollectionInterfaceType.GetPublicInstanceProperty("Count");
-
-            return Expression.Property(SourceValue, countPropertyInfo);
-        }
+        public Expression GetSourceCountAccess() => SourceTypeHelper.GetCountFor(SourceValue);
 
         public Expression GetMappingShortCircuitOrNull() => null;
 

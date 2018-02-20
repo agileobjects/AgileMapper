@@ -11,6 +11,7 @@
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
     using static System.StringComparison;
+    using static Constants;
 
     internal static class MemberExtensions
     {
@@ -115,18 +116,21 @@
         public static Expression GetAccess(this QualifiedMember member, IMemberMapperData mapperData)
             => member.GetAccess(mapperData.TargetInstance, mapperData);
 
-        public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, IMemberMapperData mapperData)
+        public static Expression GetQualifiedAccess(this IQualifiedMember sourceMember, IMemberMapperData mapperData)
+            => sourceMember.GetQualifiedAccess(mapperData.SourceObject);
+
+        public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression parentInstance)
         {
             // Skip(1) because the 0th member is the mapperData.SourceObject:
             return memberChain.Skip(1).Aggregate(
-                mapperData.SourceObject,
+                parentInstance,
                 (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
         [DebuggerStepThrough]
         public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;
 
-        public static ICollection<string> ExtendWith(
+        public static IList<string> ExtendWith(
             this ICollection<string> parentJoinedNames,
             string[] memberMatchingNames,
             MapperContext mapperContext)
@@ -134,17 +138,17 @@
             return mapperContext.Naming.ExtendJoinedNames(parentJoinedNames, memberMatchingNames);
         }
 
-        public static bool CouldMatch(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
+        public static bool CouldMatch(this IList<string> memberNames, IList<string> otherMemberNames)
         {
-            if (otherMemberNames.HasOne() && (otherMemberNames.First() == Constants.RootMemberName) ||
-                memberNames.HasOne() && (memberNames.First() == Constants.RootMemberName))
+            if (otherMemberNames.HasOne() && (otherMemberNames.First() == RootMemberName) ||
+                memberNames.HasOne() && (memberNames.First() == RootMemberName))
             {
                 return true;
             }
 
             return otherMemberNames
-                .Any(otherJoinedName => (otherJoinedName == Constants.RootMemberName) || memberNames
-                    .Any(joinedName => (joinedName == Constants.RootMemberName) || otherJoinedName.StartsWithIgnoreCase(joinedName)));
+                .Any(otherJoinedName => (otherJoinedName == RootMemberName) || memberNames
+                    .Any(joinedName => (joinedName == RootMemberName) || otherJoinedName.StartsWithIgnoreCase(joinedName)));
         }
 
         public static bool Match(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
@@ -221,7 +225,7 @@
             => targetMember.GetAccess(instance).AssignTo(value);
 
         private static Expression CallSetMethod(Expression instance, Member targetMember, Expression value)
-            => Expression.Call(instance, targetMember.Name, Constants.NoTypeArguments, value);
+            => Expression.Call(instance, targetMember.Name, NoTypeArguments, value);
 
         #endregion
 

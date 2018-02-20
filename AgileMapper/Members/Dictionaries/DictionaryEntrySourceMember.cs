@@ -130,7 +130,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 : _matchedTargetMember.Matches(otherMember);
         }
 
-        public Expression GetQualifiedAccess(IMemberMapperData mapperData) => _childMembers.GetQualifiedAccess(mapperData);
+        public Expression GetQualifiedAccess(Expression parentInstance)
+            => _childMembers.GetQualifiedAccess(parentInstance);
 
         #region ExcludeFromCodeCoverage
 #if DEBUG

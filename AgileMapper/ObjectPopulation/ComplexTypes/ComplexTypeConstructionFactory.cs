@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Reflection;
     using Caching;
     using DataSources;
+    using DataSources.Finders;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -147,14 +148,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                             mapperData.TargetMember.Append(Member.ConstructorParameter(p)),
                             mapperData);
 
-                        return key.MappingData.GetChildMappingData(parameterMapperData);
-                    })
-                    .Select(memberMappingData =>
-                    {
-                        var dataSources = mapperData
-                            .MapperContext
-                            .DataSources
-                            .FindFor(memberMappingData);
+                        var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
+                        var dataSources = DataSourceFinder.FindFor(memberMappingData);
 
                         return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
                     })

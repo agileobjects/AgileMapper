@@ -238,9 +238,9 @@
             }
         }
 
-        public ICollection<string> GetJoinedNamesFor(string[][] matchingNameSets)
+        public IList<string> GetJoinedNamesFor(string[][] matchingNameSets)
         {
-            var joinedNames = default(ICollection<string>);
+            var joinedNames = default(IList<string>);
 
             foreach (var matchingNameSet in matchingNameSets)
             {
@@ -256,7 +256,7 @@
             return joinedNames;
         }
 
-        public ICollection<string> ExtendJoinedNames(ICollection<string> parentJoinedNames, string[] names)
+        public IList<string> ExtendJoinedNames(ICollection<string> parentJoinedNames, string[] names)
         {
             var firstParentJoinedName = parentJoinedNames.First();
 

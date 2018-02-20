@@ -48,6 +48,9 @@
         public static bool Any<T>(this ICollection<T> items) => items.Count != 0;
 
         [DebuggerStepThrough]
+        public static bool Any<T>(this IList<T> items, Func<T, bool> predicate) => !items.None(predicate);
+
+        [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
         public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
@@ -59,9 +62,7 @@
         {
             for (int i = 0, n = items.Count; i < n; i++)
             {
-                var item = items[i];
-
-                if (predicate.Invoke(item))
+                if (predicate.Invoke(items[i]))
                 {
                     return false;
                 }

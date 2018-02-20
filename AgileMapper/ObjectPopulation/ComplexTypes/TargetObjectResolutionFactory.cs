@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
@@ -95,7 +94,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return objectNewing.Arguments.None();
         }
 
-        private static bool MemberPopulationsExist(IEnumerable<Expression> populationsAndCallbacks)
+        private static bool MemberPopulationsExist(IList<Expression> populationsAndCallbacks)
             => populationsAndCallbacks.Any(population => population.NodeType != ExpressionType.Constant);
 
         private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)

@@ -14,6 +14,6 @@
 
         public PaymentTypeUk PaymentType { get; set; }
 
-        public ICollection<OrderItem> Items { get; set; }
+        public IList<OrderItem> Items { get; set; }
     }
 }

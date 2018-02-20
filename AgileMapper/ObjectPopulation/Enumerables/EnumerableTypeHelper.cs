@@ -23,10 +23,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
         }
 
-        public EnumerableTypeHelper(Type enumerableType, Type elementType)
+        public EnumerableTypeHelper(Type enumerableType, Type elementType = null)
         {
             EnumerableType = enumerableType;
-            ElementType = elementType;
+            ElementType = elementType ?? enumerableType.GetEnumerableElementType();
         }
 
         public bool IsArray => EnumerableType.IsArray;
@@ -138,5 +138,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             return instance.Type != typeof(IEnumerable<>).MakeGenericType(instance.Type.GetEnumerableElementType());
         }
+
+        public Expression GetCountFor(Expression instance, Type countType = null)
+            => instance.GetCount(countType, exp => CollectionInterfaceType);
     }
 }

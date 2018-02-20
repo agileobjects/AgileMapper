@@ -26,7 +26,7 @@
             shortVariableName = shortVariableName.ToLowerInvariant();
 
             return (!type.IsArray && type.IsEnumerable())
-                ? Pluralise(shortVariableName)
+                ? shortVariableName.Pluralise()
                 : shortVariableName;
         }
 
@@ -58,7 +58,7 @@
 
             variableName = RemoveLeadingNonAlphaNumerics(variableName);
 
-            return (typeIsDictionary || !typeIsEnumerable) ? variableName : Pluralise(variableName);
+            return (typeIsDictionary || !typeIsEnumerable) ? variableName : variableName.Pluralise();
         }
 
         private static string GetBaseVariableName(Type namingType)
@@ -92,54 +92,6 @@
             }
 
             return value;
-        }
-
-        private static string Pluralise(string value)
-        {
-            if (value.Length == 1)
-            {
-                return value + "s";
-            }
-
-            switch (value.Substring(value.Length - 2))
-            {
-                case "ch":
-                case "sh":
-                case "ss":
-                    return value + "es";
-            }
-
-            if (value.EndsWith('s'))
-            {
-                return value;
-            }
-
-            if (value.EndsWith('y') && IsConsonant(value[value.Length - 2]))
-            {
-                return value.Substring(0, value.Length - 1) + "ies";
-            }
-
-            if (value.EndsWith('x') || value.EndsWith('z'))
-            {
-                return value + "es";
-            }
-
-            return value + "s";
-        }
-
-        private static bool IsConsonant(char character)
-        {
-            switch (char.ToUpperInvariant(character))
-            {
-                case 'A':
-                case 'E':
-                case 'I':
-                case 'O':
-                case 'U':
-                    return false;
-            }
-
-            return true;
         }
 
         public static Type GetEnumerableElementType(this Type enumerableType)

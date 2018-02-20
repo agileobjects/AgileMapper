@@ -7,6 +7,8 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
+    using static System.Linq.Expressions.ExpressionType;
     using static Member;
 
     internal class ExpressionInfoFinder
@@ -54,15 +56,57 @@ namespace AgileObjects.AgileMapper.Members
             {
                 Visit(expression);
 
-                var nestedAccessChecks = _nestedAccessesByPath.Any()
-                    ? _nestedAccessesByPath.Values.Reverse().ToArray().GetIsNotDefaultComparisonsOrNull()
-                    : null;
+                if (_nestedAccessesByPath.None() && _multiInvocations.None())
+                {
+                    return EmptyExpressionInfo;
+                }
 
-                var multiInvocations = _multiInvocations
-                    .OrderBy(inv => inv.ToString())
-                    .ToArray();
+                var nestedAccessChecks = GetNestedAccessChecks();
+
+                var multiInvocations = _multiInvocations.Any()
+                    ? _multiInvocations.OrderBy(inv => inv.ToString()).ToArray()
+                    : Enumerable<Expression>.EmptyArray;
 
                 return new ExpressionInfo(nestedAccessChecks, multiInvocations);
+            }
+
+            private Expression GetNestedAccessChecks()
+            {
+                if (_nestedAccessesByPath.None())
+                {
+                    return null;
+                }
+
+                return _nestedAccessesByPath
+                    .Values
+                    .Reverse()
+                    .Select(GetAccessCheck)
+                    .Aggregate(
+                        default(Expression),
+                        (accessChecksSoFar, accessCheck) => (accessChecksSoFar != null)
+                            ? Expression.AndAlso(accessChecksSoFar, accessCheck)
+                            : accessCheck);
+            }
+
+            private static Expression GetAccessCheck(Expression access)
+            {
+                Expression count;
+
+                switch (access.NodeType)
+                {
+                    case ArrayIndex:
+                        count = Expression.ArrayLength(((BinaryExpression)access).Left);
+                        break;
+
+                    case Index:
+                        count = ((IndexExpression)access).Object.GetCount();
+                        break;
+
+                    default:
+                        return access.GetIsNotDefaultComparison();
+                }
+
+                return Expression.GreaterThan(count, ToNumericConverter<int>.Zero);
             }
 
             protected override Expression VisitBinary(BinaryExpression binary)
@@ -71,6 +115,13 @@ namespace AgileObjects.AgileMapper.Members
                     TryGetNullComparison(binary.Right, binary.Left, binary, out comparedValue))
                 {
                     AddExistingNullCheck(comparedValue);
+
+                    return base.VisitBinary(binary);
+                }
+
+                if (IsRelevantArrayIndexAccess(binary))
+                {
+                    AddMemberAccess(binary);
                 }
 
                 return base.VisitBinary(binary);
@@ -82,20 +133,26 @@ namespace AgileObjects.AgileMapper.Members
                 Expression binary,
                 out Expression comparedValue)
             {
-                if ((binary.NodeType != ExpressionType.Equal) && (binary.NodeType != ExpressionType.NotEqual))
+                if ((binary.NodeType != Equal) && (binary.NodeType != NotEqual))
                 {
                     comparedValue = null;
                     return false;
                 }
 
-                if ((nullOperand.NodeType != ExpressionType.Constant) || (((ConstantExpression)nullOperand).Value != null))
+                if ((nullOperand.NodeType != Constant) || (((ConstantExpression)nullOperand).Value != null))
                 {
                     comparedValue = null;
                     return false;
                 }
 
-                comparedValue = AddMemberAccess(comparedOperand) ? comparedOperand : null;
+                comparedValue = GuardMemberAccess(comparedOperand) ? comparedOperand : null;
                 return comparedValue != null;
+            }
+
+            private static bool IsRelevantArrayIndexAccess(BinaryExpression binary)
+            {
+                return (binary.NodeType == ArrayIndex) &&
+                       (binary.Right.NodeType != Parameter);
             }
 
             protected override Expression VisitMember(MemberExpression memberAccess)
@@ -152,6 +209,39 @@ namespace AgileObjects.AgileMapper.Members
                        (memberAccess.Expression.Type.IsNullableType());
             }
 
+            protected override Expression VisitIndex(IndexExpression indexAccess)
+            {
+                if ((indexAccess.Object.Type != typeof(string)) &&
+                     IndexDoesNotUseParameter(indexAccess.Arguments[0]))
+                {
+                    AddMemberAccess(indexAccess);
+                }
+
+                return base.VisitIndex(indexAccess);
+            }
+
+            private static bool IndexDoesNotUseParameter(Expression indexExpression)
+            {
+                if (indexExpression == null)
+                {
+                    return true;
+                }
+
+                switch (indexExpression.NodeType)
+                {
+                    case Call:
+                        var methodCall = (MethodCallExpression)indexExpression;
+
+                        return IndexDoesNotUseParameter(methodCall.Object) &&
+                               methodCall.Arguments.All(IndexDoesNotUseParameter);
+
+                    case Parameter:
+                        return false;
+                }
+
+                return true;
+            }
+
             protected override MemberBinding VisitMemberBinding(MemberBinding binding)
             {
                 return base.VisitMemberBinding(binding);
@@ -200,7 +290,7 @@ namespace AgileObjects.AgileMapper.Members
                 Expression subject;
                 MemberExpression memberAccess;
 
-                if (expression.NodeType == ExpressionType.MemberAccess)
+                if (expression.NodeType == MemberAccess)
                 {
                     memberAccess = (MemberExpression)expression;
                     subject = memberAccess.Expression;
@@ -221,7 +311,7 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                return (expression.NodeType != ExpressionType.MemberAccess) ||
+                return (expression.NodeType != MemberAccess) ||
                        IsNotRootObject(memberAccess);
             }
 
@@ -246,13 +336,13 @@ namespace AgileObjects.AgileMapper.Members
 
             private void AddMemberAccessIfAppropriate(Expression memberAccess)
             {
-                if (AddMemberAccess(memberAccess))
+                if (GuardMemberAccess(memberAccess))
                 {
-                    _nestedAccessesByPath.Add(memberAccess.ToString(), memberAccess);
+                    AddMemberAccess(memberAccess);
                 }
             }
 
-            private bool AddMemberAccess(Expression memberAccess)
+            private bool GuardMemberAccess(Expression memberAccess)
             {
                 if (IsNonNullReturnMethodCall(memberAccess))
                 {
@@ -269,15 +359,12 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                var memberAccessString = memberAccess.ToString();
-
-                return !_nullCheckSubjects.Contains(memberAccessString) &&
-                       !_nestedAccessesByPath.ContainsKey(memberAccessString);
+                return true;
             }
 
             private static bool IsNonNullReturnMethodCall(Expression memberAccess)
             {
-                if (memberAccess.NodeType != ExpressionType.Call)
+                if (memberAccess.NodeType != Call)
                 {
                     return false;
                 }
@@ -294,6 +381,19 @@ namespace AgileObjects.AgileMapper.Members
                     default:
                         return false;
                 }
+            }
+
+            private void AddMemberAccess(Expression memberAccess)
+            {
+                var memberAccessString = memberAccess.ToString();
+
+                if (_nullCheckSubjects.Contains(memberAccessString) ||
+                    _nestedAccessesByPath.ContainsKey(memberAccessString))
+                {
+                    return;
+                }
+
+                _nestedAccessesByPath.Add(memberAccessString, memberAccess);
             }
         }
 

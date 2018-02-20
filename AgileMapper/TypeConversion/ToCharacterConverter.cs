@@ -53,10 +53,10 @@
         private static Expression GetFromStringConversion(Expression sourceValue, Type targetType)
         {
             var sourceLength = Expression.Property(sourceValue, "Length");
-            var lengthIsOne = Expression.Equal(sourceLength, 1.ToConstantExpression());
+            var lengthIsOne = Expression.Equal(sourceLength, ToNumericConverter<int>.One);
 
             var stringIndexer = typeof(string).GetPublicInstanceProperty("Chars");
-            var elementZero = new[] { 0.ToConstantExpression() };
+            var elementZero = new[] { ToNumericConverter<int>.Zero };
             var zeroethCharacter = Expression.MakeIndex(sourceValue, stringIndexer, elementZero);
             var typedZeroeth = zeroethCharacter.GetConversionTo(targetType);
             var fallbackValue = targetType.ToDefaultExpression();

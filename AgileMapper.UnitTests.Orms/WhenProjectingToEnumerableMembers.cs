@@ -66,9 +66,9 @@
             await context.Rotas.Add(rota);
             await context.SaveChanges();
 
-            var rotaDto = context.Rotas.Where(r => r.Id == 1).Project().To<RotaDto>().First();
+            var rotaDto = context.Rotas.Where(r => r.Id > 0).Project().To<RotaDto>().First();
 
-            rotaDto.Id.ShouldBe(1);
+            rotaDto.Id.ShouldBe(rota.Id);
             rotaDto.StartDate.ShouldBe(rota.StartDate);
             rotaDto.EndDate.ShouldBe(rota.EndDate);
             rotaDto.Entries.Count.ShouldBe(rota.Entries.Count);
@@ -119,7 +119,7 @@
 
                 orderDto.Id.ShouldBe(order.Id);
                 orderDto.DatePlaced.ShouldBe(order.DatePlaced);
-                orderDto.Items.Count().ShouldBe(order.Items.Count);
+                orderDto.Items.Count().ShouldBe(2);
 
                 var i = 0;
 

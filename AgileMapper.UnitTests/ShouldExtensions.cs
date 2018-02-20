@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     public static class ShouldExtensions
     {
@@ -390,7 +391,9 @@
         {
             if (!(actual is TExpected))
             {
-                Asplode("An object of type " + typeof(TExpected).Name, actual.GetType().Name);
+                Asplode(
+                    "An object of type " + typeof(TExpected).GetFriendlyName(),
+                    actual.GetType().GetFriendlyName());
             }
         }
 
@@ -411,8 +414,14 @@
         }
 
         private static void Asplode(string expected, string actual, string errorMessage = null)
+            => throw new TestAsplodeException(expected, actual, errorMessage);
+
+        public class TestAsplodeException : Exception
         {
-            throw new Exception(errorMessage ?? $"Expected {expected}, but was {actual}");
+            public TestAsplodeException(string expected, string actual, string errorMessage)
+                : base(errorMessage ?? $"Expected {expected}, but was {actual}")
+            {
+            }
         }
     }
 }

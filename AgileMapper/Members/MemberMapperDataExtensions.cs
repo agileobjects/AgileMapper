@@ -127,7 +127,7 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
-            return mapperData.RuleSet.Settings.GuardMemberAccesses(value)
+            return mapperData.RuleSet.Settings.GuardAccessTo(value)
                 ? mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull)
                 : ExpressionInfoFinder.EmptyExpressionInfo;
         }
@@ -315,6 +315,9 @@ namespace AgileObjects.AgileMapper.Members
 
             return emptyEnumerable.GetConversionTo(targetMember.Type);
         }
+
+        public static bool CanConvert(this IMemberMapperData mapperData, Type sourceType, Type targetType)
+            => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType);
 
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
             => mapperData.MapperContext.ValueConverters.GetConversion(value, targetType);

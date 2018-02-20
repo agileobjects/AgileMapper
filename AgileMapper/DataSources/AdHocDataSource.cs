@@ -5,8 +5,24 @@
 
     internal class AdHocDataSource : DataSourceBase
     {
-        public AdHocDataSource(IQualifiedMember targetMember, Expression value)
-            : base(targetMember, value)
+        public AdHocDataSource(IQualifiedMember sourceMember, Expression value)
+            : base(sourceMember, value)
+        {
+        }
+
+        public AdHocDataSource(
+            IQualifiedMember sourceMember,
+            Expression value,
+            IMemberMapperData mapperData)
+            : base(sourceMember, value, mapperData)
+        {
+        }
+
+        public AdHocDataSource(
+            IQualifiedMember sourceMember,
+            Expression value,
+            Expression condition)
+            : base(sourceMember, Enumerable<ParameterExpression>.EmptyArray, value, condition)
         {
         }
     }

@@ -8,7 +8,8 @@
     {
         public static IQualifiedMember GetMatchFor(
             IChildMemberMappingData targetData,
-            out IChildMemberMappingData contextMappingData)
+            out IChildMemberMappingData contextMappingData,
+            bool searchParentContexts = true)
         {
             var parentSourceMember = targetData.MapperData.SourceMember;
 
@@ -33,14 +34,26 @@
                 return GetFinalSourceMember(matchingMember, targetData);
             }
 
+            if (searchParentContexts)
+            {
+                return GetParentContextMatchOrNull(targetData, out contextMappingData);
+            }
+
+            contextMappingData = null;
+            return null;
+        }
+
+        private static IQualifiedMember GetParentContextMatchOrNull(
+            IChildMemberMappingData targetData,
+            out IChildMemberMappingData contextMappingData)
+        {
             var mappingData = targetData.Parent;
 
             while (mappingData.Parent != null)
             {
                 if (mappingData.MapperData.TargetMemberIsEnumerableElement())
                 {
-                    contextMappingData = null;
-                    return null;
+                    break;
                 }
 
                 mappingData = mappingData.Parent;
@@ -48,15 +61,13 @@
                 var childMapperData = new ChildMemberMapperData(targetData.MapperData.TargetMember, mappingData.MapperData);
                 contextMappingData = mappingData.GetChildMappingData(childMapperData);
 
-                matchingMember = EnumerateSourceMembers(mappingData.MapperData.SourceMember, contextMappingData)
+                var matchingMember = EnumerateSourceMembers(mappingData.MapperData.SourceMember, contextMappingData)
                     .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
 
-                if (matchingMember == null)
+                if (matchingMember != null)
                 {
-                    continue;
+                    return GetFinalSourceMember(matchingMember, targetData);
                 }
-
-                return GetFinalSourceMember(matchingMember, targetData);
             }
 
             contextMappingData = null;
@@ -75,8 +86,7 @@
                              data.MapperData.TargetMember.JoinedNames.Match(new[] { m.Name }))
                 .FirstOrDefault();
 
-            if ((sourceMember == null) ||
-                !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
+            if ((sourceMember == null) || !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
             {
                 matchingMember = null;
                 return false;
@@ -180,6 +190,6 @@
             => mapperData.TargetMember.Matches(sourceMember) && TypesAreCompatible(sourceMember.Type, mapperData);
 
         private static bool TypesAreCompatible(Type sourceType, IMemberMapperData mapperData)
-            => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, mapperData.TargetMember.Type);
+            => mapperData.CanConvert(sourceType, mapperData.TargetMember.Type);
     }
 }

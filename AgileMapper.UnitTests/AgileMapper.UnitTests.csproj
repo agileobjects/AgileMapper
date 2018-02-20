@@ -224,6 +224,7 @@
     <Compile Include="TestClasses\WeddingDto.cs" />
     <Compile Include="WhenFlatteningToDictionaries.cs" />
     <Compile Include="WhenMappingEntities.cs" />
+    <Compile Include="WhenMappingToMetaMembers.cs" />
     <Compile Include="WhenValidatingMappings.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />

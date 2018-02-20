@@ -35,7 +35,7 @@ namespace AgileObjects.AgileMapper.Members
             }
         }
 
-        private QualifiedMember(Member[] memberChain, ICollection<string> joinedNames, MapperContext mapperContext)
+        private QualifiedMember(Member[] memberChain, IList<string> joinedNames, MapperContext mapperContext)
             : this(memberChain.Last(), mapperContext)
         {
             MemberChain = memberChain;
@@ -158,7 +158,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public virtual string RegistrationName { get; }
 
-        public ICollection<string> JoinedNames { get; }
+        public IList<string> JoinedNames { get; }
 
         public string GetPath() => _pathFactory.Invoke();
 
@@ -318,8 +318,8 @@ namespace AgileObjects.AgileMapper.Members
         public virtual Expression GetAccess(Expression instance, IMemberMapperData mapperData)
             => LeafMember.GetAccess(instance);
 
-        public Expression GetQualifiedAccess(IMemberMapperData mapperData)
-            => MemberChain.GetQualifiedAccess(mapperData);
+        public Expression GetQualifiedAccess(Expression parentInstance)
+            => MemberChain.GetQualifiedAccess(parentInstance);
 
         public virtual bool CheckExistingElementValue => false;
 

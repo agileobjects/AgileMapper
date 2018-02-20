@@ -90,27 +90,6 @@
                 StringComparison.OrdinalIgnoreCase.ToConstantExpression());
         }
 
-        public static Expression GetIsNotDefaultComparisonsOrNull(this IList<Expression> expressions)
-        {
-            if (expressions.None())
-            {
-                return null;
-            }
-
-            if (expressions.HasOne())
-            {
-                return expressions[0].GetIsNotDefaultComparison();
-            }
-
-            var notNullChecks = expressions
-                .Select(exp => exp.GetIsNotDefaultComparison())
-                .ToArray();
-
-            var allNotNullCheck = notNullChecks.Chain(firstCheck => firstCheck, Expression.AndAlso);
-
-            return allNotNullCheck;
-        }
-
         public static Expression GetIsDefaultComparison(this Expression expression)
             => Expression.Equal(expression, ToDefaultExpression(expression.Type));
 
@@ -158,6 +137,59 @@
             return Expression.MakeIndex(indexedExpression, indexer, new[] { indexValue });
         }
 
+        public static Expression GetCount(
+            this Expression collectionAccess,
+            Type countType = null,
+            Func<Expression, Type> collectionInterfaceTypeFactory = null)
+        {
+            if (collectionAccess.Type.IsArray)
+            {
+                if (countType == typeof(long))
+                {
+                    var longLength = collectionAccess.Type.GetPublicInstanceProperty("LongLength");
+
+                    if (longLength != null)
+                    {
+                        return Expression.Property(collectionAccess, longLength);
+                    }
+                }
+
+                return Expression.ArrayLength(collectionAccess);
+            }
+
+            var countProperty = collectionAccess.Type.GetPublicInstanceProperty("Count");
+
+            if (countProperty != null)
+            {
+                return Expression.Property(collectionAccess, countProperty);
+            }
+
+            if (collectionInterfaceTypeFactory == null)
+            {
+                collectionInterfaceTypeFactory = exp => typeof(ICollection<>)
+                    .MakeGenericType(exp.Type.GetEnumerableElementType());
+            }
+
+            var collectionType = collectionInterfaceTypeFactory.Invoke(collectionAccess);
+
+            if (collectionAccess.Type.IsAssignableTo(collectionType))
+            {
+                return Expression.Property(
+                    collectionAccess, 
+                    collectionType.GetPublicInstanceProperty("Count"));
+            }
+
+            var linqCountMethodName = (countType == typeof(long))
+                ? nameof(Enumerable.LongCount)
+                : nameof(Enumerable.Count);
+
+            return Expression.Call(
+                typeof(Enumerable)
+                    .GetPublicStaticMethod(linqCountMethodName, parameterCount: 1)
+                    .MakeGenericMethod(collectionAccess.Type.GetEnumerableElementType()),
+                collectionAccess);
+        }
+
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
         {
             var parameterlessGetValueOrDefault = nullableExpression.Type
@@ -189,6 +221,13 @@
             }
 
             return Expression.Convert(expression, targetType);
+        }
+
+        public static bool IsLinqToArrayOrToListCall(this MethodCallExpression call)
+        {
+            return call.Method.IsStatic && call.Method.IsGenericMethod &&
+                  (ReferenceEquals(call.Method, _linqToListMethod) ||
+                   ReferenceEquals(call.Method, _linqToArrayMethod));
         }
 
         public static Expression WithToArrayLinqCall(this Expression enumerable, Type elementType)

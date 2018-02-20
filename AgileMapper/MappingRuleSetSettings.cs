@@ -5,6 +5,23 @@ namespace AgileObjects.AgileMapper
 
     internal class MappingRuleSetSettings
     {
+        public static MappingRuleSetSettings ForInMemoryMapping(bool rootHasPopulatedTarget = false)
+        {
+            return new MappingRuleSetSettings
+            {
+                RootHasPopulatedTarget = rootHasPopulatedTarget,
+                SourceElementsCouldBeNull = true,
+                UseTryCatch = true,
+                CheckDerivedSourceTypes = true,
+                GuardAccessTo = value => true,
+                ExpressionIsSupported = value => true,
+                AllowObjectTracking = true,
+                AllowGetMethods = true,
+                AllowSetMethods = true,
+                AllowIndexAccesses = true
+            };
+        }
+
         public bool RootHasPopulatedTarget { get; set; }
 
         public bool SourceElementsCouldBeNull { get; set; }
@@ -17,7 +34,7 @@ namespace AgileObjects.AgileMapper
 
         public bool CheckDerivedSourceTypes { get; set; }
 
-        public Func<Expression, bool> GuardMemberAccesses { get; set; }
+        public Func<Expression, bool> GuardAccessTo { get; set; }
 
         public Func<LambdaExpression, bool> ExpressionIsSupported { get; set; }
 
@@ -28,5 +45,7 @@ namespace AgileObjects.AgileMapper
         public bool AllowGetMethods { get; set; }
 
         public bool AllowSetMethods { get; set; }
+
+        public bool AllowIndexAccesses { get; set; }
     }
 }

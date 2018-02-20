@@ -197,6 +197,15 @@
         }
 
         [Fact]
+        public void ShouldMapABoolFalseToByteZero()
+        {
+            var source = new PublicProperty<bool> { Value = false };
+            var result = Mapper.Map(source).Over(new PublicField<byte> { Value = 1 });
+
+            result.Value.ShouldBe(0);
+        }
+
+        [Fact]
         public void ShouldMapAnEnumOverAByte()
         {
             var source = new PublicField<Title> { Value = Title.Miss };
