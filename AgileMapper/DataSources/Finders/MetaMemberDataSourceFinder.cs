@@ -485,6 +485,11 @@
             {
                 var elementType = _sourceMember.Type;
 
+                if (!elementType.IsComplex())
+                {
+                    return GetLinqMethodCall(LinqSelectionMethodName, enumerableAccess, helper);
+                }
+
                 var orderMember =
                     elementType.GetPublicInstanceMember("Order") ??
                     elementType.GetPublicInstanceMember("DateCreated") ??
