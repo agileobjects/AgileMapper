@@ -244,7 +244,7 @@
                 return true;
             }
 
-            protected abstract bool IsInvalid(MetaMemberPartBase nextPart);
+            public abstract bool IsInvalid(MetaMemberPartBase nextPart);
 
             public IDataSource GetDataSource()
             {
@@ -296,7 +296,7 @@
 
             private IQualifiedMember QueriedMember => NextPart.SourceMember;
 
-            protected override bool IsInvalid(MetaMemberPartBase nextPart) => false;
+            public override bool IsInvalid(MetaMemberPartBase nextPart) => false;
 
             public override Expression GetAccess(Expression parentInstance)
             {
@@ -351,7 +351,7 @@
 
             protected abstract string LinqMethodName { get; }
 
-            protected override bool IsInvalid(MetaMemberPartBase nextPart)
+            public override bool IsInvalid(MetaMemberPartBase nextPart)
             {
                 if (!nextPart.SourceMember.IsEnumerable)
                 {
@@ -431,14 +431,19 @@
             {
             }
 
-            protected override bool IsInvalid(MetaMemberPartBase nextPart)
-            {
-                return false;
-            }
+            public override bool IsInvalid(MetaMemberPartBase nextPart)
+                => !nextPart.SourceMember.IsEnumerable;
 
             public override Expression GetAccess(Expression enumerableAccess)
             {
-                return enumerableAccess.GetCount();
+                var helper = new EnumerableTypeHelper(enumerableAccess.Type);
+
+                if (helper.IsEnumerableInterface)
+                {
+                    return GetLinqMethodCall(nameof(Enumerable.Count), enumerableAccess, helper);
+                }
+
+                return helper.GetCountFor(enumerableAccess);
             }
         }
 
@@ -458,7 +463,7 @@
 
             public override IQualifiedMember SourceMember { get; }
 
-            protected override bool IsInvalid(MetaMemberPartBase nextPart) => false;
+            public override bool IsInvalid(MetaMemberPartBase nextPart) => nextPart.IsInvalid(this);
 
             public override Expression GetAccess(Expression parentInstance)
             {

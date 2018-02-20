@@ -489,7 +489,7 @@
         }
 
         [Fact]
-        public void ShouldPopulateAnEnumerableCountMember()
+        public void ShouldPopulateAnArrayCountMember()
         {
             var source = new PublicProperty<string[]>
             {
@@ -499,6 +499,30 @@
 
             result.Value.Count.ShouldBe(3);
             result.ValueCount.ShouldBe(3);
+        }
+
+        [Fact]
+        public void ShouldPopulateAnEnumerableCountMember()
+        {
+            var source = new PublicProperty<IEnumerable<string>>
+            {
+                Value = new[] { "1", "2", "2" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicValueCount<IEnumerable<string>>>();
+
+            result.ValueCount.ShouldBe(3);
+        }
+
+        [Fact]
+        public void ShouldNotPopulateAComplexTypeCountMember()
+        {
+            var source = new PublicProperty<Address>
+            {
+                Value = new Address { Line1 = "One" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicValueCount<Address>>();
+
+            result.ValueCount.ShouldBeDefault();
         }
 
         #region Helper Classes
