@@ -174,6 +174,24 @@
         }
 
         [Fact]
+        public void ShouldNotPopulateATwoLevelHasSimpleTypeMemberNameMember()
+        {
+            var source = new { Parent = 894L };
+            var result = Mapper.Map(source).ToANew<PublicParentHasValue<long>>();
+
+            result.ParentHasValue.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldNotPopulateATwoLevelHasComplexTypeMemberNameMemberWithNoNestedMemberMatch()
+        {
+            var source = new { Parent = new { LaLaLa = "Thhhhhhrrrp" } };
+            var result = Mapper.Map(source).ToANew<PublicParentHasValue<PublicProperty<string>>>();
+
+            result.ParentHasValue.ShouldBeFalse();
+        }
+
+        [Fact]
         public void ShouldPopulateAFirstArrayMemberNameMember()
         {
             var source = new PublicField<Address[]>
