@@ -233,119 +233,110 @@
         [Fact]
         public void ShouldPopulateAFirstArrayMemberNameMember()
         {
-            var source = new PublicField<Address[]>
-            {
-                Value = new[] { new Address { Line1 = "Yay!" } }
-            };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+            var source = new { Items = new[] { new Address { Line1 = "Yay!" } } };
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<Address, Address[]>>();
 
-            result.Value.ShouldHaveSingleItem();
-            result.FirstValue.ShouldNotBeNull();
-            result.FirstValue.Line1.ShouldBe("Yay!");
+            result.Items.ShouldHaveSingleItem();
+            result.FirstItem.ShouldNotBeNull();
+            result.FirstItem.Line1.ShouldBe("Yay!");
         }
 
         [Fact]
         public void ShouldPopulateANullFirstArrayMemberNameMemberToNull()
         {
-            var source = new PublicField<Address[]> { Value = null };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+            var source = new { Items = default(Address[]) };
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<Address, Address[]>>();
 
-            result.FirstValue.ShouldBeNull();
+            result.FirstItem.ShouldBeNull();
         }
 
         [Fact]
         public void ShouldPopulateAnEmptyFirstArrayMemberNameMemberToNull()
         {
-            var source = new PublicField<Address[]>
-            {
-                Value = Enumerable<Address>.EmptyArray
-            };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+            var source = new { Items = Enumerable<Address>.EmptyArray };
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<Address, Address[]>>();
 
-            result.Value.ShouldBeEmpty();
-            result.FirstValue.ShouldBeNull();
+            result.Items.ShouldBeEmpty();
+            result.FirstItem.ShouldBeNull();
         }
 
         [Fact]
         public void ShouldPopulateAFirstListMemberNameMember()
         {
-            var source = new PublicField<List<Address>>
+            var source = new
             {
-                Value = new List<Address> { new Address { Line1 = "Yayhay!" } }
+                Items = new List<Address> { new Address { Line1 = "Yayhay!" } }
             };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<Address, Address[]>>();
 
-            result.Value.ShouldHaveSingleItem();
-            result.FirstValue.ShouldNotBeNull();
-            result.FirstValue.Line1.ShouldBe("Yayhay!");
+            result.Items.ShouldHaveSingleItem();
+            result.FirstItem.ShouldNotBeNull();
+            result.FirstItem.Line1.ShouldBe("Yayhay!");
         }
 
         [Fact]
         public void ShouldPopulateAnEmptyFirstListMemberNameMemberToNull()
         {
-            var source = new PublicField<List<Address>>
-            {
-                Value = new List<Address>(0)
-            };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<Address, Address[]>>();
+            var source = new { Items = new List<Address>(0) };
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<Address, Address[]>>();
 
-            result.Value.ShouldBeEmpty();
-            result.FirstValue.ShouldBeNull();
+            result.Items.ShouldBeEmpty();
+            result.FirstItem.ShouldBeNull();
         }
 
         [Fact]
         public void ShouldPopulateAFirstEnumerableMemberNameMember()
         {
-            var source = new PublicField<IEnumerable<string>>
+            var source = new
             {
-                Value = new List<string> { "Yayhayhayhay!" }
+                Items = (IEnumerable<string>)new List<string> { "Yayhayhayhay!" }
             };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<string, string[]>>();
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<string, string[]>>();
 
-            result.Value.ShouldHaveSingleItem();
-            result.FirstValue.ShouldBe("Yayhayhayhay!");
+            result.Items.ShouldHaveSingleItem();
+            result.FirstItem.ShouldBe("Yayhayhayhay!");
         }
 
         [Fact]
         public void ShouldPopulateANullFirstEnumerableMemberNameMemberToNull()
         {
-            var source = new PublicField<IEnumerable<string>> { Value = null };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<string, string[]>>();
+            var source = new { Items = default(IEnumerable<string>) };
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<string, string[]>>();
 
-            result.FirstValue.ShouldBeNull();
+            result.FirstItem.ShouldBeNull();
         }
 
         [Fact]
         public void ShouldPopulateAFirstReadOnlyCollectionMemberNameMember()
         {
-            var source = new PublicField<ReadOnlyCollection<string>>
+            var source = new
             {
-                Value = new ReadOnlyCollection<string>(new[] { "Whaaaaaat?!", "Yayhayhayhay!" })
+                Items = new ReadOnlyCollection<string>(new[] { "Whaaaaaat?!", "Yayhayhayhay!" })
             };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<string, string[]>>();
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<string, string[]>>();
 
-            result.FirstValue.ShouldBe("Whaaaaaat?!");
+            result.FirstItem.ShouldBe("Whaaaaaat?!");
         }
 
         [Fact]
         public void ShouldPopulateAConvertedFirstCollectionMemberNameMember()
         {
-            var source = new PublicField<Collection<string>>
+            var source = new
             {
-                Value = new Collection<string> { "123", "456", "789" }
+                Items = new Collection<string> { "123", "456", "789" }
             };
-            var result = Mapper.Map(source).ToANew<PublicFirstValue<int, int[]>>();
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<int, int[]>>();
 
-            result.Value.ShouldBe(123, 456, 789);
-            result.FirstValue.ShouldBe(123);
+            result.Items.ShouldBe(123, 456, 789);
+            result.FirstItem.ShouldBe(123);
         }
 
         [Fact]
         public void ShouldPopulateALastArrayMemberNameMember()
         {
-            var source = new PublicField<Address[]>
+            var source = new
             {
-                Value = new[]
+                Values = new[]
                 {
                     new Address { Line1 = "First!" },
                     new Address { Line1 = "Second!" }
@@ -353,7 +344,7 @@
             };
             var result = Mapper.Map(source).ToANew<PublicLastValue<Address, Address[]>>();
 
-            result.Value.Length.ShouldBe(2);
+            result.Values.Length.ShouldBe(2);
             result.LastValue.ShouldNotBeNull();
             result.LastValue.Line1.ShouldBe("Second!");
         }
@@ -361,20 +352,17 @@
         [Fact]
         public void ShouldPopulateAnEmptyLastArrayMemberNameMember()
         {
-            var source = new PublicField<int[]>
-            {
-                Value = Enumerable<int>.EmptyArray
-            };
+            var source = new { Values = Enumerable<int>.EmptyArray };
             var result = Mapper.Map(source).ToANew<PublicLastValue<int, int[]>>();
 
-            result.Value.ShouldBeEmpty();
+            result.Values.ShouldBeEmpty();
             result.LastValue.ShouldBeDefault();
         }
 
         [Fact]
         public void ShouldPopulateANullLastArrayMemberNameMemberToNull()
         {
-            var source = new PublicField<DateTime?[]> { Value = null };
+            var source = new { Values = default(DateTime?[]) };
             var result = Mapper.Map(source).ToANew<PublicLastValue<DateTime?, DateTime?[]>>();
 
             result.LastValue.ShouldBeNull();
@@ -383,9 +371,9 @@
         [Fact]
         public void ShouldPopulateALastEnumerableMemberNameMember()
         {
-            var source = new PublicField<IEnumerable<string>>
+            var source = new
             {
-                Value = new List<string> { "Yayhayhayhay!", "Whooooaaaaa!" }
+                Values = (IEnumerable<string>)new List<string> { "Yayhayhayhay!", "Whooooaaaaa!" }
             };
             var result = Mapper.Map(source).ToANew<PublicLastValue<string, string[]>>();
 
@@ -395,7 +383,7 @@
         [Fact]
         public void ShouldPopulateANullLastEnumerableMemberNameMemberToNull()
         {
-            var source = new PublicField<IEnumerable<string>> { Value = null };
+            var source = new { Values = default(IEnumerable<string>) };
             var result = Mapper.Map(source).ToANew<PublicLastValue<string, string[]>>();
 
             result.LastValue.ShouldBeNull();
@@ -406,16 +394,16 @@
         {
             var source = new
             {
-                Enumerable = new[]
+                Elements = new[]
                 {
                     new PublicField<int> { Value = 6473 },
                     new PublicField<int> { Value = default(int) },
                     new PublicField<int> { Value = 90283 }
                 }
             };
-            var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<int>[]>>();
+            var result = Mapper.Map(source).ToANew<PublicLastElementHasValue<PublicField<int>[]>>();
 
-            result.LastEnumerableHasValue.ShouldBeTrue();
+            result.LastElementHasValue.ShouldBeTrue();
         }
 
         [Fact]
@@ -423,41 +411,41 @@
         {
             var source = new
             {
-                Enumerable = new[]
+                Elements = new[]
                 {
                     new PublicField<string> { Value = "Hello Goodbye" },
                     new PublicField<string> { Value = default(string) }
                 }
             };
-            var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<string>[]>>();
+            var result = Mapper.Map(source).ToANew<PublicLastElementHasValue<PublicField<string>[]>>();
 
-            result.LastEnumerableHasValue.ShouldBeFalse();
+            result.LastElementHasValue.ShouldBeFalse();
         }
 
         [Fact]
         public void ShouldHandleACombinationMemberWithAnEmptyParentMember()
         {
-            var source = new { Enumerable = Enumerable<PublicField<int>>.EmptyArray };
-            var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<int>[]>>();
+            var source = new { Elements = Enumerable<PublicField<int>>.EmptyArray };
+            var result = Mapper.Map(source).ToANew<PublicLastElementHasValue<PublicField<int>[]>>();
 
-            result.LastEnumerableHasValue.ShouldBeFalse();
+            result.LastElementHasValue.ShouldBeFalse();
         }
 
         [Fact]
         public void ShouldHandleACombinationMemberWithANullParentMember()
         {
-            var source = new { Enumerable = default(PublicField<int>) };
-            var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<int>[]>>();
+            var source = new { Elements = default(PublicField<int>) };
+            var result = Mapper.Map(source).ToANew<PublicLastElementHasValue<PublicField<int>[]>>();
 
-            result.LastEnumerableHasValue.ShouldBeFalse();
+            result.LastElementHasValue.ShouldBeFalse();
         }
 
         [Fact]
         public void ShouldNotPopulateAnUnconvertibleLastEnumerableMemberNameMember()
         {
-            var source = new PublicField<ICollection<DateTime>>
+            var source = new
             {
-                Value = new List<DateTime> { DateTime.Now }
+                Values = (ICollection<DateTime>)new List<DateTime> { DateTime.Now }
             };
             var result = Mapper.Map(source).ToANew<PublicLastValue<byte, DateTime[]>>();
 
@@ -467,10 +455,7 @@
         [Fact]
         public void ShouldNotPopulateALastSimpleTypeMemberNameMember()
         {
-            var source = new PublicField<DateTime>
-            {
-                Value = DateTime.Now
-            };
+            var source = new { Values = DateTime.Now };
             var result = Mapper.Map(source).ToANew<PublicLastValue<DateTime, DateTime>>();
 
             result.LastValue.ShouldBeDefault();
@@ -479,10 +464,7 @@
         [Fact]
         public void ShouldNotPopulateALastComplexTypeMemberNameMember()
         {
-            var source = new PublicField<Address>
-            {
-                Value = new Address()
-            };
+            var source = new { Values = new Address() };
             var result = Mapper.Map(source).ToANew<PublicLastValue<string, Address>>();
 
             result.LastValue.ShouldBeDefault();
@@ -491,24 +473,18 @@
         [Fact]
         public void ShouldPopulateAnArrayCountMember()
         {
-            var source = new PublicProperty<string[]>
-            {
-                Value = new[] { "1", "2", "2" }
-            };
-            var result = Mapper.Map(source).ToANew<PublicValueCount<ICollection<string>>>();
+            var source = new { Values = new[] { "1", "2", "2" } };
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<ICollection<string>>>();
 
-            result.Value.Count.ShouldBe(3);
+            result.Values.Count.ShouldBe(3);
             result.ValueCount.ShouldBe(3);
         }
 
         [Fact]
         public void ShouldPopulateAnEnumerableCountMember()
         {
-            var source = new PublicProperty<IEnumerable<string>>
-            {
-                Value = new[] { "1", "2", "2" }
-            };
-            var result = Mapper.Map(source).ToANew<PublicValueCount<IEnumerable<string>>>();
+            var source = new { Values = (IEnumerable<string>)new[] { "1", "2", "2" } };
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<IEnumerable<string>>>();
 
             result.ValueCount.ShouldBe(3);
         }
@@ -516,11 +492,8 @@
         [Fact]
         public void ShouldHandleANullEnumerableCountMember()
         {
-            var source = new PublicProperty<IEnumerable<string>>
-            {
-                Value = default(IEnumerable<string>)
-            };
-            var result = Mapper.Map(source).ToANew<PublicValueCount<IEnumerable<string>>>();
+            var source = new { Values = default(IEnumerable<string>) };
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<IEnumerable<string>>>();
 
             result.ValueCount.ShouldBeDefault();
         }
@@ -528,11 +501,8 @@
         [Fact]
         public void ShouldNotPopulateAComplexTypeCountMember()
         {
-            var source = new PublicProperty<Address>
-            {
-                Value = new Address { Line1 = "One" }
-            };
-            var result = Mapper.Map(source).ToANew<PublicValueCount<Address>>();
+            var source = new { Values = new Address { Line1 = "One" } };
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<Address>>();
 
             result.ValueCount.ShouldBeDefault();
         }
@@ -540,11 +510,11 @@
         [Fact]
         public void ShouldPopulateAListShortCountMember()
         {
-            var source = new PublicProperty<List<string>>
+            var source = new
             {
-                Value = new List<string>(5) { "1", "2", "3", "4", "5" }
+                Values = new List<string>(5) { "1", "2", "3", "4", "5" }
             };
-            var result = Mapper.Map(source).ToANew<PublicValueCount<short, ICollection<string>>>();
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<short, ICollection<string>>>();
 
             result.ValueCount.ShouldBe(5);
         }
@@ -552,39 +522,30 @@
         [Fact]
         public void ShouldPopulateAnArrayLongCountMember()
         {
-            var source = new PublicProperty<string[]>
-            {
-                Value = new[] { "1", "2", "3", "4", "5" }
-            };
-            var result = Mapper.Map(source).ToANew<PublicValueCount<long, ICollection<string>>>();
+            var source = new { Values = new[] { "1", "2", "3", "4", "5" } };
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<long, ICollection<string>>>();
 
-            result.Value.Count.ShouldBe(5);
+            result.Values.Count.ShouldBe(5);
             result.ValueCount.ShouldBe(5L);
         }
 
         [Fact]
         public void ShouldPopulateAListLongCountMember()
         {
-            var source = new PublicProperty<List<string>>
-            {
-                Value = new List<string>(5) { "1", "2", "3", "4", "5" }
-            };
-            var result = Mapper.Map(source).ToANew<PublicValueCount<long, ICollection<string>>>();
+            var source = new { Values = new List<string>(5) { "1", "2", "3", "4", "5" } };
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<long, ICollection<string>>>();
 
-            result.Value.Count.ShouldBe(5);
+            result.Values.Count.ShouldBe(5);
             result.ValueCount.ShouldBe(5L);
         }
 
         [Fact]
         public void ShouldNotPopulateANonNumericCountMember()
         {
-            var source = new PublicProperty<List<string>>
-            {
-                Value = new List<string>(4) { "2", "3", "4", "5" }
-            };
-            var result = Mapper.Map(source).ToANew<PublicValueCount<DateTime, ICollection<string>>>();
+            var source = new { Values = new List<string>(4) { "2", "3", "4", "5" } };
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<DateTime, ICollection<string>>>();
 
-            result.Value.Count.ShouldBe(4);
+            result.Values.Count.ShouldBe(4);
             result.ValueCount.ShouldBeDefault();
         }
 
@@ -639,35 +600,35 @@
             public TValue Parent { get; set; }
         }
 
-        public class PublicFirstValue<T, TEnumerable>
+        public class PublicFirstItem<T, TEnumerable>
         {
-            public T FirstValue { get; set; }
+            public T FirstItem { get; set; }
 
-            public TEnumerable Value { get; set; }
+            public TEnumerable Items { get; set; }
         }
 
         public class PublicLastValue<T, TEnumerable>
         {
             public T LastValue { get; set; }
 
-            public TEnumerable Value { get; set; }
+            public TEnumerable Values { get; set; }
         }
 
-        public class PublicLastEnumerableHasValue<TEnumerable>
+        public class PublicLastElementHasValue<TEnumerable>
         {
-            public bool LastEnumerableHasValue { get; set; }
+            public bool LastElementHasValue { get; set; }
 
-            public TEnumerable Enumerable { get; set; }
+            public TEnumerable Elements { get; set; }
         }
 
-        public class PublicValueCount<TCount, TEnumerable>
+        public class PublicValuesCount<TCount, TEnumerable>
         {
             public TCount ValueCount { get; set; }
 
-            public TEnumerable Value { get; set; }
+            public TEnumerable Values { get; set; }
         }
 
-        public class PublicValueCount<TEnumerable> : PublicValueCount<int, TEnumerable>
+        public class PublicValuesCount<TEnumerable> : PublicValuesCount<int, TEnumerable>
         {
         }
 

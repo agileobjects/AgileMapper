@@ -63,7 +63,7 @@
                     case CountMetaMemberPart.Name:
                         if (currentMemberName.Length != 0)
                         {
-                            memberNameParts.Add(currentMemberName);
+                            memberNameParts.Add(GetFinalMemberName(currentMemberName, memberNamePart));
                             currentMemberName = string.Empty;
                         }
 
@@ -93,13 +93,30 @@
                 return false;
             }
 
-            if (currentMemberName.Length != 0)
+            if (currentMemberName.Length == 0)
             {
-                // ReSharper disable once PossibleNullReferenceException
-                memberNameParts.Add(currentMemberName);
+                return memberNameParts.Any();
             }
 
-            return memberNameParts?.Any() == true;
+            memberNameParts.Add(GetFinalMemberName(
+                currentMemberName,
+                memberNameParts[memberNameParts.Count - 1]));
+
+            return memberNameParts.Any();
+        }
+
+        private static string GetFinalMemberName(string memberName, string previousNamePart)
+        {
+            switch (previousNamePart)
+            {
+                case FirstMetaMemberPart.Name:
+                case LastMetaMemberPart.Name:
+                case CountMetaMemberPart.Name:
+                    return memberName.Pluralise();
+
+                default:
+                    return memberName;
+            }
         }
 
         private static bool TryGetMetaMember(
