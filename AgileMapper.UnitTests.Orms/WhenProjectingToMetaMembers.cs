@@ -15,27 +15,56 @@
         {
         }
 
+        #region Project -> CollectionCount
+
+        protected Task RunShouldProjectToAHasCollectionMember()
+            => RunTest(DoShouldProjectToAHasCollectionMember);
+
+        protected Task RunShouldErrorProjectingToAHasCollectionMember()
+            => RunTestAndExpectThrow(DoShouldProjectToAHasCollectionMember);
+
+        private static async Task DoShouldProjectToAHasCollectionMember(TOrmContext context)
+        {
+            var rota = new Rota
+            {
+                StartDate = DateTime.Today.AddDays(-7),
+                EndDate = DateTime.Today.AddDays(7),
+                Entries = new List<RotaEntry> { new RotaEntry(), new RotaEntry() }
+            };
+
+            await context.Rotas.Add(rota);
+            await context.SaveChanges();
+
+            var rotaDto = context
+                .Rotas
+                .Project().To<RotaDto>()
+                .ShouldHaveSingleItem();
+
+            rotaDto.HasEntries.ShouldBeTrue();
+        }
+
+        #endregion
+
         [Fact]
-        public Task ShouldProjectToAHasCollectionMember()
+        public Task ShouldProjectToAnIntHasEnumerableMember()
         {
             return RunTest(async context =>
             {
-                var rota = new Rota
+                var order = new OrderUk
                 {
-                    StartDate = DateTime.Today.AddDays(-7),
-                    EndDate = DateTime.Today.AddDays(7),
-                    Entries = new List<RotaEntry> { new RotaEntry(), new RotaEntry() }
+                    DatePlaced = DateTime.UtcNow,
+                    Items = new List<OrderItem> { new OrderItem() }
                 };
 
-                await context.Rotas.Add(rota);
+                await context.Orders.Add(order);
                 await context.SaveChanges();
 
-                var rotaDto = context
-                    .Rotas
-                    .Project().To<RotaDto>()
+                var orderDto = context
+                    .Orders
+                    .Project().To<OrderDto>()
                     .ShouldHaveSingleItem();
 
-                rotaDto.HasEntries.ShouldBeTrue();
+                orderDto.HasItems.ShouldBe(1);
             });
         }
     }

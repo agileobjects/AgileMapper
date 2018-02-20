@@ -1,12 +1,12 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2
+﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore1
 {
     using System.Threading.Tasks;
     using Infrastructure;
     using Xunit;
 
-    public class WhenProjectingToMetaMembers : WhenProjectingToMetaMembers<EfCore2TestDbContext>
+    public class WhenProjectingToMetaMembers : WhenProjectingToMetaMembers<EfCore1TestDbContext>
     {
-        public WhenProjectingToMetaMembers(InMemoryEfCore2TestContext context)
+        public WhenProjectingToMetaMembers(InMemoryEfCore1TestContext context)
             : base(context)
         {
         }

@@ -83,7 +83,7 @@
                 : sourceValue.GetConversionTo<bool>();
 
             var boolConversion = Expression.Condition(
-                Expression.IsTrue(testValue),
+                testValue,
                 One.GetConversionTo(targetType),
                 Zero.GetConversionTo(targetType));
 

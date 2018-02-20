@@ -88,6 +88,8 @@
                         return ReplaceIn((ConditionalExpression)expression);
 
                     case ExpressionType.Convert:
+                    case ExpressionType.IsFalse:
+                    case ExpressionType.IsTrue:
                     case ExpressionType.Not:
                     case ExpressionType.Throw:
                     case ExpressionType.TypeAs:

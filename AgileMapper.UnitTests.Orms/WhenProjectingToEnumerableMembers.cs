@@ -119,7 +119,7 @@
 
                 orderDto.Id.ShouldBe(order.Id);
                 orderDto.DatePlaced.ShouldBe(order.DatePlaced);
-                orderDto.Items.Count().ShouldBe(order.Items.Count);
+                orderDto.Items.Count().ShouldBe(2);
 
                 var i = 0;
 

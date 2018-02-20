@@ -144,9 +144,17 @@
         {
             if (collectionAccess.Type.IsArray)
             {
-                return countType == typeof(long)
-                    ? Expression.Property(collectionAccess, "LongLength")
-                    : (Expression)Expression.ArrayLength(collectionAccess);
+                if (countType == typeof(long))
+                {
+                    var longLength = collectionAccess.Type.GetPublicInstanceProperty("LongLength");
+
+                    if (longLength != null)
+                    {
+                        return Expression.Property(collectionAccess, longLength);
+                    }
+                }
+
+                return Expression.ArrayLength(collectionAccess);
             }
 
             var countProperty = collectionAccess.Type.GetPublicInstanceProperty("Count");
