@@ -175,7 +175,7 @@
             if (collectionAccess.Type.IsAssignableTo(collectionType))
             {
                 return Expression.Property(
-                    collectionAccess, 
+                    collectionAccess,
                     collectionType.GetPublicInstanceProperty("Count"));
             }
 
@@ -228,6 +228,26 @@
             return call.Method.IsStatic && call.Method.IsGenericMethod &&
                   (ReferenceEquals(call.Method, _linqToListMethod) ||
                    ReferenceEquals(call.Method, _linqToArrayMethod));
+        }
+
+        public static Expression WithOrderingLinqCall(
+            this Expression enumerable,
+            string orderingMethodName,
+            ParameterExpression element,
+            Expression orderMemberAccess)
+        {
+            var funcTypes = new[] { element.Type, orderMemberAccess.Type };
+
+            var orderingMethod = typeof(Enumerable)
+                .GetPublicStaticMethod(orderingMethodName, parameterCount: 2)
+                .MakeGenericMethod(funcTypes);
+
+            var orderLambda = Expression.Lambda(
+                Expression.GetFuncType(funcTypes),
+                orderMemberAccess,
+                element);
+
+            return Expression.Call(orderingMethod, enumerable, orderLambda);
         }
 
         public static Expression WithToArrayLinqCall(this Expression enumerable, Type elementType)

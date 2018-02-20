@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.Members
             idMember = mapperData
                 .MapperContext
                 .Naming
-                .GetIdentifierOrNull(TypeKey.ForTypeId(type));
+                .GetIdentifierOrNull(type);
 
             return idMember?.IsEntityId() == true;
         }

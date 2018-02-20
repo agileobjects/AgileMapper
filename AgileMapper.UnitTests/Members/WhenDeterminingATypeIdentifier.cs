@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Members
 {
-    using AgileMapper.Members;
     using TestClasses;
     using Xunit;
 
@@ -11,7 +10,7 @@
         {
             DefaultMapperContext
                 .Naming
-                .GetIdentifierOrNull(TypeKey.ForTypeId(new { Id = "blahblahblah" }.GetType()))
+                .GetIdentifierOrNull(new { Id = "blahblahblah" }.GetType())
                 .ShouldNotBeNull();
         }
 
@@ -20,7 +19,7 @@
         {
             DefaultMapperContext
                 .Naming
-                .GetIdentifierOrNull(TypeKey.ForTypeId(new { Identifier = "lalalala" }.GetType()))
+                .GetIdentifierOrNull(new { Identifier = "lalalala" }.GetType())
                 .ShouldNotBeNull();
         }
 
@@ -29,7 +28,7 @@
         {
             DefaultMapperContext
                 .Naming
-                .GetIdentifierOrNull(TypeKey.ForTypeId(typeof(Person)))
+                .GetIdentifierOrNull(typeof(Person))
                 .ShouldNotBeNull();
         }
 
@@ -38,7 +37,7 @@
         {
             DefaultMapperContext
                 .Naming
-                .GetIdentifierOrNull(TypeKey.ForTypeId(new { NoIdHere = true }.GetType()))
+                .GetIdentifierOrNull(new { NoIdHere = true }.GetType())
                 .ShouldBeNull();
         }
     }

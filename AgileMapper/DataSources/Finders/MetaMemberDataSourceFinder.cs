@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -493,36 +492,21 @@
                 var orderMember =
                     elementType.GetPublicInstanceMember("Order") ??
                     elementType.GetPublicInstanceMember("DateCreated") ??
-                    MapperData.MapperContext.Naming.GetIdentifierOrNull(TypeKey.ForTypeId(elementType))?.MemberInfo;
+                    MapperData.MapperContext.Naming.GetIdentifierOrNull(elementType)?.MemberInfo;
 
                 if (orderMember == null)
                 {
                     return GetLinqMethodCall(LinqSelectionMethodName, enumerableAccess, helper);
                 }
 
-                enumerableAccess = GetOrderingCall(enumerableAccess, orderMember);
+                var element = Parameters.Create(_sourceMember.Type);
+
+                enumerableAccess = enumerableAccess.WithOrderingLinqCall(
+                    LinqOrderingMethodName,
+                    element,
+                    Expression.MakeMemberAccess(element, orderMember));
 
                 return GetLinqMethodCall(nameof(Enumerable.FirstOrDefault), enumerableAccess, helper);
-            }
-
-            private Expression GetOrderingCall(Expression enumerableAccess, MemberInfo orderMember)
-            {
-                var element = Parameters.Create(_sourceMember.Type);
-                var orderAccess = Expression.MakeMemberAccess(element, orderMember);
-
-                var orderingMethod = typeof(Enumerable)
-                    .GetPublicStaticMethod(LinqOrderingMethodName, parameterCount: 2)
-                    .MakeGenericMethod(element.Type, orderAccess.Type);
-
-                var orderLambda = Expression.Lambda(
-                    Expression.GetFuncType(element.Type, orderAccess.Type),
-                    orderAccess,
-                    element);
-
-                return Expression.Call(
-                    orderingMethod,
-                    enumerableAccess,
-                    orderLambda);
             }
 
             protected abstract Expression GetIndex(Expression enumerableAccess);

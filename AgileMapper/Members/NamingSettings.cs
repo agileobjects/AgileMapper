@@ -140,7 +140,9 @@
         }
 
         private bool IsTypeIdentifier(Member member)
-            => GetIdentifierOrNull(TypeKey.ForTypeId(member.DeclaringType))?.Equals(member) == true;
+            => GetIdentifierOrNull(member.DeclaringType)?.Equals(member) == true;
+
+        public Member GetIdentifierOrNull(Type type) => GetIdentifierOrNull(TypeKey.ForTypeId(type));
 
         public Member GetIdentifierOrNull(TypeKey typeIdKey)
         {

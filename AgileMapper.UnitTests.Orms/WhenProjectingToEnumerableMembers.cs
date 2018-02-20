@@ -157,9 +157,7 @@
                 var accountDto = context
                     .Accounts
                     .Project()
-                    .To<AccountDto>(cfg => cfg
-                        .Map(a => a.DeliveryAddresses.OrderBy(da => da.AddressId).Select(da => da.Address))
-                        .To(dto => dto.DeliveryAddresses))
+                    .To<AccountDto>()
                     .ShouldHaveSingleItem();
 
                 accountDto.Id.ShouldBe(account.Id);
