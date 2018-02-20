@@ -127,7 +127,7 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
-            return mapperData.RuleSet.Settings.GuardMemberAccesses(value)
+            return mapperData.RuleSet.Settings.GuardAccessTo(value)
                 ? mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull)
                 : ExpressionInfoFinder.EmptyExpressionInfo;
         }

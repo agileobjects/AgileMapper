@@ -31,7 +31,7 @@
                 yield break;
             }
 
-            yield return context.GetFallbackDataSourceFor();
+            yield return context.GetFallbackDataSource();
         }
 
         private static bool UseMaptimeDataSources(

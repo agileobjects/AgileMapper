@@ -14,17 +14,7 @@ namespace AgileObjects.AgileMapper
 
         private static readonly MappingRuleSet _createNew = new MappingRuleSet(
             Constants.CreateNew,
-            new MappingRuleSetSettings
-            {
-                SourceElementsCouldBeNull = true,
-                UseTryCatch = true,
-                CheckDerivedSourceTypes = true,
-                GuardMemberAccesses = value => true,
-                ExpressionIsSupported = value => true,
-                AllowObjectTracking = true,
-                AllowGetMethods = true,
-                AllowSetMethods = true
-            },
+            MappingRuleSetSettings.ForInMemoryMapping(),
             new CopySourceEnumerablePopulationStrategy(),
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,
             DefaultMemberPopulationFactory.Instance,
@@ -32,18 +22,7 @@ namespace AgileObjects.AgileMapper
 
         private static readonly MappingRuleSet _merge = new MappingRuleSet(
             Constants.Merge,
-            new MappingRuleSetSettings
-            {
-                RootHasPopulatedTarget = true,
-                SourceElementsCouldBeNull = true,
-                UseTryCatch = true,
-                CheckDerivedSourceTypes = true,
-                GuardMemberAccesses = value => true,
-                ExpressionIsSupported = value => true,
-                AllowObjectTracking = true,
-                AllowGetMethods = true,
-                AllowSetMethods = true
-            },
+            MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
             new MergeEnumerablePopulationStrategy(),
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,
             new MemberMergePopulationFactory(),
@@ -51,18 +30,7 @@ namespace AgileObjects.AgileMapper
 
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
             Constants.Overwrite,
-            new MappingRuleSetSettings
-            {
-                RootHasPopulatedTarget = true,
-                SourceElementsCouldBeNull = true,
-                UseTryCatch = true,
-                CheckDerivedSourceTypes = true,
-                GuardMemberAccesses = value => true,
-                ExpressionIsSupported = value => true,
-                AllowObjectTracking = true,
-                AllowGetMethods = true,
-                AllowSetMethods = true
-            },
+            MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
             OverwriteEnumerablePopulationStrategy.Instance,
             MapRecursionCallRecursiveMemberMappingStrategy.Instance,
             DefaultMemberPopulationFactory.Instance,
@@ -74,7 +42,7 @@ namespace AgileObjects.AgileMapper
             {
                 UseMemberInitialisation = true,
                 UseSingleRootMappingExpression = true,
-                GuardMemberAccesses = value => value.Type.IsComplex(),
+                GuardAccessTo = value => value.Type.IsComplex(),
                 ExpressionIsSupported = value => value.CanBeProjected(),
                 AllowEnumerableAssignment = true
             },

@@ -20,10 +20,15 @@
             if (TryGetMetaMemberNameParts(context, out var memberNameParts) &&
                 TryGetMetaMember(memberNameParts, context, out var metaMember))
             {
-                return new[] { context.GetFinalDataSource(metaMember.GetDataSource()) };
-            }
+                var dataSource = metaMember.GetDataSource();
 
-            return Enumerable<IDataSource>.Empty;
+                yield return context.GetFinalDataSource(dataSource);
+
+                if (dataSource.IsConditional)
+                {
+                    yield return context.GetFallbackDataSource();
+                }
+            }
         }
 
         private static bool TryGetMetaMemberNameParts(
@@ -299,12 +304,16 @@
             public IDataSource GetDataSource()
             {
                 var metaMemberAccess = GetAccess(MapperData.SourceObject);
-                var mappingDataSource = new AdHocDataSource(SourceMember, metaMemberAccess, MapperData);
+                var condition = GetConditionOrNull();
 
-                return mappingDataSource;
+                return (condition != null)
+                    ? new AdHocDataSource(SourceMember, metaMemberAccess, condition)
+                    : new AdHocDataSource(SourceMember, metaMemberAccess, MapperData);
             }
 
             public abstract Expression GetAccess(Expression parentInstance);
+
+            public virtual Expression GetConditionOrNull() => null;
 
             protected static Expression GetLinqMethodCall(
                 string methodName,
@@ -377,13 +386,15 @@
             {
                 var helper = new EnumerableTypeHelper(enumerableAccess.Type);
 
-                if (helper.IsEnumerableInterface)
-                {
-                    return GetLinqMethodCall(nameof(Enumerable.Any), enumerableAccess, helper);
-                }
+                return helper.IsEnumerableInterface
+                    ? GetLinqMethodCall(nameof(Enumerable.Any), enumerableAccess, helper)
+                    : GetEnumerableCountCheck(enumerableAccess, helper);
+            }
 
+            public static Expression GetEnumerableCountCheck(Expression enumerableAccess, EnumerableTypeHelper helper)
+            {
                 var enumerableCount = helper.GetCountFor(enumerableAccess);
-                var zero = ToNumericConverter<int>.Zero;
+                var zero = ToNumericConverter<int>.Zero.GetConversionTo(enumerableCount.Type);
                 var countGreaterThanZero = Expression.GreaterThan(enumerableCount, zero);
 
                 return countGreaterThanZero;
@@ -393,6 +404,7 @@
         private abstract class EnumerablePositionMetaMemberPart : MetaMemberPartBase
         {
             private IQualifiedMember _sourceMember;
+            private Expression _condition;
 
             protected EnumerablePositionMetaMemberPart(IMemberMapperData mapperData)
                 : base(mapperData)
@@ -434,7 +446,9 @@
 
                 var helper = new EnumerableTypeHelper(enumerableAccess.Type, _sourceMember.Type);
 
-                var valueAccess = helper.HasListInterface
+                _condition = GetCondition(enumerableAccess, helper);
+
+                var valueAccess = (helper.HasListInterface && MapperData.RuleSet.Settings.AllowIndexAccesses)
                     ? enumerableAccess.GetIndexAccess(GetIndex(enumerableAccess))
                     : GetOrderedEnumerableAccess(enumerableAccess, helper);
 
@@ -450,6 +464,22 @@
 
                 return valueAccess;
             }
+
+            private Expression GetCondition(Expression enumerableAccess, EnumerableTypeHelper helper)
+            {
+                var enumerableCheck = HasMetaMemberPart.GetEnumerableCountCheck(enumerableAccess, helper);
+
+                if (MapperData.RuleSet.Settings.GuardAccessTo(enumerableAccess))
+                {
+                    enumerableCheck = Expression.AndAlso(
+                        enumerableAccess.GetIsNotDefaultComparison(),
+                        enumerableCheck);
+                }
+
+                return enumerableCheck;
+            }
+
+            public override Expression GetConditionOrNull() => _condition;
 
             private Expression GetOrderedEnumerableAccess(Expression enumerableAccess, EnumerableTypeHelper helper)
             {
@@ -467,7 +497,7 @@
 
                 enumerableAccess = GetOrderingCall(enumerableAccess, orderMember);
 
-                return GetLinqMethodCall(nameof(Enumerable.First), enumerableAccess, helper);
+                return GetLinqMethodCall(nameof(Enumerable.FirstOrDefault), enumerableAccess, helper);
             }
 
             private Expression GetOrderingCall(Expression enumerableAccess, MemberInfo orderMember)
@@ -502,7 +532,7 @@
             {
             }
 
-            protected override string LinqSelectionMethodName => nameof(Enumerable.First);
+            protected override string LinqSelectionMethodName => nameof(Enumerable.FirstOrDefault);
 
             protected override string LinqOrderingMethodName => nameof(Enumerable.OrderBy);
 
@@ -518,7 +548,7 @@
             {
             }
 
-            protected override string LinqSelectionMethodName => nameof(Enumerable.Last);
+            protected override string LinqSelectionMethodName => nameof(Enumerable.LastOrDefault);
 
             protected override string LinqOrderingMethodName => nameof(Enumerable.OrderByDescending);
 

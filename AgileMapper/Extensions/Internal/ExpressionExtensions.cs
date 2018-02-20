@@ -170,11 +170,24 @@
                     .MakeGenericType(exp.Type.GetEnumerableElementType());
             }
 
-            countProperty = collectionInterfaceTypeFactory
-                .Invoke(collectionAccess)
-                .GetPublicInstanceProperty("Count");
+            var collectionType = collectionInterfaceTypeFactory.Invoke(collectionAccess);
 
-            return Expression.Property(collectionAccess, countProperty);
+            if (collectionAccess.Type.IsAssignableTo(collectionType))
+            {
+                return Expression.Property(
+                    collectionAccess, 
+                    collectionType.GetPublicInstanceProperty("Count"));
+            }
+
+            var linqCountMethodName = (countType == typeof(long))
+                ? nameof(Enumerable.LongCount)
+                : nameof(Enumerable.Count);
+
+            return Expression.Call(
+                typeof(Enumerable)
+                    .GetPublicStaticMethod(linqCountMethodName, parameterCount: 1)
+                    .MakeGenericMethod(collectionAccess.Type.GetEnumerableElementType()),
+                collectionAccess);
         }
 
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)

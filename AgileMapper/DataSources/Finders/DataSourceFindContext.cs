@@ -21,7 +21,7 @@
 
         public IList<IConfiguredDataSource> ConfiguredDataSources { get; set; }
 
-        public IDataSource GetFallbackDataSourceFor()
+        public IDataSource GetFallbackDataSource()
             => ChildMappingData.RuleSet.FallbackDataSourceFactory.Create(MapperData);
 
         public IDataSource GetFinalDataSource(IDataSource foundDataSource, IChildMemberMappingData mappingData = null)

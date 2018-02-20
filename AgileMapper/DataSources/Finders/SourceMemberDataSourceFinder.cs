@@ -29,7 +29,7 @@
                 }
                 else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)
                 {
-                    yield return context.GetFallbackDataSourceFor();
+                    yield return context.GetFallbackDataSource();
                 }
 
                 yield break;
@@ -41,7 +41,7 @@
                  matchingSourceMemberDataSource.IsConditional &&
                 (matchingSourceMemberDataSource.IsValid || configuredDataSources.Any()))
             {
-                yield return context.GetFallbackDataSourceFor();
+                yield return context.GetFallbackDataSource();
             }
         }
 

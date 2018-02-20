@@ -30,6 +30,13 @@
                 return checker._canBeProjected;
             }
 
+            protected override Expression VisitIndex(IndexExpression indexAccess)
+            {
+                _canBeProjected = false;
+
+                return base.VisitIndex(indexAccess);
+            }
+
             protected override Expression VisitInvocation(InvocationExpression invocation)
             {
                 _canBeProjected = false;
