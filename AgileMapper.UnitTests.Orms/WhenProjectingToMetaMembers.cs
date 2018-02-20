@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Infrastructure;
     using TestClasses;
@@ -15,7 +16,29 @@
         {
         }
 
-        #region Project -> CollectionCount
+        [Fact]
+        public Task ShouldProjectToAHasComplexTypeMember()
+        {
+            return RunTest(async context =>
+            {
+                var person1 = new Person { Address = new Address { Line1 = "Here!" } };
+                var person2 = new Person { Address = default(Address) };
+
+                await context.Persons.AddRange(person1, person2);
+                await context.SaveChanges();
+
+                var personDtos = context
+                    .Persons
+                    .OrderBy(p => p.PersonId)
+                    .Project().To<PersonDto>()
+                    .ToList();
+
+                personDtos.First().HasAddress.ShouldBeTrue();
+                personDtos.Second().HasAddress.ShouldBeFalse();
+            });
+        }
+
+        #region Project -> HasCollection
 
         protected Task RunShouldProjectToAHasCollectionMember()
             => RunTest(DoShouldProjectToAHasCollectionMember);

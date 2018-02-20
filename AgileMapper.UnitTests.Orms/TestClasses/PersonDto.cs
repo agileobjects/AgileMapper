@@ -6,6 +6,8 @@
 
         public string Name { get; set; }
 
+        public bool HasAddress { get; set; }
+
         public AddressDto Address { get; set; }
     }
 }
