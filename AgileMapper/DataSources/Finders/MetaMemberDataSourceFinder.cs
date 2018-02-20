@@ -10,6 +10,7 @@
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
     using TypeConversion;
+    using static System.StringComparison;
 
     internal class MetaMemberDataSourceFinder : IDataSourceFinder
     {
@@ -72,6 +73,15 @@
 
                     default:
                         currentMemberName = memberNamePart + currentMemberName;
+
+                        if (currentMemberName.StartsWith(NumberOfMetaMemberPart.Name, Ordinal))
+                        {
+                            currentMemberName = currentMemberName.Substring(NumberOfMetaMemberPart.Name.Length);
+                            memberNameParts.Add(currentMemberName);
+                            memberNameParts.Add(NumberOfMetaMemberPart.Name);
+                            currentMemberName = string.Empty;
+                            noMetaMemberAdded = false;
+                        }
                         break;
                 }
 
@@ -144,6 +154,14 @@
 
                     case CountMetaMemberPart.Name:
                         if (CountMetaMemberPart.TryCreateFor(context.MapperData, ref currentMemberPart))
+                        {
+                            break;
+                        }
+
+                        return false;
+
+                    case NumberOfMetaMemberPart.Name:
+                        if (NumberOfMetaMemberPart.TryCreateFor(context.MapperData, ref currentMemberPart))
                         {
                             break;
                         }
@@ -426,23 +444,25 @@
                 => Expression.Subtract(enumerableAccess.GetCount(), ToNumericConverter<int>.One);
         }
 
-        private class CountMetaMemberPart : MetaMemberPartBase
+        private abstract class CountMetaMemberPartBase : MetaMemberPartBase
         {
-            public const string Name = "Count";
-
-            private CountMetaMemberPart(IMemberMapperData mapperData)
+            protected CountMetaMemberPartBase(IMemberMapperData mapperData)
                 : base(mapperData)
             {
             }
 
-            public static bool TryCreateFor(IMemberMapperData mapperData, ref MetaMemberPartBase metaMemberPart)
+            protected static bool TryCreate<TPart>(
+                IMemberMapperData mapperData,
+                ref MetaMemberPartBase metaMemberPart,
+                Func<IMemberMapperData, TPart> partFactory)
+                where TPart : CountMetaMemberPartBase
             {
                 if (!mapperData.TargetMember.IsSimple || !mapperData.TargetMember.Type.IsNumeric())
                 {
                     return false;
                 }
 
-                metaMemberPart = new CountMetaMemberPart(mapperData);
+                metaMemberPart = partFactory.Invoke(mapperData);
                 return true;
             }
 
@@ -458,6 +478,39 @@
                     : helper.GetCountFor(enumerableAccess, MapperData.TargetMember.Type.GetNonNullableType());
 
                 return count.GetConversionTo(MapperData.TargetMember.Type);
+            }
+        }
+
+        private class CountMetaMemberPart : CountMetaMemberPartBase
+        {
+            public const string Name = "Count";
+
+            private CountMetaMemberPart(IMemberMapperData mapperData)
+                : base(mapperData)
+            {
+            }
+
+            public static bool TryCreateFor(IMemberMapperData mapperData, ref MetaMemberPartBase metaMemberPart)
+                => TryCreate(mapperData, ref metaMemberPart, md => new CountMetaMemberPart(md));
+        }
+
+        private class NumberOfMetaMemberPart : CountMetaMemberPartBase
+        {
+            public const string Name = "NumberOf";
+
+            private NumberOfMetaMemberPart(IMemberMapperData mapperData)
+                : base(mapperData)
+            {
+            }
+
+            public static bool TryCreateFor(IMemberMapperData mapperData, ref MetaMemberPartBase metaMemberPart)
+                => TryCreate(mapperData, ref metaMemberPart, md => new NumberOfMetaMemberPart(md));
+
+            public override Expression GetAccess(Expression parentAccess)
+            {
+                var enumerableAccess = NextPart.GetAccess(parentAccess);
+
+                return base.GetAccess(enumerableAccess);
             }
         }
 

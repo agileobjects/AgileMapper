@@ -588,6 +588,30 @@
             result.ValueCount.ShouldBeDefault();
         }
 
+        [Fact]
+        public void ShouldPopulateAReadOnlyCollectionNumberOfMember()
+        {
+            var source = new PublicProperty<ReadOnlyCollection<int>>
+            {
+                Value = new ReadOnlyCollection<int>(new[] { 5, 5 })
+            };
+            var result = Mapper.Map(source).ToANew<PublicNumberOfValue<IEnumerable<string>>>();
+
+            result.NumberOfValue.ShouldBe(2);
+        }
+
+        [Fact]
+        public void ShouldNotPopulateAComplexTypeNumberOfMember()
+        {
+            var source = new PublicProperty<PublicField<DateTime>>
+            {
+                Value = new PublicField<DateTime> { Value = DateTime.Now }
+            };
+            var result = Mapper.Map(source).ToANew<PublicNumberOfValue<PublicField<DateTime>>>();
+
+            result.NumberOfValue.ShouldBeDefault();
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<THasValue, TValue>
@@ -645,6 +669,13 @@
 
         public class PublicValueCount<TEnumerable> : PublicValueCount<int, TEnumerable>
         {
+        }
+
+        public class PublicNumberOfValue<TEnumerable>
+        {
+            public int NumberOfValue { get; set; }
+
+            public TEnumerable Value { get; set; }
         }
 
         #endregion
