@@ -139,11 +139,14 @@
 
         public static Expression GetCount(
             this Expression collectionAccess,
+            Type countType = null,
             Func<Expression, Type> collectionInterfaceTypeFactory = null)
         {
             if (collectionAccess.Type.IsArray)
             {
-                return Expression.ArrayLength(collectionAccess);
+                return countType == typeof(long)
+                    ? Expression.Property(collectionAccess, "LongLength")
+                    : (Expression)Expression.ArrayLength(collectionAccess);
             }
 
             var countProperty = collectionAccess.Type.GetPublicInstanceProperty("Count");

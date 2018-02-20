@@ -514,6 +514,18 @@
         }
 
         [Fact]
+        public void ShouldHandleANullEnumerableCountMember()
+        {
+            var source = new PublicProperty<IEnumerable<string>>
+            {
+                Value = default(IEnumerable<string>)
+            };
+            var result = Mapper.Map(source).ToANew<PublicValueCount<IEnumerable<string>>>();
+
+            result.ValueCount.ShouldBeDefault();
+        }
+
+        [Fact]
         public void ShouldNotPopulateAComplexTypeCountMember()
         {
             var source = new PublicProperty<Address>
@@ -523,6 +535,44 @@
             var result = Mapper.Map(source).ToANew<PublicValueCount<Address>>();
 
             result.ValueCount.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldPopulateAListShortCountMember()
+        {
+            var source = new PublicProperty<List<string>>
+            {
+                Value = new List<string>(5) { "1", "2", "3", "4", "5" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicValueCount<short, ICollection<string>>>();
+
+            result.ValueCount.ShouldBe(5);
+        }
+
+        [Fact]
+        public void ShouldPopulateAnArrayLongCountMember()
+        {
+            var source = new PublicProperty<string[]>
+            {
+                Value = new[] { "1", "2", "3", "4", "5" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicValueCount<long, ICollection<string>>>();
+
+            result.Value.Count.ShouldBe(5);
+            result.ValueCount.ShouldBe(5L);
+        }
+
+        [Fact]
+        public void ShouldPopulateAListLongCountMember()
+        {
+            var source = new PublicProperty<List<string>>
+            {
+                Value = new List<string>(5) { "1", "2", "3", "4", "5" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicValueCount<long, ICollection<string>>>();
+
+            result.Value.Count.ShouldBe(5);
+            result.ValueCount.ShouldBe(5L);
         }
 
         #region Helper Classes
@@ -573,11 +623,15 @@
             public TEnumerable Enumerable { get; set; }
         }
 
-        public class PublicValueCount<TEnumerable>
+        public class PublicValueCount<TCount, TEnumerable>
         {
-            public int ValueCount { get; set; }
+            public TCount ValueCount { get; set; }
 
             public TEnumerable Value { get; set; }
+        }
+
+        public class PublicValueCount<TEnumerable> : PublicValueCount<int, TEnumerable>
+        {
         }
 
         #endregion

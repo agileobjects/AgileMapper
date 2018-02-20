@@ -438,12 +438,11 @@
             {
                 var helper = new EnumerableTypeHelper(enumerableAccess.Type);
 
-                if (helper.IsEnumerableInterface)
-                {
-                    return GetLinqMethodCall(nameof(Enumerable.Count), enumerableAccess, helper);
-                }
+                var count = helper.IsEnumerableInterface
+                    ? GetLinqMethodCall(nameof(Enumerable.Count), enumerableAccess, helper)
+                    : helper.GetCountFor(enumerableAccess, MapperData.TargetMember.Type.GetNonNullableType());
 
-                return helper.GetCountFor(enumerableAccess);
+                return count.GetConversionTo(MapperData.TargetMember.Type);
             }
         }
 
