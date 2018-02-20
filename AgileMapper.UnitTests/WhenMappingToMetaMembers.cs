@@ -147,6 +147,15 @@
         }
 
         [Fact]
+        public void ShouldPopulateANullableByteHasMemberNameMember()
+        {
+            var source = new PublicField<IEnumerable<int>> { Value = new[] { 1, 2 } };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<byte?, IList<Address>>>();
+
+            result.HasValue.ShouldBe(1);
+        }
+
+        [Fact]
         public void ShouldPopulateATwoLevelHasComplexTypeMemberNameMember()
         {
             var source = new { Parent = new PublicField<int> { Value = 894 } };
@@ -375,13 +384,25 @@
         }
 
         [Fact]
-        public void ShouldNotPopulateALastNonEnumerableMemberNameMember()
+        public void ShouldNotPopulateALastSimpleTypeMemberNameMember()
         {
             var source = new PublicField<DateTime>
             {
                 Value = DateTime.Now
             };
             var result = Mapper.Map(source).ToANew<PublicLastValue<DateTime, DateTime>>();
+
+            result.LastValue.ShouldBeDefault();
+        }
+
+        [Fact]
+        public void ShouldNotPopulateALastComplexTypeMemberNameMember()
+        {
+            var source = new PublicField<Address>
+            {
+                Value = new Address()
+            };
+            var result = Mapper.Map(source).ToANew<PublicLastValue<string, Address>>();
 
             result.LastValue.ShouldBeDefault();
         }
