@@ -372,6 +372,23 @@
         }
 
         [Fact]
+        public void ShouldPopulateACombinationMember()
+        {
+            var source = new
+            {
+                Enumerable = new[]
+                {
+                    new PublicField<int> { Value = 6473 },
+                    new PublicField<int> { Value = default(int) },
+                    new PublicField<int> { Value = 90283 }
+                }
+            };
+            var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<int>[]>>();
+
+            result.LastEnumerableHasValue.ShouldBeTrue();
+        }
+
+        [Fact]
         public void ShouldNotPopulateAnUnconvertibleLastEnumerableMemberNameMember()
         {
             var source = new PublicField<ICollection<DateTime>>
@@ -439,6 +456,13 @@
             public T LastValue { get; set; }
 
             public TEnumerable Value { get; set; }
+        }
+
+        public class PublicLastEnumerableHasValue<TEnumerable>
+        {
+            public bool LastEnumerableHasValue { get; set; }
+
+            public TEnumerable Enumerable { get; set; }
         }
 
         #endregion

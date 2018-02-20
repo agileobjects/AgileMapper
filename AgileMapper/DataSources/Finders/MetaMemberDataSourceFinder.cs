@@ -49,7 +49,7 @@
 
             if (TryGetMetaMember(memberNameParts, context, out var metaMember))
             {
-                yield return metaMember.GetDataSource(context);
+                yield return context.GetFinalDataSource(metaMember.GetDataSource());
             }
         }
 
@@ -138,9 +138,20 @@
                             return false;
                         }
 
-                        currentMemberPart = new SourceMemberMetaMemberPart(currentSourceMember, currentMapperData);
+                        currentMemberPart = new SourceMemberMetaMemberPart(
+                            currentSourceMember,
+                            currentMapperData,
+                            isRootMemberPart: currentMemberPart == null);
 
-                        currentMappingDataFactory = (sm, tm, md, c) => ObjectMappingDataFactory.ForChild(sm, tm, 0, md);
+                        currentMappingDataFactory = (sm, tm, md, c) =>
+                        {
+                            var mappingData = ObjectMappingDataFactory.ForChild(sm, tm, 0, md);
+
+                            return sm.IsEnumerable
+                                ? ObjectMappingDataFactory.ForElement(mappingData)
+                                : ObjectMappingDataFactory.ForChild(sm, tm, 0, md);
+                        };
+
                         break;
                 }
 
@@ -170,7 +181,7 @@
 
             public virtual IQualifiedMember SourceMember => MapperData.SourceMember;
 
-            protected MetaMemberPartBase NextPart { get; private set; }
+            public MetaMemberPartBase NextPart { get; private set; }
 
             public bool TrySetNextPart(MetaMemberPartBase nextPart)
             {
@@ -190,12 +201,12 @@
 
             protected abstract bool IsInvalid(MetaMemberPartBase nextPart);
 
-            public IDataSource GetDataSource(DataSourceFindContext context)
+            public IDataSource GetDataSource()
             {
-                var metaMemberAccess = GetAccess(context.MapperData.SourceObject);
+                var metaMemberAccess = GetAccess(MapperData.SourceObject);
                 var mappingDataSource = new AdHocDataSource(SourceMember, metaMemberAccess, MapperData);
 
-                return context.GetFinalDataSource(mappingDataSource);
+                return mappingDataSource;
             }
 
             public abstract Expression GetAccess(Expression parentInstance);
@@ -317,16 +328,21 @@
 
                 var helper = new EnumerableTypeHelper(enumerableAccess.Type);
 
-                var elementAccess = helper.HasListInterface
+                var valueAccess = helper.HasListInterface
                     ? enumerableAccess.GetIndexAccess(GetIndex(enumerableAccess))
                     : GetLinqMethodCall(LinqMethodName, enumerableAccess, helper);
 
-                if (MapperData.TargetMember.IsSimple)
+                if (NextPart.NextPart != null)
                 {
-                    return MapperData.GetValueConversion(elementAccess, MapperData.TargetMember.Type);
+                    valueAccess = NextPart.NextPart.GetAccess(valueAccess);
                 }
 
-                return elementAccess;
+                if (MapperData.TargetMember.IsSimple)
+                {
+                    return MapperData.GetValueConversion(valueAccess, MapperData.TargetMember.Type);
+                }
+
+                return valueAccess;
             }
 
             protected abstract Expression GetIndex(Expression enumerableAccess);
@@ -363,11 +379,15 @@
 
         private class SourceMemberMetaMemberPart : MetaMemberPartBase
         {
+            private readonly bool _isRootMemberPart;
+
             public SourceMemberMetaMemberPart(
                 IQualifiedMember sourceMember,
-                IMemberMapperData parentMapperData)
+                IMemberMapperData parentMapperData,
+                bool isRootMemberPart)
                 : base(parentMapperData)
             {
+                _isRootMemberPart = isRootMemberPart;
                 SourceMember = sourceMember.RelativeTo(parentMapperData.SourceMember);
             }
 
@@ -379,7 +399,7 @@
             {
                 var memberAccess = SourceMember.GetQualifiedAccess(parentInstance);
 
-                return (NextPart != null)
+                return _isRootMemberPart
                     ? NextPart.GetAccess(memberAccess)
                     : memberAccess;
             }
