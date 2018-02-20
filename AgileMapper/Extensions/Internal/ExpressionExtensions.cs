@@ -141,6 +141,11 @@
             this Expression collectionAccess,
             Func<Expression, Type> collectionInterfaceTypeFactory = null)
         {
+            if (collectionAccess.Type.IsArray)
+            {
+                return Expression.ArrayLength(collectionAccess);
+            }
+
             var countProperty = collectionAccess.Type.GetPublicInstanceProperty("Count");
 
             if (countProperty != null)

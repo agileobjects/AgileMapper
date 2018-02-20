@@ -24,13 +24,16 @@
             return Enumerable<IDataSource>.Empty;
         }
 
-        private static bool TryGetMetaMemberNameParts(DataSourceFindContext context, out IList<string> memberNameParts)
+        private static bool TryGetMetaMemberNameParts(
+            DataSourceFindContext context,
+            out IList<string> memberNameParts)
         {
             memberNameParts = default(IList<string>);
 
             var targetMemberName = context.MapperData.TargetMember.Name;
             var previousNamePartEndIndex = targetMemberName.Length;
             var currentMemberName = string.Empty;
+            var noMetaMemberAdded = true;
 
             for (var i = previousNamePartEndIndex - 1; i >= 0; --i)
             {
@@ -56,6 +59,7 @@
                     case HasMetaMemberPart.Name:
                     case FirstMetaMemberPart.Name:
                     case LastMetaMemberPart.Name:
+                    case CountMetaMemberPart.Name:
                         if (currentMemberName.Length != 0)
                         {
                             memberNameParts.Add(currentMemberName);
@@ -63,6 +67,7 @@
                         }
 
                         memberNameParts.Add(memberNamePart);
+                        noMetaMemberAdded = false;
                         break;
 
                     default:
@@ -71,6 +76,11 @@
                 }
 
                 previousNamePartEndIndex = i;
+            }
+
+            if (noMetaMemberAdded)
+            {
+                return false;
             }
 
             if (currentMemberName.Length != 0)
@@ -130,6 +140,10 @@
 
                     case LastMetaMemberPart.Name:
                         currentMemberPart = new LastMetaMemberPart(context.MapperData);
+                        break;
+
+                    case CountMetaMemberPart.Name:
+                        currentMemberPart = new CountMetaMemberPart(context.MapperData);
                         break;
 
                     default:
@@ -406,6 +420,26 @@
 
             protected override Expression GetIndex(Expression enumerableAccess)
                 => Expression.Subtract(enumerableAccess.GetCount(), ToNumericConverter<int>.One);
+        }
+
+        private class CountMetaMemberPart : MetaMemberPartBase
+        {
+            public const string Name = "Count";
+
+            public CountMetaMemberPart(IMemberMapperData mapperData)
+                : base(mapperData)
+            {
+            }
+
+            protected override bool IsInvalid(MetaMemberPartBase nextPart)
+            {
+                return false;
+            }
+
+            public override Expression GetAccess(Expression enumerableAccess)
+            {
+                return enumerableAccess.GetCount();
+            }
         }
 
         private class SourceMemberMetaMemberPart : MetaMemberPartBase

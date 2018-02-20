@@ -139,11 +139,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             return instance.Type != typeof(IEnumerable<>).MakeGenericType(instance.Type.GetEnumerableElementType());
         }
 
-        public Expression GetCountFor(Expression instance)
-        {
-            return IsArray
-                ? Expression.ArrayLength(instance)
-                : instance.GetCount(exp => CollectionInterfaceType);
-        }
+        public Expression GetCountFor(Expression instance) => instance.GetCount(exp => CollectionInterfaceType);
     }
 }

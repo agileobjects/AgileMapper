@@ -488,6 +488,19 @@
             result.LastValue.ShouldBeDefault();
         }
 
+        [Fact]
+        public void ShouldPopulateAnEnumerableCountMember()
+        {
+            var source = new PublicProperty<string[]>
+            {
+                Value = new[] { "1", "2", "2" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicValueCount<ICollection<string>>>();
+
+            result.Value.Count.ShouldBe(3);
+            result.ValueCount.ShouldBe(3);
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<THasValue, TValue>
@@ -534,6 +547,13 @@
             public bool LastEnumerableHasValue { get; set; }
 
             public TEnumerable Enumerable { get; set; }
+        }
+
+        public class PublicValueCount<TEnumerable>
+        {
+            public int ValueCount { get; set; }
+
+            public TEnumerable Value { get; set; }
         }
 
         #endregion
