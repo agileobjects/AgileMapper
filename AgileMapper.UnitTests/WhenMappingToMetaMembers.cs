@@ -575,6 +575,19 @@
             result.ValueCount.ShouldBe(5L);
         }
 
+        [Fact]
+        public void ShouldNotPopulateANonNumericCountMember()
+        {
+            var source = new PublicProperty<List<string>>
+            {
+                Value = new List<string>(4) { "2", "3", "4", "5" }
+            };
+            var result = Mapper.Map(source).ToANew<PublicValueCount<DateTime, ICollection<string>>>();
+
+            result.Value.Count.ShouldBe(4);
+            result.ValueCount.ShouldBeDefault();
+        }
+
         #region Helper Classes
 
         public class PublicHasValue<THasValue, TValue>

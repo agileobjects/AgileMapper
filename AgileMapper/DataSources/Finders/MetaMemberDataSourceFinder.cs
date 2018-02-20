@@ -143,8 +143,12 @@
                         break;
 
                     case CountMetaMemberPart.Name:
-                        currentMemberPart = new CountMetaMemberPart(context.MapperData);
-                        break;
+                        if (CountMetaMemberPart.TryCreateFor(context.MapperData, ref currentMemberPart))
+                        {
+                            break;
+                        }
+
+                        return false;
 
                     default:
                         currentMappingData = currentMappingDataFactory.Invoke(
@@ -426,9 +430,20 @@
         {
             public const string Name = "Count";
 
-            public CountMetaMemberPart(IMemberMapperData mapperData)
+            private CountMetaMemberPart(IMemberMapperData mapperData)
                 : base(mapperData)
             {
+            }
+
+            public static bool TryCreateFor(IMemberMapperData mapperData, ref MetaMemberPartBase metaMemberPart)
+            {
+                if (!mapperData.TargetMember.IsSimple || !mapperData.TargetMember.Type.IsNumeric())
+                {
+                    return false;
+                }
+
+                metaMemberPart = new CountMetaMemberPart(mapperData);
+                return true;
             }
 
             public override bool IsInvalid(MetaMemberPartBase nextPart)
