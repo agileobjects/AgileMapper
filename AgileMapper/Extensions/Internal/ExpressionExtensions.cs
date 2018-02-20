@@ -202,6 +202,13 @@
             return Expression.Convert(expression, targetType);
         }
 
+        public static bool IsLinqToArrayOrToListCall(this MethodCallExpression call)
+        {
+            return call.Method.IsStatic && call.Method.IsGenericMethod &&
+                  (ReferenceEquals(call.Method, _linqToListMethod) ||
+                   ReferenceEquals(call.Method, _linqToArrayMethod));
+        }
+
         public static Expression WithToArrayLinqCall(this Expression enumerable, Type elementType)
             => GetToEnumerableCall(enumerable, _linqToArrayMethod, elementType);
 

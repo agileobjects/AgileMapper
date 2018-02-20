@@ -11,6 +11,8 @@
 
         public DateTime EndDate { get; set; }
 
+        public bool HasEntries { get; set; }
+
         public ICollection<RotaEntryDto> Entries { get; set; }
     }
 }

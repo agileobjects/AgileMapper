@@ -70,8 +70,8 @@
             Context.Persons.Clear();
             Context.OrderItems.Clear();
             Context.Orders.Clear();
-            Context.Rotas.Clear();
             Context.RotaEntries.Clear();
+            Context.Rotas.Clear();
             Context.BoolItems.Clear();
             Context.ByteItems.Clear();
             Context.ShortItems.Clear();
