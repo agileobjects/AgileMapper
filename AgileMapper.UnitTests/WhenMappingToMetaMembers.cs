@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using AgileMapper.Extensions;
     using TestClasses;
     using Xunit;
 
@@ -207,6 +208,16 @@
             var result = Mapper.Map(source).ToANew<PublicParentHasValue<PublicProperty<string>>>();
 
             result.ParentHasValue.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldPopulateAHasMultiWordMemberNameMember()
+        {
+            var source = new { PascalValue = 123 };
+            var result = source.Map().ToANew<PublicHasPascalValue<string>>();
+
+            result.PascalValue.ShouldBe("123");
+            result.HasPascalValue.ShouldBeTrue();
         }
 
         [Fact]
@@ -478,6 +489,13 @@
 
         public class PublicHasValue<TValue> : PublicHasValue<bool, TValue>
         {
+        }
+
+        public class PublicHasPascalValue<TValue>
+        {
+            public bool HasPascalValue { get; set; }
+
+            public TValue PascalValue { get; set; }
         }
 
         public class PublicParentHasValue<TValue>

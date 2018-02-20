@@ -15,9 +15,22 @@
     {
         public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
         {
+            if (TryGetMetaMemberNameParts(context, out var memberNameParts) &&
+                TryGetMetaMember(memberNameParts, context, out var metaMember))
+            {
+                return new[] { context.GetFinalDataSource(metaMember.GetDataSource()) };
+            }
+
+            return Enumerable<IDataSource>.Empty;
+        }
+
+        private static bool TryGetMetaMemberNameParts(DataSourceFindContext context, out IList<string> memberNameParts)
+        {
+            memberNameParts = default(IList<string>);
+
             var targetMemberName = context.MapperData.TargetMember.Name;
-            var memberNameParts = default(List<string>);
             var previousNamePartEndIndex = targetMemberName.Length;
+            var currentMemberName = string.Empty;
 
             for (var i = previousNamePartEndIndex - 1; i >= 0; --i)
             {
@@ -30,7 +43,7 @@
                 {
                     if (i == 0)
                     {
-                        yield break;
+                        return false;
                     }
 
                     memberNameParts = new List<string>();
@@ -38,19 +51,35 @@
 
                 var memberNamePart = targetMemberName.Substring(i, previousNamePartEndIndex - i);
 
-                memberNameParts.Add(memberNamePart);
+                switch (memberNamePart)
+                {
+                    case HasMetaMemberPart.Name:
+                    case FirstMetaMemberPart.Name:
+                    case LastMetaMemberPart.Name:
+                        if (currentMemberName.Length != 0)
+                        {
+                            memberNameParts.Add(currentMemberName);
+                            currentMemberName = string.Empty;
+                        }
+
+                        memberNameParts.Add(memberNamePart);
+                        break;
+
+                    default:
+                        currentMemberName = memberNamePart + currentMemberName;
+                        break;
+                }
+
                 previousNamePartEndIndex = i;
             }
 
-            if ((memberNameParts == null) || memberNameParts.None())
+            if (currentMemberName.Length != 0)
             {
-                yield break;
+                // ReSharper disable once PossibleNullReferenceException
+                memberNameParts.Add(currentMemberName);
             }
 
-            if (TryGetMetaMember(memberNameParts, context, out var metaMember))
-            {
-                yield return context.GetFinalDataSource(metaMember.GetDataSource());
-            }
+            return memberNameParts?.Any() == true;
         }
 
         private static bool TryGetMetaMember(
@@ -169,6 +198,8 @@
 
             return true;
         }
+
+        #region MetaMemberPart classes
 
         private abstract class MetaMemberPartBase
         {
@@ -404,5 +435,7 @@
                     : memberAccess;
             }
         }
+
+        #endregion
     }
 }
