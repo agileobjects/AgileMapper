@@ -221,6 +221,16 @@
         }
 
         [Fact]
+        public void ShouldPopulateAHasMultiWordMemberNameMemberViaSourceFlattening()
+        {
+            var source = new { Pascal = new { Value = 456 } };
+            var result = source.Map().ToANew<PublicHasPascalValue<string>>();
+
+            result.PascalValue.ShouldBe("456");
+            result.HasPascalValue.ShouldBeTrue();
+        }
+
+        [Fact]
         public void ShouldPopulateAFirstArrayMemberNameMember()
         {
             var source = new PublicField<Address[]>
