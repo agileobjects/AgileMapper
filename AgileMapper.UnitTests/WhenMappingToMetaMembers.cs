@@ -165,6 +165,15 @@
         }
 
         [Fact]
+        public void ShouldHandleATwoLevelHasComplexTypeMemberNameMemberWithNullParentMember()
+        {
+            var source = new { Parent = default(PublicField<int>) };
+            var result = Mapper.Map(source).ToANew<PublicParentHasValue<PublicField<int>>>();
+
+            result.ParentHasValue.ShouldBeFalse();
+        }
+
+        [Fact]
         public void ShouldNotPopulateAnUnconvertibleHasMemberNameMember()
         {
             var source = new PublicField<IEnumerable<int>> { Value = new[] { 1, 2, 3 } };
@@ -386,6 +395,40 @@
             var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<int>[]>>();
 
             result.LastEnumerableHasValue.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldPopulateACombinationMemberToFalse()
+        {
+            var source = new
+            {
+                Enumerable = new[]
+                {
+                    new PublicField<string> { Value = "Hello Goodbye" },
+                    new PublicField<string> { Value = default(string) }
+                }
+            };
+            var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<string>[]>>();
+
+            result.LastEnumerableHasValue.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldHandleACombinationMemberWithAnEmptyParentMember()
+        {
+            var source = new { Enumerable = Enumerable<PublicField<int>>.EmptyArray };
+            var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<int>[]>>();
+
+            result.LastEnumerableHasValue.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldHandleACombinationMemberWithANullParentMember()
+        {
+            var source = new { Enumerable = default(PublicField<int>) };
+            var result = Mapper.Map(source).ToANew<PublicLastEnumerableHasValue<PublicField<int>[]>>();
+
+            result.LastEnumerableHasValue.ShouldBeFalse();
         }
 
         [Fact]
