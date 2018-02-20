@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -201,7 +202,15 @@
 
                         if (matchingTargetMember == null)
                         {
-                            return false;
+                            matchingTargetMember = GlobalContext.Instance
+                                .MemberCache
+                                .GetSourceMembers(currentMapperData.SourceType)
+                                .FirstOrDefault(m => m.Name == memberNamePart);
+
+                            if (matchingTargetMember == null)
+                            {
+                                return false;
+                            }
                         }
 
                         currentTargetMember = currentMapperData.TargetMember.Append(matchingTargetMember);
@@ -279,9 +288,11 @@
                     return false;
                 }
 
-                NextPart = nextPart;
+                SetNextPart(nextPart);
                 return true;
             }
+
+            protected virtual void SetNextPart(MetaMemberPartBase nextPart) => NextPart = nextPart;
 
             public abstract bool IsInvalid(MetaMemberPartBase nextPart);
 
@@ -381,14 +392,18 @@
 
         private abstract class EnumerablePositionMetaMemberPart : MetaMemberPartBase
         {
+            private IQualifiedMember _sourceMember;
+
             protected EnumerablePositionMetaMemberPart(IMemberMapperData mapperData)
                 : base(mapperData)
             {
             }
 
-            public override IQualifiedMember SourceMember => NextPart.SourceMember.GetElementMember();
+            public override IQualifiedMember SourceMember => _sourceMember;
 
-            protected abstract string LinqMethodName { get; }
+            protected abstract string LinqSelectionMethodName { get; }
+
+            protected abstract string LinqOrderingMethodName { get; }
 
             public override bool IsInvalid(MetaMemberPartBase nextPart)
             {
@@ -406,15 +421,22 @@
                       !MapperData.CanConvert(elementType, MapperData.TargetMember.Type);
             }
 
+            protected override void SetNextPart(MetaMemberPartBase nextPart)
+            {
+                _sourceMember = nextPart.SourceMember.GetElementMember();
+
+                base.SetNextPart(nextPart);
+            }
+
             public override Expression GetAccess(Expression parentInstance)
             {
                 var enumerableAccess = NextPart.GetAccess(parentInstance);
 
-                var helper = new EnumerableTypeHelper(enumerableAccess.Type);
+                var helper = new EnumerableTypeHelper(enumerableAccess.Type, _sourceMember.Type);
 
                 var valueAccess = helper.HasListInterface
                     ? enumerableAccess.GetIndexAccess(GetIndex(enumerableAccess))
-                    : GetLinqMethodCall(LinqMethodName, enumerableAccess, helper);
+                    : GetOrderedEnumerableAccess(enumerableAccess, helper);
 
                 if (NextPart.NextPart != null)
                 {
@@ -429,6 +451,45 @@
                 return valueAccess;
             }
 
+            private Expression GetOrderedEnumerableAccess(Expression enumerableAccess, EnumerableTypeHelper helper)
+            {
+                var elementType = _sourceMember.Type;
+
+                var orderMember =
+                    elementType.GetPublicInstanceMember("Order") ??
+                    elementType.GetPublicInstanceMember("DateCreated") ??
+                    MapperData.MapperContext.Naming.GetIdentifierOrNull(TypeKey.ForTypeId(elementType))?.MemberInfo;
+
+                if (orderMember == null)
+                {
+                    return GetLinqMethodCall(LinqSelectionMethodName, enumerableAccess, helper);
+                }
+
+                enumerableAccess = GetOrderingCall(enumerableAccess, orderMember);
+
+                return GetLinqMethodCall(nameof(Enumerable.First), enumerableAccess, helper);
+            }
+
+            private Expression GetOrderingCall(Expression enumerableAccess, MemberInfo orderMember)
+            {
+                var element = Parameters.Create(_sourceMember.Type);
+                var orderAccess = Expression.MakeMemberAccess(element, orderMember);
+
+                var orderingMethod = typeof(Enumerable)
+                    .GetPublicStaticMethod(LinqOrderingMethodName, parameterCount: 2)
+                    .MakeGenericMethod(element.Type, orderAccess.Type);
+
+                var orderLambda = Expression.Lambda(
+                    Expression.GetFuncType(element.Type, orderAccess.Type),
+                    orderAccess,
+                    element);
+
+                return Expression.Call(
+                    orderingMethod,
+                    enumerableAccess,
+                    orderLambda);
+            }
+
             protected abstract Expression GetIndex(Expression enumerableAccess);
         }
 
@@ -441,7 +502,9 @@
             {
             }
 
-            protected override string LinqMethodName => nameof(Enumerable.First);
+            protected override string LinqSelectionMethodName => nameof(Enumerable.First);
+
+            protected override string LinqOrderingMethodName => nameof(Enumerable.OrderBy);
 
             protected override Expression GetIndex(Expression enumerableAccess) => ToNumericConverter<int>.Zero;
         }
@@ -455,7 +518,9 @@
             {
             }
 
-            protected override string LinqMethodName => nameof(Enumerable.Last);
+            protected override string LinqSelectionMethodName => nameof(Enumerable.Last);
+
+            protected override string LinqOrderingMethodName => nameof(Enumerable.OrderByDescending);
 
             protected override Expression GetIndex(Expression enumerableAccess)
                 => Expression.Subtract(enumerableAccess.GetCount(), ToNumericConverter<int>.One);

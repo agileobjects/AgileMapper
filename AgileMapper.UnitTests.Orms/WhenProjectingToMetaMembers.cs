@@ -96,10 +96,7 @@
         {
             return RunTest(async (context, mapper) =>
             {
-                var account = new Account
-                {
-                    User = new Person { Name = "Bobbi" }
-                };
+                var account = new Account { User = new Person { Name = "Bobbi" } };
 
                 account.AddDeliveryAddress(new Address { Line1 = "1.1" });
                 account.AddDeliveryAddress(new Address { Line1 = "2.1" });
@@ -114,6 +111,45 @@
                     .ShouldHaveSingleItem();
 
                 accountDto.DeliveryAddressCount.ShouldBe(3);
+            });
+        }
+
+        [Fact]
+        public Task ShouldProjectToACombinedFirstAndHasEnumerableMemberNameMember()
+        {
+            return RunTest(async context =>
+            {
+                var order1 = new OrderUk
+                {
+                    DatePlaced = DateTime.Now.AddDays(-2),
+                    Items = new List<OrderItem>
+                    {
+                        new OrderItem(),
+                        new OrderItem { ProductName = "Bells" }
+                    }
+                };
+
+                var order2 = new OrderUk
+                {
+                    DatePlaced = DateTime.Now.AddDays(-1),
+                    Items = new List<OrderItem>
+                    {
+                        new OrderItem { ProductName = "Whistles" },
+                        new OrderItem()
+                    }
+                };
+
+                await context.Orders.AddRange(order1, order2);
+                await context.SaveChanges();
+
+                var orderVms = context
+                    .Orders
+                    .Project().To<OrderUsViewModel>()
+                    .OrderBy(o => o.DatePlaced)
+                    .ToArray();
+
+                orderVms.First().FirstItemHasProductName.ShouldBeFalse();
+                orderVms.Second().FirstItemHasProductName.ShouldBeTrue();
             });
         }
     }
