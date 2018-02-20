@@ -91,7 +91,7 @@
             }
 
             var isDateCall = Expression.Call(isDateMethod, sourceValue);
-            var isDateIsTrue = Expression.Equal(isDateCall, ToNumericConverter<int?>.One);
+            var isDateIsTrue = Expression.Equal(isDateCall, ToNumericConverter<int>.One.GetConversionTo<int?>());
             var createdDateOrFallback = Expression.Condition(isDateIsTrue, createdDateTime, fallbackValue);
 
             return createdDateOrFallback;

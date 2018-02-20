@@ -8,13 +8,31 @@
 
     internal class ToNumericConverter<TNumeric> : TryParseConverter<TNumeric>
     {
+        #region Cached Items
+
         private static readonly Type[] _coercibleNumericTypes =
             typeof(TNumeric)
                 .GetCoercibleNumericTypes()
                 .ToArray();
 
-        public static readonly Expression One = Convert.ChangeType(1, typeof(TNumeric)).ToConstantExpression(typeof(TNumeric));
-        public static readonly Expression Zero = Convert.ChangeType(0, typeof(TNumeric)).ToConstantExpression(typeof(TNumeric));
+        // ReSharper disable StaticMemberInGenericType
+        public static readonly Expression One = GetNumericConstant(1);
+        public static readonly Expression Zero = GetNumericConstant(0);
+        // ReSharper restore StaticMemberInGenericType
+
+        private static Expression GetNumericConstant(int value)
+        {
+            if (typeof(TNumeric) == typeof(int))
+            {
+                return value.ToConstantExpression();
+            }
+
+            return Convert
+                .ChangeType(value, typeof(TNumeric))
+                .ToConstantExpression(typeof(TNumeric));
+        }
+
+        #endregion
 
         public ToNumericConverter(ToStringConverter toStringConverter)
             : base(toStringConverter)

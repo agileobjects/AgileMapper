@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -72,9 +73,13 @@
             //  3. Find matchingSourceMember
             //  4. Build check
 
-            var currentMappingData = context.ChildMappingData.Parent;
-            var currentMapperData = currentMappingData.MapperData;
+            var currentMappingData = default(IObjectMappingData);
+            var currentSourceMember = default(IQualifiedMember);
+            var currentTargetMember = default(QualifiedMember);
             var currentMemberPart = metaMember = default(MetaMemberPartBase);
+
+            Func<IQualifiedMember, QualifiedMember, IObjectMappingData, DataSourceFindContext, IObjectMappingData> currentMappingDataFactory =
+                (sm, tm, md, c) => c.ChildMappingData.Parent;
 
             for (var i = memberNameParts.Count - 1; i >= 0; --i)
             {
@@ -99,6 +104,14 @@
                         break;
 
                     default:
+                        currentMappingData = currentMappingDataFactory.Invoke(
+                            currentSourceMember,
+                            currentTargetMember,
+                            currentMappingData,
+                            context);
+
+                        var currentMapperData = currentMappingData.MapperData;
+
                         var matchingTargetMember = GlobalContext.Instance
                             .MemberCache
                             .GetTargetMembers(currentMapperData.TargetType)
@@ -109,30 +122,25 @@
                             return false;
                         }
 
-                        var childMemberMapperData = new ChildMemberMapperData(
-                            currentMapperData.TargetMember.Append(matchingTargetMember),
-                            currentMapperData);
+                        currentTargetMember = currentMapperData.TargetMember.Append(matchingTargetMember);
+
+                        var childMemberMapperData = new ChildMemberMapperData(currentTargetMember, currentMapperData);
 
                         var memberMappingData = currentMappingData.GetChildMappingData(childMemberMapperData);
 
-                        var matchingSourceMember = SourceMemberMatcher.GetMatchFor(
+                        currentSourceMember = SourceMemberMatcher.GetMatchFor(
                             memberMappingData,
                             out var _,
                             searchParentContexts: false);
 
-                        if (matchingSourceMember == null)
+                        if (currentSourceMember == null)
                         {
                             return false;
                         }
 
-                        currentMappingData = ObjectMappingDataFactory.ForChild(
-                            matchingSourceMember,
-                            childMemberMapperData.TargetMember,
-                            0,
-                            currentMappingData);
+                        currentMemberPart = new SourceMemberMetaMemberPart(currentSourceMember, currentMapperData);
 
-                        currentMapperData = currentMappingData.MapperData;
-                        currentMemberPart = new SourceMemberMetaMemberPart(currentMapperData);
+                        currentMappingDataFactory = (sm, tm, md, c) => ObjectMappingDataFactory.ForChild(sm, tm, 0, md);
                         break;
                 }
 
@@ -355,18 +363,21 @@
 
         private class SourceMemberMetaMemberPart : MetaMemberPartBase
         {
-            public SourceMemberMetaMemberPart(IMemberMapperData mapperData)
-                : base(mapperData)
+            public SourceMemberMetaMemberPart(
+                IQualifiedMember sourceMember,
+                IMemberMapperData parentMapperData)
+                : base(parentMapperData)
             {
+                SourceMember = sourceMember.RelativeTo(parentMapperData.SourceMember);
             }
+
+            public override IQualifiedMember SourceMember { get; }
 
             protected override bool IsInvalid(MetaMemberPartBase nextPart) => false;
 
             public override Expression GetAccess(Expression parentInstance)
             {
-                var memberAccess = SourceMember
-                    .RelativeTo(MapperData.Parent.SourceMember)
-                    .GetQualifiedAccess(parentInstance);
+                var memberAccess = SourceMember.GetQualifiedAccess(parentInstance);
 
                 return (NextPart != null)
                     ? NextPart.GetAccess(memberAccess)
