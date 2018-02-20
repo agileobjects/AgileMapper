@@ -90,5 +90,31 @@
                 orderDto.HasItems.ShouldBe(1);
             });
         }
+
+        [Fact]
+        public Task ShouldProjectToAnEnumerableCountMember()
+        {
+            return RunTest(async (context, mapper) =>
+            {
+                var account = new Account
+                {
+                    User = new Person { Name = "Bobbi" }
+                };
+
+                account.AddDeliveryAddress(new Address { Line1 = "1.1" });
+                account.AddDeliveryAddress(new Address { Line1 = "2.1" });
+                account.AddDeliveryAddress(new Address { Line1 = "3.1" });
+
+                await context.Accounts.Add(account);
+                await context.SaveChanges();
+
+                var accountDto = context
+                    .Accounts
+                    .ProjectUsing(mapper).To<AccountDto>(cfg => cfg.Ignore(a => a.User))
+                    .ShouldHaveSingleItem();
+
+                accountDto.DeliveryAddressCount.ShouldBe(3);
+            });
+        }
     }
 }
