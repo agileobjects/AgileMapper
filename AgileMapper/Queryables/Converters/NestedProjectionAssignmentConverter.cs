@@ -2,6 +2,7 @@
 {
     using System.Linq.Expressions;
     using Extensions.Internal;
+    using static ObjectPopulation.Enumerables.EnumerablePopulationBuilder;
 
     internal static class NestedProjectionAssignmentConverter
     {
@@ -24,13 +25,9 @@
             MemberAssignment assignment,
             IQueryProjectionModifier modifier)
         {
-            if (modifier.Settings.SupportsEnumerableMaterialisation &&
-               (assignment.Expression.NodeType == ExpressionType.Call))
-            {
-                return ((MethodCallExpression)assignment.Expression).IsLinqToArrayOrToListCall();
-            }
-
-            return false;
+            return modifier.Settings.SupportsEnumerableMaterialisation &&
+                  (assignment.Expression.NodeType == ExpressionType.Call) &&
+                 ((MethodCallExpression)assignment.Expression).IsLinqSelectCall();
         }
 
         private static MemberAssignment ConvertToMaterialisation(

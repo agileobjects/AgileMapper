@@ -102,20 +102,7 @@
 
             var typeDefault = expression.Type.ToDefaultExpression();
 
-            if (!expression.Type.IsValueType() || !expression.Type.IsComplex())
-            {
-                return Expression.NotEqual(expression, typeDefault);
-            }
-
-            var objectEquals = typeof(object).GetPublicStaticMethod("Equals");
-
-            var objectEqualsCall = Expression.Call(
-                null,
-                objectEquals,
-                expression.GetConversionToObject(),
-                typeDefault.GetConversionToObject());
-
-            return Expression.IsFalse(objectEqualsCall);
+            return Expression.NotEqual(expression, typeDefault);
         }
 
         public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)
@@ -223,11 +210,11 @@
             return Expression.Convert(expression, targetType);
         }
 
-        public static bool IsLinqToArrayOrToListCall(this MethodCallExpression call)
+        public static bool IsLinqSelectCall(this MethodCallExpression call)
         {
-            return call.Method.IsStatic && call.Method.IsGenericMethod &&
-                  (ReferenceEquals(call.Method, _linqToListMethod) ||
-                   ReferenceEquals(call.Method, _linqToArrayMethod));
+            return call.Method.IsStatic && call.Method.IsGenericMethod && ReferenceEquals(
+                call.Method.GetGenericMethodDefinition(),
+                EnumerablePopulationBuilder.EnumerableSelectWithoutIndexMethod);
         }
 
         public static Expression WithOrderingLinqCall(

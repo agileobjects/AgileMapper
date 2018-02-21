@@ -3,6 +3,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using Extensions.Internal;
+    using Members;
     using NetStandardPolyfills;
 
     internal static class StringConcatConverter
@@ -15,7 +16,7 @@
 
         public static bool TryConvert(
             BinaryExpression binary,
-            IQueryProjectionModifier context,
+            IQueryProjectionModifier modifier,
             out Expression converted)
         {
             if ((binary.NodeType != ExpressionType.Add) ||
@@ -26,8 +27,8 @@
                 return false;
             }
 
-            var convertedLeft = ConvertOperand(binary.Left);
-            var convertedRight = ConvertOperand(binary.Right);
+            var convertedLeft = ConvertOperand(binary.Left, modifier);
+            var convertedRight = ConvertOperand(binary.Right, modifier);
 
             if ((convertedLeft == binary.Left) && (convertedRight == binary.Right))
             {
@@ -45,7 +46,7 @@
             return true;
         }
 
-        private static Expression ConvertOperand(Expression value)
+        private static Expression ConvertOperand(Expression value, IQueryProjectionModifier modifier)
         {
             while (true)
             {
@@ -69,7 +70,11 @@
                             continue;
                         }
 
-                        return value;
+                        return conversion.Operand.Type == typeof(string)
+                            ? conversion.Operand
+                            : modifier.Modify(modifier
+                                .MapperData
+                                .GetValueConversion(conversion.Operand, typeof(string)));
 
                     default:
                         return value;

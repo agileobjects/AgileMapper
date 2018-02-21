@@ -55,22 +55,14 @@
         }
 
         public bool CanConvert(Type sourceType, Type targetType)
-            => sourceType.IsAssignableTo(targetType) || EnumerateConverters(sourceType, targetType).Any();
+            => sourceType.IsAssignableTo(targetType) || (GetConverterOrNull(sourceType, targetType) != null);
 
-        private IEnumerable<IValueConverter> EnumerateConverters(Type sourceType, Type targetType)
+        private IValueConverter GetConverterOrNull(Type sourceType, Type targetType)
         {
             sourceType = sourceType.GetNonNullableType();
             targetType = targetType.GetNonNullableType();
 
-            foreach (var converter in _converters.Where(c => c.CanConvert(sourceType, targetType)))
-            {
-                yield return converter;
-
-                if (!converter.IsConditional)
-                {
-                    yield break;
-                }
-            }
+            return _converters.FirstOrDefault(c => c.CanConvert(sourceType, targetType));
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
@@ -87,11 +79,8 @@
                     : sourceValue;
             }
 
-            var converters = EnumerateConverters(sourceValue.Type, targetType).ToArray();
-
-            var conversion = converters.ReverseChain(
-                converter => converter.GetConversion(sourceValue, targetType),
-                (conversionSoFar, converter) => converter.GetConversionOption(sourceValue, conversionSoFar));
+            var converter = GetConverterOrNull(sourceValue.Type, targetType);
+            var conversion = converter.GetConversion(sourceValue, targetType);
 
             return conversion;
         }

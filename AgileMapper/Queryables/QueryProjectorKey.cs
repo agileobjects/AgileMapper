@@ -26,6 +26,13 @@
         public override IMembersSource GetMembersSource(IObjectMappingData parentMappingData)
             => _mapperContext.RootMembersSource;
 
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        // Create Instance is used to update the Key with runtime 
+        // Mapping Types; that never happens with query projection.
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
             => new QueryProjectorKey(newMappingTypes, QueryProviderType, _mapperContext);
 

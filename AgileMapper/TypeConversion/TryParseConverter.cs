@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal class TryParseConverter<T> : ValueConverterBase
+    internal class TryParseConverter<T> : IValueConverter
     {
         private readonly ToStringConverter _toStringConverter;
         private readonly Type _nonNullableTargetType;
@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
                 _nonNullableTargetType.GetVariableNameInCamelCase() + "Value");
         }
 
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
             => nonNullableTargetType == _nonNullableTargetType && CanConvert(nonNullableSourceType);
 
         protected virtual bool CanConvert(Type nonNullableSourceType)
@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
                    _toStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
         }
 
-        public override Expression GetConversion(Expression sourceValue, Type targetType)
+        public virtual Expression GetConversion(Expression sourceValue, Type targetType)
         {
             if (sourceValue.Type == _nullableTargetType)
             {

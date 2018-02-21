@@ -6,7 +6,7 @@
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal class ToCharacterConverter : ValueConverterBase
+    internal class ToCharacterConverter : IValueConverter
     {
         private static readonly Type[] _handledSourceTypes = Constants
             .NumericTypes
@@ -19,13 +19,13 @@
             _toStringConverter = toStringConverter;
         }
 
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             return (nonNullableTargetType == typeof(char)) &&
                    (nonNullableSourceType.IsEnum() || _handledSourceTypes.Contains(nonNullableSourceType));
         }
 
-        public override Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(Expression sourceValue, Type targetType)
         {
             if (sourceValue.Type == typeof(char?))
             {

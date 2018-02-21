@@ -9,10 +9,10 @@
     {
         public static bool TryConvert(
             MethodCallExpression methodCall,
-            IQueryProjectionModifier context,
+            IQueryProjectionModifier modifier,
             out Expression converted)
         {
-            if (context.Settings.SupportsGetValueOrDefault || IsNotGetValueOrDefaultCall(methodCall))
+            if (modifier.Settings.SupportsGetValueOrDefault || IsNotGetValueOrDefaultCall(methodCall))
             {
                 converted = null;
                 return false;

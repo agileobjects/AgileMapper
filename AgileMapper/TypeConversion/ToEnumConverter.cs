@@ -9,7 +9,7 @@
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal class ToEnumConverter : ValueConverterBase
+    internal class ToEnumConverter : IValueConverter
     {
         private readonly ToStringConverter _toStringConverter;
         private readonly UserConfigurationSet _userConfigurations;
@@ -20,7 +20,7 @@
             _userConfigurations = userConfigurations;
         }
 
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             if (!nonNullableTargetType.IsEnum())
             {
@@ -31,7 +31,7 @@
                   _toStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
         }
 
-        public override Expression GetConversion(Expression sourceValue, Type targetEnumType)
+        public Expression GetConversion(Expression sourceValue, Type targetEnumType)
         {
             var fallbackValue = targetEnumType.ToDefaultExpression();
             var nonNullableSourceType = sourceValue.Type.GetNonNullableType();

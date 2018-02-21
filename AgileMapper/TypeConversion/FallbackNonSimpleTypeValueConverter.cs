@@ -4,9 +4,9 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Linq.Expressions;
     using Extensions.Internal;
 
-    internal class FallbackNonSimpleTypeValueConverter : ValueConverterBase
+    internal class FallbackNonSimpleTypeValueConverter : IValueConverter
     {
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             if (nonNullableTargetType.IsSimple())
             {
@@ -26,6 +26,6 @@ namespace AgileObjects.AgileMapper.TypeConversion
             return true;
         }
 
-        public override Expression GetConversion(Expression sourceValue, Type targetType) => sourceValue;
+        public Expression GetConversion(Expression sourceValue, Type targetType) => sourceValue;
     }
 }

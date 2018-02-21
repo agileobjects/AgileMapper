@@ -175,13 +175,31 @@
         }
 
         [Fact]
-        public void ShouldMapAnCharacterOverAString()
+        public void ShouldMapACharacterOverAString()
         {
             var source = new PublicField<char> { Value = 'Z' };
             var target = new PublicField<string> { Value = "Nope" };
             var result = Mapper.Map(source).Over(target);
 
             result.Value.ShouldBe("Z");
+        }
+
+        [Fact]
+        public void ShouldMapANullableBoolToAString()
+        {
+            var source = new PublicProperty<bool?> { Value = true };
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
+
+            result.Value.ShouldBe("true");
+        }
+
+        [Fact]
+        public void ShouldMapANullNullableBoolToAString()
+        {
+            var source = new PublicProperty<bool?> { Value = null };
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
+
+            result.Value.ShouldBeNull();
         }
 
         [Fact]

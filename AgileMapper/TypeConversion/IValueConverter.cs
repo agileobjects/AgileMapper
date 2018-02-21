@@ -21,11 +21,6 @@ namespace AgileObjects.AgileMapper.TypeConversion
         bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType);
 
         /// <summary>
-        /// Gets a value indicating if the <see cref="IValueConverter"/> is used conditionally.
-        /// </summary>
-        bool IsConditional { get; }
-
-        /// <summary>
         /// Gets an Expression converting the given <paramref name="sourceValue"/> to the given 
         /// <paramref name="targetType"/>.
         /// </summary>
@@ -36,22 +31,5 @@ namespace AgileObjects.AgileMapper.TypeConversion
         /// <paramref name="targetType"/>.
         /// </returns>
         Expression GetConversion(Expression sourceValue, Type targetType);
-
-        /// <summary>
-        /// Gets an Expression converting the given <paramref name="sourceValue"/> if the 
-        /// <see cref="IValueConverter"/>'s condition evaluates to true, or delegating to the 
-        /// <paramref name="alternateConversion"/> otherwise.
-        /// </summary>
-        /// <param name="sourceValue">The source value to convert.</param>
-        /// <param name="alternateConversion">
-        /// An Expression containing the conversion which has been built so far by previous 
-        /// <see cref="IValueConverter"/>s.
-        /// </param>
-        /// <returns>
-        /// An Expression converting the given <paramref name="sourceValue"/> if the 
-        /// <see cref="IValueConverter"/>'s condition evaluates to true, or delegating to the 
-        /// <paramref name="alternateConversion"/> otherwise.
-        /// </returns>
-        Expression GetConversionOption(Expression sourceValue, Expression alternateConversion);
     }
 }

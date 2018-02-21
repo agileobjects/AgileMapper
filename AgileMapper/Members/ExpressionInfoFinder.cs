@@ -242,11 +242,6 @@ namespace AgileObjects.AgileMapper.Members
                 return true;
             }
 
-            protected override MemberBinding VisitMemberBinding(MemberBinding binding)
-            {
-                return base.VisitMemberBinding(binding);
-            }
-
             protected override Expression VisitMethodCall(MethodCallExpression methodCall)
             {
                 if ((methodCall.Object != _mappingDataObject) &&

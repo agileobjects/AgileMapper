@@ -13,17 +13,5 @@
 
             return true;
         }
-
-        public static bool IsMethod(this MemberType memberType)
-        {
-            switch (memberType)
-            {
-                case MemberType.GetMethod:
-                case MemberType.SetMethod:
-                    return true;
-            }
-
-            return false;
-        }
     }
 }

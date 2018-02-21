@@ -7,7 +7,7 @@
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
 
-    internal class ToFormattedStringConverter : ValueConverterBase
+    internal class ToFormattedStringConverter : IValueConverter
     {
         private readonly Type _sourceValueType;
         private readonly MethodInfo _toStringMethod;
@@ -27,12 +27,10 @@
             _formattingString = formattingString.ToConstantExpression(typeof(string));
         }
 
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
-        {
-            return (nonNullableTargetType == typeof(string)) && (_sourceValueType == nonNullableSourceType);
-        }
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+            => (nonNullableTargetType == typeof(string)) && (_sourceValueType == nonNullableSourceType);
 
-        public override Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(Expression sourceValue, Type targetType)
         {
             var toStringCall = Expression.Call(sourceValue, _toStringMethod, _formattingString);
 

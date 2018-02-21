@@ -13,7 +13,9 @@
         {
             var mapperData = mappingData.MapperData;
 
-            return mapperData.TargetMember.IsEnumerable && mapperData.SourceType.IsQueryable();
+            return mapperData.IsRoot &&
+                   mapperData.TargetMember.IsEnumerable &&
+                   mapperData.SourceType.IsQueryable();
         }
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)

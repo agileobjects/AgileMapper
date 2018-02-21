@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
 
-    internal class ToBoolConverter : ValueConverterBase
+    internal class ToBoolConverter : IValueConverter
     {
         private static readonly Type[] _supportedSourceTypes = Constants
             .NumericTypes
@@ -21,14 +21,14 @@ namespace AgileObjects.AgileMapper.TypeConversion
             _toStringConverter = toStringConverter;
         }
 
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             return (nonNullableTargetType == typeof(bool)) &&
                  ((_supportedSourceTypes.Contains(nonNullableSourceType)) ||
                    _toStringConverter.HasNativeStringRepresentation(nonNullableSourceType));
         }
 
-        public override Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(Expression sourceValue, Type targetType)
         {
             if (sourceValue.Type == typeof(bool?))
             {

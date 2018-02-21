@@ -16,13 +16,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.CanConvert(mapperData.SourceType, mapperData.TargetType))
+            return new[]
             {
-                yield return mapperData.GetValueConversion(mapperData.SourceObject, mapperData.TargetType);
-                yield break;
-            }
-
-            yield return mapperData.TargetObject;
+                mapperData.CanConvert(mapperData.SourceType, mapperData.TargetType)
+                    ? mapperData.GetValueConversion(mapperData.SourceObject, mapperData.TargetType)
+                    : mapperData.TargetObject
+            };
         }
     }
 }

@@ -249,6 +249,11 @@ namespace AgileObjects.AgileMapper.Members
 
         IQualifiedMember IQualifiedMember.WithType(Type runtimeType)
         {
+            if (runtimeType == Type)
+            {
+                return this;
+            }
+
             var typedMember = WithType(runtimeType);
 
             if (runtimeType.IsDictionary())

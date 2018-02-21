@@ -8,9 +8,9 @@
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal class ToStringConverter : ValueConverterBase
+    internal class ToStringConverter : IValueConverter
     {
-        public override bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
+        public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
             => nonNullableTargetType == typeof(string);
 
         public bool HasNativeStringRepresentation(Type nonNullableType)
@@ -31,7 +31,7 @@
             return operatorMethod != null;
         }
 
-        public override Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(Expression sourceValue, Type targetType)
         {
             // Target type is always 'string':
             return GetConversion(sourceValue);
@@ -39,11 +39,6 @@
 
         public Expression GetConversion(Expression sourceValue)
         {
-            if (sourceValue.Type == typeof(string))
-            {
-                return sourceValue;
-            }
-
             if (sourceValue.Type == typeof(byte[]))
             {
                 return GetByteArrayToBase64StringConversion(sourceValue);

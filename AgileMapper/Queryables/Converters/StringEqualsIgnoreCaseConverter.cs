@@ -16,6 +16,7 @@
             }
 
             converted = modifier.Settings.ConvertStringEqualsIgnoreCase(methodCall);
+            converted = modifier.Modify(converted);
             return true;
         }
 

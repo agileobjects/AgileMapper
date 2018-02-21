@@ -41,10 +41,6 @@
 
             switch (firstExpression.NodeType)
             {
-                case Conditional:
-                    derivedTypeMappings.Add((ConditionalExpression)firstExpression);
-                    return false;
-
                 case Block:
                     var nestedMappingBlock = (BlockExpression)firstExpression;
 

@@ -101,28 +101,28 @@
 
         public override Expression ConvertStringEqualsIgnoreCase(MethodCallExpression call)
         {
-            var subjectToLower = Expression.Call(
-                call.Arguments[0],
-                typeof(string).GetPublicInstanceMethod("ToLower", parameterCount: 0));
+            var stringToLowerMethod = typeof(string)
+                .GetPublicInstanceMethod("ToLower", parameterCount: 0);
 
-            var comparisonValue = GetComparisonValue(call.Arguments[1]);
-            var comparison = Expression.Equal(subjectToLower, comparisonValue);
+            var subjectToLower = GetToLowerConversion(call.Arguments[0], stringToLowerMethod);
+            var comparisonValue = GetToLowerConversion(call.Arguments[1], stringToLowerMethod);
 
-            return comparison;
+            return Expression.Equal(subjectToLower, comparisonValue);
         }
 
         #region GetStringEqualsIgnoreCaseConversion Helpers
 
-        private static Expression GetComparisonValue(Expression value)
+        private static Expression GetToLowerConversion(Expression value, MethodInfo stringToLowerMethod)
         {
             if (value.NodeType != ExpressionType.Constant)
             {
-                return value;
+                return Expression.Call(value, stringToLowerMethod);
             }
 
             var stringValue = ((ConstantExpression)value).Value?.ToString().ToLowerInvariant();
 
             return stringValue.ToConstantExpression();
+
         }
 
         #endregion
