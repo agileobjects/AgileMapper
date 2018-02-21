@@ -12,9 +12,11 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Support for IQueryable{T} projection
-- Optimising enum mapping
-- Including target complex type constructability in mapping validation
+- Automatically mapping and projecting to 'meta' members - HasAddress, FirstContactDetail, etc
+- Automatically mapping from collections of linking types to collections of the linked type
+- Support for projecting from Nullables in queries
+- Removing incompatible configured conditions and values from query projections
+- Support for mapping bools to numerics
 - Performance improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
