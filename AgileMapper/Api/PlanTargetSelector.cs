@@ -71,7 +71,7 @@
             var planContext = new SimpleMappingContext(ruleSet, _mapperContext)
             {
                 AddUnsuccessfulMemberPopulations = true,
-                EagerLoadRecursionMappingFuncs = true
+                LazyLoadRecursionMappingFuncs = false
             };
 
             return GetMappingPlan(

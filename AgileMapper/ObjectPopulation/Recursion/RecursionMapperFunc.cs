@@ -8,20 +8,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
         private readonly ObjectMapperData _mapperData;
         private MapperFunc<TChildSource, TChildTarget> _recursionMapperFunc;
 
-        public RecursionMapperFunc(IObjectMappingData mappingData, bool eagerLoadFuncs)
+        public RecursionMapperFunc(IObjectMappingData mappingData, bool lazyLoadFuncs)
         {
-            if (eagerLoadFuncs)
-            {
-                CreateMapperFunc(mappingData);
-
-                mappingData.MapperKey.MapperData = null;
-            }
-            else
+            if (lazyLoadFuncs)
             {
                 _mapperData = mappingData.MapperData;
+                mappingData.MapperKey.MappingData = null;
+                return;
             }
 
-            mappingData.MapperKey.MappingData = null;
+            CreateMapperFunc(mappingData);
         }
 
         public Type SourceType => typeof(TChildSource);
@@ -54,10 +50,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
 
         private void CreateMapperFunc(IObjectMappingData mappingData)
         {
+            mappingData.MapperKey.MappingData = mappingData;
+            mappingData.MapperKey.MapperData = mappingData.MapperData;
+
             MappingLambda = mappingData.Mapper.MappingLambda;
 
             var typedMappingLambda = (Expression<MapperFunc<TChildSource, TChildTarget>>)MappingLambda;
             _recursionMapperFunc = typedMappingLambda.Compile();
+
+            mappingData.MapperKey.MapperData = null;
+            mappingData.MapperKey.MappingData = null;
         }
     }
 }

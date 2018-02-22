@@ -65,24 +65,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     var mapperFuncType = typeof(RecursionMapperFunc<,>).MakeGenericType(key.SourceType, key.TargetType);
                     var mapperDataParameter = Parameters.Create<IObjectMappingData>("mappingData");
-                    var eagerLoadParameter = Parameters.Create<bool>("eagerLoadFuncs");
+                    var lazyLoadParameter = Parameters.Create<bool>("lazyLoadFuncs");
 
                     var mapperFuncCreation = Expression.New(
                         mapperFuncType.GetPublicInstanceConstructor(typeof(IObjectMappingData), typeof(bool)),
                         mapperDataParameter,
-                        eagerLoadParameter);
+                        lazyLoadParameter);
 
                     var mapperCreationLambda = Expression.Lambda<Func<IObjectMappingData, bool, IRecursionMapperFunc>>(
                         mapperFuncCreation,
                         mapperDataParameter,
-                        eagerLoadParameter);
+                        lazyLoadParameter);
 
                     return mapperCreationLambda.Compile();
                 });
 
                 var mapperFunc = mapperFuncCreator.Invoke(
                     mapperKey.MappingData,
-                    mappingData.MappingContext.EagerLoadRecursionMappingFuncs);
+                    mappingData.MappingContext.LazyLoadRecursionMappingFuncs);
 
                 cache.GetOrAdd(mapperKey, k => mapperFunc);
             }
@@ -126,13 +126,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public object MapRecursion(IObjectMappingData childMappingData)
         {
-            // The cache can be null (and can contain null functions) if 
-            // a recursive member mapping turns out to have all-unmappable 
-            // members, i.e. it doesn't map anything:
-            var mapperFunc = _recursionMappingFuncsByKey?
+            var mapperFunc = _recursionMappingFuncsByKey
                 .GetOrAdd(childMappingData.MapperKey, null);
 
-            return mapperFunc?.Map(childMappingData);
+            return mapperFunc.Map(childMappingData);
         }
     }
 }

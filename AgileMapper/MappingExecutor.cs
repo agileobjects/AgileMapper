@@ -29,7 +29,7 @@
 
         public bool AddUnsuccessfulMemberPopulations => false;
 
-        public bool EagerLoadRecursionMappingFuncs => false;
+        public bool LazyLoadRecursionMappingFuncs => true;
 
         #region ToANew Overloads
 
