@@ -16,7 +16,7 @@
             var childMapperData = childMappingData.MapperData;
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
 
-            childMapperData.TargetMember.MapCreating(sourceMemberAccess.Type);
+            childMapperData.TargetMember.MapCreating(sourceMember.Type);
 
             var mappingValues = new MappingValues(
                 sourceMemberAccess,

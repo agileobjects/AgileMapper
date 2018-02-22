@@ -9,6 +9,13 @@ namespace AgileObjects.AgileMapper.Members.Sources
             _memberFactory = memberFactory;
         }
 
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
+        public int DataSourceIndex => 0;
+
         public IQualifiedMember GetSourceMember<TSource, TTarget>()
             => _memberFactory.RootSource<TSource, TTarget>();
 

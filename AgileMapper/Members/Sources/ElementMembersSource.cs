@@ -11,6 +11,8 @@ namespace AgileObjects.AgileMapper.Members.Sources
             _enumerableMapperData = enumerableMapperData;
         }
 
+        public int DataSourceIndex => _enumerableMapperData.DataSourceIndex;
+
         public IQualifiedMember GetSourceMember<TSource, TTarget>()
         {
             var sourceElementMember = _enumerableMapperData.SourceMember.GetElementMember();

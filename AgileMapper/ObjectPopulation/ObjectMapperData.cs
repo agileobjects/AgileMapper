@@ -283,7 +283,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 parentMapperData = mappingData.Parent.MapperData;
                 membersSource = mappingData.MapperKey.GetMembersSource(parentMapperData);
-                dataSourceIndex = (membersSource as IChildMembersSource)?.DataSourceIndex;
+                dataSourceIndex = membersSource.DataSourceIndex;
             }
 
             var sourceMember = membersSource.GetSourceMember<TSource, TTarget>().WithType(typeof(TSource));
