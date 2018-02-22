@@ -427,11 +427,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
 
-            if (nearestStandaloneMapperData.RequiredMapperFuncsByKey == null)
+            if (nearestStandaloneMapperData.RequiredMapperFuncKeys == null)
             {
-                nearestStandaloneMapperData.RequiredMapperFuncsByKey = new Dictionary<ObjectMapperKeyBase, LambdaExpression>();
+                nearestStandaloneMapperData.RequiredMapperFuncKeys = new List<ObjectMapperKeyBase>();
             }
-            else if (nearestStandaloneMapperData.RequiredMapperFuncsByKey.ContainsKey(mappingData.MapperKey))
+            else if (nearestStandaloneMapperData.RequiredMapperFuncKeys.Contains(mappingData.MapperKey))
             {
                 return;
             }
@@ -439,16 +439,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingData.MapperKey.MapperData = mappingData.MapperData;
             mappingData.MapperKey.MappingData = mappingData;
 
-            nearestStandaloneMapperData.RequiredMapperFuncsByKey.Add(mappingData.MapperKey, null);
-
-            //var mappingLambda = mappingData.Mapper.MappingLambda;
-
-            //if (mappingLambda != null)
-            //{
-            //    // The mapping lambda can be null if it turns out the nested mapping 
-            //    // function has all-unmappable members, i.e. it doesn't map anything:
-            //    nearestStandaloneMapperData.RequiredMapperFuncsByKey[mappingData.MapperKey] = mappingLambda;
-            //}
+            nearestStandaloneMapperData.RequiredMapperFuncKeys.Add(mappingData.MapperKey);
         }
 
         public ObjectMapperData GetNearestStandaloneMapperData()
@@ -463,9 +454,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool HasMapperFuncs => RequiredMapperFuncsByKey?.Any() == true;
+        public bool HasMapperFuncs => RequiredMapperFuncKeys?.Any() == true;
 
-        public Dictionary<ObjectMapperKeyBase, LambdaExpression> RequiredMapperFuncsByKey { get; private set; }
+        public IList<ObjectMapperKeyBase> RequiredMapperFuncKeys { get; private set; }
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 

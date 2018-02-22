@@ -211,9 +211,6 @@
             return Expression.Convert(expression, targetType);
         }
 
-        public static bool IsCallTo(this Expression call, string methodName)
-            => ((MethodCallExpression)call).Method.Name == methodName;
-
         public static bool IsLinqSelectCall(this MethodCallExpression call)
         {
             return call.Method.IsStatic && call.Method.IsGenericMethod && ReferenceEquals(

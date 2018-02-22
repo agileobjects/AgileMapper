@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Caching;
     using Recursion;
@@ -54,13 +53,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var cache = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRecursionMapperFunc>();
 
-            for (var i = 0; i < MapperData.RequiredMapperFuncsByKey.Count; i++)
+            for (var i = 0; i < MapperData.RequiredMapperFuncKeys.Count; i++)
             {
-                var mapperKey = MapperData.RequiredMapperFuncsByKey.Keys.ElementAt(i);
-
-                //var mappingLambda = mappingLambdaAndKey.Value;
-                //var mappingDataObject = mappingLambda.Parameters[0];
-                //var mappingDataTypes = mappingDataObject.Type.GetGenericTypeArguments();
+                var mapperKey = MapperData.RequiredMapperFuncKeys[i];
 
                 var typesKey = new SourceAndTargetTypesKey(
                     mapperKey.MapperData.SourceType,
@@ -136,62 +131,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             // members, i.e. it doesn't map anything:
             var mapperFunc = _recursionMappingFuncsByKey?
                 .GetOrAdd(childMappingData.MapperKey, null);
-
-            //if (_recursionMappingFuncsByKey == null)
-            //{
-            //    return null;
-            //}
-
-            //childMappingData.MapperKey.MappingData = childMappingData;
-
-            //var mapperFunc = _recursionMappingFuncsByKey.GetOrAdd(childMappingData.MapperKey, key =>
-            //{
-            //    var mapperData = key.MapperData;
-
-            //    if (!mapperData.GetNearestStandaloneMapperData().RequiredMapperFuncsByKey.ContainsKey(key))
-            //    {
-            //        key.MappingData = null;
-            //        key.MapperData = null;
-
-            //        return NullRecursionMapperFunc.Instance;
-            //    }
-
-            //    //key.MappingData.MapperData = key.MapperData;
-
-            //    var mappingLambda = key.MappingData.Mapper.MappingLambda;
-
-            //    if (mappingLambda == null)
-            //    {
-            //        key.MappingData = null;
-            //        key.MapperData = null;
-
-            //        return NullRecursionMapperFunc.Instance;
-            //    }
-
-            //    var mappingDataObject = mappingLambda.Parameters[0];
-            //    var mappingDataTypes = mappingDataObject.Type.GetGenericTypeArguments();
-
-            //    var typesKey = new SourceAndTargetTypesKey(mappingDataTypes[0], mappingDataTypes[1]);
-
-            //    var mapperFuncCreator = GlobalContext.Instance.Cache.GetOrAdd(typesKey, tKey =>
-            //    {
-            //        var mapperFuncType = typeof(RecursionMapperFunc<,>).MakeGenericType(tKey.SourceType, tKey.TargetType);
-            //        var lambdaParameter = Parameters.Create<LambdaExpression>("lambda");
-
-            //        var mapperFuncCreation = Expression.New(mapperFuncType.GetPublicInstanceConstructors().First(), lambdaParameter);
-
-            //        var mapperCreationLambda = Expression.Lambda<Func<LambdaExpression, IRecursionMapperFunc>>(
-            //            mapperFuncCreation,
-            //            lambdaParameter);
-
-            //        return mapperCreationLambda.Compile();
-            //    });
-
-            //    key.MappingData = null;
-            //    key.MapperData = null;
-
-            //    return mapperFuncCreator.Invoke(mappingLambda);
-            //});
 
             return mapperFunc?.Map(childMappingData);
         }

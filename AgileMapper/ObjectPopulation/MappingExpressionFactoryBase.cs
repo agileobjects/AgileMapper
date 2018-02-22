@@ -163,31 +163,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool IsMemberMapping(Expression expression)
         {
-            if (expression.NodeType == Constant)
+            switch (expression.NodeType)
             {
-                return false;
-            }
+                case Constant:
+                    return false;
 
-            if ((expression.NodeType == Call) &&
-                (expression.IsCallTo(nameof(IObjectMappingDataUntyped.Register)) ||
-                 expression.IsCallTo(nameof(IObjectMappingDataUntyped.TryGet))))
-            {
-                return false;
-            }
+                case Call when (
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.Register)) ||
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.TryGet))):
 
-            if ((expression.NodeType == Assign) &&
-                 IsMapRecursionCall(((BinaryExpression)expression).Right))
-            {
-                return false;
-            }
+                    return false;
 
-            return true;
+                case Assign when IsMapRecursionCall(((BinaryExpression)expression).Right):
+                    return false;
+
+                default:
+                    return true;
+            }
         }
+
+        private static bool IsCallTo(Expression call, string methodName)
+            => ((MethodCallExpression)call).Method.Name == methodName;
 
         private static bool IsMapRecursionCall(Expression expression)
         {
             return (expression.NodeType == Call) &&
-                    expression.IsCallTo(nameof(IObjectMappingDataUntyped.MapRecursion));
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRecursion));
         }
 
         private Expression GetMappingBlock(

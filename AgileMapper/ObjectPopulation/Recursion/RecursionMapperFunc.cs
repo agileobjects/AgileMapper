@@ -22,11 +22,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
             }
 
             mappingData.MapperKey.MappingData = null;
-
-            //MappingLambda = mappingLambda;
-
-            //var typedMappingLambda = (Expression<MapperFunc<TChildSource, TChildTarget>>)mappingLambda;
-            //_recursionMapperFunc = typedMappingLambda.Compile();
         }
 
         public Type SourceType => typeof(TChildSource);
