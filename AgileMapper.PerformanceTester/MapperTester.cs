@@ -7,25 +7,26 @@
 
     internal class MapperTester
     {
-        public static void Test(IEnumerable<IObjectMapper> mappers)
+        public static void Test(IEnumerable<IObjectMapperTest> mapperTests)
         {
-            const int NUMBER_OF_MAPPINGS = 1000000;
-
-            foreach (var mapper in mappers)
+            foreach (var test in mapperTests)
             {
-                mapper.Initialise();
-                mapper.Map();
+                test.Initialise();
 
                 var timer = Stopwatch.StartNew();
 
-                for (var i = 0; i < NUMBER_OF_MAPPINGS; i++)
+                test.Execute(timer);
+
+                timer.Restart();
+
+                for (var i = 0; i < test.NumberOfExecutions; i++)
                 {
-                    mapper.Map();
+                    test.Execute(timer);
                 }
 
                 timer.Stop();
 
-                Console.WriteLine(mapper.Name.PadRight(40) + timer.Elapsed.TotalSeconds);
+                Console.WriteLine(test.Name.PadRight(40) + timer.Elapsed.TotalSeconds);
             }
         }
     }

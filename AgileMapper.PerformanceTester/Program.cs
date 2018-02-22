@@ -10,6 +10,7 @@
 namespace AgileObjects.AgileMapper.PerformanceTester
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using AbstractMappers;
     using ConcreteMappers.AgileMapper;
@@ -28,7 +29,7 @@ namespace AgileObjects.AgileMapper.PerformanceTester
     public class Program
     {
         private static readonly string[] _mapperIds = { "man", "ag", "au", "exp", "ma", "vi" };
-        private static readonly string[] _testIds = { "ctor", "compl", "flat", "unflat", "deep" };
+        private static readonly string[] _testIds = { "ctor", "compl", "compls", "flat", "unflat", "unflats", "deep", "deeps" };
 
         public static void Main(string[] args)
         {
@@ -59,9 +60,9 @@ namespace AgileObjects.AgileMapper.PerformanceTester
             var useMapster = mappersToTest.Contains("ma");
             var useValueInjecter = mappersToTest.Contains("vi");
 
-            var mapperSets = new[]
+            var mapperTestSets = new[]
             {
-                new IObjectMapper[]
+                new IObjectMapperTest[]
                 {
                     useManual ? new ManualCtorMapper() : null,
                     useAgileMapper ? new AgileMapperCtorMapper() : null,
@@ -70,65 +71,90 @@ namespace AgileObjects.AgileMapper.PerformanceTester
                     useMapster ? new MapsterCtorMapper() : null,
                     useValueInjecter ? new ValueInjecterCtorMapper() : null
                 },
-                new IObjectMapper[]
+                new IObjectMapperTest[]
                 {
-                    useManual? new ManualComplexTypeMapper() : null,
-                    useAgileMapper? new AgileMapperComplexTypeMapper() : null,
-                    useAutoMapper? new AutoMapperComplexTypeMapper() : null,
-                    useExpressMapper? new ExpressMapperComplexTypeMapper() : null,
+                    useManual ? new ManualComplexTypeMapper() : null,
+                    useAgileMapper ? new AgileMapperComplexTypeMapper() : null,
+                    useAutoMapper ? new AutoMapperComplexTypeMapper() : null,
+                    useExpressMapper ? new ExpressMapperComplexTypeMapper() : null,
                     useMapster ? new MapsterComplexTypeMapper() : null,
                     useValueInjecter ? new ValueInjecterComplexTypeMapper() : null
                 },
-                new IObjectMapper[]
+                new IObjectMapperTest[]
                 {
-                    useManual? new ManualFlatteningMapper() : null,
-                    useAgileMapper? new AgileMapperFlatteningMapper() : null,
-                    useAutoMapper? new AutoMapperFlatteningMapper() : null,
-                    useExpressMapper? new ExpressMapperFlatteningMapper() : null,
-                    useMapster? new MapsterFlatteningMapper() : null,
+                    useAgileMapper ? new AgileMapperComplexTypeMapperSetup() : null,
+                    useAutoMapper ? new AutoMapperComplexTypeMapperSetup() : null,
+                    useExpressMapper ? new ExpressMapperComplexTypeMapperSetup() : null,
+                    useMapster ? new MapsterComplexTypeMapperSetup() : null
+                },
+                new IObjectMapperTest[]
+                {
+                    useManual ? new ManualFlatteningMapper() : null,
+                    useAgileMapper ? new AgileMapperFlatteningMapper() : null,
+                    useAutoMapper ? new AutoMapperFlatteningMapper() : null,
+                    useExpressMapper ? new ExpressMapperFlatteningMapper() : null,
+                    useMapster ? new MapsterFlatteningMapper() : null,
                     useValueInjecter ? new ValueInjecterFlatteningMapper() : null
                 },
-                new IObjectMapper[]
+                new IObjectMapperTest[]
                 {
-                    useManual? new ManualUnflatteningMapper() : null,
-                    useAgileMapper? new AgileMapperUnflatteningMapper() : null,
-                    useAutoMapper? new AutoMapperUnflatteningMapper(): null,
+                    useManual ? new ManualUnflatteningMapper() : null,
+                    useAgileMapper ? new AgileMapperUnflatteningMapper() : null,
+                    useAutoMapper ? new AutoMapperUnflatteningMapper(): null,
                     //new ExpressMapperUnflatteningMapper(), // Not supported, NullReferenceException
                     //new MapsterUnflatteningMapper(),       // Not supported, complex type members unpopulated
                     useValueInjecter ? new ValueInjecterUnflatteningMapper() : null
                 },
-                new IObjectMapper[]
+                new IObjectMapperTest[]
                 {
-                    useManual? new ManualDeepMapper() : null,
-                    useAgileMapper? new AgileMapperDeepMapper() : null,
-                    useAutoMapper? new AutoMapperDeepMapper() : null,
-                    useExpressMapper? new ExpressMapperDeepMapper() : null,
-                    useMapster? new MapsterDeepMapper() : null,
+                    useAgileMapper ? new AgileMapperUnflatteningMapperSetup() : null,
+                    useAutoMapper ? new AutoMapperUnflatteningMapperSetup() : null
+                },
+                new IObjectMapperTest[]
+                {
+                    useManual ? new ManualDeepMapper() : null,
+                    useAgileMapper ? new AgileMapperDeepMapper() : null,
+                    useAutoMapper ? new AutoMapperDeepMapper() : null,
+                    useExpressMapper ? new ExpressMapperDeepMapper() : null,
+                    useMapster ? new MapsterDeepMapper() : null,
                     useValueInjecter ? new ValueInjecterDeepMapper() : null
+                },
+                new IObjectMapperTest[]
+                {
+                    useAgileMapper ? new AgileMapperDeepMapperSetup() : null,
+                    useAutoMapper ? new AutoMapperDeepMapperSetup() : null,
+                    useExpressMapper ? new ExpressMapperDeepMapperSetup() : null,
+                    useMapster ? new MapsterDeepMapperSetup() : null
                 }
             };
 
-            for (var i = 0; i < mapperSets.Length; i++)
+            for (var i = 0; i < mapperTestSets.Length; i++)
             {
                 if (!testsToRun.Contains(_testIds[i]))
                 {
                     continue;
                 }
 
-                var relevantMappers = (mappersToTest == _mapperIds)
-                    ? mapperSets[i]
-                    : mapperSets[i].Where(mapper => mapper != null).ToArray();
+                var relevantMapperTests = (mappersToTest == _mapperIds)
+                    ? mapperTestSets[i]
+                    : mapperTestSets[i].Where(mapper => mapper != null).ToArray();
 
-                MapperTester.Test(relevantMappers);
+                MapperTester.Test(relevantMapperTests);
                 Console.WriteLine();
             }
 
             Console.WriteLine("Done!");
         }
 
-        private static bool TryGetMappersToTest(string[] args, out string[] mappersToTest)
+        private static bool TryGetMappersToTest(IList<string> args, out string[] mappersToTest)
         {
-            if (args.Length == 0)
+            if (args.Count == 0)
+            {
+                mappersToTest = _mapperIds;
+                return true;
+            }
+
+            if (args[0] == "*")
             {
                 mappersToTest = _mapperIds;
                 return true;
@@ -147,9 +173,9 @@ namespace AgileObjects.AgileMapper.PerformanceTester
             return true;
         }
 
-        private static bool TryGetTestsToRun(string[] args, out string[] testsToRun)
+        private static bool TryGetTestsToRun(IList<string> args, out string[] testsToRun)
         {
-            if (args.Length < 2)
+            if (args.Count < 2)
             {
                 testsToRun = _testIds;
                 return true;

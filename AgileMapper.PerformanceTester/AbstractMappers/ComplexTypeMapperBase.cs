@@ -2,15 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using TestClasses;
 
-    internal abstract class ComplexTypeMapperBase : IObjectMapper
+    internal abstract class ComplexTypeMapperBase : MapperTestBase
     {
-        public string Name => GetType().Name;
-
-        public abstract void Initialise();
-
-        public object Map()
+        public override object Execute(Stopwatch timer)
         {
             return Clone(new Foo
             {

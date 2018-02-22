@@ -1,15 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTester.AbstractMappers
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using TestClasses;
 
-    internal abstract class DeepMapperBase : IObjectMapper
+    internal abstract class DeepMapperBase : MapperTestBase
     {
-        public string Name => GetType().Name;
-
-        public abstract void Initialise();
-
-        public object Map()
+        public override object Execute(Stopwatch timer)
         {
             return Map(new Customer
             {

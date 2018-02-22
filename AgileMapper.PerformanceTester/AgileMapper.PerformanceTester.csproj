@@ -71,9 +71,17 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="AbstractMappers\DeepMapperSetupBase.cs" />
+    <Compile Include="AbstractMappers\MapperSetupTestBase.cs" />
+    <Compile Include="AbstractMappers\MapperTestBase.cs" />
+    <Compile Include="AbstractMappers\UnflatteningMapperSetupBase.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperUnflatteningMapperSetup.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperComplexTypeMapperSetup.cs" />
+    <Compile Include="AbstractMappers\ComplexTypeMapperSetupBase.cs" />
     <Compile Include="AbstractMappers\UnflatteningMapperBase.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperCtorMapper.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperComplexTypeMapper.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperDeepMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperDeepMapper.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperUnflatteningMapper.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperFlatteningMapper.cs" />
@@ -81,12 +89,17 @@
     <Compile Include="AbstractMappers\CtorMapperBase.cs" />
     <Compile Include="AbstractMappers\DeepMapperBase.cs" />
     <Compile Include="AbstractMappers\FlatteningMapperBase.cs" />
-    <Compile Include="AbstractMappers\IObjectMapper.cs" />
+    <Compile Include="AbstractMappers\IObjectMapperTest.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperUnflatteningMapperSetup.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperDeepMapperSetup.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperComplexTypeMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperUnflatteningMapper.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperCtorMapper.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperComplexTypeMapper.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperDeepMapper.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperFlatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperDeepMapperSetup.cs" />
+    <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperComplexTypeMapperSetup.cs" />
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperCtorMapper.cs" />
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperComplexTypeMapper.cs" />
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperDeepMapper.cs" />
@@ -96,6 +109,8 @@
     <Compile Include="ConcreteMappers\Manual\ManualDeepMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualFlatteningMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\Mapster\MapsterDeepMapperSetup.cs" />
+    <Compile Include="ConcreteMappers\Mapster\MapsterComplexTypeMapperSetup.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterComplexTypeMapper.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterCtorMapper.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterDeepMapper.cs" />

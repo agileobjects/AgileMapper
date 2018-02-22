@@ -1,14 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTester.AbstractMappers
 {
+    using System.Diagnostics;
     using TestClasses;
 
-    internal abstract class CtorMapperBase : IObjectMapper
+    internal abstract class CtorMapperBase : MapperTestBase
     {
-        public string Name => GetType().Name;
-
-        public abstract void Initialise();
-
-        public object Map()
+        public override object Execute(Stopwatch timer)
         {
             return Construct(new ValueObject { Value = 5 });
         }

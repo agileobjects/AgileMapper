@@ -1,15 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTester.AbstractMappers
 {
     using System;
+    using System.Diagnostics;
     using TestClasses;
 
-    internal abstract class FlatteningMapperBase : IObjectMapper
+    internal abstract class FlatteningMapperBase : MapperTestBase
     {
-        public string Name => GetType().Name;
-
-        public abstract void Initialise();
-
-        public object Map()
+        public override object Execute(Stopwatch timer)
         {
             return Flatten(new ModelObject
             {
