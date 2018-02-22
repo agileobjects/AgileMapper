@@ -26,14 +26,24 @@ namespace AgileObjects.AgileMapper.DataSources
                 return;
             }
 
-            foreach (var dataSource in dataSources)
+            for (var i = 0; i < dataSources.Length; i++)
             {
+                var dataSource = dataSources[i];
+
                 if (dataSource.IsValid)
                 {
                     HasValue = true;
+
+                    if (i == 0)
+                    {
+                        SourceMember = dataSource.SourceMember;
+                    }
                 }
 
-                _variables.AddRange(dataSource.Variables);
+                if (dataSource.Variables.Any())
+                {
+                    _variables.AddRange(dataSource.Variables);
+                }
 
                 if (dataSource.SourceMemberTypeTest != null)
                 {
@@ -44,6 +54,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public IMemberMapperData MapperData { get; }
 
+        public IQualifiedMember SourceMember { get; set; }
+
         public bool None { get; }
 
         public bool HasValue { get; }
@@ -51,8 +63,6 @@ namespace AgileObjects.AgileMapper.DataSources
         public Expression SourceMemberTypeTest { get; }
 
         public ICollection<ParameterExpression> Variables => _variables;
-
-        public IDataSource this[int index] => _dataSources[index];
 
         public Expression ValueExpression => _value ?? (_value = BuildValueExpression());
 

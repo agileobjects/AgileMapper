@@ -21,6 +21,11 @@
             int dataSourceIndex,
             IChildMemberMappingData complexTypeMappingData)
         {
+            if (complexTypeMappingData.IsRepeatMapping(complexTypeDataSource.Value.Type))
+            {
+                
+            }
+
             var mapping = MappingFactory.GetChildMapping(
                 complexTypeDataSource.SourceMember,
                 complexTypeDataSource.Value,

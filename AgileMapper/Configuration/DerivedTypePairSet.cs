@@ -314,8 +314,10 @@
                     .Add(targetTypeAndTypePair.Key, targetTypeAndTypePair.Value);
             }
 
-            // ReSharper disable once InconsistentlySynchronizedField
-            derivedTypes._autoCheckedTypes.AddRange(_autoCheckedTypes);
+            lock (_lookupSync)
+            {
+                derivedTypes._autoCheckedTypes.AddRange(_autoCheckedTypes);
+            }
         }
     }
 }

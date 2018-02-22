@@ -39,7 +39,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperData = parentMappingData.MapperData.ChildMapperDatas.HasOne()
                 ? parentMappingData.MapperData.ChildMapperDatas.First()
                 : parentMappingData.MapperData.ChildMapperDatas.First(md =>
-                    (md.DataSourceIndex == dataSourceIndex) &&
+                    //(md.DataSourceIndex == dataSourceIndex) &&
                     (md.TargetMember.RegistrationName == targetMemberRegistrationName));
 
             mappingData.Mapper = mapperData.Mapper;

@@ -11,6 +11,8 @@
 
         IMemberMapperData MapperData { get; }
 
+        bool IsRepeatMapping(Type sourceType);
+
         Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember);
     }
 }

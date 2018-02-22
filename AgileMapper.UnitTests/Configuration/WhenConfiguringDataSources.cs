@@ -909,6 +909,36 @@
         }
 
         [Fact]
+        public void ShouldConfigureDifferentRuntimeTypedDataSources()
+        {
+            var source = new PublicTwoFields<object, object>
+            {
+                Value1 = new PublicField<object> { Value = 1 },
+                Value2 = new PublicProperty<object> { Value = 2 },
+            };
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<object, object>>()
+                    .To<PublicField<PublicField<object>>>()
+                    .If(ctx => ((PublicField<object>)ctx.Source.Value1).Value.ToString() != "1")
+                    .Map(ctx => ctx.Source.Value1)
+                    .To(pf => pf.Value);
+
+                mapper.WhenMapping
+                    .From<PublicTwoFields<object, object>>()
+                    .To<PublicField<PublicField<object>>>()
+                    .Map(ctx => ctx.Source.Value2)
+                    .To(pf => pf.Value);
+
+                var result = mapper.Map(source).ToANew<PublicField<PublicField<object>>>();
+
+                result.Value.Value.ShouldBe(2);
+            }
+        }
+
+        [Fact]
         public void ShouldSupportMultipleDivergedMappers()
         {
             using (var mapper1 = Mapper.CreateNew())
