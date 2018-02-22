@@ -418,17 +418,17 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return (DictionaryTargetMember)WithType(sourceMember.Type);
         }
 
-        public override void MapCreating(IQualifiedMember sourceMember)
+        public override void MapCreating(Type sourceType)
         {
-            if (CreateNonDictionaryChildMembers(sourceMember))
+            if (CreateNonDictionaryChildMembers(sourceType))
             {
                 _createDictionaryChildMembers = false;
             }
 
-            base.MapCreating(sourceMember);
+            base.MapCreating(sourceType);
         }
 
-        private bool CreateNonDictionaryChildMembers(IQualifiedMember sourceMember)
+        private bool CreateNonDictionaryChildMembers(Type sourceType)
         {
             // If this DictionaryTargetMember represents an object-typed dictionary 
             // entry and we're mapping from a source of type object, we switch from
@@ -436,7 +436,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return HasObjectEntries &&
                    LeafMember.IsEnumerableElement() &&
                   (MemberChain[MemberChain.Length - 2] == _rootDictionaryMember.LeafMember) &&
-                  (sourceMember.Type == typeof(object));
+                  (sourceType == typeof(object));
         }
 
         #region ExcludeFromCodeCoverage

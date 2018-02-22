@@ -16,7 +16,7 @@
             var childMapperData = childMappingData.MapperData;
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
 
-            childMapperData.TargetMember.MapCreating(sourceMember);
+            childMapperData.TargetMember.MapCreating(sourceMemberAccess.Type);
 
             var mappingValues = new MappingValues(
                 sourceMemberAccess,
@@ -86,7 +86,7 @@
                 mappingData = ObjectMappingDataFactory.ForElement(mappingData);
             }
 
-            mapperData.TargetMember.MapCreating(mapperData.SourceMember);
+            mapperData.TargetMember.MapCreating(sourceElementValue.Type);
 
             if (mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
             {

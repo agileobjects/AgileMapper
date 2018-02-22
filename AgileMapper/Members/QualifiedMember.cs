@@ -306,7 +306,7 @@ namespace AgileObjects.AgileMapper.Members
         public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
             => LeafMember.GetPopulation(mapperData.TargetInstance, value);
 
-        public virtual void MapCreating(IQualifiedMember sourceMember)
+        public virtual void MapCreating(Type sourceType)
         {
         }
 
