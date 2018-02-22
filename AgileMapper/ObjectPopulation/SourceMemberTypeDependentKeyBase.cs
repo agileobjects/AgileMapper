@@ -12,6 +12,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool _hasTypeTester;
 
         public IObjectMappingData MappingData { get; set; }
+        
+        public ObjectMapperData MapperData { get; set; }
 
         public void AddSourceMemberTypeTesterIfRequired(IObjectMappingData mappingData = null)
         {

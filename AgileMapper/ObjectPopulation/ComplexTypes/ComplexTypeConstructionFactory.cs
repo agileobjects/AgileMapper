@@ -215,7 +215,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 foreach (var argumentDataSource in argumentDataSources)
                 {
                     variables.AddRange(argumentDataSource.Item2.Variables);
-                    argumentValues.Add(argumentDataSource.Item2.GetValueExpression());
+                    argumentValues.Add(argumentDataSource.Item2.ValueExpression);
                 }
 
                 var objectConstruction = Expression.New(constructor, argumentValues);

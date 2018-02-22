@@ -7,6 +7,8 @@
     {
         MapperContext MapperContext { get; }
 
+        bool IsEntryPoint { get; }
+
         new ObjectMapperData Parent { get; }
 
         MapperDataContext Context { get; }

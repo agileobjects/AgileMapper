@@ -19,6 +19,8 @@
         }
 
         public MapperContext MapperContext => Parent.MapperContext;
+        
+        public bool IsEntryPoint => Context.IsStandalone || TargetMember.IsRecursion;
 
         public ObjectMapperData Parent { get; }
 

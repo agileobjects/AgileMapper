@@ -71,10 +71,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                     break;
                 }
 
-                parentCounterInaccessible =
-                    parentCounterInaccessible ||
-                    mapperData.Context.IsStandalone ||
-                    mapperData.TargetMember.IsRecursionRoot();
+                parentCounterInaccessible = parentCounterInaccessible || mapperData.IsEntryPoint;
 
                 if (targetMember.IsEnumerableElement())
                 {

@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (NothingIsBeingMapped(mappingExpressions, mapperData))
             {
-                return mapperData.IsEntryPoint() ? mapperData.TargetObject : Constants.EmptyExpression;
+                return mapperData.IsEntryPoint ? mapperData.TargetObject : Constants.EmptyExpression;
             }
 
             mappingExpressions.InsertRange(0, GetShortCircuitReturns(returnNull, mappingData));
@@ -163,34 +163,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool IsMemberMapping(Expression expression)
         {
-            if (expression.NodeType == Constant)
+            switch (expression.NodeType)
             {
-                return false;
-            }
-
-            if ((expression.NodeType == Call) &&
-                (IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||
-                 IsCallTo(nameof(IObjectMappingDataUntyped.TryGet), expression)))
-            {
-                return false;
-            }
-
-            if (expression.NodeType == Assign)
-            {
-                var assignment = (BinaryExpression)expression;
-
-                if ((assignment.Right.NodeType == Call) &&
-                    IsCallTo(nameof(IObjectMappingDataUntyped.MapRecursion), assignment.Right))
-                {
+                case Constant:
                     return false;
-                }
-            }
 
-            return true;
+                case Call when (
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.Register)) ||
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.TryGet))):
+
+                    return false;
+
+                case Assign when IsMapRecursionCall(((BinaryExpression)expression).Right):
+                    return false;
+
+                default:
+                    return true;
+            }
         }
 
-        private static bool IsCallTo(string methodName, Expression methodCall)
-            => ((MethodCallExpression)methodCall).Method.Name == methodName;
+        private static bool IsCallTo(Expression call, string methodName)
+            => ((MethodCallExpression)call).Method.Name == methodName;
+
+        private static bool IsMapRecursionCall(Expression expression)
+        {
+            return (expression.NodeType == Call) &&
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRecursion));
+        }
 
         private Expression GetMappingBlock(
             IList<Expression> mappingExpressions,

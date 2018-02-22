@@ -176,41 +176,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsRecursion { get; }
 
-        /// <summary>
-        /// Determines whether the QualifiedMember represents the first time a Member
-        /// recurses within a recursive relationship. For example, the member representing
-        /// Foo.SubFoo.SubFoo is a recursion root; Foo.SubFoo is not.
-        /// </summary>
-        /// <returns>True if the QualifiedMember represents a recursion, otherwise false.</returns>
-        public bool IsRecursionRoot()
-        {
-            if (!IsRecursion || IsSimple)
-            {
-                return false;
-            }
-
-            var recursedMember = default(Member);
-
-            for (var i = MemberChain.Length - 2; i > 0; --i)
-            {
-                var member = MemberChain[i];
-
-                if (!member.Equals(LeafMember))
-                {
-                    continue;
-                }
-
-                if (recursedMember != null)
-                {
-                    return false;
-                }
-
-                recursedMember = member;
-            }
-
-            return true;
-        }
-
         public bool IsCustom { get; set; }
 
         public virtual bool GuardObjectValuePopulations => false;

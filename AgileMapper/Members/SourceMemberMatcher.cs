@@ -51,7 +51,8 @@
 
             while (mappingData.Parent != null)
             {
-                if (mappingData.MapperData.TargetMemberIsEnumerableElement())
+                if (mappingData.MapperData.IsEntryPoint ||
+                    mappingData.MapperData.TargetMemberIsEnumerableElement())
                 {
                     break;
                 }

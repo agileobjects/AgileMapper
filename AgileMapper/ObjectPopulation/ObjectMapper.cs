@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Caching;
     using Recursion;
@@ -22,62 +21,70 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper(
             Expression<MapperFunc<TSource, TTarget>> mappingLambda,
-            ObjectMapperData mapperData)
+            IObjectMappingData mappingData)
         {
             MappingLambda = mappingLambda;
-            MapperData = mapperData;
+            MapperData = mappingData.MapperData;
 
-            if (mapperData.Context.Compile)
+            if (MapperData.Context.Compile)
             {
                 _mapperFunc = mappingLambda.Compile();
             }
-            else if (mapperData.Context.NeedsSubMapping)
+            else if (MapperData.Context.NeedsSubMapping)
             {
-                mapperData.Mapper = this;
+                MapperData.Mapper = this;
             }
 
-            if (mapperData.Context.NeedsSubMapping)
+            if (MapperData.Context.NeedsSubMapping)
             {
-                _subMappersByKey = mapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
+                _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
 
-            if (mapperData.HasMapperFuncs)
+            if (MapperData.HasMapperFuncs)
             {
-                _recursionMappingFuncsByKey = CreateRecursionMapperFuncs();
+                _recursionMappingFuncsByKey = CreateRecursionMapperFuncsCache(mappingData);
             }
         }
 
         #region Setup
 
-        private ICache<ObjectMapperKeyBase, IRecursionMapperFunc> CreateRecursionMapperFuncs()
+        private ICache<ObjectMapperKeyBase, IRecursionMapperFunc> CreateRecursionMapperFuncsCache(
+            IObjectMappingData mappingData)
         {
             var cache = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRecursionMapperFunc>();
 
-            foreach (var mappingLambdaAndKey in MapperData.RequiredMapperFuncsByKey)
+            for (var i = 0; i < MapperData.RequiredMapperFuncKeys.Count; i++)
             {
-                var mappingLambda = mappingLambdaAndKey.Value;
-                var mappingDataObject = mappingLambda.Parameters[0];
-                var mappingDataTypes = mappingDataObject.Type.GetGenericTypeArguments();
+                var mapperKey = MapperData.RequiredMapperFuncKeys[i];
 
-                var typesKey = new SourceAndTargetTypesKey(mappingDataTypes[0], mappingDataTypes[1]);
+                var typesKey = new SourceAndTargetTypesKey(
+                    mapperKey.MapperData.SourceType,
+                    mapperKey.MapperData.TargetType);
 
                 var mapperFuncCreator = GlobalContext.Instance.Cache.GetOrAdd(typesKey, key =>
                 {
                     var mapperFuncType = typeof(RecursionMapperFunc<,>).MakeGenericType(key.SourceType, key.TargetType);
-                    var lambdaParameter = Parameters.Create<LambdaExpression>("lambda");
+                    var mapperDataParameter = Parameters.Create<IObjectMappingData>("mappingData");
+                    var lazyLoadParameter = Parameters.Create<bool>("lazyLoadFuncs");
 
-                    var mapperFuncCreation = Expression.New(mapperFuncType.GetPublicInstanceConstructors().First(), lambdaParameter);
+                    var mapperFuncCreation = Expression.New(
+                        mapperFuncType.GetPublicInstanceConstructor(typeof(IObjectMappingData), typeof(bool)),
+                        mapperDataParameter,
+                        lazyLoadParameter);
 
-                    var mapperCreationLambda = Expression.Lambda<Func<LambdaExpression, IRecursionMapperFunc>>(
+                    var mapperCreationLambda = Expression.Lambda<Func<IObjectMappingData, bool, IRecursionMapperFunc>>(
                         mapperFuncCreation,
-                        lambdaParameter);
+                        mapperDataParameter,
+                        lazyLoadParameter);
 
                     return mapperCreationLambda.Compile();
                 });
 
-                var mapperFunc = mapperFuncCreator.Invoke(mappingLambda);
+                var mapperFunc = mapperFuncCreator.Invoke(
+                    mapperKey.MappingData,
+                    mappingData.MappingContext.LazyLoadRecursionMappingFuncs);
 
-                cache.GetOrAdd(mappingLambdaAndKey.Key, k => mapperFunc);
+                cache.GetOrAdd(mapperKey, k => mapperFunc);
             }
 
             return cache;
@@ -119,12 +126,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public object MapRecursion(IObjectMappingData childMappingData)
         {
-            // The cache can be null (and can contain null functions) if 
-            // recursive members turn out to have all-unmappable members:
-            var mapperFunc = _recursionMappingFuncsByKey?
+            var mapperFunc = _recursionMappingFuncsByKey
                 .GetOrAdd(childMappingData.MapperKey, null);
 
-            return mapperFunc?.Map(childMappingData);
+            return mapperFunc.Map(childMappingData);
         }
     }
 }

@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.DataSources
     {
         private readonly IList<IDataSource> _dataSources;
         private readonly List<ParameterExpression> _variables;
+        private Expression _value;
 
         public DataSourceSet(
             IMemberMapperData mapperData,
@@ -53,7 +54,26 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public IDataSource this[int index] => _dataSources[index];
 
-        public Expression GetValueExpression() => _dataSources.ReverseChain();
+        public Expression ValueExpression => _value ?? (_value = BuildValueExpression());
+
+        private Expression BuildValueExpression()
+        {
+            var value = default(Expression);
+
+            for (var i = _dataSources.Count - 1; i >= 0; --i)
+            {
+                var dataSource = _dataSources[i];
+
+                value = dataSource.AddPreConditionIfNecessary(value == default(Expression)
+                    ? dataSource.Value
+                    : Expression.Condition(
+                        dataSource.Condition,
+                        dataSource.Value.GetConversionTo(value.Type),
+                        value));
+            }
+
+            return value;
+        }
 
         public Expression GetPopulationExpression()
         {

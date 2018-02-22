@@ -23,7 +23,7 @@
 
         public Type QueryProviderType { get; }
 
-        public override IMembersSource GetMembersSource(IObjectMappingData parentMappingData)
+        public override IMembersSource GetMembersSource(ObjectMapperData parentMapperData)
             => _mapperContext.RootMembersSource;
 
         #region ExcludeFromCodeCoverage

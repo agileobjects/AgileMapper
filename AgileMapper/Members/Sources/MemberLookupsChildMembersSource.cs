@@ -4,14 +4,14 @@ namespace AgileObjects.AgileMapper.Members.Sources
 
     internal class MemberLookupsChildMembersSource : IChildMembersSource
     {
-        private readonly IObjectMappingData _parent;
+        private readonly ObjectMapperData _parentMapperData;
 
         public MemberLookupsChildMembersSource(
-            IObjectMappingData parent,
+            ObjectMapperData parentMapperData,
             string targetMemberRegistrationName,
             int dataSourceIndex)
         {
-            _parent = parent;
+            _parentMapperData = parentMapperData;
             TargetMemberRegistrationName = targetMemberRegistrationName;
             DataSourceIndex = dataSourceIndex;
         }
@@ -21,9 +21,9 @@ namespace AgileObjects.AgileMapper.Members.Sources
         public int DataSourceIndex { get; }
 
         public IQualifiedMember GetSourceMember<TSource, TTarget>()
-            => _parent.MapperData.GetSourceMemberFor(TargetMemberRegistrationName, DataSourceIndex);
+            => _parentMapperData.GetSourceMemberFor(TargetMemberRegistrationName, DataSourceIndex);
 
         public QualifiedMember GetTargetMember<TSource, TTarget>()
-            => _parent.MapperData.GetTargetMemberFor(TargetMemberRegistrationName);
+            => _parentMapperData.GetTargetMemberFor(TargetMemberRegistrationName);
     }
 }
