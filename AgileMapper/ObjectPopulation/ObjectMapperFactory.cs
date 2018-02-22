@@ -83,7 +83,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingExpression,
                 mappingData.MapperData.MappingDataObject);
 
-            var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mappingData.MapperData);
+            var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mappingData);
 
             if (_creationCallbacksByKey == null)
             {

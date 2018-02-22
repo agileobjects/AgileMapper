@@ -21,8 +21,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _membersSource = membersSource;
         }
 
-        public override IMembersSource GetMembersSource(IObjectMappingData parentMappingData)
-            => _membersSource ?? (_membersSource = new ElementMembersSource(parentMappingData));
+        public override IMembersSource GetMembersSource(ObjectMapperData enumerableMapperData)
+            => _membersSource ?? (_membersSource = new ElementMembersSource(enumerableMapperData));
 
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
             => new ElementObjectMapperKey(newMappingTypes, _membersSource);

@@ -29,6 +29,8 @@
 
         public bool AddUnsuccessfulMemberPopulations => false;
 
+        public bool EagerLoadRecursionMappingFuncs => false;
+
         #region ToANew Overloads
 
         public TResult ToANew<TResult>() => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));

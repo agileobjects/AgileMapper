@@ -3,7 +3,6 @@
     using System;
     using System.Linq.Expressions;
     using Extensions.Internal;
-    using Members;
 
     internal class MapRecursionCallRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
     {
@@ -17,7 +16,7 @@
         {
             var childMapperData = childMappingData.MapperData;
 
-            if (DoNotMapRecursion(childMapperData))
+            if (DoNotMapRecursion(childMappingData))
             {
                 return Constants.EmptyExpression;
             }
@@ -34,8 +33,10 @@
             return mapRecursionCall;
         }
 
-        private static bool DoNotMapRecursion(IMemberMapperData mapperData)
+        private static bool DoNotMapRecursion(IObjectMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
+
             if (mapperData.SourceType.IsDictionary())
             {
                 return true;

@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
@@ -37,7 +36,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ObjectMapperData parent,
             bool isForStandaloneMapping)
             : base(
-                  mappingData.MappingContext.RuleSet,
+                mappingData.MappingContext.RuleSet,
                 sourceMember.Type,
                 targetMember.Type,
                 sourceMember,
@@ -93,11 +92,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
             _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
-
-            if (isForStandaloneMapping)
-            {
-                RequiredMapperFuncsByKey = new Dictionary<ObjectMapperKeyBase, LambdaExpression>();
-            }
 
             if (IsRoot)
             {
@@ -286,23 +280,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public static ObjectMapperData For<TSource, TTarget>(IObjectMappingData mappingData)
         {
-            var membersSource = mappingData.MapperKey.GetMembersSource(mappingData.Parent);
-            var sourceMember = membersSource.GetSourceMember<TSource, TTarget>().WithType(typeof(TSource));
-            var targetMember = membersSource.GetTargetMember<TSource, TTarget>().WithType(typeof(TTarget));
-
             int? dataSourceIndex;
             ObjectMapperData parentMapperData;
+            IMembersSource membersSource;
 
             if (mappingData.IsRoot)
             {
-                dataSourceIndex = null;
                 parentMapperData = null;
+                membersSource = mappingData.MapperKey.GetMembersSource(null);
+                dataSourceIndex = null;
             }
             else
             {
-                dataSourceIndex = (membersSource as IChildMembersSource)?.DataSourceIndex;
                 parentMapperData = mappingData.Parent.MapperData;
+                membersSource = mappingData.MapperKey.GetMembersSource(parentMapperData);
+                dataSourceIndex = (membersSource as IChildMembersSource)?.DataSourceIndex;
             }
+
+            var sourceMember = membersSource.GetSourceMember<TSource, TTarget>().WithType(typeof(TSource));
+            var targetMember = membersSource.GetTargetMember<TSource, TTarget>().WithType(typeof(TTarget));
 
             return new ObjectMapperData(
                 mappingData,
@@ -417,7 +413,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = DeclaredTypeMapperData ?? this;
 
-            while (!mapperData.IsEntryPoint())
+            while (!mapperData.IsEntryPoint)
             {
                 mapperData = mapperData.Parent.DeclaredTypeMapperData ?? mapperData.Parent;
             }
@@ -425,38 +421,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool IsEntryPoint()
-        {
-            if (IsRoot || Context.IsStandalone)
-            {
-                return true;
-            }
-
-            return TargetMember.IsRecursionRoot();
-        }
+        public bool IsEntryPoint => IsRoot || Context.IsStandalone || TargetMember.IsRecursion;
 
         public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
 
-            if (nearestStandaloneMapperData.RequiredMapperFuncsByKey.ContainsKey(mappingData.MapperKey))
+            if (nearestStandaloneMapperData.RequiredMapperFuncsByKey == null)
+            {
+                nearestStandaloneMapperData.RequiredMapperFuncsByKey = new Dictionary<ObjectMapperKeyBase, LambdaExpression>();
+            }
+            else if (nearestStandaloneMapperData.RequiredMapperFuncsByKey.ContainsKey(mappingData.MapperKey))
             {
                 return;
             }
 
+            mappingData.MapperKey.MapperData = mappingData.MapperData;
+            mappingData.MapperKey.MappingData = mappingData;
+
             nearestStandaloneMapperData.RequiredMapperFuncsByKey.Add(mappingData.MapperKey, null);
 
-            var mappingLambda = mappingData.Mapper.MappingLambda;
+            //var mappingLambda = mappingData.Mapper.MappingLambda;
 
-            if (mappingLambda != null)
-            {
-                // The mapping lambda can be null if it turns out the nested mapping 
-                // function has all-unmappable members, i.e. it doesn't map anything:
-                nearestStandaloneMapperData.RequiredMapperFuncsByKey[mappingData.MapperKey] = mappingLambda;
-            }
+            //if (mappingLambda != null)
+            //{
+            //    // The mapping lambda can be null if it turns out the nested mapping 
+            //    // function has all-unmappable members, i.e. it doesn't map anything:
+            //    nearestStandaloneMapperData.RequiredMapperFuncsByKey[mappingData.MapperKey] = mappingLambda;
+            //}
         }
 
-        private ObjectMapperData GetNearestStandaloneMapperData()
+        public ObjectMapperData GetNearestStandaloneMapperData()
         {
             var mapperData = this;
 
@@ -468,9 +463,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool HasMapperFuncs => RequiredMapperFuncsByKey?.Any(f => f.Value != null) == true;
+        public bool HasMapperFuncs => RequiredMapperFuncsByKey?.Any() == true;
 
-        public Dictionary<ObjectMapperKeyBase, LambdaExpression> RequiredMapperFuncsByKey { get; }
+        public Dictionary<ObjectMapperKeyBase, LambdaExpression> RequiredMapperFuncsByKey { get; private set; }
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 

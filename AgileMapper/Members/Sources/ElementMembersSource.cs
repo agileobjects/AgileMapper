@@ -4,19 +4,19 @@ namespace AgileObjects.AgileMapper.Members.Sources
 
     internal class ElementMembersSource : IMembersSource
     {
-        public ElementMembersSource(IObjectMappingData parent)
-        {
-            Parent = parent;
-        }
+        private readonly ObjectMapperData _enumerableMapperData;
 
-        public IObjectMappingData Parent { get; }
+        public ElementMembersSource(ObjectMapperData enumerableMapperData)
+        {
+            _enumerableMapperData = enumerableMapperData;
+        }
 
         public IQualifiedMember GetSourceMember<TSource, TTarget>()
         {
-            var sourceElementMember = Parent.MapperData.SourceMember.GetElementMember();
+            var sourceElementMember = _enumerableMapperData.SourceMember.GetElementMember();
             var targetElementMember = GetTargetMember<TSource, TTarget>();
 
-            sourceElementMember = Parent.MapperData
+            sourceElementMember = _enumerableMapperData
                 .MapperContext
                 .QualifiedMemberFactory
                 .GetFinalSourceMember(sourceElementMember, targetElementMember);
@@ -25,6 +25,6 @@ namespace AgileObjects.AgileMapper.Members.Sources
         }
 
         public QualifiedMember GetTargetMember<TSource, TTarget>()
-            => Parent.MapperData.TargetMember.GetElementMember();
+            => _enumerableMapperData.TargetMember.GetElementMember();
     }
 }

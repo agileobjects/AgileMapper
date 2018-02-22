@@ -77,15 +77,16 @@
         public static Expression ReverseChain<T>(this IList<T> items)
             where T : IConditionallyChainable
         {
-            return ReverseChain(
+            return Chain(
                 items,
-                item => AddPreConditionIfNecessary(item, item.Value),
-                (valueSoFar, item) => AddPreConditionIfNecessary(
-                    item,
-                    Expression.Condition(item.Condition, item.Value, valueSoFar)));
+                i => i.Last(),
+                item => item.AddPreConditionIfNecessary(item.Value),
+                (valueSoFar, item) => item.AddPreConditionIfNecessary(
+                    Expression.Condition(item.Condition, item.Value, valueSoFar)),
+                i => i.Reverse());
         }
 
-        private static Expression AddPreConditionIfNecessary(IConditionallyChainable item, Expression ifTrueBranch)
+        public static Expression AddPreConditionIfNecessary(this IConditionallyChainable item, Expression ifTrueBranch)
         {
             if (item.PreCondition == null)
             {
@@ -96,14 +97,6 @@
                 item.PreCondition,
                 ifTrueBranch,
                 ifTrueBranch.Type.ToDefaultExpression());
-        }
-
-        public static Expression ReverseChain<TItem>(
-            this IList<TItem> items,
-            Func<TItem, Expression> seedValueFactory,
-            Func<Expression, TItem, Expression> itemValueFactory)
-        {
-            return Chain(items, i => i.Last(), seedValueFactory, itemValueFactory, i => i.Reverse());
         }
 
         public static Expression Chain<TItem>(

@@ -7,5 +7,7 @@
         MappingRuleSet RuleSet { get; }
 
         bool AddUnsuccessfulMemberPopulations { get; }
+
+        bool EagerLoadRecursionMappingFuncs { get; }
     }
 }

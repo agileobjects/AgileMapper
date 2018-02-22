@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             if (!context.IsSuccessful)
             {
-                return context.DataSources.GetValueExpression();
+                return context.DataSources.ValueExpression;
             }
 
             var useSingleExpression = context.MapperData.UseMemberInitialisations();
@@ -33,7 +33,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         private Expression GetBinding(IMemberPopulationContext context, Expression populationGuard)
         {
-            var bindingValue = context.DataSources.GetValueExpression();
+            var bindingValue = context.DataSources.ValueExpression;
             var guardedBindingValue = GetGuardedBindingValue(bindingValue, populationGuard);
             var binding = context.MapperData.GetTargetMemberPopulation(guardedBindingValue);
 
@@ -44,7 +44,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         private static Expression GetReadOnlyMemberPopulation(IMemberPopulationContext context)
         {
-            var dataSourcesValue = context.DataSources.GetValueExpression();
+            var dataSourcesValue = context.DataSources.ValueExpression;
             var targetMemberAccess = context.MapperData.GetTargetMemberAccess();
             var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
 

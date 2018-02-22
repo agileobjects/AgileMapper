@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MappingRuleSet RuleSet { get; }
 
-        public override IMembersSource GetMembersSource(IObjectMappingData parentMappingData)
+        public override IMembersSource GetMembersSource(ObjectMapperData parentMapperData)
             => _mapperContext.RootMembersSource;
 
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)

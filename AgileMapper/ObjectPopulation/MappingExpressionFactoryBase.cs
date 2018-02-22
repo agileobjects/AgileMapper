@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (NothingIsBeingMapped(mappingExpressions, mapperData))
             {
-                return mapperData.IsEntryPoint() ? mapperData.TargetObject : Constants.EmptyExpression;
+                return mapperData.IsEntryPoint ? mapperData.TargetObject : Constants.EmptyExpression;
             }
 
             mappingExpressions.InsertRange(0, GetShortCircuitReturns(returnNull, mappingData));
@@ -169,28 +169,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             if ((expression.NodeType == Call) &&
-                (IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||
-                 IsCallTo(nameof(IObjectMappingDataUntyped.TryGet), expression)))
+                (expression.IsCallTo(nameof(IObjectMappingDataUntyped.Register)) ||
+                 expression.IsCallTo(nameof(IObjectMappingDataUntyped.TryGet))))
             {
                 return false;
             }
 
-            if (expression.NodeType == Assign)
+            if ((expression.NodeType == Assign) &&
+                 IsMapRecursionCall(((BinaryExpression)expression).Right))
             {
-                var assignment = (BinaryExpression)expression;
-
-                if ((assignment.Right.NodeType == Call) &&
-                    IsCallTo(nameof(IObjectMappingDataUntyped.MapRecursion), assignment.Right))
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
         }
 
-        private static bool IsCallTo(string methodName, Expression methodCall)
-            => ((MethodCallExpression)methodCall).Method.Name == methodName;
+        private static bool IsMapRecursionCall(Expression expression)
+        {
+            return (expression.NodeType == Call) &&
+                    expression.IsCallTo(nameof(IObjectMappingDataUntyped.MapRecursion));
+        }
 
         private Expression GetMappingBlock(
             IList<Expression> mappingExpressions,

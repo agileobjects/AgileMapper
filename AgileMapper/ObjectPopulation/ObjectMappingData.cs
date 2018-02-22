@@ -79,7 +79,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public ObjectMapperData MapperData
-            => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For<TSource, TTarget>(this));
+        {
+            get => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For<TSource, TTarget>(this));
+            set => _mapperData = value;
+        }
 
         public TTarget CreatedObject { get; set; }
 

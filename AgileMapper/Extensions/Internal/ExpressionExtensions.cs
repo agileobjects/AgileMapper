@@ -7,6 +7,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using NetStandardPolyfills;
+    using ObjectPopulation;
     using ObjectPopulation.Enumerables;
     using ReadableExpressions.Extensions;
 
@@ -209,6 +210,9 @@
 
             return Expression.Convert(expression, targetType);
         }
+
+        public static bool IsCallTo(this Expression call, string methodName)
+            => ((MethodCallExpression)call).Method.Name == methodName;
 
         public static bool IsLinqSelectCall(this MethodCallExpression call)
         {

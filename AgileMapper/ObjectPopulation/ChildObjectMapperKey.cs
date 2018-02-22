@@ -28,11 +28,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _dataSourceIndex = dataSourceIndex;
         }
 
-        public override IMembersSource GetMembersSource(IObjectMappingData parentMappingData)
+        public override IMembersSource GetMembersSource(ObjectMapperData parentMapperData)
         {
             return _childMemberSource ?? (_childMemberSource =
                 new MemberLookupsChildMembersSource(
-                    parentMappingData,
+                    parentMapperData,
                     _targetMemberRegistrationName,
                     _dataSourceIndex));
         }

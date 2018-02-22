@@ -10,12 +10,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ChildMemberMappingData<TSource, TTarget> : IChildMemberMappingData
     {
         private readonly ObjectMappingData<TSource, TTarget> _parent;
-        private readonly ICache<IQualifiedMember, Func<TSource, Type>> _runtimeTypeGettersCache;
+        private ICache<IQualifiedMember, Func<TSource, Type>> _runtimeTypeGettersCache;
 
         public ChildMemberMappingData(ObjectMappingData<TSource, TTarget> parent, IMemberMapperData mapperData)
         {
             _parent = parent;
-            _runtimeTypeGettersCache = parent.MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
             MapperData = mapperData;
         }
 
@@ -47,6 +46,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 }
 
                 mapperData = mapperData.Parent;
+            }
+
+            if (_runtimeTypeGettersCache == null)
+            {
+                _runtimeTypeGettersCache = _parent.MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
             }
 
             var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(sourceMember, sm =>

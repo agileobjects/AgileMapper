@@ -367,15 +367,14 @@ namespace AgileObjects.AgileMapper.Members
 
             while (!mapperData.TypesMatch(contextTypes))
             {
-                useParentAccess = useParentAccess ||
-                                  mapperData.Context.IsStandalone || mapperData.TargetMember.IsRecursionRoot();
+                useParentAccess = useParentAccess || mapperData.IsEntryPoint;
 
                 if (useParentAccess)
                 {
                     var dataAccessParentProperty =
-                        dataAccess.Type.GetPublicInstanceProperty("Parent")
-                        ?? (parentProperty
-                            ?? (parentProperty = typeof(IMappingData).GetPublicInstanceProperty("Parent")));
+                        dataAccess.Type.GetPublicInstanceProperty("Parent") ??
+                       (parentProperty ??
+                       (parentProperty = typeof(IMappingData).GetPublicInstanceProperty("Parent")));
 
                     dataAccess = Expression.Property(dataAccess, dataAccessParentProperty);
                 }

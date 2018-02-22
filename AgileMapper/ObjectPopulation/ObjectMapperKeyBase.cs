@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected bool TypesMatch(ITypedMapperKey otherKey) => otherKey.MappingTypes.Equals(MappingTypes);
 
-        public abstract IMembersSource GetMembersSource(IObjectMappingData parentMappingData);
+        public abstract IMembersSource GetMembersSource(ObjectMapperData parentMapperData);
 
         public ObjectMapperKeyBase WithTypes<TNewSource, TNewTarget>()
         {
