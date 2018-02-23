@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using NetStandardPolyfills;
+    using static System.Linq.Expressions.ExpressionType;
 
     internal static class ExpressionEvaluation
     {
@@ -48,91 +49,96 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
             {
                 while (true)
                 {
+                    // ReSharper disable PossibleNullReferenceException
                     if (x.NodeType != y.NodeType)
                     {
                         return false;
                     }
+                    // ReSharper restore PossibleNullReferenceException
 
                     switch (x.NodeType)
                     {
-                        case ExpressionType.Call:
+                        case Block:
+                            return AllEqual(((BlockExpression)x).Expressions, ((BlockExpression)y).Expressions);
+
+                        case Call:
                             return AreEqual((MethodCallExpression)x, (MethodCallExpression)y);
 
-                        case ExpressionType.Conditional:
+                        case Conditional:
                             return AreEqual((ConditionalExpression)x, (ConditionalExpression)y);
 
-                        case ExpressionType.Constant:
+                        case Constant:
                             return AreEqual((ConstantExpression)x, (ConstantExpression)y);
 
-                        case ExpressionType.ArrayLength:
+                        case ArrayLength:
                         case ExpressionType.Convert:
-                        case ExpressionType.Negate:
-                        case ExpressionType.NegateChecked:
-                        case ExpressionType.Not:
-                        case ExpressionType.TypeAs:
+                        case Negate:
+                        case NegateChecked:
+                        case Not:
+                        case TypeAs:
                             return AreEqual((UnaryExpression)x, (UnaryExpression)y);
 
-                        case ExpressionType.Default:
+                        case Default:
                             return ((DefaultExpression)x).Type == ((DefaultExpression)y).Type;
 
-                        case ExpressionType.Index:
+                        case Index:
                             return AreEqual((IndexExpression)x, (IndexExpression)y);
 
-                        case ExpressionType.Lambda:
+                        case Lambda:
                             x = ((LambdaExpression)x).Body;
                             y = ((LambdaExpression)y).Body;
                             continue;
 
-                        case ExpressionType.ListInit:
+                        case ListInit:
                             return AreEqual((ListInitExpression)x, (ListInitExpression)y);
 
-                        case ExpressionType.MemberAccess:
+                        case MemberAccess:
                             return _memberAccessComparer.Invoke(this, (MemberExpression)x, (MemberExpression)y);
 
-                        case ExpressionType.Add:
-                        case ExpressionType.AddChecked:
-                        case ExpressionType.And:
-                        case ExpressionType.AndAlso:
-                        case ExpressionType.ArrayIndex:
-                        case ExpressionType.Coalesce:
-                        case ExpressionType.Divide:
-                        case ExpressionType.Equal:
-                        case ExpressionType.ExclusiveOr:
-                        case ExpressionType.GreaterThan:
-                        case ExpressionType.GreaterThanOrEqual:
-                        case ExpressionType.LeftShift:
-                        case ExpressionType.LessThan:
-                        case ExpressionType.LessThanOrEqual:
-                        case ExpressionType.Modulo:
-                        case ExpressionType.Multiply:
-                        case ExpressionType.MultiplyChecked:
-                        case ExpressionType.NotEqual:
-                        case ExpressionType.Or:
-                        case ExpressionType.OrElse:
-                        case ExpressionType.RightShift:
-                        case ExpressionType.Subtract:
-                        case ExpressionType.SubtractChecked:
+                        case Add:
+                        case AddChecked:
+                        case And:
+                        case AndAlso:
+                        case ArrayIndex:
+                        case Coalesce:
+                        case Divide:
+                        case Equal:
+                        case ExclusiveOr:
+                        case GreaterThan:
+                        case GreaterThanOrEqual:
+                        case LeftShift:
+                        case LessThan:
+                        case LessThanOrEqual:
+                        case Modulo:
+                        case Multiply:
+                        case MultiplyChecked:
+                        case NotEqual:
+                        case Or:
+                        case OrElse:
+                        case RightShift:
+                        case Subtract:
+                        case SubtractChecked:
                             return AreEqual((BinaryExpression)x, (BinaryExpression)y);
 
-                        case ExpressionType.MemberInit:
+                        case MemberInit:
                             return AreEqual((MemberInitExpression)x, (MemberInitExpression)y);
 
-                        case ExpressionType.New:
+                        case New:
                             return AreEqual((NewExpression)x, (NewExpression)y);
 
-                        case ExpressionType.NewArrayBounds:
-                        case ExpressionType.NewArrayInit:
+                        case NewArrayBounds:
+                        case NewArrayInit:
                             return AreEqual((NewArrayExpression)x, (NewArrayExpression)y);
 
-                        case ExpressionType.Parameter:
+                        case Parameter:
                             return AreEqual((ParameterExpression)x, (ParameterExpression)y);
 
-                        case ExpressionType.Quote:
+                        case Quote:
                             x = ((UnaryExpression)x).Operand;
                             y = ((UnaryExpression)y).Operand;
                             continue;
 
-                        case ExpressionType.TypeIs:
+                        case TypeIs:
                             return AreEqual((TypeBinaryExpression)x, (TypeBinaryExpression)y);
                     }
 

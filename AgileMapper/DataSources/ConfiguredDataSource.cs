@@ -6,8 +6,7 @@
 
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {
-        private readonly string _conditionString;
-        private readonly string _originalValueString;
+        private readonly Expression _originalValue;
 
         public ConfiguredDataSource(
             Expression configuredCondition,
@@ -21,6 +20,8 @@
         {
         }
 
+        #region Setup
+
         private static IQualifiedMember GetSourceMember(Expression value, IMemberMapperData mapperData)
         {
             var sourceMember = new ConfiguredSourceMember(value, mapperData);
@@ -32,39 +33,6 @@
             return finalSourceMember;
         }
 
-        private ConfiguredDataSource(
-            IQualifiedMember sourceMember,
-            Expression configuredCondition,
-            Expression convertedValue,
-            IMemberMapperData mapperData)
-            : base(sourceMember, convertedValue, mapperData)
-        {
-            _originalValueString = convertedValue.ToString();
-
-            Expression condition;
-
-            if (configuredCondition != null)
-            {
-                condition = (base.Condition != null)
-                    ? Expression.AndAlso(base.Condition, configuredCondition)
-                    : configuredCondition;
-            }
-            else
-            {
-                condition = base.Condition;
-            }
-
-            if (condition == null)
-            {
-                return;
-            }
-
-            Condition = condition;
-            _conditionString = condition.ToString();
-        }
-
-        #region Setup
-
         private static Expression GetConvertedValue(Expression value, IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsComplex && !mapperData.TargetMember.Type.IsFromBcl())
@@ -72,17 +40,43 @@
                 return value;
             }
 
-            var convertedValue = mapperData.GetValueConversion(value, mapperData.TargetMember.Type);
-
-            return convertedValue;
+            return mapperData.GetValueConversion(value, mapperData.TargetMember.Type);
         }
 
         #endregion
 
+        private ConfiguredDataSource(
+            IQualifiedMember sourceMember,
+            Expression configuredCondition,
+            Expression convertedValue,
+            IMemberMapperData mapperData)
+            : base(sourceMember, convertedValue, mapperData)
+        {
+            _originalValue = convertedValue;
+
+            if (configuredCondition == null)
+            {
+                Condition = base.Condition;
+                return;
+            }
+
+            Condition = (base.Condition != null)
+                ? Expression.AndAlso(base.Condition, configuredCondition)
+                : configuredCondition;
+        }
+
         public override Expression Condition { get; }
 
         public bool IsSameAs(IDataSource otherDataSource)
-            => (otherDataSource.IsConditional && IsConditional && otherDataSource.Condition.ToString() == _conditionString) ||
-               otherDataSource.Value.ToString() == _originalValueString;
+        {
+            if (IsConditional &&
+                otherDataSource.IsConditional &&
+                ExpressionEvaluation.AreEqual(Condition, otherDataSource.Condition))
+            {
+                return true;
+            }
+
+            return ExpressionEvaluation.AreEquivalent(otherDataSource.Value, _originalValue);
+        }
     }
 }

@@ -305,7 +305,11 @@
 
         public static void ShouldBeEmpty<T>(this IEnumerable<T> actual)
         {
-            if (actual.Any())
+            if (actual == null)
+            {
+                Asplode("an empty collection", "null");
+            }
+            else if (actual.Any())
             {
                 Asplode("an empty collection", "non-empty");
             }

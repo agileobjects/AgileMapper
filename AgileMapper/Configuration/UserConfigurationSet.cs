@@ -102,7 +102,7 @@
         public void Add(NullCollectionsSetting setting) => NullCollectionsSettings.Add(setting);
 
         public bool MapToNullCollections(IBasicMapperData basicData)
-            => (_nullCollectionsSettings != null) && !_nullCollectionsSettings.None(s => s.AppliesTo(basicData));
+            => _nullCollectionsSettings?.Any(s => s.AppliesTo(basicData)) == true;
 
         #endregion
 

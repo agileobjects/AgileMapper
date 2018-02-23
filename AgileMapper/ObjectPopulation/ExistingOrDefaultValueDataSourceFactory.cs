@@ -23,9 +23,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 if (mapperData.TargetMember.IsEnumerable)
                 {
-                    return FallbackToNull(mapperData)
-                        ? mapperData.GetTargetMemberDefault()
-                        : mapperData.GetFallbackCollectionValue();
+                    return FallbackToCollection(mapperData)
+                        ? mapperData.GetFallbackCollectionValue()
+                        : mapperData.GetTargetMemberDefault();
                 }
 
                 if (mapperData.TargetMember.IsReadable && !mapperData.UseMemberInitialisations())
@@ -36,25 +36,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapperData.GetTargetMemberDefault();
             }
 
-            private static bool FallbackToNull(IBasicMapperData mapperData)
+            private static bool FallbackToCollection(IBasicMapperData mapperData)
             {
                 if (mapperData.TargetMember.IsDictionary)
                 {
-                    return false;
+                    return true;
                 }
 
                 if (!(mapperData.TargetMember is DictionaryTargetMember dictionaryTargetMember))
                 {
-                    return false;
+                    return true;
                 }
 
-                if (dictionaryTargetMember.HasEnumerableEntries)
-                {
-                    // TODO: Test coverage - target dictionary with enumerable entries
-                    return false;
-                }
-
-                return true;
+                return dictionaryTargetMember.HasEnumerableEntries;
             }
         }
     }
