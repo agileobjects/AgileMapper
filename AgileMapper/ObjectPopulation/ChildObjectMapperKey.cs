@@ -50,7 +50,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (TypesMatch(otherKey) &&
                 // ReSharper disable once PossibleNullReferenceException
-                //(otherKey._dataSourceIndex == _dataSourceIndex) &&
+                (otherKey._dataSourceIndex == _dataSourceIndex) &&
                 (otherKey._targetMemberRegistrationName == _targetMemberRegistrationName))
             {
                 return SourceHasRequiredTypes(otherKey);

@@ -923,13 +923,13 @@
                     .From<PublicTwoFields<object, object>>()
                     .To<PublicField<PublicField<object>>>()
                     .If(ctx => ((PublicField<object>)ctx.Source.Value1).Value.ToString() != "1")
-                    .Map(ctx => ctx.Source.Value1)
+                    .Map(ctx => (PublicField<object>)ctx.Source.Value1)
                     .To(pf => pf.Value);
 
                 mapper.WhenMapping
                     .From<PublicTwoFields<object, object>>()
                     .To<PublicField<PublicField<object>>>()
-                    .Map(ctx => ctx.Source.Value2)
+                    .Map(ctx => (PublicProperty<object>)ctx.Source.Value2)
                     .To(pf => pf.Value);
 
                 var result = mapper.Map(source).ToANew<PublicField<PublicField<object>>>();
