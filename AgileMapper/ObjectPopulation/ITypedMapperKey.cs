@@ -5,5 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal interface ITypedMapperKey : IMappingDataOwner
     {
         MappingTypes MappingTypes { get; }
+
+        bool Equals(ITypedMapperKey otherKey);
     }
 }

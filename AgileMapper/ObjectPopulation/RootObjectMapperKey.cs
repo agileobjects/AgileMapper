@@ -35,9 +35,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var otherKey = (IRootMapperKey)obj;
 
             // ReSharper disable once PossibleNullReferenceException
-            return (otherKey.RuleSet == RuleSet) &&
-                    TypesMatch(otherKey) &&
-                    SourceHasRequiredTypes(otherKey);
+            return (otherKey.RuleSet == RuleSet) && Equals(otherKey);
         }
 
         #region ExcludeFromCodeCoverage

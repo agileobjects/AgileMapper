@@ -27,5 +27,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected abstract ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes);
+
+        public bool Equals(ITypedMapperKey otherKey)
+            => TypesMatch(otherKey) && SourceHasRequiredTypes(otherKey);
     }
 }

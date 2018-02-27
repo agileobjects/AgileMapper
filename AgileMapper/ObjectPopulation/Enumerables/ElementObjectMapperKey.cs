@@ -29,9 +29,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public override bool Equals(object obj)
         {
-            var otherKey = (ElementObjectMapperKey)obj;
-
-            return TypesMatch(otherKey) && SourceHasRequiredTypes(otherKey);
+            // ReSharper disable once PossibleNullReferenceException
+            return Equals((ITypedMapperKey)obj);
         }
 
         #region ExcludeFromCodeCoverage
