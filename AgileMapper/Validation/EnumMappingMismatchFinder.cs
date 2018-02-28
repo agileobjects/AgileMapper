@@ -150,11 +150,7 @@
             return base.VisitBinary(binary);
         }
 
-        private static bool IsEnum(Type type)
-        {
-            // ReSharper disable once UnusedVariable
-            return IsEnum(type, out var enumType);
-        }
+        private static bool IsEnum(Type type) => IsEnum(type, out var _);
 
         private bool TryGetMatch(Expression targetMemberAccess, out TargetMemberData targetMemberData)
         {

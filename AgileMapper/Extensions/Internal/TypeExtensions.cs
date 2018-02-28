@@ -129,15 +129,9 @@
                    type.IsAssignableTo(typeof(IEnumerable)));
         }
 
-        public static bool IsQueryable(this Type type)
-        {
-            return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(IQueryable<>);
-        }
+        public static bool IsQueryable(this Type type) => type.IsClosedTypeOf(typeof(IQueryable<>));
 
-        public static bool IsComplex(this Type type)
-        {
-            return !type.IsSimple() && !type.IsEnumerable();
-        }
+        public static bool IsComplex(this Type type) => !type.IsSimple() && !type.IsEnumerable();
 
         public static bool IsSimple(this Type type)
         {
@@ -153,14 +147,17 @@
                 return true;
             }
 
-            return type == typeof(Guid);
+            if ((type == typeof(Guid)) ||
+                (type == typeof(TimeSpan)) ||
+                (type == typeof(DateTimeOffset)))
+            {
+                return true;
+            }
+
+            return type.IsValueType() && type.IsFromBcl();
         }
 
-        public static bool IsDictionary(this Type type)
-        {
-            // ReSharper disable once UnusedVariable
-            return IsDictionary(type, out var keyAndValueTypes);
-        }
+        public static bool IsDictionary(this Type type) => IsDictionary(type, out var _);
 
         public static bool IsDictionary(this Type type, out KeyValuePair<Type, Type> keyAndValueTypes)
         {

@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using TestClasses;
     using Xunit;
@@ -44,6 +45,15 @@
             var result = Mapper.CreateNew().Flatten(source).ToDictionary();
 
             ((int)result["Value.Value"]).ShouldBe(1234);
+        }
+
+        [Fact]
+        public void ShouldFlattenANullableComplexTypeMember()
+        {
+            var source = new PublicProperty<DateTimeOffset?> { Value = null };
+            var result = Mapper.Flatten(source).ToDictionary<string>();
+
+            result.ShouldNotContainKey("Value");
         }
 
         [Fact]
