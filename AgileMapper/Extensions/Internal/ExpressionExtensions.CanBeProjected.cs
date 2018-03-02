@@ -10,16 +10,17 @@
         public static bool CanBeProjected(this LambdaExpression lambda)
             => ProjectableExpressionChecker.Check(lambda);
 
-        private class ProjectableExpressionChecker : ExpressionVisitor
+        private class ProjectableExpressionChecker : QuickUnwindExpressionVisitor
         {
             private readonly IList<ParameterExpression> _lambdaParameters;
-            private bool _canBeProjected;
+            private bool _isNotProjectable;
 
             private ProjectableExpressionChecker(IList<ParameterExpression> lambdaParameters)
             {
                 _lambdaParameters = lambdaParameters;
-                _canBeProjected = true;
             }
+
+            protected override bool QuickUnwind => _isNotProjectable;
 
             public static bool Check(LambdaExpression lambda)
             {
@@ -27,12 +28,12 @@
 
                 checker.Visit(lambda.Body);
 
-                return checker._canBeProjected;
+                return !checker._isNotProjectable;
             }
 
             protected override Expression VisitInvocation(InvocationExpression invocation)
             {
-                _canBeProjected = false;
+                _isNotProjectable = true;
 
                 return base.VisitInvocation(invocation);
             }
@@ -41,7 +42,7 @@
             {
                 if (IsNonSourceMappingDataMember(memberAccess))
                 {
-                    _canBeProjected = false;
+                    _isNotProjectable = true;
                 }
 
                 return base.VisitMember(memberAccess);
@@ -61,7 +62,7 @@
             {
                 if (_lambdaParameters.IndexOf(parameter) > 0)
                 {
-                    _canBeProjected = false;
+                    _isNotProjectable = true;
                 }
 
                 return base.VisitParameter(parameter);

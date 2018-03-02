@@ -202,7 +202,7 @@
                 [mapperData.EnumerableIndex] = mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type)
             };
 
-            var directAccessMapping = mapping.Replace(replacementsByTarget);
+            mapping = mapping.Replace(replacementsByTarget);
 
             directAccessMapping = directAccessMapping.Replace(
                 mapperData.MappingDataObject,
@@ -216,11 +216,11 @@
         private static bool ShouldUseLocalSourceValueVariable(
             Expression sourceValue,
             Expression mapping,
-            IMemberMapperData mapperData)
+            IBasicMapperData mapperData)
         {
             return (sourceValue.NodeType != ExpressionType.Parameter) &&
                    !mapperData.RuleSet.Settings.UseMemberInitialisation &&
-                    SourceAccessFinder.MultipleAccessesExist(mapperData, mapping);
+                    SourceAccessCounter.MultipleAccessesExist(sourceValue, mapping);
         }
 
         private static string GetSourceValueVariableName(IMemberMapperData mapperData, Type sourceType = null)
@@ -284,16 +284,16 @@
                 mappingBody = mappingBody.Replace(variableValue, variable);
             }
 
-            mappingBody = Expression.Block(variableAssignment, mappingBody);
-
-            if (bodyIsTryCatch)
+            if (!bodyIsTryCatch)
             {
-                mappingBody = tryCatch.Update(
-                    mappingBody,
-                    tryCatch.Handlers,
-                    tryCatch.Finally,
-                    tryCatch.Fault);
+                return Expression.Block(new[] { variable }, variableAssignment, mappingBody);
             }
+
+            mappingBody = tryCatch.Update(
+                Expression.Block(variableAssignment, mappingBody),
+                tryCatch.Handlers,
+                tryCatch.Finally,
+                tryCatch.Fault);
 
             return Expression.Block(new[] { variable }, mappingBody);
         }

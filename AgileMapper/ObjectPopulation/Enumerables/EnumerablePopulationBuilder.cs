@@ -401,7 +401,7 @@
                 .TypeAs(MapperData.TargetObject, TargetTypeHelper.CollectionInterfaceType);
 
             var tempCollection = Parameters.Create(targetAsCollection.Type, "collection");
-            var assignedCollection = Expression.Assign(tempCollection, targetAsCollection);
+            var assignedCollection = tempCollection.AssignTo(targetAsCollection);
             var assignedCollectionNotNull = assignedCollection.GetIsNotDefaultComparison();
 
             var unusableCollectionValue = GetUnusableTargetValue(tempCollection.Type);

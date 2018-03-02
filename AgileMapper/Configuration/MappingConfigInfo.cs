@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq.Expressions;
+    using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
@@ -216,8 +217,10 @@
             return cloned;
         }
 
-        private class TypeTestFinder : ExpressionVisitor
+        private class TypeTestFinder : QuickUnwindExpressionVisitor
         {
+            protected override bool QuickUnwind => TypeTestExists;
+
             private bool TypeTestExists { get; set; }
 
             public static bool HasNoTypeTest(LambdaExpression lambda)
