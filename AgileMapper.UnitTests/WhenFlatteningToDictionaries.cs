@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using TestClasses;
     using Xunit;
 
@@ -48,12 +49,22 @@
         }
 
         [Fact]
-        public void ShouldFlattenANullableComplexTypeMember()
+        public void ShouldFlattenANullNullableDateTimeOffsetMember()
         {
             var source = new PublicProperty<DateTimeOffset?> { Value = null };
             var result = Mapper.Flatten(source).ToDictionary<string>();
 
             result.ShouldNotContainKey("Value");
+        }
+
+        [Fact]
+        public void ShouldFlattenANullNullableIntToAStringDictionary()
+        {
+            var source = new PublicTwoFields<int?, int?> { Value1 = 123, Value2 = null };
+            var result = Mapper.Flatten(source).ToDictionary<string>();
+
+            result["Value1"].ShouldBe("123");
+            result.ShouldNotContainKey("Value2");
         }
 
         [Fact]

@@ -212,6 +212,7 @@ namespace AgileObjects.AgileMapper.Members
             protected override Expression VisitIndex(IndexExpression indexAccess)
             {
                 if ((indexAccess.Object.Type != typeof(string)) &&
+                     !indexAccess.Object.Type.IsDictionary() &&
                      IndexDoesNotUseParameter(indexAccess.Arguments[0]))
                 {
                     AddMemberAccess(indexAccess);
