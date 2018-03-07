@@ -83,8 +83,7 @@
 
             var sourceElementMembers = GlobalContext.Instance
                 .MemberCache
-                .GetSourceMembers(sourceElementType)
-                .ToArray();
+                .GetSourceMembers(sourceElementType);
 
             var backLinkMember = sourceElementMembers
                 .FirstOrDefault(m => m.IsComplex && m.Type == mapperData.SourceType);

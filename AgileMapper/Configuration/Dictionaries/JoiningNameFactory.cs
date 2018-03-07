@@ -57,7 +57,7 @@
         }
 
         public static JoiningNameFactory Dotted(MapperContext mapperContext)
-            => ForDefault(".", MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext));
+            => ForDefault(".", MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes);
 
         public static JoiningNameFactory Flattened(MappingConfigInfo configInfo)
             => For(string.Empty, configInfo);

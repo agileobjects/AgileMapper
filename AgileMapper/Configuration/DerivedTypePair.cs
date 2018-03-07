@@ -2,7 +2,7 @@
 {
     using System;
     using System.Globalization;
-    using System.Linq;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;

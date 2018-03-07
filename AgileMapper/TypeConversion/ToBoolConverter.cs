@@ -10,22 +10,17 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
     internal class ToBoolConverter : IValueConverter
     {
+        public static readonly ToBoolConverter Instance = new ToBoolConverter();
+
         private static readonly Type[] _supportedSourceTypes = Constants
             .NumericTypes
             .Append(typeof(bool));
-
-        private readonly ToStringConverter _toStringConverter;
-
-        public ToBoolConverter(ToStringConverter toStringConverter)
-        {
-            _toStringConverter = toStringConverter;
-        }
 
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             return (nonNullableTargetType == typeof(bool)) &&
                  ((_supportedSourceTypes.Contains(nonNullableSourceType)) ||
-                   _toStringConverter.HasNativeStringRepresentation(nonNullableSourceType));
+                    ToStringConverter.HasNativeStringRepresentation(nonNullableSourceType));
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
@@ -97,18 +92,18 @@ namespace AgileObjects.AgileMapper.TypeConversion
             return value.ToConstantExpression(valueType);
         }
 
-        private Expression GetSourceEqualsTests(Expression sourceValue, IEnumerable<ConstantExpression> values)
+        private static Expression GetSourceEqualsTests(Expression sourceValue, IEnumerable<ConstantExpression> values)
         {
             return values.ToArray().Chain(
                 firstValue => GetValueTest(sourceValue, firstValue),
                 (testsSoFar, testValue) => Expression.OrElse(testsSoFar, GetValueTest(sourceValue, testValue)));
         }
 
-        private Expression GetValueTest(Expression sourceValue, ConstantExpression testValue)
+        private static Expression GetValueTest(Expression sourceValue, ConstantExpression testValue)
         {
             if (sourceValue.Type != testValue.Type)
             {
-                sourceValue = _toStringConverter.GetConversion(sourceValue);
+                sourceValue = ToStringConverter.GetConversion(sourceValue);
             }
 
             var test = testValue.Value.ToString().Length == 1

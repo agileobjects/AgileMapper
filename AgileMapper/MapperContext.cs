@@ -11,8 +11,6 @@
 
     internal class MapperContext
     {
-        internal static readonly MapperContext Default = new MapperContext();
-
         private InlineMapperContextSet _inlineContexts;
 
         public MapperContext()
@@ -25,7 +23,7 @@
             UserConfigurations = new UserConfigurationSet(this);
             ConstructionFactory = new ComplexTypeConstructionFactory(Cache);
             ValueConverters = new ConverterSet(UserConfigurations);
-            RuleSets = new MappingRuleSetCollection();
+            RuleSets = MappingRuleSetCollection.Default;
             QueryProjectionMappingContext = new SimpleMappingContext(RuleSets.Project, this);
         }
 

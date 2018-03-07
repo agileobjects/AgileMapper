@@ -14,13 +14,13 @@
 
         private readonly List<Assembly> _assemblies;
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
-        private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;
+        private readonly ICache<Type, IList<Type>> _derivedTypesByType;
 
         public DerivedTypesCache(CacheSet cacheSet)
         {
             _assemblies = new List<Assembly>();
             _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>();
-            _derivedTypesByType = cacheSet.CreateScoped<Type, ICollection<Type>>();
+            _derivedTypesByType = cacheSet.CreateScoped<Type, IList<Type>>();
         }
 
         public void AddAssemblies(Assembly[] assemblies)
@@ -41,7 +41,7 @@
             return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
         }
 
-        private ICollection<Type> GetDerivedTypesForType(Type type)
+        private IList<Type> GetDerivedTypesForType(Type type)
         {
             var typeAssemblies = new[] { type.GetAssembly() };
 
@@ -58,24 +58,28 @@
                 .SelectMany(assembly => _typesByAssembly
                     .GetOrAdd(assembly, GetRelevantTypesFromAssembly));
 
-            var derivedTypes = assemblyTypes.Where(t => t.IsDerivedFrom(type)).ToList();
+            var derivedTypes = assemblyTypes.Where(t => t.IsDerivedFrom(type)).ToArray();
 
-            if (derivedTypes.Any())
+            if (derivedTypes.None())
             {
-                derivedTypes.Sort(TypeComparer.MostToLeastDerived);
+                return derivedTypes;
             }
 
-            return derivedTypes.ToArray();
+            var derivedTypesList = new List<Type>(derivedTypes);
+
+            derivedTypesList.Sort(TypeComparer.MostToLeastDerived);
+
+            return derivedTypesList;
         }
 
         private static IEnumerable<Type> GetRelevantTypesFromAssembly(Assembly assembly)
         {
-            return GetTypesFromAssembly(assembly)
+            return QueryTypesFromAssembly(assembly)
                 .Where(t => t.IsClass() && !t.IsAbstract())
                 .ToArray();
         }
 
-        private static IEnumerable<Type> GetTypesFromAssembly(Assembly assembly)
+        private static IEnumerable<Type> QueryTypesFromAssembly(Assembly assembly)
         {
             try
             {

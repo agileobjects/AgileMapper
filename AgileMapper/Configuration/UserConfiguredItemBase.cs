@@ -16,13 +16,13 @@
         }
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
-            : this(configInfo, GetTargetMemberOrThrow(targetMemberLambda))
+            : this(configInfo, GetTargetMemberOrThrow(targetMemberLambda, configInfo))
         {
         }
 
-        private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda)
+        private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
-            var targetMember = lambda.Body.ToTargetMember(MapperContext.Default);
+            var targetMember = lambda.Body.ToTargetMember(configInfo.MapperContext);
 
             if (targetMember == null)
             {

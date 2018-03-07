@@ -94,7 +94,7 @@
             => FindKeyOrNull(_configuredMemberKeys, member, mapperData)?.Key;
 
         private static CustomDictionaryKey FindKeyOrNull(
-            IEnumerable<CustomDictionaryKey> keys,
+            IList<CustomDictionaryKey> keys,
             Member member,
             IMemberMapperData mapperData)
             => keys.FirstOrDefault(k => k.AppliesTo(member, mapperData));
@@ -121,7 +121,7 @@
 
         private static void ThrowIfConflictingKeyPartFactoryExists<TKeyPartFactory>(
             TKeyPartFactory factory,
-            ICollection<TKeyPartFactory> existingFactories)
+            IList<TKeyPartFactory> existingFactories)
             where TKeyPartFactory : DictionaryKeyPartFactoryBase
         {
             if (existingFactories.HasOne())

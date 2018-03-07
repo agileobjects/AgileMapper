@@ -15,23 +15,21 @@
 
         public ConverterSet(UserConfigurationSet userConfigurations)
         {
-            var toStringConverter = new ToStringConverter();
-
             _converters = new List<IValueConverter>
             {
-                toStringConverter,
-                new ToNumericConverter<int>(toStringConverter),
-                new ToBoolConverter(toStringConverter),
-                new ToEnumConverter(toStringConverter, userConfigurations),
-                new TryParseConverter<DateTime>(toStringConverter),
-                new TryParseConverter<Guid>(toStringConverter),
-                new ToNumericConverter<decimal>(toStringConverter),
-                new ToNumericConverter<double>(toStringConverter),
-                new ToNumericConverter<long>(toStringConverter),
-                new ToCharacterConverter(toStringConverter),
-                new ToNumericConverter<short>(toStringConverter),
-                new ToNumericConverter<byte>(toStringConverter),
-                new FallbackNonSimpleTypeValueConverter()
+                ToStringConverter.Instance,
+                ToNumericConverter<int>.Instance,
+                ToBoolConverter.Instance,
+                new ToEnumConverter(userConfigurations),
+                TryParseConverter<DateTime>.Instance,
+                TryParseConverter<Guid>.Instance,
+                ToNumericConverter<decimal>.Instance,
+                ToNumericConverter<double>.Instance,
+                ToNumericConverter<long>.Instance,
+                ToCharacterConverter.Instance,
+                ToNumericConverter<short>.Instance,
+                ToNumericConverter<byte>.Instance,
+                FallbackNonSimpleTypeValueConverter.Instance
             };
         }
 

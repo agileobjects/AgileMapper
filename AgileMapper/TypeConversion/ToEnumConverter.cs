@@ -11,12 +11,10 @@
 
     internal class ToEnumConverter : IValueConverter
     {
-        private readonly ToStringConverter _toStringConverter;
         private readonly UserConfigurationSet _userConfigurations;
 
-        public ToEnumConverter(ToStringConverter toStringConverter, UserConfigurationSet userConfigurations)
+        public ToEnumConverter(UserConfigurationSet userConfigurations)
         {
-            _toStringConverter = toStringConverter;
             _userConfigurations = userConfigurations;
         }
 
@@ -28,7 +26,7 @@
             }
 
             return nonNullableSourceType.IsNumeric() ||
-                  _toStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
+                   ToStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetEnumType)
@@ -70,7 +68,7 @@
                 nonNullableTargetEnumType);
         }
 
-        private Expression GetFlagsEnumConversion(
+        private static Expression GetFlagsEnumConversion(
             Expression sourceValue,
             Expression fallbackValue,
             Type nonNullableSourceType,
@@ -96,7 +94,7 @@
 
             if (sourceValue.Type != typeof(string))
             {
-                sourceValue = _toStringConverter.GetConversion(sourceValue);
+                sourceValue = ToStringConverter.GetConversion(sourceValue);
             }
 
             var sourceValuesVariable = GetEnumValuesVariable(enumTypeName, typeof(string));
@@ -461,14 +459,14 @@
             return containsCall;
         }
 
-        private Expression GetStringValueConversion(
+        private static Expression GetStringValueConversion(
             Expression sourceValue,
             Expression fallbackValue,
             Type nonNullableTargetEnumType)
         {
             if (sourceValue.Type != typeof(string))
             {
-                sourceValue = _toStringConverter.GetConversion(sourceValue);
+                sourceValue = ToStringConverter.GetConversion(sourceValue);
             }
 
             var underlyingEnumType = Enum.GetUnderlyingType(nonNullableTargetEnumType);

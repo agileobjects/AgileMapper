@@ -20,14 +20,6 @@ namespace AgileObjects.AgileMapper
             DefaultMemberPopulationFactory.Instance,
             ExistingOrDefaultValueDataSourceFactory.Instance);
 
-        private static readonly MappingRuleSet _merge = new MappingRuleSet(
-            Constants.Merge,
-            MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
-            new MergeEnumerablePopulationStrategy(),
-            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
-            new MemberMergePopulationFactory(),
-            ExistingOrDefaultValueDataSourceFactory.Instance);
-
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
             Constants.Overwrite,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
@@ -51,16 +43,25 @@ namespace AgileObjects.AgileMapper
             DefaultMemberPopulationFactory.Instance,
             DefaultValueDataSourceFactory.Instance);
 
+        private static readonly MappingRuleSet _merge = new MappingRuleSet(
+            Constants.Merge,
+            MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
+            new MergeEnumerablePopulationStrategy(),
+            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
+            new MemberMergePopulationFactory(),
+            ExistingOrDefaultValueDataSourceFactory.Instance);
+
+        public static readonly MappingRuleSetCollection Default =
+            new MappingRuleSetCollection(_createNew, _overwrite, _project, _merge);
+
         #endregion
 
-        private readonly List<MappingRuleSet> _ruleSets;
-
-        public MappingRuleSetCollection()
+        public MappingRuleSetCollection(params MappingRuleSet[] ruleSets)
         {
-            _ruleSets = new List<MappingRuleSet> { CreateNew, Merge, Overwrite, Project };
+            All = ruleSets;
         }
 
-        public IEnumerable<MappingRuleSet> All => _ruleSets;
+        public IList<MappingRuleSet> All { get; }
 
         public MappingRuleSet CreateNew => _createNew;
 
@@ -70,6 +71,6 @@ namespace AgileObjects.AgileMapper
 
         public MappingRuleSet Project => _project;
 
-        public MappingRuleSet GetByName(string name) => _ruleSets.First(rs => rs.Name == name);
+        public MappingRuleSet GetByName(string name) => All.First(rs => rs.Name == name);
     }
 }

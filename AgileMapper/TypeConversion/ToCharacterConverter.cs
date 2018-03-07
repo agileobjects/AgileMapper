@@ -8,16 +8,11 @@
 
     internal class ToCharacterConverter : IValueConverter
     {
+        public static readonly ToCharacterConverter Instance = new ToCharacterConverter();
+
         private static readonly Type[] _handledSourceTypes = Constants
             .NumericTypes
             .Append(typeof(char), typeof(string), typeof(object));
-
-        private readonly ToStringConverter _toStringConverter;
-
-        public ToCharacterConverter(ToStringConverter toStringConverter)
-        {
-            _toStringConverter = toStringConverter;
-        }
 
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
@@ -34,7 +29,7 @@
 
             if (sourceValue.Type == typeof(object))
             {
-                sourceValue = _toStringConverter.GetConversion(sourceValue);
+                sourceValue = ToStringConverter.GetConversion(sourceValue);
             }
 
             if (sourceValue.Type == typeof(string))
@@ -66,13 +61,13 @@
             return zeroethOrDefault;
         }
 
-        private Expression GetFromNumericConversion(Expression sourceValue, Type targetType)
+        private static Expression GetFromNumericConversion(Expression sourceValue, Type targetType)
         {
             var isWholeNumberNumeric = sourceValue.Type.GetNonNullableType().IsWholeNumberNumeric();
             var sourceValueIsValid = GetIsValidNumericValueCheck(sourceValue, isWholeNumberNumeric);
 
             var fallbackValue = targetType.ToDefaultExpression();
-            var stringValue = _toStringConverter.GetConversion(sourceValue);
+            var stringValue = ToStringConverter.GetConversion(sourceValue);
 
             if (!isWholeNumberNumeric)
             {

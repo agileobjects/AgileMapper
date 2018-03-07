@@ -3,15 +3,16 @@
     using System.Collections.Generic;
     using AgileMapper.Members;
     using AgileMapper.Members.Dictionaries;
+    using Members;
     using TestClasses;
     using Xunit;
 
-    public class WhenCreatingRootDictionaryMembers
+    public class WhenCreatingRootDictionaryMembers : MemberTestsBase
     {
         [Fact]
         public void ShouldVarySourceMembersByTargetType()
         {
-            var memberFactory = new QualifiedMemberFactory(MapperContext.Default);
+            var memberFactory = new QualifiedMemberFactory(DefaultMapperContext);
 
             var dictionaryToPersonArraySourceMember = memberFactory
                 .RootSource<Dictionary<string, Person[]>, Person[]>()

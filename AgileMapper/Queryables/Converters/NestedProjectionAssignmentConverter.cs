@@ -2,7 +2,6 @@
 {
     using System.Linq.Expressions;
     using Extensions.Internal;
-    using static ObjectPopulation.Enumerables.EnumerablePopulationBuilder;
 
     internal static class NestedProjectionAssignmentConverter
     {

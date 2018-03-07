@@ -10,10 +10,9 @@
     {
         #region Cached Items
 
-        private static readonly Type[] _coercibleNumericTypes =
-            typeof(TNumeric)
-                .GetCoercibleNumericTypes()
-                .ToArray();
+        public new static readonly ToNumericConverter<TNumeric> Instance = new ToNumericConverter<TNumeric>();
+
+        private static readonly Type[] _coercibleNumericTypes = typeof(TNumeric).GetCoercibleNumericTypes();
 
         // ReSharper disable StaticMemberInGenericType
         public static readonly Expression One = GetNumericConstant(1);
@@ -33,11 +32,6 @@
         }
 
         #endregion
-
-        public ToNumericConverter(ToStringConverter toStringConverter)
-            : base(toStringConverter)
-        {
-        }
 
         protected override bool CanConvert(Type nonNullableSourceType)
         {

@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
@@ -15,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private readonly PopulationExpressionFactoryBase _memberInitPopulationFactory;
         private readonly PopulationExpressionFactoryBase _multiStatementPopulationFactory;
-        private readonly IEnumerable<ISourceShortCircuitFactory> _shortCircuitFactories;
+        private readonly IList<ISourceShortCircuitFactory> _shortCircuitFactories;
 
         private ComplexTypeMappingExpressionFactory()
         {
@@ -129,10 +128,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private bool TryGetShortCircuitFactory(ObjectMapperData mapperData, out ISourceShortCircuitFactory applicableFactory)
-        {
-            applicableFactory = _shortCircuitFactories.FirstOrDefault(f => f.IsFor(mapperData));
-            return applicableFactory != null;
-        }
+            => _shortCircuitFactories.TryFindMatch(f => f.IsFor(mapperData), out applicableFactory);
 
         #endregion
 

@@ -7,7 +7,6 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using ObjectPopulation.Enumerables;
     using ReadableExpressions.Extensions;
 

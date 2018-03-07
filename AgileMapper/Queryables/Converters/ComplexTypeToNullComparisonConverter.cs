@@ -89,7 +89,7 @@
             Member entityIdMember,
             string entityMemberName,
             string idMemberName,
-            IEnumerable<Member> sourceMembers,
+            IList<Member> sourceMembers,
             out Member entityMemberIdMember)
         {
             if (entityIdMember.Name.EqualsIgnoreCase(idMemberName))
@@ -108,7 +108,7 @@
         private static bool TryGetEntityMemberIdMember(
             string entityMemberName,
             string idMemberName,
-            IEnumerable<Member> sourceMembers,
+            IList<Member> sourceMembers,
             out Member entityMemberIdMember)
         {
             idMemberName = entityMemberName + idMemberName;

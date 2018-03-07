@@ -203,7 +203,7 @@
         [DebuggerStepThrough]
         public static Type GetNonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
-        public static IEnumerable<Type> GetCoercibleNumericTypes(this Type numericType)
+        public static Type[] GetCoercibleNumericTypes(this Type numericType)
         {
             var typeMaxValue = Constants.NumericTypeMaxValuesByType[numericType];
 

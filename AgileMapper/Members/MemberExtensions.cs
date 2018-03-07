@@ -258,7 +258,7 @@
         internal static QualifiedMember CreateMember(
             Expression memberAccessExpression,
             Func<Type, Member> rootMemberFactory,
-            Func<Type, IEnumerable<Member>> membersFactory,
+            Func<Type, IList<Member>> membersFactory,
             MapperContext mapperContext)
         {
             var expression = memberAccessExpression;

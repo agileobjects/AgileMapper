@@ -1,7 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
     using System.Collections.Generic;
-    using System.Linq;
+    using Extensions.Internal;
+
 
     internal class MaptimeDataSourceFinder : IDataSourceFinder
     {

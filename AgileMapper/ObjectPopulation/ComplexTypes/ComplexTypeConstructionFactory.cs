@@ -120,7 +120,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             foreach (var memberAndDataSourceSet in greediestAvailableConstructor.ArgumentDataSources)
             {
-                key.MappingData.MapperData.RegisterTargetMemberDataSourcesIfRequired(
+                key.MappingData.MapperData.DataSourcesByTargetMember.Add(
                     memberAndDataSourceSet.Item1,
                     memberAndDataSourceSet.Item2);
             }

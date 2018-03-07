@@ -7,13 +7,10 @@ namespace AgileObjects.AgileMapper.Configuration
         #region Singleton Instances
 
         public static readonly MappedObjectCachingSettings CacheAll =
-            new MappedObjectCachingSettings(ForAllMappings(MapperContext.Default), cache: true);
+            new MappedObjectCachingSettings(MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes, cache: true);
 
         public static readonly MappedObjectCachingSettings CacheNone =
-            new MappedObjectCachingSettings(ForAllMappings(MapperContext.Default), cache: false);
-
-        private static MappingConfigInfo ForAllMappings(MapperContext mapperContext)
-            => MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext);
+            new MappedObjectCachingSettings(MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes, cache: false);
 
         #endregion
 

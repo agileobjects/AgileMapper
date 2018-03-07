@@ -306,11 +306,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        private static bool TryGetVariableAssignment(IEnumerable<Expression> mappingExpressions, out BinaryExpression binaryExpression)
+        private static bool TryGetVariableAssignment(IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
         {
-            binaryExpression = mappingExpressions.FirstOrDefault(exp => exp.NodeType == Assign) as BinaryExpression;
+            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignment))
+            {
+                binaryExpression = (BinaryExpression)assignment;
+                return true;
+            }
 
-            return binaryExpression != null;
+            binaryExpression = null;
+            return false;
         }
 
         private static Expression GetReturnExpression(Expression returnValue, MappingExtras mappingExtras)

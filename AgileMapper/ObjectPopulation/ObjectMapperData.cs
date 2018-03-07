@@ -3,6 +3,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
+    //using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
@@ -19,9 +21,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRecursion");
 
         private readonly List<ObjectMapperData> _childMapperDatas;
-        private readonly MethodInfo _mapChildMethod;
-        private readonly MethodInfo _mapElementMethod;
-        private readonly Dictionary<string, DataSourceSet> _dataSourcesByTargetMemberName;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
@@ -71,10 +70,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             ExpressionInfoFinder = new ExpressionInfoFinder(MappingDataObject);
 
-            _mapChildMethod = GetMapMethod(MappingDataObject.Type, 4);
-            _mapElementMethod = GetMapMethod(MappingDataObject.Type, 3);
-
-            _dataSourcesByTargetMemberName = new Dictionary<string, DataSourceSet>();
             DataSourcesByTargetMember = new Dictionary<QualifiedMember, DataSourceSet>();
 
             if (targetMember.IsEnumerable)
@@ -147,12 +142,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetMappingDataProperty(string propertyName)
             => Expression.Property(MappingDataObject, propertyName);
-
-        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
-        {
-            return mappingDataType
-                .GetPublicInstanceMethod("Map", parameterCount: numberOfArguments);
-        }
 
         private bool IsTargetTypeFirstMapping(ObjectMapperData parent)
         {
@@ -330,7 +319,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             => typePair.HasCompatibleTypes(this, SourceMember, TargetMember);
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
-            => _dataSourcesByTargetMemberName[targetMemberRegistrationName][dataSourceIndex].SourceMember;
+        {
+            var targetMember = DataSourcesByTargetMember
+                .Keys
+                .First(k => k.RegistrationName == targetMemberRegistrationName);
+
+            return DataSourcesByTargetMember[targetMember][dataSourceIndex].SourceMember;
+        }
 
         public QualifiedMember GetTargetMemberFor(string targetMemberRegistrationName)
             => TargetMember.GetChildMember(targetMemberRegistrationName);
@@ -469,7 +464,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mapCall = Expression.Call(
                 MappingDataObject,
-                _mapChildMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
+                GetMapMethod(MappingDataObject.Type, 4)
+                    .MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(this),
                 targetMember.RegistrationName.ToConstantExpression(),
@@ -492,12 +488,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mapCall = Expression.Call(
                 MappingDataObject,
-                _mapElementMethod.MakeGenericMethod(sourceElement.Type, targetElement.Type),
+                GetMapMethod(MappingDataObject.Type, 3)
+                    .MakeGenericMethod(sourceElement.Type, targetElement.Type),
                 sourceElement,
                 targetElement,
                 EnumerablePopulationBuilder.Counter);
 
             return mapCall;
+        }
+
+        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
+        {
+            return mappingDataType
+                .GetPublicInstanceMethod("Map", parameterCount: numberOfArguments);
         }
 
         public MethodCallExpression GetMapRecursionCall(
@@ -515,20 +518,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 dataSourceIndex.ToConstantExpression());
 
             return mapCall;
-        }
-
-        public void RegisterTargetMemberDataSourcesIfRequired(QualifiedMember targetMember, DataSourceSet dataSources)
-        {
-            // TODO: Only add entries where necessary
-            DataSourcesByTargetMember.Add(targetMember, dataSources);
-
-            if (targetMember.IsSimple)
-            {
-                return;
-            }
-
-            // TODO: Only add entries where necessary
-            _dataSourcesByTargetMemberName.Add(targetMember.RegistrationName, dataSources);
         }
 
         public IBasicMapperData WithNoTargetMember()

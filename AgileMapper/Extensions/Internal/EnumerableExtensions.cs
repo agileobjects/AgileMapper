@@ -28,17 +28,31 @@
 
         public static T First<T>(this IList<T> items, Func<T, bool> predicate)
         {
-            for (int i = 0, n = items.Count; i < n; i++)
+            if (TryFindMatch(items, predicate, out var match))
             {
-                var item = items[i];
-
-                if (predicate.Invoke(item))
-                {
-                    return item;
-                }
+                return match;
             }
 
             throw new InvalidOperationException("Sequence contains no matching element");
+        }
+
+        public static T FirstOrDefault<T>(this IList<T> items, Func<T, bool> predicate)
+            => TryFindMatch(items, predicate, out var match) ? match : default(T);
+
+        public static bool TryFindMatch<T>(this IList<T> items, Func<T, bool> predicate, out T match)
+        {
+            for (int i = 0, n = items.Count; i < n; i++)
+            {
+                match = items[i];
+
+                if (predicate.Invoke(match))
+                {
+                    return true;
+                }
+            }
+
+            match = default(T);
+            return false;
         }
 
         [DebuggerStepThrough]
@@ -53,10 +67,9 @@
         [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
+        // Used in Dictionary mapping via EnumerableNoneMethod
         public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
-        {
-            return items.All(item => !predicate.Invoke(item));
-        }
+            => items.All(item => !predicate.Invoke(item));
 
         public static bool None<T>(this IList<T> items, Func<T, bool> predicate)
         {

@@ -161,7 +161,7 @@ namespace AgileObjects.AgileMapper.Members
             this IMemberMapperData mapperData,
             DataSourceSet dataSources)
         {
-            mapperData.Parent.RegisterTargetMemberDataSourcesIfRequired(mapperData.TargetMember, dataSources);
+            mapperData.Parent.DataSourcesByTargetMember.Add(mapperData.TargetMember, dataSources);
         }
 
         public static bool TargetMemberIsUnmappable(this IMemberMapperData mapperData, out string reason)

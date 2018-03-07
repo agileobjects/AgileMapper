@@ -8,15 +8,15 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
     internal class TryParseConverter<T> : IValueConverter
     {
-        private readonly ToStringConverter _toStringConverter;
+        public static readonly TryParseConverter<T> Instance = new TryParseConverter<T>();
+
         private readonly Type _nonNullableTargetType;
         private readonly Type _nullableTargetType;
         private readonly MethodInfo _tryParseMethod;
         private readonly ParameterExpression _valueVariable;
 
-        public TryParseConverter(ToStringConverter toStringConverter)
+        protected TryParseConverter()
         {
-            _toStringConverter = toStringConverter;
             _nonNullableTargetType = typeof(T);
             _nullableTargetType = typeof(Nullable<>).MakeGenericType(_nonNullableTargetType);
 
@@ -34,7 +34,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
         protected virtual bool CanConvert(Type nonNullableSourceType)
         {
             return (nonNullableSourceType == _nonNullableTargetType) ||
-                   _toStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
+                    ToStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
         }
 
         public virtual Expression GetConversion(Expression sourceValue, Type targetType)
@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
             if (sourceValue.Type != typeof(string))
             {
-                sourceValue = _toStringConverter.GetConversion(sourceValue);
+                sourceValue = ToStringConverter.GetConversion(sourceValue);
             }
 
             var tryParseCall = Expression.Call(_tryParseMethod, sourceValue, _valueVariable);

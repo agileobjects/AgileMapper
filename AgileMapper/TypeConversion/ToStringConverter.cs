@@ -10,10 +10,12 @@
 
     internal class ToStringConverter : IValueConverter
     {
+        public static readonly IValueConverter Instance = new ToStringConverter();
+
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
             => nonNullableTargetType == typeof(string);
 
-        public bool HasNativeStringRepresentation(Type nonNullableType)
+        public static bool HasNativeStringRepresentation(Type nonNullableType)
         {
             return (nonNullableType == typeof(string)) ||
                    (nonNullableType == typeof(object)) ||
@@ -37,7 +39,7 @@
             return GetConversion(sourceValue);
         }
 
-        public Expression GetConversion(Expression sourceValue)
+        public static Expression GetConversion(Expression sourceValue)
         {
             if (sourceValue.Type == typeof(byte[]))
             {

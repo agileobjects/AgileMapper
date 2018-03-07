@@ -60,7 +60,11 @@
         }
 
         public static ElementKeyPartFactory SquareBracketedIndex(MapperContext mapperContext)
-            => new ElementKeyPartFactory("[", "]", MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes(mapperContext));
+        {
+            return new ElementKeyPartFactory(
+                   "[", "]",
+                    MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext).ForAllTargetTypes());
+        }
 
         private static readonly Regex _patternMatcher = new Regex("^(?<Prefix>[^i]*)i{1}(?<Suffix>[^i]*)$"
 #if !NET_STANDARD

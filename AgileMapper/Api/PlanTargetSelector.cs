@@ -35,12 +35,11 @@
         public MappingPlanSet To<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
-            // TODO: Include projection mapping plans:
             return new MappingPlanSet(
                 _mapperContext
                     .RuleSets
                     .All
-                    .Except(new[] { _mapperContext.RuleSets.Project })
+                    .Where(ruleSet => ruleSet != _mapperContext.RuleSets.Project)
                     .Select(rs => GetMappingPlan(rs, configurations))
                     .ToArray());
         }

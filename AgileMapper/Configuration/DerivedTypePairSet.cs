@@ -45,7 +45,7 @@
 
         private static void RemoveConflictingPairIfAppropriate(
             DerivedTypePair typePair,
-            ICollection<DerivedTypePair> typePairs)
+            IList<DerivedTypePair> typePairs)
         {
             if (typePair.HasConfiguredCondition)
             {

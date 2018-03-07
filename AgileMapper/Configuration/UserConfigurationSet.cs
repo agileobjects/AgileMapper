@@ -122,7 +122,7 @@
         }
 
         public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
-            => _objectFactories.FindMatches(mapperData).ToArray();
+            => _objectFactories.FindMatches(mapperData);
 
         #endregion
 
@@ -288,7 +288,7 @@
 
         private static void ThrowIfConflictingItemExists<TConfiguredItem, TExistingItem>(
             TConfiguredItem configuredItem,
-            IEnumerable<TExistingItem> existingItems,
+            IList<TExistingItem> existingItems,
             Func<TConfiguredItem, TExistingItem, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
             where TExistingItem : UserConfiguredItemBase

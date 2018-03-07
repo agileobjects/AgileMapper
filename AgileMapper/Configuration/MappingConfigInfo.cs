@@ -12,6 +12,9 @@
     {
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null, null);
 
+        public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
+            AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();
+
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
         private Dictionary<Type, object> _data;
@@ -25,9 +28,6 @@
 
         public static MappingConfigInfo AllRuleSetsAndSourceTypes(MapperContext mapperContext)
             => new MappingConfigInfo(mapperContext).ForAllSourceTypes().ForAllRuleSets();
-
-        public static MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes(MapperContext mapperContext)
-            => AllRuleSetsAndSourceTypes(mapperContext).ForAllTargetTypes();
 
         #endregion
 
@@ -69,10 +69,7 @@
         public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
 
         public MappingConfigInfo ForRuleSet(string ruleSetName)
-        {
-            RuleSet = MapperContext.RuleSets.GetByName(ruleSetName);
-            return this;
-        }
+            => ForRuleSet(MapperContext.RuleSets.GetByName(ruleSetName));
 
         public MappingConfigInfo ForRuleSet(MappingRuleSet ruleSet)
         {
