@@ -12,12 +12,8 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Automatically mapping and projecting to 'meta' members - HasAddress, FirstContactDetail, etc
-- Automatically mapping from collections of linking types to collections of the linked type
-- Support for projecting from Nullables in queries
-- Removing incompatible configured conditions and values from query projections
-- Support for mapping bools to numerics
-- Performance improvements
+- To-dictionary flattening fixes
+- Performance and memory-use improvements improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
