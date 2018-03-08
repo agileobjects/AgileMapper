@@ -8,6 +8,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         public static ParameterExpression GetOrCreateParameter(this Type type, string name = null)
         {
+            if (type == null)
+            {
+                return null;
+            }
+
             var cache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, ParameterExpression>();
 
             var parameter = cache.GetOrAdd(

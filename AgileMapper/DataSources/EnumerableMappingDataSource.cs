@@ -43,7 +43,7 @@
             IChildMemberMappingData enumerableMappingData)
         {
             var mapperData = enumerableMappingData.MapperData;
-            var sourceElementType = sourceEnumerableDataSource.Value.Type.GetEnumerableElementType();
+            var sourceElementType = sourceEnumerableDataSource.SourceMember.ElementType;
 
             if (IsNotMappingFromLinkingType(sourceElementType, enumerableMappingData, out var forwardLink))
             {

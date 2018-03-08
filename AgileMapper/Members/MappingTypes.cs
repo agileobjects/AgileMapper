@@ -79,18 +79,12 @@ namespace AgileObjects.AgileMapper.Members
 
             var runtimeTypesNeeded = runtimeSourceTypeNeeded || runtimeTargetTypeNeeded;
 
-            if (!runtimeTypesNeeded)
+            if (runtimeTypesNeeded)
             {
-                return MappingTypes<TSource, TTarget>.Fixed;
+                return new MappingTypes(sourceType, targetType, runtimeTypesAreTheSame: false);
             }
 
-            var isEnumerable = TypeInfo<TTarget>.IsEnumerable ||
-                ((targetType != typeof(TTarget)) && targetType.IsEnumerable());
-
-            return new MappingTypes(
-                sourceType,
-                targetType,
-                false);
+            return MappingTypes<TSource, TTarget>.Fixed;
         }
 
         #endregion
@@ -104,6 +98,8 @@ namespace AgileObjects.AgileMapper.Members
         public bool RuntimeTypesAreTheSame { get; }
 
         public bool Equals(MappingTypes otherTypes) => otherTypes._hashCode == _hashCode;
+
+        public override int GetHashCode() => _hashCode;
 
         public MappingTypes WithTypes<TNewSource, TNewTarget>()
         {

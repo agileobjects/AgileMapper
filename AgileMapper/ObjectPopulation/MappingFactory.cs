@@ -174,7 +174,7 @@
 
         private static Expression GetDirectAccessMapping(
             Expression mapping,
-            ObjectMapperData mapperData,
+            IMemberMapperData mapperData,
             MappingValues mappingValues,
             Expression createMappingDataCall)
         {

@@ -129,21 +129,6 @@
             DataSourceFindContext context,
             out MetaMemberPartBase metaMember)
         {
-            // Has<MemberName>   -> Enumerable?.Any() or ComplexType != null or Simple != default
-            // First<MemberName> -> Enumerable?.First()
-            // Last<MemberName>  -> Enumerable?.Last()
-
-            // <MemberName>Has<SubMemberName>      -> <MemberName>Has -> as above - <MemberName> must be ComplexType
-            // First<MemberName>Has<SubMemberName> -> 
-            // Last<MemberName>Has<SubMemberName>  -> 
-
-            // Target.AddressHasLine1 -> Target.Address.Line1
-            // Build target QualifiedMember:
-            //  1. Find matchingTargetMember
-            //  2. MapperData.Parent.TargetMember.Append(matchingTargetMember)
-            //  3. Find matchingSourceMember
-            //  4. Build check
-
             var currentMappingData = default(IObjectMappingData);
             var currentSourceMember = default(IQualifiedMember);
             var currentTargetMember = default(QualifiedMember);
@@ -423,10 +408,7 @@
                     return true;
                 }
 
-                var elementType = nextPart
-                    .SourceMember
-                    .Type
-                    .GetEnumerableElementType();
+                var elementType = nextPart.SourceMember.ElementType;
 
                 return elementType.IsSimple() &&
                       !MapperData.CanConvert(elementType, MapperData.TargetMember.Type);

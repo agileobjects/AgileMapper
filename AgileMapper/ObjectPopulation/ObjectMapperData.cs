@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    //using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
@@ -76,13 +75,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
             }
-            else
+            else if (!this.TargetMemberIsEnumerableElement())
             {
-                if (!this.TargetMemberIsEnumerableElement())
-                {
-                    TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
-                    TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
-                }
+                TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
+                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
             }
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");

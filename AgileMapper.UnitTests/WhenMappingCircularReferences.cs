@@ -199,7 +199,7 @@
         [Fact]
         public void ShouldMapMultiplyRecursiveRelationships()
         {
-            var recursorOne = new MultipleRecursor { Name = "One" };
+            var recursorOne = new MultipleRecursor { Name = "One", Ints = new[] { 1, 0 } };
             var recursorTwo = new MultipleRecursor { Name = "Two" };
 
             var recursorThree = new MultipleRecursor
@@ -209,7 +209,8 @@
                 {
                     Name = "Three.ChildRecursor",
                     ChildRecursorArray = new[] { recursorTwo }
-                }
+                },
+                Ints = new[] { 3, 3, 3 }
             };
 
             var source = new MultipleRecursor
@@ -218,24 +219,31 @@
                 ChildRecursor = new MultipleRecursor
                 {
                     Name = "Root.ChildRecursor",
-                    ChildRecursor = recursorOne
+                    ChildRecursor = recursorOne,
+                    Ints = new[] { 1, 2 }
                 },
                 ChildRecursorArray = new[]
                 {
-                        new MultipleRecursor {Name = "Root.ChildRecursorArray[0]"},
-                        recursorOne,
-                        new MultipleRecursor
-                        {
-                            Name = "Root.ChildRecursorArray[2]",
-                            ChildRecursor = recursorThree
-                        }
-                    },
-                ChildRecursors = new List<MultipleRecursor>
+                    new MultipleRecursor { Name = "Root.ChildRecursorArray[0]" },
+                    recursorOne,
+                    new MultipleRecursor
                     {
-                        recursorTwo,
-                        new MultipleRecursor {Name = "Root.ChildRecursors[1]"},
-                        recursorThree
+                        Name = "Root.ChildRecursorArray[2]",
+                        ChildRecursor = recursorThree,
+                        Ints = new[] { 1, 2, 3 }
                     }
+                },
+                ChildRecursors = new List<MultipleRecursor>
+                {
+                    recursorTwo,
+                    new MultipleRecursor
+                    {
+                        Name = "Root.ChildRecursors[1]",
+                        Ints = new[] { 1, 2, 3, 4 }
+                    },
+                    recursorThree
+                },
+                Ints = new[] { 1, 1 }
             };
 
             var result = Mapper.Map(source).ToANew<MultipleRecursor>();
@@ -247,17 +255,22 @@
 
             result.ChildRecursor.ShouldNotBeNull();
             result.ChildRecursor.Name.ShouldBe("Root.ChildRecursor");
+            result.ChildRecursor.Ints.ShouldBe(1, 2);
 
             var clonedRecursorOne = result.ChildRecursor.ChildRecursor;
             clonedRecursorOne.ShouldNotBeNull();
             clonedRecursorOne.ShouldNotBeSameAs(recursorOne);
             clonedRecursorOne.Name.ShouldBe("One");
+            clonedRecursorOne.Ints.ShouldBe(1, 0);
 
             result.ChildRecursorArray.ShouldNotBeNull();
             result.ChildRecursorArray.Length.ShouldBe(3);
             result.ChildRecursorArray.First().Name.ShouldBe("Root.ChildRecursorArray[0]");
+            result.ChildRecursorArray.First().Ints.ShouldBeEmpty();
             result.ChildRecursorArray.Second().ShouldBeSameAs(clonedRecursorOne);
+            result.ChildRecursorArray.Second().Ints.ShouldBe(1, 0);
             result.ChildRecursorArray.Third().Name.ShouldBe("Root.ChildRecursorArray[2]");
+            result.ChildRecursorArray.Third().Ints.ShouldBe(1, 2, 3);
 
             var clonedRecursorThree = result.ChildRecursorArray.Third().ChildRecursor;
             clonedRecursorThree.ShouldNotBeNull();
@@ -276,8 +289,13 @@
             result.ChildRecursors.ShouldNotBeNull();
             result.ChildRecursors.Count.ShouldBe(3);
             result.ChildRecursors.First().ShouldBeSameAs(clonedRecursorTwo);
+            result.ChildRecursors.First().Ints.ShouldBeEmpty();
             result.ChildRecursors.Second().Name.ShouldBe("Root.ChildRecursors[1]");
+            result.ChildRecursors.Second().Ints.ShouldBe(1, 2, 3, 4);
             result.ChildRecursors.Third().ShouldBeSameAs(clonedRecursorThree);
+            result.ChildRecursors.Third().Ints.ShouldBe(3, 3, 3);
+
+            result.Ints.ShouldBe(1, 1);
         }
 
         [Fact]
@@ -484,6 +502,8 @@
             public MultipleRecursor[] ChildRecursorArray { get; set; }
 
             public List<MultipleRecursor> ChildRecursors { get; set; }
+
+            public ICollection<int> Ints { get; set; }
         }
 
         internal class Video

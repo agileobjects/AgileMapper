@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type _collectionInterfaceType;
         private Type _enumerableInterfaceType;
 
-        public EnumerableTypeHelper(QualifiedMember member)
+        public EnumerableTypeHelper(IQualifiedMember member)
             : this(member.Type, member.ElementType)
         {
         }

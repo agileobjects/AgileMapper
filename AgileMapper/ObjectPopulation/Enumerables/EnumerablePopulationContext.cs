@@ -8,9 +8,15 @@
 
     internal class EnumerablePopulationContext
     {
-        public EnumerablePopulationContext(IBasicMapperData mapperData)
+        public EnumerablePopulationContext(IMemberMapperData mapperData)
         {
-            SourceElementType = mapperData.SourceType.GetEnumerableElementType();
+            SourceElementType = mapperData.SourceMember.ElementType;
+
+            if (SourceElementType == null)
+            {
+                return;
+            }
+
             TargetElementType = mapperData.TargetMember.GetElementType(SourceElementType);
             ElementTypes = new[] { SourceElementType, TargetElementType };
             ElementTypesAreTheSame = SourceElementType == TargetElementType;

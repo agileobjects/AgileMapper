@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public string GetFriendlyTypeName() => Type.GetFriendlyName();
 
-        public Type ElementType => _childMembers.First().ElementType;
+        public Type ElementType => _childMembers.Last().ElementType;
 
         public bool IsEnumerable { get; }
 

@@ -57,13 +57,24 @@ namespace AgileObjects.AgileMapper.Members
             _mapperContext = mapperContext;
             _childMembers = childMembers ?? new[] { Member.RootSource(name, type) };
 
-            if (!isSimple)
+            if (isSimple)
             {
-                _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>();
+                return;
             }
+
+            if (isEnumerable)
+            {
+                ElementType = (childMembers != null)
+                    ? childMembers.Last().ElementType
+                    : type.GetEnumerableElementType();
+            }
+
+            _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>();
         }
 
         public Type Type { get; }
+
+        public Type ElementType { get; }
 
         public string GetFriendlyTypeName() => Type.GetFriendlyName();
 
