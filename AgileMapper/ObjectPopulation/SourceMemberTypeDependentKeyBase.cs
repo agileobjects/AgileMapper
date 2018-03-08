@@ -17,7 +17,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void AddSourceMemberTypeTesterIfRequired(IObjectMappingData mappingData = null)
         {
-            var typeTests = (mappingData ?? MappingData)
+            if (mappingData == null)
+            {
+                mappingData = MappingData;
+            }
+
+            if (mappingData.IsPartOfDerivedTypeMapping)
+            {
+                return;
+            }
+
+            var typeTests = mappingData
                 .MapperData
                 .DataSourcesByTargetMember
                 .Values
