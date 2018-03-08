@@ -42,14 +42,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (MapperData.HasMapperFuncs)
             {
-                _recursionMappingFuncsByKey = CreateRecursionMapperFuncsCache(mappingData);
+                _recursionMappingFuncsByKey = CreateRecursionMapperFuncsCache();
             }
         }
 
         #region Setup
 
-        private ICache<ObjectMapperKeyBase, IRecursionMapperFunc> CreateRecursionMapperFuncsCache(
-            IObjectMappingData mappingData)
+        private ICache<ObjectMapperKeyBase, IRecursionMapperFunc> CreateRecursionMapperFuncsCache()
         {
             var cache = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRecursionMapperFunc>();
 
@@ -65,24 +64,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     var mapperFuncType = typeof(RecursionMapperFunc<,>).MakeGenericType(key.SourceType, key.TargetType);
                     var mapperDataParameter = Parameters.Create<IObjectMappingData>("mappingData");
-                    var lazyLoadParameter = Parameters.Create<bool>("lazyLoadFuncs");
 
                     var mapperFuncCreation = Expression.New(
                         mapperFuncType.GetPublicInstanceConstructor(typeof(IObjectMappingData), typeof(bool)),
-                        mapperDataParameter,
-                        lazyLoadParameter);
+                        mapperDataParameter);
 
-                    var mapperCreationLambda = Expression.Lambda<Func<IObjectMappingData, bool, IRecursionMapperFunc>>(
+                    var mapperCreationLambda = Expression.Lambda<Func<IObjectMappingData, IRecursionMapperFunc>>(
                         mapperFuncCreation,
-                        mapperDataParameter,
-                        lazyLoadParameter);
+                        mapperDataParameter);
 
                     return mapperCreationLambda.Compile();
                 });
 
-                var mapperFunc = mapperFuncCreator.Invoke(
-                    mapperKey.MappingData,
-                    mappingData.MappingContext.LazyLoadRecursionMappingFuncs);
+                var mapperFunc = mapperFuncCreator.Invoke(mapperKey.MappingData);
 
                 cache.GetOrAdd(mapperKey, k => mapperFunc);
             }
