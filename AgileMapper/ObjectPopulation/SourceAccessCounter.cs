@@ -28,7 +28,7 @@
 
         protected override Expression VisitMember(MemberExpression memberAccess)
         {
-            if (memberAccess == _sourceValue)
+            if (ExpressionEvaluation.AreEquivalent(memberAccess, _sourceValue))
             {
                 ++_numberOfAccesses;
             }

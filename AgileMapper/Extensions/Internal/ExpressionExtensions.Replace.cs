@@ -12,6 +12,11 @@
 
         public static Expression ReplaceParametersWith(this LambdaExpression lambda, params Expression[] replacements)
         {
+            if (lambda.Parameters.HasOne())
+            {
+                return lambda.Body.Replace(lambda.Parameters[0], replacements[0]);
+            }
+
             var replacementsByParameter = lambda
                 .Parameters
                 .Cast<Expression>()
@@ -24,10 +29,20 @@
         public static TExpression Replace<TExpression>(
             this TExpression expression,
             Expression target,
-            Expression replacement)
+            Expression replacement,
+            IEqualityComparer<Expression> comparer = null)
             where TExpression : Expression
         {
-            return expression.Replace(new Dictionary<Expression, Expression>(1) { [target] = replacement });
+            if (expression == null)
+            {
+                return null;
+            }
+
+            return new ExpressionReplacer(
+                    target,
+                    replacement,
+                    comparer ?? ReferenceEqualsEqualityComparer.Instance)
+                .Replace<TExpression>(expression);
         }
 
         public static TExpression Replace<TExpression>(
@@ -40,22 +55,47 @@
                 return expression;
             }
 
-            var replacer = new ExpressionReplacer(replacementsByTarget);
-            var replaced = replacer.ReplaceIn(expression);
+            var replacer = replacementsByTarget.HasOne()
+                ? new ExpressionReplacer(
+                    replacementsByTarget.Keys.First(),
+                    replacementsByTarget.Values.First(),
+                    replacementsByTarget.Comparer)
+                : new ExpressionReplacer(replacementsByTarget);
 
-            return (TExpression)replaced;
+            return replacer.Replace<TExpression>(expression);
         }
 
         private class ExpressionReplacer
         {
             private readonly Dictionary<Expression, Expression> _replacementsByTarget;
+            private readonly bool _hasDictionary;
+            private readonly Expression _target;
+            private readonly Expression _replacement;
+            private readonly IEqualityComparer<Expression> _comparer;
 
             public ExpressionReplacer(Dictionary<Expression, Expression> replacementsByTarget)
             {
                 _replacementsByTarget = replacementsByTarget;
+                _hasDictionary = true;
             }
 
-            public Expression ReplaceIn(Expression expression)
+            public ExpressionReplacer(
+                Expression target,
+                Expression replacement,
+                IEqualityComparer<Expression> comparer)
+            {
+                _target = target;
+                _replacement = replacement;
+                _comparer = comparer;
+            }
+
+            public TExpression Replace<TExpression>(Expression expression)
+                where TExpression : Expression
+            {
+                return (TExpression)ReplaceIn(expression);
+            }
+
+            private Expression ReplaceIn(Expression expression)
             {
                 switch (expression.NodeType)
                 {
@@ -258,13 +298,30 @@
                     return expression;
                 }
 
-                if (_replacementsByTarget.TryGetValue(expression, out var replacement))
+                if (_hasDictionary)
                 {
-                    return replacement;
+                    if (_replacementsByTarget.TryGetValue(expression, out var replacement))
+                    {
+                        return replacement;
+                    }
+                }
+                else if (_comparer.Equals(_target, expression))
+                {
+                    return _replacement;
                 }
 
                 return replacer.Invoke(expression);
             }
+        }
+
+        private class ReferenceEqualsEqualityComparer : IEqualityComparer<Expression>
+        {
+            public static readonly IEqualityComparer<Expression> Instance =
+                new ReferenceEqualsEqualityComparer();
+
+            public bool Equals(Expression x, Expression y) => x == y;
+
+            public int GetHashCode(Expression obj) => obj.GetHashCode();
         }
     }
 }

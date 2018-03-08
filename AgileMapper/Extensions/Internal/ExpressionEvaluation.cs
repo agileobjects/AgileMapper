@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
     {
         private static readonly IEqualityComparer<Expression> _equator = new ExpressionEquator(MemberAccessesAreEqual);
 
-        public static readonly IEqualityComparer<Expression> Equivalator = new ExpressionEquator(MemberAccessesAreEquivalent);
+        public static readonly IEqualityComparer<Expression> Equivalator = new ExpressionEquator((e, x, y) => MemberAccessesAreEquivalent(x, y));
 
         public static bool AreEqual(Expression x, Expression y) => _equator.Equals(x, y);
 
@@ -19,9 +19,9 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
         #region Member Access Evaluation
 
         private static bool MemberAccessesAreEqual(ExpressionEquator equator, MemberExpression x, MemberExpression y)
-            => MemberAccessesAreEquivalent(equator, x, y) && equator.Equals(x.Expression, y.Expression);
+            => MemberAccessesAreEquivalent(x, y) && equator.Equals(x.Expression, y.Expression);
 
-        private static bool MemberAccessesAreEquivalent(ExpressionEquator equator, MemberExpression x, MemberExpression y)
+        public static bool MemberAccessesAreEquivalent(MemberExpression x, MemberExpression y)
         {
             if (ReferenceEquals(x.Member, y.Member))
             {
@@ -47,6 +47,11 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
 
             public bool Equals(Expression x, Expression y)
             {
+                if (x == y)
+                {
+                    return true;
+                }
+
                 while (true)
                 {
                     // ReSharper disable PossibleNullReferenceException

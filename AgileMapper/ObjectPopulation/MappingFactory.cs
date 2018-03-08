@@ -202,15 +202,13 @@
                 [mapperData.EnumerableIndex] = mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type)
             };
 
-            var directAccessMapping = mapping.Replace(replacementsByTarget);
-
-            directAccessMapping = directAccessMapping.Replace(
-                mapperData.MappingDataObject,
-                createMappingDataCall);
+            mapping = mapping
+                .Replace(replacementsByTarget)
+                .Replace(mapperData.MappingDataObject, createMappingDataCall);
 
             return useLocalSourceValueVariable
-                ? UseLocalSourceValueVariable((ParameterExpression)sourceValue, sourceValueVariableValue, directAccessMapping)
-                : directAccessMapping;
+                ? UseLocalSourceValueVariable((ParameterExpression)sourceValue, sourceValueVariableValue, mapping)
+                : mapping;
         }
 
         private static bool ShouldUseLocalSourceValueVariable(
