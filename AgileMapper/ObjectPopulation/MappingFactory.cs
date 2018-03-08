@@ -202,7 +202,7 @@
                 [mapperData.EnumerableIndex] = mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type)
             };
 
-            mapping = mapping.Replace(replacementsByTarget);
+            var directAccessMapping = mapping.Replace(replacementsByTarget);
 
             directAccessMapping = directAccessMapping.Replace(
                 mapperData.MappingDataObject,
