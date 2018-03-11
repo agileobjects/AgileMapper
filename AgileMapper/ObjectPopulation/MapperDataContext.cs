@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
         }
 
-        private static bool IsForStandaloneMapping(IBasicMapperData mapperData)
+        private static bool IsForStandaloneMapping(ITypePair mapperData)
             => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();
 
         public MapperDataContext(ObjectMapperData mapperData, bool isStandalone, bool isForDerivedType)

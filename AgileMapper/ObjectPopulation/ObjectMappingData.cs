@@ -118,30 +118,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             string targetMemberName,
             int dataSourceIndex)
         {
-            var childMappingData = GetChildMappingData(
+            var childMappingData = ObjectMappingDataFactory.ForChild(
                 sourceValue,
                 targetValue,
                 GetEnumerableIndex(),
                 targetMemberName,
-                dataSourceIndex);
-
-            return (TDeclaredTarget)_mapper.MapRuntimeTypedSubObject(childMappingData);
-        }
-
-        private IObjectMappingData GetChildMappingData<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceValue,
-            TDeclaredTarget targetValue,
-            int? enumerableIndex,
-            string targetMemberName,
-            int dataSourceIndex)
-        {
-            return ObjectMappingDataFactory.ForChild(
-                sourceValue,
-                targetValue,
-                enumerableIndex,
-                targetMemberName,
                 dataSourceIndex,
                 this);
+
+            return (TDeclaredTarget)_mapper.MapRuntimeTypedSubObject(childMappingData);
         }
 
         public TTargetElement Map<TSourceElement, TTargetElement>(

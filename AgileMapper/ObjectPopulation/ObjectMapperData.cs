@@ -21,6 +21,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
         private MappedObjectCachingMode _mappedObjectCachingMode;
+        private List<Tuple<ObjectMapperKeyBase, ParameterExpression>> _requiredMapperFuncs;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -415,12 +416,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
 
-            if (nearestStandaloneMapperData.RequiredMapperFuncs == null)
+            if (nearestStandaloneMapperData._requiredMapperFuncs == null)
             {
-                nearestStandaloneMapperData.RequiredMapperFuncs =
+                nearestStandaloneMapperData._requiredMapperFuncs =
                     new List<Tuple<ObjectMapperKeyBase, ParameterExpression>>();
             }
-            else if (nearestStandaloneMapperData.RequiredMapperFuncs.TryFindMatch(tuple =>
+            else if (nearestStandaloneMapperData._requiredMapperFuncs.TryFindMatch(tuple =>
                 tuple.Item1.Equals(mappingData.MapperKey), out var matchingVariable))
             {
                 return matchingVariable.Item2;
@@ -438,13 +439,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 typeof(MapperFunc<,>).MakeGenericType(sourceType, targetType),
                 $"map{sourceTypeName}To{targetTypeName}");
 
-            nearestStandaloneMapperData.RequiredMapperFuncs.Add(Tuple.Create(
+            nearestStandaloneMapperData._requiredMapperFuncs.Add(Tuple.Create(
                 mappingData.MapperKey, recursionFuncVariable));
 
             return recursionFuncVariable;
         }
 
-        public ObjectMapperData GetNearestStandaloneMapperData()
+        private ObjectMapperData GetNearestStandaloneMapperData()
         {
             var mapperData = this;
 
@@ -456,9 +457,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool HasMapperFuncs => RequiredMapperFuncs?.Any() == true;
-
-        public List<Tuple<ObjectMapperKeyBase, ParameterExpression>> RequiredMapperFuncs { get; private set; }
+        public bool HasMapperFuncs => _requiredMapperFuncs?.Any() == true;
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 
@@ -540,9 +539,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             // The iteration requires a for loop because items can get added 
             // to RequiredMapperFuncs by virtue of creating the Mapper:
-            for (var i = 0; i < RequiredMapperFuncs.Count; ++i)
+            for (var i = 0; i < _requiredMapperFuncs.Count; ++i)
             {
-                var mapperKeyAndVariable = RequiredMapperFuncs[i];
+                var mapperKeyAndVariable = _requiredMapperFuncs[i];
                 var key = mapperKeyAndVariable.Item1;
                 var recursiveMappingLambda = key.MappingData.Mapper.MappingLambda;
                 var variable = mapperKeyAndVariable.Item2;
