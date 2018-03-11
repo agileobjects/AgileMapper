@@ -265,7 +265,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 GetCheckedValueOrNull(value, keyedAccess, mapperData) ??
                 mapperData.GetValueConversion(value, ValueType);
 
-            var keyedAssignment = keyedAccess.AssignTo(convertedValue);
+            var keyedAssignment = keyedAccess.AssignWith(convertedValue);
 
             return keyedAssignment;
         }
@@ -371,8 +371,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return GetCheckedTryCatch((TryExpression)value, keyedAccess, checkedAccess, existingValue);
             }
 
-            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValue };
-            var checkedValue = ((BlockExpression)value).Replace(replacements);
+            var checkedValue = ((BlockExpression)value).Replace(keyedAccess, existingValue);
 
             return checkedValue.Update(
                 checkedValue.Variables.Append(existingValue),
@@ -390,14 +389,12 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 existingValue,
                 existingValue.Type.ToDefaultExpression());
 
-            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValueOrDefault };
-
             var updatedCatchHandlers = tryCatchValue
                 .Handlers
                 .Select(handler => handler.Update(
                     handler.Variable,
-                    handler.Filter.Replace(replacements),
-                    handler.Body.Replace(replacements)));
+                    handler.Filter.Replace(keyedAccess, existingValueOrDefault),
+                    handler.Body.Replace(keyedAccess, existingValueOrDefault)));
 
             var updatedTryCatch = tryCatchValue.Update(
                 tryCatchValue.Body,

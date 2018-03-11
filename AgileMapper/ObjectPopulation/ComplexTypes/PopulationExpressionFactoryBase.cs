@@ -91,7 +91,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 memberPopulations,
                 assignCreatedObject);
 
-            var localVariableAssignment = mappingData.MapperData.LocalVariable.AssignTo(localVariableValue);
+            var localVariableAssignment = mappingData.MapperData.LocalVariable.AssignWith(localVariableValue);
 
             return localVariableAssignment;
         }

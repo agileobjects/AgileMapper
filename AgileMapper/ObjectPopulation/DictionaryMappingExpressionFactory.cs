@@ -351,7 +351,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject, comparer);
             }
 
-            var assignment = mapperData.TargetInstance.AssignTo(cloneDictionary);
+            var assignment = mapperData.TargetInstance.AssignWith(cloneDictionary);
 
             return assignment;
         }
@@ -439,14 +439,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var valueResolution = TargetObjectResolutionFactory.GetObjectResolution(
                 value,
                 mappingData,
-                mapperData.HasMapperFuncs);
+                assignTargetObject: mapperData.HasMapperFuncs);
 
             if (valueResolution == mapperData.TargetInstance)
             {
                 return null;
             }
 
-            return mapperData.TargetInstance.AssignTo(valueResolution);
+            return mapperData.TargetInstance.AssignWith(valueResolution);
         }
 
         private Expression GetDictionaryPopulation(IObjectMappingData mappingData)

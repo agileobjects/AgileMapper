@@ -123,7 +123,7 @@ namespace AgileObjects.AgileMapper.DataSources
             var finalDataSource = _dataSources.Last();
             var fallbackValue = finalDataSource.Value;
 
-            if (finalDataSource.IsConditional || _dataSources.HasOne())
+            if (_dataSources.HasOne())
             {
                 return fallbackValue;
             }

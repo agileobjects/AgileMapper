@@ -125,7 +125,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 targetMemberName,
                 dataSourceIndex);
 
-            return (TDeclaredTarget)_mapper.MapSubObject(childMappingData);
+            return (TDeclaredTarget)_mapper.MapRuntimeTypedSubObject(childMappingData);
         }
 
         private IObjectMappingData GetChildMappingData<TDeclaredSource, TDeclaredTarget>(
@@ -155,34 +155,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableIndex,
                 this);
 
-            return (TTargetElement)_mapper.MapSubObject(elementMappingData);
-        }
-
-        TDeclaredTarget IObjectMappingDataUntyped.MapRecursion<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceValue,
-            TDeclaredTarget targetValue,
-            int? enumerableIndex,
-            string targetMemberName,
-            int dataSourceIndex)
-        {
-            if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
-            {
-                var childMappingData = GetChildMappingData(
-                    sourceValue,
-                    targetValue,
-                    enumerableIndex,
-                    targetMemberName,
-                    dataSourceIndex);
-
-                return (TDeclaredTarget)_mapper.MapRecursion(childMappingData);
-            }
-
-            return Parent.MapRecursion(
-                sourceValue,
-                targetValue,
-                enumerableIndex,
-                targetMemberName,
-                dataSourceIndex);
+            return (TTargetElement)_mapper.MapRuntimeTypedSubObject(elementMappingData);
         }
 
         #endregion

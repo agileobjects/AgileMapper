@@ -33,7 +33,7 @@
         }
 
         [DebuggerStepThrough]
-        public static BinaryExpression AssignTo(this Expression subject, Expression value)
+        public static BinaryExpression AssignWith(this Expression subject, Expression value)
             => Expression.Assign(subject, value);
 
         [DebuggerStepThrough]
@@ -73,7 +73,7 @@
             var loopBody = (BlockExpression)loop.Body;
             var loopBodyExpressions = new List<Expression>(loopBody.Expressions);
 
-            var variableAssignment = variable.AssignTo(value);
+            var variableAssignment = variable.AssignWith(value);
             loopBodyExpressions.Insert(insertIndex, variableAssignment);
 
             loopBody = loopBody.Update(loopBody.Variables.Append(variable), loopBodyExpressions);

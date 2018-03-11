@@ -79,7 +79,7 @@
 
             var enumValueVariable = Expression.Variable(underlyingEnumType, enumTypeName + "Value");
             var underlyingTypeDefault = underlyingEnumType.ToDefaultExpression();
-            var assignEnumValue = enumValueVariable.AssignTo(underlyingTypeDefault);
+            var assignEnumValue = enumValueVariable.AssignWith(underlyingTypeDefault);
 
             if (nonNullableSourceType.IsNumeric())
             {
@@ -112,14 +112,14 @@
             var enumeratorCurrent = Expression.Property(sourceValuesVariable, "Current");
             var stringTrimMethod = typeof(string).GetPublicInstanceMethod("Trim", parameterCount: 0);
             var currentTrimmed = Expression.Call(enumeratorCurrent, stringTrimMethod);
-            var assignLocalVariable = localSourceValueVariable.AssignTo(currentTrimmed);
+            var assignLocalVariable = localSourceValueVariable.AssignWith(currentTrimmed);
 
             var isNumericTest = GetIsNumericTest(localSourceValueVariable);
 
             var sourceNumericValueVariableName = enumTypeName + underlyingEnumType.Name + "Value";
             var sourceNumericValueVariable = Expression.Variable(underlyingEnumType, sourceNumericValueVariableName);
             var parsedString = GetStringParseCall(localSourceValueVariable, underlyingEnumType);
-            var assignNumericVariable = sourceNumericValueVariable.AssignTo(parsedString);
+            var assignNumericVariable = sourceNumericValueVariable.AssignWith(parsedString);
 
             var numericValuePopulationLoop = GetNumericToFlagsEnumPopulationLoop(
                 nonNullableTargetEnumType,
@@ -183,7 +183,7 @@
                 sourceValue = Expression.Convert(sourceValue, underlyingEnumType);
             }
 
-            var assignSourceVariable = sourceValueVariable.AssignTo(sourceValue);
+            var assignSourceVariable = sourceValueVariable.AssignWith(sourceValue);
 
             var populationLoop = GetNumericToFlagsEnumPopulationLoop(
                 nonNullableTargetEnumType,
@@ -223,7 +223,7 @@
 
             var localEnumValueVariable = Expression.Variable(underlyingEnumType, enumTypeName);
             var enumeratorCurrent = Expression.Property(enumValuesVariable, "Current");
-            var assignLocalVariable = localEnumValueVariable.AssignTo(enumeratorCurrent);
+            var assignLocalVariable = localEnumValueVariable.AssignWith(enumeratorCurrent);
 
             var localVariableAndSourceValue = Expression.And(localEnumValueVariable, sourceValueVariable);
             var andResultEqualsEnumValue = Expression.Equal(localVariableAndSourceValue, localEnumValueVariable);
@@ -278,7 +278,7 @@
                 enumeratedValues,
                 enumerableType.GetPublicInstanceMethod("GetEnumerator"));
 
-            return enumValuesVariable.AssignTo(getValuesEnumeratorCall);
+            return enumValuesVariable.AssignWith(getValuesEnumeratorCall);
         }
 
         private static Expression GetLoopExitCheck(

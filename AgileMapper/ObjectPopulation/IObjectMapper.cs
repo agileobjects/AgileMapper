@@ -1,17 +1,17 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Recursion;
 
-    internal interface IObjectMapper : IObjectMapperFunc
+    internal interface IObjectMapper
     {
         bool IsNullObject { get; }
+
+        LambdaExpression MappingLambda { get; }
 
         Expression MappingExpression { get; }
 
         ObjectMapperData MapperData { get; }
 
-        IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs { get; }
+        object Map(IObjectMappingData mappingData);
     }
 }

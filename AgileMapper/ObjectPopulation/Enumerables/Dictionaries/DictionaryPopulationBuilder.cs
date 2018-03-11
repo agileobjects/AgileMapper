@@ -81,7 +81,7 @@
             var keyVariable = Expression.Variable(_targetDictionaryMember.KeyType, "targetKey");
             var keyAccess = Expression.Property(loopData.SourceElement, "Key");
             var keyConversion = MapperData.GetValueConversion(keyAccess, keyVariable.Type);
-            var keyAssignment = keyVariable.AssignTo(keyConversion);
+            var keyAssignment = keyVariable.AssignWith(keyConversion);
 
             var dictionaryEntryMember = _targetDictionaryMember.Append(keyVariable);
             var targetEntryAssignment = AssignDictionaryEntry(loopData, dictionaryEntryMember, mappingData);

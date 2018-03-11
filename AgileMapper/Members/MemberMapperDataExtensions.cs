@@ -256,6 +256,12 @@ namespace AgileObjects.AgileMapper.Members
                 if (parentMember.IsEnumerable)
                 {
                     parentMember = parentMember.GetElementMember();
+
+                    if (parentMember.IsSimple)
+                    {
+                        return false;
+                    }
+
                     continue;
                 }
 
@@ -274,9 +280,7 @@ namespace AgileObjects.AgileMapper.Members
 
                 if (matchingChildMember != null)
                 {
-                    var childMember = parentMember.Append(matchingChildMember);
-
-                    return childMember.IsRecursion;
+                    return parentMember.Append(matchingChildMember).IsRecursion;
                 }
 
                 checkedTypes.Add(parentMember.Type);

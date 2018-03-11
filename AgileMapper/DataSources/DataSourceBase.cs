@@ -83,7 +83,7 @@
 
                 cacheVariablesByValue.Add(invocation, valueVariable);
                 variables[i] = valueVariable;
-                valueExpressions[i] = valueVariable.AssignTo(valueVariableValue);
+                valueExpressions[i] = valueVariable.AssignWith(valueVariableValue);
             }
 
             valueExpressions[numberOfInvocations] = value.Replace(cacheVariablesByValue);

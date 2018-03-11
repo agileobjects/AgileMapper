@@ -32,7 +32,7 @@
 
             var population = Expression.Block(
                 new[] { builder.Counter },
-                builder.Counter.AssignTo(ToNumericConverter<int>.Zero),
+                builder.Counter.AssignWith(ToNumericConverter<int>.Zero),
                 adaptedLoop);
 
             return population;

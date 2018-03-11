@@ -16,9 +16,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
-        private static readonly MethodInfo _mapRecursionMethod =
-            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRecursion");
-
         private readonly List<ObjectMapperData> _childMapperDatas;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
@@ -414,23 +411,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsEntryPoint => IsRoot || Context.IsStandalone || TargetMember.IsRecursion;
 
-        public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)
+        public ParameterExpression GetMapperFuncVariable(IObjectMappingData mappingData)
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
 
-            if (nearestStandaloneMapperData.RequiredMapperFuncKeys == null)
+            if (nearestStandaloneMapperData.RequiredMapperFuncs == null)
             {
-                nearestStandaloneMapperData.RequiredMapperFuncKeys = new List<ObjectMapperKeyBase>();
+                nearestStandaloneMapperData.RequiredMapperFuncs =
+                    new List<Tuple<ObjectMapperKeyBase, ParameterExpression>>();
             }
-            else if (nearestStandaloneMapperData.RequiredMapperFuncKeys.Contains(mappingData.MapperKey))
+            else if (nearestStandaloneMapperData.RequiredMapperFuncs.TryFindMatch(tuple =>
+                tuple.Item1.Equals(mappingData.MapperKey), out var matchingVariable))
             {
-                return;
+                return matchingVariable.Item2;
             }
 
             mappingData.MapperKey.MapperData = mappingData.MapperData;
             mappingData.MapperKey.MappingData = mappingData;
 
-            nearestStandaloneMapperData.RequiredMapperFuncKeys.Add(mappingData.MapperKey);
+            var sourceType = mappingData.MapperData.SourceType;
+            var sourceTypeName = sourceType.GetVariableNameInPascalCase();
+            var targetType = mappingData.MapperData.TargetType;
+            var targetTypeName = targetType.GetVariableNameInPascalCase();
+
+            var recursionFuncVariable = Parameters.Create(
+                typeof(MapperFunc<,>).MakeGenericType(sourceType, targetType),
+                $"map{sourceTypeName}To{targetTypeName}");
+
+            nearestStandaloneMapperData.RequiredMapperFuncs.Add(Tuple.Create(
+                mappingData.MapperKey, recursionFuncVariable));
+
+            return recursionFuncVariable;
         }
 
         public ObjectMapperData GetNearestStandaloneMapperData()
@@ -445,9 +456,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool HasMapperFuncs => RequiredMapperFuncKeys?.Any() == true;
+        public bool HasMapperFuncs => RequiredMapperFuncs?.Any() == true;
 
-        public IList<ObjectMapperKeyBase> RequiredMapperFuncKeys { get; private set; }
+        public List<Tuple<ObjectMapperKeyBase, ParameterExpression>> RequiredMapperFuncs { get; private set; }
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 
@@ -499,23 +510,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GetPublicInstanceMethod("Map", parameterCount: numberOfArguments);
         }
 
-        public MethodCallExpression GetMapRecursionCall(
-            Expression sourceObject,
-            QualifiedMember targetMember,
-            int dataSourceIndex)
-        {
-            var mapCall = Expression.Call(
-                EntryPointMapperData.MappingDataObject,
-                _mapRecursionMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
-                sourceObject,
-                targetMember.GetAccess(this),
-                EnumerableIndex,
-                targetMember.RegistrationName.ToConstantExpression(),
-                dataSourceIndex.ToConstantExpression());
-
-            return mapCall;
-        }
-
         public IBasicMapperData WithNoTargetMember()
         {
             return new BasicMapperData(
@@ -533,5 +527,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public override string ToString() => SourceMember + " -> " + TargetMember;
 #endif
         #endregion
+
+        public Expression Finalise(Expression mappingExpression)
+        {
+            if (!HasMapperFuncs)
+            {
+                return mappingExpression;
+            }
+
+            var mapperFuncVariables = new List<ParameterExpression>();
+            var mappingExpressions = new List<Expression>();
+
+            // The iteration requires a for loop because items can get added 
+            // to RequiredMapperFuncs by virtue of creating the Mapper:
+            for (var i = 0; i < RequiredMapperFuncs.Count; ++i)
+            {
+                var mapperKeyAndVariable = RequiredMapperFuncs[i];
+                var key = mapperKeyAndVariable.Item1;
+                var recursiveMappingLambda = key.MappingData.Mapper.MappingLambda;
+                var variable = mapperKeyAndVariable.Item2;
+
+                mapperFuncVariables.Add(variable);
+                mappingExpressions.Insert(i, variable.AssignWith(variable.Type.ToDefaultExpression()));
+                mappingExpressions.Add(variable.AssignWith(recursiveMappingLambda));
+
+                key.MappingData = null;
+            }
+
+            mappingExpressions.Add(mappingExpression);
+
+            return Expression.Block(mapperFuncVariables, mappingExpressions);
+        }
     }
 }

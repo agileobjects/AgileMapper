@@ -54,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             enumerableVariable = Expression.Variable(typeof(IEnumerable), "sourceEnumerable");
             var sourceValue = _instanceDictionaryAdapter.GetEntryValueAccess();
             var valueAsEnumerable = Expression.TypeAs(sourceValue, typeof(IEnumerable));
-            var enumerableAssignment = enumerableVariable.AssignTo(valueAsEnumerable);
+            var enumerableAssignment = enumerableVariable.AssignWith(valueAsEnumerable);
 
             return enumerableAssignment;
         }

@@ -24,12 +24,21 @@
 
             childMapperData.CacheMappedObjects = true;
 
-            childMapperData.RegisterRequiredMapperFunc(childMappingData);
+            var recursionFuncVariable = childMapperData.GetMapperFuncVariable(childMappingData);
 
-            var mapRecursionCall = declaredTypeMapperData.GetMapRecursionCall(
+            var mappingValues = new MappingValues(
                 sourceValue,
-                childMapperData.TargetMember,
-                dataSourceIndex);
+                childMapperData.TargetMember.GetAccess(declaredTypeMapperData),
+                declaredTypeMapperData.EnumerableIndex);
+
+            var mapRecursionCall = Expression.Invoke(
+                recursionFuncVariable,
+                MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childMapperData));
+
+            //var mapRecursionCall = declaredTypeMapperData.GetMapRecursionCall(
+            //    sourceValue,
+            //    childMapperData.TargetMember,
+            //    dataSourceIndex);
 
             return mapRecursionCall;
         }

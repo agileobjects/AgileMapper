@@ -272,7 +272,7 @@
 
             SourceValue = _sourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
 
-            _populationExpressions.Add(_sourceVariable.AssignTo(sourceValue));
+            _populationExpressions.Add(_sourceVariable.AssignWith(sourceValue));
         }
 
         private void CreateSourceTypeHelper(Expression sourceValue)
@@ -299,7 +299,7 @@
         {
             TargetVariable = Context.GetTargetParameterFor(value.Type);
 
-            _populationExpressions.Add(TargetVariable.AssignTo(value));
+            _populationExpressions.Add(TargetVariable.AssignWith(value));
         }
 
         public void AssignTargetVariable()
@@ -401,7 +401,7 @@
                 .TypeAs(MapperData.TargetObject, TargetTypeHelper.CollectionInterfaceType);
 
             var tempCollection = Parameters.Create(targetAsCollection.Type, "collection");
-            var assignedCollection = tempCollection.AssignTo(targetAsCollection);
+            var assignedCollection = tempCollection.AssignWith(targetAsCollection);
             var assignedCollectionNotNull = assignedCollection.GetIsNotDefaultComparison();
 
             var unusableCollectionValue = GetUnusableTargetValue(tempCollection.Type);
@@ -644,7 +644,7 @@
                 typeof(CollectionData<,>).MakeGenericType(Context.ElementTypes),
                 "collectionData");
 
-            var assignCollectionData = _collectionDataVariable.AssignTo(createCollectionDataCall);
+            var assignCollectionData = _collectionDataVariable.AssignWith(createCollectionDataCall);
 
             _populationExpressions.Add(assignCollectionData);
         }

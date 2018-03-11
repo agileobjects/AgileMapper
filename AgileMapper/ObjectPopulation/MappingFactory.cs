@@ -105,7 +105,7 @@
 
             if (mapperData.TargetMember.IsEnumerable)
             {
-                return !mapperData.TargetMember.ElementType.IsSimple();
+                return !mapperData.TargetMember.GetElementMember().IsSimple;
             }
 
             return false;
@@ -166,7 +166,7 @@
             }
 
             return GetDirectAccessMapping(
-                mapper.MappingLambda.Body,
+                mapper.MappingExpression,
                 mapper.MapperData,
                 mappingValues,
                 createMappingDataCall);
@@ -272,7 +272,7 @@
             Expression body,
             bool performValueReplacement = false)
         {
-            var variableAssignment = variable.AssignTo(variableValue);
+            var variableAssignment = variable.AssignWith(variableValue);
             var bodyIsTryCatch = body.NodeType == ExpressionType.Try;
             var tryCatch = bodyIsTryCatch ? (TryExpression)body : null;
             var mappingBody = bodyIsTryCatch ? tryCatch.Body : body;

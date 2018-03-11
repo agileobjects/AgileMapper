@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression GetTypedVariableAssignment(Expression sourceObject)
         {
             var typeAsConversion = Expression.TypeAs(sourceObject, _derivedSourceType);
-            var typedVariableAssignment = TypedVariable.AssignTo(typeAsConversion);
+            var typedVariableAssignment = TypedVariable.AssignWith(typeAsConversion);
 
             return typedVariableAssignment;
         }

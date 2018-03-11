@@ -69,8 +69,7 @@
         {
             var planContext = new SimpleMappingContext(ruleSet, _mapperContext)
             {
-                AddUnsuccessfulMemberPopulations = true,
-                LazyLoadRecursionMappingFuncs = false
+                AddUnsuccessfulMemberPopulations = true
             };
 
             return GetMappingPlan(
@@ -91,8 +90,9 @@
             }
 
             var mappingData = mappingDataFactory.Invoke(planContext);
+            var mapper = mappingData.Mapper;
 
-            return MappingPlan.For(mappingData);
+            return new MappingPlan(mapper);
         }
     }
 }

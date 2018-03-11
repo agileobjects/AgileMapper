@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 enumeratorValue = enumeratorValueFactory.Invoke(enumeratorValue);
             }
 
-            var enumeratorAssignment = _enumerator.AssignTo(enumeratorValue);
+            var enumeratorAssignment = _enumerator.AssignWith(enumeratorValue);
 
             Expression finallyClause = Expression.Call(
                 _enumerator,

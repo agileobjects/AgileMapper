@@ -10,9 +10,9 @@
     /// </summary>
     public class MappingPlanSet
     {
-        private readonly IEnumerable<IMappingPlan> _mappingPlans;
+        private readonly IEnumerable<MappingPlan> _mappingPlans;
 
-        internal MappingPlanSet(IEnumerable<IMappingPlan> mappingPlans)
+        internal MappingPlanSet(IEnumerable<MappingPlan> mappingPlans)
         {
             _mappingPlans = mappingPlans;
         }

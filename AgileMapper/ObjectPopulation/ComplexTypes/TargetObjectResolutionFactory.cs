@@ -30,7 +30,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var mapperData = mappingData.MapperData;
 
-            if (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated())
+            if (mapperData.TargetMember.IsReadOnly ||
+                mapperData.TargetIsDefinitelyPopulated())
             {
                 return mapperData.TargetObject;
             }
@@ -58,12 +59,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 if (assignCreatedObject)
                 {
                     mapperData.Context.UsesMappingDataObjectAsParameter = true;
-                    objectValue = mapperData.CreatedObject.AssignTo(objectValue);
+                    objectValue = mapperData.CreatedObject.AssignWith(objectValue);
                 }
 
                 if (assignTargetObject || mapperData.Context.UsesMappingDataObjectAsParameter)
                 {
-                    objectValue = mapperData.TargetObject.AssignTo(objectValue);
+                    objectValue = mapperData.TargetObject.AssignWith(objectValue);
                 }
             }
 
@@ -99,15 +100,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
+
             if ((value.NodeType == ExpressionType.Default) ||
-                 mappingData.MapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
-                 mappingData.MapperData.TargetMemberIsUserStruct() ||
-                 mappingData.MapperData.TargetIsDefinitelyUnpopulated())
+                 mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
+                 mapperData.TargetMemberIsUserStruct() ||
+                 mapperData.TargetIsDefinitelyUnpopulated())
             {
                 return value;
             }
 
-            return Expression.Coalesce(mappingData.MapperData.TargetObject, value);
+            return Expression.Coalesce(mapperData.TargetObject, value);
         }
     }
 }

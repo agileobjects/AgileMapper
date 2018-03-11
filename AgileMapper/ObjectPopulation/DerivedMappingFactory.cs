@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
+    using Members.Dictionaries;
 
     internal static class DerivedMappingFactory
     {
@@ -14,7 +15,7 @@
         {
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 
-            var targetValue = declaredTypeMapperData.TargetMember.IsReadable
+            var targetValue = UseTargetObject(declaredTypeMapperData)
                 ? declaredTypeMapperData.TargetObject.GetConversionTo(targetType)
                 : targetType.ToDefaultExpression();
 
@@ -31,6 +32,26 @@
             }
 
             return GetDerivedTypeChildMapping(derivedTypeMappingData, sourceValue, targetValue);
+        }
+
+        private static bool UseTargetObject(IBasicMapperData mapperData)
+        {
+            if (!mapperData.TargetMember.IsReadable)
+            {
+                return false;
+            }
+
+            if (!mapperData.TargetMemberIsEnumerableElement())
+            {
+                return true;
+            }
+
+            if (!(mapperData.TargetMember is DictionaryTargetMember dictionaryTargetMember))
+            {
+                return true;
+            }
+
+            return dictionaryTargetMember.CheckExistingElementValue;
         }
 
         private static Expression GetDerivedTypeRootMapping(
