@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             var memberPopulation = WithoutRegistration(mappingData, dataSources, populateCondition);
 
-            memberPopulation.MapperData.RegisterTargetMemberDataSourcesIfRequired(dataSources);
+            memberPopulation.MapperData.RegisterTargetMemberDataSources(dataSources);
 
             return memberPopulation;
         }
@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             var noDataSources = CreateNullDataSourceSet(mapperData, GetNoDataSourceMessage);
 
-            mapperData.RegisterTargetMemberDataSourcesIfRequired(noDataSources);
+            mapperData.RegisterTargetMemberDataSources(noDataSources);
 
             return new MemberPopulator(noDataSources);
         }

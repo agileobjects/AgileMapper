@@ -157,7 +157,7 @@ namespace AgileObjects.AgileMapper.Members
             return null;
         }
 
-        public static void RegisterTargetMemberDataSourcesIfRequired(
+        public static void RegisterTargetMemberDataSources(
             this IMemberMapperData mapperData,
             DataSourceSet dataSources)
         {
@@ -231,11 +231,10 @@ namespace AgileObjects.AgileMapper.Members
                 {
                     // The target member we're mapping right now isn't recursive, but 
                     // it's being mapped as part of the mapping of a recursive member. 
-                    // We therefore check if this member recurses later; if so we'll 
-                    // map it by calling MapRecursion, and it'll be the entry point of 
-                    // the RecursionMapperFunc which performs the recursive mapping:
-                    return TargetMemberIsRecursionWithin(
-                        parentMapperData.TargetMember,
+                    // We therefore check if this member recurses within itself; if so 
+                    // we'll map it by calling a recursion mapping Func:
+                    return TargetMemberRecursesWithin(
+                        mapperData.TargetMember,
                         mapperData.TargetMember.LeafMember,
                         new List<Type>());
                 }
@@ -246,7 +245,7 @@ namespace AgileObjects.AgileMapper.Members
             return false;
         }
 
-        private static bool TargetMemberIsRecursionWithin(
+        private static bool TargetMemberRecursesWithin(
             QualifiedMember parentMember,
             Member member,
             ICollection<Type> checkedTypes)
@@ -280,13 +279,13 @@ namespace AgileObjects.AgileMapper.Members
 
                 if (matchingChildMember != null)
                 {
-                    return parentMember.Append(matchingChildMember).IsRecursion;
+                    return true;
                 }
 
                 checkedTypes.Add(parentMember.Type);
 
                 return nonSimpleChildMembers.Any(m =>
-                    TargetMemberIsRecursionWithin(parentMember.Append(m), member, checkedTypes));
+                    TargetMemberRecursesWithin(parentMember.Append(m), member, checkedTypes));
             }
         }
 
