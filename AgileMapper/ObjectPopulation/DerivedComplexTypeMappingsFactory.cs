@@ -99,7 +99,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     declaredTypeMapperData.SourceObject,
                     derivedTypePair.DerivedTargetType);
 
-                var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
+                var returnMappingResult = declaredTypeMapperData.GetReturn(derivedTypeMapping);
                 declaredTypeHasUnconditionalTypePair = (condition == null);
 
                 if (declaredTypeHasUnconditionalTypePair)
@@ -268,7 +268,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Constants.EmptyExpression;
             }
 
-            var returnMappingResult = Expression.Return(mappingData.MapperData.ReturnLabelTarget, mapping);
+            var returnMappingResult = mappingData.MapperData.GetReturn(mapping);
 
             return returnMappingResult;
         }

@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var fallbackValue = GetFallbackValue(mappingData);
 
             var valueMappingOrFallback = Expression.Condition(foundValueNonNull, mapValueCall, fallbackValue);
-            var returnMapValueResult = Expression.Return(mapperData.ReturnLabelTarget, valueMappingOrFallback);
+            var returnMapValueResult = mapperData.GetReturn(valueMappingOrFallback);
             var ifEntryExistsShortCircuit = Expression.IfThen(entryExistsTest, returnMapValueResult);
 
             return Expression.Block(dictionaryVariables.Variables, ifEntryExistsShortCircuit);

@@ -309,7 +309,7 @@
             if (TargetCouldBeUnusable())
             {
                 var targetVariableNull = TargetVariable.GetIsDefaultComparison();
-                var returnExistingValue = Expression.Return(MapperData.ReturnLabelTarget, MapperData.TargetObject);
+                var returnExistingValue = MapperData.GetReturn(MapperData.TargetObject);
                 var ifNullReturn = Expression.IfThen(targetVariableNull, returnExistingValue);
 
                 _populationExpressions.Add(ifNullReturn);

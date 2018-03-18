@@ -110,6 +110,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return null;
             }
 
+            var mappedObjectsCache = mapperData.EntryPointMapperData.GetMappedObjectsCache();
+
             var tryGetMethod = typeof(IObjectMappingDataUntyped)
                 .GetPublicInstanceMethod("TryGet")
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
@@ -122,7 +124,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             var ifTryGetReturn = Expression.IfThen(
                 tryGetCall,
-                Expression.Return(mapperData.ReturnLabelTarget, mapperData.TargetInstance));
+                mapperData.GetReturn(mapperData.TargetInstance));
 
             return ifTryGetReturn;
         }

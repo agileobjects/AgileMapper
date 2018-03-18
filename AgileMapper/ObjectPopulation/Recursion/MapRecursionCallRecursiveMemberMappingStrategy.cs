@@ -35,11 +35,6 @@
                 recursionFuncVariable,
                 MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childMapperData));
 
-            //var mapRecursionCall = declaredTypeMapperData.GetMapRecursionCall(
-            //    sourceValue,
-            //    childMapperData.TargetMember,
-            //    dataSourceIndex);
-
             return mapRecursionCall;
         }
 

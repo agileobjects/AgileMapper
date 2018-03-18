@@ -23,9 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return nullMappingBlock;
             }
 
-            var returnNull = Expression.Return(
-                mapperData.ReturnLabelTarget,
-                mapperData.TargetType.ToDefaultExpression());
+            var returnNull = mapperData.GetReturn(mapperData.TargetType.ToDefaultExpression());
 
             if (MappingAlwaysBranchesToDerivedType(mappingData, out var derivedTypeMappings))
             {

@@ -415,11 +415,17 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TypesMatch(this IBasicMapperData mapperData, IList<Type> contextTypes)
             => TypesMatch(mapperData, contextTypes[0], contextTypes[1]);
 
-        private static bool TypesMatch(IBasicMapperData mapperData, Type sourceType, Type targetType)
+        private static bool TypesMatch(ITypePair mapperData, Type sourceType, Type targetType)
         {
             return (mapperData.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(mapperData.SourceType)) &&
                    (mapperData.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(mapperData.TargetType));
         }
+
+        public static Expression GetReturnLabel(this ObjectMapperData mapperData, Expression defaultValue)
+            => Expression.Label(mapperData.ReturnLabelTarget, defaultValue);
+
+        public static GotoExpression GetReturn(this ObjectMapperData mapperData, Expression value)
+            => Expression.Return(mapperData.ReturnLabelTarget, value);
 
         public static Expression GetTypedContextAccess(
             this IMemberMapperData mapperData,
