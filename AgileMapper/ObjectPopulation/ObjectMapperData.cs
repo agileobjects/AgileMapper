@@ -421,7 +421,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     MapperContext.Cache.CreateNew<MappingTypes, ParameterExpression>();
             }
 
-            var mappingTypes = new MappingTypes(SourceType, TargetType);
+            var mappingTypes = new MappingTypes(GetObjectCacheSourceType(), TargetType);
 
             var cacheVariable = nearestStandaloneMapperData._mappedObjectCachesByTypes.GetOrAdd(
                 mappingTypes,
@@ -436,6 +436,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 });
 
             return cacheVariable;
+        }
+
+        private Type GetObjectCacheSourceType()
+        {
+            Type baseType;
+
+            var sourceType = SourceType;
+
+            while ((baseType = sourceType.GetBaseType()) != typeof(object))
+            {
+                sourceType = baseType;
+            }
+
+            return sourceType;
         }
 
         public ParameterExpression GetMapperFuncVariable(IObjectMappingData mappingData)
@@ -552,43 +566,46 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression Finalise(Expression mappingExpression)
         {
-            if (!HasMapperFuncs)
+            var objectCachesExist = _mappedObjectCachesByTypes != null;
+
+            if (!HasMapperFuncs && !objectCachesExist)
             {
                 return mappingExpression;
             }
 
-            var objectCachesExist = _mappedObjectCachesByTypes != null;
+            var objectCacheVariables = objectCachesExist
+                ? _mappedObjectCachesByTypes.Values.ToList()
+                : null;
 
-            List<ParameterExpression> objectCacheVariables, mapperFuncVariables;
-
-            if (objectCachesExist)
-            {
-                objectCacheVariables = _mappedObjectCachesByTypes.Values.ToList();
-                mapperFuncVariables = new List<ParameterExpression>(objectCacheVariables);
-            }
-            else
-            {
-                objectCacheVariables = null;
-                mapperFuncVariables = new List<ParameterExpression>();
-            }
+            var mapperFuncVariables = HasMapperFuncs
+                ? objectCachesExist
+                    ? new List<ParameterExpression>(objectCacheVariables)
+                    : new List<ParameterExpression>(_requiredMapperFuncs.Count)
+                : objectCachesExist
+                    ? objectCacheVariables
+                    : null;
 
             var mappingExpressions = new List<Expression>();
 
-            // The iteration requires a for loop because items can get added 
-            // to _requiredMapperFuncs by virtue of creating the Mapper:
-            for (var i = 0; i < _requiredMapperFuncs.Count; ++i)
+            if (HasMapperFuncs)
             {
-                var mapperKeyAndVariable = _requiredMapperFuncs[i];
-                var key = mapperKeyAndVariable.Key;
-                var recursiveMappingLambda = key.MappingData.Mapper.MappingLambda;
-                var variable = mapperKeyAndVariable.Value;
+                // The iteration requires a for loop because items can get added 
+                // to _requiredMapperFuncs by virtue of creating the Mapper:
+                for (var i = 0; i < _requiredMapperFuncs.Count; ++i)
+                {
+                    var mapperKeyAndVariable = _requiredMapperFuncs[i];
+                    var key = mapperKeyAndVariable.Key;
+                    var recursiveMappingLambda = key.MappingData.Mapper.MappingLambda;
+                    var variable = mapperKeyAndVariable.Value;
 
-                mapperFuncVariables.Add(variable);
-                mappingExpressions.Insert(i, variable.AssignWith(variable.Type.ToDefaultExpression()));
-                mappingExpressions.Add(variable.AssignWith(recursiveMappingLambda));
+                    // ReSharper disable once PossibleNullReferenceException
+                    mapperFuncVariables.Add(variable);
+                    mappingExpressions.Insert(i, variable.AssignWith(variable.Type.ToDefaultExpression()));
+                    mappingExpressions.Add(variable.AssignWith(recursiveMappingLambda));
 
-                key.MapperData = null;
-                key.MappingData = null;
+                    key.MapperData = null;
+                    key.MappingData = null;
+                }
             }
 
             if (objectCachesExist)
