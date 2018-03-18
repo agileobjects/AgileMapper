@@ -15,12 +15,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private static readonly IObjectMappingDataFactoryBridge _bridge = new ObjectMappingDataFactory();
 
-        public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
-            IMappingContext mappingContext)
-        {
-            return ForRootFixedTypes(default(TSource), default(TTarget), mappingContext);
-        }
-
         public static ObjectMappingData<IQueryable<TSourceElement>, IQueryable<TResultElement>> ForProjection<TSourceElement, TResultElement>(
             IQueryable<TSourceElement> sourceQueryable,
             IMappingContext mappingContext)
@@ -35,6 +29,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 default(IQueryable<TResultElement>),
                 projectorKey,
                 mappingContext);
+        }
+
+        public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
+            IMappingContext mappingContext)
+        {
+            return ForRootFixedTypes(default(TSource), default(TTarget), mappingContext);
         }
 
         public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(

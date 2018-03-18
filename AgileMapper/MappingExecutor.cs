@@ -106,6 +106,22 @@
             return PerformMapping(target);
         }
 
+        private TTarget PerformMapping<TTarget>(
+            MappingRuleSet ruleSet,
+            TTarget target,
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
+        {
+            if (_source == null)
+            {
+                return target;
+            }
+
+            RuleSet = ruleSet;
+            MapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
+
+            return PerformMapping(target);
+        }
+
         private TTarget PerformMapping<TTarget>(TTarget target)
         {
             if (TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded)
@@ -121,22 +137,6 @@
                 .ForRootFixedTypes(_source, target, this);
 
             return typedRootMappingData.MapStart();
-        }
-
-        private TTarget PerformMapping<TTarget>(
-            MappingRuleSet ruleSet,
-            TTarget target,
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
-        {
-            if (_source == null)
-            {
-                return target;
-            }
-
-            RuleSet = ruleSet;
-            MapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
-
-            return PerformMapping(target);
         }
 
         #region IFlatteningSelector Members
