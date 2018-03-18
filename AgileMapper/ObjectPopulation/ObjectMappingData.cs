@@ -1,9 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq.Expressions;
-    using Extensions.Internal;
     using Members;
 
     internal class ObjectMappingData<TSource, TTarget> :
@@ -12,7 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {
-        private Dictionary<object, List<object>> _mappedObjectsBySource;
         private ObjectMapper<TSource, TTarget> _mapper;
         private ObjectMapperData _mapperData;
 
@@ -98,9 +95,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingData DeclaredTypeMappingData { get; }
 
-        private Dictionary<object, List<object>> MappedObjectsBySource
-            => _mappedObjectsBySource ?? (_mappedObjectsBySource = new Dictionary<object, List<object>>(13));
-
         IChildMemberMappingData IObjectMappingData.GetChildMappingData(IMemberMapperData childMapperData)
             => new ChildMemberMappingData<TSource, TTarget>(this, childMapperData);
 
@@ -144,41 +138,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #endregion
-
-        public bool TryGet<TKey, TComplex>(TKey key, out TComplex complexType)
-            where TComplex : class
-        {
-            if (!IsRoot)
-            {
-                return Parent.TryGet(key, out complexType);
-            }
-
-            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
-            {
-                complexType = (TComplex)mappedTargets.FirstOrDefault(t => t is TComplex);
-                return complexType != null;
-            }
-
-            complexType = default(TComplex);
-            return false;
-        }
-
-        public void Register<TKey, TComplex>(TKey key, TComplex complexType)
-        {
-            if (!IsRoot)
-            {
-                Parent.Register(key, complexType);
-                return;
-            }
-
-            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
-            {
-                mappedTargets.Add(complexType);
-                return;
-            }
-
-            _mappedObjectsBySource[key] = new List<object> { complexType };
-        }
 
         public IObjectMappingData<TNewSource, TTarget> WithSourceType<TNewSource>()
             where TNewSource : class
