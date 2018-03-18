@@ -118,13 +118,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return null;
             }
 
-            var registerMethod = typeof(IObjectMappingDataUntyped)
-                .GetPublicInstanceMethod("Register")
-                .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
+            var mappedObjectsCache = mapperData.GetMappedObjectsCache();
 
             return Expression.Call(
-                mapperData.EntryPointMapperData.MappingDataObject,
-                registerMethod,
+                mappedObjectsCache,
+                mappedObjectsCache.Type.GetPublicInstanceMethod("Register"),
                 mapperData.SourceObject,
                 mapperData.TargetInstance);
         }

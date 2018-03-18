@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Caching;
     using DataSources;
     using Enumerables;
     using Extensions.Internal;
@@ -21,7 +22,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
         private MappedObjectCachingMode _mappedObjectCachingMode;
-        private List<Tuple<ObjectMapperKeyBase, ParameterExpression>> _requiredMapperFuncs;
+        private ICache<ObjectMapperKeyBase, ParameterExpression> _requiredMapperFuncs;
+        private ICache<MappingTypes, ParameterExpression> _mappedObjectCachesByTypes;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -409,6 +411,33 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsEntryPoint => IsRoot || Context.IsStandalone || TargetMember.IsRecursion;
 
+        public ParameterExpression GetMappedObjectsCache()
+        {
+            var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
+
+            if (nearestStandaloneMapperData._mappedObjectCachesByTypes == null)
+            {
+                nearestStandaloneMapperData._mappedObjectCachesByTypes =
+                    MapperContext.Cache.CreateNew<MappingTypes, ParameterExpression>();
+            }
+
+            var mappingTypes = new MappingTypes(SourceType, TargetType);
+
+            var cacheVariable = nearestStandaloneMapperData._mappedObjectCachesByTypes.GetOrAdd(
+                mappingTypes,
+                mt =>
+                {
+                    var sourceTypeName = mt.SourceType.GetVariableNameInCamelCase();
+                    var targetTypeName = mt.TargetType.GetVariableNameInPascalCase();
+
+                    return Parameters.Create(
+                        typeof(IObjectCache<,>).MakeGenericType(mt.SourceType, mt.TargetType),
+                        $"{sourceTypeName}To{targetTypeName}Cache");
+                });
+
+            return cacheVariable;
+        }
+
         public ParameterExpression GetMapperFuncVariable(IObjectMappingData mappingData)
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
@@ -416,28 +445,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (nearestStandaloneMapperData._requiredMapperFuncs == null)
             {
                 nearestStandaloneMapperData._requiredMapperFuncs =
-                    new List<Tuple<ObjectMapperKeyBase, ParameterExpression>>();
-            }
-            else if (nearestStandaloneMapperData._requiredMapperFuncs.TryFindMatch(tuple =>
-                tuple.Item1.Equals(mappingData.MapperKey), out var matchingVariable))
-            {
-                return matchingVariable.Item2;
+                    MapperContext.Cache.CreateNew<ObjectMapperKeyBase, ParameterExpression>();
             }
 
             mappingData.MapperKey.MapperData = mappingData.MapperData;
             mappingData.MapperKey.MappingData = mappingData;
 
-            var sourceType = mappingData.MapperData.SourceType;
-            var sourceTypeName = sourceType.GetVariableNameInPascalCase();
-            var targetType = mappingData.MapperData.TargetType;
-            var targetTypeName = targetType.GetVariableNameInPascalCase();
+            var recursionFuncVariable = nearestStandaloneMapperData._requiredMapperFuncs.GetOrAdd(
+                mappingData.MapperKey,
+                k =>
+                {
+                    var sourceType = k.MappingData.MapperData.SourceType;
+                    var sourceTypeName = sourceType.GetVariableNameInPascalCase();
+                    var targetType = k.MappingData.MapperData.TargetType;
+                    var targetTypeName = targetType.GetVariableNameInPascalCase();
 
-            var recursionFuncVariable = Parameters.Create(
-                typeof(MapperFunc<,>).MakeGenericType(sourceType, targetType),
-                $"map{sourceTypeName}To{targetTypeName}");
-
-            nearestStandaloneMapperData._requiredMapperFuncs.Add(Tuple.Create(
-                mappingData.MapperKey, recursionFuncVariable));
+                    return Parameters.Create(
+                        typeof(MapperFunc<,>).MakeGenericType(sourceType, targetType),
+                        $"map{sourceTypeName}To{targetTypeName}");
+                });
 
             return recursionFuncVariable;
         }
@@ -454,7 +480,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool HasMapperFuncs => _requiredMapperFuncs?.Any() == true;
+        public bool HasMapperFuncs => _requiredMapperFuncs?.Count > 0;
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 
@@ -531,23 +557,47 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mappingExpression;
             }
 
-            var mapperFuncVariables = new List<ParameterExpression>();
+            var objectCachesExist = _mappedObjectCachesByTypes != null;
+
+            List<ParameterExpression> objectCacheVariables, mapperFuncVariables;
+
+            if (objectCachesExist)
+            {
+                objectCacheVariables = _mappedObjectCachesByTypes.Values.ToList();
+                mapperFuncVariables = new List<ParameterExpression>(objectCacheVariables);
+            }
+            else
+            {
+                objectCacheVariables = null;
+                mapperFuncVariables = new List<ParameterExpression>();
+            }
+
             var mappingExpressions = new List<Expression>();
 
             // The iteration requires a for loop because items can get added 
-            // to RequiredMapperFuncs by virtue of creating the Mapper:
+            // to _requiredMapperFuncs by virtue of creating the Mapper:
             for (var i = 0; i < _requiredMapperFuncs.Count; ++i)
             {
                 var mapperKeyAndVariable = _requiredMapperFuncs[i];
-                var key = mapperKeyAndVariable.Item1;
+                var key = mapperKeyAndVariable.Key;
                 var recursiveMappingLambda = key.MappingData.Mapper.MappingLambda;
-                var variable = mapperKeyAndVariable.Item2;
+                var variable = mapperKeyAndVariable.Value;
 
                 mapperFuncVariables.Add(variable);
                 mappingExpressions.Insert(i, variable.AssignWith(variable.Type.ToDefaultExpression()));
                 mappingExpressions.Add(variable.AssignWith(recursiveMappingLambda));
 
+                key.MapperData = null;
                 key.MappingData = null;
+            }
+
+            if (objectCachesExist)
+            {
+                mappingExpressions.InsertRange(0, objectCacheVariables
+                    .Select(variable => variable.AssignWith(Expression.New(
+                        typeof(ArrayCache<,>)
+                            .MakeGenericType(variable.Type.GetGenericTypeArguments())
+                            .GetPublicInstanceConstructor()))));
             }
 
             mappingExpressions.Add(mappingExpression);

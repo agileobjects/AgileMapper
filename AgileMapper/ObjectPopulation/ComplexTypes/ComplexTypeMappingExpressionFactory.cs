@@ -110,23 +110,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return null;
             }
 
-            var mappedObjectsCache = mapperData.EntryPointMapperData.GetMappedObjectsCache();
+            var mappedObjectsCache = mapperData.GetMappedObjectsCache();
 
-            var tryGetMethod = typeof(IObjectMappingDataUntyped)
-                .GetPublicInstanceMethod("TryGet")
-                .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
-
-            var tryGetCall = Expression.Call(
-                mapperData.EntryPointMapperData.MappingDataObject,
-                tryGetMethod,
+            var tryGetValueCall = Expression.Call(
+                mappedObjectsCache,
+                mappedObjectsCache.Type.GetPublicInstanceMethod("TryGet"),
                 mapperData.SourceObject,
                 mapperData.TargetInstance);
 
-            var ifTryGetReturn = Expression.IfThen(
-                tryGetCall,
+            var ifTryGetValueReturn = Expression.IfThen(
+                tryGetValueCall,
                 mapperData.GetReturn(mapperData.TargetInstance));
 
-            return ifTryGetReturn;
+            return ifTryGetValueReturn;
         }
 
         private bool TryGetShortCircuitFactory(ObjectMapperData mapperData, out ISourceShortCircuitFactory applicableFactory)

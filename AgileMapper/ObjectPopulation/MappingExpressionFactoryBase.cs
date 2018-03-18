@@ -107,10 +107,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
-        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, IMemberMapperData mapperData)
+        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
         {
             mappingExpressions = mappingExpressions
-                .Where(IsMemberMapping)
+                .Where(expression => IsMemberMapping(expression, mapperData))
                 .ToList();
 
             if (mappingExpressions.None())
@@ -159,18 +159,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private static bool IsMemberMapping(Expression expression)
+        private static bool IsMemberMapping(Expression expression, ObjectMapperData mapperData)
         {
             switch (expression.NodeType)
             {
                 case Constant:
                     return false;
 
-                case Call when (
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.Register)) ||
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.TryGet))):
-
-                    return false;
+                case Call:
+                    return !IsObjectCacheCall((MethodCallExpression)expression, mapperData);
 
                 case Assign when IsRecursionFuncCall(((BinaryExpression)expression).Right):
                     return false;
@@ -180,8 +177,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static bool IsCallTo(Expression call, string methodName)
-            => ((MethodCallExpression)call).Method.Name == methodName;
+        private static bool IsObjectCacheCall(MethodCallExpression call, ObjectMapperData mapperData)
+        {
+            if (call.Method.IsStatic ||
+              ((call.Method.Name != "Register") && call.Method.Name != "TryGet"))
+            {
+                return false;
+            }
+
+            return call.Object == mapperData.GetMappedObjectsCache();
+        }
 
         private static bool IsRecursionFuncCall(Expression expression)
         {

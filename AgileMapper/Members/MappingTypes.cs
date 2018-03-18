@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.Members
         public MappingTypes(
             Type sourceType,
             Type targetType,
-            bool runtimeTypesAreTheSame)
+            bool runtimeTypesAreTheSame = true)
         {
             SourceType = sourceType;
             TargetType = targetType;
@@ -97,6 +97,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool RuntimeTypesAreTheSame { get; }
 
+        public override bool Equals(object obj) => Equals((MappingTypes)obj);
+
         public bool Equals(MappingTypes otherTypes) => otherTypes._hashCode == _hashCode;
 
         public override int GetHashCode() => _hashCode;
@@ -115,9 +117,6 @@ namespace AgileObjects.AgileMapper.Members
         public static readonly bool SkipTypesCheck =
             !(TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded);
 
-        public static readonly MappingTypes Fixed = new MappingTypes(
-            typeof(TSource),
-            typeof(TTarget),
-            true);
+        public static readonly MappingTypes Fixed = new MappingTypes(typeof(TSource), typeof(TTarget));
     }
 }
