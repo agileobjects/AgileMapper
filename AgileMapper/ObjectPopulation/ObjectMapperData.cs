@@ -272,7 +272,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (mappingData.IsRoot)
             {
                 parentMapperData = null;
-                membersSource = mappingData.MapperKey.GetMembersSource(null);
+                membersSource = mappingData.MapperKey.GetMembersSource();
                 dataSourceIndex = null;
             }
             else
