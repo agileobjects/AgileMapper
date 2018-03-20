@@ -74,25 +74,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         if ((data.MappingContext.RuleSet == ruleSets.CreateNew) &&
                             (StaticCreateNewMapperCache<TSource, TTarget>.Mapper == null))
                         {
-                            return StaticCreateNewMapperCache<TSource, TTarget>.Mapper = (ObjectMapper<TSource, TTarget>)mapperToCache;
+                            return StaticCreateNewMapperCache<TSource, TTarget>.SetMapper((ObjectMapper<TSource, TTarget>)mapperToCache);
                         }
 
                         if ((data.MappingContext.RuleSet == ruleSets.Overwrite) &&
                             (StaticOverwriteMapperCache<TSource, TTarget>.Mapper == null))
                         {
-                            return StaticOverwriteMapperCache<TSource, TTarget>.Mapper = (ObjectMapper<TSource, TTarget>)mapperToCache;
+                            return StaticOverwriteMapperCache<TSource, TTarget>.SetMapper((ObjectMapper<TSource, TTarget>)mapperToCache);
                         }
 
                         if ((data.MappingContext.RuleSet == ruleSets.Project) &&
                             (StaticProjectionMapperCache<TSource, TTarget>.Mapper == null))
                         {
-                            return StaticProjectionMapperCache<TSource, TTarget>.Mapper = (ObjectMapper<TSource, TTarget>)mapperToCache;
+                            return StaticProjectionMapperCache<TSource, TTarget>.SetMapper((ObjectMapper<TSource, TTarget>)mapperToCache);
                         }
 
                         if ((data.MappingContext.RuleSet == ruleSets.Merge) &&
                             (StaticMergeMapperCache<TSource, TTarget>.Mapper == null))
                         {
-                            return StaticMergeMapperCache<TSource, TTarget>.Mapper = (ObjectMapper<TSource, TTarget>)mapperToCache;
+                            return StaticMergeMapperCache<TSource, TTarget>.SetMapper((ObjectMapper<TSource, TTarget>)mapperToCache);
                         }
                     }
 
@@ -134,16 +134,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             return mapper;
-        }
-
-        public void Reset()
-        {
-            foreach (var mappingExpressionFactory in _mappingExpressionFactories)
-            {
-                mappingExpressionFactory.Reset();
-            }
-
-            _rootMappersCache.Empty();
         }
 
         #region Static Caches
@@ -189,24 +179,59 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static class StaticCreateNewMapperCache<TSource, TTarget>
         {
-            public static ObjectMapper<TSource, TTarget> Mapper { get; set; }
+            public static ObjectMapper<TSource, TTarget> Mapper { get; private set; }
+
+            public static ObjectMapper<TSource, TTarget> SetMapper(ObjectMapper<TSource, TTarget> mapper)
+                => Mapper = mapper.WithResetCallback(Reset);
+
+            private static void Reset() => Mapper = null;
         }
 
         private static class StaticOverwriteMapperCache<TSource, TTarget>
         {
-            public static ObjectMapper<TSource, TTarget> Mapper { get; set; }
+            public static ObjectMapper<TSource, TTarget> Mapper { get; private set; }
+
+            public static ObjectMapper<TSource, TTarget> SetMapper(ObjectMapper<TSource, TTarget> mapper)
+                => Mapper = mapper.WithResetCallback(Reset);
+
+            private static void Reset() => Mapper = null;
         }
 
         private static class StaticProjectionMapperCache<TSource, TTarget>
         {
-            public static ObjectMapper<TSource, TTarget> Mapper { get; set; }
+            public static ObjectMapper<TSource, TTarget> Mapper { get; private set; }
+
+            public static ObjectMapper<TSource, TTarget> SetMapper(ObjectMapper<TSource, TTarget> mapper)
+                => Mapper = mapper.WithResetCallback(Reset);
+
+            private static void Reset() => Mapper = null;
         }
 
         private static class StaticMergeMapperCache<TSource, TTarget>
         {
-            public static ObjectMapper<TSource, TTarget> Mapper { get; set; }
+            public static ObjectMapper<TSource, TTarget> Mapper { get; private set; }
+
+            public static ObjectMapper<TSource, TTarget> SetMapper(ObjectMapper<TSource, TTarget> mapper)
+                => Mapper = mapper.WithResetCallback(Reset);
+
+            private static void Reset() => Mapper = null;
         }
 
         #endregion
+
+        public void Reset()
+        {
+            foreach (var mappingExpressionFactory in _mappingExpressionFactories)
+            {
+                mappingExpressionFactory.Reset();
+            }
+
+            foreach (var mapper in _rootMappersCache.Values)
+            {
+                mapper.Reset();
+            }
+
+            _rootMappersCache.Empty();
+        }
     }
 }

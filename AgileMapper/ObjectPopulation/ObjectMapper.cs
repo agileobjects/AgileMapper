@@ -14,6 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
         private readonly ICache<ObjectMapperKeyBase, IRecursionMapperFunc> _recursionMapperFuncsByKey;
+        private Action _resetCallback;
 
         private ObjectMapper()
         {
@@ -156,5 +157,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return mapperFunc.Map(childMappingData);
         }
+
+        public ObjectMapper<TSource, TTarget> WithResetCallback(Action callback)
+        {
+            _resetCallback = callback;
+            return this;
+        }
+
+        public void Reset() => _resetCallback?.Invoke();
     }
 }
