@@ -10,6 +10,10 @@
 
     internal interface ICache<TKey, TValue> : ICache
     {
+        KeyValuePair<TKey, TValue> this[int index] { get; }
+
+        int Count { get; }
+
         IEnumerable<TValue> Values { get; }
 
         TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory);

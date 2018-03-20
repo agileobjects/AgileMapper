@@ -21,6 +21,11 @@
             _values = new TValue[capacity];
         }
 
+        KeyValuePair<TKey, TValue> ICache<TKey, TValue>.this[int index]
+            => new KeyValuePair<TKey, TValue>(_keys[index], _values[index]);
+
+        int ICache<TKey, TValue>.Count => _length;
+
         public IEnumerable<TValue> Values
         {
             get

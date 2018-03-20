@@ -13,5 +13,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         ObjectMapperData MapperData { get; }
 
         IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs { get; }
+
+        bool IsStaticallyCacheable(ObjectMapperKeyBase mapperKey);
+
+        void Reset();
     }
 }

@@ -13,7 +13,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
-        private readonly ICache<ObjectMapperKeyBase, IRecursionMapperFunc> _recursionMappingFuncsByKey;
+        private readonly ICache<ObjectMapperKeyBase, IRecursionMapperFunc> _recursionMapperFuncsByKey;
+        private Action _resetCallback;
 
         private ObjectMapper()
         {
@@ -42,7 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (MapperData.HasMapperFuncs)
             {
-                _recursionMappingFuncsByKey = CreateRecursionMapperFuncsCache(mappingData);
+                _recursionMapperFuncsByKey = CreateRecursionMapperFuncsCache(mappingData);
             }
         }
 
@@ -100,7 +101,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData MapperData { get; }
 
-        public IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs => _recursionMappingFuncsByKey.Values;
+        public IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs => _recursionMapperFuncsByKey.Values;
+
+        public bool IsStaticallyCacheable(ObjectMapperKeyBase mapperKey)
+        {
+            if (mapperKey.HasTypeTester)
+            {
+                return false;
+            }
+
+            if (_subMappersByKey == null)
+            {
+                return true;
+            }
+
+            for (var i = 0; i < _subMappersByKey.Count; i++)
+            {
+                var subMapperByKey = _subMappersByKey[i];
+
+                if (!subMapperByKey.Value.IsStaticallyCacheable(subMapperByKey.Key))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         public object Map(IObjectMappingData mappingData) => Map((ObjectMappingData<TSource, TTarget>)mappingData);
 
@@ -126,10 +152,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public object MapRecursion(IObjectMappingData childMappingData)
         {
-            var mapperFunc = _recursionMappingFuncsByKey
+            var mapperFunc = _recursionMapperFuncsByKey
                 .GetOrAdd(childMappingData.MapperKey, null);
 
             return mapperFunc.Map(childMappingData);
         }
+
+        public ObjectMapper<TSource, TTarget> WithResetCallback(Action callback)
+        {
+            _resetCallback = callback;
+            return this;
+        }
+
+        public void Reset() => _resetCallback?.Invoke();
     }
 }
