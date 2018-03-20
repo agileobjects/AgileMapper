@@ -45,13 +45,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper<TSource, TTarget> GetOrCreateRoot<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
+            if (TryGetStaticallyCachedMapper(mappingData, out var mapper))
+            {
+                return mapper;
+            }
+
+            // TODO: This is not thread-safe when using a fixed-types RootObjectMapperKey!
             mappingData.MapperKey.MappingData = mappingData;
 
-            var mapper = _rootMappersCache.GetOrAdd(
+            mapper = (ObjectMapper<TSource, TTarget>)_rootMappersCache.GetOrAdd(
                 mappingData.MapperKey,
                 key =>
                 {
                     var mapperToCache = key.MappingData.Mapper;
+                    var data = key.MappingData;
 
                     key.MappingData = null;
 
@@ -60,10 +67,39 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         MappingValidator.Validate(mapperToCache.MapperData);
                     }
 
+                    if (mapperToCache.IsStaticallyCacheable(key))
+                    {
+                        var ruleSets = data.MapperData.MapperContext.RuleSets;
+
+                        if ((data.MappingContext.RuleSet == ruleSets.CreateNew) &&
+                            (StaticCreateNewMapperCache<TSource, TTarget>.Mapper == null))
+                        {
+                            return StaticCreateNewMapperCache<TSource, TTarget>.Mapper = (ObjectMapper<TSource, TTarget>)mapperToCache;
+                        }
+
+                        if ((data.MappingContext.RuleSet == ruleSets.Overwrite) &&
+                            (StaticOverwriteMapperCache<TSource, TTarget>.Mapper == null))
+                        {
+                            return StaticOverwriteMapperCache<TSource, TTarget>.Mapper = (ObjectMapper<TSource, TTarget>)mapperToCache;
+                        }
+
+                        if ((data.MappingContext.RuleSet == ruleSets.Project) &&
+                            (StaticProjectionMapperCache<TSource, TTarget>.Mapper == null))
+                        {
+                            return StaticProjectionMapperCache<TSource, TTarget>.Mapper = (ObjectMapper<TSource, TTarget>)mapperToCache;
+                        }
+
+                        if ((data.MappingContext.RuleSet == ruleSets.Merge) &&
+                            (StaticMergeMapperCache<TSource, TTarget>.Mapper == null))
+                        {
+                            return StaticMergeMapperCache<TSource, TTarget>.Mapper = (ObjectMapper<TSource, TTarget>)mapperToCache;
+                        }
+                    }
+
                     return mapperToCache;
                 });
 
-            return (ObjectMapper<TSource, TTarget>)mapper;
+            return mapper;
         }
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
@@ -109,5 +145,68 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             _rootMappersCache.Empty();
         }
+
+        #region Static Caches
+
+        private static bool TryGetStaticallyCachedMapper<TSource, TTarget>(
+            ObjectMappingData<TSource, TTarget> mappingData,
+            out ObjectMapper<TSource, TTarget> mapper)
+        {
+            var ruleSet = mappingData.MappingContext.RuleSet;
+            var ruleSets = mappingData.MapperContext.RuleSets;
+
+            if ((ruleSet == ruleSets.CreateNew) &&
+                (StaticCreateNewMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext == mappingData.MapperContext))
+            {
+                mapper = StaticCreateNewMapperCache<TSource, TTarget>.Mapper;
+                return true;
+            }
+
+            if ((ruleSet == ruleSets.Overwrite) &&
+                (StaticOverwriteMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext == mappingData.MapperContext))
+            {
+                mapper = StaticOverwriteMapperCache<TSource, TTarget>.Mapper;
+                return true;
+            }
+
+            if ((ruleSet == ruleSets.Project) &&
+                (StaticProjectionMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext == mappingData.MapperContext))
+            {
+                mapper = StaticProjectionMapperCache<TSource, TTarget>.Mapper;
+                return true;
+            }
+
+            if ((ruleSet == ruleSets.Merge) &&
+                (StaticMergeMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext == mappingData.MapperContext))
+            {
+                mapper = StaticMergeMapperCache<TSource, TTarget>.Mapper;
+                return true;
+            }
+
+            mapper = null;
+            return false;
+        }
+
+        private static class StaticCreateNewMapperCache<TSource, TTarget>
+        {
+            public static ObjectMapper<TSource, TTarget> Mapper { get; set; }
+        }
+
+        private static class StaticOverwriteMapperCache<TSource, TTarget>
+        {
+            public static ObjectMapper<TSource, TTarget> Mapper { get; set; }
+        }
+
+        private static class StaticProjectionMapperCache<TSource, TTarget>
+        {
+            public static ObjectMapper<TSource, TTarget> Mapper { get; set; }
+        }
+
+        private static class StaticMergeMapperCache<TSource, TTarget>
+        {
+            public static ObjectMapper<TSource, TTarget> Mapper { get; set; }
+        }
+
+        #endregion
     }
 }
