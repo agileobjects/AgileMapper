@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Linq.Expressions;
     using Caching;
 
@@ -9,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
+        private Action _resetCallback;
 
         private ObjectMapper()
         {
@@ -44,6 +46,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData MapperData { get; }
 
+        public bool IsStaticallyCacheable(ObjectMapperKeyBase mapperKey)
+        {
+            if (mapperKey.HasTypeTester)
+            {
+                return false;
+            }
+
+            if (_subMappersByKey == null)
+            {
+                return true;
+            }
+
+            for (var i = 0; i < _subMappersByKey.Count; i++)
+            {
+                var subMapperByKey = _subMappersByKey[i];
+
+                if (!subMapperByKey.Value.IsStaticallyCacheable(subMapperByKey.Key))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public object Map(IObjectMappingData mappingData) => Map((ObjectMappingData<TSource, TTarget>)mappingData);
 
         public TTarget Map(ObjectMappingData<TSource, TTarget> mappingData) => _mapperFunc.Invoke(mappingData);
@@ -65,5 +92,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return mapper.Map(mappingData);
         }
+
+        public ObjectMapper<TSource, TTarget> WithResetCallback(Action callback)
+        {
+            _resetCallback = callback;
+            return this;
+        }
+
+        public void Reset() => _resetCallback?.Invoke();
     }
 }

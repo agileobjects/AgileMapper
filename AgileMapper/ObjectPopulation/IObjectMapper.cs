@@ -12,6 +12,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ObjectMapperData MapperData { get; }
 
+        bool IsStaticallyCacheable(ObjectMapperKeyBase mapperKey);
+
         object Map(IObjectMappingData mappingData);
+
+        void Reset();
     }
 }
