@@ -71,30 +71,48 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     {
                         var ruleSets = data.MapperData.MapperContext.RuleSets;
 
-                        if ((data.MappingContext.RuleSet == ruleSets.CreateNew) &&
-                            (StaticCreateNewMapperCache<TSource, TTarget>.Mapper == null))
+                        if (data.MappingContext.RuleSet == ruleSets.CreateNew)
                         {
+                            if (StaticCreateNewMapperCache<TSource, TTarget>.Mapper != null)
+                            {
+                                goto SkipStaticCaching;
+                            }
+
                             return StaticCreateNewMapperCache<TSource, TTarget>.SetMapper((ObjectMapper<TSource, TTarget>)mapperToCache);
                         }
 
-                        if ((data.MappingContext.RuleSet == ruleSets.Overwrite) &&
-                            (StaticOverwriteMapperCache<TSource, TTarget>.Mapper == null))
+                        if (data.MappingContext.RuleSet == ruleSets.Overwrite)
                         {
+                            if (StaticOverwriteMapperCache<TSource, TTarget>.Mapper != null)
+                            {
+                                goto SkipStaticCaching;
+                            }
+
                             return StaticOverwriteMapperCache<TSource, TTarget>.SetMapper((ObjectMapper<TSource, TTarget>)mapperToCache);
                         }
 
-                        if ((data.MappingContext.RuleSet == ruleSets.Project) &&
-                            (StaticProjectionMapperCache<TSource, TTarget>.Mapper == null))
+                        if (data.MappingContext.RuleSet == ruleSets.Project)
                         {
+                            if (StaticProjectionMapperCache<TSource, TTarget>.Mapper != null)
+                            {
+                                goto SkipStaticCaching;
+                            }
+
                             return StaticProjectionMapperCache<TSource, TTarget>.SetMapper((ObjectMapper<TSource, TTarget>)mapperToCache);
                         }
 
-                        if ((data.MappingContext.RuleSet == ruleSets.Merge) &&
-                            (StaticMergeMapperCache<TSource, TTarget>.Mapper == null))
+                        if (data.MappingContext.RuleSet == ruleSets.Merge)
                         {
+                            if (StaticMergeMapperCache<TSource, TTarget>.Mapper != null)
+                            {
+                                goto SkipStaticCaching;
+                            }
+
                             return StaticMergeMapperCache<TSource, TTarget>.SetMapper((ObjectMapper<TSource, TTarget>)mapperToCache);
                         }
                     }
+
+                    SkipStaticCaching:
 
                     return mapperToCache;
                 });
@@ -145,33 +163,51 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var ruleSet = mappingData.MappingContext.RuleSet;
             var ruleSets = mappingData.MapperContext.RuleSets;
 
-            if ((ruleSet == ruleSets.CreateNew) &&
-                (StaticCreateNewMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext == mappingData.MapperContext))
+            if (ruleSet == ruleSets.CreateNew)
             {
+                if (StaticCreateNewMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext != mappingData.MapperContext)
+                {
+                    goto NoCachedMapper;
+                }
+
                 mapper = StaticCreateNewMapperCache<TSource, TTarget>.Mapper;
                 return true;
             }
 
-            if ((ruleSet == ruleSets.Overwrite) &&
-                (StaticOverwriteMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext == mappingData.MapperContext))
+            if (ruleSet == ruleSets.Overwrite)
             {
+                if (StaticOverwriteMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext != mappingData.MapperContext)
+                {
+                    goto NoCachedMapper;
+                }
+
                 mapper = StaticOverwriteMapperCache<TSource, TTarget>.Mapper;
                 return true;
             }
 
-            if ((ruleSet == ruleSets.Project) &&
-                (StaticProjectionMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext == mappingData.MapperContext))
+            if (ruleSet == ruleSets.Project)
             {
+                if (StaticProjectionMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext != mappingData.MapperContext)
+                {
+                    goto NoCachedMapper;
+                }
+
                 mapper = StaticProjectionMapperCache<TSource, TTarget>.Mapper;
                 return true;
             }
 
-            if ((ruleSet == ruleSets.Merge) &&
-                (StaticMergeMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext == mappingData.MapperContext))
+            if (ruleSet == ruleSets.Merge)
             {
+                if (StaticMergeMapperCache<TSource, TTarget>.Mapper?.MapperData.MapperContext != mappingData.MapperContext)
+                {
+                    goto NoCachedMapper;
+                }
+
                 mapper = StaticMergeMapperCache<TSource, TTarget>.Mapper;
                 return true;
             }
+
+            NoCachedMapper:
 
             mapper = null;
             return false;
