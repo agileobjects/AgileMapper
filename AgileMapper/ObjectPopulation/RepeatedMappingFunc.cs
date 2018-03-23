@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
+    using Caching;
 
     internal interface IObjectMapperFunc
     {
@@ -19,7 +20,7 @@
             bool lazyLoadFuncs)
         {
             _repeatedMappingFuncs = repeatedMappingFuncs;
-            
+
             if (lazyLoadFuncs)
             {
                 _mapperData = mappingData.MapperData;
@@ -32,14 +33,16 @@
 
         public LambdaExpression MappingLambda { get; private set; }
 
-        public TChildTarget Map(ObjectMappingData<TChildSource, TChildTarget> mappingData)
+        public TChildTarget Map(
+            ObjectMappingData<TChildSource, TChildTarget> mappingData,
+            ObjectCache mappedObjectsCache)
         {
-            EnsureRecursionFunc(mappingData);
+            EnsureMappingFunc(mappingData);
 
-            return _mapperFunc.Invoke(mappingData, _repeatedMappingFuncs);
+            return _mapperFunc.Invoke(mappingData, mappedObjectsCache, _repeatedMappingFuncs);
         }
 
-        private void EnsureRecursionFunc(IObjectMappingData mappingData)
+        private void EnsureMappingFunc(IObjectMappingData mappingData)
         {
             if (_mapperFunc != null)
             {

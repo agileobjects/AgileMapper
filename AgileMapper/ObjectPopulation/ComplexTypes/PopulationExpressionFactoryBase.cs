@@ -3,10 +3,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Caching;
     using Extensions.Internal;
     using Members;
     using Members.Population;
-    using NetStandardPolyfills;
     using static CallbackPosition;
 
     internal abstract class PopulationExpressionFactoryBase
@@ -118,13 +118,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return null;
             }
 
-            var mappedObjectsCache = mapperData.GetMappedObjectsCache();
-
-            return Expression.Call(
-                mappedObjectsCache,
-                mappedObjectsCache.Type.GetPublicInstanceMethod("Register"),
-                mapperData.SourceObject,
-                mapperData.TargetInstance);
+            return mapperData.GetMappedObjectsCacheCall(nameof(ObjectCache.Register));
         }
 
         #endregion

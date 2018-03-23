@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Caching;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -110,16 +111,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return null;
             }
 
-            var mappedObjectsCache = mapperData.GetMappedObjectsCache();
-
-            var tryGetValueCall = Expression.Call(
-                mappedObjectsCache,
-                mappedObjectsCache.Type.GetPublicInstanceMethod("TryGet"),
-                mapperData.SourceObject,
-                mapperData.TargetInstance);
-
             var ifTryGetValueReturn = Expression.IfThen(
-                tryGetValueCall,
+                mapperData.GetMappedObjectsCacheCall(nameof(ObjectCache.TryGet)),
                 mapperData.GetReturn(mapperData.TargetInstance));
 
             return ifTryGetValueReturn;

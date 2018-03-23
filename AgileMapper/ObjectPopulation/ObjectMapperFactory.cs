@@ -133,14 +133,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingExpression = MappingFactory
                 .UseLocalSourceValueVariableIfAppropriate(mappingExpression, mappingData.MapperData);
 
-            if (mappingData.MapperData.IsEntryPoint)
-            {
-                mappingExpression = mappingData.MapperData.Finalise(mappingExpression);
-            }
-
             var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
                 mappingExpression,
                 mappingData.MapperData.MappingDataObject,
+                Parameters.MappedObjectsCache,
                 Parameters.RepeatedMappingFuncs);
 
             var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mappingData);

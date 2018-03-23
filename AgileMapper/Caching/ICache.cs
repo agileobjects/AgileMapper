@@ -16,6 +16,8 @@
 
         IEnumerable<TValue> Values { get; }
 
+        bool TryGet(TKey key, out TValue value);
+
         TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory);
     }
 }

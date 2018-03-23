@@ -6,9 +6,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using NetStandardPolyfills;
 
+    //internal interface 
+
     internal interface IRepeatedMappingFuncSet
     {
-        TChildTarget Map<TChildSource, TChildTarget>(ObjectMappingData<TChildSource, TChildTarget> mappingData);
+        TChildTarget Map<TChildSource, TChildTarget>(
+            ObjectMappingData<TChildSource, TChildTarget> mappingData,
+            ObjectCache mappedObjectsCache);
     }
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper, IRepeatedMappingFuncSet
@@ -18,6 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
         private readonly ICache<MappingTypes, IObjectMapperFunc> _mapperFuncsCache;
+        private readonly bool _mappedObjectCacheRequired;
         private Action _resetCallback;
 
         private ObjectMapper()
@@ -43,6 +48,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (MapperData.Context.NeedsSubMapping)
             {
                 _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
+            }
+
+            if (MapperData.IsRoot && MapperData.CacheMappedObjects)
+            {
+                _mappedObjectCacheRequired = true;
             }
 
             if (MapperData.HasMapperFuncs)
@@ -142,14 +152,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public object Map(IObjectMappingData mappingData) => Map((ObjectMappingData<TSource, TTarget>)mappingData);
 
-        public TTarget Map(ObjectMappingData<TSource, TTarget> mappingData) => _mapperFunc.Invoke(mappingData, this);
+        public TTarget Map(ObjectMappingData<TSource, TTarget> mappingData)
+        {
+            return _mapperFunc.Invoke(
+                mappingData,
+                _mappedObjectCacheRequired ? new ObjectCache() : null,
+                this);
+        }
 
-        public TChildTarget Map<TChildSource, TChildTarget>(ObjectMappingData<TChildSource, TChildTarget> mappingData)
+        public TChildTarget Map<TChildSource, TChildTarget>(
+            ObjectMappingData<TChildSource, TChildTarget> mappingData,
+            ObjectCache mappedObjectsCache)
         {
             var mapperFunc = (RepeatedMappingFunc<TChildSource, TChildTarget>)_mapperFuncsCache
                 .GetOrAdd(MappingTypes<TChildSource, TChildTarget>.Fixed, null);
 
-            return mapperFunc.Map(mappingData);
+            return mapperFunc.Map(mappingData, mappedObjectsCache);
         }
 
         public object MapRuntimeTypedSubObject(IObjectMappingData mappingData)

@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Caching;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -107,10 +108,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
 
-        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, ObjectMapperData mapperData)
+        private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, IMemberMapperData mapperData)
         {
             mappingExpressions = mappingExpressions
-                .Where(expression => IsMemberMapping(expression, mapperData))
+                .Where(IsMemberMapping)
                 .ToList();
 
             if (mappingExpressions.None())
@@ -159,7 +160,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private static bool IsMemberMapping(Expression expression, ObjectMapperData mapperData)
+        private static bool IsMemberMapping(Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -167,7 +168,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return false;
 
                 case Call:
-                    return !IsObjectCacheCall((MethodCallExpression)expression, mapperData);
+                    return ((MethodCallExpression)expression).Method.DeclaringType != typeof(ObjectCache);
 
                 case Assign when IsRecursionFuncCall(((BinaryExpression)expression).Right):
                     return false;
@@ -175,17 +176,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 default:
                     return true;
             }
-        }
-
-        private static bool IsObjectCacheCall(MethodCallExpression call, ObjectMapperData mapperData)
-        {
-            if (call.Method.IsStatic ||
-              ((call.Method.Name != "Register") && call.Method.Name != "TryGet"))
-            {
-                return false;
-            }
-
-            return call.Object == mapperData.GetMappedObjectsCache();
         }
 
         private static bool IsRecursionFuncCall(Expression expression)

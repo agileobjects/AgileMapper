@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Caching;
     using DataSources;
     using Enumerables;
     using Extensions.Internal;
@@ -22,7 +21,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
         private MappedObjectCachingMode _mappedObjectCachingMode;
-        private ICache<MappingTypes, ParameterExpression> _mappedObjectCachesByTypes;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -410,31 +408,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsEntryPoint => IsRoot || Context.IsStandalone || TargetMember.IsRecursion;
 
-        public ParameterExpression GetMappedObjectsCache()
+        public Expression GetMappedObjectsCacheCall(string methodName)
         {
-            var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
+            var tryGetMethod = Parameters
+                .MappedObjectsCache
+                .Type
+                .GetPublicInstanceMethod(methodName)
+                .MakeGenericMethod(GetObjectCacheSourceType(), TargetType);
 
-            if (nearestStandaloneMapperData._mappedObjectCachesByTypes == null)
-            {
-                nearestStandaloneMapperData._mappedObjectCachesByTypes =
-                    MapperContext.Cache.CreateNew<MappingTypes, ParameterExpression>();
-            }
+            var tryGetCall = Expression.Call(
+                Parameters.MappedObjectsCache,
+                tryGetMethod,
+                SourceObject,
+                TargetInstance);
 
-            var mappingTypes = new MappingTypes(GetObjectCacheSourceType(), TargetType);
-
-            var cacheVariable = nearestStandaloneMapperData._mappedObjectCachesByTypes.GetOrAdd(
-                mappingTypes,
-                mt =>
-                {
-                    var sourceTypeName = mt.SourceType.GetVariableNameInCamelCase();
-                    var targetTypeName = mt.TargetType.GetVariableNameInPascalCase();
-
-                    return Parameters.Create(
-                        typeof(IObjectCache<,>).MakeGenericType(mt.SourceType, mt.TargetType),
-                        $"{sourceTypeName}To{targetTypeName}Cache");
-                });
-
-            return cacheVariable;
+            return tryGetCall;
         }
 
         private Type GetObjectCacheSourceType()
@@ -553,32 +541,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public override string ToString() => SourceMember + " -> " + TargetMember;
 #endif
         #endregion
-
-        public Expression Finalise(Expression mappingExpression)
-        {
-            if (_mappedObjectCachesByTypes == null)
-            {
-                return mappingExpression;
-            }
-
-            var objectCacheVariables = _mappedObjectCachesByTypes.Values.ToArray();
-
-            var mappingExpressions = new Expression[objectCacheVariables.Length + 1];
-
-            for (var i = 0; i < objectCacheVariables.Length; i++)
-            {
-                var objectCacheVariable = objectCacheVariables[i];
-
-                var cacheConstructor = typeof(ArrayCache<,>)
-                    .MakeGenericType(objectCacheVariable.Type.GetGenericTypeArguments())
-                    .GetPublicInstanceConstructor();
-
-                mappingExpressions[i] = objectCacheVariable.AssignWith(Expression.New(cacheConstructor));
-            }
-
-            mappingExpressions[mappingExpressions.Length - 1] = mappingExpression;
-
-            return Expression.Block(objectCacheVariables, mappingExpressions);
-        }
     }
 }

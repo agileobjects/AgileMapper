@@ -44,7 +44,8 @@
             var performRepeatedMappingCall = Expression.Call(
                 Parameters.RepeatedMappingFuncs,
                 performRepeatedMappingMethod,
-                createMappingDataCall);
+                createMappingDataCall,
+                Parameters.MappedObjectsCache);
 
             return performRepeatedMappingCall;
         }

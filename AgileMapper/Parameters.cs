@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using Caching;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
@@ -11,6 +12,7 @@ namespace AgileObjects.AgileMapper
     {
         public static readonly ParameterExpression MappingContext = Create<IMappingContext>();
         public static readonly ParameterExpression MappingData = Create<IMappingData>();
+        public static readonly ParameterExpression MappedObjectsCache = Create<ObjectCache>("mappedObjectsCache");
         public static readonly ParameterExpression RepeatedMappingFuncs = Create<IRepeatedMappingFuncSet>("mappingFuncs");
         public static readonly ParameterExpression SourceObject = Create<object>();
         public static readonly ParameterExpression ObjectMappingData = Create<IObjectMappingData>("mappingData");
