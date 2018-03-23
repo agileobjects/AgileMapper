@@ -12,12 +12,12 @@
         private static readonly object _lookupSync = new object();
 
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
-        private readonly List<SourceAndTargetTypesKey> _autoCheckedTypes;
+        private readonly List<MappingTypes> _autoCheckedTypes;
 
         public DerivedTypePairSet()
         {
             _typePairsByTargetType = new Dictionary<Type, List<DerivedTypePair>>();
-            _autoCheckedTypes = new List<SourceAndTargetTypesKey>();
+            _autoCheckedTypes = new List<MappingTypes>();
         }
 
         public void Add(DerivedTypePair typePair)
@@ -82,11 +82,11 @@
 
         #region Auto-Registration
 
-        private void LookForDerivedTypePairs(IBasicMapperData mapperData, MapperContext mapperContext)
+        private void LookForDerivedTypePairs(ITypePair mapperData, MapperContext mapperContext)
         {
             var rootSourceType = GetRootType(mapperData.SourceType);
             var rootTargetType = GetRootType(mapperData.TargetType);
-            var typesKey = new SourceAndTargetTypesKey(rootSourceType, rootTargetType);
+            var typesKey = new MappingTypes(rootSourceType, rootTargetType);
 
             lock (_lookupSync)
             {

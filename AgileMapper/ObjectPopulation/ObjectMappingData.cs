@@ -153,7 +153,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType)
         {
-            var typesKey = new SourceAndTargetTypesKey(newSourceType, newTargetType);
+            var typesKey = new MappingTypes(newSourceType, newTargetType);
 
             var typedWithTypesCaller = GlobalContext.Instance.Cache.GetOrAdd(typesKey, k =>
             {
