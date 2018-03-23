@@ -140,7 +140,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
                 mappingExpression,
-                mappingData.MapperData.MappingDataObject);
+                mappingData.MapperData.MappingDataObject,
+                Parameters.RepeatedMappingFuncs);
 
             var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mappingData);
 

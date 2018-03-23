@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ObjectMapperKeyBase MapperKey { get; }
 
-        ObjectMapperData MapperData { get; }
+        ObjectMapperData MapperData { get; set; }
 
         IObjectMapper Mapper { get; set; }
 

@@ -2,11 +2,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Linq.Expressions;
 
-    internal interface IObjectMapper
+    internal interface IObjectMapper : IObjectMapperFunc
     {
         bool IsNullObject { get; }
-
-        LambdaExpression MappingLambda { get; }
 
         Expression MappingExpression { get; }
 

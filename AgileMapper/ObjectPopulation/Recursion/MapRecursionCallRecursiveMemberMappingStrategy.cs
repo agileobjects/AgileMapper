@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
 
     internal class MapRecursionCallRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
     {
@@ -24,18 +25,28 @@
 
             childMapperData.CacheMappedObjects = true;
 
-            var recursionFuncVariable = childMapperData.GetMapperFuncVariable(childMappingData);
+            childMapperData.RegisterRequiredMapperFunc(childMappingData);
 
             var mappingValues = new MappingValues(
                 sourceValue,
                 childMapperData.TargetMember.GetAccess(declaredTypeMapperData),
                 declaredTypeMapperData.EnumerableIndex);
 
-            var mapRecursionCall = Expression.Invoke(
-                recursionFuncVariable,
-                MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childMapperData));
+            var createMappingDataCall = MappingDataCreationFactory.ForChild(
+                mappingValues,
+                dataSourceIndex,
+                childMapperData);
 
-            return mapRecursionCall;
+            var performRepeatedMappingMethod = typeof(IRepeatedMappingFuncSet)
+                .GetPublicInstanceMethod(nameof(IRepeatedMappingFuncSet.Map))
+                .MakeGenericMethod(childMapperData.SourceType, childMapperData.TargetType);
+
+            var performRepeatedMappingCall = Expression.Call(
+                Parameters.RepeatedMappingFuncs,
+                performRepeatedMappingMethod,
+                createMappingDataCall);
+
+            return performRepeatedMappingCall;
         }
 
         private static bool DoNotMapRecursion(IMemberMapperData mapperData)

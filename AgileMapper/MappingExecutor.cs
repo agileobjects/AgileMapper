@@ -29,6 +29,8 @@
 
         public bool AddUnsuccessfulMemberPopulations => false;
 
+        public bool LazyLoadRepeatedMappingFuncs => true;
+
         #region ToANew Overloads
 
         public TResult ToANew<TResult>() => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
