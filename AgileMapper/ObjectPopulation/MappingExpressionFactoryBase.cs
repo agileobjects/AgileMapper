@@ -168,9 +168,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return false;
 
                 case Call:
-                    return ((MethodCallExpression)expression).Method.DeclaringType != typeof(ObjectCache);
+                    return !IsCallOn<ObjectCache>(expression);
 
-                case Assign when IsRecursionFuncCall(((BinaryExpression)expression).Right):
+                case Assign when IsCallOn<IRepeatedMappingFuncSet>(((BinaryExpression)expression).Right):
                     return false;
 
                 default:
@@ -178,10 +178,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static bool IsRecursionFuncCall(Expression expression)
+        private static bool IsCallOn<TDeclaringType>(Expression expression)
         {
-            return (expression.NodeType == Invoke) &&
-                  ((InvocationExpression)expression).Expression.Type.IsClosedTypeOf(typeof(MapperFunc<,>));
+            return (expression.NodeType == Call) &&
+                  ((MethodCallExpression)expression).Method.DeclaringType == typeof(TDeclaringType);
         }
 
         private Expression GetMappingBlock(

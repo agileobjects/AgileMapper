@@ -235,16 +235,16 @@
             {
                 string plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
 
-                plan.ShouldContain("parentToParentCache.Register(sourceParent, parent)");
-                plan.ShouldContain("childToChildCache.Register(sourceParent.EldestChild, child)");
+                plan.ShouldContain("mappedObjectsCache.Register(sourceParent, parent)");
+                plan.ShouldContain("mappedObjectsCache.Register(sourceParent.EldestChild, child)");
 
                 plan.ShouldContain("Recursion Mapper");
 
                 plan.ShouldContain("Parent -> Parent");
-                plan.ShouldContain("parentToParentCache.TryGet(pToPData2.Source, out parent)");
+                plan.ShouldContain("mappedObjectsCache.TryGet(pToPData2.Source, out parent)");
 
                 plan.ShouldContain("Child -> Child");
-                plan.ShouldContain("childToChildCache.TryGet(cToCData2.Source, out child)");
+                plan.ShouldContain("mappedObjectsCache.TryGet(cToCData2.Source, out child)");
             }
         }
 

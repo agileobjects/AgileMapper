@@ -1,19 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Caching;
+    using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
-
-    //internal interface 
-
-    internal interface IRepeatedMappingFuncSet
-    {
-        TChildTarget Map<TChildSource, TChildTarget>(
-            ObjectMappingData<TChildSource, TChildTarget> mappingData,
-            ObjectCache mappedObjectsCache);
-    }
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper, IRepeatedMappingFuncSet
     {
@@ -39,6 +32,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (MapperData.Context.Compile)
             {
                 _mapperFunc = mappingLambda.Compile();
+
+                if (MappedObjectCacheRequired(MapperData))
+                {
+                    _mappedObjectCacheRequired = true;
+                }
             }
             else if (MapperData.Context.NeedsSubMapping)
             {
@@ -50,11 +48,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
 
-            if (MapperData.IsRoot && MapperData.CacheMappedObjects)
-            {
-                _mappedObjectCacheRequired = true;
-            }
-
             if (MapperData.HasMapperFuncs)
             {
                 _mapperFuncsCache = CreateRepeatedMappingFuncsCache(mappingData);
@@ -62,6 +55,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #region Setup
+
+        private static bool MappedObjectCacheRequired(ObjectMapperData mapperData)
+        {
+            if (mapperData.CacheMappedObjects)
+            {
+                return true;
+            }
+
+            return mapperData.ChildMapperDatas.Any(MappedObjectCacheRequired);
+        }
 
         private ICache<MappingTypes, IObjectMapperFunc> CreateRepeatedMappingFuncsCache(
             IObjectMappingData mappingData)
@@ -117,6 +120,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
+        public Type SourceType => typeof(TSource);
+
+        public Type TargetType => typeof(TTarget);
+
         public LambdaExpression MappingLambda { get; }
 
         public bool IsNullObject => this == Unmappable;
@@ -124,6 +131,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression MappingExpression => MappingLambda.Body;
 
         public ObjectMapperData MapperData { get; }
+
+        public IEnumerable<IObjectMapperFunc> RepeatedMappingFuncs => _mapperFuncsCache.Values;
 
         public bool IsStaticallyCacheable(ObjectMapperKeyBase mapperKey)
         {
@@ -161,13 +170,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public TChildTarget Map<TChildSource, TChildTarget>(
-            ObjectMappingData<TChildSource, TChildTarget> mappingData,
+            IObjectMappingData<TChildSource, TChildTarget> mappingData,
             ObjectCache mappedObjectsCache)
         {
             var mapperFunc = (RepeatedMappingFunc<TChildSource, TChildTarget>)_mapperFuncsCache
                 .GetOrAdd(MappingTypes<TChildSource, TChildTarget>.Fixed, null);
 
-            return mapperFunc.Map(mappingData, mappedObjectsCache);
+            return mapperFunc.Map(
+                (ObjectMappingData<TChildSource, TChildTarget>)mappingData,
+                mappedObjectsCache);
         }
 
         public object MapRuntimeTypedSubObject(IObjectMappingData mappingData)

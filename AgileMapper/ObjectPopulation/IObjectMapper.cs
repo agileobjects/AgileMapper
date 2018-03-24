@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System.Collections.Generic;
     using System.Linq.Expressions;
 
     internal interface IObjectMapper : IObjectMapperFunc
@@ -9,6 +10,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         Expression MappingExpression { get; }
 
         ObjectMapperData MapperData { get; }
+        
+        IEnumerable<IObjectMapperFunc> RepeatedMappingFuncs { get; }
 
         bool IsStaticallyCacheable(ObjectMapperKeyBase mapperKey);
 

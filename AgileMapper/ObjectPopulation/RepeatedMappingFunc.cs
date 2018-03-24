@@ -1,12 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Linq.Expressions;
     using Caching;
-
-    internal interface IObjectMapperFunc
-    {
-        LambdaExpression MappingLambda { get; }
-    }
 
     internal class RepeatedMappingFunc<TChildSource, TChildTarget> : IObjectMapperFunc
     {
@@ -30,6 +26,10 @@
 
             CreateMapperFunc(mappingData);
         }
+
+        public Type SourceType => typeof(TChildSource);
+
+        public Type TargetType => typeof(TChildTarget);
 
         public LambdaExpression MappingLambda { get; private set; }
 

@@ -458,7 +458,7 @@
 
             plan.ShouldNotBeNull();
             plan.ShouldContain("WhenMappingCircularReferences.Video -> WhenMappingCircularReferences.Video");
-            plan.ShouldContain("mapVideoToVideo.Invoke(");
+            plan.ShouldContain("mappingFuncs.Map(");
         }
 
         [Fact]
@@ -469,7 +469,7 @@
                 .ToANew<Parent>();
 
             plan.ShouldContain("Map Parent -> Parent");
-            plan.ShouldContain("mapParentToParent.Invoke(");
+            plan.ShouldContain("mappingFuncs.Map(");
         }
 
         #region Helper Classes
