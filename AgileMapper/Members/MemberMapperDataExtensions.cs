@@ -173,6 +173,15 @@ namespace AgileObjects.AgileMapper.Members
                 return true;
             }
 
+            if (mapperData.TargetMember.LeafMember.HasMatchingCtorParameter &&
+                mapperData.TargetMember.LeafMember.IsWriteable &&
+              ((mapperData.Parent?.IsRoot != true) ||
+               !mapperData.RuleSet.Settings.RootHasPopulatedTarget))
+            {
+                reason = "Expected to be populated by constructor parameter";
+                return true;
+            }
+
             return TargetMemberIsUnmappable(
                 mapperData,
                 mapperData.TargetMember,

@@ -8,14 +8,15 @@
             Value2 = value2;
         }
 
-        internal T1 Value1
+        public T1 Value1
         {
             get;
         }
 
-        internal T2 Value2
+        public T2 Value2
         {
             get;
+            set;
         }
     }
 }

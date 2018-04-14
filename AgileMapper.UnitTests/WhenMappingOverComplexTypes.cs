@@ -96,5 +96,17 @@
 
             result.ShouldBe(target);
         }
+
+        [Fact]
+        public void ShouldOverwriteAMemberWithAMatchingCtorParameter()
+        {
+            var source = new PublicTwoFields<int, int> { Value1 = 123, Value2 = 456 };
+            var target = new PublicTwoParamCtor<int, int>(111, 222);
+
+            Mapper.Map(source).Over(target);
+
+            target.Value1.ShouldBe(111);
+            target.Value2.ShouldBe(456);
+        }
     }
 }

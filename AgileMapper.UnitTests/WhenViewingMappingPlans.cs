@@ -92,8 +92,8 @@
                     .ToANew<PublicCtorStruct<string>>();
 
                 plan.ShouldContain("Map PublicPropertyStruct<string> -> PublicCtorStruct<string>");
-                plan.ShouldContain("return new PublicCtorStruct");
-                plan.ShouldContain("ppssToPcssData.Source.Value");
+                plan.ShouldContain("new PublicCtorStruct<string>(ppssToPcssData.Source.Value)");
+                plan.ShouldContain("return publicCtorStruct_String");
             }
         }
 

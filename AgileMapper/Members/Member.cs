@@ -182,6 +182,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsWriteable { get; }
 
+        public bool HasMatchingCtorParameter { get; set; }
+
         public Type ElementType { get; }
 
         public MemberType MemberType { get; }

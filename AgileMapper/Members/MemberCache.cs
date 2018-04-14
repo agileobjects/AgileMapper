@@ -7,6 +7,7 @@
     using Caching;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using static System.StringComparer;
 
     internal class MemberCache
     {
@@ -50,7 +51,11 @@
 
                 var fieldsAndProperties = fields
                     .Concat(properties)
-                    .Where(m => !constructorParameterNames.Contains(m.Name, StringComparer.OrdinalIgnoreCase))
+                    .Select(m =>
+                    {
+                        m.HasMatchingCtorParameter = constructorParameterNames.Contains(m.Name, OrdinalIgnoreCase);
+                        return m;
+                    })
                     .ToArray();
 
                 return GetMembers(fieldsAndProperties, methods);
