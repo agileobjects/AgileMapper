@@ -43,7 +43,8 @@
 
             while (mapperData != null)
             {
-                if (mapperData.TargetType.Name.EndsWith("Dto", StringComparison.Ordinal) ||
+                if (mapperData.TargetMember.IsDictionary ||
+                    mapperData.TargetType.Name.EndsWith("Dto", StringComparison.Ordinal) ||
                     mapperData.TargetType.Name.EndsWith("DataTransferObject", StringComparison.Ordinal))
                 {
                     return true;
