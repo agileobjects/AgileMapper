@@ -4,26 +4,35 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using static System.Linq.Expressions.ExpressionType;
 
     internal static partial class ExpressionExtensions
     {
-        public static Expression ReplaceParameterWith(this LambdaExpression lambda, Expression replacement)
-            => ReplaceParametersWith(lambda, replacement);
-
         public static Expression ReplaceParametersWith(this LambdaExpression lambda, params Expression[] replacements)
         {
             if (lambda.Parameters.HasOne())
             {
-                return lambda.Body.Replace(lambda.Parameters[0], replacements[0]);
+                return lambda.ReplaceParameterWith(replacements.First());
             }
 
             var replacementsByParameter = lambda
                 .Parameters
-                .Cast<Expression>()
                 .Select((p, i) => new { Parameter = p, Replacement = replacements[i] })
-                .ToDictionary(d => d.Parameter, d => d.Replacement);
+                .ToDictionary(d => (Expression)d.Parameter, d => d.Replacement);
 
             return lambda.Body.Replace(replacementsByParameter);
+        }
+
+        public static Expression ReplaceParameterWith(this LambdaExpression lambda, Expression replacement)
+            => ReplaceParameter(lambda.Body, lambda.Parameters[0], replacement);
+
+        private static TExpression ReplaceParameter<TExpression>(
+            TExpression expression,
+            Expression parameter,
+            Expression replacement)
+            where TExpression : Expression
+        {
+            return new ParameterReplacer(parameter, replacement).ReplaceIn(expression);
         }
 
         public static TExpression Replace<TExpression>(
@@ -36,6 +45,11 @@
             if (expression == null)
             {
                 return null;
+            }
+
+            if (target.NodeType == Parameter)
+            {
+                return ReplaceParameter(expression, target, replacement);
             }
 
             return new ExpressionReplacer(
@@ -63,6 +77,27 @@
                 : new ExpressionReplacer(replacementsByTarget);
 
             return replacer.Replace<TExpression>(expression);
+        }
+
+        private class ParameterReplacer : ExpressionVisitor
+        {
+            private readonly Expression _parameterToReplace;
+            private readonly Expression _replacement;
+
+            public ParameterReplacer(Expression parameterToReplace, Expression replacement)
+            {
+                _parameterToReplace = parameterToReplace;
+                _replacement = replacement;
+            }
+
+            public TExpression ReplaceIn<TExpression>(TExpression expression)
+                where TExpression : Expression
+            {
+                return VisitAndConvert(expression, nameof(ParameterReplacer));
+            }
+
+            protected override Expression VisitParameter(ParameterExpression parameter)
+                => parameter == _parameterToReplace ? _replacement : parameter;
         }
 
         private class ExpressionReplacer
@@ -99,82 +134,82 @@
             {
                 switch (expression.NodeType)
                 {
-                    case ExpressionType.Add:
-                    case ExpressionType.And:
-                    case ExpressionType.AndAlso:
-                    case ExpressionType.Assign:
-                    case ExpressionType.Coalesce:
-                    case ExpressionType.Divide:
-                    case ExpressionType.Equal:
-                    case ExpressionType.GreaterThan:
-                    case ExpressionType.GreaterThanOrEqual:
-                    case ExpressionType.LessThan:
-                    case ExpressionType.LessThanOrEqual:
-                    case ExpressionType.Modulo:
-                    case ExpressionType.Multiply:
-                    case ExpressionType.NotEqual:
-                    case ExpressionType.Or:
-                    case ExpressionType.OrElse:
-                    case ExpressionType.Subtract:
+                    case Add:
+                    case And:
+                    case AndAlso:
+                    case Assign:
+                    case Coalesce:
+                    case Divide:
+                    case Equal:
+                    case GreaterThan:
+                    case GreaterThanOrEqual:
+                    case LessThan:
+                    case LessThanOrEqual:
+                    case Modulo:
+                    case Multiply:
+                    case NotEqual:
+                    case Or:
+                    case OrElse:
+                    case Subtract:
                         return ReplaceIn((BinaryExpression)expression);
 
-                    case ExpressionType.Block:
+                    case Block:
                         return ReplaceIn((BlockExpression)expression);
 
-                    case ExpressionType.Call:
+                    case Call:
                         return ReplaceIn((MethodCallExpression)expression);
 
-                    case ExpressionType.Conditional:
+                    case Conditional:
                         return ReplaceIn((ConditionalExpression)expression);
 
                     case ExpressionType.Convert:
-                    case ExpressionType.IsFalse:
-                    case ExpressionType.IsTrue:
-                    case ExpressionType.Not:
-                    case ExpressionType.Throw:
-                    case ExpressionType.TypeAs:
+                    case IsFalse:
+                    case IsTrue:
+                    case Not:
+                    case Throw:
+                    case TypeAs:
                         return ReplaceIn((UnaryExpression)expression);
 
-                    case ExpressionType.Goto:
+                    case Goto:
                         return ReplaceIn((GotoExpression)expression);
 
-                    case ExpressionType.Index:
+                    case Index:
                         return ReplaceIn((IndexExpression)expression);
 
-                    case ExpressionType.Invoke:
+                    case Invoke:
                         return ReplaceIn((InvocationExpression)expression);
 
-                    case ExpressionType.Label:
+                    case Label:
                         return ReplaceIn((LabelExpression)expression);
 
-                    case ExpressionType.Lambda:
+                    case Lambda:
                         return ReplaceIn((LambdaExpression)expression);
 
-                    case ExpressionType.ListInit:
+                    case ListInit:
                         return ReplaceIn((ListInitExpression)expression);
 
-                    case ExpressionType.Loop:
+                    case Loop:
                         return ReplaceIn((LoopExpression)expression);
 
-                    case ExpressionType.MemberAccess:
+                    case MemberAccess:
                         return ReplaceIn((MemberExpression)expression);
 
-                    case ExpressionType.MemberInit:
+                    case MemberInit:
                         return ReplaceIn((MemberInitExpression)expression);
 
-                    case ExpressionType.New:
+                    case New:
                         return ReplaceIn((NewExpression)expression);
 
-                    case ExpressionType.NewArrayInit:
+                    case NewArrayInit:
                         return ReplaceIn((NewArrayExpression)expression);
 
-                    case ExpressionType.Parameter:
+                    case Parameter:
                         return ReplaceIn((ParameterExpression)expression);
 
-                    case ExpressionType.TypeIs:
+                    case TypeIs:
                         return ReplaceIn((TypeBinaryExpression)expression);
 
-                    case ExpressionType.Try:
+                    case Try:
                         return ReplaceIn((TryExpression)expression);
                 }
 
@@ -293,7 +328,7 @@
                     return null;
                 }
 
-                if (expression.NodeType == ExpressionType.Default)
+                if (expression.NodeType == Default)
                 {
                     return expression;
                 }
