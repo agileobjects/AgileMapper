@@ -13,7 +13,8 @@
     <summary>$description$</summary>
     <releaseNotes>
 - To-dictionary flattening fixes
-- Performance and memory-use improvements improvements
+- Mapping to members of an existing object which have a matching constructor parameter
+- Performance and memory-use improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
