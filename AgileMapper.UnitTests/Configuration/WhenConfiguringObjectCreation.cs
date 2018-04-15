@@ -308,18 +308,23 @@
         [Fact]
         public void ShouldHandleAnObjectMappingDataCreationException()
         {
-            using (var mapper = Mapper.CreateNew())
+            var thrownException = Should.Throw<MappingException>(() =>
             {
-                mapper.After.MappingEnds.Call(Console.WriteLine);
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.After.MappingEnds.Call(Console.WriteLine);
 
-                var source = new PublicField<Product> { Value = new Product() };
+                    var source = new PublicField<Product> { Value = new Product() };
 
-                var thrownException = Should.Throw<MappingException>(() => mapper.Map(source).ToANew<ExceptionThrower<Product>>());
+                    mapper.Map(source).ToANew<ExceptionThrower<Product>>();
 
-                thrownException.InnerException.ShouldNotBeNull();
-                // ReSharper disable once PossibleNullReferenceException
-                thrownException.InnerException.Message.ShouldBe(MappingException.NoMappingData);
-            }
+                }
+            });
+
+            thrownException.InnerException.ShouldNotBeNull();
+
+            // ReSharper disable once PossibleNullReferenceException
+            thrownException.InnerException.Message.ShouldContain("An exception occurred mapping");
         }
 
         [Fact]

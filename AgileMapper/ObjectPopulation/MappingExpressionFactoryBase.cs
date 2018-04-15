@@ -370,15 +370,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                var exceptionFactoryMethod = MappingException.FactoryMethod
-                    .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
-
-                var mappingExceptionCreation = Expression.Call(
-                    exceptionFactoryMethod,
-                    mapperData.MappingDataObject,
-                    exceptionVariable);
-
-                catchBody = Expression.Throw(mappingExceptionCreation, mappingBlock.Type);
+                catchBody = Expression.Throw(
+                    MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
+                    mappingBlock.Type);
             }
 
             var catchBlock = Expression.Catch(exceptionVariable, catchBody);
