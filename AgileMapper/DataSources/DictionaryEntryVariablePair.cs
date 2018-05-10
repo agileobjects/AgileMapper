@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.DataSources
             .MakeGenericMethod(typeof(string));
 
         private static readonly MethodInfo _stringStartsWithMethod = typeof(string)
-            .GetPublicInstanceMethod("StartsWith", parameterCount: 2);
+            .GetPublicInstanceMethod("StartsWith", typeof(string), typeof(StringComparison));
 
         #endregion
 

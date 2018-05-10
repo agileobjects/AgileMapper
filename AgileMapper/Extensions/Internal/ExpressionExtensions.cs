@@ -180,8 +180,7 @@
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
         {
             var parameterlessGetValueOrDefault = nullableExpression.Type
-                .GetPublicInstanceMethods()
-                .First(m => (m.Name == "GetValueOrDefault") && !m.GetParameters().Any());
+                .GetPublicInstanceMethod("GetValueOrDefault", parameterCount: 0);
 
             return Expression.Call(nullableExpression, parameterlessGetValueOrDefault);
         }

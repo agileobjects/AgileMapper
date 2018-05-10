@@ -20,8 +20,10 @@ namespace AgileObjects.AgileMapper.TypeConversion
             _nonNullableTargetType = typeof(T);
             _nullableTargetType = typeof(Nullable<>).MakeGenericType(_nonNullableTargetType);
 
-            _tryParseMethod = _nonNullableTargetType
-                .GetPublicStaticMethod("TryParse", parameterCount: 2);
+            _tryParseMethod = _nonNullableTargetType.GetPublicStaticMethod(
+                "TryParse",
+                typeof(string),
+                _nonNullableTargetType.MakeByRefType());
 
             _valueVariable = Expression.Variable(
                 _nonNullableTargetType,

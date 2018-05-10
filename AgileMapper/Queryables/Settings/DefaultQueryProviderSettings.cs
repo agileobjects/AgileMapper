@@ -84,7 +84,7 @@
         private static Expression GetConvertStringToGuid(MethodCallExpression guidTryParseCall, Expression fallbackValue)
         {
             var parseMethod = typeof(Guid)
-                .GetPublicStaticMethod("Parse", parameterCount: 1);
+                .GetPublicStaticMethod("Parse", typeof(string));
 
             var sourceValue = guidTryParseCall.Arguments.First();
             var guidConversion = Expression.Call(parseMethod, sourceValue);

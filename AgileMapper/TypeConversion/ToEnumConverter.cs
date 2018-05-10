@@ -101,7 +101,7 @@
 
             var splitSourceValueCall = Expression.Call(
                 sourceValue,
-                typeof(string).GetPublicInstanceMethod("Split", parameterCount: 1),
+                typeof(string).GetPublicInstanceMethod("Split", typeof(char[])),
                 Expression.NewArrayInit(typeof(char), ','.ToConstantExpression()));
 
             var assignSourceValues = GetValuesEnumeratorAssignment(sourceValuesVariable, splitSourceValueCall);
