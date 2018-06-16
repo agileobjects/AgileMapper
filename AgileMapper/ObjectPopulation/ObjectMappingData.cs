@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
+    using Validation;
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
@@ -69,7 +70,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public ObjectMapperKeyBase MapperKey { get; }
 
         public IObjectMapper GetOrCreateMapper()
-            => _mapper ?? (_mapper = MapperContext.ObjectMapperFactory.Create(this));
+        {
+            if (_mapper != null)
+            {
+                return _mapper;
+            }
+
+            _mapper = MapperContext.ObjectMapperFactory.Create(this);
+
+            MapperKey.MappingData = null;
+
+            if (MapperContext.UserConfigurations.ValidateMappingPlans)
+            {
+                // TODO: Test coverage for validation of standalone child mappers
+                MappingValidator.Validate(_mapper.MapperData);
+            }
+
+            StaticMapperCache<TSource, TTarget>.AddIfAppropriate(_mapper, this);
+
+            return _mapper;
+        }
 
         public void SetMapper(IObjectMapper mapper)
             => _mapper = (ObjectMapper<TSource, TTarget>)mapper;
