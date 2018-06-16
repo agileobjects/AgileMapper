@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapper;
             }
 
-            mappingData.MapperKey.MappingData = mappingData;
+            mappingData.GenerateUniqueRootKey();
 
             mapper = (ObjectMapper<TSource, TTarget>)_rootMappersCache.GetOrAdd(
                 mappingData.MapperKey,

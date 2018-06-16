@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ForRootFixedTypes(
                 source,
                 target,
-                new RootObjectMapperKey(MappingTypes<TSource, TTarget>.Fixed, mappingContext),
+                RootObjectMapperKey.Cache<TSource, TTarget>.GetKeyFor(mappingContext),
                 mappingContext);
         }
 

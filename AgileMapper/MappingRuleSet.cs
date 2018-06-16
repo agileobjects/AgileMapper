@@ -9,6 +9,8 @@ namespace AgileObjects.AgileMapper
 
     internal class MappingRuleSet
     {
+        private Expression _nameConstant;
+
         public MappingRuleSet(
             string name,
             MappingRuleSetSettings settings,
@@ -18,7 +20,6 @@ namespace AgileObjects.AgileMapper
             IDataSourceFactory fallbackDataSourceFactory)
         {
             Name = name;
-            NameConstant = name.ToConstantExpression();
             Settings = settings;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             RecursiveMemberMappingStrategy = recursiveMemberMappingStrategy;
@@ -28,7 +29,7 @@ namespace AgileObjects.AgileMapper
 
         public string Name { get; }
 
-        public Expression NameConstant { get; }
+        public Expression NameConstant => _nameConstant ?? (_nameConstant = Name.ToConstantExpression());
 
         public MappingRuleSetSettings Settings { get; }
 

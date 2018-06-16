@@ -8,6 +8,7 @@
     using Api;
     using Api.Configuration;
     using Extensions.Internal;
+    using Members;
     using ObjectPopulation;
 
     internal class MappingExecutor<TSource> :
@@ -126,19 +127,19 @@
 
         private TTarget PerformMapping<TTarget>(TTarget target)
         {
-            if (TypeInfo<TSource>.RuntimeTypeNeeded || TypeInfo<TTarget>.RuntimeTypeNeeded)
+            if (MappingTypes<TSource, TTarget>.SkipTypesCheck)
             {
-                var rootMappingData = ObjectMappingDataFactory.ForRoot(_source, target, this);
-                var result = rootMappingData.MapStart();
+                // Optimise for the most common scenario:
+                var typedRootMappingData = ObjectMappingDataFactory
+                    .ForRootFixedTypes(_source, target, this);
 
-                return (TTarget)result;
+                return typedRootMappingData.MapStart();
             }
 
-            // Optimise for the most common scenario:
-            var typedRootMappingData = ObjectMappingDataFactory
-                .ForRootFixedTypes(_source, target, this);
+            var rootMappingData = ObjectMappingDataFactory.ForRoot(_source, target, this);
+            var result = rootMappingData.MapStart();
 
-            return typedRootMappingData.MapStart();
+            return (TTarget)result;
         }
 
         #region IFlatteningSelector Members

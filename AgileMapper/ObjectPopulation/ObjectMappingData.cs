@@ -67,7 +67,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MapperContext MapperContext => MappingContext.MapperContext;
 
-        public ObjectMapperKeyBase MapperKey { get; }
+        public ObjectMapperKeyBase MapperKey { get; private set; }
+
+        public void GenerateUniqueRootKey()
+        {
+            MapperKey = new RootObjectMapperKey(MapperKey.MappingTypes, MappingContext)
+            {
+                MappingData = this
+            };
+        }
 
         public IObjectMapper GetOrCreateMapper()
         {

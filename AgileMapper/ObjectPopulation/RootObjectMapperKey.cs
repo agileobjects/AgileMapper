@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
         }
 
-        private RootObjectMapperKey(MappingRuleSet ruleSet, MappingTypes mappingTypes, MapperContext mapperContext)
+        public RootObjectMapperKey(MappingRuleSet ruleSet, MappingTypes mappingTypes, MapperContext mapperContext)
             : base(mappingTypes)
         {
             _mapperContext = mapperContext;
@@ -57,5 +57,57 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 #endif
         #endregion
+
+        public static class Cache<TSource, TTarget>
+        {
+            // ReSharper disable StaticMemberInGenericType
+            private static ObjectMapperKeyBase _createNew;
+            private static ObjectMapperKeyBase _overwrite;
+            private static ObjectMapperKeyBase _project;
+            private static ObjectMapperKeyBase _merge;
+            // ReSharper restore StaticMemberInGenericType
+
+            private static ObjectMapperKeyBase CreateNew
+                => _createNew ?? (_createNew = CreateKey(MappingRuleSetCollection.Default.CreateNew));
+
+            private static ObjectMapperKeyBase Overwrite
+                => _overwrite ?? (_overwrite = CreateKey(MappingRuleSetCollection.Default.Overwrite));
+
+            private static ObjectMapperKeyBase Project
+                => _project ?? (_project = CreateKey(MappingRuleSetCollection.Default.Project));
+
+            private static ObjectMapperKeyBase Merge
+                => _merge ?? (_merge = CreateKey(MappingRuleSetCollection.Default.Merge));
+
+            private static ObjectMapperKeyBase CreateKey(MappingRuleSet ruleSet)
+            {
+                return new RootObjectMapperKey(
+                    ruleSet,
+                    MappingTypes<TSource, TTarget>.Fixed,
+                    mapperContext: null);
+            }
+
+            public static ObjectMapperKeyBase GetKeyFor(IMappingContext mappingContext)
+            {
+                var ruleSets = mappingContext.MapperContext.RuleSets;
+
+                if (mappingContext.RuleSet == ruleSets.CreateNew)
+                {
+                    return CreateNew;
+                }
+
+                if (mappingContext.RuleSet == ruleSets.Overwrite)
+                {
+                    return Overwrite;
+                }
+
+                if (mappingContext.RuleSet == ruleSets.Project)
+                {
+                    return Project;
+                }
+
+                return Merge;
+            }
+        }
     }
 }
