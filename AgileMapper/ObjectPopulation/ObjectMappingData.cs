@@ -68,15 +68,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperKeyBase MapperKey { get; }
 
-        public IObjectMapper Mapper
-        {
-            get => _mapper ?? (_mapper = MapperContext.ObjectMapperFactory.Create(this));
-            set
-            {
-                _mapper = (ObjectMapper<TSource, TTarget>)value;
-                _mapperData = _mapper.MapperData;
-            }
-        }
+        public IObjectMapper GetOrCreateMapper()
+            => _mapper ?? (_mapper = MapperContext.ObjectMapperFactory.Create(this));
+
+        public void SetMapper(IObjectMapper mapper)
+            => _mapper = (ObjectMapper<TSource, TTarget>)mapper;
 
         public ObjectMapperData MapperData
         {

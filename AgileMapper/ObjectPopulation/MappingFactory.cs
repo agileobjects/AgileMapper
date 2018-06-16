@@ -150,7 +150,7 @@
             MappingValues mappingValues,
             Expression createMappingDataCall)
         {
-            var mapper = mappingData.Mapper;
+            var mapper = mappingData.GetOrCreateMapper();
 
             if (mapper.IsNullObject)
             {

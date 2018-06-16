@@ -28,7 +28,8 @@
             }
         }
 
-        internal static MappingPlan For(IObjectMappingData mappingData) => new MappingPlan(mappingData.Mapper);
+        internal static MappingPlan For(IObjectMappingData mappingData) 
+            => new MappingPlan(mappingData.GetOrCreateMapper());
 
         /// <summary>
         /// Converts the given <paramref name="mappingPlan"/> to its string representation.

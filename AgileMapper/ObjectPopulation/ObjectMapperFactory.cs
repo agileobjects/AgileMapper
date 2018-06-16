@@ -57,7 +57,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingData.MapperKey,
                 key =>
                 {
-                    var mapperToCache = key.MappingData.Mapper;
+                    var mapperToCache = key.MappingData.GetOrCreateMapper();
                     var data = key.MappingData;
 
                     key.MappingData = null;

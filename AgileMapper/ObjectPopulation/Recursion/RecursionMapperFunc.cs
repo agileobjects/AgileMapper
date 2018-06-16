@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
             mappingData.MapperKey.MappingData = mappingData;
             mappingData.MapperKey.MapperData = mappingData.MapperData;
 
-            MappingLambda = mappingData.Mapper.MappingLambda;
+            MappingLambda = mappingData.GetOrCreateMapper().MappingLambda;
 
             var typedMappingLambda = (Expression<MapperFunc<TChildSource, TChildTarget>>)MappingLambda;
             _recursionMapperFunc = typedMappingLambda.Compile();

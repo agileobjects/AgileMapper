@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     (md.DataSourceIndex == dataSourceIndex) &&
                     (md.TargetMember.RegistrationName == targetMemberRegistrationName));
 
-            mappingData.Mapper = mapperData.Mapper;
+            mappingData.SetMapper(mapperData.Mapper);
 
             return mappingData;
         }
@@ -59,8 +59,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (ChildMappersNeeded(mappingData.Parent))
             {
-                mappingData.Mapper =
-                    GetParentMappingData(mappingData).MapperData.ChildMapperDatas.First().Mapper;
+                mappingData.SetMapper(
+                    GetParentMappingData(mappingData).MapperData.ChildMapperDatas.First().Mapper);
             }
 
             return mappingData;

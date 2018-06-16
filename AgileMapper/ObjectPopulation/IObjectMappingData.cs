@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ObjectMapperData MapperData { get; }
 
-        IObjectMapper Mapper { get; set; }
+        IObjectMapper GetOrCreateMapper();
 
         IChildMemberMappingData GetChildMappingData(IMemberMapperData childMapperData);
 
