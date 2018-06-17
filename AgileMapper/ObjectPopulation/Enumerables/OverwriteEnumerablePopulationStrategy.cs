@@ -2,13 +2,11 @@
 {
     using System.Linq.Expressions;
 
-    internal class OverwriteEnumerablePopulationStrategy : EnumerablePopulationStrategyBase
+    internal struct OverwriteEnumerablePopulationStrategy : IEnumerablePopulationStrategy
     {
-        public static readonly IEnumerablePopulationStrategy Instance = new OverwriteEnumerablePopulationStrategy();
-
-        protected override Expression GetEnumerablePopulation(
+        public Expression GetPopulation(
             EnumerablePopulationBuilder builder,
-            IObjectMappingData mappingData)
+            IObjectMappingData enumerableMappingData)
         {
             if (builder.ElementTypesAreSimple)
             {
@@ -21,7 +19,7 @@
                 builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType());
                 builder.AssignTargetVariable();
                 builder.RemoveAllTargetItems();
-                builder.AddNewItemsToTargetVariable(mappingData);
+                builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
                 return builder;
             }
@@ -29,11 +27,11 @@
             if (builder.ElementsAreIdentifiable)
             {
                 builder.CreateCollectionData();
-                builder.MapIntersection(mappingData);
+                builder.MapIntersection(enumerableMappingData);
                 builder.AssignSourceVariableFrom(s => s.CollectionDataNewSourceItems());
                 builder.AssignTargetVariable();
                 builder.RemoveTargetItemsById();
-                builder.AddNewItemsToTargetVariable(mappingData);
+                builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
                 return builder;
             }
@@ -41,7 +39,7 @@
             builder.AssignSourceVariableFromSourceObject();
             builder.AssignTargetVariable();
             builder.RemoveAllTargetItems();
-            builder.AddNewItemsToTargetVariable(mappingData);
+            builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
             return builder;
         }

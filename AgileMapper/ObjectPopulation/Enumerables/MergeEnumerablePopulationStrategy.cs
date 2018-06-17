@@ -2,17 +2,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Linq.Expressions;
 
-    internal class MergeEnumerablePopulationStrategy : EnumerablePopulationStrategyBase
+    internal struct MergeEnumerablePopulationStrategy : IEnumerablePopulationStrategy
     {
-        protected override Expression GetEnumerablePopulation(
+        public Expression GetPopulation(
             EnumerablePopulationBuilder builder,
-            IObjectMappingData mappingData)
+            IObjectMappingData enumerableMappingData)
         {
             if (builder.ElementTypesAreSimple)
             {
                 builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType().ExcludingTargetItems());
                 builder.AssignTargetVariable();
-                builder.AddNewItemsToTargetVariable(mappingData);
+                builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
                 return builder;
             }
@@ -20,17 +20,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             if (builder.ElementsAreIdentifiable)
             {
                 builder.CreateCollectionData();
-                builder.MapIntersection(mappingData);
+                builder.MapIntersection(enumerableMappingData);
                 builder.AssignSourceVariableFrom(s => s.CollectionDataNewSourceItems());
                 builder.AssignTargetVariable();
-                builder.AddNewItemsToTargetVariable(mappingData);
+                builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
                 return builder;
             }
 
             builder.AssignSourceVariableFromSourceObject();
             builder.AssignTargetVariable();
-            builder.AddNewItemsToTargetVariable(mappingData);
+            builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
             return builder;
         }

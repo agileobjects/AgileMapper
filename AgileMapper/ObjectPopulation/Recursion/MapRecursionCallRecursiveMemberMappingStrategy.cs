@@ -5,10 +5,8 @@
     using Extensions.Internal;
     using Members;
 
-    internal class MapRecursionCallRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
+    internal struct MapRecursionCallRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
     {
-        public static IRecursiveMemberMappingStrategy Instance = new MapRecursionCallRecursiveMemberMappingStrategy();
-
         public Expression GetMapRecursionCallFor(
             IObjectMappingData childMappingData,
             Expression sourceValue,

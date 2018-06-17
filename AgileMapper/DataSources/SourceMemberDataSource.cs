@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Extensions.Internal;
     using Members;
+    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal class SourceMemberDataSource : DataSourceBase
@@ -45,7 +46,8 @@
 
         private static Expression GetRuntimeTypeCheck(UnaryExpression cast, IMemberMapperData mapperData)
         {
-            var getSourceCall = mapperData.GetSourceAccess(Parameters.MappingData, mapperData.SourceType);
+            var mappingDataParameter = typeof(IMappingData).GetOrCreateParameter();
+            var getSourceCall = mapperData.GetSourceAccess(mappingDataParameter, mapperData.SourceType);
             var rootedValue = cast.Operand.Replace(mapperData.SourceObject, getSourceCall);
             var memberHasRuntimeType = Expression.TypeIs(rootedValue, cast.Type);
 

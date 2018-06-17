@@ -7,18 +7,20 @@
     {
         private const int DefaultCapacity = 10;
         private readonly object _keyLock = new object();
+        private readonly IEqualityComparer<TKey> _keyComparer;
 
         private TKey[] _keys;
         private TValue[] _values;
         private int _capacity;
         private int _length;
 
-        public ArrayCache(int capacity = DefaultCapacity)
+        public ArrayCache(IEqualityComparer<TKey> keyComparer)
         {
-            _capacity = capacity;
+            _capacity = DefaultCapacity;
             _length = 0;
-            _keys = new TKey[capacity];
-            _values = new TValue[capacity];
+            _keys = new TKey[DefaultCapacity];
+            _values = new TValue[DefaultCapacity];
+            _keyComparer = keyComparer ?? default(DefaultComparer<TKey>);
         }
 
         KeyValuePair<TKey, TValue> ICache<TKey, TValue>.this[int index]
@@ -78,7 +80,7 @@
             {
                 var thisKey = _keys[i];
 
-                if (ReferenceEquals(thisKey, key) || thisKey.Equals(key))
+                if (_keyComparer.Equals(thisKey, key))
                 {
                     value = _values[i];
                     return true;

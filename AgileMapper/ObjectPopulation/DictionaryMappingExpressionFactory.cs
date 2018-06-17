@@ -251,7 +251,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
         {
-            if (mappingData.MapperKey.MappingTypes.SourceType.IsDictionary())
+            if (mappingData.MappingTypes.SourceType.IsDictionary())
             {
                 return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }

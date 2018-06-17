@@ -5,7 +5,9 @@ namespace AgileObjects.AgileMapper
     using Members.Population;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
+    using ObjectPopulation.MapperKeys;
     using ObjectPopulation.Recursion;
+    using Queryables;
     using Queryables.Recursion;
 
     internal class MappingRuleSetCollection
@@ -15,18 +17,20 @@ namespace AgileObjects.AgileMapper
         private static readonly MappingRuleSet _createNew = new MappingRuleSet(
             Constants.CreateNew,
             MappingRuleSetSettings.ForInMemoryMapping(),
-            new CopySourceEnumerablePopulationStrategy(),
-            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
+            default(CopySourceEnumerablePopulationStrategy),
+            default(MapRecursionCallRecursiveMemberMappingStrategy),
             DefaultMemberPopulationFactory.Instance,
-            ExistingOrDefaultValueDataSourceFactory.Instance);
+            default(ExistingOrDefaultValueDataSourceFactory),
+            default(RootMapperKeyFactory));
 
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
             Constants.Overwrite,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
-            OverwriteEnumerablePopulationStrategy.Instance,
-            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
+            default(OverwriteEnumerablePopulationStrategy),
+            default(MapRecursionCallRecursiveMemberMappingStrategy),
             DefaultMemberPopulationFactory.Instance,
-            DefaultValueDataSourceFactory.Instance);
+            default(DefaultValueDataSourceFactory),
+            default(RootMapperKeyFactory));
 
         private static readonly MappingRuleSet _project = new MappingRuleSet(
             Constants.Project,
@@ -38,18 +42,20 @@ namespace AgileObjects.AgileMapper
                 ExpressionIsSupported = value => value.CanBeProjected(),
                 AllowEnumerableAssignment = true
             },
-            new ProjectSourceEnumerablePopulationStrategy(),
-            new MapToDepthRecursiveMemberMappingStrategy(),
+            default(ProjectSourceEnumerablePopulationStrategy),
+            default(MapToDepthRecursiveMemberMappingStrategy),
             DefaultMemberPopulationFactory.Instance,
-            DefaultValueDataSourceFactory.Instance);
+            default(DefaultValueDataSourceFactory),
+            default(QueryProjectorMapperKeyFactory));
 
         private static readonly MappingRuleSet _merge = new MappingRuleSet(
             Constants.Merge,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
-            new MergeEnumerablePopulationStrategy(),
-            MapRecursionCallRecursiveMemberMappingStrategy.Instance,
+            default(MergeEnumerablePopulationStrategy),
+            default(MapRecursionCallRecursiveMemberMappingStrategy),
             new MemberMergePopulationFactory(),
-            ExistingOrDefaultValueDataSourceFactory.Instance);
+            default(ExistingOrDefaultValueDataSourceFactory),
+            default(RootMapperKeyFactory));
 
         public static readonly MappingRuleSetCollection Default =
             new MappingRuleSetCollection(_createNew, _overwrite, _project, _merge);

@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation
+namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
     using System;
     using System.Linq;
@@ -42,7 +42,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var typeTest = typeTests.AndTogether();
-            var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, Parameters.MappingData);
+            var mappingDataParameter = typeof(IMappingData).GetOrCreateParameter();
+            var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, mappingDataParameter);
 
             _sourceMemberTypeTester = typeTestLambda.Compile();
             HasTypeTester = true;

@@ -4,26 +4,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Caching;
+    using MapperKeys;
     using Recursion;
     using NetStandardPolyfills;
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {
-        public static readonly ObjectMapper<TSource, TTarget> Unmappable = new ObjectMapper<TSource, TTarget>();
-
+        private readonly ObjectMapperKeyBase _mapperKey;
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
         private readonly ICache<ObjectMapperKeyBase, IRecursionMapperFunc> _recursionMapperFuncsByKey;
         private Action _resetCallback;
 
-        private ObjectMapper()
-        {
-        }
-
         public ObjectMapper(
             Expression<MapperFunc<TSource, TTarget>> mappingLambda,
             IObjectMappingData mappingData)
         {
+            _mapperKey = mappingData.MapperKey;
             MappingLambda = mappingLambda;
             MapperData = mappingData.MapperData;
 
@@ -95,17 +92,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public LambdaExpression MappingLambda { get; }
 
-        public bool IsNullObject => this == Unmappable;
-
         public Expression MappingExpression => MappingLambda.Body;
 
         public ObjectMapperData MapperData { get; }
 
         public IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs => _recursionMapperFuncsByKey.Values;
 
-        public bool IsStaticallyCacheable(ObjectMapperKeyBase mapperKey)
+        public bool IsStaticallyCacheable()
         {
-            if (mapperKey.HasTypeTester)
+            if (_mapperKey.HasTypeTester)
             {
                 return false;
             }
@@ -119,7 +114,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var subMapperByKey = _subMappersByKey[i];
 
-                if (!subMapperByKey.Value.IsStaticallyCacheable(subMapperByKey.Key))
+                if (!subMapperByKey.Value.IsStaticallyCacheable())
                 {
                     return false;
                 }
@@ -138,14 +133,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mapper = _subMappersByKey.GetOrAdd(
                 mappingData.MapperKey,
-                key =>
-                {
-                    var mapperToCache = key.MappingData.GetOrCreateMapper();
-
-                    key.MappingData = null;
-
-                    return mapperToCache;
-                });
+                key => key.MappingData.GetOrCreateMapper());
 
             return mapper.Map(mappingData);
         }

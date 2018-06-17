@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper
     using Extensions.Internal;
     using Members.Population;
     using ObjectPopulation.Enumerables;
+    using ObjectPopulation.MapperKeys;
     using ObjectPopulation.Recursion;
 
     internal class MappingRuleSet
@@ -17,7 +18,8 @@ namespace AgileObjects.AgileMapper
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
             IRecursiveMemberMappingStrategy recursiveMemberMappingStrategy,
             IMemberPopulationFactory populationFactory,
-            IDataSourceFactory fallbackDataSourceFactory)
+            IDataSourceFactory fallbackDataSourceFactory,
+            IRootMapperKeyFactory rootMapperKeyFactory)
         {
             Name = name;
             Settings = settings;
@@ -25,6 +27,7 @@ namespace AgileObjects.AgileMapper
             RecursiveMemberMappingStrategy = recursiveMemberMappingStrategy;
             PopulationFactory = populationFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
+            RootMapperKeyFactory = rootMapperKeyFactory;
         }
 
         public string Name { get; }
@@ -40,5 +43,7 @@ namespace AgileObjects.AgileMapper
         public IMemberPopulationFactory PopulationFactory { get; }
 
         public IDataSourceFactory FallbackDataSourceFactory { get; }
+        
+        public IRootMapperKeyFactory RootMapperKeyFactory { get; }
     }
 }

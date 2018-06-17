@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static readonly MappingExpressionFactoryBase Instance = new SimpleTypeMappingExpressionFactory();
 
         public override bool IsFor(IObjectMappingData mappingData)
-            => mappingData.MapperKey.MappingTypes.TargetType.IsSimple();
+            => mappingData.MappingTypes.TargetType.IsSimple();
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {

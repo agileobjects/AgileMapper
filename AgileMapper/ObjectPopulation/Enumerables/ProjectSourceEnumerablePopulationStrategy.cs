@@ -2,13 +2,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Linq.Expressions;
 
-    internal class ProjectSourceEnumerablePopulationStrategy : EnumerablePopulationStrategyBase
+    internal struct ProjectSourceEnumerablePopulationStrategy : IEnumerablePopulationStrategy
     {
-        protected override Expression GetEnumerablePopulation(
+        public Expression GetPopulation(
             EnumerablePopulationBuilder builder,
-            IObjectMappingData mappingData)
+            IObjectMappingData enumerableMappingData)
         {
-            builder.PopulateTargetVariableFromSourceObjectOnly(mappingData);
+            builder.PopulateTargetVariableFromSourceObjectOnly(enumerableMappingData);
 
             return builder;
         }

@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using Extensions.Internal;
+    using MapperKeys;
     using Members;
     using Validation;
 
@@ -21,14 +22,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? enumerableIndex,
-            ObjectMapperKeyBase mapperKey,
+            MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData parent)
             : this(
                   source,
                   target,
                   enumerableIndex,
-                  mapperKey,
+                  mappingTypes,
                   mappingContext,
                   null,
                   parent)
@@ -39,13 +40,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? enumerableIndex,
-            ObjectMapperKeyBase mapperKey,
+            MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData declaredTypeMappingData,
             IObjectMappingData parent)
             : base(source, target, enumerableIndex, parent)
         {
-            MapperKey = mapperKey;
+            MappingTypes = mappingTypes;
             MappingContext = mappingContext;
             DeclaredTypeMappingData = declaredTypeMappingData;
 
@@ -67,14 +68,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MapperContext MapperContext => MappingContext.MapperContext;
 
-        public ObjectMapperKeyBase MapperKey { get; private set; }
+        public MappingTypes MappingTypes { get; }
 
-        public void GenerateUniqueRootKey()
+        public ObjectMapperKeyBase MapperKey { get; set; }
+
+        public IRootMapperKey EnsureRootMapperKey()
         {
-            MapperKey = new RootObjectMapperKey(MapperKey.MappingTypes, MappingContext)
-            {
-                MappingData = this
-            };
+            MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.CreateRootKeyFor(this);
+
+            return (IRootMapperKey)MapperKey;
         }
 
         public IObjectMapper GetOrCreateMapper()
@@ -87,6 +89,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapper = MapperContext.ObjectMapperFactory.Create(this);
 
             MapperKey.MappingData = null;
+
+            if (_mapper == null)
+            {
+                return null;
+            }
 
             if (MapperContext.UserConfigurations.ValidateMappingPlans)
             {
@@ -262,7 +269,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var typesKey = new SourceAndTargetTypesKey(newSourceType, newTargetType);
 
-            var typedWithTypesCaller = GlobalContext.Instance.Cache.GetOrAdd(typesKey, k =>
+            var typedAsCaller = GlobalContext.Instance.Cache.GetOrAdd(typesKey, k =>
             {
                 var mappingDataParameter = Parameters.Create<IObjectMappingData<TSource, TTarget>>("mappingData");
                 var withTypesCall = mappingDataParameter.GetAsCall(k.SourceType, k.TargetType);
@@ -275,7 +282,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return withTypesLambda.Compile();
             });
 
-            return (IObjectMappingData)typedWithTypesCaller.Invoke(this);
+            return (IObjectMappingData)typedAsCaller.Invoke(this);
         }
 
         public IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>()
@@ -289,14 +296,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TNewSource typedSource,
             TNewTarget typedTarget)
         {
+            var mapperKey = MapperKey?.WithTypes<TNewSource, TNewTarget>();
+
             return new ObjectMappingData<TNewSource, TNewTarget>(
                 typedSource,
                 typedTarget,
                 GetEnumerableIndex(),
-                MapperKey.WithTypes<TNewSource, TNewTarget>(),
+                mapperKey?.MappingTypes ?? MappingTypes.WithTypes<TNewSource, TNewTarget>(),
                 MappingContext,
                 this,
-                Parent);
+                Parent)
+            {
+                MapperKey = mapperKey
+            };
         }
     }
 }

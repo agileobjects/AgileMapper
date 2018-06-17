@@ -1,7 +1,5 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation
+namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
-    using Members;
-
     internal interface ITypedMapperKey : IMappingDataOwner
     {
         MappingTypes MappingTypes { get; }

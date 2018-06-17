@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper
             return new MappingRuleSetSettings
             {
                 RootHasPopulatedTarget = rootHasPopulatedTarget,
+                RootKeysAreStaticallyCacheable = true,
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
                 CheckDerivedSourceTypes = true,
@@ -23,6 +24,8 @@ namespace AgileObjects.AgileMapper
         }
 
         public bool RootHasPopulatedTarget { get; set; }
+
+        public bool RootKeysAreStaticallyCacheable { get; set; }
 
         public bool SourceElementsCouldBeNull { get; set; }
 

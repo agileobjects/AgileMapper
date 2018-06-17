@@ -24,35 +24,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IMemberMapperData MapperData { get; }
 
-        public bool IsRepeatMapping(Type sourceType)
-        {
-            if (MapperData.TargetMember.IsSimple)
-            {
-                return false;
-            }
-
-            if (MapperData.TargetMember.IsRecursion)
-            {
-                return true;
-            }
-
-            var targetType = MapperData.TargetMember.Type;
-            var mapperData = MapperData.Parent;
-
-            while (mapperData != null)
-            {
-                if ((mapperData.SourceType == sourceType) &&
-                    (mapperData.TargetType == targetType))
-                {
-                    return true;
-                }
-
-                mapperData = mapperData.Parent;
-            }
-
-            return false;
-        }
-
         public Type GetSourceMemberRuntimeType(IQualifiedMember sourceMember)
         {
             if (_parent.Source == null)

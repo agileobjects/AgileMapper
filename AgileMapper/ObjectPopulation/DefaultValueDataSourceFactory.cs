@@ -3,10 +3,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using DataSources;
     using Members;
 
-    internal class DefaultValueDataSourceFactory : IDataSourceFactory
+    internal struct DefaultValueDataSourceFactory : IDataSourceFactory
     {
-        public static readonly IDataSourceFactory Instance = new DefaultValueDataSourceFactory();
-
         public IDataSource Create(IMemberMapperData mapperData)
             => new DefaultValueDataSource(mapperData);
 

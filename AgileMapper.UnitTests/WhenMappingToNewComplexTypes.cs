@@ -84,5 +84,13 @@
 
             result.Value.ShouldBe("Interfaces!");
         }
+
+        [Fact]
+        public void ShouldHandleAnUnconstructableRootTargetType()
+        {
+            var result = Mapper.Map(new { Test = "Nope" }).ToANew<PublicCtor<int>>();
+
+            result.ShouldBeNull();
+        }
     }
 }

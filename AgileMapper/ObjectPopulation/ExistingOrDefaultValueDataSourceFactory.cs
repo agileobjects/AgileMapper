@@ -5,10 +5,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Dictionaries;
 
-    internal class ExistingOrDefaultValueDataSourceFactory : IDataSourceFactory
+    internal struct ExistingOrDefaultValueDataSourceFactory : IDataSourceFactory
     {
-        public static readonly IDataSourceFactory Instance = new ExistingOrDefaultValueDataSourceFactory();
-
         public IDataSource Create(IMemberMapperData mapperData)
             => new ExistingMemberValueOrDefaultDataSource(mapperData);
 

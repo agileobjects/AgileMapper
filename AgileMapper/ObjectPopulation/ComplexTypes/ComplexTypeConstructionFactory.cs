@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using DataSources;
     using DataSources.Finders;
     using Extensions.Internal;
+    using MapperKeys;
     using Members;
     using NetStandardPolyfills;
 

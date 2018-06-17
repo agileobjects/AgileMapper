@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using MapperKeys;
     using Members;
 
     internal interface IObjectMappingData : IObjectMappingDataUntyped
@@ -15,7 +16,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IObjectMappingData DeclaredTypeMappingData { get; }
 
-        ObjectMapperKeyBase MapperKey { get; }
+        MappingTypes MappingTypes { get; }
+
+        ObjectMapperKeyBase MapperKey { get; set; }
 
         ObjectMapperData MapperData { get; }
 

@@ -5,7 +5,7 @@
     using ObjectPopulation;
     using ObjectPopulation.Recursion;
 
-    internal class MapToDepthRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
+    internal struct MapToDepthRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
     {
         public Expression GetMapRecursionCallFor(
             IObjectMappingData childMappingData,

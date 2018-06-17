@@ -19,8 +19,8 @@
         public DerivedTypesCache(CacheSet cacheSet)
         {
             _assemblies = new List<Assembly>();
-            _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>();
-            _derivedTypesByType = cacheSet.CreateScoped<Type, IList<Type>>();
+            _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>(default(ReferenceEqualsComparer<Assembly>));
+            _derivedTypesByType = cacheSet.CreateScoped<Type, IList<Type>>(default(ReferenceEqualsComparer<Type>));
         }
 
         public void AddAssemblies(Assembly[] assemblies)

@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.Members
     internal static class MemberMapperDataExtensions
     {
         public static bool IsStandalone(this IObjectMappingData mappingData)
-            => mappingData.IsRoot || mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded;
+            => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
 
         public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
             => IsEntity(mapperData, mapperData.TargetType, out var _);

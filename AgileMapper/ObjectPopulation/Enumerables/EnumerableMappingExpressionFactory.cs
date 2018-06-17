@@ -28,7 +28,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
         {
-            yield return mappingData.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(mappingData);
+            yield return mappingData.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(
+                mappingData.MapperData.EnumerablePopulationBuilder,
+                mappingData);
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)

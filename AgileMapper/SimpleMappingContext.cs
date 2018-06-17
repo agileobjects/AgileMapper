@@ -8,7 +8,6 @@
             MapperContext = mapperContext;
         }
 
-
         public MapperContext MapperContext { get; }
 
         public MappingRuleSet RuleSet { get; }

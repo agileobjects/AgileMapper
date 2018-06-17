@@ -3,16 +3,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
     using Enumerables;
     using Extensions.Internal;
+    using MapperKeys;
     using Members;
     using NetStandardPolyfills;
 
     internal static class MappingDataFactory
     {
-        public static readonly MethodInfo ForChildMethod = typeof(MappingDataFactory)
-            .GetPublicStaticMethod("ForChild");
+        private static MethodInfo _forChildMethod;
+        private static MethodInfo _forElementMethod;
 
-        public static readonly MethodInfo ForElementMethod = typeof(MappingDataFactory)
-            .GetPublicStaticMethod("ForElement");
+        public static MethodInfo ForChildMethod =>
+            _forChildMethod ?? (_forChildMethod = typeof(MappingDataFactory).GetPublicStaticMethod("ForChild"));
+
+        public static MethodInfo ForElementMethod
+            => _forElementMethod ?? (_forElementMethod = typeof(MappingDataFactory).GetPublicStaticMethod("ForElement"));
 
         public static ObjectMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
             TSource source,
@@ -79,9 +83,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 enumerableIndex,
-                mapperKey,
+                mapperKey.MappingTypes,
                 mappingDataParent.MappingContext,
-                mappingDataParent);
+                mappingDataParent)
+            {
+                MapperKey = mapperKey
+            };
         }
 
         private static bool ChildMappersNeeded(IObjectMappingData mappingData)

@@ -1,6 +1,5 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation
+namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
-    using Members;
     using Members.Sources;
 
     internal class ChildObjectMapperKey : ObjectMapperKeyBase

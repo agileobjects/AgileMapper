@@ -6,10 +6,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using Enumerables;
     using Extensions.Internal;
+    using MapperKeys;
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
-    using Queryables;
 
     internal class ObjectMappingDataFactory : IObjectMappingDataFactoryBridge
     {
@@ -25,15 +25,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IQueryable<TSourceElement> sourceQueryable,
             IMappingContext mappingContext)
         {
-            var projectorKey = new QueryProjectorKey(
-                MappingTypes<TSourceElement, TResultElement>.Fixed,
-                sourceQueryable.Provider.GetType(),
-                mappingContext.MapperContext);
-
             return ForRootFixedTypes(
                 sourceQueryable,
                 default(IQueryable<TResultElement>),
-                projectorKey,
+                MappingTypes<TSourceElement, TResultElement>.Fixed,
                 mappingContext);
         }
 
@@ -45,21 +40,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return ForRootFixedTypes(
                 source,
                 target,
-                RootObjectMapperKey.Cache<TSource, TTarget>.GetKeyFor(mappingContext),
+                MappingTypes<TSource, TTarget>.Fixed,
                 mappingContext);
         }
 
         private static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
             TSource source,
             TTarget target,
-            ObjectMapperKeyBase mapperKey,
+            MappingTypes mappingTypes,
             IMappingContext mappingContext)
         {
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
                 null, // <- No enumerable index because we're at the root
-                mapperKey,
+                mappingTypes,
                 mappingContext,
                 parent: null);
         }
@@ -69,7 +64,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTarget target,
             IMappingContext mappingContext)
         {
-            RootObjectMapperKey mapperKey;
+            MappingTypes mappingTypes;
 
             if ((target == null) && (typeof(TTarget) == typeof(object)))
             {
@@ -79,23 +74,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 // Given that the former is more likely and that people asking for 
                 // .ToANew<object>() are doing something weird, default the target 
                 // type to ExpandoObject:
-                mapperKey = new RootObjectMapperKey(MappingTypes.For(source, default(ExpandoObject)), mappingContext);
+                mappingTypes = MappingTypes.For(source, default(ExpandoObject));
 
                 return Create(
                     source,
                     default(ExpandoObject),
                     null,
-                    mapperKey,
+                    mappingTypes,
                     mappingContext);
             }
 
-            mapperKey = new RootObjectMapperKey(MappingTypes.For(source, target), mappingContext);
+            mappingTypes = MappingTypes.For(source, target);
 
             return Create(
                 source,
                 target,
                 null,
-                mapperKey,
+                mappingTypes,
                 mappingContext);
         }
 
@@ -150,7 +145,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 default(TTarget),
                 default(int?),
                 mapperKey,
-                parentMappingData.MappingContext,
                 parentMappingData);
         }
 
@@ -172,7 +166,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 target,
                 enumerableIndex,
                 mapperKey,
-                parent.MappingContext,
                 parent);
         }
 
@@ -239,7 +232,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 target,
                 enumerableIndex,
                 mapperKey,
-                parent.MappingContext,
                 parent);
         }
 
@@ -248,41 +240,61 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredTarget target,
             int? enumerableIndex,
             ObjectMapperKeyBase mapperKey,
+            IObjectMappingData parent)
+        {
+            var mappingData = Create(
+                source,
+                target,
+                enumerableIndex,
+                mapperKey.MappingTypes,
+                parent.MappingContext,
+                parent);
+
+            mappingData.MapperKey = mapperKey;
+
+            return mappingData;
+        }
+
+        private static IObjectMappingData Create<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource source,
+            TDeclaredTarget target,
+            int? enumerableIndex,
+            MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData parent = null)
         {
-            if (mapperKey.MappingTypes.RuntimeTypesAreTheSame)
+            if (mappingTypes.RuntimeTypesAreTheSame)
             {
                 return new ObjectMappingData<TDeclaredSource, TDeclaredTarget>(
                     source,
                     target,
                     enumerableIndex,
-                    mapperKey,
+                    mappingTypes,
                     mappingContext,
                     parent);
             }
 
             if (Constants.ReflectionNotPermitted)
             {
-                var createCaller = GetPartialTrustMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mapperKey.MappingTypes);
+                var createCaller = GetPartialTrustMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mappingTypes);
 
                 return (IObjectMappingData)createCaller.Invoke(
                     _bridge,
                     source,
                     target,
                     enumerableIndex,
-                    mapperKey,
+                    mappingTypes,
                     mappingContext,
                     parent);
             }
 
-            var constructionFunc = GetMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mapperKey.MappingTypes);
+            var constructionFunc = GetMappingDataCreator<TDeclaredSource, TDeclaredTarget>(mappingTypes);
 
             return constructionFunc.Invoke(
                 source,
                 target,
                 enumerableIndex,
-                mapperKey,
+                mappingTypes,
                 mappingContext,
                 parent);
         }
@@ -298,7 +310,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
                 var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
                 var enumerableIndexParameter = Expression.Parameter(typeof(int?), "i");
-                var mapperKeyParameter = Expression.Parameter(typeof(object), "mapperKey");
+                var mappingTypesParameter = Expression.Parameter(typeof(object), "mappingTypes");
                 var mappingContextParameter = Expression.Parameter(typeof(object), "mappingContext");
                 var parentParameter = Expression.Parameter(typeof(object), "parent");
 
@@ -316,7 +328,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     sourceParameter,
                     targetParameter,
                     enumerableIndexParameter,
-                    mapperKeyParameter,
+                    mappingTypesParameter,
                     mappingContextParameter,
                     parentParameter);
 
@@ -327,7 +339,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         sourceParameter,
                         targetParameter,
                         enumerableIndexParameter,
-                        mapperKeyParameter,
+                        mappingTypesParameter,
                         mappingContextParameter,
                         parentParameter);
 
@@ -341,7 +353,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource source,
             TDeclaredTarget target,
             int? enumerableIndex,
-            object mapperKey,
+            object mappingTypes,
             object mappingContext,
             object parent)
         {
@@ -349,7 +361,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 (TSource)source,
                 (TTarget)target,
                 enumerableIndex,
-                (ObjectMapperKeyBase)mapperKey,
+                (MappingTypes)mappingTypes,
                 (IMappingContext)mappingContext,
                 (IObjectMappingData)parent);
         }
@@ -358,7 +370,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? enumerableIndex,
-            ObjectMapperKeyBase mapperKey,
+            MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData parent);
 
@@ -367,10 +379,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var constructorKey = DeclaredAndRuntimeTypesKey.For<TSource, TTarget>(mappingTypes);
 
-            // TODO: Local cache
             var constructionFunc = GlobalContext.Instance.Cache.GetOrAdd(constructorKey, k =>
             {
-                var mapperKeyParameter = Expression.Parameter(typeof(ObjectMapperKeyBase), "mapperKey");
+                var mappingTypesParameter = typeof(MappingTypes).GetOrCreateParameter("mappingTypes");
+                var mappingContextParameter = typeof(IMappingContext).GetOrCreateParameter("mappingContext");
+                var mappingDataParameter = typeof(IObjectMappingData).GetOrCreateParameter("mappingData");
                 var enumerableIndexParameter = Expression.Parameter(typeof(int?), "i");
 
                 var dataType = typeof(ObjectMappingData<,>)
@@ -388,18 +401,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     sourceParameter.GetConversionTo(k.RuntimeSourceType),
                     targetParameterValue.GetConversionTo(k.RuntimeTargetType),
                     enumerableIndexParameter,
-                    mapperKeyParameter,
-                    Parameters.MappingContext,
-                    Parameters.ObjectMappingData);
+                    mappingTypesParameter,
+                    mappingContextParameter,
+                    mappingDataParameter);
 
                 var constructionLambda = Expression.Lambda<MappingDataCreator<TSource, TTarget>>(
                     constructorCall,
                     sourceParameter,
                     targetParameter,
                     enumerableIndexParameter,
-                    mapperKeyParameter,
-                    Parameters.MappingContext,
-                    Parameters.ObjectMappingData);
+                    mappingTypesParameter,
+                    mappingContextParameter,
+                    mappingDataParameter);
 
                 return constructionLambda.Compile();
             });

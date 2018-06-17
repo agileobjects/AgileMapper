@@ -4,6 +4,8 @@
 
     internal interface IEnumerablePopulationStrategy
     {
-        Expression GetPopulation(IObjectMappingData mappingData);
+        Expression GetPopulation(
+            EnumerablePopulationBuilder builder,
+            IObjectMappingData enumerableMappingData);
     }
 }

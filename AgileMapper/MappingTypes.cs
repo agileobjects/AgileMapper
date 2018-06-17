@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.Members
+namespace AgileObjects.AgileMapper
 {
     using System;
     using Extensions.Internal;
@@ -103,6 +103,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public MappingTypes WithTypes<TNewSource, TNewTarget>()
         {
+            if (RuntimeTypesAreTheSame)
+            {
+                return this;
+            }
+
             return new MappingTypes(
                 typeof(TNewSource),
                 typeof(TNewTarget),

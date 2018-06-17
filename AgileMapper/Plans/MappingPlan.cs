@@ -28,7 +28,7 @@
             }
         }
 
-        internal static MappingPlan For(IObjectMappingData mappingData) 
+        internal static MappingPlan For(IObjectMappingData mappingData)
             => new MappingPlan(mappingData.GetOrCreateMapper());
 
         /// <summary>

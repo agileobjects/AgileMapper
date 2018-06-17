@@ -29,7 +29,7 @@
                 dataSourceIndex,
                 childMappingData.Parent);
 
-            if (childObjectMappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
+            if (childObjectMappingData.MappingTypes.RuntimeTypesNeeded)
             {
                 return childMapperData.Parent.GetMapCall(
                     mappingValues.SourceValue,
@@ -88,7 +88,7 @@
 
             mapperData.TargetMember.MapCreating(sourceElementValue.Type);
 
-            if (mappingData.MapperKey.MappingTypes.RuntimeTypesNeeded)
+            if (mappingData.MappingTypes.RuntimeTypesNeeded)
             {
                 return mapperData.GetMapCall(sourceElementValue, targetElementValue);
             }
@@ -152,7 +152,7 @@
         {
             var mapper = mappingData.GetOrCreateMapper();
 
-            if (mapper.IsNullObject)
+            if (mapper == null)
             {
                 return Constants.EmptyExpression;
             }

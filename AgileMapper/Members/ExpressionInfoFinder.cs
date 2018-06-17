@@ -374,6 +374,15 @@ namespace AgileObjects.AgileMapper.Members
                     case "GetEnumerator" when method.DeclaringType.IsClosedTypeOf(typeof(IEnumerable<>)):
                         return true;
 
+                    case "Select":
+                    case "SelectMany":
+                    case "OrderBy":
+                    case "OrderByDescending":
+                    case "ToList":
+                    case "ToArray":
+                    case "Where":
+                        return method.DeclaringType == typeof(Enumerable);
+
                     default:
                         return false;
                 }

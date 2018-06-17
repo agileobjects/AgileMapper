@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System.Collections.Generic;
     using TestClasses;
     using Xunit;
 
@@ -279,6 +280,58 @@
             var result = Mapper.Map(source).ToANew<PublicField<PublicFactoryMethod<PublicField<string>>>>();
 
             result.Value.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleAnUnconstructableRuntimeTypedChildMember()
+        {
+            var result = Mapper
+                .Map(new { Value = (object)new { Test = "Nah" } })
+                .ToANew<PublicField<PublicCtor<int>>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleRuntimeTypedComplexAndEnumerableChildMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var intArraySource = new PublicTwoFields<object, object>
+                {
+                    Value1 = new Product { ProductId = "kijerf" },
+                    Value2 = new[] { 1, 2, 3 }
+                };
+
+                var intArrayResult = mapper
+                    .Map(intArraySource)
+                    .ToANew<PublicTwoFields<ProductDto, List<int?>>>();
+
+                intArrayResult.ShouldNotBeNull();
+
+                intArrayResult.Value1.ShouldNotBeNull();
+                intArrayResult.Value1.ProductId.ShouldBe("kijerf");
+
+                intArrayResult.Value2.ShouldBe(1, 2, 3);
+
+                var stringArraySource = new PublicTwoFields<object, object>
+                {
+                    Value1 = new Product { ProductId = "kdjhdgs" },
+                    Value2 = new[] { "3", "2", "1" }
+                };
+
+                var stringArrayResult = mapper
+                    .Map(stringArraySource)
+                    .ToANew<PublicTwoFields<ProductDto, List<int?>>>();
+
+                stringArrayResult.ShouldNotBeNull();
+
+                stringArrayResult.Value1.ShouldNotBeNull();
+                stringArrayResult.Value1.ProductId.ShouldBe("kdjhdgs");
+
+                stringArrayResult.Value2.ShouldBe(3, 2, 1);
+            }
         }
 
         #region Helper Classes

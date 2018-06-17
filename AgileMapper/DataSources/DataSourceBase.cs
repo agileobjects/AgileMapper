@@ -20,6 +20,7 @@
                   value,
                   wrappedDataSource.Condition)
         {
+            SourceMemberTypeTest = wrappedDataSource.SourceMemberTypeTest;
         }
 
         protected DataSourceBase(

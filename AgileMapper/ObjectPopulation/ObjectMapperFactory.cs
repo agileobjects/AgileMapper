@@ -7,12 +7,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using ComplexTypes;
     using Enumerables;
     using Extensions.Internal;
+    using MapperKeys;
     using Queryables;
 
     internal class ObjectMapperFactory
     {
         private readonly IList<MappingExpressionFactoryBase> _mappingExpressionFactories;
-        private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _rootMappersCache;
+        private readonly ICache<IRootMapperKey, IObjectMapper> _rootMappersCache;
         private Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>> _creationCallbacksByKey;
 
         public ObjectMapperFactory(CacheSet mapperScopedCacheSet)
@@ -26,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ComplexTypeMappingExpressionFactory.Instance
             };
 
-            _rootMappersCache = mapperScopedCacheSet.CreateScoped<ObjectMapperKeyBase, IObjectMapper>();
+            _rootMappersCache = mapperScopedCacheSet.CreateScoped<IRootMapperKey, IObjectMapper>(default(RootMapperKeyComparer));
         }
 
         public IEnumerable<IObjectMapper> RootMappers => _rootMappersCache.Values;
@@ -49,10 +50,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapper;
             }
 
-            mappingData.GenerateUniqueRootKey();
+            var rootMapperKey = mappingData.EnsureRootMapperKey();
 
             mapper = (ObjectMapper<TSource, TTarget>)_rootMappersCache.GetOrAdd(
-                mappingData.MapperKey,
+                rootMapperKey,
                 key => key.MappingData.GetOrCreateMapper());
 
             return mapper;
@@ -65,7 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (mappingExpression.NodeType == ExpressionType.Default)
             {
-                return ObjectMapper<TSource, TTarget>.Unmappable;
+                return null;
             }
 
             mappingExpression = MappingFactory

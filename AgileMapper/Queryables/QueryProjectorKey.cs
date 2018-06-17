@@ -1,9 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
     using System;
-    using Members;
     using Members.Sources;
     using ObjectPopulation;
+    using ObjectPopulation.MapperKeys;
 
     internal class QueryProjectorKey : ObjectMapperKeyBase, IRootMapperKey
     {
@@ -36,21 +36,10 @@
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
             => new QueryProjectorKey(newMappingTypes, QueryProviderType, _mapperContext);
 
-        public override bool Equals(object obj)
+        public bool Equals(IRootMapperKey otherKey)
         {
-            var otherKey = (IRootMapperKey)obj;
-
-            // ReSharper disable once PossibleNullReferenceException
-            return (otherKey.RuleSet == RuleSet) &&
-                    TypesMatch(otherKey) &&
-                 (((QueryProjectorKey)otherKey).QueryProviderType == QueryProviderType);
+            return TypesMatch(otherKey) &&
+                (((QueryProjectorKey)otherKey).QueryProviderType == QueryProviderType);
         }
-
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
-        public override int GetHashCode() => 0;
     }
 }

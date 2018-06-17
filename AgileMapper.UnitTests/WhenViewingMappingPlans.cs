@@ -11,7 +11,7 @@
     public class WhenViewingMappingPlans
     {
         [Fact]
-        public void ShouldIncludeASimpleTypeMemberMapping()
+        public void ShouldShowASimpleTypeMemberMapping()
         {
             string plan = Mapper
                 .GetPlanFor<PublicField<string>>()
@@ -96,7 +96,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeAComplexTypeMemberMapping()
+        public void ShouldShowAComplexTypeMemberMapping()
         {
             string plan = Mapper
                 .GetPlanFor<PersonViewModel>()
@@ -107,7 +107,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeASimpleTypeEnumerableMemberMapping()
+        public void ShouldShowASimpleTypeEnumerableMemberMapping()
         {
             string plan = Mapper
                 .GetPlanFor<PublicProperty<int[]>>()
@@ -121,7 +121,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeASimpleTypeMemberConversion()
+        public void ShouldShowASimpleTypeMemberConversion()
         {
             string plan = Mapper
                 .GetPlanFor<PublicProperty<Guid>>()
@@ -131,7 +131,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeARootComplexTypeEnumerableMapping()
+        public void ShouldShowARootComplexTypeEnumerableMapping()
         {
             string plan = Mapper
                 .GetPlanFor<IEnumerable<Person>>()
@@ -142,7 +142,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeAComplexTypeEnumerableMemberMapping()
+        public void ShouldShowAComplexTypeEnumerableMemberMapping()
         {
             string plan = Mapper
                 .GetPlanFor<IList<PersonViewModel>>()
@@ -158,7 +158,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeAMemberWithNoDataSource()
+        public void ShouldShowAMemberWithNoDataSource()
         {
             string plan = Mapper
                 .GetPlanFor<PersonViewModel>()
@@ -266,6 +266,41 @@
         }
 
         [Fact]
+        public void ShouldNotNullCheckStringSplitCallResults()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .ToANew<PublicField<string[]>>()
+                    .Map((i, l) => i.Value.Split(new[] { ',' }))
+                    .To(l => l.Value);
+
+                string plan = mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<string[]>>();
+
+                plan.ShouldNotContain("Value.Split(',') != null");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotNullCheckLinqMethodCallResults()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int[]>>()
+                    .ToANew<PublicField<long[]>>()
+                    .Map((i, l) => i.Value.Select(v => v * 2).ToArray())
+                    .To(l => l.Value);
+
+                string plan = mapper.GetPlanFor<PublicField<int[]>>().ToANew<PublicField<long[]>>();
+
+                plan.ShouldNotContain("Select(v => v * 2) != null");
+                plan.ShouldNotContain("ToArray() != null");
+            }
+        }
+
+        [Fact]
         public void ShouldNotAttemptUnnecessaryObjectCreationCallbacks()
         {
             using (var mapper = Mapper.CreateNew())
@@ -315,7 +350,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeUnmappableEntityKeyMemberDetails()
+        public void ShouldShowUnmappableEntityKeyMemberDetails()
         {
             string plan = Mapper.GetPlanFor<OrderDto>().ToANew<OrderEntity>();
 
@@ -323,7 +358,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeUnmappableStructComplexTypeMemberDetails()
+        public void ShouldShowUnmappableStructComplexTypeMemberDetails()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -337,7 +372,7 @@
         }
 
         [Fact]
-        public void ShouldIncludeUnmappableNoChildDataSourcesComplexTypeMemberDetails()
+        public void ShouldShowUnmappableNoChildDataSourcesComplexTypeMemberDetails()
         {
             string plan = Mapper
                 .GetPlanFor(new { Int = default(int) })
