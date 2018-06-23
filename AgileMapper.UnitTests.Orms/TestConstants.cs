@@ -15,7 +15,7 @@
                 dbName = dbName.Substring(0, dbName.Length - "Context".Length);
             }
 
-            return "Data Source=(local);" +
+            return "Data Source=(local)\\SQLExpress;" +
                    "Initial Catalog=" + dbName + ";" +
                    "Integrated Security=True;" +
                    "MultipleActiveResultSets=True";

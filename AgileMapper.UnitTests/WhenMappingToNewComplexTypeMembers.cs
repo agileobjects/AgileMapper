@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System.Collections.Generic;
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using TestClasses;
     using Xunit;
 
@@ -332,6 +334,32 @@
 
                 stringArrayResult.Value2.ShouldBe(3, 2, 1);
             }
+        }
+
+        [Fact]
+        public void ShouldHandleRuntimeTypedComplexAndEnumerableElementMembers()
+        {
+            var source = new PublicTwoFields<object, IList<object>>
+            {
+                Value1 = new Product { ProductId = "kjdfskjnds" },
+                Value2 = new List<object>
+                {
+                    new PublicProperty<string> { Value = "ikjhfeslkjdw" },
+                    new PublicField<string> { Value = "ldkjkdhusdiuoji" }
+                }
+            };
+
+            var result = source.DeepClone();
+
+            result.Value1.ShouldBeOfType<Product>();
+            ((Product)result.Value1).ProductId.ShouldBe("kjdfskjnds");
+
+            result.Value2.Count.ShouldBe(2);
+            result.Value2.First().ShouldBeOfType<PublicProperty<string>>();
+            ((PublicProperty<string>)result.Value2.First()).Value.ShouldBe("ikjhfeslkjdw");
+            
+            result.Value2.Second().ShouldBeOfType<PublicField<string>>();
+            ((PublicField<string>)result.Value2.Second()).Value.ShouldBe("ldkjkdhusdiuoji");
         }
 
         #region Helper Classes
