@@ -11,6 +11,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
             // ReSharper restore PossibleNullReferenceException
         }
 
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public int GetHashCode(IRootMapperKey obj) => 0;
     }
 }

@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using NetStandardPolyfills;
 
-    internal class TypeComparer : IComparer<Type>
+    internal struct TypeComparer : IComparer<Type>
     {
-        public static readonly IComparer<Type> MostToLeastDerived = new TypeComparer();
+        public static readonly IComparer<Type> MostToLeastDerived = default(TypeComparer);
 
         public int Compare(Type x, Type y)
         {

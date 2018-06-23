@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (_creationCallbacksByKey == null)
             {
                 _creationCallbacksByKey =
-                    new Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(MapperCreationCallbackKey.Comparer);
+                    new Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(default(MapperCreationCallbackKey.Comparer));
             }
 
             _creationCallbacksByKey.Add(creationCallbackKey, callback);

@@ -6,8 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class MapperCreationCallbackKey
     {
-        public static readonly IEqualityComparer<MapperCreationCallbackKey> Comparer = new KeyComparer();
-
         private readonly MappingRuleSet _ruleSet;
         private readonly Type _sourceType;
         private readonly Type _targetType;
@@ -27,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _targetType = targetType;
         }
 
-        private class KeyComparer : IEqualityComparer<MapperCreationCallbackKey>
+        public struct Comparer : IEqualityComparer<MapperCreationCallbackKey>
         {
             public bool Equals(MapperCreationCallbackKey x, MapperCreationCallbackKey y)
             {

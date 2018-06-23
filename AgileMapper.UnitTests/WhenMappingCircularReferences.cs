@@ -391,6 +391,42 @@
             resultTwo.ChildRecursor.ShouldBeSameAs(resultOne);
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/62
+        [Fact]
+        public void ShouldMapChildOneToManyRecursiveRelationships()
+        {
+            var sourceLocation1 = new Location { Id = 1 };
+            var sourceLocation2 = new Location { Id = 2 };
+
+            sourceLocation1.LocationPlace = sourceLocation2.LocationPlace = new Place
+            {
+                Locations = new[] { sourceLocation1, sourceLocation2 }
+            };
+
+            var source = new[] { sourceLocation1, sourceLocation2 };
+
+            var result = Mapper
+                .Map<IEnumerable<Location>>(source)
+                .ToANew<IEnumerable<DtoLocation>>()
+                .ToArray();
+
+            result.Length.ShouldBe(2);
+
+            var dtoLocation1 = result.First();
+            dtoLocation1.Id.ShouldBe(1);
+            dtoLocation1.LocationPlace.ShouldNotBeNull();
+
+            var dtoLocation2 = result.Second();
+            dtoLocation2.Id.ShouldBe(2);
+            dtoLocation2.LocationPlace.ShouldNotBeNull();
+            dtoLocation2.LocationPlace.Locations.Count().ShouldBe(2);
+
+            dtoLocation2.LocationPlace.ShouldBeSameAs(dtoLocation1.LocationPlace);
+            dtoLocation2.LocationPlace.Locations.Count().ShouldBe(2);
+            dtoLocation2.LocationPlace.Locations.First().ShouldBe(dtoLocation1);
+            dtoLocation2.LocationPlace.Locations.Second().ShouldBe(dtoLocation2);
+        }
+
         [Fact]
         public void ShouldUseConfiguredRecursiveDataSources()
         {
@@ -545,6 +581,30 @@
             public Subject Subject { get; set; }
 
             public Presenter Presenter { get; set; }
+        }
+
+        public class Location
+        {
+            public int Id { get; set; }
+
+            public Place LocationPlace { get; set; }
+        }
+
+        public class Place
+        {
+            public IEnumerable<Location> Locations { get; set; }
+        }
+
+        public class DtoLocation
+        {
+            public int Id { get; set; }
+
+            public DtoPlace LocationPlace { get; set; }
+        }
+
+        public class DtoPlace
+        {
+            public IEnumerable<DtoLocation> Locations { get; set; }
         }
 
         #endregion

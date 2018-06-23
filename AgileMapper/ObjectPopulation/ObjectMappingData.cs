@@ -296,13 +296,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TNewSource typedSource,
             TNewTarget typedTarget)
         {
-            var mapperKey = MapperKey?.WithTypes<TNewSource, TNewTarget>();
+            var mapperKey = MapperKey.WithTypes<TNewSource, TNewTarget>();
 
             return new ObjectMappingData<TNewSource, TNewTarget>(
                 typedSource,
                 typedTarget,
                 GetEnumerableIndex(),
-                mapperKey?.MappingTypes ?? MappingTypes.WithTypes<TNewSource, TNewTarget>(),
+                mapperKey.MappingTypes,
                 MappingContext,
                 this,
                 Parent)

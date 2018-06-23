@@ -40,18 +40,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (MapperData.HasMapperFuncs)
             {
-                _recursionMapperFuncsByKey = CreateRecursionMapperFuncsCache(mappingData);
+                _recursionMapperFuncsByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRecursionMapperFunc>();
+                MapperData.Mapper = this;
+                
+                CacheRecursionMapperFuncs();
             }
         }
 
         #region Setup
 
-        private ICache<ObjectMapperKeyBase, IRecursionMapperFunc> CreateRecursionMapperFuncsCache(
-            IObjectMappingData mappingData)
+        public void CacheRecursionMapperFuncs()
         {
-            var cache = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRecursionMapperFunc>();
-
-            for (var i = 0; i < MapperData.RequiredMapperFuncKeys.Count; i++)
+            // Using a for loop here because creation of a recursion mapper func can
+            // cause additions to MapperData.RequiredMapperFuncKeys
+            for (var i = _recursionMapperFuncsByKey.Count; i < MapperData.RequiredMapperFuncKeys.Count; i++)
             {
                 var mapperKey = MapperData.RequiredMapperFuncKeys[i];
 
@@ -80,12 +82,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var mapperFunc = mapperFuncCreator.Invoke(
                     mapperKey.MappingData,
-                    mappingData.MappingContext.LazyLoadRecursionMappingFuncs);
+                    mapperKey.MappingData.MappingContext.LazyLoadRecursionMappingFuncs);
 
-                cache.GetOrAdd(mapperKey, k => mapperFunc);
+                _recursionMapperFuncsByKey.GetOrAdd(mapperKey, k => mapperFunc);
             }
-
-            return cache;
         }
 
         #endregion

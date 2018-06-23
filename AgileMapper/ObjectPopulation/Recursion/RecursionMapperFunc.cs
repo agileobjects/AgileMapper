@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
 {
     using System;
     using System.Linq.Expressions;
+    using Members;
 
     internal class RecursionMapperFunc<TChildSource, TChildTarget> : IRecursionMapperFunc
     {
@@ -13,7 +14,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
             if (lazyLoadFuncs)
             {
                 _mapperData = mappingData.MapperData;
-                mappingData.MapperKey.MappingData = null;
                 return;
             }
 
@@ -43,12 +43,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
                 {
                     mappingData.MapperData = _mapperData;
 
-                    CreateMapperFunc(mappingData);
+                    CreateMapperFunc(mappingData, isLazyLoading: true);
                 }
             }
         }
 
-        private void CreateMapperFunc(IObjectMappingData mappingData)
+        private void CreateMapperFunc(IObjectMappingData mappingData, bool isLazyLoading = false)
         {
             mappingData.MapperKey.MappingData = mappingData;
             mappingData.MapperKey.MapperData = mappingData.MapperData;
@@ -57,6 +57,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
 
             var typedMappingLambda = (Expression<MapperFunc<TChildSource, TChildTarget>>)MappingLambda;
             _recursionMapperFunc = typedMappingLambda.Compile();
+
+            if (isLazyLoading)
+            {
+                _mapperData.GetRootMapperData().Mapper.CacheRecursionMapperFuncs();
+            }
 
             mappingData.MapperKey.MapperData = null;
             mappingData.MapperKey.MappingData = null;

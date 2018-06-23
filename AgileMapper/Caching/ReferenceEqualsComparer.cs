@@ -6,6 +6,6 @@
     {
         public bool Equals(T x, T y) => ReferenceEquals(x, y);
 
-        public int GetHashCode(T obj) => 0;
+        public int GetHashCode(T obj) => obj.GetHashCode();
     }
 }

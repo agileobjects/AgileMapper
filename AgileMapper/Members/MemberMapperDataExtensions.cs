@@ -46,14 +46,14 @@ namespace AgileObjects.AgileMapper.Members
         public static bool MapToNullCollections(this IMemberMapperData mapperData)
             => mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
 
-        public static IMemberMapperData GetRootMapperData(this IMemberMapperData mapperData)
+        public static ObjectMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
             while (!mapperData.IsRoot)
             {
                 mapperData = mapperData.Parent;
             }
 
-            return mapperData;
+            return (ObjectMapperData)mapperData;
         }
 
         public static IBasicMapperData GetElementMapperData(this IMemberMapperData mapperData)

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Caching;
     using static System.Linq.Expressions.ExpressionType;
 
     internal static partial class ExpressionExtensions
@@ -55,7 +56,7 @@
             return new ExpressionReplacer(
                     target,
                     replacement,
-                    comparer ?? ReferenceEqualsEqualityComparer.Instance)
+                    comparer ?? default(ReferenceEqualsComparer<Expression>))
                 .Replace<TExpression>(expression);
         }
 
@@ -347,16 +348,6 @@
 
                 return replacer.Invoke(expression);
             }
-        }
-
-        private class ReferenceEqualsEqualityComparer : IEqualityComparer<Expression>
-        {
-            public static readonly IEqualityComparer<Expression> Instance =
-                new ReferenceEqualsEqualityComparer();
-
-            public bool Equals(Expression x, Expression y) => x == y;
-
-            public int GetHashCode(Expression obj) => obj.GetHashCode();
         }
     }
 }

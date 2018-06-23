@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
-    using Members;
     using Members.Sources;
 
     internal abstract class ObjectMapperKeyBase : SourceMemberTypeDependentKeyBase, ITypedMapperKey

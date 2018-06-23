@@ -12,6 +12,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs { get; }
 
+        void CacheRecursionMapperFuncs();
+
         bool IsStaticallyCacheable();
 
         void Reset();
