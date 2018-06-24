@@ -12,7 +12,9 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Support for .NET Core 2.1
+- Fixing propogation of recursion mapper funcs, re: issue #62
+- Fixing 'exact' member matching, re issue #63
+- Performance and memory use improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
