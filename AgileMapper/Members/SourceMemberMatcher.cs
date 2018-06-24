@@ -83,8 +83,7 @@
             var sourceMember = QuerySourceMembers(
                 parentSourceMember,
                 targetData,
-                (m, data) => data.MapperData.TargetMember.LeafMember.Equals(m) ||
-                             data.MapperData.TargetMember.JoinedNames.Match(new[] { m.Name }))
+                MembersMatch)
                 .FirstOrDefault();
 
             if ((sourceMember == null) || !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
@@ -97,16 +96,30 @@
             return true;
         }
 
+        private static bool MembersMatch(IChildMemberMappingData mappingData, Member sourceMember)
+        {
+            if (mappingData.MapperData.TargetMember.LeafMember.Equals(sourceMember))
+            {
+                return true;
+            }
+
+            return mappingData
+                .MapperData
+                .SourceMember
+                .Append(sourceMember)
+                .Matches(mappingData.MapperData.TargetMember);
+        }
+
         private static IEnumerable<Member> QuerySourceMembers(
             IQualifiedMember parentMember,
             IChildMemberMappingData mappingData,
-            Func<Member, IChildMemberMappingData, bool> filter)
+            Func<IChildMemberMappingData, Member, bool> filter)
         {
             var members = GlobalContext
                 .Instance
                 .MemberCache
                 .GetSourceMembers(parentMember.Type)
-                .Where(m => filter.Invoke(m, mappingData));
+                .Where(m => filter.Invoke(mappingData, m));
 
             return mappingData.RuleSet.Settings.AllowGetMethods
                 ? members
@@ -170,7 +183,7 @@
             }
         }
 
-        private static bool MembersHaveCompatibleTypes(Member sourceMember, IChildMemberMappingData rootData)
+        private static bool MembersHaveCompatibleTypes(IChildMemberMappingData rootData, Member sourceMember)
         {
             if (!sourceMember.IsSimple)
             {

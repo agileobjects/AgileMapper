@@ -395,19 +395,19 @@
         [Fact]
         public void ShouldMapChildOneToManyRecursiveRelationships()
         {
-            var sourceLocation1 = new Location { Id = 1 };
-            var sourceLocation2 = new Location { Id = 2 };
+            var sourceLocation1 = new Issue62.Location { Id = 1 };
+            var sourceLocation2 = new Issue62.Location { Id = 2 };
 
-            sourceLocation1.LocationPlace = sourceLocation2.LocationPlace = new Place
+            sourceLocation1.LocationPlace = sourceLocation2.LocationPlace = new Issue62.Place
             {
                 Locations = new[] { sourceLocation1, sourceLocation2 }
             };
 
-            var source = new[] { sourceLocation1, sourceLocation2 };
+            IEnumerable<Issue62.Location> source = new[] { sourceLocation1, sourceLocation2 };
 
             var result = Mapper
-                .Map<IEnumerable<Location>>(source)
-                .ToANew<IEnumerable<DtoLocation>>()
+                .Map(source)
+                .ToANew<IEnumerable<Issue62.DtoLocation>>()
                 .ToArray();
 
             result.Length.ShouldBe(2);
@@ -425,6 +425,44 @@
             dtoLocation2.LocationPlace.Locations.Count().ShouldBe(2);
             dtoLocation2.LocationPlace.Locations.First().ShouldBe(dtoLocation1);
             dtoLocation2.LocationPlace.Locations.Second().ShouldBe(dtoLocation2);
+        }
+
+        [Fact]
+        public void ShouldMatchConfiguredSourceEnumerablesInRecursiveRelationships()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper
+                    .GetPlanFor<IEnumerable<Issue63.Location>>()
+                    .ToANew<IEnumerable<Issue63.DtoLocation>>(cfg => cfg
+                        .WhenMapping
+                        .From<Issue63.Place>()
+                        .To<Issue63.DtoPlace>()
+                        .Map((p, dto) => p.PlaceLabels.Select(x => x.Label))
+                        .To(dto => dto.Labels));
+
+                mapper
+                    .GetPlanFor<Issue63.Location>()
+                    .ToANew<Issue63.DtoLocation>();
+
+                var sourceLocation = new Issue63.Location { Id = 1 };
+                var sourcePlace = new Issue63.Place();
+                var sourceLabel = new Issue63.Label { Id = 1, Name = "Mr Label" };
+                var sourcePlaceLabel = new Issue63.PlaceLabel { Place = sourcePlace, Label = sourceLabel };
+
+                sourceLocation.Place = sourcePlace;
+                sourcePlace.PlaceLabels = new[] { sourcePlaceLabel };
+                sourcePlace.Locations = new[] { sourceLocation };
+
+                var source = new[] { sourceLocation };
+
+                var result = mapper
+                    .Map<IEnumerable<Issue63.Location>>(source)
+                    .ToANew<IEnumerable<Issue63.DtoLocation>>()
+                    .ToArray();
+
+                result.Length.ShouldBe(1);
+            }
         }
 
         [Fact]
@@ -583,28 +621,83 @@
             public Presenter Presenter { get; set; }
         }
 
-        public class Location
+        public class Issue62
         {
-            public int Id { get; set; }
+            public class Location
+            {
+                public int Id { get; set; }
 
-            public Place LocationPlace { get; set; }
+                public Place LocationPlace { get; set; }
+            }
+
+            public class Place
+            {
+                public IEnumerable<Location> Locations { get; set; }
+            }
+
+            public class DtoLocation
+            {
+                public int Id { get; set; }
+
+                public DtoPlace LocationPlace { get; set; }
+            }
+
+            public class DtoPlace
+            {
+                public IEnumerable<DtoLocation> Locations { get; set; }
+            }
         }
 
-        public class Place
+        public class Issue63
         {
-            public IEnumerable<Location> Locations { get; set; }
-        }
+            public class Location
+            {
+                public int Id { get; set; }
 
-        public class DtoLocation
-        {
-            public int Id { get; set; }
+                public Place Place { get; set; }
+            }
+            public class Place
+            {
+                public IEnumerable<PlaceLabel> PlaceLabels { get; set; }
 
-            public DtoPlace LocationPlace { get; set; }
-        }
+                public IEnumerable<Location> Locations { get; set; }
+            }
 
-        public class DtoPlace
-        {
-            public IEnumerable<DtoLocation> Locations { get; set; }
+            public class PlaceLabel
+            {
+                public virtual Label Label { get; set; }
+
+                public virtual Place Place { get; set; }
+            }
+
+            public class Label
+            {
+                public int Id { get; set; }
+
+                public string Name { get; set; }
+            }
+
+            public class DtoLocation
+            {
+                public int Id { get; set; }
+
+                // ReSharper disable once MemberHidesStaticFromOuterClass
+                public DtoPlace Place { get; set; }
+            }
+
+            public class DtoPlace
+            {
+                public IEnumerable<DtoLabel> Labels { get; set; }
+
+                public IEnumerable<DtoLocation> Locations { get; set; }
+            }
+
+            public class DtoLabel
+            {
+                public int Id { get; set; }
+
+                public string Name { get; set; }
+            }
         }
 
         #endregion
