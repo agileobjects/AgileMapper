@@ -66,10 +66,7 @@
                 return new ConfiguredDictionaryDataSourceFactory(_configInfo, valueLambda, dictionaryEntryMember);
             }
 
-            return new ConfiguredDataSourceFactory(
-                _configInfo,
-                valueLambda,
-                targetMemberLambda);
+            return new ConfiguredDataSourceFactory(_configInfo, valueLambda, targetMemberLambda);
         }
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
@@ -235,6 +232,14 @@
         }
 
         #endregion
+
+        public IMappingConfigContinuation<TSource, TTarget> ToTarget()
+        {
+            return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
+                _configInfo,
+                GetValueLambda<TTarget>(),
+                QualifiedMember.From(Member.RootTarget<TTarget>(), _configInfo.MapperContext)));
+        }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(
             Func<ConfiguredDataSourceFactory> factoryFactory)

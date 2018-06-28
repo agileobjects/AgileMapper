@@ -1006,7 +1006,7 @@
                     .From(source)
                     .To<PublicTwoFields<int, int>>()
                     .Map((s, ptf) => s.Value)
-                    .To(t => t);
+                    .ToTarget();
 
                 var result = source
                     .MapUsing(mapper)
