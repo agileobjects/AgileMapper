@@ -173,8 +173,7 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper
-                        .WhenMapping
+                    mapper.WhenMapping
                         .From<PublicProperty<string>>()
                         .To<PublicSetMethod<string>>()
                         .Map(ctx => ctx.Source.Value)
@@ -186,65 +185,110 @@
         [Fact]
         public void ShouldErrorIfMissingConstructorParameterTypeSpecified()
         {
-            using (var mapper = Mapper.CreateNew())
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
+                {
                     mapper.WhenMapping
                         .From<PublicProperty<int>>()
                         .To<PublicCtor<Guid>>()
                         .Map(Guid.NewGuid())
-                        .ToCtor<string>());
+                        .ToCtor<string>();
+                }
+            });
 
-                configurationException.Message.ShouldContain("No constructor parameter of type");
-            }
+            configurationException.Message.ShouldContain("No constructor parameter of type");
         }
 
         [Fact]
         public void ShouldErrorIfMissingConstructorParameterNameSpecified()
         {
-            using (var mapper = Mapper.CreateNew())
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
+                {
                     mapper.WhenMapping
                         .From<PublicProperty<int>>()
                         .To<PublicCtor<Guid>>()
                         .Map(Guid.NewGuid())
-                        .ToCtor("boing"));
+                        .ToCtor("boing");
+                }
+            });
 
-                configurationException.Message.ShouldContain("No constructor parameter named");
-            }
+            configurationException.Message.ShouldContain("No constructor parameter named");
         }
 
         [Fact]
         public void ShouldErrorIfNonUniqueConstructorParameterTypeSpecified()
         {
-            using (var mapper = Mapper.CreateNew())
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
+                {
                     mapper.WhenMapping
                         .From<PublicProperty<int>>()
                         .To<PublicTwoParamCtor<DateTime, DateTime>>()
                         .Map(DateTime.Today)
-                        .ToCtor<DateTime>());
+                        .ToCtor<DateTime>();
+                }
+            });
 
-                configurationException.Message.ShouldContain("Multiple constructor parameters");
-            }
+            configurationException.Message.ShouldContain("Multiple constructor parameters");
         }
 
         [Fact]
         public void ShouldErrorIfUnconvertibleConstructorValueConstantSpecified()
         {
-            using (var mapper = Mapper.CreateNew())
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configurationException = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
+                {
                     mapper.WhenMapping
                         .From<PublicProperty<int>>()
                         .To<PublicCtor<Guid>>()
                         .Map(DateTime.Today)
-                        .ToCtor<Guid>());
+                        .ToCtor<Guid>();
+                }
+            });
 
-                configurationException.Message.ShouldContain("Unable to convert");
-            }
+            configurationException.Message.ShouldContain("Unable to convert");
+        }
+
+        [Fact]
+        public void ShouldErrorIfTargetParameterConfiguredAsTarget()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<Address>()
+                        .Map((s, t) => s.Address)
+                        .To(t => t);
+                }
+            });
+
+            configurationException.Message.ShouldContain("not a valid configured target; use .ToTarget()");
+        }
+
+        [Fact]
+        public void ShouldErrorIfSimpleTypeConfiguredAsRootTargetDataSource()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicField<Guid>>()
+                        .Map("No no no no no")
+                        .ToTarget();
+                }
+            });
+
+            configurationException.Message.ShouldContain(
+                "'string' cannot be mapped to root target type 'PublicField<Guid>'");
         }
     }
 }

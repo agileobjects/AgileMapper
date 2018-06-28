@@ -255,11 +255,6 @@
 
         public static QualifiedMember ToTargetMember(this LambdaExpression memberAccess, MapperContext mapperContext)
         {
-            if (memberAccess.Body == memberAccess.Parameters.FirstOrDefault())
-            {
-                return QualifiedMember.From(Member.RootTarget(memberAccess.Type), mapperContext);
-            }
-
             return CreateMember(
                 memberAccess.Body,
                 Member.RootTarget,
