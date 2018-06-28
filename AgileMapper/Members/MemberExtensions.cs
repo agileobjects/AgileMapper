@@ -57,6 +57,13 @@
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
+            if (member.MemberChain.Length < 2)
+            {
+                // Either the root member, QualifiedMember.All or QualifiedMember.None:
+                reason = null;
+                return false;
+            }
+
             if (IsStructNonSimpleMember(member))
             {
                 reason = member.Type.GetFriendlyName() + " member on a struct";
@@ -246,10 +253,15 @@
                 mapperContext);
         }
 
-        public static QualifiedMember ToTargetMember(this Expression memberAccess, MapperContext mapperContext)
+        public static QualifiedMember ToTargetMember(this LambdaExpression memberAccess, MapperContext mapperContext)
         {
+            if (memberAccess.Body == memberAccess.Parameters.FirstOrDefault())
+            {
+                return QualifiedMember.From(Member.RootTarget(memberAccess.Type), mapperContext);
+            }
+
             return CreateMember(
-                memberAccess,
+                memberAccess.Body,
                 Member.RootTarget,
                 GlobalContext.Instance.MemberCache.GetTargetMembers,
                 mapperContext);

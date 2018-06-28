@@ -179,7 +179,14 @@
             ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
             DataSourceFactories.AddSortFilter(dataSourceFactory);
+
+            if (!HasDataSourceFactoriesForRootTarget && dataSourceFactory.TargetMember.IsRoot)
+            {
+                HasDataSourceFactoriesForRootTarget = true;
+            }
         }
+
+        public bool HasDataSourceFactoriesForRootTarget { get; private set; }
 
         public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
             => QueryDataSourceFactories(mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
@@ -252,7 +259,7 @@
 
         #region Validation
 
-        internal void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
+        private void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
         {
             if (ignoredMember.ConfigInfo.TargetMemberIsUnmappable(
                 ignoredMember.TargetMember,

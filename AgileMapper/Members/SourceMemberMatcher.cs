@@ -148,7 +148,7 @@
                 yield break;
             }
 
-            var parentMemberType = rootData.GetSourceMemberRuntimeType(parentMember);
+            var parentMemberType = rootData.Parent.GetSourceMemberRuntimeType(parentMember);
 
             if (parentMemberType != parentMember.Type)
             {

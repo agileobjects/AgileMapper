@@ -17,26 +17,23 @@
         {
             _converters = new List<IValueConverter>
             {
-                ToStringConverter.Instance,
+                default(ToStringConverter),
                 ToNumericConverter<int>.Instance,
-                ToBoolConverter.Instance,
+                default(ToBoolConverter),
                 new ToEnumConverter(userConfigurations),
                 TryParseConverter<DateTime>.Instance,
                 TryParseConverter<Guid>.Instance,
                 ToNumericConverter<decimal>.Instance,
                 ToNumericConverter<double>.Instance,
                 ToNumericConverter<long>.Instance,
-                ToCharacterConverter.Instance,
+                default(ToCharacterConverter),
                 ToNumericConverter<short>.Instance,
                 ToNumericConverter<byte>.Instance,
-                FallbackNonSimpleTypeValueConverter.Instance
+                default(FallbackNonSimpleTypeValueConverter)
             };
         }
 
-        public void Add(IValueConverter converter)
-        {
-            _converters.Insert(0, converter);
-        }
+        public void Add(IValueConverter converter) => _converters.Insert(0, converter);
 
         public void ThrowIfUnconvertible(Type sourceType, Type targetType)
         {

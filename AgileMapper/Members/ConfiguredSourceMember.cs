@@ -72,6 +72,8 @@ namespace AgileObjects.AgileMapper.Members
             _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>();
         }
 
+        public bool IsRoot => false;
+
         public Type Type { get; }
 
         public Type ElementType { get; }

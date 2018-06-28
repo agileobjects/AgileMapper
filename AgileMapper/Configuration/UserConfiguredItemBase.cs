@@ -22,7 +22,7 @@
 
         private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
-            var targetMember = lambda.Body.ToTargetMember(configInfo.MapperContext);
+            var targetMember = lambda.ToTargetMember(configInfo.MapperContext);
 
             if (targetMember == null)
             {
@@ -115,7 +115,8 @@
                 return true;
             }
 
-            if (TargetMember == mapperData.TargetMember)
+            if ((TargetMember == mapperData.TargetMember) ||
+                (TargetMember.IsRoot && mapperData.TargetMember.IsRoot))
             {
                 return true;
             }

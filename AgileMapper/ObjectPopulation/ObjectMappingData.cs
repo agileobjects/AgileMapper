@@ -3,9 +3,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Caching;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
+    using NetStandardPolyfills;
     using Validation;
 
     internal class ObjectMappingData<TSource, TTarget> :
@@ -14,6 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {
+        private ICache<IQualifiedMember, Func<TSource, Type>> _runtimeTypeGettersCache;
         private Dictionary<object, List<object>> _mappedObjectsBySource;
         private ObjectMapper<TSource, TTarget> _mapper;
         private ObjectMapperData _mapperData;
@@ -134,6 +137,55 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IChildMemberMappingData IObjectMappingData.GetChildMappingData(IMemberMapperData childMapperData)
             => new ChildMemberMappingData<TSource, TTarget>(this, childMapperData);
+
+        public Type GetSourceMemberRuntimeType(IQualifiedMember childSourceMember)
+        {
+            if (Source == null)
+            {
+                return childSourceMember.Type;
+            }
+
+            if (childSourceMember.Type.IsSealed())
+            {
+                return childSourceMember.Type;
+            }
+
+            var mapperData = MapperData;
+
+            while (mapperData != null)
+            {
+                if (childSourceMember == mapperData.SourceMember)
+                {
+                    return mapperData.SourceMember.Type;
+                }
+
+                mapperData = mapperData.Parent;
+            }
+
+            if (_runtimeTypeGettersCache == null)
+            {
+                _runtimeTypeGettersCache = MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
+            }
+
+            var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(childSourceMember, sm =>
+            {
+                var sourceParameter = Parameters.Create<TSource>("source");
+                var relativeMember = sm.RelativeTo(MapperData.SourceMember);
+                var memberAccess = relativeMember.GetQualifiedAccess(MapperData);
+                memberAccess = memberAccess.Replace(MapperData.SourceObject, sourceParameter);
+
+                var getRuntimeTypeCall = Expression.Call(
+                    ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sm.Type),
+                    memberAccess);
+
+                var getRuntimeTypeLambda = Expression
+                    .Lambda<Func<TSource, Type>>(getRuntimeTypeCall, sourceParameter);
+
+                return getRuntimeTypeLambda.Compile();
+            });
+
+            return getRuntimeTypeFunc.Invoke(Source);
+        }
 
         #endregion
 
@@ -263,6 +315,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             where TNewTarget : class
         {
             return As(Source, Target as TNewTarget);
+        }
+
+        public IObjectMappingData WithSource(IQualifiedMember newSourceMember)
+        {
+            var sourceMemberRuntimeType = GetSourceMemberRuntimeType(newSourceMember);
+
+            return WithTypes(sourceMemberRuntimeType, MapperData.TargetType);
         }
 
         public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType)

@@ -8,18 +8,13 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
 
-    internal class ToBoolConverter : IValueConverter
+    internal struct ToBoolConverter : IValueConverter
     {
-        public static readonly ToBoolConverter Instance = new ToBoolConverter();
-
-        private static readonly Type[] _supportedSourceTypes = Constants
-            .NumericTypes
-            .Append(typeof(bool));
-
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             return (nonNullableTargetType == typeof(bool)) &&
-                 ((_supportedSourceTypes.Contains(nonNullableSourceType)) ||
+                  ((nonNullableSourceType == typeof(bool)) ||
+                   Constants.NumericTypes.Contains(nonNullableSourceType) ||
                     ToStringConverter.HasNativeStringRepresentation(nonNullableSourceType));
         }
 

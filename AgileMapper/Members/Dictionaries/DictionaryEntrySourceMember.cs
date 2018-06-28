@@ -60,6 +60,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public DictionarySourceMember Parent { get; }
 
+        public bool IsRoot => false;
+
         public Type Type { get; }
 
         public string GetFriendlyTypeName() => Type.GetFriendlyName();

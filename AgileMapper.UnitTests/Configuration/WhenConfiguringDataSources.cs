@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using AgileMapper.Extensions;
     using AgileMapper.Members;
     using TestClasses;
     using Xunit;
@@ -990,6 +991,29 @@
 
                 result.ClassId.ShouldBe(123);
                 result.ClassIdentifier.ShouldBe(987);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/64
+        [Fact]
+        public void ShouldApplyAConfiguredComplexTypeMemberToTheRootTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new { Value1 = 123, Value = new { Value2 = 456 } };
+
+                mapper.WhenMapping
+                    .From(source)
+                    .To<PublicTwoFields<int, int>>()
+                    .Map((s, ptf) => s.Value)
+                    .To(t => t);
+
+                var result = source
+                    .MapUsing(mapper)
+                    .ToANew<PublicTwoFields<int, int>>();
+
+                result.Value1.ShouldBe(123);
+                result.Value2.ShouldBe(456);
             }
         }
 

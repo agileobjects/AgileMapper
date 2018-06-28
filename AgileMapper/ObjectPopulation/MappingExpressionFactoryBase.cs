@@ -275,7 +275,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return false;
             }
 
-            if (!TryGetVariableAssignment(mappingExpressions, out var localVariableAssignment))
+            if (!mappingExpressions.TryGetVariableAssignment(out var localVariableAssignment))
             {
                 returnExpression = null;
                 return false;
@@ -304,18 +304,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingExpressions[mappingExpressions.Count - 1] = mapperData.GetReturnLabel(returnExpression);
             returnExpression = Expression.Block(mappingExpressions);
             return true;
-        }
-
-        private static bool TryGetVariableAssignment(IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
-        {
-            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignment))
-            {
-                binaryExpression = (BinaryExpression)assignment;
-                return true;
-            }
-
-            binaryExpression = null;
-            return false;
         }
 
         private static Expression GetReturnExpression(Expression returnValue, MappingExtras mappingExtras)

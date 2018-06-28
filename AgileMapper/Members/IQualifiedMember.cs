@@ -5,6 +5,8 @@ namespace AgileObjects.AgileMapper.Members
 
     internal interface IQualifiedMember
     {
+        bool IsRoot { get; }
+
         Type Type { get; }
 
         Type ElementType { get; }

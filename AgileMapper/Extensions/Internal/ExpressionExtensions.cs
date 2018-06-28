@@ -9,6 +9,7 @@
     using NetStandardPolyfills;
     using ObjectPopulation.Enumerables;
     using ReadableExpressions.Extensions;
+    using static System.Linq.Expressions.ExpressionType;
 
     internal static partial class ExpressionExtensions
     {
@@ -422,6 +423,87 @@
                 parent = parent.GetParentOrNull();
             }
 
+            return false;
+        }
+
+        public static bool TryGetMappingBody(this Expression value, out Expression mapping)
+        {
+            if (value.NodeType == Try)
+            {
+                value = ((TryExpression)value).Body;
+            }
+
+            if ((value.NodeType != Block))
+            {
+                mapping = null;
+                return false;
+            }
+
+            var mappingBlock = (BlockExpression)value;
+            var mappingVariables = mappingBlock.Variables.ToList();
+
+            if (mappingBlock.Expressions[0].NodeType == Try)
+            {
+                mappingBlock = (BlockExpression)((TryExpression)mappingBlock.Expressions[0]).Body;
+                mappingVariables.AddRange(mappingBlock.Variables);
+            }
+            else
+            {
+                mappingBlock = (BlockExpression)value;
+            }
+
+            if (mappingBlock.Expressions.HasOne())
+            {
+                mapping = null;
+                return false;
+            }
+
+            mapping = mappingBlock;
+
+            var mappingExpressions = GetMappingExpressions(mapping);
+
+            if (mappingExpressions.HasOne() &&
+               (mappingExpressions[0].NodeType == Block))
+            {
+                mappingBlock = (BlockExpression)mappingExpressions[0];
+                mappingVariables.AddRange(mappingBlock.Variables);
+                mapping = mappingBlock.Update(mappingVariables, mappingBlock.Expressions);
+                return true;
+            }
+
+            mapping = mappingVariables.Any()
+                ? Expression.Block(mappingVariables, mappingExpressions)
+                : mappingExpressions.HasOne()
+                    ? mappingExpressions[0]
+                    : Expression.Block(mappingExpressions);
+
+            return true;
+        }
+
+        private static IList<Expression> GetMappingExpressions(Expression mapping)
+        {
+            var expressions = new List<Expression>();
+
+            while (mapping.NodeType == Block)
+            {
+                var mappingBlock = (BlockExpression)mapping;
+
+                expressions.AddRange(mappingBlock.Expressions.Except(new[] { mappingBlock.Result }));
+                mapping = mappingBlock.Result;
+            }
+
+            return expressions;
+        }
+
+        public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
+        {
+            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignment))
+            {
+                binaryExpression = (BinaryExpression)assignment;
+                return true;
+            }
+
+            binaryExpression = null;
             return false;
         }
     }

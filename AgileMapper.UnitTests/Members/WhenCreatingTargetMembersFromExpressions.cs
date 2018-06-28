@@ -44,7 +44,7 @@
         {
             Expression<Func<PublicSetMethod<int>, Action<int>>> setMethodAccess = x => x.SetValue;
 
-            var fieldMember = setMethodAccess.Body.ToTargetMember(DefaultMapperContext);
+            var fieldMember = setMethodAccess.ToTargetMember(DefaultMapperContext);
 
             fieldMember.Members().Count().ShouldBe(2);
 

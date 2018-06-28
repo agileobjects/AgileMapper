@@ -6,20 +6,29 @@
     internal class ChildMemberMapperData : BasicMapperData, IMemberMapperData
     {
         public ChildMemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
-            : base(
-                parent.RuleSet,
-                parent.SourceType,
-                parent.TargetType,
+            : this(
                 parent.SourceMember,
                 targetMember,
                 parent)
         {
+        }
+
+        public ChildMemberMapperData(IQualifiedMember sourceMember, QualifiedMember targetMember, ObjectMapperData parent)
+            : base(
+                parent.RuleSet,
+                parent.SourceType,
+                parent.TargetType,
+                sourceMember,
+                targetMember,
+                parent)
+        {
+            SourceMember = sourceMember;
             Parent = parent;
             Context = new MapperDataContext(this);
         }
 
         public MapperContext MapperContext => Parent.MapperContext;
-        
+
         public bool IsEntryPoint => Context.IsStandalone || TargetMember.IsRecursion;
 
         public ObjectMapperData Parent { get; }
@@ -30,7 +39,7 @@
 
         public ParameterExpression MappingDataObject => Parent.MappingDataObject;
 
-        public IQualifiedMember SourceMember => Parent.SourceMember;
+        public IQualifiedMember SourceMember { get; }
 
         public Expression SourceObject => Parent.SourceObject;
 

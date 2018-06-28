@@ -67,6 +67,9 @@
         [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
+        [DebuggerStepThrough]
+        public static bool None<T>(this IEnumerable<T> items) => !items.GetEnumerator().MoveNext();
+
         // Used in Dictionary mapping via EnumerableNoneMethod
         public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
             => items.All(item => !predicate.Invoke(item));

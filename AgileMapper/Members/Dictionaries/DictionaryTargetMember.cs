@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
-    using System.Collections.Generic;
     using System.Dynamic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -278,71 +277,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return false;
             }
 
-            if (value.NodeType == Try)
-            {
-                value = ((TryExpression)value).Body;
-            }
-
-            if ((value.NodeType != Block))
-            {
-                flattening = null;
-                return false;
-            }
-
-            var flatteningBlock = (BlockExpression)value;
-            var flatteningVariables = flatteningBlock.Variables.ToList();
-
-            if (flatteningBlock.Expressions[0].NodeType == Try)
-            {
-                flatteningBlock = (BlockExpression)((TryExpression)flatteningBlock.Expressions[0]).Body;
-                flatteningVariables.AddRange(flatteningBlock.Variables);
-            }
-            else
-            {
-                flatteningBlock = (BlockExpression)value;
-            }
-
-            if (flatteningBlock.Expressions.HasOne())
-            {
-                flattening = null;
-                return false;
-            }
-
-            flattening = flatteningBlock;
-
-            var flatteningExpressions = GetMappingExpressions(flattening);
-
-            if (flatteningExpressions.HasOne() &&
-               (flatteningExpressions[0].NodeType == Block))
-            {
-                flatteningBlock = (BlockExpression)flatteningExpressions[0];
-                flatteningVariables.AddRange(flatteningBlock.Variables);
-                flattening = flatteningBlock.Update(flatteningVariables, flatteningBlock.Expressions);
-                return true;
-            }
-
-            flattening = flatteningVariables.Any()
-                ? Expression.Block(flatteningVariables, flatteningExpressions)
-                : flatteningExpressions.HasOne()
-                    ? flatteningExpressions[0]
-                    : Expression.Block(flatteningExpressions);
-
-            return true;
-        }
-
-        private static IList<Expression> GetMappingExpressions(Expression mapping)
-        {
-            var expressions = new List<Expression>();
-
-            while (mapping.NodeType == Block)
-            {
-                var mappingBlock = (BlockExpression)mapping;
-
-                expressions.AddRange(mappingBlock.Expressions.Except(new[] { mappingBlock.Result }));
-                mapping = mappingBlock.Result;
-            }
-
-            return expressions;
+            return value.TryGetMappingBody(out flattening);
         }
 
         private Expression GetCheckedValueOrNull(Expression value, Expression keyedAccess, IMemberMapperData mapperData)

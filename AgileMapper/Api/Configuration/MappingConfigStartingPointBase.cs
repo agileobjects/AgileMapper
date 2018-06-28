@@ -24,7 +24,7 @@
         internal CallbackSpecifier<TSource, TTarget> CreateCallbackSpecifier(LambdaExpression targetMemberLambda = null)
         {
             var targetMember =
-                targetMemberLambda?.Body.ToTargetMember(_configInfo.MapperContext)
+                targetMemberLambda?.ToTargetMember(_configInfo.MapperContext)
                 ?? QualifiedMember.None;
 
             return new CallbackSpecifier<TSource, TTarget>(_configInfo, _callbackPosition, targetMember);

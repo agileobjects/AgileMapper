@@ -6,7 +6,7 @@
     using Members;
     using Members.Dictionaries;
 
-    internal class DictionaryDataSourceFactory : IMaptimeDataSourceFactory
+    internal struct DictionaryDataSourceFactory : IMaptimeDataSourceFactory
     {
         public bool IsFor(IMemberMapperData mapperData)
         {
@@ -91,14 +91,6 @@
             }
 
             return (DictionarySourceMember)parentMapperData.SourceMember;
-        }
-
-        private class DictionaryNonSimpleMemberDataSource : DataSourceBase
-        {
-            public DictionaryNonSimpleMemberDataSource(IQualifiedMember sourceMember, IMemberMapperData mapperData)
-                : base(sourceMember, sourceMember.GetQualifiedAccess(mapperData))
-            {
-            }
         }
     }
 }

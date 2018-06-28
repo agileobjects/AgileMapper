@@ -58,6 +58,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 HasObjectEntries || (matchedTargetMember.IsEnumerable == ValueType.IsEnumerable());
         }
 
+        public bool IsRoot => _wrappedSourceMember.IsRoot;
+
         public Type Type { get; }
 
         public Type ElementType => ValueType;

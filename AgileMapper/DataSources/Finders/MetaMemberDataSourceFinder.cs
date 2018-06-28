@@ -12,7 +12,7 @@
     using TypeConversion;
     using static System.StringComparison;
 
-    internal class MetaMemberDataSourceFinder : IDataSourceFinder
+    internal struct MetaMemberDataSourceFinder : IDataSourceFinder
     {
         public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
         {

@@ -26,7 +26,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IChildMemberMappingData GetChildMappingData(IMemberMapperData childMapperData);
 
+        Type GetSourceMemberRuntimeType(IQualifiedMember childSourceMember);
+
         object MapStart();
+
+        IObjectMappingData WithSource(IQualifiedMember newSourceMember);
 
         IObjectMappingData WithTypes(Type newSourceType, Type newTargetType);
     }

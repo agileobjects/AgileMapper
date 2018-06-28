@@ -140,7 +140,7 @@ namespace AgileObjects.AgileMapper.Members
 
         #endregion
 
-        public virtual bool IsRoot => LeafMember.IsRoot;
+        public virtual bool IsRoot => LeafMember?.IsRoot == true;
 
         public Member[] MemberChain { get; }
 

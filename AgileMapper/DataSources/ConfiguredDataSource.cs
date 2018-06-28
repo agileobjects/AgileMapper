@@ -45,7 +45,7 @@
 
         #endregion
 
-        private ConfiguredDataSource(
+        public ConfiguredDataSource(
             IQualifiedMember sourceMember,
             Expression configuredCondition,
             Expression convertedValue,

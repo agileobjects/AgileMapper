@@ -1,32 +1,33 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
     using Members.Sources;
+#if DEBUG
     using ReadableExpressions.Extensions;
+#endif
 
     internal class RootObjectMapperKey : ObjectMapperKeyBase, IRootMapperKey
     {
-        private readonly MapperContext _mapperContext;
+        private readonly IMembersSource _membersSource;
 
         public RootObjectMapperKey(MappingTypes mappingTypes, IMappingContext mappingContext)
-            : this(mappingContext.RuleSet, mappingTypes, mappingContext.MapperContext)
+            : this(mappingContext.RuleSet, mappingTypes, mappingContext.MapperContext.RootMembersSource)
         {
         }
 
-        public RootObjectMapperKey(MappingRuleSet ruleSet, MappingTypes mappingTypes, MapperContext mapperContext)
+        public RootObjectMapperKey(MappingRuleSet ruleSet, MappingTypes mappingTypes, IMembersSource membersSource)
             : base(mappingTypes)
         {
-            _mapperContext = mapperContext;
+            _membersSource = membersSource;
             RuleSet = ruleSet;
         }
 
         public MappingRuleSet RuleSet { get; }
 
-        public override IMembersSource GetMembersSource(ObjectMapperData parentMapperData)
-            => _mapperContext.RootMembersSource;
+        public override IMembersSource GetMembersSource(ObjectMapperData parentMapperData) => _membersSource;
 
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
-            => new RootObjectMapperKey(RuleSet, newMappingTypes, _mapperContext);
-        
+            => new RootObjectMapperKey(RuleSet, newMappingTypes, _membersSource);
+
         public bool Equals(IRootMapperKey otherKey) => base.Equals(otherKey);
 
         #region ToString

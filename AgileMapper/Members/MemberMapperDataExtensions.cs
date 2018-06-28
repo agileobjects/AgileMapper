@@ -204,7 +204,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if ((typePair.TargetType != typePair.SourceType) &&
                  targetMember.LeafMember.IsEntityId() &&
-                 configuredDataSourcesFactory.Invoke(typePair).ToArray().None())
+                 configuredDataSourcesFactory.Invoke(typePair).None())
             {
                 reason = "Entity key member";
                 return true;

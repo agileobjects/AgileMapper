@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using Extensions.Internal;
 
-    internal class ConfiguredDataSourceFinder : IDataSourceFinder
+    internal struct ConfiguredDataSourceFinder : IDataSourceFinder
     {
         public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
         {

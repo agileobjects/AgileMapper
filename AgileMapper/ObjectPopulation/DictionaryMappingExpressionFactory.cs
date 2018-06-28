@@ -324,7 +324,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                  ((cloneConstructor = GetDictionaryCloneConstructor(mapperData)) != null);
         }
 
-        private static ConstructorInfo GetDictionaryCloneConstructor(IBasicMapperData mapperData)
+        private static ConstructorInfo GetDictionaryCloneConstructor(ITypePair mapperData)
         {
             var dictionaryTypes = mapperData.TargetType.GetDictionaryTypes();
             var dictionaryInterfaceType = typeof(IDictionary<,>).MakeGenericType(dictionaryTypes.Key, dictionaryTypes.Value);

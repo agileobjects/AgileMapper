@@ -8,7 +8,6 @@
     using Api;
     using Api.Configuration;
     using Extensions.Internal;
-    using Members;
     using ObjectPopulation;
 
     internal class MappingExecutor<TSource> :
