@@ -33,11 +33,7 @@
         {
             return (childMemberExpression == null)
                 ? QualifiedMember.From(rootSourceMember, DefaultMapperContext)
-                : MemberExtensions.CreateMember(
-                    childMemberExpression,
-                    Member.RootSource,
-                    MemberCache.GetSourceMembers,
-                    DefaultMapperContext);
+                : childMemberExpression.ToSourceMember(DefaultMapperContext);
         }
 
         internal QualifiedMember TargetMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)

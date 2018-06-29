@@ -1018,14 +1018,14 @@
         }
 
         [Fact]
-        public void ShouldApplyAComplexTypeToRootTargetOverwriteConfiguration()
+        public void ShouldApplyANestedComplexTypeToRootTargetOverwriteConfiguration()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>>()
                     .Over<PublicTwoFields<int, int>>()
-                    .Map((s, t) => s.Value2)
+                    .Map((s, t) => s.Value2.Value)
                     .ToTarget();
 
                 var source = new PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>
@@ -1048,7 +1048,7 @@
 
                 mapper.Map(source).Over(target);
 
-                target.Value1.ShouldBe(6372);
+                target.Value1.ShouldBeDefault(); // <- Because Value2.Value.Value1 will overwrite 6372
                 target.Value2.ShouldBe(8262);
             }
         }

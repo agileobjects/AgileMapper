@@ -74,11 +74,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// </summary>
         /// <typeparam name="TNewSource">The type of source object being mapped in the current context.</typeparam>
         /// <typeparam name="TNewTarget">The type of target object being mapped in the current context.</typeparam>
+        /// <param name="isForDerivedTypeMapping">
+        /// Whether the new, typed <see cref="IObjectMappingData{TNewSource, TNewTarget}"/> is needed for the creation
+        /// of a derived type mapping.
+        /// </param>
         /// <returns>
         /// The <see cref="IObjectMappingDataUntyped"/> typed as a 
         /// <see cref="IObjectMappingData{TNewSource, TNewTarget}"/>.
         /// </returns>
-        new IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>()
+        IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewSource : class where TNewTarget : class;
     }
 }

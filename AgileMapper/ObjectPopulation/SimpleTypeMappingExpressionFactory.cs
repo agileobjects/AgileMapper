@@ -12,9 +12,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public override bool IsFor(IObjectMappingData mappingData)
             => mappingData.MappingTypes.TargetType.IsSimple();
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
+        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            var mapperData = mappingData.MapperData;
+            var mapperData = context.MapperData;
 
             return new[]
             {

@@ -366,14 +366,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool TargetTypeWillNotBeMappedAgain { get; }
 
-        public Expression SourceObject { get; }
+        public Expression SourceObject { get; set; }
 
         public Expression TargetObject { get; }
 
         public Expression EnumerableIndex { get; }
 
         public Expression TargetInstance
-            => _targetInstance ?? (_targetInstance = GetTargetInstance());
+        {
+            get => _targetInstance ?? (_targetInstance = GetTargetInstance());
+            set => _targetInstance = value;
+        }
 
         private Expression GetTargetInstance()
             => Context.UseLocalVariable ? LocalVariable : TargetObject;

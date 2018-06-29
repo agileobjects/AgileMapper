@@ -11,8 +11,7 @@
             default(ConfiguredDataSourceFinder),
             default(MaptimeDataSourceFinder),
             default(SourceMemberDataSourceFinder),
-            default(MetaMemberDataSourceFinder),
-            default(ConfiguredRootSourceDataSourceFinder)
+            default(MetaMemberDataSourceFinder)
         };
 
         public static DataSourceSet FindFor(IChildMemberMappingData childMappingData)

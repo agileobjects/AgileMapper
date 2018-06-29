@@ -5,7 +5,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
+    using MapperKeys;
     using Members;
+    using Members.Sources;
     using NetStandardPolyfills;
     using static System.Linq.Expressions.ExpressionType;
     using static CallbackPosition;
@@ -36,13 +38,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     : derivedTypeMappings;
             }
 
-            var mappingExtras = GetMappingExtras(mapperData);
+            var context = GetCreationContext(mappingData);
             var mappingExpressions = new List<Expression>();
 
             mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
-            mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PreMappingCallback);
-            mappingExpressions.AddRange(GetObjectPopulation(mappingData).WhereNotNull());
-            mappingExpressions.AddUnlessNullOrEmpty(mappingExtras.PostMappingCallback);
+            mappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
+            mappingExpressions.AddRange(GetObjectPopulation(context).WhereNotNull());
+            mappingExpressions.AddRange(GetConfiguredRootSourceMemberPopulations(context));
+            mappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
 
             if (NothingIsBeingMapped(mappingExpressions, mapperData))
             {
@@ -51,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             mappingExpressions.InsertRange(0, GetShortCircuitReturns(returnNull, mappingData));
 
-            var mappingBlock = GetMappingBlock(mappingExpressions, mappingExtras, mapperData);
+            var mappingBlock = GetMappingBlock(mappingExpressions, context, mapperData);
 
             if (mapperData.Context.UseMappingTryCatch)
             {
@@ -66,9 +69,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             nullMappingBlock = null;
             return false;
         }
-
-        protected virtual IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
-            => Enumerable<Expression>.Empty;
 
         private bool MappingAlwaysBranchesToDerivedType(IObjectMappingData mappingData, out Expression derivedTypeMappings)
         {
@@ -86,28 +86,94 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected virtual Expression GetDerivedTypeMappings(IObjectMappingData mappingData) => Constants.EmptyExpression;
 
-        private static MappingExtras GetMappingExtras(ObjectMapperData mapperData)
+        protected virtual IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
+            => Enumerable<Expression>.Empty;
+
+        private static MappingCreationContext GetCreationContext(IObjectMappingData mappingData)
         {
+            var mapperData = mappingData.MapperData;
             var mapToNullCondition = GetMapToNullConditionOrNull(mapperData);
 
             if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression)
             {
-                return (mapToNullCondition != null)
-                    ? new MappingExtras(mapToNullCondition)
-                    : MappingExtras.Empty;
+                return new MappingCreationContext(mappingData, mapToNullCondition);
             }
 
             var basicMapperData = mapperData.WithNoTargetMember();
             var preMappingCallback = basicMapperData.GetMappingCallbackOrNull(Before, mapperData);
             var postMappingCallback = basicMapperData.GetMappingCallbackOrNull(After, mapperData);
 
-            return new MappingExtras(preMappingCallback, postMappingCallback, mapToNullCondition);
+            return new MappingCreationContext(
+                mappingData,
+                preMappingCallback,
+                postMappingCallback,
+                mapToNullCondition);
         }
 
         private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
             => mapperData.MapperContext.UserConfigurations.GetMapToNullConditionOrNull(mapperData);
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData);
+        protected abstract IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context);
+
+        private IEnumerable<Expression> GetConfiguredRootSourceMemberPopulations(MappingCreationContext context)
+        {
+            if (!context.IsRoot ||
+                !context.MapperContext.UserConfigurations.HasDataSourceFactoriesForRootTarget)
+            {
+                yield break;
+            }
+
+            var configuredRootTargetDataSources = context
+                .MapperContext
+                .UserConfigurations
+                .GetDataSources(context.MapperData);
+
+            if (configuredRootTargetDataSources.None())
+            {
+                yield break;
+            }
+
+            // TODO: Test coverage for conditional configured source members
+            // TODO: Test coverage for mappings with variables
+            foreach (var configuredRootTargetDataSource in configuredRootTargetDataSources)
+            {
+                var newSourceMappingData = context.MappingData.WithSource(configuredRootTargetDataSource.SourceMember);
+
+                newSourceMappingData.MapperKey = new RootObjectMapperKey(
+                    context.RuleSet,
+                    newSourceMappingData.MappingTypes,
+                    new FixedMembersMembersSource(
+                        configuredRootTargetDataSource.SourceMember,
+                        context.MapperData.TargetMember));
+
+                newSourceMappingData.MapperData.SourceObject = configuredRootTargetDataSource.Value;
+                newSourceMappingData.MapperData.TargetInstance = context.MapperData.TargetInstance;
+
+                var newSourceContext = new MappingCreationContext(newSourceMappingData)
+                {
+                    InstantiateLocalVariable = false
+                };
+
+                var memberPopulations = GetObjectPopulation(newSourceContext).WhereNotNull().ToArray();
+
+                if (memberPopulations.None())
+                {
+                    // TODO: Test coverage for configured sources which match no target members
+                    continue;
+                }
+
+                var mapping = memberPopulations.HasOne()
+                    ? memberPopulations.First()
+                    : Expression.Block(memberPopulations);
+
+                if (configuredRootTargetDataSource.IsConditional)
+                {
+                    mapping = Expression.IfThen(configuredRootTargetDataSource.Condition, mapping);
+                }
+
+                yield return mapping;
+            }
+        }
 
         private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, IMemberMapperData mapperData)
         {
@@ -193,7 +259,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetMappingBlock(
             IList<Expression> mappingExpressions,
-            MappingExtras mappingExtras,
+            MappingCreationContext mappingCreationContext,
             ObjectMapperData mapperData)
         {
             AdjustForSingleExpressionBlockIfApplicable(ref mappingExpressions);
@@ -214,12 +280,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 if (mappingExpressions[0].NodeType == MemberAccess)
                 {
-                    return GetReturnExpression(mappingExpressions[0], mappingExtras);
+                    return GetReturnExpression(mappingExpressions[0], mappingCreationContext);
                 }
 
                 if (TryAdjustForUnusedLocalVariableIfApplicable(
                     mappingExpressions,
-                    mappingExtras,
+                    mappingCreationContext,
                     mapperData,
                     out returnExpression))
                 {
@@ -228,7 +294,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else if (TryAdjustForUnusedLocalVariableIfApplicable(
                 mappingExpressions,
-                mappingExtras,
+                mappingCreationContext,
                 mapperData,
                 out returnExpression))
             {
@@ -237,7 +303,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             CreateFullMappingBlock:
 
-            returnExpression = GetReturnExpression(GetReturnValue(mapperData), mappingExtras);
+            returnExpression = GetReturnExpression(GetReturnValue(mapperData), mappingCreationContext);
 
             mappingExpressions.Add(mapperData.GetReturnLabel(returnExpression));
 
@@ -265,7 +331,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool TryAdjustForUnusedLocalVariableIfApplicable(
             IList<Expression> mappingExpressions,
-            MappingExtras mappingExtras,
+            MappingCreationContext context,
             ObjectMapperData mapperData,
             out Expression returnExpression)
         {
@@ -293,8 +359,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             returnExpression = (assignedValue.NodeType == Invoke)
                 ? Expression.Block(
                     new[] { (ParameterExpression)localVariableAssignment.Left },
-                    GetReturnExpression(localVariableAssignment, mappingExtras))
-                : GetReturnExpression(assignedValue, mappingExtras);
+                    GetReturnExpression(localVariableAssignment, context))
+                : GetReturnExpression(assignedValue, context);
 
             if (mappingExpressions.HasOne())
             {
@@ -306,11 +372,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        private static Expression GetReturnExpression(Expression returnValue, MappingExtras mappingExtras)
+        private static Expression GetReturnExpression(Expression returnValue, MappingCreationContext context)
         {
-            return (mappingExtras.MapToNullCondition != null)
+            return (context.MapToNullCondition != null)
                 ? Expression.Condition(
-                    mappingExtras.MapToNullCondition,
+                    context.MapToNullCondition,
                     returnValue.Type.ToDefaultExpression(),
                     returnValue)
                 : returnValue;
@@ -374,30 +440,43 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Helper Class
 
-        internal class MappingExtras
+        internal class MappingCreationContext
         {
-            public static readonly MappingExtras Empty = new MappingExtras(null, null, null);
-
-            public MappingExtras(Expression mapToNullCondition)
-                : this(null, null, mapToNullCondition)
+            public MappingCreationContext(IObjectMappingData mappingData, Expression mapToNullCondition = null)
+                : this(mappingData, null, null, mapToNullCondition)
             {
             }
 
-            public MappingExtras(
+            public MappingCreationContext(
+                IObjectMappingData mappingData,
                 Expression preMappingCallback,
                 Expression postMappingCallback,
                 Expression mapToNullCondition)
             {
+                MappingData = mappingData;
                 PreMappingCallback = preMappingCallback;
                 PostMappingCallback = postMappingCallback;
                 MapToNullCondition = mapToNullCondition;
+                InstantiateLocalVariable = true;
             }
+
+            public MapperContext MapperContext => MapperData.MapperContext;
+
+            public MappingRuleSet RuleSet => MappingData.MappingContext.RuleSet;
+
+            public ObjectMapperData MapperData => MappingData.MapperData;
+
+            public bool IsRoot => MappingData.IsRoot;
+
+            public IObjectMappingData MappingData { get; }
 
             public Expression PreMappingCallback { get; }
 
             public Expression PostMappingCallback { get; }
 
             public Expression MapToNullCondition { get; }
+
+            public bool InstantiateLocalVariable { get; set; }
         }
 
         #endregion

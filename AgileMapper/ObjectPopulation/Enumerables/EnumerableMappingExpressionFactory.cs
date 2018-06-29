@@ -26,11 +26,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             return true;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
+        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            yield return mappingData.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(
-                mappingData.MapperData.EnumerablePopulationBuilder,
-                mappingData);
+            yield return context.RuleSet.EnumerablePopulationStrategy.GetPopulation(
+                context.MapperData.EnumerablePopulationBuilder,
+                context.MappingData);
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)

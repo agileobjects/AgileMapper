@@ -481,6 +481,9 @@ namespace AgileObjects.AgileMapper.Members
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
+            => GetAsCall(subject, contextTypes, Enumerable<Expression>.EmptyArray);
+
+        public static Expression GetAsCall(this Expression subject, Type[] contextTypes, params Expression[] arguments)
         {
             if (subject.Type.IsGenericType() &&
                 subject.Type.GetGenericTypeArguments().SequenceEqual(contextTypes))
@@ -497,25 +500,37 @@ namespace AgileObjects.AgileMapper.Members
 
             if (sourceIsStruct)
             {
-                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithTargetType"), contextTypes[1]);
+                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithTargetType"), new[] { contextTypes[1] });
             }
 
             var targetIsStruct = contextTypes[1].IsValueType();
 
             if (targetIsStruct)
             {
-                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithSourceType"), contextTypes[0]);
+                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithSourceType"), new[] { contextTypes[0] });
             }
 
-            return GetAsCall(subject, typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As"), contextTypes);
+            if (arguments.None())
+            {
+                arguments = new Expression[] { true.ToConstantExpression() };
+            }
+
+            return GetAsCall(
+                subject,
+                typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As"),
+                contextTypes,
+                arguments);
         }
 
         private static Expression GetAsCall(
             Expression subject,
             MethodInfo asMethod,
-            params Type[] typeArguments)
+            Type[] typeArguments,
+            params Expression[] arguments)
         {
-            return Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments));
+            return arguments.Any()
+                ? Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments), arguments)
+                : Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments));
         }
 
         public static Expression GetSourceAccess(

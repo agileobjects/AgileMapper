@@ -20,7 +20,8 @@
         {
             if (childMapperData.Context.IsStandalone)
             {
-                conversion = childMapperData.DeclaredTypeMapperData
+                conversion = childMapperData
+                    .DeclaredTypeMapperData
                     .GetAsCall(childMapperData.SourceType, childMapperData.TargetType);
 
                 return true;

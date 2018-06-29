@@ -135,13 +135,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
             => DerivedComplexTypeMappingsFactory.CreateFor(mappingData);
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
+        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            var expressionFactory = mappingData.MapperData.UseMemberInitialisations()
+            var expressionFactory = context.MapperData.UseMemberInitialisations()
                 ? _memberInitPopulationFactory
                 : _multiStatementPopulationFactory;
 
-            return expressionFactory.GetPopulation(mappingData);
+            return expressionFactory.GetPopulation(context);
         }
     }
 }

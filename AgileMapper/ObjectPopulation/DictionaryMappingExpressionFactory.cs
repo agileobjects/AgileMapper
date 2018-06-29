@@ -270,13 +270,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
+        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            var mapperData = mappingData.MapperData;
+            var mapperData = context.MapperData;
 
             if (!mapperData.TargetMember.IsDictionary)
             {
-                yield return GetDictionaryPopulation(mappingData);
+                yield return GetDictionaryPopulation(context.MappingData);
                 yield break;
             }
 
@@ -297,8 +297,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 assignmentFactory = (dsm, md) => GetParameterlessDictionaryAssignment(md);
             }
 
-            var population = GetDictionaryPopulation(mappingData);
-            var assignment = assignmentFactory.Invoke(sourceDictionaryMember, mappingData);
+            var population = GetDictionaryPopulation(context.MappingData);
+            var assignment = assignmentFactory.Invoke(sourceDictionaryMember, context.MappingData);
 
             yield return assignment;
             yield return population;

@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {
+        private readonly Expression _rootValue;
         private readonly IList<string> _matchedTargetMemberJoinedNames;
         private readonly MapperContext _mapperContext;
         private readonly Member[] _childMembers;
@@ -17,6 +18,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public ConfiguredSourceMember(Expression value, IMemberMapperData mapperData)
             : this(
+                  value,
                   value.Type,
                   value.Type.IsEnumerable(),
                   value.Type.IsSimple(),
@@ -28,6 +30,7 @@ namespace AgileObjects.AgileMapper.Members
 
         private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(
+                  parent._rootValue,
                   childMember.Type,
                   childMember.IsEnumerable,
                   childMember.IsSimple,
@@ -41,6 +44,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private ConfiguredSourceMember(
+            Expression rootValue,
             Type type,
             bool isEnumerable,
             bool isSimple,
@@ -49,6 +53,7 @@ namespace AgileObjects.AgileMapper.Members
             MapperContext mapperContext,
             Member[] childMembers = null)
         {
+            _rootValue = rootValue;
             Type = type;
             IsEnumerable = isEnumerable;
             IsSimple = isSimple;
@@ -95,20 +100,15 @@ namespace AgileObjects.AgileMapper.Members
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
-            Member[] otherMemberChain;
-
-            if (otherMember is ConfiguredSourceMember otherConfiguredMember)
+            if (!(otherMember is ConfiguredSourceMember otherConfiguredMember))
             {
-                otherMemberChain = otherConfiguredMember._childMembers;
-            }
-            else
-            {
-
+                return this;
             }
 
-            var relativeMemberChain = _childMembers.RelativeTo(otherMemberChain);
+            var relativeMemberChain = _childMembers.RelativeTo(otherConfiguredMember._childMembers);
 
             return new ConfiguredSourceMember(
+                _rootValue,
                 Type,
                 IsEnumerable,
                 IsSimple,
@@ -139,7 +139,16 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public Expression GetQualifiedAccess(Expression parentInstance)
-            => _childMembers.GetQualifiedAccess(parentInstance);
+        {
+            if (_childMembers.HasOne())
+            {
+                return _rootValue;
+            }
+
+            return _childMembers.GetQualifiedAccess(parentInstance);
+        }
+
+        //private bool IsMatchedToTargetRoot => _matchedTargetMemberJoinedNames.HasOne();
 
         public IQualifiedMember WithType(Type runtimeType)
         {
@@ -152,6 +161,7 @@ namespace AgileObjects.AgileMapper.Members
             var isSimple = !isEnumerable && (IsSimple || runtimeType.IsSimple());
 
             return new ConfiguredSourceMember(
+                _rootValue,
                 runtimeType,
                 isEnumerable,
                 isSimple,
