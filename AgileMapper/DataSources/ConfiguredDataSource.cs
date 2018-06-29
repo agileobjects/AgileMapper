@@ -13,7 +13,7 @@
             Expression value,
             IMemberMapperData mapperData)
             : this(
-                  GetSourceMember(value, mapperData),
+                  CreateSourceMember(value, mapperData),
                   configuredCondition,
                   GetConvertedValue(value, mapperData),
                   mapperData)
@@ -22,7 +22,7 @@
 
         #region Setup
 
-        private static IQualifiedMember GetSourceMember(Expression value, IMemberMapperData mapperData)
+        private static IQualifiedMember CreateSourceMember(Expression value, IMemberMapperData mapperData)
         {
             var sourceMember = new ConfiguredSourceMember(value, mapperData);
 

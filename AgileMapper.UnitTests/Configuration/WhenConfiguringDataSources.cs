@@ -1017,6 +1017,42 @@
             }
         }
 
+        [Fact]
+        public void ShouldApplyAComplexTypeToRootTargetOverwriteConfiguration()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>>()
+                    .Over<PublicTwoFields<int, int>>()
+                    .Map((s, t) => s.Value2)
+                    .ToTarget();
+
+                var source = new PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>
+                {
+                    Value1 = 6372,
+                    Value2 = new PublicField<PublicTwoFields<int, int>>
+                    {
+                        Value = new PublicTwoFields<int, int>
+                        {
+                            Value2 = 8262
+                        }
+                    }
+                };
+
+                var target = new PublicTwoFields<int, int>
+                {
+                    Value1 = 637,
+                    Value2 = 728
+                };
+
+                mapper.Map(source).Over(target);
+
+                target.Value1.ShouldBe(6372);
+                target.Value2.ShouldBe(8262);
+            }
+        }
+
         // ReSharper disable once ClassNeverInstantiated.Local
         // ReSharper disable UnusedAutoPropertyAccessor.Local
         private class IdTester

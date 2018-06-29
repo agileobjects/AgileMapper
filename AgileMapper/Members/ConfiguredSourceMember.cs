@@ -95,8 +95,18 @@ namespace AgileObjects.AgileMapper.Members
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
-            var otherConfiguredMember = (ConfiguredSourceMember)otherMember;
-            var relativeMemberChain = _childMembers.RelativeTo(otherConfiguredMember._childMembers);
+            Member[] otherMemberChain;
+
+            if (otherMember is ConfiguredSourceMember otherConfiguredMember)
+            {
+                otherMemberChain = otherConfiguredMember._childMembers;
+            }
+            else
+            {
+
+            }
+
+            var relativeMemberChain = _childMembers.RelativeTo(otherMemberChain);
 
             return new ConfiguredSourceMember(
                 Type,
