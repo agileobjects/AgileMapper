@@ -273,7 +273,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfSimpleTypeConfiguredAsRootTargetDataSource()
+        public void ShouldErrorIfRootTargetSimpleTypeConstantDataSourceConfigured()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -283,12 +283,33 @@
                         .From<PublicProperty<int>>()
                         .To<PublicField<Guid>>()
                         .Map("No no no no no")
-                        .ToTarget();
+                        .ToRootTarget();
                 }
             });
 
             configurationException.Message.ShouldContain(
                 "'string' cannot be mapped to root target type 'PublicField<Guid>'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRootTargetSimpleTypeMemberDataSourceConfigured()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicField<long>>()
+                        .Map(ctx => ctx.Source.Value)
+                        .ToRootTarget();
+                }
+            });
+
+            configurationException.Message.ShouldContain("PublicProperty<int>.Value");
+
+            configurationException.Message.ShouldContain(
+                "'int' cannot be mapped to root target type 'PublicField<long>'");
         }
     }
 }

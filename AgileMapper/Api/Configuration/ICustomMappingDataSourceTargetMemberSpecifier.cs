@@ -61,6 +61,6 @@
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source 
         /// and target type being configured.
         /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> ToTarget();
+        IMappingConfigContinuation<TSource, TTarget> ToRootTarget();
     }
 }

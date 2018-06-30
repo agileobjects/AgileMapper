@@ -996,7 +996,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
-        public void ShouldApplyAConfiguredComplexTypeMemberToTheRootTarget()
+        public void ShouldApplyARootTargetComplexTypeMemberDataSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1006,7 +1006,7 @@
                     .From(source)
                     .To<PublicTwoFields<int, int>>()
                     .Map((s, ptf) => s.Value)
-                    .ToTarget();
+                    .ToRootTarget();
 
                 var result = source
                     .MapUsing(mapper)
@@ -1026,7 +1026,7 @@
                     .From<PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>>()
                     .Over<PublicTwoFields<int, int>>()
                     .Map((s, t) => s.Value2.Value)
-                    .ToTarget();
+                    .ToRootTarget();
 
                 var source = new PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>
                 {
@@ -1050,6 +1050,29 @@
 
                 target.Value1.ShouldBeDefault(); // <- Because Value2.Value.Value1 will overwrite 6372
                 target.Value2.ShouldBe(8262);
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleARootTargetDataSourceNullValue()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomer>()
+                    .ToANew<PublicTwoFields<string, string>>()
+                    .Map((mc, t) => mc.Name)
+                    .To(t => t.Value1)
+                    .And
+                    .Map((mc, t) => mc.Address)
+                    .ToRootTarget();
+
+                var source = new MysteryCustomer { Name = "Nelly", Address = default(Address) };
+
+                var result = mapper.Map(source).ToANew<PublicTwoFields<string, string>>();
+
+                result.Value1.ShouldBe("Nelly");
+                result.Value2.ShouldBeNull();
             }
         }
 

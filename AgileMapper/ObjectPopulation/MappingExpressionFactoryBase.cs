@@ -158,7 +158,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (memberPopulations.None())
                 {
-                    // TODO: Test coverage for configured sources which match no target members
                     continue;
                 }
 

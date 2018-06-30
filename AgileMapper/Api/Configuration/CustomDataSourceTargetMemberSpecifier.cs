@@ -13,6 +13,7 @@
     using Members.Dictionaries;
     using NetStandardPolyfills;
     using Projection;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
 
@@ -244,7 +245,7 @@
 
         #endregion
 
-        public IMappingConfigContinuation<TSource, TTarget> ToTarget()
+        public IMappingConfigContinuation<TSource, TTarget> ToRootTarget()
         {
             ThrowIfSimpleSourceTypeConfigured();
 
@@ -256,14 +257,33 @@
 
         private void ThrowIfSimpleSourceTypeConfigured()
         {
-            if (_customValueLambda.Body.Type.IsSimple())
+            var customValue = _customValueLambda.Body;
+
+            if (!customValue.Type.IsSimple())
             {
-                throw new MappingConfigurationException(string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Source type '{0}' cannot be mapped to root target type '{1}'",
-                    _customValueLambda.Body.Type.GetFriendlyName(),
-                    typeof(TTarget).GetFriendlyName()));
+                return;
             }
+
+            string sourceValue;
+
+            if (customValue.NodeType == ExpressionType.MemberAccess)
+            {
+                var rootSourceMember = QualifiedMember.From(Member.RootSource<TSource>(), _configInfo.MapperContext);
+                var configuredMember = Member.RootSource(customValue.ToReadableString(), customValue.Type);
+                var configuredSourceMember = QualifiedMember.From(configuredMember, _configInfo.MapperContext);
+                sourceValue = configuredSourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
+            }
+            else
+            {
+                sourceValue = "Source type ";
+            }
+
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}'{1}' cannot be mapped to root target type '{2}'",
+                sourceValue,
+                customValue.Type.GetFriendlyName(),
+                typeof(TTarget).GetFriendlyName()));
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(

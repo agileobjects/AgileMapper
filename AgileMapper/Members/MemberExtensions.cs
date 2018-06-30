@@ -19,12 +19,12 @@
             => string.Join(string.Empty, members.Select(m => m.JoiningName));
 
         public static string GetFriendlySourcePath(this IQualifiedMember sourceMember, IMemberMapperData rootMapperData)
-            => GetMemberPath(sourceMember, rootMapperData.SourceMember);
+            => GetFriendlyMemberPath(sourceMember, rootMapperData.SourceMember);
 
         public static string GetFriendlyTargetPath(this IQualifiedMember targetMember, IMemberMapperData rootMapperData)
-            => GetMemberPath(targetMember, rootMapperData.TargetMember);
+            => GetFriendlyMemberPath(targetMember, rootMapperData.TargetMember);
 
-        private static string GetMemberPath(IQualifiedMember member, IQualifiedMember rootMember)
+        public static string GetFriendlyMemberPath(this IQualifiedMember member, IQualifiedMember rootMember)
         {
             var rootTypeName = rootMember.GetFriendlyTypeName();
             var memberPath = member.GetPath();
