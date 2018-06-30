@@ -184,6 +184,12 @@
         public static Member[] RelativeTo(this Member[] memberChain, Member[] otherMemberChain)
         {
             var otherMembersLeafMember = otherMemberChain.Last();
+
+            if (memberChain.HasOne() && (memberChain[0] == otherMembersLeafMember))
+            {
+                return memberChain;
+            }
+
             var startIndex = memberChain.Length - 1;
 
             if ((memberChain.Length > 2) &&

@@ -31,7 +31,7 @@
             return false;
         }
 
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static Expression ForChild(
             MappingValues mappingValues,
             int dataSourceIndex,

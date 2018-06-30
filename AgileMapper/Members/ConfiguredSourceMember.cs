@@ -15,6 +15,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly MapperContext _mapperContext;
         private readonly Member[] _childMembers;
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
+        private readonly bool _isMatchedToRootTarget;
 
         public ConfiguredSourceMember(Expression value, IMemberMapperData mapperData)
             : this(
@@ -26,6 +27,7 @@ namespace AgileObjects.AgileMapper.Members
                   mapperData.TargetMember.JoinedNames,
                   mapperData.MapperContext)
         {
+            _isMatchedToRootTarget = mapperData.TargetMember.IsRoot;
         }
 
         private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
@@ -107,6 +109,11 @@ namespace AgileObjects.AgileMapper.Members
 
             var relativeMemberChain = _childMembers.RelativeTo(otherConfiguredMember._childMembers);
 
+            if (relativeMemberChain == _childMembers)
+            {
+                return this;
+            }
+
             return new ConfiguredSourceMember(
                 _rootValue,
                 Type,
@@ -140,15 +147,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetQualifiedAccess(Expression parentInstance)
         {
-            if (_childMembers.HasOne())
+            if (_isMatchedToRootTarget && _childMembers.HasOne())
             {
                 return _rootValue;
             }
 
             return _childMembers.GetQualifiedAccess(parentInstance);
         }
-
-        //private bool IsMatchedToTargetRoot => _matchedTargetMemberJoinedNames.HasOne();
 
         public IQualifiedMember WithType(Type runtimeType)
         {
