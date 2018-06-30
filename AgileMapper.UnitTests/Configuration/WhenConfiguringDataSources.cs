@@ -996,7 +996,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
-        public void ShouldApplyARootTargetComplexTypeMemberDataSource()
+        public void ShouldApplyAConfiguredRootSourceMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1018,7 +1018,7 @@
         }
 
         [Fact]
-        public void ShouldApplyANestedComplexTypeToRootTargetOverwriteConfiguration()
+        public void ShouldApplyANestedOverwriteConfiguredRootSourceMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1054,7 +1054,7 @@
         }
 
         [Fact]
-        public void ShouldHandleARootTargetDataSourceNullValue()
+        public void ShouldHandleAConfiguredRootSourceMemberNullValue()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1073,6 +1073,52 @@
 
                 result.Value1.ShouldBe("Nelly");
                 result.Value2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceMemberConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<PublicPropertyStruct<int>, int>>()
+                    .OnTo<PublicTwoFields<int, int>>()
+                    .If((s, t) => s.Value1.Value > 5)
+                    .Map((s, t) => s.Value1)
+                    .ToRootTarget();
+
+                mapper.WhenMapping
+                    .From<PublicPropertyStruct<int>>()
+                    .OnTo<PublicTwoFields<int, int>>()
+                    .Map((s, t) => s.Value)
+                    .To(t => t.Value1);
+
+                var matchingSource = new PublicTwoFieldsStruct<PublicPropertyStruct<int>, int>
+                {
+                    Value1 = new PublicPropertyStruct<int> { Value = 10 },
+                    Value2 = 627
+                };
+
+                var target = new PublicTwoFields<int, int> { Value2 = 673282 };
+
+                mapper.Map(matchingSource).OnTo(target);
+
+                target.Value1.ShouldBe(10);
+                target.Value2.ShouldBe(673282);
+
+                var nonMatchingSource = new PublicTwoFieldsStruct<PublicPropertyStruct<int>, int>
+                {
+                    Value1 = new PublicPropertyStruct<int> { Value = 1 },
+                    Value2 = 9285
+                };
+
+                target.Value1 = target.Value2 = default(int);
+
+                mapper.Map(nonMatchingSource).OnTo(target);
+
+                target.Value1.ShouldBeDefault();
+                target.Value2.ShouldBe(9285);
             }
         }
 

@@ -133,7 +133,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield break;
             }
 
-            // TODO: Test coverage for conditional configured source members
             // TODO: Test coverage for mappings with variables
             foreach (var configuredRootTargetDataSource in configuredRootTargetDataSources)
             {

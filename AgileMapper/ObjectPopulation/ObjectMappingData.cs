@@ -303,16 +303,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappedObjectsBySource[key] = new List<object> { complexType };
         }
 
-        public IObjectMappingData<TNewSource, TTarget> WithSourceType<TNewSource>()
+        public IObjectMappingData<TNewSource, TNewTarget> WithSourceType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewSource : class
         {
-            return As(Source as TNewSource, Target, isForDerivedTypeMapping: true);
+            return As(Source as TNewSource, default(TNewTarget), isForDerivedTypeMapping);
         }
 
-        public IObjectMappingData<TSource, TNewTarget> WithTargetType<TNewTarget>()
+        public IObjectMappingData<TNewSource, TNewTarget> WithTargetType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewTarget : class
         {
-            return As(Source, Target as TNewTarget, isForDerivedTypeMapping: true);
+            return As(default(TNewSource), Target as TNewTarget, isForDerivedTypeMapping);
         }
 
         public IObjectMappingData WithSource(IQualifiedMember newSourceMember)
@@ -330,7 +330,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingDataParameter = Parameters.Create<IObjectMappingData<TSource, TTarget>>("mappingData");
                 var isForDerivedTypeParameter = Parameters.Create<bool>("isForDerivedType");
-                var withTypesCall = mappingDataParameter.GetAsCall(new[] { k.SourceType, k.TargetType }, isForDerivedTypeParameter);
+                var withTypesCall = mappingDataParameter.GetAsCall(isForDerivedTypeParameter, k.SourceType, k.TargetType);
 
                 var withTypesLambda = Expression
                     .Lambda<Func<IObjectMappingData<TSource, TTarget>, bool, IObjectMappingDataUntyped>>(
