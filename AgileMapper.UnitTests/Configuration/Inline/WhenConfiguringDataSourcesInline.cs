@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using AgileMapper.Extensions;
     using AgileMapper.Members;
     using TestClasses;
     using Xunit;
@@ -324,6 +325,25 @@
                         .To(p => p.Name));
 
                 result.ShouldBeNull();
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/64
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new { Value1 = 8392, Value = new { Value2 = 5482 } };
+
+                var result = source
+                    .MapUsing(mapper)
+                    .ToANew<PublicTwoFields<int, int>>(cfg => cfg
+                        .Map((s, ptf) => s.Value)
+                        .ToRootTarget());
+
+                result.Value1.ShouldBe(8392);
+                result.Value2.ShouldBe(5482);
             }
         }
 

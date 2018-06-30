@@ -1160,6 +1160,33 @@
         }
 
         [Fact]
+        public void ShouldApplyMultipleConfiguredRootSourceComplexTypeMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new
+                {
+                    PropertyOne = new { Value1 = "Value 1!" },
+                    PropertyTwo = new { Value2 = "Value 2!" },
+                };
+
+                mapper.WhenMapping
+                    .From(source)
+                    .To<PublicTwoFields<string, string>>()
+                    .Map((s, t) => s.PropertyOne)
+                    .ToRootTarget()
+                    .And
+                    .Map((s, t) => s.PropertyTwo)
+                    .ToRootTarget();
+
+                var result = mapper.Map(source).ToANew<PublicTwoFields<string, string>>();
+
+                result.Value1.ShouldBe("Value 1!");
+                result.Value2.ShouldBe("Value 2!");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyMultipleConfiguredRootSourceEnumerableMembers()
         {
             using (var mapper = Mapper.CreateNew())
