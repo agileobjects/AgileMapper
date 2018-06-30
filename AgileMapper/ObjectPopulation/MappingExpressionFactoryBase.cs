@@ -122,9 +122,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield break;
             }
 
-            // TODO: Test coverage for mappings with variables
-            foreach (var configuredRootDataSource in configuredRootDataSources)
+            for (var i = 0; i < configuredRootDataSources.Count; ++i)
             {
+                var configuredRootDataSource = configuredRootDataSources[i];
                 var newSourceContext = context.WithDataSource(configuredRootDataSource);
 
                 newSourceContext.InstantiateLocalVariable = false;
@@ -136,11 +136,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                if (context.MapperData.TargetMember.IsEnumerable)
-                {
-                    context.MapperData.LocalVariable = newSourceContext.MapperData.LocalVariable;
-                    context.MapperData.EnumerablePopulationBuilder.TargetVariable = newSourceContext.MapperData.EnumerablePopulationBuilder.TargetVariable;
-                }
+                context.UpdateFrom(newSourceContext);
 
                 var mapping = memberPopulations.HasOne()
                     ? memberPopulations.First()
@@ -152,13 +148,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                if (context.MapperData.TargetMember.IsComplex)
+                if (context.MapperData.TargetMember.IsComplex || (i > 0))
                 {
                     yield return Expression.IfThen(configuredRootDataSource.Condition, mapping);
                     continue;
                 }
 
-                var fallback = context.MapperData.GetFallbackCollectionValue();
+                var fallback = context.MapperData.LocalVariable.Type.GetEmptyInstanceCreation(
+                    context.TargetMember.ElementType,
+                    context.MapperData.EnumerablePopulationBuilder.TargetTypeHelper);
+
                 var assignFallback = context.MapperData.LocalVariable.AssignTo(fallback);
 
                 yield return Expression.IfThenElse(configuredRootDataSource.Condition, mapping, assignFallback);
@@ -438,6 +437,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         internal class MappingCreationContext
         {
+            private bool _mapperDataHasRootEnumerableVariables;
+
             public MappingCreationContext(
                 IObjectMappingData mappingData,
                 Expression mapToNullCondition = null,
@@ -467,6 +468,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public ObjectMapperData MapperData => MappingData.MapperData;
 
+            public QualifiedMember TargetMember => MapperData.TargetMember;
+
             public bool IsRoot => MappingData.IsRoot;
 
             public IObjectMappingData MappingData { get; }
@@ -488,17 +491,41 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 newSourceMappingData.MapperKey = new RootObjectMapperKey(
                     RuleSet,
                     newSourceMappingData.MappingTypes,
-                    new FixedMembersMembersSource(newDataSource.SourceMember, MapperData.TargetMember));
+                    new FixedMembersMembersSource(newDataSource.SourceMember, TargetMember));
 
-                newSourceMappingData.MapperData.SourceObject = newDataSource.Value;
-                newSourceMappingData.MapperData.TargetObject = MapperData.TargetObject;
+                var newContext = new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions);
 
-                if (MapperData.TargetMember.IsComplex)
+                newContext.MapperData.SourceObject = newDataSource.Value;
+                newContext.MapperData.TargetObject = MapperData.TargetObject;
+
+                if (TargetMember.IsComplex)
                 {
-                    newSourceMappingData.MapperData.TargetInstance = MapperData.TargetInstance;
+                    newContext.MapperData.TargetInstance = MapperData.TargetInstance;
+                }
+                else if (_mapperDataHasRootEnumerableVariables)
+                {
+                    UpdateEnumerableVariables(MapperData, newContext.MapperData);
                 }
 
-                return new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions);
+                return newContext;
+            }
+
+            public void UpdateFrom(MappingCreationContext childSourceContext)
+            {
+                if (TargetMember.IsComplex || _mapperDataHasRootEnumerableVariables)
+                {
+                    return;
+                }
+
+                _mapperDataHasRootEnumerableVariables = true;
+
+                UpdateEnumerableVariables(childSourceContext.MapperData, MapperData);
+            }
+
+            private static void UpdateEnumerableVariables(ObjectMapperData sourceMapperData, ObjectMapperData targetMapperData)
+            {
+                targetMapperData.LocalVariable = sourceMapperData.LocalVariable;
+                targetMapperData.EnumerablePopulationBuilder.TargetVariable = sourceMapperData.EnumerablePopulationBuilder.TargetVariable;
             }
         }
 

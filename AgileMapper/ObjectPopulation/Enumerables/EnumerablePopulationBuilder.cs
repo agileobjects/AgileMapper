@@ -308,6 +308,11 @@
 
         private void AssignTargetVariableTo(Expression value)
         {
+            if (TargetVariable != null)
+            {
+                return;
+            }
+
             TargetVariable = Context.GetTargetParameterFor(value.Type);
 
             _populationExpressions.Add(TargetVariable.AssignTo(value));

@@ -1159,6 +1159,32 @@
             }
         }
 
+        [Fact]
+        public void ShouldApplyMultipleConfiguredRootSourceEnumerableMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int[], long[]>>()
+                    .To<decimal[]>()
+                    .Map((s, t) => s.Value1)
+                    .ToRootTarget()
+                    .And
+                    .Map((s, t) => s.Value2)
+                    .ToRootTarget();
+
+                var source = new PublicTwoFields<int[], long[]>
+                {
+                    Value1 = new[] { 1, 2, 3 },
+                    Value2 = new[] { 1L, 2L, 3L }
+                };
+
+                var result = mapper.Map(source).ToANew<decimal[]>();
+
+                result.Length.ShouldBe(6);
+            }
+        }
+
         // ReSharper disable once ClassNeverInstantiated.Local
         // ReSharper disable UnusedAutoPropertyAccessor.Local
         private class IdTester

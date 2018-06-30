@@ -175,8 +175,11 @@
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
-            ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
-            ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
+            if (!dataSourceFactory.TargetMember.IsRoot)
+            {
+                ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
+                ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
+            }
 
             DataSourceFactories.AddSortFilter(dataSourceFactory);
 
