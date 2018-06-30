@@ -136,20 +136,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
+                if (context.MapperData.TargetMember.IsEnumerable)
+                {
+                    context.MapperData.LocalVariable = newSourceContext.MapperData.LocalVariable;
+                    context.MapperData.EnumerablePopulationBuilder.TargetVariable = newSourceContext.MapperData.EnumerablePopulationBuilder.TargetVariable;
+                }
+
                 var mapping = memberPopulations.HasOne()
                     ? memberPopulations.First()
                     : Expression.Block(memberPopulations);
 
-                if (configuredRootDataSource.IsConditional)
+                if (!configuredRootDataSource.IsConditional)
                 {
-                    mapping = Expression.IfThen(configuredRootDataSource.Condition, mapping);
+                    yield return mapping;
+                    continue;
                 }
 
-                yield return mapping;
+                if (context.MapperData.TargetMember.IsComplex)
+                {
+                    yield return Expression.IfThen(configuredRootDataSource.Condition, mapping);
+                    continue;
+                }
+
+                var fallback = context.MapperData.GetFallbackCollectionValue();
+                var assignFallback = context.MapperData.LocalVariable.AssignTo(fallback);
+
+                yield return Expression.IfThenElse(configuredRootDataSource.Condition, mapping, assignFallback);
             }
         }
 
-        protected static bool HasConfiguredRootDataSources(ObjectMapperData mapperData, out IList<IConfiguredDataSource> dataSources)
+        protected static bool HasConfiguredRootDataSources(IMemberMapperData mapperData, out IList<IConfiguredDataSource> dataSources)
         {
             if (!mapperData.IsRoot ||
                 !mapperData.MapperContext.UserConfigurations.HasConfiguredRootDataSources)
@@ -161,7 +177,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             dataSources = mapperData
                 .MapperContext
                 .UserConfigurations
-                .GetDataSources(mapperData);
+                .GetDataSources(mapperData)
+                .ToArray();
 
             return dataSources.Any();
         }
@@ -475,7 +492,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 newSourceMappingData.MapperData.SourceObject = newDataSource.Value;
                 newSourceMappingData.MapperData.TargetObject = MapperData.TargetObject;
-                newSourceMappingData.MapperData.TargetInstance = MapperData.TargetInstance;
+
+                if (MapperData.TargetMember.IsComplex)
+                {
+                    newSourceMappingData.MapperData.TargetInstance = MapperData.TargetInstance;
+                }
 
                 return new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions);
             }

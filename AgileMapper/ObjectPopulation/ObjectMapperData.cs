@@ -382,7 +382,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             => Context.UseLocalVariable ? LocalVariable : TargetObject;
 
         public ParameterExpression LocalVariable
-            => _instanceVariable ?? (_instanceVariable = CreateInstanceVariable());
+        {
+            get => _instanceVariable ?? (_instanceVariable = CreateInstanceVariable());
+            set => _instanceVariable = value;
+        }
 
         private ParameterExpression CreateInstanceVariable()
         {

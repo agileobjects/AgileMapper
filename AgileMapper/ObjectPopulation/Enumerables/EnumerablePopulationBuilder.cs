@@ -32,6 +32,7 @@
         private bool? _elementsAreIdentifiable;
         private ParameterExpression _collectionDataVariable;
         private ParameterExpression _counterVariable;
+        private ParameterExpression _targetVariable;
 
         public EnumerablePopulationBuilder(ObjectMapperData mapperData)
         {
@@ -244,7 +245,17 @@
 
         public EnumerableTypeHelper TargetTypeHelper { get; }
 
-        public ParameterExpression TargetVariable { get; private set; }
+        public ParameterExpression TargetVariable
+        {
+            get => _targetVariable;
+            set
+            {
+                if (_targetVariable == null)
+                {
+                    _targetVariable = value;
+                }
+            }
+        }
 
         public void AssignSourceVariableFromSourceObject()
         {

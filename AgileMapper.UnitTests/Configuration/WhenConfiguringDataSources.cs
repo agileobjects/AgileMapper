@@ -1150,6 +1150,12 @@
                 result.First().Line2.ShouldBe("Else");
                 result.Second().Line1.ShouldBe("Elsewhere");
                 result.Second().Line2.ShouldBeNull();
+
+                source.Value2 = null;
+
+                var nullResult = mapper.Map(source).ToANew<List<Address>>();
+
+                nullResult.ShouldBeEmpty();
             }
         }
 
