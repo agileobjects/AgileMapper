@@ -1122,6 +1122,37 @@
             }
         }
 
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceEnumerableMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<Address, Address[]>>()
+                    .To<List<Address>>()
+                    .Map((s, r) => s.Value2)
+                    .ToRootTarget();
+
+                var source = new PublicTwoFields<Address, Address[]>
+                {
+                    Value1 = new Address { Line1 = "Here", Line2 = "There" },
+                    Value2 = new[]
+                    {
+                        new Address { Line1 = "Somewhere", Line2 = "Else" },
+                        new Address { Line1 = "Elsewhere"}
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<List<Address>>();
+
+                result.Count.ShouldBe(2);
+                result.First().Line1.ShouldBe("Somewhere");
+                result.First().Line2.ShouldBe("Else");
+                result.Second().Line1.ShouldBe("Elsewhere");
+                result.Second().Line2.ShouldBeNull();
+            }
+        }
+
         // ReSharper disable once ClassNeverInstantiated.Local
         // ReSharper disable UnusedAutoPropertyAccessor.Local
         private class IdTester

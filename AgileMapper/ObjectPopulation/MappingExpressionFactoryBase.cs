@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using DataSources;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
@@ -44,7 +45,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
             mappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
             mappingExpressions.AddRange(GetObjectPopulation(context).WhereNotNull());
-            mappingExpressions.AddRange(GetConfiguredRootSourceMemberPopulations(context));
+            mappingExpressions.AddRange(GetConfiguredRootDataSourcePopulations(context));
             mappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
 
             if (NothingIsBeingMapped(mappingExpressions, mapperData))
@@ -115,43 +116,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context);
 
-        private IEnumerable<Expression> GetConfiguredRootSourceMemberPopulations(MappingCreationContext context)
+        private IEnumerable<Expression> GetConfiguredRootDataSourcePopulations(MappingCreationContext context)
         {
-            if (!context.IsRoot ||
-                !context.MapperContext.UserConfigurations.HasDataSourceFactoriesForRootTarget)
-            {
-                yield break;
-            }
-
-            var configuredRootTargetDataSources = context
-                .MapperContext
-                .UserConfigurations
-                .GetDataSources(context.MapperData);
-
-            if (configuredRootTargetDataSources.None())
+            if (!HasConfiguredRootDataSources(context.MapperData, out var configuredRootDataSources))
             {
                 yield break;
             }
 
             // TODO: Test coverage for mappings with variables
-            foreach (var configuredRootTargetDataSource in configuredRootTargetDataSources)
+            foreach (var configuredRootDataSource in configuredRootDataSources)
             {
-                var newSourceMappingData = context.MappingData.WithSource(configuredRootTargetDataSource.SourceMember);
+                var newSourceContext = context.WithDataSource(configuredRootDataSource);
 
-                newSourceMappingData.MapperKey = new RootObjectMapperKey(
-                    context.RuleSet,
-                    newSourceMappingData.MappingTypes,
-                    new FixedMembersMembersSource(
-                        configuredRootTargetDataSource.SourceMember,
-                        context.MapperData.TargetMember));
-
-                newSourceMappingData.MapperData.SourceObject = configuredRootTargetDataSource.Value;
-                newSourceMappingData.MapperData.TargetInstance = context.MapperData.TargetInstance;
-
-                var newSourceContext = new MappingCreationContext(newSourceMappingData)
-                {
-                    InstantiateLocalVariable = false
-                };
+                newSourceContext.InstantiateLocalVariable = false;
 
                 var memberPopulations = GetObjectPopulation(newSourceContext).WhereNotNull().ToArray();
 
@@ -164,13 +141,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     ? memberPopulations.First()
                     : Expression.Block(memberPopulations);
 
-                if (configuredRootTargetDataSource.IsConditional)
+                if (configuredRootDataSource.IsConditional)
                 {
-                    mapping = Expression.IfThen(configuredRootTargetDataSource.Condition, mapping);
+                    mapping = Expression.IfThen(configuredRootDataSource.Condition, mapping);
                 }
 
                 yield return mapping;
             }
+        }
+
+        protected static bool HasConfiguredRootDataSources(ObjectMapperData mapperData, out IList<IConfiguredDataSource> dataSources)
+        {
+            if (!mapperData.IsRoot ||
+                !mapperData.MapperContext.UserConfigurations.HasConfiguredRootDataSources)
+            {
+                dataSources = null;
+                return false;
+            }
+
+            dataSources = mapperData
+                .MapperContext
+                .UserConfigurations
+                .GetDataSources(mapperData);
+
+            return dataSources.Any();
         }
 
         private static bool NothingIsBeingMapped(IList<Expression> mappingExpressions, IMemberMapperData mapperData)
@@ -475,6 +469,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             public Expression MapToNullCondition { get; }
 
             public bool InstantiateLocalVariable { get; set; }
+
+            public MappingCreationContext WithDataSource(IDataSource newDataSource)
+            {
+                var newSourceMappingData = MappingData.WithSource(newDataSource.SourceMember);
+
+                newSourceMappingData.MapperKey = new RootObjectMapperKey(
+                    RuleSet,
+                    newSourceMappingData.MappingTypes,
+                    new FixedMembersMembersSource(
+                        newDataSource.SourceMember,
+                        MapperData.TargetMember));
+
+                newSourceMappingData.MapperData.SourceObject = newDataSource.Value;
+                newSourceMappingData.MapperData.TargetInstance = MapperData.TargetInstance;
+
+                return new MappingCreationContext(newSourceMappingData);
+            }
         }
 
         #endregion

@@ -180,13 +180,13 @@
 
             DataSourceFactories.AddSortFilter(dataSourceFactory);
 
-            if (!HasDataSourceFactoriesForRootTarget && dataSourceFactory.TargetMember.IsRoot)
+            if (!HasConfiguredRootDataSources && dataSourceFactory.TargetMember.IsRoot)
             {
-                HasDataSourceFactoriesForRootTarget = true;
+                HasConfiguredRootDataSources = true;
             }
         }
 
-        public bool HasDataSourceFactoriesForRootTarget { get; private set; }
+        public bool HasConfiguredRootDataSources { get; private set; }
 
         public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
             => QueryDataSourceFactories(mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
