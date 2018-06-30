@@ -512,6 +512,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             public void UpdateFrom(MappingCreationContext childSourceContext)
             {
+                MappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(childSourceContext.MappingData);
+
                 if (TargetMember.IsComplex || _mapperDataHasRootEnumerableVariables)
                 {
                     return;
