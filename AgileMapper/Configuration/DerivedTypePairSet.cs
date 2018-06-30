@@ -74,7 +74,7 @@
 
             if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
             {
-                return typePairs.Where(tp => tp.AppliesTo(mapperData)).ToArray();
+                return typePairs.Filter(tp => tp.AppliesTo(mapperData)).ToArray();
             }
 
             return Enumerable<DerivedTypePair>.EmptyArray;
@@ -82,7 +82,7 @@
 
         #region Auto-Registration
 
-        private void LookForDerivedTypePairs(IBasicMapperData mapperData, MapperContext mapperContext)
+        private void LookForDerivedTypePairs(ITypePair mapperData, MapperContext mapperContext)
         {
             var rootSourceType = GetRootType(mapperData.SourceType);
             var rootTargetType = GetRootType(mapperData.TargetType);
@@ -126,7 +126,7 @@
                 }
 
                 var candidatePairsData = derivedSourceTypes
-                    .Select(t => new
+                    .Project(t => new
                     {
                         DerivedSourceType = t,
                         DerivedTargetTypeName = derivedTargetTypeNameFactory.Invoke(t)

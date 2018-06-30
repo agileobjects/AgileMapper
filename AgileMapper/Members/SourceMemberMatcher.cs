@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions.Internal;
 
     internal static class SourceMemberMatcher
     {
@@ -119,11 +120,11 @@
                 .Instance
                 .MemberCache
                 .GetSourceMembers(parentMember.Type)
-                .Where(m => filter.Invoke(mappingData, m));
+                .Filter(m => filter.Invoke(mappingData, m));
 
             return mappingData.RuleSet.Settings.AllowGetMethods
                 ? members
-                : members.Where(m => m.MemberType != MemberType.GetMethod);
+                : members.Filter(m => m.MemberType != MemberType.GetMethod);
         }
 
         private static IQualifiedMember GetFinalSourceMember(

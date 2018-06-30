@@ -30,7 +30,7 @@
 
         public static ConfiguredLambdaInfo For(LambdaExpression lambda)
         {
-            var funcArguments = lambda.Parameters.Select(p => p.Type).ToArray();
+            var funcArguments = lambda.Parameters.Project(p => p.Type).ToArray();
             var contextTypes = GetContextTypes(funcArguments);
             var parameterSwapper = ParametersSwapper.For(contextTypes, funcArguments);
 
@@ -108,7 +108,7 @@
                 return null;
             }
 
-            var parameters = funcArguments.Select(Parameters.Create).ToArray();
+            var parameters = funcArguments.Project(Parameters.Create).ToArray();
             var valueFactory = func.ToConstantExpression();
             var valueFactoryInvocation = Expression.Invoke(valueFactory, parameters.Cast<Expression>());
             var valueFactoryLambda = Expression.Lambda(funcType, valueFactoryInvocation, parameters);

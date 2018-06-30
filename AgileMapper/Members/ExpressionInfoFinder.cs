@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.Members
                 return _nestedAccessesByPath
                     .Values
                     .Reverse()
-                    .Select(GetAccessCheck)
+                    .Project(GetAccessCheck)
                     .Aggregate(
                         default(Expression),
                         (accessChecksSoFar, accessCheck) => (accessChecksSoFar != null)

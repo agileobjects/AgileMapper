@@ -85,20 +85,18 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
             return new CollectionData<TSource, TTarget>(absentTargetItems, intersection, newSourceItems);
         }
 
-        private static Dictionary<TId, List<TItem>> GetItemsById<TItem, TId>(
-            IEnumerable<TItem> items,
-            Func<TItem, TId> idFactory)
+        private static Dictionary<TId, List<TItem>> GetItemsById<TItem, TId>(IEnumerable<TItem> items, Func<TItem, TId> idFactory)
         {
             return items
                 .WhereNotNull()
-                .Select(item => new
+                .Project(item => new
                 {
                     Id = idFactory.Invoke(item),
                     Item = item
                 })
-                .Where(d => d.Id != null)
+                .Filter(d => d.Id != null)
                 .GroupBy(d => d.Id)
-                .ToDictionary(grp => grp.Key, grp => grp.Select(d => d.Item).ToList());
+                .ToDictionary(grp => grp.Key, grp => grp.Project(d => d.Item).ToList());
         }
     }
 

@@ -48,14 +48,14 @@
         static EnumerablePopulationBuilder()
         {
             var linqSelectMethods = typeof(Enumerable)
-                .GetPublicStaticMethods("Select")
-                .Select(m => new
+                .GetPublicStaticMethods(nameof(Enumerable.Select))
+                .Project(m => new
                 {
                     Method = m,
                     Parameters = m.GetParameters()
                 })
-                .Where(m => m.Parameters.Length == 2)
-                .Select(m => new
+                .Filter(m => m.Parameters.Length == 2)
+                .Project(m => new
                 {
                     m.Method,
                     ProjectionLambdaParameterCount = m.Parameters[1].ParameterType.GetGenericTypeArguments().Length
@@ -69,7 +69,7 @@
                 .First(m => m.ProjectionLambdaParameterCount == 3).Method;
 
             _queryableSelectMethod = typeof(Queryable)
-                .GetPublicStaticMethods("Select")
+                .GetPublicStaticMethods(nameof(Enumerable.Select))
                 .First(m =>
                     (m.GetParameters().Length == 2) &&
                     (m.GetParameters()[1].ParameterType.GetGenericTypeArguments()[0].GetGenericTypeArguments().Length == 2));

@@ -168,7 +168,7 @@
 
             var queryString = string.Join(
                 "&",
-                flattened.Select(kvp => Uri.EscapeDataString(kvp.Key) + "=" + Uri.EscapeDataString(kvp.Value)));
+                flattened.Project(kvp => Uri.EscapeDataString(kvp.Key) + "=" + Uri.EscapeDataString(kvp.Value)));
 
             return queryString.Replace(".", "%2E");
         }

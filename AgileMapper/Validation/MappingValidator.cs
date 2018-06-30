@@ -14,7 +14,7 @@
     {
         public static void Validate(Mapper mapper)
         {
-            var rootMapperDatas = mapper.Context.ObjectMapperFactory.RootMappers.Select(m => m.MapperData);
+            var rootMapperDatas = mapper.Context.ObjectMapperFactory.RootMappers.Project(m => m.MapperData);
 
             VerifyMappingPlanIsComplete(GetAllMapperDatas(rootMapperDatas));
         }
@@ -75,7 +75,7 @@
             IEnumerable<ObjectMapperData> mapperDatas)
         {
             return mapperDatas
-                .Select(md => new
+                .Project(md => new
                 {
                     MapperData = md,
                     IsUnmappable =
@@ -84,19 +84,19 @@
                          md.DataSourcesByTargetMember.None(),
                     UnmappedMembers = md
                         .DataSourcesByTargetMember
-                        .Where(pair => !pair.Value.HasValue)
-                        .Select(pair => pair)
+                        .Filter(pair => !pair.Value.HasValue)
+                        .Project(pair => pair)
                         .ToArray(),
                     UnpairedEnums = EnumMappingMismatchFinder.FindMismatches(md)
                 })
-                .Where(d => d.IsUnmappable || d.UnmappedMembers.Any() || d.UnpairedEnums.Any())
+                .Filter(d => d.IsUnmappable || d.UnmappedMembers.Any() || d.UnpairedEnums.Any())
                 .GroupBy(d => d.MapperData.GetRootMapperData())
-                .Select(g => new IncompleteMappingData
+                .Project(g => new IncompleteMappingData
                 {
                     RootMapperData = g.Key,
                     UnmappableTargetTypes = g
-                        .Where(d => d.IsUnmappable)
-                        .Select(d => d.MapperData)
+                        .Filter(d => d.IsUnmappable)
+                        .Project(d => d.MapperData)
                         .ToList(),
                     UnmappedMembers = g
                         .SelectMany(d => d.UnmappedMembers)

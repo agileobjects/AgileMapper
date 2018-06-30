@@ -178,17 +178,17 @@
 
             var matchingParameters = typeof(TTarget)
                 .GetPublicInstanceConstructors()
-                .Select(ctor => new
+                .Project(ctor => new
                 {
                     Ctor = ctor,
                     MatchingParameters = ctor
                         .GetParameters()
-                        .Where(p =>
+                        .Filter(p =>
                             (ignoreParameterType || (p.ParameterType == typeof(TParam))) &&
                             (ignoreParameterName || (p.Name == name)))
                         .ToArray()
                 })
-                .Where(d => d.MatchingParameters.Any())
+                .Filter(d => d.MatchingParameters.Any())
                 .ToArray();
 
             if (matchingParameters.Length == 0)

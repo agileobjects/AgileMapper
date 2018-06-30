@@ -39,8 +39,8 @@
                 _mapperContext
                     .RuleSets
                     .All
-                    .Where(ruleSet => ruleSet != _mapperContext.RuleSets.Project)
-                    .Select(rs => GetMappingPlan(rs, configurations))
+                    .Filter(ruleSet => ruleSet != _mapperContext.RuleSets.Project)
+                    .Project(rs => GetMappingPlan(rs, configurations))
                     .ToArray());
         }
 

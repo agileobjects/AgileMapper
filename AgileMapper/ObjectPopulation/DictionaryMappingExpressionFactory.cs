@@ -35,7 +35,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var configuredDataSourceFactories = mapperData.MapperContext
                 .UserConfigurations
                 .QueryDataSourceFactories<ConfiguredDictionaryDataSourceFactory>()
-                .Where(dsf => dsf.IsFor(mapperData))
+                .Filter(dsf => dsf.IsFor(mapperData))
                 .ToArray();
 
             if (configuredDataSourceFactories.None())
@@ -208,7 +208,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return configuredDataSourceFactories
                 .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
-                .Select(group =>
+                .Project(group =>
                 {
                     var factory = group.First();
                     var targetMember = factory.TargetDictionaryEntryMember;
@@ -368,7 +368,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return dictionaryType
                 .GetPublicInstanceConstructors()
-                .Select(ctor => new { Ctor = ctor, Parameters = ctor.GetParameters() })
+                .Project(ctor => new { Ctor = ctor, Parameters = ctor.GetParameters() })
                 .First(ctor =>
                     (ctor.Parameters.Length == numberOfParameters) &&
                     (ctor.Parameters[0].ParameterType == firstParameterType))
@@ -460,7 +460,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var memberPopulations = _memberPopulatorFactory
                 .Create(mappingData)
-                .Select(memberPopulation => memberPopulation.GetPopulation())
+                .Project(memberPopulation => memberPopulation.GetPopulation())
                 .ToArray();
 
             if (memberPopulations.None())

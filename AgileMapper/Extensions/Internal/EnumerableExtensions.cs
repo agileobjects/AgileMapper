@@ -23,6 +23,35 @@
             }
         }
 
+        public static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, TResult> projector)
+        {
+            foreach (var item in items)
+            {
+                yield return projector.Invoke(item);
+            }
+        }
+
+        public static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, int, TResult> projector)
+        {
+            var index = 0;
+
+            foreach (var item in items)
+            {
+                yield return projector.Invoke(item, index++);
+            }
+        }
+
+        public static IEnumerable<TItem> Filter<TItem>(this IEnumerable<TItem> items, Func<TItem, bool> predicate)
+        {
+            foreach (var item in items)
+            {
+                if (predicate.Invoke(item))
+                {
+                    yield return item;
+                }
+            }
+        }
+
         [DebuggerStepThrough]
         public static T First<T>(this IList<T> items) => items[0];
 
@@ -177,7 +206,7 @@
         }
 
         [DebuggerStepThrough]
-        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Where(item => item != null);
+        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Filter(item => item != null);
 
         public static T[] Prepend<T>(this IList<T> items, T initialItem)
         {

@@ -271,7 +271,7 @@ namespace AgileObjects.AgileMapper.Members
                 var nonSimpleChildMembers = GlobalContext.Instance
                     .MemberCache
                     .GetTargetMembers(parentMember.Type)
-                    .Where(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
+                    .Filter(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
                     .ToArray();
 
                 if (nonSimpleChildMembers.None())

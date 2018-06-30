@@ -95,7 +95,7 @@
         {
             var toStringMethod = sourceType
                 .GetPublicInstanceMethods("ToString")
-                .Select(m => new
+                .Project(m => new
                 {
                     Method = m,
                     Parameters = m.GetParameters()

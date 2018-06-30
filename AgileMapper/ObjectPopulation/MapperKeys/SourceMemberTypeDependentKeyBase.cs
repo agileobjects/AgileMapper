@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
                 .MapperData
                 .DataSourcesByTargetMember
                 .Values
-                .Select(dataSourceSet => dataSourceSet.SourceMemberTypeTest)
+                .Project(dataSourceSet => dataSourceSet.SourceMemberTypeTest)
                 .WhereNotNull()
                 .ToArray();
 

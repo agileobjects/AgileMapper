@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
     using System.Dynamic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -329,7 +328,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             var updatedCatchHandlers = tryCatchValue
                 .Handlers
-                .Select(handler => handler.Update(
+                .Project(handler => handler.Update(
                     handler.Variable,
                     handler.Filter.Replace(replacements),
                     handler.Body.Replace(replacements)));

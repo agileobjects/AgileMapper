@@ -368,7 +368,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression SourceObject { get; set; }
 
-        public Expression TargetObject { get; }
+        public Expression TargetObject { get; set; }
 
         public Expression EnumerableIndex { get; }
 
