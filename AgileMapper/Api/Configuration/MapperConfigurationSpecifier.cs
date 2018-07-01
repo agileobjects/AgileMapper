@@ -23,12 +23,16 @@
         /// <typeparamref name="TConfiguration"/> instance.
         /// </summary>
         /// <typeparam name="TConfiguration">The <see cref="MapperConfiguration"/> implementation to apply.</typeparam>
-        public void From<TConfiguration>()
+        /// <param name="services">
+        /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
+        /// via the GetService() method.
+        /// </param>
+        public void From<TConfiguration>(params object[] services)
             where TConfiguration : MapperConfiguration, new()
         {
             var configuration = new TConfiguration();
 
-            configuration.ApplyTo(_mapper);
+            Apply(configuration, services);
         }
 
         /// <summary>
@@ -38,7 +42,11 @@
         /// <typeparam name="T">
         /// The type belonging to the Assembly in which to look for <see cref="MapperConfiguration"/>s.
         /// </typeparam>
-        public void FromAssemblyOf<T>()
+        /// <param name="services">
+        /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
+        /// via the GetService() method.
+        /// </param>
+        public void FromAssemblyOf<T>(params object[] services)
         {
             var configurations = typeof(T)
                 .GetAssembly()
@@ -48,8 +56,11 @@
 
             foreach (var configuration in configurations)
             {
-                configuration.ApplyTo(_mapper);
+                Apply(configuration, services);
             }
         }
+
+        private void Apply(MapperConfiguration configuration, object[] services)
+            => configuration.ApplyTo(_mapper, services);
     }
 }

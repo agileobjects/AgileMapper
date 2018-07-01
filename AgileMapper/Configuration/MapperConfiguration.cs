@@ -1,8 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Api;
     using Api.Configuration;
+    using Extensions.Internal;
     using Queryables.Api;
 
     /// <summary>
@@ -10,12 +13,31 @@
     /// </summary>
     public abstract class MapperConfiguration
     {
+        private Dictionary<Type, object> _servicesByType;
         private IMapper _mapper;
 
-        internal void ApplyTo(IMapper mapper)
+        internal void ApplyTo(IMapper mapper, ICollection<object> services)
         {
             _mapper = mapper;
+
+            if (services.Any())
+            {
+                _servicesByType = CreateServiceCache(services);
+            }
+
             Configure();
+        }
+
+        private static Dictionary<Type, object> CreateServiceCache(ICollection<object> services)
+        {
+            var serviceCache = new Dictionary<Type, object>(services.Count);
+
+            foreach (var service in services)
+            {
+                serviceCache[service.GetType()] = service;
+            }
+
+            return serviceCache;
         }
 
         /// <summary>
@@ -23,13 +45,29 @@
         /// </summary>
         protected abstract void Configure();
 
+        /// <summary>
+        /// Get the registered <typeparamref name="TService"/> instance to assist with mapper configuration.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to retrieve.</typeparam>
+        /// <returns>The registered <typeparamref name="TService"/> instance, or null if none is registered.</returns>
+        protected TService GetServiceOrNull<TService>()
+            where TService : class
+        {
+            if (_servicesByType.TryGetValue(typeof(TService), out var service))
+            {
+                return (TService)service;
+            }
+
+            return null;
+        }
+
         #region Configuration Members
 
         /// <summary>
         /// Creates a clone of the mapper being configured including all user configurations.
         /// </summary>
         /// <returns>A cloned copy of the mapper being configured.</returns>
-        protected IMapper CloneSelf() => _mapper.CloneSelf();
+        protected IMapper CreateNewMapper() => _mapper.CloneSelf();
 
         /// <summary>
         /// Create and compile a mapping function for a particular type of mapping of the source type specified by 

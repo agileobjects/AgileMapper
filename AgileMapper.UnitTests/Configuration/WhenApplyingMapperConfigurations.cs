@@ -1,18 +1,20 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
+    using MoreTestClasses;
     using TestClasses;
     using Xunit;
 
     public class WhenApplyingMapperConfigurations
     {
         [Fact]
-        public void ShouldApplyAMapperConfiguration()
+        public void ShouldApplyAGivenMapperConfiguration()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .UseConfiguration.From<PfiToPfsMapperConfiguration>();
+                    .UseConfigurations.From<PfiToPfsMapperConfiguration>();
 
                 PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
             }
@@ -24,10 +26,26 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .UseConfiguration.FromAssemblyOf<WhenApplyingMapperConfigurations>();
+                    .UseConfigurations.FromAssemblyOf<WhenApplyingMapperConfigurations>();
 
                 PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
                 PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+            }
+        }
+
+        [Fact]
+        public void ShouldProvideRegisteredServicesToMapperConfigurations()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var mappersByName = new Dictionary<string, IMapper>();
+
+                mapper.WhenMapping
+                    .UseConfigurations.FromAssemblyOf<AnimalBase>(mappersByName);
+
+                ServiceDictionaryMapperConfiguration
+                    .VerifyConfigured(mappersByName)
+                    .ShouldBeTrue();
             }
         }
 
@@ -55,7 +73,7 @@
             }
         }
 
-        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class PfsToPfiMapperConfiguration : MapperConfiguration
         {
             protected override void Configure()
