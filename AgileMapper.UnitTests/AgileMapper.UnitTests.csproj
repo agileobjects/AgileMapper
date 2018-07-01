@@ -102,6 +102,7 @@
     <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
     <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
+    <Compile Include="Configuration\WhenApplyingMapperSetups.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToEnumerableMembers.cs" />
