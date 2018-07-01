@@ -32,6 +32,7 @@
         private bool? _elementsAreIdentifiable;
         private ParameterExpression _collectionDataVariable;
         private ParameterExpression _counterVariable;
+        private ParameterExpression _targetVariable;
 
         public EnumerablePopulationBuilder(ObjectMapperData mapperData)
         {
@@ -48,14 +49,14 @@
         static EnumerablePopulationBuilder()
         {
             var linqSelectMethods = typeof(Enumerable)
-                .GetPublicStaticMethods("Select")
-                .Select(m => new
+                .GetPublicStaticMethods(nameof(Enumerable.Select))
+                .Project(m => new
                 {
                     Method = m,
                     Parameters = m.GetParameters()
                 })
-                .Where(m => m.Parameters.Length == 2)
-                .Select(m => new
+                .Filter(m => m.Parameters.Length == 2)
+                .Project(m => new
                 {
                     m.Method,
                     ProjectionLambdaParameterCount = m.Parameters[1].ParameterType.GetGenericTypeArguments().Length
@@ -69,7 +70,7 @@
                 .First(m => m.ProjectionLambdaParameterCount == 3).Method;
 
             _queryableSelectMethod = typeof(Queryable)
-                .GetPublicStaticMethods("Select")
+                .GetPublicStaticMethods(nameof(Enumerable.Select))
                 .First(m =>
                     (m.GetParameters().Length == 2) &&
                     (m.GetParameters()[1].ParameterType.GetGenericTypeArguments()[0].GetGenericTypeArguments().Length == 2));
@@ -244,7 +245,17 @@
 
         public EnumerableTypeHelper TargetTypeHelper { get; }
 
-        public ParameterExpression TargetVariable { get; private set; }
+        public ParameterExpression TargetVariable
+        {
+            get => _targetVariable;
+            set
+            {
+                if (_targetVariable == null)
+                {
+                    _targetVariable = value;
+                }
+            }
+        }
 
         public void AssignSourceVariableFromSourceObject()
         {
@@ -297,6 +308,11 @@
 
         private void AssignTargetVariableTo(Expression value)
         {
+            if (TargetVariable != null)
+            {
+                return;
+            }
+
             TargetVariable = Context.GetTargetParameterFor(value.Type);
 
             _populationExpressions.Add(TargetVariable.AssignTo(value));

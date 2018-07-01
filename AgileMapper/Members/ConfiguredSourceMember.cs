@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Caching;
     using Extensions.Internal;
@@ -10,13 +11,16 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {
+        private readonly Expression _rootValue;
         private readonly IList<string> _matchedTargetMemberJoinedNames;
         private readonly MapperContext _mapperContext;
         private readonly Member[] _childMembers;
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
+        private readonly bool _isMatchedToRootTarget;
 
         public ConfiguredSourceMember(Expression value, IMemberMapperData mapperData)
             : this(
+                  value,
                   value.Type,
                   value.Type.IsEnumerable(),
                   value.Type.IsSimple(),
@@ -24,10 +28,12 @@ namespace AgileObjects.AgileMapper.Members
                   mapperData.TargetMember.JoinedNames,
                   mapperData.MapperContext)
         {
+            _isMatchedToRootTarget = mapperData.TargetMember.IsRoot;
         }
 
         private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(
+                  parent._rootValue,
                   childMember.Type,
                   childMember.IsEnumerable,
                   childMember.IsSimple,
@@ -41,6 +47,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private ConfiguredSourceMember(
+            Expression rootValue,
             Type type,
             bool isEnumerable,
             bool isSimple,
@@ -49,6 +56,7 @@ namespace AgileObjects.AgileMapper.Members
             MapperContext mapperContext,
             Member[] childMembers = null)
         {
+            _rootValue = rootValue;
             Type = type;
             IsEnumerable = isEnumerable;
             IsSimple = isSimple;
@@ -72,6 +80,8 @@ namespace AgileObjects.AgileMapper.Members
             _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>();
         }
 
+        public bool IsRoot => false;
+
         public Type Type { get; }
 
         public Type ElementType { get; }
@@ -93,10 +103,21 @@ namespace AgileObjects.AgileMapper.Members
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
-            var otherConfiguredMember = (ConfiguredSourceMember)otherMember;
+            if (!(otherMember is ConfiguredSourceMember otherConfiguredMember))
+            {
+                return this;
+            }
+
             var relativeMemberChain = _childMembers.RelativeTo(otherConfiguredMember._childMembers);
 
+            if ((relativeMemberChain == _childMembers) ||
+                 relativeMemberChain.SequenceEqual(_childMembers))
+            {
+                return this;
+            }
+
             return new ConfiguredSourceMember(
+                _rootValue,
                 Type,
                 IsEnumerable,
                 IsSimple,
@@ -127,7 +148,14 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public Expression GetQualifiedAccess(Expression parentInstance)
-            => _childMembers.GetQualifiedAccess(parentInstance);
+        {
+            if (_isMatchedToRootTarget && _childMembers.HasOne())
+            {
+                return _rootValue;
+            }
+
+            return _childMembers.GetQualifiedAccess(parentInstance);
+        }
 
         public IQualifiedMember WithType(Type runtimeType)
         {
@@ -140,6 +168,7 @@ namespace AgileObjects.AgileMapper.Members
             var isSimple = !isEnumerable && (IsSimple || runtimeType.IsSimple());
 
             return new ConfiguredSourceMember(
+                _rootValue,
                 runtimeType,
                 isEnumerable,
                 isSimple,

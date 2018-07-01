@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Extensions.Internal;
     using Members;
     using ReadableExpressions;
 
@@ -19,6 +20,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
+            if (HasConfiguredRootDataSources(mappingData.MapperData, out var configuredRootDataSources) &&
+                configuredRootDataSources.Any(ds => ds.SourceMember.IsEnumerable))
+            {
+                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+            }
+
             nullMappingBlock = Expression.Block(
                 ReadableExpression.Comment("No source enumerable available"),
                 mappingData.MapperData.GetFallbackCollectionValue());
@@ -26,11 +33,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             return true;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
+        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            yield return mappingData.MappingContext.RuleSet.EnumerablePopulationStrategy.GetPopulation(
-                mappingData.MapperData.EnumerablePopulationBuilder,
-                mappingData);
+            if (!context.MapperData.SourceMember.IsEnumerable)
+            {
+                yield break;
+            }
+
+            yield return context.RuleSet.EnumerablePopulationStrategy.GetPopulation(
+                context.MapperData.EnumerablePopulationBuilder,
+                context.MappingData);
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)

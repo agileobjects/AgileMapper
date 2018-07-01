@@ -21,7 +21,7 @@
                 variableName[0] +
                 string.Join(
                     string.Empty,
-                    variableName.ToCharArray().Skip(1).Where(char.IsUpper));
+                    variableName.ToCharArray().Skip(1).Filter(char.IsUpper));
 
             shortVariableName = shortVariableName.ToLowerInvariant();
 
@@ -78,7 +78,7 @@
 
             variableName += string.Join(
                 string.Empty,
-                genericTypeArguments.Select(arg => "_" + arg.GetVariableNameInPascalCase()));
+                genericTypeArguments.Project(arg => "_" + arg.GetVariableNameInPascalCase()));
 
             return variableName;
         }
@@ -157,7 +157,7 @@
             return type.IsValueType() && type.IsFromBcl();
         }
 
-        public static bool IsDictionary(this Type type) => IsDictionary(type, out var _);
+        public static bool IsDictionary(this Type type) => IsDictionary(type, out _);
 
         public static bool IsDictionary(this Type type, out KeyValuePair<Type, Type> keyAndValueTypes)
         {
@@ -209,8 +209,8 @@
 
             return Constants
                 .NumericTypeMaxValuesByType
-                .Where(kvp => kvp.Value < typeMaxValue)
-                .Select(kvp => kvp.Key)
+                .Filter(kvp => kvp.Value < typeMaxValue)
+                .Project(kvp => kvp.Key)
                 .ToArray();
         }
 
@@ -258,7 +258,7 @@
         }
 
         private static IEnumerable<long> GetEnumValues(Type enumType)
-            => Enum.GetValues(enumType).Cast<object>().Select(Convert.ToInt64);
+            => Enum.GetValues(enumType).Cast<object>().Project(Convert.ToInt64);
 
         public static bool StartsWith(this string value, char character) => value[0] == character;
 

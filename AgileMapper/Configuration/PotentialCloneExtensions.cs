@@ -29,8 +29,8 @@
             }
 
             var replacedItem = cloneableItems
-                .Where(item => item.IsClone)
-                .Select((item, index) => new { Item = item, Index = index })
+                .Filter(item => item.IsClone)
+                .Project((item, index) => new { Item = item, Index = index })
                 .FirstOrDefault(d => newItem.IsReplacementFor(d.Item));
 
             if (replacedItem != null)

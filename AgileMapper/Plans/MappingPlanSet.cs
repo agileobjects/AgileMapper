@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions.Internal;
 
     /// <summary>
     /// Contains sets of details of mapping plans for mappings between a particular source and target types,
@@ -22,7 +23,7 @@
             return new MappingPlanSet(mapperContext
                 .ObjectMapperFactory
                 .RootMappers
-                .Select(mapper => new MappingPlan(mapper))
+                .Project(mapper => new MappingPlan(mapper))
                 .ToArray());
         }
 
@@ -38,7 +39,7 @@
         {
             return string.Join(
                 Environment.NewLine + Environment.NewLine,
-                mappingPlans._mappingPlans.Select(plan => plan.ToString()));
+                mappingPlans._mappingPlans.Project(plan => plan.ToString()));
         }
 
         /// <summary>

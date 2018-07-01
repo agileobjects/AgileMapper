@@ -145,5 +145,13 @@
             result.ShouldNotBeNull();
             result.ShouldBeEmpty();
         }
+
+        [Fact]
+        public void ShouldHandleANullSource()
+        {
+            var result = Mapper.Map(default(PublicProperty<string>)).ToANew<List<Person>>();
+
+            result.ShouldBeNull();
+        }
     }
 }

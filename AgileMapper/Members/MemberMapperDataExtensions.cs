@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
             => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
 
         public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
-            => IsEntity(mapperData, mapperData.TargetType, out var _);
+            => IsEntity(mapperData, mapperData.TargetType, out _);
 
         public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
         {
@@ -204,7 +204,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if ((typePair.TargetType != typePair.SourceType) &&
                  targetMember.LeafMember.IsEntityId() &&
-                 configuredDataSourcesFactory.Invoke(typePair).ToArray().None())
+                 configuredDataSourcesFactory.Invoke(typePair).None())
             {
                 reason = "Entity key member";
                 return true;
@@ -271,7 +271,7 @@ namespace AgileObjects.AgileMapper.Members
                 var nonSimpleChildMembers = GlobalContext.Instance
                     .MemberCache
                     .GetTargetMembers(parentMember.Type)
-                    .Where(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
+                    .Filter(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
                     .ToArray();
 
                 if (nonSimpleChildMembers.None())
@@ -481,6 +481,9 @@ namespace AgileObjects.AgileMapper.Members
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
+            => GetAsCall(subject, null, contextTypes);
+
+        public static Expression GetAsCall(this Expression subject, Expression isForDerivedTypeArgument, params Type[] contextTypes)
         {
             if (subject.Type.IsGenericType() &&
                 subject.Type.GetGenericTypeArguments().SequenceEqual(contextTypes))
@@ -493,29 +496,38 @@ namespace AgileObjects.AgileMapper.Members
                 return GetAsCall(subject, typeof(IMappingData).GetPublicInstanceMethod("As"), contextTypes);
             }
 
-            var sourceIsStruct = contextTypes[0].IsValueType();
-
-            if (sourceIsStruct)
+            if (isForDerivedTypeArgument == null)
             {
-                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithTargetType"), contextTypes[1]);
+                isForDerivedTypeArgument = true.ToConstantExpression();
             }
 
-            var targetIsStruct = contextTypes[1].IsValueType();
+            MethodInfo conversionMethod;
 
-            if (targetIsStruct)
+            if (contextTypes[0].IsValueType())
             {
-                return GetAsCall(subject, subject.Type.GetPublicInstanceMethod("WithSourceType"), contextTypes[0]);
+                conversionMethod = subject.Type.GetPublicInstanceMethod("WithTargetType");
+            }
+            else if (contextTypes[1].IsValueType())
+            {
+                conversionMethod = subject.Type.GetPublicInstanceMethod("WithSourceType");
+            }
+            else
+            {
+                conversionMethod = typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As");
             }
 
-            return GetAsCall(subject, typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As"), contextTypes);
+            return GetAsCall(subject, conversionMethod, contextTypes, isForDerivedTypeArgument);
         }
 
         private static Expression GetAsCall(
             Expression subject,
             MethodInfo asMethod,
-            params Type[] typeArguments)
+            Type[] typeArguments,
+            Expression isForDerivedTypeArgument = null)
         {
-            return Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments));
+            return (isForDerivedTypeArgument != null)
+                ? Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments), isForDerivedTypeArgument)
+                : Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments));
         }
 
         public static Expression GetSourceAccess(

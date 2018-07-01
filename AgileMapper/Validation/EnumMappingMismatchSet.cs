@@ -11,7 +11,7 @@
 
     internal class EnumMappingMismatchSet
     {
-        public static readonly IEqualityComparer<EnumMappingMismatchSet> Comparer = new MismatchSetComparer();
+        public static readonly IEqualityComparer<EnumMappingMismatchSet> Comparer = default(MismatchSetComparer);
 
         private static readonly EnumMappingMismatchSet _emptySet =
             new EnumMappingMismatchSet(Enumerable<EnumMappingMismatch>.EmptyArray);
@@ -32,16 +32,16 @@
             IMemberMapperData mapperData)
         {
             var sourceEnumData = dataSources
-                .Select(ds => new
+                .Project(ds => new
                 {
                     DataSource = ds,
                     EnumType = ds.SourceMember.Type.GetNonNullableType()
                 })
                 .GroupBy(dss => dss.EnumType)
-                .Select(dsGroup => new
+                .Project(dsGroup => new
                 {
                     EnumType = dsGroup.Key,
-                    SourceMembers = dsGroup.Select(ds => ds.DataSource.SourceMember).ToArray()
+                    SourceMembers = dsGroup.Project(ds => ds.DataSource.SourceMember).ToArray()
                 })
                 .ToArray();
 
@@ -49,15 +49,15 @@
             var targetEnumNames = Enum.GetNames(targetEnumType);
 
             var mappingMismatches = sourceEnumData
-                .Where(d => d.EnumType != targetEnumType)
-                .Select(d => EnumMappingMismatch.For(
+                .Filter(d => d.EnumType != targetEnumType)
+                .Project(d => EnumMappingMismatch.For(
                     d.EnumType,
                     d.SourceMembers,
                     targetEnumType,
                     targetEnumNames,
                     targetMember,
                     mapperData))
-                .Where(mm => mm.Any)
+                .Filter(mm => mm.Any)
                 .ToArray();
 
             return mappingMismatches.Any() ? new EnumMappingMismatchSet(mappingMismatches) : _emptySet;
@@ -75,7 +75,7 @@
         {
             var warningsText = string.Join(
                 Environment.NewLine + Environment.NewLine,
-                _mappingMismatches.Select(mm => mm.Warning));
+                _mappingMismatches.Project(mm => mm.Warning));
 
             return (warningsText != string.Empty)
                 ? ReadableExpression.Comment(warningsText)
@@ -84,7 +84,7 @@
 
         #region Helper Classes
 
-        private class MismatchSetComparer : IEqualityComparer<EnumMappingMismatchSet>
+        private struct MismatchSetComparer : IEqualityComparer<EnumMappingMismatchSet>
         {
             public bool Equals(EnumMappingMismatchSet x, EnumMappingMismatchSet y)
             {
@@ -181,7 +181,7 @@
                 }
 
                 var mismatches = unmatchedSourceValues
-                    .Select(value => $" - {sourceEnumType.Name}.{value} matches no {targetEnumType.Name}")
+                    .Project(value => $" - {sourceEnumType.Name}.{value} matches no {targetEnumType.Name}")
                     .ToArray();
 
                 return mismatches;
@@ -216,7 +216,7 @@
             public string TargetMemberPath { get; }
 
             public string SourceMemberPaths =>
-                string.Join(" / ", _sourceMembers.Select(sm => sm.GetFriendlySourcePath(_rootMapperData)));
+                string.Join(" / ", _sourceMembers.Project(sm => sm.GetFriendlySourcePath(_rootMapperData)));
 
             public string Warning => _warning ?? (_warning = CreateWarning());
 

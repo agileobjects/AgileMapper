@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.Members.Sources
         public FixedMembersMembersSource(
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            int dataSourceIndex)
+            int dataSourceIndex = 0)
         {
             _sourceMember = sourceMember;
             _targetMember = targetMember;

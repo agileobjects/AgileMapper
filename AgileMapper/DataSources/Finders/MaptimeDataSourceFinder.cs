@@ -4,11 +4,11 @@
     using Extensions.Internal;
 
 
-    internal class MaptimeDataSourceFinder : IDataSourceFinder
+    internal struct MaptimeDataSourceFinder : IDataSourceFinder
     {
         private static readonly IMaptimeDataSourceFactory[] _mapTimeDataSourceFactories =
         {
-            new DictionaryDataSourceFactory()
+            default(DictionaryDataSourceFactory)
         };
 
         public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)

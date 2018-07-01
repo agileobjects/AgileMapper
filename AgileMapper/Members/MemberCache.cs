@@ -45,13 +45,13 @@
 
                 var constructorParameterNames = key.Type
                     .GetPublicInstanceConstructors()
-                    .SelectMany(ctor => ctor.GetParameters().Select(p => p.Name))
+                    .SelectMany(ctor => ctor.GetParameters().Project(p => p.Name))
                     .Distinct()
                     .ToArray();
 
                 var fieldsAndProperties = fields
                     .Concat(properties)
-                    .Select(m =>
+                    .Project(m =>
                     {
                         m.HasMatchingCtorParameter = constructorParameterNames.Contains(m.Name, OrdinalIgnoreCase);
                         return m;
@@ -68,8 +68,8 @@
         {
             return targetType
                 .GetPublicInstanceFields()
-                .Where(filter)
-                .Select(Member.Field);
+                .Filter(filter)
+                .Project(Member.Field);
         }
 
         private static bool All(FieldInfo field) => true;
@@ -82,8 +82,8 @@
         {
             return targetType
                 .GetPublicInstanceProperties()
-                .Where(filter)
-                .Select(Member.Property);
+                .Filter(filter)
+                .Project(Member.Property);
         }
 
         private static bool All(PropertyInfo property) => true;
@@ -101,8 +101,8 @@
         {
             return targetType
                 .GetPublicInstanceMethods()
-                .Where(filter)
-                .Select(memberFactory);
+                .Filter(filter)
+                .Project(memberFactory);
         }
 
         private static readonly string[] _methodsToIgnore = { "GetHashCode", "GetType" };

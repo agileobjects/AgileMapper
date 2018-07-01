@@ -8,10 +8,10 @@
     {
         private static readonly IDataSourceFinder[] _finders =
         {
-            new ConfiguredDataSourceFinder(),
-            new MaptimeDataSourceFinder(),
-            new SourceMemberDataSourceFinder(),
-            new MetaMemberDataSourceFinder()
+            default(ConfiguredDataSourceFinder),
+            default(MaptimeDataSourceFinder),
+            default(SourceMemberDataSourceFinder),
+            default(MetaMemberDataSourceFinder)
         };
 
         public static DataSourceSet FindFor(IChildMemberMappingData childMappingData)

@@ -4,10 +4,8 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Linq.Expressions;
     using Extensions.Internal;
 
-    internal class FallbackNonSimpleTypeValueConverter : IValueConverter
+    internal struct FallbackNonSimpleTypeValueConverter : IValueConverter
     {
-        public static readonly IValueConverter Instance = new FallbackNonSimpleTypeValueConverter();
-
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             if (nonNullableTargetType.IsSimple())

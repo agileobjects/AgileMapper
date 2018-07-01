@@ -54,10 +54,10 @@
         }
 
         public void AddNamePrefixes(IEnumerable<string> prefixes)
-            => AddNameMatchers(prefixes.Select(p => "^" + p + "(.+)$").ToArray());
+            => AddNameMatchers(prefixes.Project(p => "^" + p + "(.+)$").ToArray());
 
         public void AddNameSuffixes(IEnumerable<string> suffixes)
-            => AddNameMatchers(suffixes.Select(s => "^(.+)" + s + "$").ToArray());
+            => AddNameMatchers(suffixes.Project(s => "^(.+)" + s + "$").ToArray());
 
         public void AddNameMatchers(IList<string> patterns)
         {
@@ -193,7 +193,7 @@
             potentialIds.InsertRange(0, new[] { "Id", "Identifier" });
 
             return _customNameMatchers
-                .Select(customNameMatcher => customNameMatcher.Match(member.Name))
+                .Project(customNameMatcher => customNameMatcher.Match(member.Name))
                 .Any(memberNameMatch =>
                     memberNameMatch.Success &&
                     potentialIds.Contains(GetMemberName(memberNameMatch)));

@@ -4,9 +4,9 @@
     using Members;
     using Members.Dictionaries;
 
-    internal class ConfiguredDictionaryDataSourceFactory : ConfiguredDataSourceFactory
+    internal class ConfiguredDictionaryEntryDataSourceFactory : ConfiguredDataSourceFactory
     {
-        public ConfiguredDictionaryDataSourceFactory(
+        public ConfiguredDictionaryEntryDataSourceFactory(
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo dataSourceLambda,
             DictionaryTargetMember targetDictionaryEntryMember)
@@ -32,7 +32,7 @@
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
-            return otherItem is ConfiguredDictionaryDataSourceFactory otherDictionaryItem &&
+            return otherItem is ConfiguredDictionaryEntryDataSourceFactory otherDictionaryItem &&
                    TargetDictionaryEntryMember.LeafMember.Equals(otherDictionaryItem.TargetDictionaryEntryMember.LeafMember);
         }
     }

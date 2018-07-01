@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using Extensions.Internal;
     using ObjectPopulation;
 
     /// <summary>
@@ -24,7 +24,7 @@
             {
                 _mappingPlanFunctions.AddRange(cachedMapper
                     .RecursionMapperFuncs
-                    .Select(mf => new RecursionMapperMappingPlanFunction(mf)));
+                    .Project(mf => new RecursionMapperMappingPlanFunction(mf)));
             }
         }
 
@@ -40,7 +40,7 @@
         {
             return string.Join(
                 Environment.NewLine + Environment.NewLine,
-                mappingPlan._mappingPlanFunctions.Select(pd => pd.GetDescription()));
+                mappingPlan._mappingPlanFunctions.Project(pd => pd.GetDescription()));
         }
 
         /// <summary>

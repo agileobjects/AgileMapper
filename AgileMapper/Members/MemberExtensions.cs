@@ -16,15 +16,15 @@
     internal static class MemberExtensions
     {
         public static string GetFullName(this IEnumerable<Member> members)
-            => string.Join(string.Empty, members.Select(m => m.JoiningName));
+            => string.Join(string.Empty, members.Project(m => m.JoiningName));
 
         public static string GetFriendlySourcePath(this IQualifiedMember sourceMember, IMemberMapperData rootMapperData)
-            => GetMemberPath(sourceMember, rootMapperData.SourceMember);
+            => GetFriendlyMemberPath(sourceMember, rootMapperData.SourceMember);
 
         public static string GetFriendlyTargetPath(this IQualifiedMember targetMember, IMemberMapperData rootMapperData)
-            => GetMemberPath(targetMember, rootMapperData.TargetMember);
+            => GetFriendlyMemberPath(targetMember, rootMapperData.TargetMember);
 
-        private static string GetMemberPath(IQualifiedMember member, IQualifiedMember rootMember)
+        public static string GetFriendlyMemberPath(this IQualifiedMember member, IQualifiedMember rootMember)
         {
             var rootTypeName = rootMember.GetFriendlyTypeName();
             var memberPath = member.GetPath();
@@ -57,6 +57,13 @@
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
+            if (member.MemberChain.Length < 2)
+            {
+                // Either the root member, QualifiedMember.All or QualifiedMember.None:
+                reason = null;
+                return false;
+            }
+
             if (IsStructNonSimpleMember(member))
             {
                 reason = member.Type.GetFriendlyName() + " member on a struct";
@@ -177,6 +184,12 @@
         public static Member[] RelativeTo(this Member[] memberChain, Member[] otherMemberChain)
         {
             var otherMembersLeafMember = otherMemberChain.Last();
+
+            if (memberChain.HasOne() && (memberChain[0] == otherMembersLeafMember))
+            {
+                return memberChain;
+            }
+
             var startIndex = memberChain.Length - 1;
 
             if ((memberChain.Length > 2) &&
@@ -246,10 +259,10 @@
                 mapperContext);
         }
 
-        public static QualifiedMember ToTargetMember(this Expression memberAccess, MapperContext mapperContext)
+        public static QualifiedMember ToTargetMember(this LambdaExpression memberAccess, MapperContext mapperContext)
         {
             return CreateMember(
-                memberAccess,
+                memberAccess.Body,
                 Member.RootTarget,
                 GlobalContext.Instance.MemberCache.GetTargetMembers,
                 mapperContext);

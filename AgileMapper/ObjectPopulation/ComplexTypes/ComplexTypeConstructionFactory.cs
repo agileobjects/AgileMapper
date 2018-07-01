@@ -102,9 +102,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             var greediestAvailableConstructor = constructors.Any()
                 ? constructors
-                    .Where(IsNotCopyConstructor)
-                    .Select(ctor => CreateConstructorData(ctor, key))
-                    .Where(ctor => ctor.CanBeConstructed)
+                    .Filter(IsNotCopyConstructor)
+                    .Project(ctor => CreateConstructorData(ctor, key))
+                    .Filter(ctor => ctor.CanBeConstructed)
                     .OrderByDescending(ctor => ctor.NumberOfParameters)
                     .FirstOrDefault()
                 : null;
@@ -143,7 +143,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var ctorData = new ConstructorData(
                 ctor,
                 ctor.GetParameters()
-                    .Select(p =>
+                    .Project(p =>
                     {
                         var parameterMapperData = new ChildMemberMapperData(
                             mapperData.TargetMember.Append(Member.ConstructorParameter(p)),

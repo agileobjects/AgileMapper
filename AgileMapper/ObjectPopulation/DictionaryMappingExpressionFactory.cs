@@ -34,8 +34,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var configuredDataSourceFactories = mapperData.MapperContext
                 .UserConfigurations
-                .QueryDataSourceFactories<ConfiguredDictionaryDataSourceFactory>()
-                .Where(dsf => dsf.IsFor(mapperData))
+                .QueryDataSourceFactories<ConfiguredDictionaryEntryDataSourceFactory>()
+                .Filter(dsf => dsf.IsFor(mapperData))
                 .ToArray();
 
             if (configuredDataSourceFactories.None())
@@ -203,12 +203,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static DictionaryTargetMember[] GetConfiguredTargetMembers(
-            IEnumerable<ConfiguredDictionaryDataSourceFactory> configuredDataSourceFactories,
+            IEnumerable<ConfiguredDictionaryEntryDataSourceFactory> configuredDataSourceFactories,
             IList<DictionaryTargetMember> targetMembersFromSource)
         {
             return configuredDataSourceFactories
                 .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
-                .Select(group =>
+                .Project(group =>
                 {
                     var factory = group.First();
                     var targetMember = factory.TargetDictionaryEntryMember;
@@ -270,13 +270,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
+        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            var mapperData = mappingData.MapperData;
+            var mapperData = context.MapperData;
 
             if (!mapperData.TargetMember.IsDictionary)
             {
-                yield return GetDictionaryPopulation(mappingData);
+                yield return GetDictionaryPopulation(context.MappingData);
                 yield break;
             }
 
@@ -292,13 +292,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 assignmentFactory = GetMappedDictionaryAssignment;
             }
-            else
+            else if (context.InstantiateLocalVariable)
             {
                 assignmentFactory = (dsm, md) => GetParameterlessDictionaryAssignment(md);
             }
+            else
+            {
+                assignmentFactory = null;
+            }
 
-            var population = GetDictionaryPopulation(mappingData);
-            var assignment = assignmentFactory.Invoke(sourceDictionaryMember, mappingData);
+            var population = GetDictionaryPopulation(context.MappingData);
+            var assignment = assignmentFactory?.Invoke(sourceDictionaryMember, context.MappingData);
 
             yield return assignment;
             yield return population;
@@ -324,7 +328,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                  ((cloneConstructor = GetDictionaryCloneConstructor(mapperData)) != null);
         }
 
-        private static ConstructorInfo GetDictionaryCloneConstructor(IBasicMapperData mapperData)
+        private static ConstructorInfo GetDictionaryCloneConstructor(ITypePair mapperData)
         {
             var dictionaryTypes = mapperData.TargetType.GetDictionaryTypes();
             var dictionaryInterfaceType = typeof(IDictionary<,>).MakeGenericType(dictionaryTypes.Key, dictionaryTypes.Value);
@@ -368,7 +372,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return dictionaryType
                 .GetPublicInstanceConstructors()
-                .Select(ctor => new { Ctor = ctor, Parameters = ctor.GetParameters() })
+                .Project(ctor => new { Ctor = ctor, Parameters = ctor.GetParameters() })
                 .First(ctor =>
                     (ctor.Parameters.Length == numberOfParameters) &&
                     (ctor.Parameters[0].ParameterType == firstParameterType))
@@ -460,7 +464,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var memberPopulations = _memberPopulatorFactory
                 .Create(mappingData)
-                .Select(memberPopulation => memberPopulation.GetPopulation())
+                .Project(memberPopulation => memberPopulation.GetPopulation())
                 .ToArray();
 
             if (memberPopulations.None())

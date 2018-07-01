@@ -388,7 +388,7 @@
                 });
 
             var enumPairsConversion = sourceEnumValues
-                .Select(sv => new
+                .Project(sv => new
                 {
                     SourceValue = sv,
                     PairedValue = enumPairs[sv]
@@ -414,7 +414,7 @@
         }
 
         private static IList<MemberExpression> GetEnumValues(Type enumType)
-            => enumType.GetPublicStaticFields().Select(f => Expression.Field(null, f)).ToList();
+            => enumType.GetPublicStaticFields().Project(f => Expression.Field(null, f)).ToList();
 
         private static Expression GetNumericToEnumConversion(
             Expression sourceValue,
@@ -510,7 +510,7 @@
             var validEnumValues = Enum
                 .GetValues(nonNullableTargetEnumType)
                 .Cast<object>()
-                .Select(v => Convert.ChangeType(v, underlyingEnumType).ToString())
+                .Project(v => Convert.ChangeType(v, underlyingEnumType).ToString())
                 .ToArray()
                 .ToConstantExpression(typeof(ICollection<string>));
 

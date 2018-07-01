@@ -155,7 +155,7 @@
         public void Add(EnumMemberPair enumPairing) => EnumPairings.Add(enumPairing);
 
         public IEnumerable<EnumMemberPair> GetEnumPairingsFor(Type sourceEnumType, Type targetEnumType)
-            => _enumPairings?.Where(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.Empty;
+            => _enumPairings?.Filter(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.Empty;
 
         #endregion
 
@@ -175,14 +175,24 @@
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
-            ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
-            ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
+            if (!dataSourceFactory.TargetMember.IsRoot)
+            {
+                ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
+                ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
+            }
 
             DataSourceFactories.AddSortFilter(dataSourceFactory);
+
+            if (!HasConfiguredRootDataSources && dataSourceFactory.TargetMember.IsRoot)
+            {
+                HasConfiguredRootDataSources = true;
+            }
         }
 
+        public bool HasConfiguredRootDataSources { get; private set; }
+
         public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
-            => QueryDataSourceFactories(mapperData).Select(dsf => dsf.Create(mapperData)).ToArray();
+            => QueryDataSourceFactories(mapperData).Project(dsf => dsf.Create(mapperData)).ToArray();
 
         public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IBasicMapperData mapperData)
             => _dataSourceFactories?.FindMatches(mapperData) ?? Enumerable<ConfiguredDataSourceFactory>.Empty;
@@ -252,7 +262,7 @@
 
         #region Validation
 
-        internal void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
+        private void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
         {
             if (ignoredMember.ConfigInfo.TargetMemberIsUnmappable(
                 ignoredMember.TargetMember,

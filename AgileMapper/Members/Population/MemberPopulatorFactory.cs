@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
     using Configuration;
     using DataSources.Finders;
@@ -16,7 +15,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             GlobalContext.Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
-                .Select(tm => mapperData.TargetMember.Append(tm)));
+                .Project(tm => mapperData.TargetMember.Append(tm)));
 
         private readonly Func<ObjectMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
 
@@ -29,7 +28,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             return _targetMembersFactory
                 .Invoke(mappingData.MapperData)
-                .Select(tm =>
+                .Project(tm =>
                 {
                     var memberPopulation = Create(tm, mappingData);
 

@@ -20,7 +20,8 @@
         {
             if (childMapperData.Context.IsStandalone)
             {
-                conversion = childMapperData.DeclaredTypeMapperData
+                conversion = childMapperData
+                    .DeclaredTypeMapperData
                     .GetAsCall(childMapperData.SourceType, childMapperData.TargetType);
 
                 return true;
@@ -30,7 +31,7 @@
             return false;
         }
 
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static Expression ForChild(
             MappingValues mappingValues,
             int dataSourceIndex,

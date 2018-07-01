@@ -8,7 +8,6 @@
     using Api;
     using Api.Configuration;
     using Extensions.Internal;
-    using Members;
     using ObjectPopulation;
 
     internal class MappingExecutor<TSource> :
@@ -169,7 +168,7 @@
 
             var queryString = string.Join(
                 "&",
-                flattened.Select(kvp => Uri.EscapeDataString(kvp.Key) + "=" + Uri.EscapeDataString(kvp.Value)));
+                flattened.Project(kvp => Uri.EscapeDataString(kvp.Key) + "=" + Uri.EscapeDataString(kvp.Value)));
 
             return queryString.Replace(".", "%2E");
         }

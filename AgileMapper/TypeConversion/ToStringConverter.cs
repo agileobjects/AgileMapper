@@ -8,10 +8,8 @@
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal class ToStringConverter : IValueConverter
+    internal struct ToStringConverter : IValueConverter
     {
-        public static readonly IValueConverter Instance = new ToStringConverter();
-
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
             => nonNullableTargetType == typeof(string);
 
@@ -21,7 +19,7 @@
                    (nonNullableType == typeof(object)) ||
                     nonNullableType.IsEnum() ||
                    (nonNullableType == typeof(char)) ||
-                    HasToStringOperator(nonNullableType, out var _);
+                    HasToStringOperator(nonNullableType, out _);
         }
 
         private static bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)
@@ -68,12 +66,11 @@
 
         #region Byte[] Conversion
 
-        private static readonly MethodInfo _toBase64String = typeof(Convert)
-            .GetPublicStaticMethod("ToBase64String", parameterCount: 1);
-
         private static Expression GetByteArrayToBase64StringConversion(Expression sourceValue)
         {
-            return Expression.Call(_toBase64String, sourceValue);
+            return Expression.Call(
+                typeof(Convert).GetPublicStaticMethod(nameof(Convert.ToBase64String), parameterCount: 1),
+                sourceValue);
         }
 
         #endregion
@@ -98,7 +95,7 @@
         {
             var toStringMethod = sourceType
                 .GetPublicInstanceMethods("ToString")
-                .Select(m => new
+                .Project(m => new
                 {
                     Method = m,
                     Parameters = m.GetParameters()

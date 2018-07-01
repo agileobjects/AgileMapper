@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq.Expressions;
+    using AgileMapper.Extensions;
     using AgileMapper.Members;
     using TestClasses;
     using Xunit;
@@ -324,6 +325,60 @@
                         .To(p => p.Name));
 
                 result.ShouldBeNull();
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/64
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new { Value1 = 8392, Value = new { Value2 = 5482 } };
+
+                var result = source
+                    .MapUsing(mapper)
+                    .ToANew<PublicTwoFields<int, int>>(cfg => cfg
+                        .Map((s, ptf) => s.Value)
+                        .ToRootTarget());
+
+                result.Value1.ShouldBe(8392);
+                result.Value2.ShouldBe(5482);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceObjectMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source1 = new PublicProperty<object>
+                {
+                    Value = new PublicField<string> { Value = "Hello!" }
+                };
+
+                var result1 = mapper
+                    .Map(source1)
+                    .ToANew<PublicProperty<string>>(cfg => cfg
+                        .Map((s, t) => s.Value)
+                        .ToRootTarget());
+
+                result1.Value.ShouldBe("Hello!");
+
+                var source2 = new PublicProperty<object>
+                {
+                    Value = new PublicProperty<string> { Value = "Goodbye!" }
+                };
+
+                var result2 = mapper
+                    .Map(source2)
+                    .ToANew<PublicProperty<string>>(cfg => cfg
+                        .Map((s, t) => s.Value)
+                        .ToRootTarget());
+
+                result2.Value.ShouldBe("Goodbye!");
+
+                mapper.InlineContexts().ShouldHaveSingleItem();
             }
         }
 

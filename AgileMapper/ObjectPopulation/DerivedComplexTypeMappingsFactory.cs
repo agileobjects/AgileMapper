@@ -178,13 +178,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var groupedTypePairs = derivedTypePairs
                     .GroupBy(tp => tp.DerivedTargetType)
-                    .Select(group => new TypePairGroup(group))
+                    .Project(group => new TypePairGroup(group))
                     .OrderBy(tp => tp.DerivedTargetType, TypeComparer.MostToLeastDerived)
                     .ToArray();
 
                 var unconditionalDerivedTargetTypeMapping = groupedTypePairs
-                    .Where(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition))
-                    .Select(tpg => new
+                    .Filter(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition))
+                    .Project(tpg => new
                     {
                         tpg.DerivedTargetType,
                         TypePairsCondition = GetTargetValidCheckOrNull(tpg.DerivedTargetType, declaredTypeMapperData)
@@ -337,7 +337,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IMemberMapperData mapperData)
         {
             var conditionalPairs = derivedTypePairs
-                .Where(pair => pair.HasConfiguredCondition)
+                .Filter(pair => pair.HasConfiguredCondition)
                 .ToArray();
 
             var pairConditions = conditionalPairs.Chain(

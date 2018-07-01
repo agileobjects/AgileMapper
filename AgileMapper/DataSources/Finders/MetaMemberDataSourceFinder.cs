@@ -12,7 +12,7 @@
     using TypeConversion;
     using static System.StringComparison;
 
-    internal class MetaMemberDataSourceFinder : IDataSourceFinder
+    internal struct MetaMemberDataSourceFinder : IDataSourceFinder
     {
         public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
         {
@@ -210,7 +210,7 @@
 
                         currentSourceMember = SourceMemberMatcher.GetMatchFor(
                             memberMappingData,
-                            out var _,
+                            out _,
                             searchParentContexts: false);
 
                         if (currentSourceMember == null)

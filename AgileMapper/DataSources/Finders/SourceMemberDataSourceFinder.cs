@@ -4,7 +4,7 @@
     using Extensions.Internal;
     using Members;
 
-    internal class SourceMemberDataSourceFinder : IDataSourceFinder
+    internal struct SourceMemberDataSourceFinder : IDataSourceFinder
     {
         public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
         {

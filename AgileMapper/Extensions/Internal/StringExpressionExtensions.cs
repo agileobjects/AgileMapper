@@ -16,8 +16,8 @@
         {
             var stringMethods = typeof(string)
                 .GetPublicStaticMethods()
-                .Where(m => m.Name == "Join" || m.Name == "Concat")
-                .Select(m => new
+                .Filter(m => m.Name == "Join" || m.Name == "Concat")
+                .Project(m => new
                 {
                     Method = m,
                     Parameters = m.GetParameters(),
@@ -32,9 +32,9 @@
                 (m.Parameters[1].ParameterType == typeof(string[]))).Method;
 
             _stringConcatMethods = stringMethods
-                .Where(m => (m.Method.Name == "Concat") && (m.FirstParameterType == typeof(string)))
+                .Filter(m => (m.Method.Name == "Concat") && (m.FirstParameterType == typeof(string)))
                 .OrderBy(m => m.Parameters.Length)
-                .Select(m => m.Method)
+                .Project(m => m.Method)
                 .ToArray();
         }
 

@@ -18,9 +18,9 @@
                    mapperData.SourceType.IsQueryable();
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(IObjectMappingData mappingData)
+        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            var mapperData = mappingData.MapperData;
+            var mapperData = context.MapperData;
 
             var queryProjection = mapperData
                 .EnumerablePopulationBuilder
@@ -29,9 +29,9 @@
                     sourceParameter => MappingFactory.GetElementMapping(
                         sourceParameter,
                         mapperData.TargetMember.ElementType.ToDefaultExpression(),
-                        mappingData));
+                        context.MappingData));
 
-            queryProjection = QueryProjectionModifier.Modify(queryProjection, mappingData);
+            queryProjection = QueryProjectionModifier.Modify(queryProjection, context.MappingData);
 
             yield return queryProjection;
         }

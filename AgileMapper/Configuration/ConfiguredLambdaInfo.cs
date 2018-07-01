@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
+    using Members.Dictionaries;
     using NetStandardPolyfills;
     using ObjectPopulation;
 
@@ -12,6 +13,7 @@
     {
         private readonly LambdaExpression _lambda;
         private readonly Type[] _contextTypes;
+        private readonly bool _isForTargetDictionary;
         private readonly ParametersSwapper _parametersSwapper;
 
         private ConfiguredLambdaInfo(
@@ -24,13 +26,15 @@
             _contextTypes = contextTypes;
             _parametersSwapper = parametersSwapper;
             ReturnType = returnType;
+
+            _isForTargetDictionary = contextTypes.Any() && contextTypes[1].IsDictionary();
         }
 
         #region Factory Methods
 
         public static ConfiguredLambdaInfo For(LambdaExpression lambda)
         {
-            var funcArguments = lambda.Parameters.Select(p => p.Type).ToArray();
+            var funcArguments = lambda.Parameters.Project(p => p.Type).ToArray();
             var contextTypes = GetContextTypes(funcArguments);
             var parameterSwapper = ParametersSwapper.For(contextTypes, funcArguments);
 
@@ -108,7 +112,7 @@
                 return null;
             }
 
-            var parameters = funcArguments.Select(Parameters.Create).ToArray();
+            var parameters = funcArguments.Project(Parameters.Create).ToArray();
             var valueFactory = func.ToConstantExpression();
             var valueFactoryInvocation = Expression.Invoke(valueFactory, parameters.Cast<Expression>());
             var valueFactoryLambda = Expression.Lambda(funcType, valueFactoryInvocation, parameters);
@@ -150,9 +154,19 @@
             CallbackPosition? position = null,
             QualifiedMember targetMember = null)
         {
+            var contextTypes = _contextTypes;
+
+            if (_isForTargetDictionary &&
+                (mapperData.TargetMember is DictionaryTargetMember dictionaryMember) &&
+                (dictionaryMember.HasCompatibleType(contextTypes[1])))
+            {
+                contextTypes = contextTypes.ToArray();
+                contextTypes[1] = mapperData.TargetType;
+            }
+
             return position.IsPriorToObjectCreation(targetMember)
-                ? _parametersSwapper.Swap(_lambda, _contextTypes, mapperData, ParametersSwapper.UseTargetMember)
-                : _parametersSwapper.Swap(_lambda, _contextTypes, mapperData, ParametersSwapper.UseTargetInstance);
+                ? _parametersSwapper.Swap(_lambda, contextTypes, mapperData, ParametersSwapper.UseTargetMember)
+                : _parametersSwapper.Swap(_lambda, contextTypes, mapperData, ParametersSwapper.UseTargetInstance);
         }
     }
 }

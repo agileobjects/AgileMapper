@@ -13,6 +13,7 @@
     using Members.Dictionaries;
     using NetStandardPolyfills;
     using Projection;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
 
@@ -40,10 +41,11 @@
             _customValueLambdaInfo = customValueLambda;
         }
 
-
         public IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
+            ThrowIfTargetParameterSpecified(targetMember);
+
             return RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetMember));
         }
 
@@ -57,19 +59,26 @@
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
             => RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetSetMethod));
 
+        private static void ThrowIfTargetParameterSpecified(LambdaExpression targetParameter)
+        {
+            if (targetParameter.Body == targetParameter.Parameters.FirstOrDefault())
+            {
+                throw new MappingConfigurationException(
+                    "The target parameter is not a valid configured target; use .ToTarget() " +
+                    "to map a custom data source to the root target object");
+            }
+        }
+
         private ConfiguredDataSourceFactory CreateFromLambda<TTargetValue>(LambdaExpression targetMemberLambda)
         {
-            var valueLambda = GetValueLambda<TTargetValue>();
+            var valueLambdaInfo = GetValueLambdaInfo<TTargetValue>();
 
             if (IsDictionaryEntry(targetMemberLambda, out var dictionaryEntryMember))
             {
-                return new ConfiguredDictionaryDataSourceFactory(_configInfo, valueLambda, dictionaryEntryMember);
+                return new ConfiguredDictionaryEntryDataSourceFactory(_configInfo, valueLambdaInfo, dictionaryEntryMember);
             }
 
-            return new ConfiguredDataSourceFactory(
-                _configInfo,
-                valueLambda,
-                targetMemberLambda);
+            return new ConfiguredDataSourceFactory(_configInfo, valueLambdaInfo, targetMemberLambda);
         }
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
@@ -96,22 +105,23 @@
             if (entryKeyExpression.NodeType != ExpressionType.Constant)
             {
                 throw new MappingConfigurationException(
-                    "Target dictionary keys must be constant string values.");
+                    "Target dictionary entry keys must be constant string values.");
             }
 
             var entryKey = (string)((ConstantExpression)entryKeyExpression).Value;
 
-            var memberFactory = _configInfo.MapperContext.QualifiedMemberFactory;
-
             var rootMember = (DictionaryTargetMember)(_configInfo.TargetType == typeof(ExpandoObject)
-                ? memberFactory.RootTarget<TSource, ExpandoObject>()
-                : memberFactory.RootTarget<TSource, TTarget>());
+                ? CreateRootTargetQualifiedMember<ExpandoObject>()
+                : CreateRootTargetQualifiedMember<TTarget>());
 
             entryMember = rootMember.Append(typeof(TSource), entryKey);
             return true;
         }
 
-        private ConfiguredLambdaInfo GetValueLambda<TTargetValue>()
+        private QualifiedMember CreateRootTargetQualifiedMember<TRootTarget>()
+            => _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, TRootTarget>();
+
+        private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>()
         {
             if (_customValueLambdaInfo != null)
             {
@@ -169,17 +179,17 @@
 
             var matchingParameters = typeof(TTarget)
                 .GetPublicInstanceConstructors()
-                .Select(ctor => new
+                .Project(ctor => new
                 {
                     Ctor = ctor,
                     MatchingParameters = ctor
                         .GetParameters()
-                        .Where(p =>
+                        .Filter(p =>
                             (ignoreParameterType || (p.ParameterType == typeof(TParam))) &&
                             (ignoreParameterName || (p.Name == name)))
                         .ToArray()
                 })
-                .Where(d => d.MatchingParameters.Any())
+                .Filter(d => d.MatchingParameters.Any())
                 .ToArray();
 
             if (matchingParameters.Length == 0)
@@ -228,13 +238,54 @@
                 Member.ConstructorParameter(parameter)
             };
 
-            var valueLambda = GetValueLambda<TParam>();
+            var valueLambda = GetValueLambdaInfo<TParam>();
             var constructorParameter = QualifiedMember.From(memberChain, _configInfo.MapperContext);
 
             return new ConfiguredDataSourceFactory(_configInfo, valueLambda, constructorParameter);
         }
 
         #endregion
+
+        public IMappingConfigContinuation<TSource, TTarget> ToRootTarget()
+        {
+            ThrowIfSimpleSourceTypeConfigured();
+
+            return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
+                _configInfo,
+                GetValueLambdaInfo<TTarget>(),
+                CreateRootTargetQualifiedMember<TTarget>()));
+        }
+
+        private void ThrowIfSimpleSourceTypeConfigured()
+        {
+            var customValue = _customValueLambda.Body;
+
+            if (!customValue.Type.IsSimple())
+            {
+                return;
+            }
+
+            string sourceValue;
+
+            if (customValue.NodeType == ExpressionType.MemberAccess)
+            {
+                var rootSourceMember = _configInfo.MapperContext.QualifiedMemberFactory.RootSource<TSource, TTarget>();
+                var configuredMember = Member.RootSource(customValue.ToReadableString(), customValue.Type);
+                var configuredSourceMember = QualifiedMember.From(configuredMember, _configInfo.MapperContext);
+                sourceValue = configuredSourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
+            }
+            else
+            {
+                sourceValue = "Source type ";
+            }
+
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}'{1}' cannot be mapped to root target type '{2}'",
+                sourceValue,
+                customValue.Type.GetFriendlyName(),
+                typeof(TTarget).GetFriendlyName()));
+        }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(
             Func<ConfiguredDataSourceFactory> factoryFactory)

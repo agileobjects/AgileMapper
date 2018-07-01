@@ -28,15 +28,16 @@
 
             while (parent != mapperData.SourceObject)
             {
-                if (parent.NodeType == ExpressionType.Convert)
+                if (parent.NodeType != ExpressionType.Convert)
                 {
-                    var cast = (UnaryExpression)parent;
-                    parent = cast.Operand;
-
-                    typeTests.Insert(0, GetRuntimeTypeCheck(cast, mapperData));
+                    parent = parent.GetParentOrNull();
+                    continue;
                 }
 
-                parent = parent.GetParentOrNull();
+                var cast = (UnaryExpression)parent;
+                parent = cast.Operand;
+
+                typeTests.Insert(0, GetRuntimeTypeCheck(cast, mapperData));
             }
 
             var allTests = typeTests.AndTogether();

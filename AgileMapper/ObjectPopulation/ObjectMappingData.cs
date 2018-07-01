@@ -3,9 +3,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using Caching;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
+    using NetStandardPolyfills;
     using Validation;
 
     internal class ObjectMappingData<TSource, TTarget> :
@@ -14,6 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         IObjectMappingData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
     {
+        private ICache<IQualifiedMember, Func<TSource, Type>> _runtimeTypeGettersCache;
         private Dictionary<object, List<object>> _mappedObjectsBySource;
         private ObjectMapper<TSource, TTarget> _mapper;
         private ObjectMapperData _mapperData;
@@ -32,7 +35,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   mappingTypes,
                   mappingContext,
                   null,
-                  parent)
+                  parent,
+                  createMapper: true)
         {
         }
 
@@ -43,7 +47,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData declaredTypeMappingData,
-            IObjectMappingData parent)
+            IObjectMappingData parent,
+            bool createMapper)
             : base(source, target, enumerableIndex, parent)
         {
             MappingTypes = mappingTypes;
@@ -56,12 +61,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            if (IsPartOfDerivedTypeMapping)
+            if (createMapper)
             {
-                return;
+                _mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
             }
-
-            _mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
         }
 
         public IMappingContext MappingContext { get; }
@@ -134,6 +137,55 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IChildMemberMappingData IObjectMappingData.GetChildMappingData(IMemberMapperData childMapperData)
             => new ChildMemberMappingData<TSource, TTarget>(this, childMapperData);
+
+        public Type GetSourceMemberRuntimeType(IQualifiedMember childSourceMember)
+        {
+            if (Source == null)
+            {
+                return childSourceMember.Type;
+            }
+
+            if (childSourceMember.Type.IsSealed())
+            {
+                return childSourceMember.Type;
+            }
+
+            var mapperData = MapperData;
+
+            while (mapperData != null)
+            {
+                if (childSourceMember == mapperData.SourceMember)
+                {
+                    return mapperData.SourceMember.Type;
+                }
+
+                mapperData = mapperData.Parent;
+            }
+
+            if (_runtimeTypeGettersCache == null)
+            {
+                _runtimeTypeGettersCache = MapperContext.Cache.CreateScoped<IQualifiedMember, Func<TSource, Type>>();
+            }
+
+            var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(childSourceMember, sm =>
+            {
+                var sourceParameter = Parameters.Create<TSource>("source");
+                var relativeMember = sm.RelativeTo(MapperData.SourceMember);
+                var memberAccess = relativeMember.GetQualifiedAccess(MapperData);
+                memberAccess = memberAccess.Replace(MapperData.SourceObject, sourceParameter);
+
+                var getRuntimeTypeCall = Expression.Call(
+                    ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sm.Type),
+                    memberAccess);
+
+                var getRuntimeTypeLambda = Expression
+                    .Lambda<Func<TSource, Type>>(getRuntimeTypeCall, sourceParameter);
+
+                return getRuntimeTypeLambda.Compile();
+            });
+
+            return getRuntimeTypeFunc.Invoke(Source);
+        }
 
         #endregion
 
@@ -253,48 +305,65 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappedObjectsBySource[key] = new List<object> { complexType };
         }
 
-        public IObjectMappingData<TNewSource, TTarget> WithSourceType<TNewSource>()
+        public IObjectMappingData<TNewSource, TNewTarget> WithSourceType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewSource : class
         {
-            return As(Source as TNewSource, Target);
+            return As(Source as TNewSource, default(TNewTarget), isForDerivedTypeMapping);
         }
 
-        public IObjectMappingData<TSource, TNewTarget> WithTargetType<TNewTarget>()
+        public IObjectMappingData<TNewSource, TNewTarget> WithTargetType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewTarget : class
         {
-            return As(Source, Target as TNewTarget);
+            return As(default(TNewSource), Target as TNewTarget, isForDerivedTypeMapping);
         }
 
-        public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType)
+        public IObjectMappingData WithSource(IQualifiedMember newSourceMember)
+        {
+            var sourceMemberRuntimeType = GetSourceMemberRuntimeType(newSourceMember);
+
+            return WithTypes(sourceMemberRuntimeType, MapperData.TargetType, isForDerivedTypeMapping: false);
+        }
+
+        public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType, bool isForDerivedTypeMapping)
         {
             var typesKey = new SourceAndTargetTypesKey(newSourceType, newTargetType);
 
             var typedAsCaller = GlobalContext.Instance.Cache.GetOrAdd(typesKey, k =>
             {
                 var mappingDataParameter = Parameters.Create<IObjectMappingData<TSource, TTarget>>("mappingData");
-                var withTypesCall = mappingDataParameter.GetAsCall(k.SourceType, k.TargetType);
+                var isForDerivedTypeParameter = Parameters.Create<bool>("isForDerivedType");
+                var withTypesCall = mappingDataParameter.GetAsCall(isForDerivedTypeParameter, k.SourceType, k.TargetType);
 
                 var withTypesLambda = Expression
-                    .Lambda<Func<IObjectMappingData<TSource, TTarget>, IObjectMappingDataUntyped>>(
+                    .Lambda<Func<IObjectMappingData<TSource, TTarget>, bool, IObjectMappingDataUntyped>>(
                         withTypesCall,
-                        mappingDataParameter);
+                        mappingDataParameter,
+                        isForDerivedTypeParameter);
 
                 return withTypesLambda.Compile();
             });
 
-            return (IObjectMappingData)typedAsCaller.Invoke(this);
+            return (IObjectMappingData)typedAsCaller.Invoke(this, isForDerivedTypeMapping);
         }
 
         public IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>()
             where TNewSource : class
             where TNewTarget : class
         {
-            return As(Source as TNewSource, Target as TNewTarget);
+            return As<TNewSource, TNewTarget>(isForDerivedTypeMapping: true);
+        }
+
+        public IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
+            where TNewSource : class
+            where TNewTarget : class
+        {
+            return As(Source as TNewSource, Target as TNewTarget, isForDerivedTypeMapping);
         }
 
         private IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>(
             TNewSource typedSource,
-            TNewTarget typedTarget)
+            TNewTarget typedTarget,
+            bool isForDerivedTypeMapping)
         {
             var mapperKey = MapperKey.WithTypes<TNewSource, TNewTarget>();
 
@@ -304,8 +373,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 GetEnumerableIndex(),
                 mapperKey.MappingTypes,
                 MappingContext,
-                this,
-                Parent)
+                isForDerivedTypeMapping ? this : null,
+                Parent,
+                createMapper: false)
             {
                 MapperKey = mapperKey
             };

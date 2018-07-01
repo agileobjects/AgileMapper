@@ -26,9 +26,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IChildMemberMappingData GetChildMappingData(IMemberMapperData childMapperData);
 
+        Type GetSourceMemberRuntimeType(IQualifiedMember childSourceMember);
+
         object MapStart();
 
-        IObjectMappingData WithTypes(Type newSourceType, Type newTargetType);
+        IObjectMappingData WithSource(IQualifiedMember newSourceMember);
+
+        IObjectMappingData WithTypes(Type newSourceType, Type newTargetType, bool isForDerivedTypeMapping = true);
     }
 
     /// <summary>
@@ -99,26 +103,38 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         /// <summary>
         /// Gets the <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
-        /// <see cref="IObjectMappingData{TNewSource, TTarget}"/>.
+        /// <see cref="IObjectMappingData{TNewSource, TNewTarget}"/> when the target object definitely
+        /// cannot be converted to the given <typeparamref name="TNewTarget"/>.
         /// </summary>
         /// <typeparam name="TNewSource">The type of source object being mapped in the current context.</typeparam>
+        /// <typeparam name="TNewTarget">The type of target object being mapped in the current context.</typeparam>
+        /// <param name="isForDerivedTypeMapping">
+        /// Whether the new, typed <see cref="IObjectMappingData{TNewSource, TNewTarget}"/> is needed for the creation
+        /// of a derived type mapping.
+        /// </param>
         /// <returns>
         /// The <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
-        /// <see cref="IObjectMappingData{TNewSource, TTarget}"/>.
+        /// <see cref="IObjectMappingData{TNewSource, TNewTarget}"/>.
         /// </returns>
-        IObjectMappingData<TNewSource, TTarget> WithSourceType<TNewSource>()
+        IObjectMappingData<TNewSource, TNewTarget> WithSourceType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewSource : class;
 
         /// <summary>
         /// Gets the <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
-        /// <see cref="IObjectMappingData{TSource, TNewTarget}"/>.
+        /// <see cref="IObjectMappingData{TNewSource, TNewTarget}"/> when the source object definitely
+        /// cannot be converted to the given <typeparamref name="TNewSource"/>.
         /// </summary>
+        /// <typeparam name="TNewSource">The type of source object being mapped in the current context.</typeparam>
         /// <typeparam name="TNewTarget">The type of target object being mapped in the current context.</typeparam>
+        /// <param name="isForDerivedTypeMapping">
+        /// Whether the new, typed <see cref="IObjectMappingData{TNewSource, TNewTarget}"/> is needed for the creation
+        /// of a derived type mapping.
+        /// </param>
         /// <returns>
         /// The <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
-        /// <see cref="IObjectMappingData{TSource, TNewTarget}"/>.
+        /// <see cref="IObjectMappingData{TNewSource, TNewTarget}"/>.
         /// </returns>
-        IObjectMappingData<TSource, TNewTarget> WithTargetType<TNewTarget>()
+        IObjectMappingData<TNewSource, TNewTarget> WithTargetType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewTarget : class;
     }
 }

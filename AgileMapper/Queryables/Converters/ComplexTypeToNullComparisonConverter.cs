@@ -60,7 +60,7 @@
                 .Instance
                 .MemberCache
                 .GetSourceMembers(entityParentAccess.Type)
-                .Where(m => m.IsSimple)
+                .Filter(m => m.IsSimple)
                 .ToArray();
 
             var entityMemberName = entityMemberAccess.GetMemberName();

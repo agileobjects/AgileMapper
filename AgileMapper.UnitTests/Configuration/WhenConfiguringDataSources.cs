@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using AgileMapper.Extensions;
     using AgileMapper.Members;
     using TestClasses;
     using Xunit;
@@ -990,6 +991,224 @@
 
                 result.ClassId.ShouldBe(123);
                 result.ClassIdentifier.ShouldBe(987);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/64
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new { Value1 = 123, Value = new { Value2 = 456 } };
+
+                mapper.WhenMapping
+                    .From(source)
+                    .To<PublicTwoFields<int, int>>()
+                    .Map((s, ptf) => s.Value)
+                    .ToRootTarget();
+
+                var result = source
+                    .MapUsing(mapper)
+                    .ToANew<PublicTwoFields<int, int>>();
+
+                result.Value1.ShouldBe(123);
+                result.Value2.ShouldBe(456);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyANestedOverwriteConfiguredRootSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>>()
+                    .Over<PublicTwoFields<int, int>>()
+                    .Map((s, t) => s.Value2.Value)
+                    .ToRootTarget();
+
+                var source = new PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>
+                {
+                    Value1 = 6372,
+                    Value2 = new PublicField<PublicTwoFields<int, int>>
+                    {
+                        Value = new PublicTwoFields<int, int>
+                        {
+                            Value2 = 8262
+                        }
+                    }
+                };
+
+                var target = new PublicTwoFields<int, int>
+                {
+                    Value1 = 637,
+                    Value2 = 728
+                };
+
+                mapper.Map(source).Over(target);
+
+                target.Value1.ShouldBeDefault(); // <- Because Value2.Value.Value1 will overwrite 6372
+                target.Value2.ShouldBe(8262);
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleAConfiguredRootSourceMemberNullValue()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomer>()
+                    .ToANew<PublicTwoFields<string, string>>()
+                    .Map((mc, t) => mc.Name)
+                    .To(t => t.Value1)
+                    .And
+                    .Map((mc, t) => mc.Address)
+                    .ToRootTarget();
+
+                var source = new MysteryCustomer { Name = "Nelly", Address = default(Address) };
+
+                var result = mapper.Map(source).ToANew<PublicTwoFields<string, string>>();
+
+                result.Value1.ShouldBe("Nelly");
+                result.Value2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceMemberConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<PublicPropertyStruct<int>, int>>()
+                    .OnTo<PublicTwoFields<int, int>>()
+                    .If((s, t) => s.Value1.Value > 5)
+                    .Map((s, t) => s.Value1)
+                    .ToRootTarget();
+
+                mapper.WhenMapping
+                    .From<PublicPropertyStruct<int>>()
+                    .OnTo<PublicTwoFields<int, int>>()
+                    .Map((s, t) => s.Value)
+                    .To(t => t.Value1);
+
+                var matchingSource = new PublicTwoFieldsStruct<PublicPropertyStruct<int>, int>
+                {
+                    Value1 = new PublicPropertyStruct<int> { Value = 10 },
+                    Value2 = 627
+                };
+
+                var target = new PublicTwoFields<int, int> { Value2 = 673282 };
+
+                mapper.Map(matchingSource).OnTo(target);
+
+                target.Value1.ShouldBe(10);
+                target.Value2.ShouldBe(673282);
+
+                var nonMatchingSource = new PublicTwoFieldsStruct<PublicPropertyStruct<int>, int>
+                {
+                    Value1 = new PublicPropertyStruct<int> { Value = 1 },
+                    Value2 = 9285
+                };
+
+                target.Value1 = target.Value2 = default(int);
+
+                mapper.Map(nonMatchingSource).OnTo(target);
+
+                target.Value1.ShouldBeDefault();
+                target.Value2.ShouldBe(9285);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceEnumerableMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<Address, Address[]>>()
+                    .To<List<Address>>()
+                    .Map((s, r) => s.Value2)
+                    .ToRootTarget();
+
+                var source = new PublicTwoFields<Address, Address[]>
+                {
+                    Value1 = new Address { Line1 = "Here", Line2 = "There" },
+                    Value2 = new[]
+                    {
+                        new Address { Line1 = "Somewhere", Line2 = "Else" },
+                        new Address { Line1 = "Elsewhere"}
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<List<Address>>();
+
+                result.Count.ShouldBe(2);
+                result.First().Line1.ShouldBe("Somewhere");
+                result.First().Line2.ShouldBe("Else");
+                result.Second().Line1.ShouldBe("Elsewhere");
+                result.Second().Line2.ShouldBeNull();
+
+                source.Value2 = null;
+
+                var nullResult = mapper.Map(source).ToANew<List<Address>>();
+
+                nullResult.ShouldBeEmpty();
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyMultipleConfiguredRootSourceComplexTypeMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new
+                {
+                    PropertyOne = new { Value1 = "Value 1!" },
+                    PropertyTwo = new { Value2 = "Value 2!" },
+                };
+
+                mapper.WhenMapping
+                    .From(source)
+                    .To<PublicTwoFields<string, string>>()
+                    .Map((s, t) => s.PropertyOne)
+                    .ToRootTarget()
+                    .And
+                    .Map((s, t) => s.PropertyTwo)
+                    .ToRootTarget();
+
+                var result = mapper.Map(source).ToANew<PublicTwoFields<string, string>>();
+
+                result.Value1.ShouldBe("Value 1!");
+                result.Value2.ShouldBe("Value 2!");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyMultipleConfiguredRootSourceEnumerableMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int[], long[]>>()
+                    .To<decimal[]>()
+                    .Map((s, t) => s.Value1)
+                    .ToRootTarget()
+                    .And
+                    .Map((s, t) => s.Value2)
+                    .ToRootTarget();
+
+                var source = new PublicTwoFields<int[], long[]>
+                {
+                    Value1 = new[] { 1, 2, 3 },
+                    Value2 = new[] { 1L, 2L, 3L }
+                };
+
+                var result = mapper.Map(source).ToANew<decimal[]>();
+
+                result.Length.ShouldBe(6);
             }
         }
 

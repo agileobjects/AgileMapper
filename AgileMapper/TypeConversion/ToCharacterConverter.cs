@@ -6,18 +6,16 @@
     using Extensions.Internal;
     using NetStandardPolyfills;
 
-    internal class ToCharacterConverter : IValueConverter
+    internal struct ToCharacterConverter : IValueConverter
     {
-        public static readonly ToCharacterConverter Instance = new ToCharacterConverter();
-
-        private static readonly Type[] _handledSourceTypes = Constants
-            .NumericTypes
-            .Append(typeof(char), typeof(string), typeof(object));
-
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
             return (nonNullableTargetType == typeof(char)) &&
-                   (nonNullableSourceType.IsEnum() || _handledSourceTypes.Contains(nonNullableSourceType));
+                   (nonNullableSourceType.IsEnum() ||
+                    (nonNullableSourceType == typeof(char)) ||
+                    (nonNullableSourceType == typeof(string)) ||
+                    (nonNullableSourceType == typeof(object)) ||
+                    Constants.NumericTypes.Contains(nonNullableSourceType));
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)

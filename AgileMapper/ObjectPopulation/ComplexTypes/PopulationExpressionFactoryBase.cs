@@ -11,24 +11,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal abstract class PopulationExpressionFactoryBase
     {
-        public IEnumerable<Expression> GetPopulation(IObjectMappingData mappingData)
+        public IEnumerable<Expression> GetPopulation(MappingExpressionFactoryBase.MappingCreationContext context)
         {
-            var mapperData = mappingData.MapperData;
+            var mappingData = context.MappingData;
+            var mapperData = context.MapperData;
 
-            GetCreationCallbacks(mapperData, out var preCreationCallback, out var postCreationCallback);
+            GetCreationCallbacks(context, out var preCreationCallback, out var postCreationCallback);
 
             var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToList();
 
-            yield return preCreationCallback;
-
-            if (mapperData.Context.UseLocalVariable)
+            if (context.InstantiateLocalVariable && mapperData.Context.UseLocalVariable)
             {
+                yield return preCreationCallback;
+
                 var assignCreatedObject = postCreationCallback != null;
 
                 yield return GetLocalVariableInstantiation(assignCreatedObject, populationsAndCallbacks, mappingData);
-            }
 
-            yield return postCreationCallback;
+                yield return postCreationCallback;
+            }
 
             yield return GetObjectRegistrationCallOrNull(mapperData);
 
@@ -41,19 +42,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static void GetCreationCallbacks(
-            IMemberMapperData mapperData,
+            MappingExpressionFactoryBase.MappingCreationContext context,
             out Expression preCreationCallback,
             out Expression postCreationCallback)
         {
-            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
-                mapperData.TargetIsDefinitelyPopulated())
+            if (context.RuleSet.Settings.UseSingleRootMappingExpression ||
+               !context.InstantiateLocalVariable ||
+                context.MapperData.TargetIsDefinitelyPopulated())
             {
                 preCreationCallback = postCreationCallback = null;
                 return;
             }
 
-            preCreationCallback = GetCreationCallbackOrNull(Before, mapperData);
-            postCreationCallback = GetCreationCallbackOrNull(After, mapperData);
+            preCreationCallback = GetCreationCallbackOrNull(Before, context.MapperData);
+            postCreationCallback = GetCreationCallbackOrNull(After, context.MapperData);
         }
 
         private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)

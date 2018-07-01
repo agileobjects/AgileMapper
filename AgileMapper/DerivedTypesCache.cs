@@ -58,7 +58,7 @@
                 .SelectMany(assembly => _typesByAssembly
                     .GetOrAdd(assembly, GetRelevantTypesFromAssembly));
 
-            var derivedTypes = assemblyTypes.Where(t => t.IsDerivedFrom(type)).ToArray();
+            var derivedTypes = assemblyTypes.Filter(t => t.IsDerivedFrom(type)).ToArray();
 
             if (derivedTypes.None())
             {
@@ -75,7 +75,7 @@
         private static IEnumerable<Type> GetRelevantTypesFromAssembly(Assembly assembly)
         {
             return QueryTypesFromAssembly(assembly)
-                .Where(t => t.IsClass() && !t.IsAbstract())
+                .Filter(t => t.IsClass() && !t.IsAbstract())
                 .ToArray();
         }
 
@@ -87,7 +87,7 @@
 
                 if (Constants.ReflectionNotPermitted)
                 {
-                    types = types.Where(t => t.IsPublic());
+                    types = types.Filter(t => t.IsPublic());
                 }
 
                 return types;
