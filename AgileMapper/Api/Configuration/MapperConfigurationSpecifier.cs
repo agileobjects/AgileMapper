@@ -8,11 +8,11 @@
     /// </summary>
     public class MapperConfigurationSpecifier
     {
-        private readonly MappingConfigStartingPoint _configStartingPoint;
+        private readonly IMapper _mapper;
 
-        internal MapperConfigurationSpecifier(MappingConfigStartingPoint configStartingPoint)
+        internal MapperConfigurationSpecifier(IMapper mapper)
         {
-            _configStartingPoint = configStartingPoint;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -25,7 +25,7 @@
         {
             var configuration = new TConfiguration();
 
-            configuration.ApplyTo(_configStartingPoint);
+            configuration.ApplyTo(_mapper);
         }
     }
 }

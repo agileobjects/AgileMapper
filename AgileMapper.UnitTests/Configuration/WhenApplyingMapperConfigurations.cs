@@ -1,11 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using AgileMapper.Configuration;
-    using Api.Configuration;
     using TestClasses;
     using Xunit;
 
-    public class WhenApplyingMapperSetups
+    public class WhenApplyingMapperConfigurations
     {
         [Fact]
         public void ShouldApplyAMapperConfiguration()
@@ -13,7 +12,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .ApplyConfiguration.From<PfiToPfsMapperConfiguration>();
+                    .UseConfiguration.From<PfiToPfsMapperConfiguration>();
 
                 var source = new PublicField<int> { Value = 123 };
 
@@ -27,13 +26,15 @@
 
         private class PfiToPfsMapperConfiguration : MapperConfiguration
         {
-            protected override void Configure(MappingConfigStartingPoint whenMapping)
+            protected override void Configure()
             {
-                whenMapping
+                WhenMapping
                     .From<PublicField<int>>()
-                    .To<PublicField<string>>()
+                    .ToANew<PublicField<string>>()
                     .Map(ctx => ctx.Source.Value * 2)
                     .To(t => t.Value);
+
+                GetPlanFor<PublicField<int>>().ToANew<PublicField<string>>();
             }
         }
 

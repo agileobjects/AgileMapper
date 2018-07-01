@@ -36,7 +36,7 @@
         /// <summary>
         /// Setup Mapper configuration via <see cref="MapperConfiguration"/> instances.
         /// </summary>
-        public MapperConfigurationSpecifier ApplyConfiguration => new MapperConfigurationSpecifier(this);
+        public MapperConfigurationSpecifier UseConfiguration => new MapperConfigurationSpecifier(_configInfo.Mapper);
 
         #region Exception Handling
 
