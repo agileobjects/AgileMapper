@@ -51,7 +51,7 @@
 
         #region Helper Classes
 
-        private class PfiToPfsMapperConfiguration : MapperConfiguration
+        public class PfiToPfsMapperConfiguration : MapperConfiguration
         {
             protected override void Configure()
             {
@@ -74,7 +74,7 @@
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local
-        private class PfsToPfiMapperConfiguration : MapperConfiguration
+        public class PfsToPfiMapperConfiguration : MapperConfiguration
         {
             protected override void Configure()
             {

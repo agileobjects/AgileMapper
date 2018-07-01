@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using AgileMapper.Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -27,12 +28,17 @@
         /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
         /// via the GetService() method.
         /// </param>
-        public void From<TConfiguration>(params object[] services)
+        /// <returns>
+        /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
+        /// to be registered.
+        /// </returns>
+        public MapperConfigurationSpecifier From<TConfiguration>(params object[] services)
             where TConfiguration : MapperConfiguration, new()
         {
             var configuration = new TConfiguration();
 
             Apply(configuration, services);
+            return this;
         }
 
         /// <summary>
@@ -46,7 +52,11 @@
         /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
         /// via the GetService() method.
         /// </param>
-        public void FromAssemblyOf<T>(params object[] services)
+        /// <returns>
+        /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
+        /// to be registered.
+        /// </returns>
+        public MapperConfigurationSpecifier FromAssemblyOf<T>(params object[] services)
         {
             var configurations = typeof(T)
                 .GetAssembly()
@@ -58,9 +68,11 @@
             {
                 Apply(configuration, services);
             }
+
+            return this;
         }
 
-        private void Apply(MapperConfiguration configuration, object[] services)
+        private void Apply(MapperConfiguration configuration, ICollection<object> services)
             => configuration.ApplyTo(_mapper, services);
     }
 }
