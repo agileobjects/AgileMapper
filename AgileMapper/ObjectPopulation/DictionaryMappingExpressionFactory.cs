@@ -34,7 +34,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var configuredDataSourceFactories = mapperData.MapperContext
                 .UserConfigurations
-                .QueryDataSourceFactories<ConfiguredDictionaryDataSourceFactory>()
+                .QueryDataSourceFactories<ConfiguredDictionaryEntryDataSourceFactory>()
                 .Filter(dsf => dsf.IsFor(mapperData))
                 .ToArray();
 
@@ -203,7 +203,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static DictionaryTargetMember[] GetConfiguredTargetMembers(
-            IEnumerable<ConfiguredDictionaryDataSourceFactory> configuredDataSourceFactories,
+            IEnumerable<ConfiguredDictionaryEntryDataSourceFactory> configuredDataSourceFactories,
             IList<DictionaryTargetMember> targetMembersFromSource)
         {
             return configuredDataSourceFactories
@@ -292,13 +292,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 assignmentFactory = GetMappedDictionaryAssignment;
             }
-            else
+            else if (context.InstantiateLocalVariable)
             {
                 assignmentFactory = (dsm, md) => GetParameterlessDictionaryAssignment(md);
             }
+            else
+            {
+                assignmentFactory = null;
+            }
 
             var population = GetDictionaryPopulation(context.MappingData);
-            var assignment = assignmentFactory.Invoke(sourceDictionaryMember, context.MappingData);
+            var assignment = assignmentFactory?.Invoke(sourceDictionaryMember, context.MappingData);
 
             yield return assignment;
             yield return population;

@@ -19,7 +19,7 @@
                    (nonNullableType == typeof(object)) ||
                     nonNullableType.IsEnum() ||
                    (nonNullableType == typeof(char)) ||
-                    HasToStringOperator(nonNullableType, out var _);
+                    HasToStringOperator(nonNullableType, out _);
         }
 
         private static bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)

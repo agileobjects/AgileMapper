@@ -77,7 +77,14 @@
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-            => base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);
+        {
+            if (TargetMember.IsRoot && !mapperData.IsRoot)
+            {
+                return false;
+            }
+
+            return base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);
+        }
 
         public IConfiguredDataSource Create(IMemberMapperData mapperData)
         {

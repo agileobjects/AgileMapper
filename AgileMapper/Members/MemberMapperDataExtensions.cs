@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
             => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
 
         public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
-            => IsEntity(mapperData, mapperData.TargetType, out var _);
+            => IsEntity(mapperData, mapperData.TargetType, out _);
 
         public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
         {

@@ -166,7 +166,7 @@
                 .GetTargetMembers(mapperData.TargetType)
                 .FirstOrDefault(m => m.Name == entityMemberName);
 
-            return !mapperData.IsEntity(entityMember?.Type, out var _);
+            return !mapperData.IsEntity(entityMember?.Type, out _);
         }
 
         #endregion

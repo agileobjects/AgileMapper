@@ -210,7 +210,7 @@
 
                         currentSourceMember = SourceMemberMatcher.GetMatchFor(
                             memberMappingData,
-                            out var _,
+                            out _,
                             searchParentContexts: false);
 
                         if (currentSourceMember == null)

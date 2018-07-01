@@ -150,7 +150,7 @@
             return base.VisitBinary(binary);
         }
 
-        private static bool IsEnum(Type type) => IsEnum(type, out var _);
+        private static bool IsEnum(Type type) => IsEnum(type, out _);
 
         private bool TryGetMatch(Expression targetMemberAccess, out TargetMemberData targetMemberData)
         {

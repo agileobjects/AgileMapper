@@ -344,5 +344,30 @@
                 noLine2Result["Line2State"].ShouldBe("Missing");
             }
         }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<Address>>()
+                    .ToDictionaries
+                    .Map((pf, d) => pf.Value)
+                    .ToRootTarget();
+
+                var source = new PublicField<Address>
+                {
+                    Value = new Address { Line1 = "Here!", Line2 = "Here too!" }
+                };
+
+                var result = mapper.Map(source).ToANew<Dictionary<string, string>>();
+
+                result["Value.Line1"].ShouldBe("Here!");
+                result["Value.Line2"].ShouldBe("Here too!");
+                result["Line1"].ShouldBe("Here!");
+                result["Line2"].ShouldBe("Here too!");
+            }
+        }
     }
 }

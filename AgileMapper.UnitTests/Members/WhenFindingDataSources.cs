@@ -47,8 +47,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var childMapperData = new ChildMemberMapperData(targetMember, rootMapperData);
             var childMappingContext = rootMappingData.GetChildMappingData(childMapperData);
 
-            var matchingSourceMember = SourceMemberMatcher.GetMatchFor(childMappingContext, out var _);
-            return matchingSourceMember;
+            return SourceMemberMatcher.GetMatchFor(childMappingContext, out _);
         }
 
         #region Helper Classes

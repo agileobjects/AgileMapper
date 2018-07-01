@@ -157,7 +157,7 @@
             return type.IsValueType() && type.IsFromBcl();
         }
 
-        public static bool IsDictionary(this Type type) => IsDictionary(type, out var _);
+        public static bool IsDictionary(this Type type) => IsDictionary(type, out _);
 
         public static bool IsDictionary(this Type type, out KeyValuePair<Type, Type> keyAndValueTypes)
         {

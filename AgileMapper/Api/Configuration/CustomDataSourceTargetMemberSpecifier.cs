@@ -75,7 +75,7 @@
 
             if (IsDictionaryEntry(targetMemberLambda, out var dictionaryEntryMember))
             {
-                return new ConfiguredDictionaryDataSourceFactory(_configInfo, valueLambdaInfo, dictionaryEntryMember);
+                return new ConfiguredDictionaryEntryDataSourceFactory(_configInfo, valueLambdaInfo, dictionaryEntryMember);
             }
 
             return new ConfiguredDataSourceFactory(_configInfo, valueLambdaInfo, targetMemberLambda);
@@ -105,20 +105,21 @@
             if (entryKeyExpression.NodeType != ExpressionType.Constant)
             {
                 throw new MappingConfigurationException(
-                    "Target dictionary keys must be constant string values.");
+                    "Target dictionary entry keys must be constant string values.");
             }
 
             var entryKey = (string)((ConstantExpression)entryKeyExpression).Value;
 
-            var memberFactory = _configInfo.MapperContext.QualifiedMemberFactory;
-
             var rootMember = (DictionaryTargetMember)(_configInfo.TargetType == typeof(ExpandoObject)
-                ? memberFactory.RootTarget<TSource, ExpandoObject>()
-                : memberFactory.RootTarget<TSource, TTarget>());
+                ? CreateRootTargetQualifiedMember<ExpandoObject>()
+                : CreateRootTargetQualifiedMember<TTarget>());
 
             entryMember = rootMember.Append(typeof(TSource), entryKey);
             return true;
         }
+
+        private QualifiedMember CreateRootTargetQualifiedMember<TRootTarget>()
+            => _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, TRootTarget>();
 
         private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>()
         {
@@ -252,7 +253,7 @@
             return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
                 _configInfo,
                 GetValueLambdaInfo<TTarget>(),
-                QualifiedMember.From(Member.RootTarget<TTarget>(), _configInfo.MapperContext)));
+                CreateRootTargetQualifiedMember<TTarget>()));
         }
 
         private void ThrowIfSimpleSourceTypeConfigured()
@@ -268,7 +269,7 @@
 
             if (customValue.NodeType == ExpressionType.MemberAccess)
             {
-                var rootSourceMember = QualifiedMember.From(Member.RootSource<TSource>(), _configInfo.MapperContext);
+                var rootSourceMember = _configInfo.MapperContext.QualifiedMemberFactory.RootSource<TSource, TTarget>();
                 var configuredMember = Member.RootSource(customValue.ToReadableString(), customValue.Type);
                 var configuredSourceMember = QualifiedMember.From(configuredMember, _configInfo.MapperContext);
                 sourceValue = configuredSourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
