@@ -14,11 +14,20 @@
                 mapper.WhenMapping
                     .UseConfiguration.From<PfiToPfsMapperConfiguration>();
 
-                var source = new PublicField<int> { Value = 123 };
+                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+            }
+        }
 
-                var result = mapper.Map(source).ToANew<PublicField<string>>();
+        [Fact]
+        public void ShouldApplyMapperConfigurationsInAGivenTypeAssembly()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .UseConfiguration.FromAssemblyOf<WhenApplyingMapperConfigurations>();
 
-                result.Value.ShouldBe(246);
+                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
             }
         }
 
@@ -35,6 +44,37 @@
                     .To(t => t.Value);
 
                 GetPlanFor<PublicField<int>>().ToANew<PublicField<string>>();
+            }
+
+            public static void VerifyConfigured(IMapper mapper)
+            {
+                var source = new PublicField<int> { Value = 123 };
+                var result = mapper.Map(source).ToANew<PublicField<string>>();
+
+                result.Value.ShouldBe(246);
+            }
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private class PfsToPfiMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+            {
+                WhenMapping
+                    .From<PublicField<string>>()
+                    .ToANew<PublicField<int>>()
+                    .Map(ctx => ctx.Source.Value + "10")
+                    .To(t => t.Value);
+
+                GetPlansFor<PublicField<string>>().To<PublicField<int>>();
+            }
+
+            public static void VerifyConfigured(IMapper mapper)
+            {
+                var source = new PublicField<string> { Value = "10" };
+                var result = mapper.Map(source).ToANew<PublicField<int>>();
+
+                result.Value.ShouldBe(1010);
             }
         }
 
