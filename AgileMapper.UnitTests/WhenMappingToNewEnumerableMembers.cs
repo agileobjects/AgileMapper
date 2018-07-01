@@ -440,6 +440,32 @@
         }
 
         [Fact]
+        public void ShouldHandleMultipleRuntimeTypedMembers()
+        {
+            var arraysSource = new PublicTwoFields<object, object>
+            {
+                Value1 = new[] { 1, 2, 3 },
+                Value2 = new[] { "4", "5", "6" }
+            };
+
+            var arraysResult = Mapper.Map(arraysSource).ToANew<PublicTwoFields<long[], long[]>>();
+
+            arraysResult.Value1.ShouldBe(1L, 2L, 3L);
+            arraysResult.Value2.ShouldBe(4L, 5L, 6L);
+
+            var listsSource = new PublicTwoFields<object, object>
+            {
+                Value1 = new List<int> { 7, 8, 9 },
+                Value2 = new List<string> { "10", "11", "12" }
+            };
+
+            var listsResult = Mapper.Map(listsSource).ToANew<PublicTwoFields<long[], long[]>>();
+
+            listsResult.Value1.ShouldBe(7L, 8L, 9L);
+            listsResult.Value2.ShouldBe(10L, 11L, 12L);
+        }
+
+        [Fact]
         public void ShouldCreateAnEmptyCollectionByDefault()
         {
             var source = new PublicProperty<Collection<int>> { Value = null };

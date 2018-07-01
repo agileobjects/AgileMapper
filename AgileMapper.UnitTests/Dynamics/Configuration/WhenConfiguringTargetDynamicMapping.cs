@@ -344,5 +344,30 @@
                 targetDynamicDictionary["Value+Line2"].ShouldBe("L2");
             }
         }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<Address>>()
+                    .ToDynamics
+                    .Map((pf, d) => pf.Value)
+                    .ToRootTarget();
+
+                var source = new PublicField<Address>
+                {
+                    Value = new Address { Line1 = "There!", Line2 = "There too!" }
+                };
+
+                var result = mapper.Map(source).ToANew<dynamic>();
+
+                ((string)result.Value_Line1).ShouldBe("There!");
+                ((string)result.Value_Line2).ShouldBe("There too!");
+                ((string)result.Line1).ShouldBe("There!");
+                ((string)result.Line2).ShouldBe("There too!");
+            }
+        }
     }
 }

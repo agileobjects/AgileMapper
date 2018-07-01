@@ -58,8 +58,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (parent != null)
             {
                 Parent = parent;
+                return;
             }
-            else if (createMapper)
+
+            if (createMapper)
             {
                 _mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
             }
