@@ -6,6 +6,7 @@
     using AgileMapper.Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     /// <summary>
     /// Provides options for specifying <see cref="MapperConfiguration"/> instances with which to
@@ -103,19 +104,27 @@
             Func<Assembly, bool> filter,
             params object[] services)
         {
+            ThrowIfInvalidAssembliesSupplied(assemblies != null, nullSupplied: true);
+
+            var assembliesChecked = false;
+
             foreach (var assembly in assemblies.Filter(filter))
             {
                 ApplyConfigurationsIn(assembly, services);
+                assembliesChecked = true;
             }
 
+            ThrowIfInvalidAssembliesSupplied(assembliesChecked, nullSupplied: false);
             return this;
         }
 
         private void ApplyConfigurationsIn(Assembly assembly, ICollection<object> services)
         {
+            ThrowIfInvalidAssemblySupplied(assembly);
+
             var configurations = assembly
-                .GetAllTypes()
-                .Filter(t => !t.IsAbstract() && t.IsAssignableTo(typeof(MapperConfiguration)))
+                .QueryTypes()
+                .Filter(t => !t.IsAbstract() && t.IsDerivedFrom(typeof(MapperConfiguration)))
                 .Project(t => (MapperConfiguration)Activator.CreateInstance(t));
 
             foreach (var configuration in configurations)
@@ -125,6 +134,44 @@
         }
 
         private void Apply(MapperConfiguration configuration, ICollection<object> services)
-            => configuration.ApplyTo(_mapper, services);
+        {
+            try
+            {
+                configuration.ApplyTo(_mapper, services);
+            }
+            catch (Exception ex)
+            {
+                throw new MappingConfigurationException(
+                    $"Exception encountered while applying configuration from {configuration.GetType().GetFriendlyName()}.",
+                    ex);
+            }
+        }
+
+        private static void ThrowIfInvalidAssembliesSupplied(bool isValid, bool nullSupplied)
+        {
+            if (isValid)
+            {
+                return;
+            }
+
+            throw nullSupplied
+                ? NullAssemblySupplied("Assemblies cannot be null")
+                : new MappingConfigurationException("Assemblies cannot be empty");
+        }
+
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        private static void ThrowIfInvalidAssemblySupplied(Assembly assembly)
+        {
+            if (assembly == null)
+            {
+                throw NullAssemblySupplied("All supplied assemblies must be non-null");
+            }
+        }
+
+        private static MappingConfigurationException NullAssemblySupplied(string message)
+        {
+            // ReSharper disable once NotResolvedInText
+            return new MappingConfigurationException(message, new ArgumentNullException("assemblies"));
+        }
     }
 }

@@ -1,75 +1,111 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+#if NET40
     using System;
+#endif
     using System.Collections.Generic;
     using AgileMapper.Configuration;
     using MoreTestClasses;
+    using NetStandardPolyfills;
     using TestClasses;
     using Xunit;
 
-    public class WhenApplyingMapperConfigurations
+    public class WhenApplyingMapperConfigurations : AssemblyScanningTestClassBase
     {
         [Fact]
         public void ShouldApplyAGivenMapperConfiguration()
         {
-            using (var mapper = Mapper.CreateNew())
+            TestThenReset(() =>
             {
-                mapper.WhenMapping
-                    .UseConfigurations.From<PfiToPfsMapperConfiguration>();
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .UseConfigurations.From<PfiToPfsMapperConfiguration>();
 
-                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
-            }
+                    PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                }
+            });
         }
 
         [Fact]
         public void ShouldApplyMapperConfigurationsInAGivenTypeAssembly()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .UseConfigurations.FromAssemblyOf<WhenApplyingMapperConfigurations>();
+            TestThenReset(() =>
+                {
+                    using (var mapper = Mapper.CreateNew())
+                    {
+                        mapper.WhenMapping
+                            .UseConfigurations.FromAssemblyOf<WhenApplyingMapperConfigurations>();
 
-                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
-                PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
-            }
+                        PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                        PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+                    }
+                });
         }
 
         [Fact]
         public void ShouldProvideRegisteredServicesToMapperConfigurations()
         {
-            using (var mapper = Mapper.CreateNew())
+            TestThenReset(() =>
             {
-                var mappersByName = new Dictionary<string, IMapper>();
+                using (var mapper = Mapper.CreateNew())
+                {
+                    var mappersByName = new Dictionary<string, IMapper>();
 
-                mapper.WhenMapping
-                    .UseConfigurations.FromAssemblyOf<AnimalBase>(mappersByName);
+                    mapper.WhenMapping
+                        .UseConfigurations.FromAssemblyOf<AnimalBase>(mappersByName);
 
-                ServiceDictionaryMapperConfiguration
-                    .VerifyConfigured(mappersByName)
-                    .ShouldBeTrue();
-            }
+                    ServiceDictionaryMapperConfiguration
+                        .VerifyConfigured(mappersByName)
+                        .ShouldBeTrue();
+                }
+            });
         }
 
 #if NET40
         [Fact]
         public void ShouldApplyMapperConfigurationsFromGivenAssemblies()
         {
-            using (var mapper = Mapper.CreateNew())
+            TestThenReset(() =>
             {
-                var mappersByName = new Dictionary<string, IMapper>();
+                using (var mapper = Mapper.CreateNew())
+                {
+                    var mappersByName = new Dictionary<string, IMapper>();
 
-                mapper.WhenMapping
-                    .UseConfigurations.From(AppDomain.CurrentDomain.GetAssemblies(), mappersByName);
+                    mapper.WhenMapping
+                        .UseConfigurations.From(AppDomain.CurrentDomain.GetAssemblies(), mappersByName);
 
-                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
-                PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+                    PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                    PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
 
-                ServiceDictionaryMapperConfiguration
-                    .VerifyConfigured(mappersByName)
-                    .ShouldBeTrue();
-            }
+                    ServiceDictionaryMapperConfiguration
+                        .VerifyConfigured(mappersByName)
+                        .ShouldBeTrue();
+                }
+            });
         }
 #endif
+
+        [Fact]
+        public void ShouldFilterMapperConfigurationsFromGivenAssemblies()
+        {
+            TestThenReset(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseConfigurations.From(
+                        new[]
+                        {
+                        typeof(PfiToPfsMapperConfiguration).GetAssembly(),
+                        typeof(ServiceDictionaryMapperConfiguration).GetAssembly()
+                        },
+                        assembly => !assembly.FullName.Contains(nameof(MoreTestClasses)));
+
+                    PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                    PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+                }
+            });
+        }
 
         #region Helper Classes
 

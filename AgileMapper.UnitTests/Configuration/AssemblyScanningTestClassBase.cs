@@ -1,8 +1,8 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel
+﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
 
-    public abstract class NonParallelTestsBase
+    public abstract class AssemblyScanningTestClassBase
     {
         protected void TestThenReset(Action testAction)
         {
@@ -12,7 +12,6 @@
             }
             finally
             {
-                Mapper.ResetDefaultInstance();
                 GlobalContext.Instance.DerivedTypes.Reset();
             }
         }
