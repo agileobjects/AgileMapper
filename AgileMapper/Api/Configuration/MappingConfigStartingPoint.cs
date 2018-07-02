@@ -33,6 +33,11 @@
 
         #region Global Settings
 
+        /// <summary>
+        /// Setup Mapper configuration via <see cref="MapperConfiguration"/> instances.
+        /// </summary>
+        public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.Mapper);
+
         #region Exception Handling
 
         /// <summary>

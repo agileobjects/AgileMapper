@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using NetStandardPolyfills;
@@ -62,6 +64,25 @@
                 .GetCustomAttributes(inherit: false)
                 .Any(attribute => attribute.GetType().Name == "KeyAttribute");
 #endif
+        }
+
+        public static IEnumerable<Type> QueryTypes(this Assembly assembly)
+        {
+            try
+            {
+                IEnumerable<Type> types = assembly.GetAllTypes();
+
+                if (ReflectionNotPermitted)
+                {
+                    types = types.Filter(t => t.IsPublic());
+                }
+
+                return types;
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                return ex.Types.WhereNotNull();
+            }
         }
     }
 }

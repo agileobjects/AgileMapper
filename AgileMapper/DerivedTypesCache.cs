@@ -35,7 +35,7 @@
         {
             if (type.IsSealed() || type.IsFromBcl())
             {
-                return Constants.NoTypeArguments;
+                return Enumerable<Type>.EmptyArray;
             }
 
             return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
@@ -62,7 +62,7 @@
 
             if (derivedTypes.None())
             {
-                return derivedTypes;
+                return Enumerable<Type>.EmptyArray;
             }
 
             var derivedTypesList = new List<Type>(derivedTypes);
@@ -74,28 +74,12 @@
 
         private static IEnumerable<Type> GetRelevantTypesFromAssembly(Assembly assembly)
         {
-            return QueryTypesFromAssembly(assembly)
+            return assembly
+                .QueryTypes()
                 .Filter(t => t.IsClass() && !t.IsAbstract())
                 .ToArray();
         }
 
-        private static IEnumerable<Type> QueryTypesFromAssembly(Assembly assembly)
-        {
-            try
-            {
-                IEnumerable<Type> types = assembly.GetAllTypes();
-
-                if (Constants.ReflectionNotPermitted)
-                {
-                    types = types.Filter(t => t.IsPublic());
-                }
-
-                return types;
-            }
-            catch (ReflectionTypeLoadException ex)
-            {
-                return ex.Types.WhereNotNull();
-            }
-        }
+        internal void Reset() => _derivedTypesByType.Empty();
     }
 }

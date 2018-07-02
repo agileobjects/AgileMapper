@@ -269,7 +269,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mappingExpressions = context.MappingExpressions;
 
-            AdjustForSingleExpressionBlockIfApplicable(ref mappingExpressions);
+            AdjustForSingleExpressionBlockIfApplicable(context);
 
             if (context.MapperData.UseSingleMappingExpression())
             {
@@ -313,18 +313,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mappingBlock;
         }
 
-        private static void AdjustForSingleExpressionBlockIfApplicable(ref List<Expression> mappingExpressions)
+        private static void AdjustForSingleExpressionBlockIfApplicable(MappingCreationContext context)
         {
-            if (!mappingExpressions.HasOne() || (mappingExpressions[0].NodeType != Block))
+            if (!context.MappingExpressions.HasOne() || (context.MappingExpressions[0].NodeType != Block))
             {
                 return;
             }
 
-            var block = (BlockExpression)mappingExpressions[0];
+            var block = (BlockExpression)context.MappingExpressions[0];
 
             if (block.Expressions.HasOne() && block.Variables.None())
             {
-                mappingExpressions = new List<Expression>(block.Expressions);
+                context.MappingExpressions.Clear();
+                context.MappingExpressions.AddRange(block.Expressions);
             }
         }
 

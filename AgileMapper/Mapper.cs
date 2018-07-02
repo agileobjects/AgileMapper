@@ -20,6 +20,7 @@
         private Mapper(MapperContext context)
         {
             Context = context;
+            Context.Mapper = this;
         }
 
         #region Factory Methods
