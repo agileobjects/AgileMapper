@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using AgileMapper.Configuration;
     using MoreTestClasses;
@@ -48,6 +49,27 @@
                     .ShouldBeTrue();
             }
         }
+
+#if NET40
+        [Fact]
+        public void ShouldApplyMapperConfigurationsFromGivenAssemblies()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var mappersByName = new Dictionary<string, IMapper>();
+
+                mapper.WhenMapping
+                    .UseConfigurations.From(AppDomain.CurrentDomain.GetAssemblies(), mappersByName);
+
+                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+
+                ServiceDictionaryMapperConfiguration
+                    .VerifyConfigured(mappersByName)
+                    .ShouldBeTrue();
+            }
+        }
+#endif
 
         #region Helper Classes
 

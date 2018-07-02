@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using AgileMapper.Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -58,8 +59,61 @@
         /// </returns>
         public MapperConfigurationSpecifier FromAssemblyOf<T>(params object[] services)
         {
-            var configurations = typeof(T)
-                .GetAssembly()
+            ApplyConfigurationsIn(typeof(T).GetAssembly(), services);
+            return this;
+        }
+
+        /// <summary>
+        /// Apply all the <see cref="MapperConfiguration"/>s defined in the given <paramref name="assemblies"/>.
+        /// </summary>
+        /// <param name="assemblies">
+        /// One or more assemblies in which to look for <see cref="MapperConfiguration"/>s.
+        /// </param>
+        /// <param name="services">
+        /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
+        /// via the GetService() method.
+        /// </param>
+        /// <returns>
+        /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
+        /// to be registered.
+        /// </returns>
+        public MapperConfigurationSpecifier From(IEnumerable<Assembly> assemblies, params object[] services)
+            => From(assemblies, a => true, services);
+
+        /// <summary>
+        /// Apply all the <see cref="MapperConfiguration"/>s defined in the given <paramref name="assemblies"/>
+        /// which match the given <paramref name="filter"/>.
+        /// </summary>
+        /// <param name="assemblies">
+        /// One or more assemblies in which to look for <see cref="MapperConfiguration"/>s.
+        /// </param>
+        /// <param name="filter">
+        /// A filter which assemblies should match before being checked for <see cref="MapperConfiguration"/>s.
+        /// </param>
+        /// <param name="services">
+        /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
+        /// via the GetService() method.
+        /// </param>
+        /// <returns>
+        /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
+        /// to be registered.
+        /// </returns>
+        public MapperConfigurationSpecifier From(
+            IEnumerable<Assembly> assemblies,
+            Func<Assembly, bool> filter,
+            params object[] services)
+        {
+            foreach (var assembly in assemblies.Filter(filter))
+            {
+                ApplyConfigurationsIn(assembly, services);
+            }
+
+            return this;
+        }
+
+        private void ApplyConfigurationsIn(Assembly assembly, ICollection<object> services)
+        {
+            var configurations = assembly
                 .GetAllTypes()
                 .Filter(t => !t.IsAbstract() && t.IsAssignableTo(typeof(MapperConfiguration)))
                 .Project(t => (MapperConfiguration)Activator.CreateInstance(t));
@@ -68,8 +122,6 @@
             {
                 Apply(configuration, services);
             }
-
-            return this;
         }
 
         private void Apply(MapperConfiguration configuration, ICollection<object> services)
