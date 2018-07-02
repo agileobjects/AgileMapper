@@ -12,8 +12,8 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Fixing propogation of recursion mapper funcs, re: issue #62
-- Fixing 'exact' member matching, re issue #63
+- Support for configured root target data sources, re: issue #64
+- Support for splitting configuration into dedicated, discoverable classes
 - Performance and memory use improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
