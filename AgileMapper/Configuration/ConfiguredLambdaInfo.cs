@@ -27,7 +27,7 @@
             _parametersSwapper = parametersSwapper;
             ReturnType = returnType;
 
-            _isForTargetDictionary = contextTypes.Any() && contextTypes[1].IsDictionary();
+            _isForTargetDictionary = (contextTypes.Length > 1) && contextTypes[1].IsDictionary();
         }
 
         #region Factory Methods
