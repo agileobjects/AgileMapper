@@ -354,7 +354,7 @@
                     .From<PublicField<Address>>()
                     .ToDynamics
                     .Map((pf, d) => pf.Value)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicField<Address>
                 {

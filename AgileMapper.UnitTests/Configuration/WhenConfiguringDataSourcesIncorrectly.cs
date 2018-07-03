@@ -255,6 +255,44 @@
         }
 
         [Fact]
+        public void ShouldErrorIfSimpleTypeConfiguredForComplexTarget()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<Person>()
+                        .Map((s, t) => s.Id)
+                        .To(t => t.Address);
+                }
+            });
+
+            configurationException.Message.ShouldContain(
+                "Person.Id of type 'Guid' cannot be mapped to target type 'Address'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfSimpleTypeConfiguredForEnumerableTarget()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<int>>()
+                        .To<PublicTwoFields<int[], int>>()
+                        .Map((s, t) => s.Value)
+                        .To(t => t.Value1);
+                }
+            });
+
+            configurationException.Message.ShouldContain(
+                "PublicField<int>.Value of type 'int' cannot be mapped to target type 'int[]'");
+        }
+
+        [Fact]
         public void ShouldErrorIfTargetParameterConfiguredAsTarget()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
@@ -283,12 +321,12 @@
                         .From<PublicProperty<int>>()
                         .To<PublicField<Guid>>()
                         .Map("No no no no no")
-                        .ToRootTarget();
+                        .ToTarget();
                 }
             });
 
             configurationException.Message.ShouldContain(
-                "'string' cannot be mapped to root target type 'PublicField<Guid>'");
+                "'string' cannot be mapped to target type 'PublicField<Guid>'");
         }
 
         [Fact]
@@ -302,14 +340,14 @@
                         .From<PublicProperty<int>>()
                         .To<PublicField<long>>()
                         .Map(ctx => ctx.Source.Value)
-                        .ToRootTarget();
+                        .ToTarget();
                 }
             });
 
             configurationException.Message.ShouldContain("PublicProperty<int>.Value");
 
             configurationException.Message.ShouldContain(
-                "'int' cannot be mapped to root target type 'PublicField<long>'");
+                "'int' cannot be mapped to target type 'PublicField<long>'");
         }
     }
 }

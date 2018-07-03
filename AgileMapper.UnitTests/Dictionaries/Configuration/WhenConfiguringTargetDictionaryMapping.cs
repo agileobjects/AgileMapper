@@ -354,7 +354,7 @@
                     .From<PublicField<Address>>()
                     .ToDictionaries
                     .Map((pf, d) => pf.Value)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicField<Address>
                 {

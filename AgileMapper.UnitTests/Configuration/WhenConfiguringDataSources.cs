@@ -1006,7 +1006,7 @@
                     .From(source)
                     .To<PublicTwoFields<int, int>>()
                     .Map((s, ptf) => s.Value)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var result = source
                     .MapUsing(mapper)
@@ -1026,7 +1026,7 @@
                     .From<PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>>()
                     .Over<PublicTwoFields<int, int>>()
                     .Map((s, t) => s.Value2.Value)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>
                 {
@@ -1065,7 +1065,7 @@
                     .To(t => t.Value1)
                     .And
                     .Map((mc, t) => mc.Address)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new MysteryCustomer { Name = "Nelly", Address = default(Address) };
 
@@ -1086,7 +1086,7 @@
                     .OnTo<PublicTwoFields<int, int>>()
                     .If((s, t) => s.Value1.Value > 5)
                     .Map((s, t) => s.Value1)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 mapper.WhenMapping
                     .From<PublicPropertyStruct<int>>()
@@ -1131,7 +1131,7 @@
                     .From<PublicTwoFields<Address, Address[]>>()
                     .To<List<Address>>()
                     .Map((s, r) => s.Value2)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicTwoFields<Address, Address[]>
                 {
@@ -1174,10 +1174,10 @@
                     .From(source)
                     .To<PublicTwoFields<string, string>>()
                     .Map((s, t) => s.PropertyOne)
-                    .ToRootTarget()
+                    .ToTarget()
                     .And
                     .Map((s, t) => s.PropertyTwo)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var result = mapper.Map(source).ToANew<PublicTwoFields<string, string>>();
 
@@ -1195,10 +1195,10 @@
                     .From<PublicTwoFields<int[], long[]>>()
                     .To<decimal[]>()
                     .Map((s, t) => s.Value1)
-                    .ToRootTarget()
+                    .ToTarget()
                     .And
                     .Map((s, t) => s.Value2)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicTwoFields<int[], long[]>
                 {

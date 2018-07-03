@@ -55,12 +55,12 @@
         IMappingConfigContinuation<TSource, TTarget> ToCtor(string parameterName);
 
         /// <summary>
-        /// Apply the configured source value to the root target object.
+        /// Apply the configured source value to the target object being configured.
         /// </summary>
         /// <returns>
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source 
         /// and target type being configured.
         /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> ToRootTarget();
+        IMappingConfigContinuation<TSource, TTarget> ToTarget();
     }
 }
