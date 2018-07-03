@@ -996,7 +996,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceMember()
+        public void ShouldApplyAConfiguredMemberRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1005,7 +1005,7 @@
                 mapper.WhenMapping
                     .From(source)
                     .To<PublicTwoFields<int, int>>()
-                    .Map((s, ptf) => s.Value)
+                    .Map(ctx => ctx.Source.Value)
                     .ToTarget();
 
                 var result = source
@@ -1018,7 +1018,7 @@
         }
 
         [Fact]
-        public void ShouldApplyANestedOverwriteConfiguredRootSourceMember()
+        public void ShouldApplyANestedOverwriteConfiguredMemberRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1054,7 +1054,7 @@
         }
 
         [Fact]
-        public void ShouldHandleAConfiguredRootSourceMemberNullValue()
+        public void ShouldHandleAConfiguredMemberRootSourceNullValue()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1077,7 +1077,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceMemberConditionally()
+        public void ShouldApplyAConfiguredMemberRootSourceConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1122,8 +1122,47 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/68
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceEnumerableMember()
+        public void ShouldSupportConfiguringAMemberRootSourceUsingMappingContext()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Model>()
+                    .To<ModelDto>()
+                    .Map(ctx => ctx.Source.Statistics)
+                    .ToTarget();
+
+                var source = new Model
+                {
+                    SomeOtherProperties = "jyutrgf",
+                    Statistics = new Statistics
+                    {
+                        Ranking = 0.5f,
+                        SomeOtherRankingStuff = "uityjtgrf"
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<ModelDto>();
+
+                result.SomeOtherProperties.ShouldBe("jyutrgf");
+                result.Ranking.ShouldBe(0.5f);
+                result.SomeOtherRankingStuff.ShouldBe("uityjtgrf");
+            }
+        }
+
+        //[Fact]
+        //public void ShouldApplyAConfiguredRootSourceToAnEnumerableElement()
+        //{
+        //    using (var mapper = Mapper.CreateNew())
+        //    {
+
+        //    }
+        //}
+
+        [Fact]
+        public void ShouldApplyAConfiguredEnumerableRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1160,7 +1199,7 @@
         }
 
         [Fact]
-        public void ShouldApplyMultipleConfiguredRootSourceComplexTypeMembers()
+        public void ShouldApplyMultipleConfiguredComplexTypeRootSources()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1187,14 +1226,14 @@
         }
 
         [Fact]
-        public void ShouldApplyMultipleConfiguredRootSourceEnumerableMembers()
+        public void ShouldApplyMultipleConfiguredEnumerableRootSources()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicTwoFields<int[], long[]>>()
                     .To<decimal[]>()
-                    .Map((s, t) => s.Value1)
+                    .Map(xtx => xtx.Source.Value1)
                     .ToTarget()
                     .And
                     .Map((s, t) => s.Value2)
@@ -1212,14 +1251,34 @@
             }
         }
 
-        // ReSharper disable once ClassNeverInstantiated.Local
-        // ReSharper disable UnusedAutoPropertyAccessor.Local
-        private class IdTester
+        internal class IdTester
         {
             public int ClassId { get; set; }
 
             public int ClassIdentifier { get; set; }
         }
-        // ReSharper restore UnusedAutoPropertyAccessor.Local
+
+        internal class Statistics
+        {
+            public float Ranking { get; set; }
+
+            public string SomeOtherRankingStuff { get; set; }
+        }
+
+        internal class Model
+        {
+            public string SomeOtherProperties { get; set; }
+
+            public Statistics Statistics { get; set; }
+        }
+
+        internal class ModelDto
+        {
+            public string SomeOtherProperties { get; set; }
+
+            public float Ranking { get; set; }
+
+            public string SomeOtherRankingStuff { get; set; }
+        }
     }
 }

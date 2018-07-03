@@ -171,8 +171,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var sourceParameter = Parameters.Create<TSource>("source");
                 var relativeMember = sm.RelativeTo(MapperData.SourceMember);
-                var memberAccess = relativeMember.GetQualifiedAccess(MapperData);
-                memberAccess = memberAccess.Replace(MapperData.SourceObject, sourceParameter);
+
+                var memberAccess = relativeMember
+                    .GetQualifiedAccess(MapperData)
+                    .Replace(
+                        MapperData.SourceObject,
+                        sourceParameter,
+                        ExpressionEvaluation.Equivalator);
 
                 var getRuntimeTypeCall = Expression.Call(
                     ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sm.Type),
