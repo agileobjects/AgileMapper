@@ -85,6 +85,20 @@
             result.Value.ShouldBe("Interfaces!");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/66
+        [Fact]
+        public void ShouldMapToAGivenTypeObject()
+        {
+            var source = new PublicProperty<string>
+            {
+                Value = "kjubfelkjnds;lkmm"
+            };
+            var result = Mapper.Map(source).ToANew(typeof(PublicField<string>));
+
+            result.ShouldBeOfType<PublicField<string>>();
+            ((PublicField<string>)result).Value.ShouldBe("kjubfelkjnds;lkmm");
+        }
+
         [Fact]
         public void ShouldHandleAnUnconstructableRootTargetType()
         {

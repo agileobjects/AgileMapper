@@ -374,6 +374,17 @@
             anonResult["ComplexList[1].Value2.Value"].ShouldBe(789);
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/66
+        [Fact]
+        public void ShouldMapToAGivenDictionaryTypeObject()
+        {
+            var source = new PublicProperty<int> { Value = 6473 };
+            var result = Mapper.Map(source).ToANew(typeof(Dictionary<string, string>));
+
+            result.ShouldBeOfType<Dictionary<string, string>>();
+            ((Dictionary<string, string>)result)["Value"].ShouldBe(6473);
+        }
+
         [Fact]
         public void ShouldHandleANullComplexTypeMember()
         {
