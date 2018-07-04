@@ -126,16 +126,18 @@
 
             var entryKey = (string)((ConstantExpression)entryKeyExpression).Value;
 
-            var rootMember = (DictionaryTargetMember)(_configInfo.TargetType == typeof(ExpandoObject)
-                ? CreateRootTargetQualifiedMember<ExpandoObject>()
-                : CreateRootTargetQualifiedMember<TTarget>());
+            var rootMember = (DictionaryTargetMember)CreateRootTargetQualifiedMember();
 
             entryMember = rootMember.Append(typeof(TSource), entryKey);
             return true;
         }
 
-        private QualifiedMember CreateRootTargetQualifiedMember<TRootTarget>()
-            => _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, TRootTarget>();
+        private QualifiedMember CreateRootTargetQualifiedMember()
+        {
+            return (_configInfo.TargetType == typeof(ExpandoObject))
+                ? _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, ExpandoObject>()
+                : _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, TTarget>();
+        }
 
         private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>()
         {
@@ -269,7 +271,7 @@
             return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
                 _configInfo,
                 GetValueLambdaInfo<TTarget>(),
-                CreateRootTargetQualifiedMember<TTarget>()));
+                CreateRootTargetQualifiedMember()));
         }
 
         private void ThrowIfSimpleSource(Type targetMemberType)

@@ -996,7 +996,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
-        public void ShouldApplyAConfiguredMemberRootSource()
+        public void ShouldApplyAConfiguredRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1018,7 +1018,7 @@
         }
 
         [Fact]
-        public void ShouldApplyANestedOverwriteConfiguredMemberRootSource()
+        public void ShouldApplyANestedOverwriteConfiguredRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1054,7 +1054,7 @@
         }
 
         [Fact]
-        public void ShouldHandleAConfiguredMemberRootSourceNullValue()
+        public void ShouldHandleAConfiguredRootSourceNullValue()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1077,7 +1077,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredMemberRootSourceConditionally()
+        public void ShouldApplyAConfiguredRootSourceConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1124,7 +1124,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/68
         [Fact]
-        public void ShouldSupportConfiguringAMemberRootSourceUsingMappingContext()
+        public void ShouldSupportConfiguringARootSourceUsingMappingContext()
         {
             using (var mapper = Mapper.CreateNew())
             {

@@ -346,7 +346,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceMember()
+        public void ShouldApplyAConfiguredRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -367,6 +367,35 @@
                 ((string)result.Value_Line2).ShouldBe("There too!");
                 ((string)result.Line1).ShouldBe("There!");
                 ((string)result.Line2).ShouldBe("There too!");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceToANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<Address>>()
+                    .ToDynamics
+                    .Map((pf, d) => pf.Value)
+                    .ToTarget();
+
+                var source = new PublicProperty<PublicField<Address>>
+                {
+                    Value = new PublicField<Address>
+                    {
+                        Value = new Address { Line1 = "Where?!", Line2 = "Here too!" }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<ExpandoObject>>();
+
+                var targetDynamicDictionary = (IDictionary<string, object>)result.Value;
+                targetDynamicDictionary["Value_Line1"].ShouldBe("Where?!");
+                targetDynamicDictionary["Value_Line2"].ShouldBe("Here too!");
+                targetDynamicDictionary["Line1"].ShouldBe("Where?!");
+                targetDynamicDictionary["Line2"].ShouldBe("Here too!");
             }
         }
     }
