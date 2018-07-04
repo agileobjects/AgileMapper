@@ -9,6 +9,11 @@
         public DataSourceFindContext(IChildMemberMappingData childMappingData)
         {
             ChildMappingData = childMappingData;
+
+            ConfiguredDataSources = MapperData
+                .MapperContext
+                .UserConfigurations
+                .GetDataSources(MapperData);
         }
 
         public IChildMemberMappingData ChildMappingData { get; }
@@ -19,7 +24,7 @@
 
         public bool StopFind { get; set; }
 
-        public IList<IConfiguredDataSource> ConfiguredDataSources { get; set; }
+        public IList<IConfiguredDataSource> ConfiguredDataSources { get; }
 
         public IDataSource GetFallbackDataSource()
             => ChildMappingData.RuleSet.FallbackDataSourceFactory.Create(MapperData);

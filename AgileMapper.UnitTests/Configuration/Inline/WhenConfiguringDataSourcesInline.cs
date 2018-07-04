@@ -340,7 +340,7 @@
                     .MapUsing(mapper)
                     .ToANew<PublicTwoFields<int, int>>(cfg => cfg
                         .Map((s, ptf) => s.Value)
-                        .ToRootTarget());
+                        .ToTarget());
 
                 result.Value1.ShouldBe(8392);
                 result.Value2.ShouldBe(5482);
@@ -361,7 +361,7 @@
                     .Map(source1)
                     .ToANew<PublicProperty<string>>(cfg => cfg
                         .Map((s, t) => s.Value)
-                        .ToRootTarget());
+                        .ToTarget());
 
                 result1.Value.ShouldBe("Hello!");
 
@@ -374,7 +374,7 @@
                     .Map(source2)
                     .ToANew<PublicProperty<string>>(cfg => cfg
                         .Map((s, t) => s.Value)
-                        .ToRootTarget());
+                        .ToTarget());
 
                 result2.Value.ShouldBe("Goodbye!");
 

@@ -284,6 +284,8 @@
                 expression = memberExpression.GetParentOrNull();
             }
 
+            AdjustMemberAccessesIfRootedInMappingData(memberAccesses, ref expression);
+
             var rootMember = rootMemberFactory.Invoke(expression.Type);
             var parentMember = rootMember;
 
@@ -307,6 +309,24 @@
             }
 
             return QualifiedMember.From(memberChain, mapperContext);
+        }
+
+        private static void AdjustMemberAccessesIfRootedInMappingData(IList<Expression> memberAccesses, ref Expression expression)
+        {
+            if (!expression.Type.IsClosedTypeOf(typeof(IMappingData<,>)))
+            {
+                return;
+            }
+
+            var mappingDataRoot = memberAccesses[0];
+            expression = Parameters.Create(mappingDataRoot.Type);
+
+            memberAccesses.RemoveAt(0);
+
+            for (var i = 0; i < memberAccesses.Count; i++)
+            {
+                memberAccesses[i] = memberAccesses[i].Replace(mappingDataRoot, expression);
+            }
         }
 
         private static Expression GetMemberAccess(Expression expression)

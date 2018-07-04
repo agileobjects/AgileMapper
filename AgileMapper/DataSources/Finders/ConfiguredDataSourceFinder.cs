@@ -7,7 +7,7 @@
     {
         public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
         {
-            if (NoDataSourcesAreConfigured(context))
+            if (context.ConfiguredDataSources.None())
             {
                 yield break;
             }
@@ -23,17 +23,6 @@
 
                 ++context.DataSourceIndex;
             }
-        }
-
-        private static bool NoDataSourcesAreConfigured(DataSourceFindContext context)
-        {
-            context.ConfiguredDataSources = context
-                .MapperData
-                .MapperContext
-                .UserConfigurations
-                .GetDataSources(context.MapperData);
-
-            return context.ConfiguredDataSources.None();
         }
     }
 }

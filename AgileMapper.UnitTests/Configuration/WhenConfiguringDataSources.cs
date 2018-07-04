@@ -996,7 +996,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceMember()
+        public void ShouldApplyAConfiguredRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1005,8 +1005,8 @@
                 mapper.WhenMapping
                     .From(source)
                     .To<PublicTwoFields<int, int>>()
-                    .Map((s, ptf) => s.Value)
-                    .ToRootTarget();
+                    .Map(ctx => ctx.Source.Value)
+                    .ToTarget();
 
                 var result = source
                     .MapUsing(mapper)
@@ -1018,7 +1018,7 @@
         }
 
         [Fact]
-        public void ShouldApplyANestedOverwriteConfiguredRootSourceMember()
+        public void ShouldApplyANestedOverwriteConfiguredRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1026,7 +1026,7 @@
                     .From<PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>>()
                     .Over<PublicTwoFields<int, int>>()
                     .Map((s, t) => s.Value2.Value)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicTwoFields<int, PublicField<PublicTwoFields<int, int>>>
                 {
@@ -1054,7 +1054,7 @@
         }
 
         [Fact]
-        public void ShouldHandleAConfiguredRootSourceMemberNullValue()
+        public void ShouldHandleAConfiguredRootSourceNullValue()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1065,7 +1065,7 @@
                     .To(t => t.Value1)
                     .And
                     .Map((mc, t) => mc.Address)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new MysteryCustomer { Name = "Nelly", Address = default(Address) };
 
@@ -1077,7 +1077,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceMemberConditionally()
+        public void ShouldApplyAConfiguredRootSourceConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1086,7 +1086,7 @@
                     .OnTo<PublicTwoFields<int, int>>()
                     .If((s, t) => s.Value1.Value > 5)
                     .Map((s, t) => s.Value1)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 mapper.WhenMapping
                     .From<PublicPropertyStruct<int>>()
@@ -1122,8 +1122,94 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/68
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceEnumerableMember()
+        public void ShouldSupportConfiguringARootSourceUsingMappingContext()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Model>()
+                    .To<ModelDto>()
+                    .Map(ctx => ctx.Source.Statistics)
+                    .ToTarget();
+
+                var source = new Model
+                {
+                    SomeOtherProperties = "jyutrgf",
+                    Statistics = new Statistics
+                    {
+                        Ranking = 0.5f,
+                        SomeOtherRankingStuff = "uityjtgrf"
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<ModelDto>();
+
+                result.SomeOtherProperties.ShouldBe("jyutrgf");
+                result.Ranking.ShouldBe(0.5f);
+                result.SomeOtherRankingStuff.ShouldBe("uityjtgrf");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceToANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<string>>>()
+                    .To<PublicField<int>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToTarget();
+
+                var source = new PublicField<PublicField<PublicField<string>>>
+                {
+                    Value = new PublicField<PublicField<string>>
+                    {
+                        Value = new PublicField<string> { Value = "53632" }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<PublicField<int>>>();
+
+                result.Value.Value.ShouldBe(53632);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceToAnEnumerableElement()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<string>>>()
+                    .ToANew<PublicField<string>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToTarget();
+
+                var source = new[]
+                {
+                    new PublicField<PublicField<string>>
+                    {
+                        Value = new PublicField<string> { Value = "kjfcrkjnad" }
+                    },
+                    new PublicField<PublicField<string>>
+                    {
+                        Value = new PublicField<string> { Value = "owkjwsnbsgtf" }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<Collection<PublicField<string>>>();
+
+                result.Count.ShouldBe(2);
+                result.First().Value.ShouldBe("kjfcrkjnad");
+                result.Second().Value.ShouldBe("owkjwsnbsgtf");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredEnumerableRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1131,7 +1217,7 @@
                     .From<PublicTwoFields<Address, Address[]>>()
                     .To<List<Address>>()
                     .Map((s, r) => s.Value2)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicTwoFields<Address, Address[]>
                 {
@@ -1160,7 +1246,7 @@
         }
 
         [Fact]
-        public void ShouldApplyMultipleConfiguredRootSourceComplexTypeMembers()
+        public void ShouldApplyMultipleConfiguredComplexTypeRootSources()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1174,10 +1260,10 @@
                     .From(source)
                     .To<PublicTwoFields<string, string>>()
                     .Map((s, t) => s.PropertyOne)
-                    .ToRootTarget()
+                    .ToTarget()
                     .And
                     .Map((s, t) => s.PropertyTwo)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var result = mapper.Map(source).ToANew<PublicTwoFields<string, string>>();
 
@@ -1187,18 +1273,18 @@
         }
 
         [Fact]
-        public void ShouldApplyMultipleConfiguredRootSourceEnumerableMembers()
+        public void ShouldApplyMultipleConfiguredEnumerableRootSources()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
                     .From<PublicTwoFields<int[], long[]>>()
                     .To<decimal[]>()
-                    .Map((s, t) => s.Value1)
-                    .ToRootTarget()
+                    .Map(xtx => xtx.Source.Value1)
+                    .ToTarget()
                     .And
                     .Map((s, t) => s.Value2)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicTwoFields<int[], long[]>
                 {
@@ -1212,14 +1298,34 @@
             }
         }
 
-        // ReSharper disable once ClassNeverInstantiated.Local
-        // ReSharper disable UnusedAutoPropertyAccessor.Local
-        private class IdTester
+        internal class IdTester
         {
             public int ClassId { get; set; }
 
             public int ClassIdentifier { get; set; }
         }
-        // ReSharper restore UnusedAutoPropertyAccessor.Local
+
+        internal class Statistics
+        {
+            public float Ranking { get; set; }
+
+            public string SomeOtherRankingStuff { get; set; }
+        }
+
+        internal class Model
+        {
+            public string SomeOtherProperties { get; set; }
+
+            public Statistics Statistics { get; set; }
+        }
+
+        internal class ModelDto
+        {
+            public string SomeOtherProperties { get; set; }
+
+            public float Ranking { get; set; }
+
+            public string SomeOtherRankingStuff { get; set; }
+        }
     }
 }

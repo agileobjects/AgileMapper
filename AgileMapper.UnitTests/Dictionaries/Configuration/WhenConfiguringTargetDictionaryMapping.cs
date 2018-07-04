@@ -346,7 +346,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceMember()
+        public void ShouldApplyAConfiguredRootSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -354,7 +354,7 @@
                     .From<PublicField<Address>>()
                     .ToDictionaries
                     .Map((pf, d) => pf.Value)
-                    .ToRootTarget();
+                    .ToTarget();
 
                 var source = new PublicField<Address>
                 {
@@ -367,6 +367,34 @@
                 result["Value.Line2"].ShouldBe("Here too!");
                 result["Line1"].ShouldBe("Here!");
                 result["Line2"].ShouldBe("Here too!");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceToANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<Address>>()
+                    .ToDictionariesWithValueType<string>()
+                    .Map((pf, d) => pf.Value)
+                    .ToTarget();
+
+                var source = new PublicProperty<PublicField<Address>>
+                {
+                    Value = new PublicField<Address>
+                    {
+                        Value = new Address { Line1 = "Where?!", Line2 = "Here too!" }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<Dictionary<string, string>>>();
+
+                result.Value["Value.Line1"].ShouldBe("Where?!");
+                result.Value["Value.Line2"].ShouldBe("Here too!");
+                result.Value["Line1"].ShouldBe("Where?!");
+                result.Value["Line2"].ShouldBe("Here too!");
             }
         }
     }

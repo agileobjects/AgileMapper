@@ -77,13 +77,16 @@
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
+            => base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);
+
+        protected override bool TargetMembersAreCompatible(IBasicMapperData mapperData)
         {
-            if (TargetMember.IsRoot && !mapperData.IsRoot)
+            if (base.TargetMembersAreCompatible(mapperData))
             {
-                return false;
+                return true;
             }
 
-            return base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);
+            return TargetMember.IsRoot && TargetMember.HasCompatibleType(mapperData.TargetMember.Type);
         }
 
         public IConfiguredDataSource Create(IMemberMapperData mapperData)

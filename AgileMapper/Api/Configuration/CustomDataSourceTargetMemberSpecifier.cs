@@ -13,7 +13,6 @@
     using Members.Dictionaries;
     using NetStandardPolyfills;
     using Projection;
-    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
 
@@ -45,6 +44,7 @@
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             ThrowIfTargetParameterSpecified(targetMember);
+            ThrowIfSimpleSourceForNonSimpleTargetMember(typeof(TTargetValue));
 
             return RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetMember));
         }
@@ -52,20 +52,36 @@
         IProjectionConfigContinuation<TSource, TTarget> ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>.To<TResultValue>(
             Expression<Func<TTarget, TResultValue>> resultMember)
         {
+            ThrowIfTargetParameterSpecified(resultMember);
+            ThrowIfSimpleSourceForNonSimpleTargetMember(typeof(TResultValue));
+
             return RegisterDataSource<TResultValue>(() => CreateFromLambda<TResultValue>(resultMember));
         }
 
         public IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
-            => RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetSetMethod));
-
-        private static void ThrowIfTargetParameterSpecified(LambdaExpression targetParameter)
         {
-            if (targetParameter.Body == targetParameter.Parameters.FirstOrDefault())
+            ThrowIfSimpleSourceForNonSimpleTargetMember(typeof(TTargetValue));
+
+            return RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetSetMethod));
+        }
+
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        private static void ThrowIfTargetParameterSpecified(LambdaExpression targetMember)
+        {
+            if (targetMember.Body == targetMember.Parameters.FirstOrDefault())
             {
                 throw new MappingConfigurationException(
                     "The target parameter is not a valid configured target; use .ToTarget() " +
-                    "to map a custom data source to the root target object");
+                    "to map a custom data source to the target object");
+            }
+        }
+
+        private void ThrowIfSimpleSourceForNonSimpleTargetMember(Type targetMemberType)
+        {
+            if ((targetMemberType != typeof(object)) && !targetMemberType.IsSimple())
+            {
+                ThrowIfSimpleSource(targetMemberType);
             }
         }
 
@@ -110,16 +126,18 @@
 
             var entryKey = (string)((ConstantExpression)entryKeyExpression).Value;
 
-            var rootMember = (DictionaryTargetMember)(_configInfo.TargetType == typeof(ExpandoObject)
-                ? CreateRootTargetQualifiedMember<ExpandoObject>()
-                : CreateRootTargetQualifiedMember<TTarget>());
+            var rootMember = (DictionaryTargetMember)CreateRootTargetQualifiedMember();
 
             entryMember = rootMember.Append(typeof(TSource), entryKey);
             return true;
         }
 
-        private QualifiedMember CreateRootTargetQualifiedMember<TRootTarget>()
-            => _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, TRootTarget>();
+        private QualifiedMember CreateRootTargetQualifiedMember()
+        {
+            return (_configInfo.TargetType == typeof(ExpandoObject))
+                ? _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, ExpandoObject>()
+                : _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, TTarget>();
+        }
 
         private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>()
         {
@@ -246,17 +264,17 @@
 
         #endregion
 
-        public IMappingConfigContinuation<TSource, TTarget> ToRootTarget()
+        public IMappingConfigContinuation<TSource, TTarget> ToTarget()
         {
-            ThrowIfSimpleSourceTypeConfigured();
+            ThrowIfSimpleSource(typeof(TTarget));
 
             return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
                 _configInfo,
                 GetValueLambdaInfo<TTarget>(),
-                CreateRootTargetQualifiedMember<TTarget>()));
+                CreateRootTargetQualifiedMember()));
         }
 
-        private void ThrowIfSimpleSourceTypeConfigured()
+        private void ThrowIfSimpleSource(Type targetMemberType)
         {
             var customValue = _customValueLambda.Body;
 
@@ -270,9 +288,8 @@
             if (customValue.NodeType == ExpressionType.MemberAccess)
             {
                 var rootSourceMember = _configInfo.MapperContext.QualifiedMemberFactory.RootSource<TSource, TTarget>();
-                var configuredMember = Member.RootSource(customValue.ToReadableString(), customValue.Type);
-                var configuredSourceMember = QualifiedMember.From(configuredMember, _configInfo.MapperContext);
-                sourceValue = configuredSourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
+                var sourceMember = customValue.ToSourceMember(_configInfo.MapperContext);
+                sourceValue = sourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
             }
             else
             {
@@ -281,10 +298,10 @@
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}'{1}' cannot be mapped to root target type '{2}'",
+                "{0}'{1}' cannot be mapped to target type '{2}'",
                 sourceValue,
                 customValue.Type.GetFriendlyName(),
-                typeof(TTarget).GetFriendlyName()));
+                targetMemberType.GetFriendlyName()));
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(

@@ -166,8 +166,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected static bool HasConfiguredRootDataSources(IMemberMapperData mapperData, out IList<IConfiguredDataSource> dataSources)
         {
-            if (!mapperData.IsRoot ||
-                !mapperData.MapperContext.UserConfigurations.HasConfiguredRootDataSources)
+            if (!mapperData.MapperContext.UserConfigurations.HasConfiguredRootDataSources)
             {
                 dataSources = null;
                 return false;
