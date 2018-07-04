@@ -1152,14 +1152,61 @@
             }
         }
 
-        //[Fact]
-        //public void ShouldApplyAConfiguredRootSourceToAnEnumerableElement()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceToANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<string>>>()
+                    .To<PublicField<int>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToTarget();
 
-        //    }
-        //}
+                var source = new PublicField<PublicField<PublicField<string>>>
+                {
+                    Value = new PublicField<PublicField<string>>
+                    {
+                        Value = new PublicField<string> { Value = "53632" }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<PublicField<int>>>();
+
+                result.Value.Value.ShouldBe(53632);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredRootSourceToAnEnumerableElement()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<string>>>()
+                    .ToANew<PublicField<string>>()
+                    .Map(ctx => ctx.Source.Value)
+                    .ToTarget();
+
+                var source = new[]
+                {
+                    new PublicField<PublicField<string>>
+                    {
+                        Value = new PublicField<string> { Value = "kjfcrkjnad" }
+                    },
+                    new PublicField<PublicField<string>>
+                    {
+                        Value = new PublicField<string> { Value = "owkjwsnbsgtf" }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<Collection<PublicField<string>>>();
+
+                result.Count.ShouldBe(2);
+                result.First().Value.ShouldBe("kjfcrkjnad");
+                result.Second().Value.ShouldBe("owkjwsnbsgtf");
+            }
+        }
 
         [Fact]
         public void ShouldApplyAConfiguredEnumerableRootSource()

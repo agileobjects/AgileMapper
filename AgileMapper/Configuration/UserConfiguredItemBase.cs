@@ -115,8 +115,7 @@
                 return true;
             }
 
-            if ((TargetMember == mapperData.TargetMember) ||
-                (TargetMember.IsRoot && mapperData.TargetMember.IsRoot))
+            if (TargetMembersAreCompatible(mapperData))
             {
                 return true;
             }
@@ -130,6 +129,9 @@
                    (mapperData.TargetMember.Name == TargetMember.Name) &&
                     TargetMember.LeafMember.DeclaringType.IsAssignableTo(mapperData.TargetMember.LeafMember.DeclaringType);
         }
+
+        protected virtual bool TargetMembersAreCompatible(IBasicMapperData mapperData)
+            => TargetMember == mapperData.TargetMember;
 
         private bool HasCompatibleCondition(IBasicMapperData mapperData)
             => !HasConfiguredCondition || ConfigInfo.ConditionSupports(mapperData.RuleSet);

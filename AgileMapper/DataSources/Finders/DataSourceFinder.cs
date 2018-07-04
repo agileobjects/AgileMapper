@@ -4,16 +4,8 @@
     using System.Linq;
     using Members;
 
-    internal static class DataSourceFinder
+    internal struct DataSourceFinder
     {
-        private static readonly IDataSourceFinder[] _finders =
-        {
-            default(ConfiguredDataSourceFinder),
-            default(MaptimeDataSourceFinder),
-            default(SourceMemberDataSourceFinder),
-            default(MetaMemberDataSourceFinder)
-        };
-
         public static DataSourceSet FindFor(IChildMemberMappingData childMappingData)
         {
             var findContext = new DataSourceFindContext(childMappingData);
@@ -24,18 +16,20 @@
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)
         {
-            foreach (var finder in _finders)
+            foreach (var finder in EnumerateFinders())
             {
                 foreach (var dataSource in finder.FindFor(context))
                 {
-                    if (dataSource.IsValid)
+                    if (!dataSource.IsValid)
                     {
-                        yield return dataSource;
+                        continue;
+                    }
 
-                        if (!dataSource.IsConditional)
-                        {
-                            yield break;
-                        }
+                    yield return dataSource;
+
+                    if (!dataSource.IsConditional)
+                    {
+                        yield break;
                     }
                 }
 
@@ -44,6 +38,14 @@
                     yield break;
                 }
             }
+        }
+
+        private static IEnumerable<IDataSourceFinder> EnumerateFinders()
+        {
+            yield return default(ConfiguredDataSourceFinder);
+            yield return default(MaptimeDataSourceFinder);
+            yield return default(SourceMemberDataSourceFinder);
+            yield return default(MetaMemberDataSourceFinder);
         }
     }
 }
