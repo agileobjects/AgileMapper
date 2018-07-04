@@ -14,6 +14,8 @@
     /// </summary>
     public class MapperConfigurationSpecifier
     {
+        private static readonly IDictionary<Type, object> _noServices = new Dictionary<Type, object>();
+
         private readonly IMapper _mapper;
 
         internal MapperConfigurationSpecifier(IMapper mapper)
@@ -39,7 +41,7 @@
         {
             var configuration = new TConfiguration();
 
-            Apply(configuration, services);
+            Apply(configuration, CreateServiceCache(services));
             return this;
         }
 
@@ -127,17 +129,36 @@
                 .Filter(t => !t.IsAbstract() && t.IsDerivedFrom(typeof(MapperConfiguration)))
                 .Project(t => (MapperConfiguration)Activator.CreateInstance(t));
 
+            var servicesByType = CreateServiceCache(services);
+
             foreach (var configuration in configurations)
             {
-                Apply(configuration, services);
+                Apply(configuration, servicesByType);
             }
         }
 
-        private void Apply(MapperConfiguration configuration, ICollection<object> services)
+        private static IDictionary<Type, object> CreateServiceCache(ICollection<object> services)
+        {
+            if (services.None())
+            {
+                return _noServices;
+            }
+
+            var serviceCache = new Dictionary<Type, object>(services.Count);
+
+            foreach (var service in services)
+            {
+                serviceCache[service.GetType()] = service;
+            }
+
+            return serviceCache;
+        }
+
+        private void Apply(MapperConfiguration configuration, IDictionary<Type, object> servicesByType)
         {
             try
             {
-                configuration.ApplyTo(_mapper, services);
+                configuration.ApplyTo(_mapper, servicesByType);
             }
             catch (Exception ex)
             {

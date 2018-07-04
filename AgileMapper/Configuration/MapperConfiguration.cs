@@ -5,45 +5,41 @@
     using System.Linq;
     using Api;
     using Api.Configuration;
-    using Extensions.Internal;
     using Queryables.Api;
+    using ReadableExpressions.Extensions;
 
     /// <summary>
     /// Base class for multiple, dedicated mapper configuration classes.
     /// </summary>
     public abstract class MapperConfiguration
     {
-        private Dictionary<Type, object> _servicesByType;
+        private IDictionary<Type, object> _servicesByType;
         private IMapper _mapper;
 
-        internal void ApplyTo(IMapper mapper, ICollection<object> services)
+        internal void ApplyTo(IMapper mapper, IDictionary<Type, object> servicesByType)
         {
             _mapper = mapper;
-
-            if (services.Any())
-            {
-                _servicesByType = CreateServiceCache(services);
-            }
+            _servicesByType = servicesByType;
 
             Configure();
-        }
-
-        private static Dictionary<Type, object> CreateServiceCache(ICollection<object> services)
-        {
-            var serviceCache = new Dictionary<Type, object>(services.Count);
-
-            foreach (var service in services)
-            {
-                serviceCache[service.GetType()] = service;
-            }
-
-            return serviceCache;
         }
 
         /// <summary>
         /// Configure how mappings should be performed.
         /// </summary>
         protected abstract void Configure();
+
+        /// <summary>
+        /// Get the registered <typeparamref name="TService"/> instance to assist with mapper configuration.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to retrieve.</typeparam>
+        /// <returns>The registered <typeparamref name="TService"/> instance, or null if none is registered.</returns>
+        protected TService GetServiceOrThrow<TService>()
+            where TService : class
+        {
+            return GetServiceOrNull<TService>()
+                ?? throw new MappingConfigurationException($"No service of type {typeof(TService).GetFriendlyName()} is available");
+        }
 
         /// <summary>
         /// Get the registered <typeparamref name="TService"/> instance to assist with mapper configuration.

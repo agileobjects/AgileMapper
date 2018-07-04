@@ -107,6 +107,27 @@
             });
         }
 
+        [Fact]
+        public void ShouldApplyMapperConfigurationCallbacks()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var data = new Dictionary<string, object>();
+
+                mapper.WhenMapping
+                    .UseConfigurations.From<CallbacksMapperConfiguration>(data);
+
+                var source = new Address { Line1 = "One", Line2 = "Two" };
+                var result = mapper.DeepClone(source);
+
+                result.Line1.ShouldBe("One");
+                result.Line2.ShouldBe("Two");
+
+                data["SourceAddress"].ShouldBe(source);
+                data["TargetAddress"].ShouldBe(result);
+            }
+        }
+
         #region Helper Classes
 
         public class PfiToPfsMapperConfiguration : MapperConfiguration
@@ -151,6 +172,28 @@
                 var result = mapper.Map(source).ToANew<PublicField<int>>();
 
                 result.Value.ShouldBe(1010);
+            }
+        }
+
+        public class CallbacksMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+            {
+                var dataByKey = GetServiceOrNull<Dictionary<string, object>>();
+
+                if (dataByKey == null)
+                {
+                    return;
+                }
+
+                WhenMapping
+                    .From<Address>()
+                    .To<Address>()
+                    .Before.MappingBegins
+                    .Call(ctx => dataByKey["SourceAddress"] = ctx.Source)
+                    .And
+                    .After.MappingEnds
+                    .Call(ctx => dataByKey["TargetAddress"] = ctx.Target);
             }
         }
 
