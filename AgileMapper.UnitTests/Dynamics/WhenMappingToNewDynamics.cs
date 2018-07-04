@@ -43,5 +43,17 @@
             ((string)result.Address_Line1).ShouldBe("One!");
             ((string)result.Address_Line2).ShouldBe("Two!");
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/66
+        [Fact]
+        public void ShouldMapToExpandoObjectIfGivenAsAType()
+        {
+            var source = new PublicProperty<int> { Value = 6473 };
+            var result = Mapper.Map(source).ToANew(typeof(ExpandoObject));
+
+            result.ShouldNotBeNull();
+            dynamic dynamicResult = result;
+            ((int)dynamicResult.Value).ShouldBe(6473);
+        }
     }
 }

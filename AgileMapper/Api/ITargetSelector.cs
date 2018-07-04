@@ -11,6 +11,13 @@
     public interface ITargetSelector<TSource>
     {
         /// <summary>
+        /// Create an instance of the given <paramref name="resultType"/> from the specified source object.
+        /// </summary>
+        /// <param name="resultType">The type of object to create from the specified source object.</param>
+        /// <returns>The result of the new object mapping.</returns>
+        object ToANew(Type resultType);
+
+        /// <summary>
         /// Create an instance of <typeparamref name="TResult"/> from the specified source object.
         /// </summary>
         /// <typeparam name="TResult">The type of object to create from the specified source object.</typeparam>
