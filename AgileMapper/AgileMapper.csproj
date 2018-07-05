@@ -5,7 +5,7 @@
     <Summary>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.</Summary>
     <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.</Description>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
-    <TargetFrameworks>netstandard1.0;netstandard1.3;net40</TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard1.3;net35;net40</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
@@ -15,7 +15,7 @@
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md</PackageLicenseUrl>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.0</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
@@ -23,8 +23,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.3.0" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.11.0" />
+    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.12.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
@@ -57,6 +57,17 @@
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
+    <PackageReference Include="DynamicLanguageRuntime">
+      <Version>1.1.2</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;</DefineConstants>
+    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
   </PropertyGroup>
 
 </Project>

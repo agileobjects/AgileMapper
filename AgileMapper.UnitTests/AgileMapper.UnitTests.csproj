@@ -41,11 +41,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgileObjects.NetStandardPolyfills, Version=1.3.0.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.NetStandardPolyfills.1.3.0\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
+    <Reference Include="AgileObjects.NetStandardPolyfills, Version=1.4.0.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.NetStandardPolyfills.1.4.0\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
     </Reference>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=1.11.0.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.11.0\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=1.12.0.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.1.12.0\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Primitives, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
