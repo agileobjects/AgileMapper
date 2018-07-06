@@ -77,9 +77,9 @@
 
         private Expression CreateWarnings()
         {
-            var warningsText = string.Join(
-                Environment.NewLine + Environment.NewLine,
-                _mappingMismatches.Project(mm => mm.Warning));
+            var warningsText = _mappingMismatches
+                .Project(mm => mm.Warning)
+                .Join(Environment.NewLine + Environment.NewLine);
 
             return (warningsText != string.Empty)
                 ? ReadableExpression.Comment(warningsText)
@@ -220,7 +220,7 @@
             public string TargetMemberPath { get; }
 
             public string SourceMemberPaths =>
-                string.Join(" / ", _sourceMembers.Project(sm => sm.GetFriendlySourcePath(_rootMapperData)));
+                _sourceMembers.Project(sm => sm.GetFriendlySourcePath(_rootMapperData)).Join(" / ");
 
             public string Warning => _warning ?? (_warning = CreateWarning());
 

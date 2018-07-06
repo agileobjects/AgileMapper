@@ -56,6 +56,17 @@
             }
         }
 
+#if NET35
+        public static void AddRange<TContained, TItem>(this List<TContained> items, IEnumerable<TItem> newItems)
+            where TItem : TContained
+        {
+            foreach (var newItem in newItems)
+            {
+                items.Add(newItem);
+            }
+        }
+#endif
+
         [DebuggerStepThrough]
         public static T First<T>(this IList<T> items) => items[0];
 

@@ -1,9 +1,13 @@
 namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
-    using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Members;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     /// <summary>
     /// Provides options for configuring mappings of the type specified by the type argument.

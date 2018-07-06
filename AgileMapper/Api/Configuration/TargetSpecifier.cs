@@ -2,7 +2,9 @@
 {
     using AgileMapper.Configuration;
     using Dictionaries;
+#if DYNAMIC_SUPPORTED
     using Dynamics;
+#endif
     using Projection;
 
     /// <summary>
@@ -87,11 +89,13 @@
         public ITargetDictionaryMappingConfigurator<TSource, TValue> ToDictionariesWithValueType<TValue>()
             => new TargetDictionaryMappingConfigurator<TSource, TValue>(_configInfo.ForAllRuleSets());
 
+#if DYNAMIC_SUPPORTED
         /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
         /// (create new, overwrite, etc), to target ExpandoObjects.
         /// </summary>
         public ITargetDynamicMappingConfigurator<TSource> ToDynamics
             => new TargetDynamicMappingConfigurator<TSource>(_configInfo);
+#endif
     }
 }

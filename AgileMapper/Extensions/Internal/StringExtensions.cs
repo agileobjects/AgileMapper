@@ -1,5 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
+    using System.Collections.Generic;
+#if NET35
+    using System.Linq;
+#endif
     using System.Text.RegularExpressions;
     using static System.StringComparison;
 
@@ -170,6 +174,33 @@
             }
 
             return true;
+        }
+
+        public static string Join(this IEnumerable<string> strings, string separator)
+        {
+#if NET35
+            return string.Join(separator, strings.ToArray());
+#else
+            return string.Join(separator, strings);
+#endif
+        }
+
+        public static string Join<T>(this IEnumerable<T> values, string separator)
+        {
+#if NET35
+            return string.Join(separator, values.Project(v => v.ToString()).ToArray());
+#else
+            return string.Join(separator, values);
+#endif
+        }
+
+        public static bool IsNullOrWhiteSpace(this string value)
+        {
+#if NET35
+            return (value == null) || (value.Trim() == string.Empty);
+#else
+            return string.IsNullOrWhiteSpace(value);
+#endif
         }
     }
 }

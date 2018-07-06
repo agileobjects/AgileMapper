@@ -10,6 +10,8 @@
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using ReadableExpressions.Translators;
+    using LinqExp = System.Linq.Expressions;
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
@@ -511,5 +513,16 @@
             binaryExpression = null;
             return false;
         }
+
+#if NET35
+        public static LambdaExpression ToDlrExpression(this LinqExp.LambdaExpression linqLambda)
+            => LinqExpressionToDlrExpressionConverter.Convert(linqLambda);
+        
+        public static Expression<TDelegate> ToDlrExpression<TDelegate>(this LinqExp.Expression<TDelegate> linqLambda)
+            => (Expression<TDelegate>)LinqExpressionToDlrExpressionConverter.Convert(linqLambda);
+        
+        public static Expression ToDlrExpression(this LinqExp.Expression linqExpression)
+            => LinqExpressionToDlrExpressionConverter.Convert(linqExpression);
+#endif
     }
 }

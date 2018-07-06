@@ -1,3 +1,4 @@
+#if DYNAMIC_SUPPORTED
 namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     using System.Collections.Generic;
@@ -38,3 +39,4 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
             => MapMemberNameKey<object>(memberNamePart);
     }
 }
+#endif

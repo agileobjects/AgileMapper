@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+#if DYNAMIC_SUPPORTED
     using System.Dynamic;
+#endif
     using System.Linq.Expressions;
     using Configuration;
 
@@ -12,6 +14,7 @@
     /// <typeparam name="TSource">The Type of object to be flattened.</typeparam>
     public interface IFlatteningSelector<TSource>
     {
+#if DYNAMIC_SUPPORTED
         /// <summary>
         /// Flatten to an ExpandoObject using the default <see cref="IMapper"/> and any given 
         /// <paramref name="configurations"/>.
@@ -24,6 +27,7 @@
         /// <returns>An ExpandoObject dynamic containing the flattened source object.</returns>
         dynamic ToDynamic(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, ExpandoObject>>>[] configurations);
+#endif
 
         /// <summary>
         /// Flatten to an IDictionary{string, object} using the default <see cref="IMapper"/> and any given 

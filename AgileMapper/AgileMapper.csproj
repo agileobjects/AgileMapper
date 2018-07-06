@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;DYNAMIC_SUPPORTED;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;SERIALIZATION_SUPPORTED;</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;SERIALIZATION_SUPPORTED;DYNAMIC_SUPPORTED;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
@@ -56,7 +56,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;</DefineConstants>
+    <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;DYNAMIC_SUPPORTED;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
@@ -66,7 +66,6 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;</DefineConstants>
     <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
   </PropertyGroup>
 

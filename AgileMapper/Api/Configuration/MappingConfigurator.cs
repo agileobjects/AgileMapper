@@ -7,7 +7,9 @@
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Projection;
     using Dictionaries;
+#if DYNAMIC_SUPPORTED
     using Dynamics;
+#endif
     using Extensions.Internal;
     using Members;
     using Projection;
@@ -44,9 +46,10 @@
         public ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries
             => new TargetDictionaryMappingConfigurator<TSource, TTarget>(ConfigInfo);
 
+#if DYNAMIC_SUPPORTED
         public ITargetDynamicMappingInlineConfigurator<TSource> ForDynamics
             => new TargetDynamicMappingConfigurator<TSource>(ConfigInfo);
-
+#endif
         public void ThrowNowIfMappingPlanIsIncomplete() => MappingValidator.Validate(ConfigInfo);
 
         public IFullMappingInlineConfigurator<TSource, TTarget> LookForDerivedTypesIn(params Assembly[] assemblies)
@@ -265,8 +268,11 @@
         private MappingConfigContinuation<TSource, TTarget> IgnoreMembersByFilter(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
+#if NET35
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter.ToDlrExpression());
+#else
             var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
-
+#endif
             MapperContext.UserConfigurations.Add(configuredIgnoredMember);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
@@ -286,9 +292,11 @@
         {
             foreach (var targetMember in targetMembers)
             {
-                var configuredIgnoredMember =
-                    new ConfiguredIgnoredMember(ConfigInfo, targetMember);
-
+#if NET35
+                var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, targetMember.ToDlrExpression());
+#else
+                var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, targetMember);
+#endif
                 MapperContext.UserConfigurations.Add(configuredIgnoredMember);
                 ConfigInfo.NegateCondition();
             }
@@ -364,8 +372,11 @@
                     ConfigInfo.ForSourceValueType(valueLambdaInfo.ReturnType),
                     valueLambdaInfo);
             }
-
+#if NET35
+            var valueConstant = Expression.Constant(value, typeof(TSourceValue));
+#else
             var valueConstant = value.ToConstantExpression();
+#endif
             var valueLambda = Expression.Lambda<Func<TSourceValue>>(valueConstant);
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(

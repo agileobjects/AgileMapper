@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using Microsoft.Scripting.Utils;
 #else
     using System.Linq.Expressions;
 #endif
@@ -396,7 +397,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
                 var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
 
-                var targetParameterValue = k.RuntimeTargetType.IsPrimitive()
+                var targetParameterValue = TypeExtensionsPolyfill.IsPrimitive(k.RuntimeTargetType)
                     ? Expression.Coalesce(targetParameter, typeof(int).ToDefaultExpression())
                     : (Expression)targetParameter;
 

@@ -38,9 +38,10 @@
         /// <returns>The string representation of the given <paramref name="mappingPlan"/>.</returns>
         public static implicit operator string(MappingPlan mappingPlan)
         {
-            return string.Join(
-                Environment.NewLine + Environment.NewLine,
-                mappingPlan._mappingPlanFunctions.Project(pd => pd.GetDescription()));
+            return mappingPlan
+                ._mappingPlanFunctions
+                .Project(pd => pd.GetDescription())
+                .Join(Environment.NewLine + Environment.NewLine);
         }
 
         /// <summary>

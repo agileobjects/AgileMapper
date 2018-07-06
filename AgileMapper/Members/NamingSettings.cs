@@ -28,8 +28,8 @@
 
             _joinedNameFactories = new List<Func<IEnumerable<string>, string>>
             {
-                names => string.Join(string.Empty, names),
-                names => string.Join(".", names)
+                names => names.Join(string.Empty),
+                names => names.Join(".")
             };
 
             _customNameMatchers = new List<Regex>();

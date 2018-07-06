@@ -20,7 +20,7 @@
     internal static class MemberExtensions
     {
         public static string GetFullName(this IEnumerable<Member> members)
-            => string.Join(string.Empty, members.Project(m => m.JoiningName));
+            => members.Project(m => m.JoiningName).Join(string.Empty);
 
         public static string GetFriendlySourcePath(this IQualifiedMember sourceMember, IMemberMapperData rootMapperData)
             => GetFriendlyMemberPath(sourceMember, rootMapperData.SourceMember);

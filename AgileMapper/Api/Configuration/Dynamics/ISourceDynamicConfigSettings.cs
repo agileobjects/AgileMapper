@@ -1,4 +1,5 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
+﻿#if DYNAMIC_SUPPORTED
+namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     /// <summary>
     /// Provides options for configuring how mappers will perform mappings from Dynamics to the given 
@@ -51,3 +52,4 @@
         ISourceDynamicMappingConfigurator<TTarget> And { get; }
     }
 }
+#endif

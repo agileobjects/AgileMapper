@@ -37,9 +37,10 @@
         /// </returns>
         public static implicit operator string(MappingPlanSet mappingPlans)
         {
-            return string.Join(
-                Environment.NewLine + Environment.NewLine,
-                mappingPlans._mappingPlans.Project(plan => plan.ToString()));
+            return mappingPlans
+                ._mappingPlans
+                .Project(plan => plan.ToString())
+                .Join(Environment.NewLine + Environment.NewLine);
         }
 
         /// <summary>

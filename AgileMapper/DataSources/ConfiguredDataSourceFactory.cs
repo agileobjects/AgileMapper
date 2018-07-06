@@ -1,8 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Linq.Expressions;
     using Configuration;
     using Members;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ConfiguredDataSourceFactory : UserConfiguredItemBase, IPotentialClone
     {

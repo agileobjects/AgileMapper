@@ -1,10 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
     using System;
-    using System.Linq.Expressions;
     using ObjectPopulation.Recursion;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class RecursionMapperMappingPlanFunction : IMappingPlanFunction
     {

@@ -5,6 +5,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
+#if NET35
+    using Extensions.Internal;
+#endif
     using Members;
     using ReadableExpressions;
 
@@ -52,7 +55,12 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         private QualifiedMember GetSourceMemberOrThrow(LambdaExpression lambda)
         {
-            var sourceMember = lambda.Body.ToSourceMember(ConfigInfo.MapperContext);
+#if NET35
+            var lambdaBody = lambda.Body.ToDlrExpression();
+#else
+            var lambdaBody = lambda.Body;
+#endif
+            var sourceMember = lambdaBody.ToSourceMember(ConfigInfo.MapperContext);
 
             if (sourceMember != null)
             {
@@ -60,7 +68,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             }
 
             throw new MappingConfigurationException(
-                $"Source member {lambda.Body.ToReadableString()} is not readable.");
+                $"Source member {lambdaBody.ToReadableString()} is not readable.");
         }
     }
 }

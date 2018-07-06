@@ -78,7 +78,7 @@
 
         public static ElementKeyPartFactory For(string pattern, MappingConfigInfo configInfo)
         {
-            if (string.IsNullOrWhiteSpace(pattern))
+            if (pattern.IsNullOrWhiteSpace())
             {
                 throw InvalidPattern();
             }

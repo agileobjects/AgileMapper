@@ -1,8 +1,12 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Linq.Expressions;
     using Members;
     using Members.Dictionaries;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ExistingMemberValueOrDefaultDataSource : DataSourceBase
     {

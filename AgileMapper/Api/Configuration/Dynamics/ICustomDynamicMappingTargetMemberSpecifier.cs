@@ -1,4 +1,5 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
+﻿#if DYNAMIC_SUPPORTED
+namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     using System;
     using System.Linq.Expressions;
@@ -22,3 +23,4 @@
             Expression<Func<TTarget, TTargetValue>> targetMember);
     }
 }
+#endif

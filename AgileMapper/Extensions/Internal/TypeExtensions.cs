@@ -19,9 +19,7 @@
 
             var shortVariableName =
                 variableName[0] +
-                string.Join(
-                    string.Empty,
-                    variableName.ToCharArray().Skip(1).Filter(char.IsUpper));
+                variableName.ToCharArray().Skip(1).Filter(char.IsUpper).Join(string.Empty);
 
             shortVariableName = shortVariableName.ToLowerInvariant();
 
@@ -76,9 +74,9 @@
 
             variableName = variableName.Substring(0, variableName.IndexOf('`'));
 
-            variableName += string.Join(
-                string.Empty,
-                genericTypeArguments.Project(arg => "_" + arg.GetVariableNameInPascalCase()));
+            variableName += genericTypeArguments
+                .Project(arg => "_" + arg.GetVariableNameInPascalCase())
+                .Join(string.Empty);
 
             return variableName;
         }

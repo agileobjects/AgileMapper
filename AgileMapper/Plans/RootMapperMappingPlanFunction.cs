@@ -1,10 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
-    using System.Linq.Expressions;
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
     using Validation;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class RootMapperMappingPlanFunction : IMappingPlanFunction
     {

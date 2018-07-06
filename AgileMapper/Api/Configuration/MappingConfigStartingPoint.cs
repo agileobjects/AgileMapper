@@ -1,13 +1,17 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+#if DYNAMIC_SUPPORTED
     using System.Dynamic;
+#endif
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
     using Dictionaries;
+#if DYNAMIC_SUPPORTED
     using Dynamics;
+#endif
     using Extensions.Internal;
     using Members;
     using Projection;
@@ -301,7 +305,11 @@
         /// </returns>
         public IGlobalMappingSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
+#if NET35
+            var configuredIgnoredMember = new ConfiguredIgnoredMember(GlobalConfigInfo, memberFilter.ToDlrExpression());
+#else
             var configuredIgnoredMember = new ConfiguredIgnoredMember(GlobalConfigInfo, memberFilter);
+#endif
 
             MapperContext.UserConfigurations.Add(configuredIgnoredMember);
             return this;
@@ -409,6 +417,7 @@
         public ISourceDictionaryTargetTypeSelector<TValue> FromDictionariesWithValueType<TValue>()
             => CreateDictionaryConfigurator<TValue>(Dictionary);
 
+#if DYNAMIC_SUPPORTED
         /// <summary>
         /// Configure how this mapper performs mappings from or to ExpandoObject instances.
         /// </summary>
@@ -420,7 +429,7 @@
         /// </summary>
         public ISourceDynamicTargetTypeSelector FromDynamics
             => CreateDictionaryConfigurator<object>(Expando, typeof(ExpandoObject), sourceValueType: AllTypes);
-
+#endif
         private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>(
             DictionaryType dictionaryType,
             Type sourceType = null,

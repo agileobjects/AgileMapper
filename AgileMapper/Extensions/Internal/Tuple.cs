@@ -1,5 +1,5 @@
 ﻿#if NET35
-namespace AgileObjects.AgileMapper.Extensions
+namespace AgileObjects.AgileMapper.Extensions.Internal
 {
     internal static class Tuple
     {

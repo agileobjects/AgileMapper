@@ -3,10 +3,16 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+#if NET35
+    using System.Linq;
+#endif
     using System.Linq.Expressions;
     using Api.Configuration;
     using Api.Configuration.Projection;
     using Caching;
+#if NET35
+    using Extensions.Internal;
+#endif
 
     internal class InlineMapperContextSet : IEnumerable<MapperContext>
     {
@@ -51,7 +57,11 @@
             IMappingContext mappingContext)
         {
             var key = new InlineMapperKey<TSource, TTarget, TConfigurator>(
+#if NET35
+                configurations.Project(c => c.ToDlrExpression()).ToArray(),
+#else
                 configurations,
+#endif
                 configuratorFactory,
                 mappingContext);
 

@@ -1,4 +1,5 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
+﻿#if DYNAMIC_SUPPORTED
+namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     /// <summary>
     /// Provides options for specifying the type of ExpandoObject mapping to perform.
@@ -38,3 +39,4 @@
         ISourceDynamicMappingConfigurator<TTarget> Over<TTarget>();
     }
 }
+#endif
