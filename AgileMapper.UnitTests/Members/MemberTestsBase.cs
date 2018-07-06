@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using AgileMapper.Extensions.Internal;
     using AgileMapper.Members;
     using NetStandardPolyfills;
 
@@ -14,10 +13,10 @@
 
         internal IQualifiedMember SourceMemberFor<T>(T sourceObject)
         {
-            var sourceParameter = Parameters.Create<T>("source");
+            var sourceParameter = Expression.Parameter(typeof(T), "source");
             var sourceProperty = typeof(T).GetPublicInstanceProperties().First();
             var sourcePropertyAccess = Expression.Property(sourceParameter, sourceProperty);
-            var sourcePropertyCastToObject = sourcePropertyAccess.GetConversionToObject();
+            var sourcePropertyCastToObject = Expression.Convert(sourcePropertyAccess, typeof(object));
             var sourcePropertyLambda = Expression.Lambda<Func<T, object>>(sourcePropertyCastToObject, sourceParameter);
 
             return SourceMemberFor(sourceObject, sourcePropertyLambda);

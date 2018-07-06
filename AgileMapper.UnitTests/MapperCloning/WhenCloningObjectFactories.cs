@@ -4,8 +4,13 @@
     using System.Collections.Generic;
     using AgileMapper.Configuration;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenCloningObjectFactories
     {
         [Fact]

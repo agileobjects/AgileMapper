@@ -303,11 +303,7 @@
             if (customValue.NodeType == ExpressionType.MemberAccess)
             {
                 var rootSourceMember = _configInfo.MapperContext.QualifiedMemberFactory.RootSource<TSource, TTarget>();
-#if NET35
-                var sourceMember = customValue.ToDlrExpression().ToSourceMember(_configInfo.MapperContext);
-#else
                 var sourceMember = customValue.ToSourceMember(_configInfo.MapperContext);
-#endif
                 sourceValue = sourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
             }
             else

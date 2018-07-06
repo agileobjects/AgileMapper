@@ -11,6 +11,7 @@
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using LinqExp = System.Linq.Expressions;
 #else
     using System.Linq.Expressions;
 #endif
@@ -254,6 +255,10 @@
             return population;
         }
 
+#if NET35
+        public static QualifiedMember ToSourceMember(this LinqExp.Expression memberAccess, MapperContext mapperContext)
+            => memberAccess.ToDlrExpression().ToSourceMember(mapperContext);
+#endif
         public static QualifiedMember ToSourceMember(this Expression memberAccess, MapperContext mapperContext)
         {
             return CreateMember(
@@ -263,6 +268,10 @@
                 mapperContext);
         }
 
+#if NET35
+        public static QualifiedMember ToTargetMember(this LinqExp.LambdaExpression memberAccess, MapperContext mapperContext)
+            => memberAccess.ToDlrExpression().ToTargetMember(mapperContext);
+#endif
         public static QualifiedMember ToTargetMember(this LambdaExpression memberAccess, MapperContext mapperContext)
         {
             return CreateMember(

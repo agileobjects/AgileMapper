@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using AgileMapper.Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -125,8 +126,8 @@
             void FailTest()
             {
                 Asplode(
-                    string.Join(", ", expectedValues.Select(v => v.ToString())),
-                    string.Join(", ", actualValues.Select(v => v.ToString())));
+                    expectedValues.Project(v => v.ToString()).Join(", "),
+                    actualValues.Project(v => v.ToString()).Join(", "));
             }
 
             using (var expectedEnumerator = expectedValues.GetEnumerator())
@@ -169,7 +170,7 @@
         {
             actualValues.ShouldNotBeNull();
             actualValues.ShouldNotBeEmpty();
-            actualValues.Select(converter).SequenceEqual(expectedValues).ShouldBeTrue();
+            actualValues.Project(converter).SequenceEqual(expectedValues).ShouldBeTrue();
         }
 
         public static void ShouldNotBe<TActual, TExpected>(this TActual value, TExpected expectedValue)
@@ -260,6 +261,24 @@
             {
                 Asplode("null", "non-null", errorMessage);
             }
+        }
+
+        public static void ShouldHaveFlag(this Enum actual, Enum expected)
+            => HasFlag(actual, expected).ShouldBeTrue();
+
+        public static void ShouldNotHaveFlag(this Enum actual, Enum notExpected)
+            => HasFlag(actual, notExpected).ShouldBeFalse();
+
+        private static bool HasFlag(Enum actual, Enum expected)
+        {
+#if NET35
+            var actualValue = Convert.ToUInt64(actual);
+            var expectedValue = Convert.ToUInt64(expected);
+
+            return (expectedValue & actualValue) == actualValue;
+#else
+            return actual.HasFlag(expected);
+#endif
         }
 
         public static T ShouldHaveSingleItem<T>(this IEnumerable<T> items)

@@ -4,8 +4,13 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingToNewEnumerables
     {
         [Fact]
@@ -109,6 +114,7 @@
             result.ShouldBe(1, 2, 3);
         }
 
+#if !NET35
         [Fact]
         public void ShouldCreateAnIReadOnlyCollection()
         {
@@ -118,7 +124,7 @@
             result.ShouldNotBeNull();
             result.ShouldBe((short)1, (short)2, (short)3);
         }
-
+#endif
         [Fact]
         public void ShouldHandleANullComplexTypeElement()
         {

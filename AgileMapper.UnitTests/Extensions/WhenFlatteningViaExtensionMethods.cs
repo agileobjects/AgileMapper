@@ -2,10 +2,16 @@
 {
     using AgileMapper.Extensions;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenFlatteningViaExtensionMethods
     {
+#if !NET35
         [Fact]
         public void ShouldFlattenToDynamic()
         {
@@ -105,7 +111,7 @@
                 ((string)result._2_Line2).ShouldBe("3_2");
             }
         }
-
+#endif
         [Fact]
         public void ShouldFlattenToDictionary()
         {

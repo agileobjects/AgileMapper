@@ -3,8 +3,13 @@
     using System;
     using System.Linq;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     // ReSharper disable PossibleNullReferenceException
     public class WhenFindingSourceMembers : MemberTestsBase
     {

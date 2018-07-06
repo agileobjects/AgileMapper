@@ -2,9 +2,6 @@
 {
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
-#if NET35
-    using Extensions.Internal;
-#endif
     using Members;
     using ObjectPopulation;
 
@@ -27,11 +24,7 @@
         internal CallbackSpecifier<TSource, TTarget> CreateCallbackSpecifier(LambdaExpression targetMemberLambda = null)
         {
             var targetMember =
-#if NET35
-                targetMemberLambda?.ToDlrExpression().ToTargetMember(_configInfo.MapperContext)
-#else
                 targetMemberLambda?.ToTargetMember(_configInfo.MapperContext)
-#endif
                 ?? QualifiedMember.None;
 
             return new CallbackSpecifier<TSource, TTarget>(_configInfo, _callbackPosition, targetMember);

@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
+#if !NET35
     using System.Threading.Tasks;
+#endif
 
     public static class Should
     {
@@ -31,6 +33,7 @@
             throw new Exception("Expected exception of type " + typeof(TException).Name);
         }
 
+#if !NET35
         public static Task<Exception> ThrowAsync(Func<Task> test) => ThrowAsync<Exception>(test);
 
         public static async Task<TException> ThrowAsync<TException>(Func<Task> test)
@@ -47,7 +50,7 @@
 
             throw new Exception("Expected exception of type " + typeof(TException).Name);
         }
-
+#endif
         public static void NotThrow(Action testAction) => NotThrow<Exception>(testAction);
 
         public static void NotThrow<TException>(Action testAction)

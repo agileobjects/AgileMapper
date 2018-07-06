@@ -1,8 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.MapperCloning
 {
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenCloningStringFormatting
     {
         [Fact]

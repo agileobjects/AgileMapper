@@ -1,8 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Structs
 {
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingToNewStructs
     {
         [Fact]

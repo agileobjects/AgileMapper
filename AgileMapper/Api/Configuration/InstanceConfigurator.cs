@@ -1,13 +1,12 @@
 namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
-    using AgileMapper.Configuration;
-    using Members;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
     using System.Linq.Expressions;
+    using AgileMapper.Configuration;
+#if NET35
+    using Extensions.Internal;
 #endif
+    using Members;
 
     /// <summary>
     /// Provides options for configuring mappings of the type specified by the type argument.
@@ -33,7 +32,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// </param>
         public void IdentifyUsing<TId>(Expression<Func<TObject, TId>> idExpression)
         {
-            _configInfo.MapperContext.UserConfigurations.Identifiers.Add(typeof(TObject), idExpression);
+            _configInfo.MapperContext.UserConfigurations.Identifiers.Add(
+                typeof(TObject),
+                idExpression
+#if NET35
+                .ToDlrExpression()
+#endif
+            );
         }
 
         /// <summary>

@@ -5,8 +5,13 @@
     using System.Collections.Generic;
     using AgileMapper.Extensions.Internal;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenAccessingTypeInformation
     {
         #region IsEnumerable

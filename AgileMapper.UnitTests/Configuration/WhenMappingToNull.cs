@@ -4,9 +4,15 @@
     using System.Collections.Generic;
     using System.Linq;
     using AgileMapper.Configuration;
+    using AgileMapper.Extensions.Internal;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingToNull
     {
         [Fact]
@@ -16,7 +22,7 @@
             {
                 mapper.WhenMapping
                     .To<Address>()
-                    .If((o, a) => string.IsNullOrWhiteSpace(a.Line1))
+                    .If((o, a) => a.Line1.IsNullOrWhiteSpace())
                     .MapToNull();
 
                 var source = new CustomerViewModel { Name = "Bob" };

@@ -2,8 +2,13 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using AgileMapper.Configuration;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenIgnoringMembersIncorrectly
     {
         [Fact]
