@@ -174,7 +174,9 @@
             var queryString = flattened
                 .Project(kvp => Uri.EscapeDataString(kvp.Key) + "=" + Uri.EscapeDataString(kvp.Value))
                 .Join("&");
-
+#if NET35
+            queryString = queryString.Replace("!", "%21");
+#endif
             return queryString.Replace(".", "%2E");
         }
 

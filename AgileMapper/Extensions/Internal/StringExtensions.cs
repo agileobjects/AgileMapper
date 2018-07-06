@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
+    using System;
     using System.Collections.Generic;
 #if NET35
     using System.Linq;
@@ -31,6 +32,40 @@
         public static bool StartsWithIgnoreCase(this string value, string substring)
             => value.StartsWith(substring, OrdinalIgnoreCase);
 
+#if NET35
+        public static Guid ToGuid(this string value)
+            => TryParseGuid(value, out var guid) ? guid.GetValueOrDefault() : default(Guid);
+
+        public static Guid? ToGuidNullable(this string value)
+            => TryParseGuid(value, out var guid) ? guid : default(Guid?);
+
+        private static bool TryParseGuid(string value, out Guid? guid)
+        {
+            if (value.IsNullOrWhiteSpace() || (value.Length != 36))
+            {
+                guid = default(Guid?);
+                return false;
+            }
+
+            if ((value[8] != '-') || (value[13] != '-') || (value[18] != '-') || (value[23] != '-'))
+            {
+                guid = default(Guid?);
+                return false;
+            }
+
+            foreach (var character in value)
+            {
+                if ((character != '-') && !char.IsLetterOrDigit(character))
+                {
+                    guid = default(Guid?);
+                    return false;
+                }
+            }
+
+            guid = new Guid(value);
+            return true;
+        }
+#endif
         public static bool MatchesKey(
             this string subjectKey,
             string queryKey,

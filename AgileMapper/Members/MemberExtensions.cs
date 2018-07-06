@@ -373,10 +373,16 @@
             {
                 return methodCall;
             }
-
-            // ReSharper disable once PossibleNullReferenceException
-            var methodInfo = (MethodInfo)((ConstantExpression)methodCall.Object).Value;
+#if NET35
+            var methodInfoValue = methodCall.Arguments.Last();
+            var instance = methodCall.Arguments[1];
+#else
+            var methodInfoValue = methodCall.Object;
             var instance = methodCall.Arguments.Last();
+#endif
+            // ReSharper disable once PossibleNullReferenceException
+            var methodInfo = (MethodInfo)((ConstantExpression)methodInfoValue).Value;
+
             var valueParameter = Parameters.Create(methodInfo.GetParameters().First().ParameterType, "value");
 
             return Expression.Call(instance, methodInfo, valueParameter);

@@ -26,7 +26,11 @@
                 default(ToBoolConverter),
                 new ToEnumConverter(userConfigurations),
                 TryParseConverter<DateTime>.Instance,
+#if NET35
+                ToGuidConverter.Instance,
+#else
                 TryParseConverter<Guid>.Instance,
+#endif
                 ToNumericConverter<decimal>.Instance,
                 ToNumericConverter<double>.Instance,
                 ToNumericConverter<long>.Instance,

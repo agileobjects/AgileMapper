@@ -23,7 +23,11 @@
             plan.ShouldContain("idKey = sourceDictionary_String_String.Keys.FirstOrDefault(key => key.MatchesKey(\"Id\"");
             plan.ShouldContain("id = sourceDictionary_String_String[idKey]");
             plan.ShouldContain("customerViewModel.Id =");
+#if NET35
+            plan.ShouldContain("id.ToGuid()");
+#else
             plan.ShouldContain("Guid.TryParse(id");
+#endif
         }
 
         [Fact]

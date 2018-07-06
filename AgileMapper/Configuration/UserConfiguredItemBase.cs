@@ -12,7 +12,12 @@
     using System.Linq.Expressions;
 #endif
 
-    internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
+    internal abstract class UserConfiguredItemBase :
+        IComparable<UserConfiguredItemBase>
+#if NET35
+        ,
+        IComparable
+#endif
     {
         protected UserConfiguredItemBase(MappingConfigInfo configInfo)
             : this(configInfo, QualifiedMember.All)
@@ -157,7 +162,10 @@
 
             return false;
         }
-
+#if NET35
+        int IComparable.CompareTo(object obj)
+            => ((IComparable<UserConfiguredItemBase>)this).CompareTo((UserConfiguredItemBase)obj);
+#endif
         int IComparable<UserConfiguredItemBase>.CompareTo(UserConfiguredItemBase other)
         {
             if (ReferenceEquals(this, other))
