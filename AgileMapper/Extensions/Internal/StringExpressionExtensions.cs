@@ -112,7 +112,7 @@
         public static Expression GetFirstOrDefaultCall(this Expression stringAccess)
         {
             return Expression.Call(
-                typeof(StringExtensions).GetPublicStaticMethod("FirstOrDefault"),
+                typeof(PublicStringExtensions).GetPublicStaticMethod("FirstOrDefault"),
                 stringAccess);
         }
 
@@ -125,7 +125,7 @@
             if (separator == null)
             {
                 return Expression.Call(
-                    typeof(StringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 2),
+                    typeof(PublicStringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 2),
                     stringAccess,
                     keyValue);
             }
@@ -145,7 +145,7 @@
             }
 
             return Expression.Call(
-                typeof(StringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 4),
+                typeof(PublicStringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 4),
                 stringAccess,
                 keyValue,
                 separator,
@@ -156,7 +156,7 @@
             Expression separator)
         {
             return Expression.Call(
-                typeof(StringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 3),
+                typeof(PublicStringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 3),
                 stringAccess,
                 keyValue,
                 separator);

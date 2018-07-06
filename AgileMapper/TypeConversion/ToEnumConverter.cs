@@ -494,7 +494,12 @@
                 nameMatchingConversion);
 
             var valueIsNullOrEmpty = Expression.Call(
-                typeof(string).GetPublicStaticMethod("IsNullOrWhiteSpace"),
+#if NET35
+                typeof(StringExtensions)
+#else
+                typeof(string)
+#endif
+                    .GetPublicStaticMethod("IsNullOrWhiteSpace"),
                 sourceValue);
 
             var convertedValueOrDefault = Expression.Condition(

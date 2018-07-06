@@ -17,6 +17,18 @@
         }
 
         [Fact]
+        public void ShouldPerformAStringToEnumMapping()
+        {
+            ExecuteInPartialTrust(helper => helper.TestStringToEnumMapping());
+        }
+
+        [Fact]
+        public void ShouldPerformADoubleToCharacterMapping()
+        {
+            ExecuteInPartialTrust(helper => helper.TestDoubleToCharacterMapping());
+        }
+
+        [Fact]
         public void ShouldPerformAComplexMapping()
         {
             ExecuteInPartialTrust(helper => helper.TestComplexMapping());
@@ -32,6 +44,12 @@
         public void ShouldPerformARuntimeTypedMapping()
         {
             ExecuteInPartialTrust(helper => helper.TestRuntimeTypedMapping());
+        }
+
+        [Fact]
+        public void ShouldPerformASourceDictionaryMapping()
+        {
+            ExecuteInPartialTrust(helper => helper.TestSourceDictionaryMapping());
         }
 
         [Fact]
@@ -125,6 +143,22 @@
             Assert.Equal("I don't trust you...", result.Value);
         }
 
+        public void TestStringToEnumMapping()
+        {
+            var source = new PublicProperty<string> { Value = "Mr" };
+            var result = Mapper.Map(source).ToANew<PublicField<Title>>();
+
+            Assert.Equal(Title.Mr, result.Value);
+        }
+
+        public void TestDoubleToCharacterMapping()
+        {
+            var source = new PublicProperty<double> { Value = 7 };
+            var result = Mapper.Map(source).ToANew<PublicField<char>>();
+
+            Assert.Equal('7', result.Value);
+        }
+
         public void TestComplexMapping()
         {
             var source = new Customer { Name = "Untrusted!", Discount = 0.2m };
@@ -141,6 +175,17 @@
 
             Assert.Equal("Untrusted Person :(", result.Name);
             Assert.Equal(0.1, result.Discount);
+        }
+
+        public void TestSourceDictionaryMapping()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["Value.Value"] = "123"
+            };
+            var result = Mapper.Map(source).ToANew<PublicField<PublicField<int>>>();
+
+            Assert.Equal(123, result.Value.Value);
         }
 
         public void TestRuntimeTypedMapping()
