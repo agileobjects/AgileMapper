@@ -2,10 +2,14 @@
 {
     using System;
     using System.Globalization;
-    using System.Linq.Expressions;
     using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class Ef5QueryProviderSettings : LegacyEfQueryProviderSettings
     {

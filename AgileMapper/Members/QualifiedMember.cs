@@ -4,12 +4,16 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Linq.Expressions;
     using Caching;
     using Dictionaries;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class QualifiedMember : IQualifiedMember
     {

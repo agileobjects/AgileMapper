@@ -1,9 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Members;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal static partial class ExpressionExtensions
     {

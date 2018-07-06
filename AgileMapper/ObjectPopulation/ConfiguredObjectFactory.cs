@@ -1,11 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq.Expressions;
     using Configuration;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ConfiguredObjectFactory : UserConfiguredItemBase, IPotentialClone
     {

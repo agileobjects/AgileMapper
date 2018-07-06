@@ -2,9 +2,13 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal static class DictionaryMemberMapperDataExtensions
     {

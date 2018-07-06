@@ -1,9 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using System.Linq.Expressions;
     using Members;
     using ObjectPopulation;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class MapToNullCondition : UserConfiguredItemBase
     {

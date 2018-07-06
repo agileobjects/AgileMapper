@@ -1,12 +1,16 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {

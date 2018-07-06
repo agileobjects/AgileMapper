@@ -1,10 +1,14 @@
 namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
-    using System.Linq.Expressions;
     using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class TryParseConverter<T> : IValueConverter
     {

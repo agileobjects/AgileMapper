@@ -1,6 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
     using System.Linq.Expressions;
+#endif
 
     internal class ExceptionCallback : UserConfiguredItemBase
     {

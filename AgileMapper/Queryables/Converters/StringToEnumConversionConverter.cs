@@ -1,7 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
-    using System.Linq.Expressions;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal static class StringToEnumConversionConverter
     {
@@ -32,7 +36,7 @@
 
             return !testMethodCall.Method.IsStatic ||
                    (testMethodCall.Method.DeclaringType != typeof(string)) ||
-                    testMethodCall.Method.Name != nameof(string.IsNullOrWhiteSpace);
+                   (testMethodCall.Method.Name != "IsNullOrWhiteSpace");
         }
     }
 }

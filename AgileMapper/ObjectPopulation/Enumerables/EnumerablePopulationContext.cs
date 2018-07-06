@@ -1,10 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class EnumerablePopulationContext
     {

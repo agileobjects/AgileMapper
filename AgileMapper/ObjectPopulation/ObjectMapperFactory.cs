@@ -2,13 +2,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Caching;
     using ComplexTypes;
     using Enumerables;
     using Extensions.Internal;
     using MapperKeys;
     using Queryables;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ObjectMapperFactory
     {

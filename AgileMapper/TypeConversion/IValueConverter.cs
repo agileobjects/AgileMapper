@@ -1,7 +1,11 @@
 namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
     using System.Linq.Expressions;
+#endif
 
     /// <summary>
     /// Implementing classes will convert a value type or string to another value type.

@@ -1,10 +1,14 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class EnumerableMappingExpressionFactory : MappingExpressionFactoryBase
     {

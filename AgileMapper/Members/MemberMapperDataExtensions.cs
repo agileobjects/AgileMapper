@@ -4,13 +4,17 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Reflection;
     using DataSources;
     using Dictionaries;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using static Member;
 
     internal static class MemberMapperDataExtensions

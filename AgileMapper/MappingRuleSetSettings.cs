@@ -1,7 +1,11 @@
 namespace AgileObjects.AgileMapper
 {
     using System;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
     using System.Linq.Expressions;
+#endif
 
     internal class MappingRuleSetSettings
     {

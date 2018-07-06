@@ -1,12 +1,16 @@
 namespace AgileObjects.AgileMapper
 {
-    using System.Linq.Expressions;
     using DataSources;
     using Extensions.Internal;
     using Members.Population;
     using ObjectPopulation.Enumerables;
     using ObjectPopulation.MapperKeys;
     using ObjectPopulation.Recursion;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class MappingRuleSet
     {

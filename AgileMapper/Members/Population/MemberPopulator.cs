@@ -2,10 +2,14 @@ namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Linq;
-    using System.Linq.Expressions;
     using Configuration;
     using DataSources;
     using ReadableExpressions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class MemberPopulator : IMemberPopulationContext, IMemberPopulator
     {

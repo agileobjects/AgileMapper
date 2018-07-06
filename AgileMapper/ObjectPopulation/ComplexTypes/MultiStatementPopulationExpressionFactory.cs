@@ -1,9 +1,13 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Members;
     using Members.Population;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using static CallbackPosition;
 
     internal class MultiStatementPopulationExpressionFactory : PopulationExpressionFactoryBase

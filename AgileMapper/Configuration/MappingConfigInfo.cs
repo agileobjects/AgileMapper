@@ -3,11 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class MappingConfigInfo : ITypePair
     {

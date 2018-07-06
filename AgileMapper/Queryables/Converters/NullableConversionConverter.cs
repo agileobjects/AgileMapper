@@ -1,7 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
-    using System.Linq.Expressions;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal static class NullableConversionConverter
     {

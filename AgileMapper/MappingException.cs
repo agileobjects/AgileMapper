@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
-    using System.Linq.Expressions;
     using System.Reflection;
 #if SERIALIZATION_SUPPORTED
     using System.Runtime.Serialization;
@@ -9,6 +8,11 @@
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     /// <summary>
     /// Represents an error that occurred during a mapping.

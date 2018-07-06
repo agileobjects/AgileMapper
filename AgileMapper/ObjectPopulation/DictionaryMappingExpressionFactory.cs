@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Reflection;
     using ComplexTypes;
     using DataSources;
@@ -14,6 +13,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members.Population;
     using NetStandardPolyfills;
     using ReadableExpressions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {

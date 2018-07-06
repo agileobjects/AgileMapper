@@ -1,9 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Recursion
 {
-    using System.Linq.Expressions;
     using Members;
     using ObjectPopulation;
     using ObjectPopulation.Recursion;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal struct MapToDepthRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
     {

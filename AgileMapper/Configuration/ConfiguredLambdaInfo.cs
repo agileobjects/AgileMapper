@@ -2,12 +2,16 @@
 {
     using System;
     using System.Linq;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
     using NetStandardPolyfills;
     using ObjectPopulation;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ConfiguredLambdaInfo
     {

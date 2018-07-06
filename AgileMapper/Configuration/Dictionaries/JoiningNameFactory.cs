@@ -2,11 +2,15 @@
 {
     using System;
     using System.Dynamic;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using static DictionaryContext;
 
     internal class JoiningNameFactory : DictionaryKeyPartFactoryBase

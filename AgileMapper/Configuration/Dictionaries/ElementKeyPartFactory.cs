@@ -2,11 +2,15 @@
 {
     using System.Collections.Generic;
     using System.Dynamic;
-    using System.Linq.Expressions;
     using System.Text.RegularExpressions;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ElementKeyPartFactory : DictionaryKeyPartFactoryBase
     {

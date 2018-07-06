@@ -2,11 +2,15 @@
 {
     using System;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Reflection;
     using Converters;
     using Extensions.Internal;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class DefaultQueryProviderSettings : IQueryProviderSettings
     {

@@ -1,13 +1,17 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-    using System.Linq.Expressions;
     using System.Reflection;
     using Dictionaries;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class Member
     {
@@ -123,7 +127,7 @@ namespace AgileObjects.AgileMapper.Members
                 property.PropertyType,
                 property,
                 (instance, p) => Expression.Property(instance, (PropertyInfo)p),
-                property.IsWriteable());
+                property.IsWritable());
         }
 
         public static Member GetMethod(MethodInfo method)

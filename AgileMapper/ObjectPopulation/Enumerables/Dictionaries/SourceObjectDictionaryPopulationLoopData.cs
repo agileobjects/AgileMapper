@@ -1,8 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
-    using System.Linq.Expressions;
     using DataSources;
     using Extensions.Internal;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class SourceObjectDictionaryPopulationLoopData : IPopulationLoopData
     {

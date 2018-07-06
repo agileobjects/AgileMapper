@@ -3,11 +3,15 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using Caching;
     using Extensions.Internal;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {

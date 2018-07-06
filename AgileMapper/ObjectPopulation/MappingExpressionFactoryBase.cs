@@ -3,14 +3,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using DataSources;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
+#endif
     using static CallbackPosition;
 
     internal abstract class MappingExpressionFactoryBase

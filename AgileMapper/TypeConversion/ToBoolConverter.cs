@@ -4,9 +4,13 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal struct ToBoolConverter : IValueConverter
     {

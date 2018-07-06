@@ -2,11 +2,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Caching;
     using MapperKeys;
     using Recursion;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {
