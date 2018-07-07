@@ -12,6 +12,9 @@
     internal static class TypeExtensions
     {
         private static readonly Assembly _msCorLib = typeof(string).GetAssembly();
+#if NET35
+        private static readonly Assembly _systemCoreLib = typeof(Func<>).GetAssembly();
+#endif
 
         public static string GetShortVariableName(this Type type)
         {
@@ -118,7 +121,14 @@
                    (type == typeof(ICollection));
         }
 
-        public static bool IsFromBcl(this Type type) => ReferenceEquals(type.GetAssembly(), _msCorLib);
+        public static bool IsFromBcl(this Type type)
+        {
+            return ReferenceEquals(type.GetAssembly(), _msCorLib)
+#if NET35
+                || ReferenceEquals(type.GetAssembly(), _systemCoreLib)
+#endif
+                ;
+        }
 
         public static bool IsEnumerable(this Type type)
         {

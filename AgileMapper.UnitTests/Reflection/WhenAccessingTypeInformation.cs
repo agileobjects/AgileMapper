@@ -99,5 +99,17 @@
         }
 
         #endregion
+
+        [Fact]
+        public void ShouldEvaluateATypeAsFromTheBcl()
+        {
+            typeof(Func<>).IsFromBcl().ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldEvaluateATypeAsNotFromTheBcl()
+        {
+            typeof(WhenAccessingTypeInformation).IsFromBcl().ShouldBeFalse();
+        }
     }
 }
