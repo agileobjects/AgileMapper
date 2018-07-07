@@ -88,8 +88,7 @@
 
             ThrowIfConflictingItemExists(condition, conditions, (c, cC) => c.GetConflictMessage());
 
-            conditions.Add(condition);
-            conditions.Sort();
+            conditions.AddSorted(condition);
         }
 
         public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)

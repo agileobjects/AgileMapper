@@ -9,7 +9,11 @@
     using System.Linq.Expressions;
 #endif
 
-    internal class MapToNullCondition : UserConfiguredItemBase
+    internal class MapToNullCondition :
+        UserConfiguredItemBase
+#if NET35
+        , IComparable<MapToNullCondition>
+#endif
     {
         private readonly Type _targetType;
 
@@ -46,5 +50,10 @@
 
             return base.GetConditionOrNull(mapperData, position);
         }
+
+#if NET35
+        int IComparable<MapToNullCondition>.CompareTo(MapToNullCondition other)
+            => DoComparisonTo(other);
+#endif
     }
 }

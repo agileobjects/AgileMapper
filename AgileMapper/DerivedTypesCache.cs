@@ -14,13 +14,13 @@
 
         private readonly List<Assembly> _assemblies;
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
-        private readonly ICache<Type, IList<Type>> _derivedTypesByType;
+        private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;
 
         public DerivedTypesCache(CacheSet cacheSet)
         {
             _assemblies = new List<Assembly>();
             _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>(default(ReferenceEqualsComparer<Assembly>));
-            _derivedTypesByType = cacheSet.CreateScoped<Type, IList<Type>>(default(ReferenceEqualsComparer<Type>));
+            _derivedTypesByType = cacheSet.CreateScoped<Type, ICollection<Type>>(default(ReferenceEqualsComparer<Type>));
         }
 
         public void AddAssemblies(Assembly[] assemblies)
@@ -41,7 +41,7 @@
             return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
         }
 
-        private IList<Type> GetDerivedTypesForType(Type type)
+        private ICollection<Type> GetDerivedTypesForType(Type type)
         {
             var typeAssemblies = new[] { type.GetAssembly() };
 
@@ -65,9 +65,9 @@
                 return Enumerable<Type>.EmptyArray;
             }
 
-            var derivedTypesList = new List<Type>(derivedTypes);
-
-            derivedTypesList.Sort(TypeComparer.MostToLeastDerived);
+            var derivedTypesList = derivedTypes
+                .OrderBy(t => t, TypeComparer.MostToLeastDerived)
+                .ToArray();
 
             return derivedTypesList;
         }
