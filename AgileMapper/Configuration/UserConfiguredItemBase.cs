@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -12,12 +13,7 @@
     using System.Linq.Expressions;
 #endif
 
-    internal abstract class UserConfiguredItemBase :
-        IComparable<UserConfiguredItemBase>
-#if NET35
-        ,
-        IComparable
-#endif
+    internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
     {
         protected UserConfiguredItemBase(MappingConfigInfo configInfo)
             : this(configInfo, QualifiedMember.All)
@@ -162,11 +158,11 @@
 
             return false;
         }
-#if NET35
-        int IComparable.CompareTo(object obj)
-            => ((IComparable<UserConfiguredItemBase>)this).CompareTo((UserConfiguredItemBase)obj);
-#endif
+
         int IComparable<UserConfiguredItemBase>.CompareTo(UserConfiguredItemBase other)
+            => DoComparisonTo(other);
+
+        protected int DoComparisonTo(UserConfiguredItemBase other)
         {
             if (ReferenceEquals(this, other))
             {

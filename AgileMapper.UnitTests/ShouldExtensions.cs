@@ -275,7 +275,7 @@
             var actualValue = Convert.ToUInt64(actual);
             var expectedValue = Convert.ToUInt64(expected);
 
-            return (expectedValue & actualValue) == actualValue;
+            return (actualValue & expectedValue) == expectedValue;
 #else
             return actual.HasFlag(expected);
 #endif

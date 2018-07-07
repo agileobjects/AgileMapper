@@ -10,8 +10,13 @@ namespace AgileObjects.AgileMapper.Configuration
     using System.Linq.Expressions;
 #endif
 
-    internal class ConfiguredIgnoredMember
-        : UserConfiguredItemBase, IPotentialClone, IReverseConflictable
+    internal class ConfiguredIgnoredMember :
+        UserConfiguredItemBase,
+        IPotentialClone,
+        IReverseConflictable
+#if NET35
+        , IComparable<ConfiguredIgnoredMember>
+#endif
     {
         private readonly Expression _memberFilterLambda;
         private readonly Func<TargetMemberSelector, bool> _memberFilter;
@@ -156,5 +161,10 @@ namespace AgileObjects.AgileMapper.Configuration
         }
 
         #endregion
+
+#if NET35
+        int IComparable<ConfiguredIgnoredMember>.CompareTo(ConfiguredIgnoredMember other)
+            => DoComparisonTo(other);
+#endif
     }
 }

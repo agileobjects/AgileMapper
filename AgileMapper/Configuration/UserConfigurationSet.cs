@@ -52,13 +52,12 @@
                 _mappedObjectCachingSettings,
                 (s, conflicting) => conflicting.GetConflictMessage(s));
 
-            MappedObjectCachingSettings.Add(settings);
-            _mappedObjectCachingSettings.Sort();
+            MappedObjectCachingSettings.AddSorted(settings);
         }
 
         public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
         {
-            if (MappedObjectCachingSettings.None())
+            if (MappedObjectCachingSettings.None() || !basicData.TargetMember.IsComplex)
             {
                 return MappedObjectCachingMode.AutoDetect;
             }
