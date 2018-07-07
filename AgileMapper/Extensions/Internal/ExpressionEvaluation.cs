@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
     using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using LinqExp = System.Linq.Expressions;
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
@@ -78,7 +79,11 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
                             return AreEqual((ConditionalExpression)x, (ConditionalExpression)y);
 
                         case Constant:
+#if NET35
+                            return AreEqualNet35((ConstantExpression)x, (ConstantExpression)y);
+#else
                             return AreEqual((ConstantExpression)x, (ConstantExpression)y);
+#endif
 
                         case ArrayLength:
                         case ExpressionType.Convert:
@@ -186,11 +191,21 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
                 return (x.Type == y.Type) && Equals(x.Test, y.Test) &&
                         Equals(x.IfTrue, y.IfTrue) && Equals(x.IfFalse, y.IfFalse);
             }
-
-            private static bool AreEqual(ConstantExpression x, ConstantExpression y)
+#if NET35
+            private bool AreEqualNet35(ConstantExpression x, ConstantExpression y)
             {
-                return ReferenceEquals(x.Value, y.Value) || x.Value.Equals(y.Value);
+                if (AreEqual(x, y))
+                {
+                    return true;
+                }
+
+                return (x.Type == y.Type) &&
+                       (x.Value is LinqExp.Expression xExpression) &&
+                        Equals(xExpression.ToDlrExpression(), ((LinqExp.Expression)y.Value).ToDlrExpression());
             }
+#endif
+            private static bool AreEqual(ConstantExpression x, ConstantExpression y)
+                => ReferenceEquals(x.Value, y.Value) || x.Value.Equals(y.Value);
 
             private bool AreEqual(UnaryExpression x, UnaryExpression y)
             {
