@@ -12,8 +12,11 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Support for configured root target data sources, re: issue #64
-- Support for splitting configuration into dedicated, discoverable classes
+- Adding Mapper.Map(source).ToANew(Type) for runtime-typed mappings
+- .NET 3.5 support
+- Adding .ToRoot() custom data source target specifier
+- Adding GetServiceOrThrow() to base MapperConfiguration
+- Support for Dictionary mapping in partial trust environments
 - Performance and memory use improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
