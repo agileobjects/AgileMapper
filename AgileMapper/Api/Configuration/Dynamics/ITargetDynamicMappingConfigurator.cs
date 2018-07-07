@@ -1,3 +1,4 @@
+#if DYNAMIC_SUPPORTED
 namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     using System;
@@ -26,3 +27,4 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
             Expression<Func<TSource, TSourceMember>> sourceMember);
     }
 }
+#endif

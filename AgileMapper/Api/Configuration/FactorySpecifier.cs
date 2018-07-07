@@ -4,6 +4,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using System.Globalization;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+#if NET35
+    using Extensions.Internal;
+#endif
     using Members;
     using ObjectPopulation;
     using Projection;
@@ -22,14 +25,23 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         public IMappingConfigContinuation<TSource, TTarget> Using(
             Expression<Func<IMappingData<TSource, TTarget>, TObject>> factory)
+#if NET35
+            => RegisterObjectFactory(factory.ToDlrExpression(), ConfiguredObjectFactory.For);
+#else
             => RegisterObjectFactory(factory, ConfiguredObjectFactory.For);
-
+#endif
         public IProjectionConfigContinuation<TSource, TTarget> Using(Expression<Func<TSource, TObject>> factory)
+#if NET35
+            => RegisterObjectFactory(factory.ToDlrExpression(), ConfiguredObjectFactory.For);
+#else
             => RegisterObjectFactory(factory, ConfiguredObjectFactory.For);
-
-        public IMappingConfigContinuation<TSource, TTarget> Using(LambdaExpression factory) 
+#endif
+        public IMappingConfigContinuation<TSource, TTarget> Using(LambdaExpression factory)
+#if NET35
+            => RegisterObjectFactory(factory.ToDlrExpression(), ConfiguredObjectFactory.For);
+#else
             => RegisterObjectFactory(factory, ConfiguredObjectFactory.For);
-
+#endif
         public IMappingConfigContinuation<TSource, TTarget> Using<TFactory>(TFactory factory)
             where TFactory : class
         {

@@ -3,8 +3,13 @@
     using System;
     using System.Collections.Generic;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingFromDictionaryMembers
     {
         [Fact]

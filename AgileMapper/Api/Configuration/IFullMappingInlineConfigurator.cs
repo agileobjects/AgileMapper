@@ -2,7 +2,9 @@
 {
     using System.Reflection;
     using Dictionaries;
+#if DYNAMIC_SUPPORTED
     using Dynamics;
+#endif
 
     /// <summary>
     /// Provides options for configuring mappings from and to a given source and target type, inline.
@@ -24,12 +26,13 @@
         /// </summary>
         ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries { get; }
 
+#if DYNAMIC_SUPPORTED
         /// <summary>
         /// Configure how this mapper performs a target ExpandoObject mapping, inline. Use this property 
         /// to access ExpandoObject-specific configuration; separators, etc.
         /// </summary>
         ITargetDynamicMappingInlineConfigurator<TSource> ForDynamics { get; }
-
+#endif
         /// <summary>
         /// Throw an exception upon execution of this statement if the mapping being configured has any target members 
         /// which will not be mapped, maps from a source enum to a target enum which does not support all of its values,

@@ -4,10 +4,14 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ToEnumConverter : IValueConverter
     {
@@ -490,7 +494,12 @@
                 nameMatchingConversion);
 
             var valueIsNullOrEmpty = Expression.Call(
-                typeof(string).GetPublicStaticMethod("IsNullOrWhiteSpace"),
+#if NET35
+                typeof(StringExtensions)
+#else
+                typeof(string)
+#endif
+                    .GetPublicStaticMethod("IsNullOrWhiteSpace"),
                 sourceValue);
 
             var convertedValueOrDefault = Expression.Condition(

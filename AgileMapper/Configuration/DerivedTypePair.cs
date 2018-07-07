@@ -7,7 +7,7 @@
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
-    internal class DerivedTypePair : UserConfiguredItemBase
+    internal class DerivedTypePair : UserConfiguredItemBase, IComparable<DerivedTypePair>
     {
         public DerivedTypePair(
             MappingConfigInfo configInfo,
@@ -84,6 +84,24 @@
 
         public override bool AppliesTo(IBasicMapperData mapperData)
             => mapperData.SourceType.IsAssignableTo(DerivedSourceType) && base.AppliesTo(mapperData);
+
+        int IComparable<DerivedTypePair>.CompareTo(DerivedTypePair other)
+        {
+            var targetTypeX = DerivedTargetType;
+            var targetTypeY = other.DerivedTargetType;
+
+            if (targetTypeX == targetTypeY)
+            {
+                return 0;
+            }
+
+            if (targetTypeX.IsAssignableTo(targetTypeY))
+            {
+                return -1;
+            }
+
+            return 1;
+        }
 
         #region ToString
 #if DEBUG

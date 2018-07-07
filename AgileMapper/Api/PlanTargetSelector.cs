@@ -87,7 +87,11 @@
             if (configurations?.Any() == true)
             {
                 InlineMappingConfigurator<TSource, TTarget>
+#if NET35
+                    .ConfigureMapperContext(configurations.Project(c => c.ToDlrExpression()), planContext);
+#else
                     .ConfigureMapperContext(configurations, planContext);
+#endif
             }
 
             var mappingData = mappingDataFactory.Invoke(planContext);

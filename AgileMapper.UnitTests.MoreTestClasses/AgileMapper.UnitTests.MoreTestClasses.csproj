@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
+    <TargetFrameworks>net35;netstandard1.0</TargetFrameworks>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.MoreTestClasses</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.MoreTestClasses</RootNamespace>
   </PropertyGroup>

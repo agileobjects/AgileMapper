@@ -2,9 +2,14 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using Extensions.Internal;
+#if NET35
+    using Microsoft.Scripting.Ast;
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
+#endif
 
     internal static class DerivedTypeMappingConverter
     {

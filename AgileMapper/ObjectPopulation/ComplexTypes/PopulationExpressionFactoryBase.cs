@@ -2,11 +2,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
     using Members.Population;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using static CallbackPosition;
 
     internal abstract class PopulationExpressionFactoryBase

@@ -5,8 +5,13 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingOnToEnumerables
     {
         [Fact]
@@ -134,14 +139,16 @@
         [Fact]
         public void ShouldUpdateAnExistingObjectByConvertedId()
         {
+            var id = Guid.NewGuid();
+
             var source = new[]
             {
-                new { Id = Guid.NewGuid().ToString(), Name = "Anonymous" }
+                new { Id = id.ToString(), Name = "Anonymous" }
             };
 
             var target = new List<Person>
             {
-                new Person { Id = Guid.Parse(source.First().Id) }
+                new Person { Id = id }
             };
 
             var originalObject = target.First();

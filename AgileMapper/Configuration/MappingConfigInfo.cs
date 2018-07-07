@@ -3,11 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using ReadableExpressions;
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class MappingConfigInfo : ITypePair
     {
@@ -105,6 +110,10 @@
 
         public bool ConditionSupports(MappingRuleSet ruleSet) => _conditionLambda.Supports(ruleSet);
 
+#if NET35
+        public void AddConditionOrThrow(LinqExp.LambdaExpression conditionLambda)
+            => AddConditionOrThrow(conditionLambda.ToDlrExpression());
+#endif
         public void AddConditionOrThrow(LambdaExpression conditionLambda)
         {
             ErrorIfConditionHasTypeTest(conditionLambda);

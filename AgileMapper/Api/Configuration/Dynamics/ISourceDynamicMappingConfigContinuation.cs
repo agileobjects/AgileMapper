@@ -1,4 +1,5 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
+﻿#if DYNAMIC_SUPPORTED
+namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     /// <summary>
     /// Enables chaining of configurations for an ExpandoObject to the same target type.
@@ -13,3 +14,4 @@
         ISourceDynamicMappingConfigurator<TTarget> And { get; }
     }
 }
+#endif

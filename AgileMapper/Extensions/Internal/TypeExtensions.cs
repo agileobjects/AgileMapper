@@ -12,6 +12,9 @@
     internal static class TypeExtensions
     {
         private static readonly Assembly _msCorLib = typeof(string).GetAssembly();
+#if NET35
+        private static readonly Assembly _systemCoreLib = typeof(Func<>).GetAssembly();
+#endif
 
         public static string GetShortVariableName(this Type type)
         {
@@ -19,9 +22,7 @@
 
             var shortVariableName =
                 variableName[0] +
-                string.Join(
-                    string.Empty,
-                    variableName.ToCharArray().Skip(1).Filter(char.IsUpper));
+                variableName.ToCharArray().Skip(1).Filter(char.IsUpper).Join(string.Empty);
 
             shortVariableName = shortVariableName.ToLowerInvariant();
 
@@ -76,9 +77,9 @@
 
             variableName = variableName.Substring(0, variableName.IndexOf('`'));
 
-            variableName += string.Join(
-                string.Empty,
-                genericTypeArguments.Project(arg => "_" + arg.GetVariableNameInPascalCase()));
+            variableName += genericTypeArguments
+                .Project(arg => "_" + arg.GetVariableNameInPascalCase())
+                .Join(string.Empty);
 
             return variableName;
         }
@@ -120,7 +121,14 @@
                    (type == typeof(ICollection));
         }
 
-        public static bool IsFromBcl(this Type type) => ReferenceEquals(type.GetAssembly(), _msCorLib);
+        public static bool IsFromBcl(this Type type)
+        {
+            return ReferenceEquals(type.GetAssembly(), _msCorLib)
+#if NET35
+                || ReferenceEquals(type.GetAssembly(), _systemCoreLib)
+#endif
+                ;
+        }
 
         public static bool IsEnumerable(this Type type)
         {

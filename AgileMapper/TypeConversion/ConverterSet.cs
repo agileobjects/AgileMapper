@@ -3,11 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ConverterSet
     {
@@ -22,7 +26,11 @@
                 default(ToBoolConverter),
                 new ToEnumConverter(userConfigurations),
                 TryParseConverter<DateTime>.Instance,
+#if NET35
+                ToGuidConverter.Instance,
+#else
                 TryParseConverter<Guid>.Instance,
+#endif
                 ToNumericConverter<decimal>.Instance,
                 ToNumericConverter<double>.Instance,
                 ToNumericConverter<long>.Instance,

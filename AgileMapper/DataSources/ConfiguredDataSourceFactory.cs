@@ -1,10 +1,22 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Linq.Expressions;
+#if NET35
+    using System;
+#endif
     using Configuration;
     using Members;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
-    internal class ConfiguredDataSourceFactory : UserConfiguredItemBase, IPotentialClone
+    internal class ConfiguredDataSourceFactory :
+        UserConfiguredItemBase,
+        IPotentialClone
+#if NET35
+        , IComparable<ConfiguredDataSourceFactory>
+#endif
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
 
@@ -113,5 +125,10 @@
             => ConflictsWith((ConfiguredDataSourceFactory)clonedDataSourceFactory);
 
         #endregion
+
+#if NET35
+        int IComparable<ConfiguredDataSourceFactory>.CompareTo(ConfiguredDataSourceFactory other)
+            => DoComparisonTo(other);
+#endif
     }
 }

@@ -4,8 +4,13 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
     using AgileMapper.Extensions.Internal;
     using NetStandardPolyfills;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenIgnoringMembersByGlobalFilter
     {
         [Fact]

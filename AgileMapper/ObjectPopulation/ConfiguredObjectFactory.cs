@@ -1,13 +1,22 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq.Expressions;
     using Configuration;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
-    internal class ConfiguredObjectFactory : UserConfiguredItemBase, IPotentialClone
+    internal class ConfiguredObjectFactory :
+        UserConfiguredItemBase,
+        IPotentialClone
+#if NET35
+        , IComparable<ConfiguredObjectFactory>
+#endif
     {
         private readonly Type _objectType;
         private readonly ConfiguredLambdaInfo _factoryInfo;
@@ -81,5 +90,10 @@
             => ConflictsWith((ConfiguredObjectFactory)clonedObjectFactory);
 
         #endregion
+
+#if NET35
+        int IComparable<ConfiguredObjectFactory>.CompareTo(ConfiguredObjectFactory other)
+            => DoComparisonTo(other);
+#endif
     }
 }

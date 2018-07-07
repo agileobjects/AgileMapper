@@ -3,12 +3,17 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
     using TypeConversion;
+#if NET35
+    using Microsoft.Scripting.Ast;
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
+#endif
     using static Member;
 
     internal class ExpressionInfoFinder

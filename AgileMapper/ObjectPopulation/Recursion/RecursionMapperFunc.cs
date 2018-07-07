@@ -1,8 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
 {
     using System;
-    using System.Linq.Expressions;
     using Members;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class RecursionMapperFunc<TChildSource, TChildTarget> : IRecursionMapperFunc
     {

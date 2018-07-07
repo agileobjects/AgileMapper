@@ -2,10 +2,14 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Reflection;
     using System.Text.RegularExpressions;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal static class StringExpressionExtensions
     {
@@ -108,7 +112,7 @@
         public static Expression GetFirstOrDefaultCall(this Expression stringAccess)
         {
             return Expression.Call(
-                typeof(StringExtensions).GetPublicStaticMethod("FirstOrDefault"),
+                typeof(PublicStringExtensions).GetPublicStaticMethod("FirstOrDefault"),
                 stringAccess);
         }
 
@@ -121,7 +125,7 @@
             if (separator == null)
             {
                 return Expression.Call(
-                    typeof(StringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 2),
+                    typeof(PublicStringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 2),
                     stringAccess,
                     keyValue);
             }
@@ -141,7 +145,7 @@
             }
 
             return Expression.Call(
-                typeof(StringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 4),
+                typeof(PublicStringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 4),
                 stringAccess,
                 keyValue,
                 separator,
@@ -152,7 +156,7 @@
             Expression separator)
         {
             return Expression.Call(
-                typeof(StringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 3),
+                typeof(PublicStringExtensions).GetPublicStaticMethod("MatchesKey", parameterCount: 3),
                 stringAccess,
                 keyValue,
                 separator);

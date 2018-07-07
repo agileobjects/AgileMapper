@@ -10,7 +10,11 @@
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
     /// <typeparam name="TObject">The type of created object to which the configuration should apply.</typeparam>
+#if NET35
+    public interface IPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
+#else
     public interface IPostInstanceCreationCallbackSpecifier<TSource, TTarget, out TObject>
+#endif
     {
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed a context 

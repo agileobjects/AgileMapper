@@ -1,6 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
-    using System.Text.RegularExpressions;
+    using System;
+    using System.Collections.Generic;
+#if NET35
+    using System.Linq;
+#endif
     using static System.StringComparison;
 
     internal static class StringExtensions
@@ -11,119 +15,46 @@
         public static string ToCamelCase(this string value)
             => char.ToLowerInvariant(value[0]) + value.Substring(1);
 
-        public static string FirstOrDefault(this string value)
-        {
-            if (string.IsNullOrEmpty(value) || (value.Length <= 1))
-            {
-                return value;
-            }
-
-            return value[0].ToString();
-        }
-
         public static bool EqualsIgnoreCase(this string value, string otherValue)
             => value.Equals(otherValue, OrdinalIgnoreCase);
 
         public static bool StartsWithIgnoreCase(this string value, string substring)
             => value.StartsWith(substring, OrdinalIgnoreCase);
 
-        public static bool MatchesKey(
-            this string subjectKey,
-            string queryKey,
-            string separator,
-            Regex elementKeyPartMatcher)
+#if NET35
+        public static Guid ToGuid(this string value)
+            => TryParseGuid(value, out var guid) ? guid.GetValueOrDefault() : default(Guid);
+
+        public static Guid? ToGuidNullable(this string value)
+            => TryParseGuid(value, out var guid) ? guid : default(Guid?);
+
+        private static bool TryParseGuid(string value, out Guid? guid)
         {
-            if (queryKey == null)
+            if (value.IsNullOrWhiteSpace() || (value.Length != 36))
             {
-                // This can happen when mapping to types with multiple, nested
-                // recursive relationships, e.g:
-                // Dictionary<,> -> Order -> OrderItems -> Order -> OrderItems
-                // ...it's basically not supported
+                guid = default(Guid?);
                 return false;
             }
 
-            if (subjectKey.EqualsIgnoreCase(queryKey))
+            if ((value[8] != '-') || (value[13] != '-') || (value[18] != '-') || (value[23] != '-'))
             {
-                return true;
-            }
-
-            var elementKeyParts = elementKeyPartMatcher.Matches(queryKey);
-
-            var searchEndIndex = queryKey.Length;
-
-            for (var i = elementKeyParts.Count; i > 0; --i)
-            {
-                var elementKeyPart = elementKeyParts[i - 1];
-                var matchStartIndex = elementKeyPart.Index;
-                var matchEndIndex = matchStartIndex + elementKeyPart.Length;
-
-                ReplaceSeparatorsInSubstring(matchStartIndex, matchEndIndex, ref queryKey, separator, ref searchEndIndex);
-            }
-
-            ReplaceSeparatorsInSubstring(searchEndIndex, 0, ref queryKey, separator, ref searchEndIndex);
-
-            return subjectKey.EqualsIgnoreCase(queryKey);
-        }
-
-        private static void ReplaceSeparatorsInSubstring(
-            int matchStartIndex,
-            int matchEndIndex,
-            ref string queryKey,
-            string separator,
-            ref int searchEndIndex)
-        {
-            var querySubstring = queryKey.Substring(matchEndIndex, searchEndIndex - matchEndIndex);
-
-            if (querySubstring.IndexOf(separator, Ordinal) == -1)
-            {
-                searchEndIndex = matchStartIndex;
-                return;
-            }
-
-            var flattenedQuerySubstring = querySubstring.Replace(separator, null);
-
-            queryKey = queryKey
-                .Remove(matchEndIndex, searchEndIndex - matchEndIndex)
-                .Insert(matchEndIndex, flattenedQuerySubstring);
-
-            searchEndIndex = matchStartIndex;
-        }
-
-        public static bool MatchesKey(this string subjectKey, string queryKey, string separator)
-        {
-            if (queryKey == null)
-            {
-                // This can happen when mapping to types with multiple, nested
-                // recursive relationships, e.g:
-                // Dictionary<,> -> Order -> OrderItems -> Order -> OrderItems
-                // ...it's basically not supported
+                guid = default(Guid?);
                 return false;
             }
 
-            return subjectKey.EqualsIgnoreCase(queryKey) ||
-                   subjectKey.MatchesFlattenedKey(queryKey, separator);
-        }
-
-        private static bool MatchesFlattenedKey(this string subjectKey, string queryKey, string separator)
-        {
-            return (queryKey.IndexOf(separator, Ordinal) != -1) &&
-                   subjectKey.EqualsIgnoreCase(queryKey.Replace(separator, null));
-        }
-
-        public static bool MatchesKey(this string subjectKey, string queryKey)
-        {
-            if (queryKey == null)
+            foreach (var character in value)
             {
-                // This can happen when mapping to types with multiple, nested
-                // recursive relationships, e.g:
-                // Dictionary<,> -> Order -> OrderItems -> Order -> OrderItems
-                // ...it's basically not supported
-                return false;
+                if ((character != '-') && !char.IsLetterOrDigit(character))
+                {
+                    guid = default(Guid?);
+                    return false;
+                }
             }
 
-            return subjectKey.EqualsIgnoreCase(queryKey);
+            guid = new Guid(value);
+            return true;
         }
-
+#endif
         public static string Pluralise(this string value)
         {
             if (value.Length == 1)
@@ -170,6 +101,33 @@
             }
 
             return true;
+        }
+
+        public static string Join(this IEnumerable<string> strings, string separator)
+        {
+#if NET35
+            return string.Join(separator, strings.ToArray());
+#else
+            return string.Join(separator, strings);
+#endif
+        }
+
+        public static string Join<T>(this IEnumerable<T> values, string separator)
+        {
+#if NET35
+            return string.Join(separator, values.Project(v => v.ToString()).ToArray());
+#else
+            return string.Join(separator, values);
+#endif
+        }
+
+        public static bool IsNullOrWhiteSpace(this string value)
+        {
+#if NET35
+            return (value == null) || (value.Trim() == string.Empty);
+#else
+            return string.IsNullOrWhiteSpace(value);
+#endif
         }
     }
 }

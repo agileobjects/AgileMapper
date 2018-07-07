@@ -1,8 +1,15 @@
 namespace AgileObjects.AgileMapper.Configuration
 {
+#if NET35
+    using System;
+#endif
     using ReadableExpressions.Extensions;
 
-    internal class MappedObjectCachingSettings : UserConfiguredItemBase
+    internal class MappedObjectCachingSettings :
+        UserConfiguredItemBase
+#if NET35
+        , IComparable<MappedObjectCachingSettings>
+#endif
     {
         #region Singleton Instances
 
@@ -71,6 +78,11 @@ namespace AgileObjects.AgileMapper.Configuration
 
             return GetRedundantSettingsConflictMessage(conflicting, typeSettings);
         }
+
+#if NET35
+        int IComparable<MappedObjectCachingSettings>.CompareTo(MappedObjectCachingSettings other)
+            => DoComparisonTo(other);
+#endif
 
         private string GetRedundantSettingsConflictMessage(
             MappedObjectCachingSettings conflicting,

@@ -5,9 +5,14 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using TestClasses;
-    using Xunit;
     using static System.Decimal;
+#if !NET35
+    using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingOverEnumerableMembers
     {
         [Fact]
@@ -68,6 +73,7 @@
             result.Value.ShouldBe(MinValue, MaxValue);
         }
 
+#if !NET35
         [Fact]
         public void ShouldOverwriteAnIReadOnlyCollectionCollection()
         {
@@ -90,7 +96,7 @@
             result.Value.ShouldNotBeSameAs(preMappingCollection);
             result.Value.ShouldBe(MinusOne, Zero);
         }
-
+#endif
         [Fact]
         public void ShouldOverwriteAComplexTypeCollection()
         {
@@ -192,6 +198,7 @@
             result.Value.ShouldBe("A", "B", "C");
         }
 
+#if !NET35
         [Fact]
         public void ShouldHandleANullReadOnlyNestedIReadOnlyCollection()
         {
@@ -201,5 +208,6 @@
 
             result.Value.ShouldBeNull();
         }
+#endif
     }
 }

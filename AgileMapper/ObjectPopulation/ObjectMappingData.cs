@@ -2,13 +2,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Caching;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
     using NetStandardPolyfills;
     using Validation;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,

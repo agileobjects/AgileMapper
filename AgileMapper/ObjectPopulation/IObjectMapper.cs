@@ -1,8 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Recursion;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal interface IObjectMapper : IObjectMapperFunc
     {

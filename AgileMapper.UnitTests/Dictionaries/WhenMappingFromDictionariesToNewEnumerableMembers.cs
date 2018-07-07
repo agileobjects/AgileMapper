@@ -4,12 +4,17 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-#if !NETCOREAPP1_0
+#if !NETCOREAPP1_0 && !NET35
     using Microsoft.Extensions.Primitives;
 #endif
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingFromDictionariesToNewEnumerableMembers
     {
         [Fact]
@@ -115,7 +120,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
             result.Value.Second().HowMega.ShouldBe(0.99);
         }
 
-#if !NETCOREAPP1_0
+#if !NETCOREAPP1_0 && !NET35
         // See https://github.com/agileobjects/AgileMapper/issues/50
         // See https://github.com/agileobjects/AgileMapper/issues/51
         [Fact]

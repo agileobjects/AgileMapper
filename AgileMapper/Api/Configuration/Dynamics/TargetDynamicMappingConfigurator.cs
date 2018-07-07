@@ -1,3 +1,4 @@
+#if DYNAMIC_SUPPORTED
 namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     using System;
@@ -68,3 +69,4 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
         }
     }
 }
+#endif

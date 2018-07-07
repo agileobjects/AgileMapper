@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+#if NET_STANDARD
     using System.Linq;
+#endif
     using System.Reflection;
     using NetStandardPolyfills;
 
@@ -20,7 +22,7 @@
         {
             try
             {
-#if !NET_STANDARD
+#if !NET_STANDARD && !NET35
                 if (typeof(ReflectionExtensions).Assembly.IsFullyTrusted)
                 {
                     return;
@@ -34,23 +36,6 @@
             {
                 ReflectionNotPermitted = true;
             }
-        }
-
-        public static bool IsReadable(this PropertyInfo property) => property.GetGetter() != null;
-
-        public static bool IsWriteable(this PropertyInfo property) => property.GetSetter() != null;
-
-        public static bool HasAttribute<TAttribute>(this MemberInfo memberInfo)
-        {
-#if NET_STANDARD
-            return memberInfo
-                .CustomAttributes
-                .Any(a => a.AttributeType == typeof(TAttribute));
-#else
-            return memberInfo
-                .GetCustomAttributes(typeof(TAttribute), inherit: false)
-                .Any();
-#endif
         }
 
         public static bool HasKeyAttribute(this MemberInfo memberInfo)

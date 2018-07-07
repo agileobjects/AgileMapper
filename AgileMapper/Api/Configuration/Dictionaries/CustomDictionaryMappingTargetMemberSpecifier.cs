@@ -5,7 +5,12 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
     using DataSources;
+#if DYNAMIC_SUPPORTED
     using Dynamics;
+#endif
+#if NET35
+    using Extensions.Internal;
+#endif
 
     /// <summary>
     /// Provides options for specifying a target member to which a dictionary configuration should apply.
@@ -15,8 +20,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// </typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
     public class CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> :
-        CustomDictionaryKeySpecifierBase<TValue, TTarget>,
+        CustomDictionaryKeySpecifierBase<TValue, TTarget>
+#if DYNAMIC_SUPPORTED
+        ,
         ICustomDynamicMappingTargetMemberSpecifier<TTarget>
+#endif
     {
         private readonly string _key;
         private readonly Action<DictionarySettings, CustomDictionaryKey> _dictionarySettingsAction;
@@ -57,13 +65,22 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
             => RegisterCustomKey(targetSetMethod);
 
+#if DYNAMIC_SUPPORTED
         ISourceDynamicMappingConfigContinuation<TTarget> ICustomDynamicMappingTargetMemberSpecifier<TTarget>.To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
             => RegisterCustomKey(targetMember);
+#endif
 
         private DictionaryMappingConfigContinuation<TValue, TTarget> RegisterCustomKey(LambdaExpression targetMemberLambda)
         {
-            var configuredKey = CustomDictionaryKey.ForTargetMember(_key, targetMemberLambda, ConfigInfo);
+            var configuredKey = CustomDictionaryKey.ForTargetMember(
+                _key,
+#if NET35
+                targetMemberLambda.ToDlrExpression(),
+#else
+                targetMemberLambda,
+#endif
+                ConfigInfo);
 
             UserConfigurations.ThrowIfConflictingIgnoredMemberExists(configuredKey);
             UserConfigurations.ThrowIfConflictingDataSourceExists(configuredKey, GetConflictMessage);

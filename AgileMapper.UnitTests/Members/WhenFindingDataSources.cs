@@ -5,8 +5,13 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
     using AgileMapper.Members;
     using ObjectPopulation;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenFindingDataSources : MemberTestsBase
     {
         [Fact]

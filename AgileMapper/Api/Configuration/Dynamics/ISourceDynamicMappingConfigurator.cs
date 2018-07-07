@@ -1,4 +1,5 @@
-﻿namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
+﻿#if DYNAMIC_SUPPORTED
+namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     using System.Collections.Generic;
 
@@ -39,3 +40,4 @@
         ICustomDynamicMappingTargetMemberSpecifier<TTarget> MapMemberName(string memberNamePart);
     }
 }
+#endif

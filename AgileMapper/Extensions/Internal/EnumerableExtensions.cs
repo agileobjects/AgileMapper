@@ -4,9 +4,13 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Reflection;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal static class EnumerableExtensions
     {
@@ -51,6 +55,17 @@
                 }
             }
         }
+
+#if NET35
+        public static void AddRange<TContained, TItem>(this List<TContained> items, IEnumerable<TItem> newItems)
+            where TItem : TContained
+        {
+            foreach (var newItem in newItems)
+            {
+                items.Add(newItem);
+            }
+        }
+#endif
 
         [DebuggerStepThrough]
         public static T First<T>(this IList<T> items) => items[0];

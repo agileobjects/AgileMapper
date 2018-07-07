@@ -14,7 +14,12 @@
     using NetStandardPolyfills;
     using Projection;
     using ReadableExpressions.Extensions;
-
+#if NET35
+    using Dlr = Microsoft.Scripting.Ast;
+    using static Microsoft.Scripting.Ast.Expression;
+#else
+    using static System.Linq.Expressions.Expression;
+#endif
 
     internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
         ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget>,
@@ -93,8 +98,11 @@
             {
                 return new ConfiguredDictionaryEntryDataSourceFactory(_configInfo, valueLambdaInfo, dictionaryEntryMember);
             }
-
+#if NET35
+            return new ConfiguredDataSourceFactory(_configInfo, valueLambdaInfo, targetMemberLambda.ToDlrExpression());
+#else
             return new ConfiguredDataSourceFactory(_configInfo, valueLambdaInfo, targetMemberLambda);
+#endif
         }
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
@@ -146,22 +154,29 @@
                 return _customValueLambdaInfo;
             }
 
-            if ((_customValueLambda.Body.NodeType != ExpressionType.Constant) ||
+#if NET35
+            var customValueLambda = _customValueLambda.ToDlrExpression();
+            const Dlr.ExpressionType CONSTANT = Dlr.ExpressionType.Constant;
+#else
+            var customValueLambda = _customValueLambda;
+            const ExpressionType CONSTANT = ExpressionType.Constant;
+#endif
+            if ((customValueLambda.Body.NodeType != CONSTANT) ||
                 (typeof(TTargetValue) == typeof(object)) ||
-                _customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
+                customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
             {
-                return ConfiguredLambdaInfo.For(_customValueLambda);
+                return ConfiguredLambdaInfo.For(customValueLambda);
             }
 
             var convertedConstantValue = _configInfo
                 .MapperContext
                 .ValueConverters
-                .GetConversion(_customValueLambda.Body, typeof(TTargetValue));
+                .GetConversion(customValueLambda.Body, typeof(TTargetValue));
 
-            var valueLambda = Expression.Lambda<Func<TTargetValue>>(convertedConstantValue);
+            var valueLambda = Lambda<Func<TTargetValue>>(convertedConstantValue);
             var valueFunc = valueLambda.Compile();
             var value = valueFunc.Invoke().ToConstantExpression(typeof(TTargetValue));
-            var constantValueLambda = Expression.Lambda<Func<TTargetValue>>(value);
+            var constantValueLambda = Lambda<Func<TTargetValue>>(value);
             var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda);
 
             return valueLambdaInfo;

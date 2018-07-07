@@ -1,11 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
-    using System.Linq.Expressions;
     using System.Reflection;
     using Configuration;
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ToFormattedStringConverter : IValueConverter
     {

@@ -3,12 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using DataSources;
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
     using Members.Population;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class DictionaryPopulationBuilder
     {

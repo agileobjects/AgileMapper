@@ -2,8 +2,12 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Api.Configuration;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal static class InlineMappingConfigurator<TSource, TTarget>
     {

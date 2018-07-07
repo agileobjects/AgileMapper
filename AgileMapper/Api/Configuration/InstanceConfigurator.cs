@@ -3,6 +3,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+#if NET35
+    using Extensions.Internal;
+#endif
     using Members;
 
     /// <summary>
@@ -29,7 +32,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// </param>
         public void IdentifyUsing<TId>(Expression<Func<TObject, TId>> idExpression)
         {
-            _configInfo.MapperContext.UserConfigurations.Identifiers.Add(typeof(TObject), idExpression);
+            _configInfo.MapperContext.UserConfigurations.Identifiers.Add(
+                typeof(TObject),
+                idExpression
+#if NET35
+                .ToDlrExpression()
+#endif
+            );
         }
 
         /// <summary>

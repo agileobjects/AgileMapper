@@ -3,13 +3,17 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using DataSources;
     using Dictionaries;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using Projection;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class UserConfigurationSet
     {
@@ -48,13 +52,12 @@
                 _mappedObjectCachingSettings,
                 (s, conflicting) => conflicting.GetConflictMessage(s));
 
-            MappedObjectCachingSettings.Add(settings);
-            _mappedObjectCachingSettings.Sort();
+            MappedObjectCachingSettings.AddSorted(settings);
         }
 
         public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
         {
-            if (MappedObjectCachingSettings.None())
+            if (MappedObjectCachingSettings.None() || !basicData.TargetMember.IsComplex)
             {
                 return MappedObjectCachingMode.AutoDetect;
             }
@@ -85,8 +88,7 @@
 
             ThrowIfConflictingItemExists(condition, conditions, (c, cC) => c.GetConflictMessage());
 
-            conditions.Add(condition);
-            conditions.Sort();
+            conditions.AddSorted(condition);
         }
 
         public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)

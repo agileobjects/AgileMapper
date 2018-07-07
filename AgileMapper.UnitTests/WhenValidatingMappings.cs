@@ -4,8 +4,13 @@
     using System.Collections.Generic;
     using TestClasses;
     using Validation;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenValidatingMappings
     {
         [Fact]

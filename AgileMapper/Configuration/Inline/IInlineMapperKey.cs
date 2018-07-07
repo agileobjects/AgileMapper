@@ -2,8 +2,11 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 {
     using System;
     using System.Collections.Generic;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
     using System.Linq.Expressions;
-    using Members;
+#endif
 
     internal interface IInlineMapperKey
     {

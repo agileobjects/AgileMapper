@@ -1,11 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Linq.Expressions;
     using Configuration;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class ObjectCreationCallbackFactory : MappingCallbackFactory
     {

@@ -1,3 +1,4 @@
+#if DYNAMIC_SUPPORTED
 namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     /// <summary>
@@ -60,3 +61,4 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
         ISourceDynamicTargetTypeSelector AndWhenMapping { get; }
     }
 }
+#endif

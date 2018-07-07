@@ -1,9 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using AgileMapper.Configuration;
+    using AgileMapper.Extensions.Internal;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingToNullInline
     {
         [Fact]
@@ -16,7 +22,7 @@
                     .ToANew<Customer>(cfg => cfg
                         .WhenMapping
                         .To<Address>()
-                        .If((o, a) => string.IsNullOrWhiteSpace(a.Line1))
+                        .If((o, a) => a.Line1.IsNullOrWhiteSpace())
                         .MapToNull());
 
                 result.Name.ShouldBe("Bob");

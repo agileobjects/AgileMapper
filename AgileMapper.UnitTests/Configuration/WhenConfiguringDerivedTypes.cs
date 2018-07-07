@@ -1,10 +1,16 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using AgileMapper.Extensions.Internal;
     using MoreTestClasses;
     using NetStandardPolyfills;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenConfiguringDerivedTypes
     {
         [Fact]
@@ -88,7 +94,7 @@
                     .If(s => s.Source.Discount.HasValue)
                     .MapTo<CustomerViewModel>()
                     .And
-                    .If(x => !string.IsNullOrWhiteSpace(x.Source.Report))
+                    .If(x => !x.Source.Report.IsNullOrWhiteSpace())
                     .MapTo<MysteryCustomerViewModel>();
 
                 var mysteryCustomerSource = new

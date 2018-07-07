@@ -1,8 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.Api
 {
     using System;
-    using System.Linq.Expressions;
     using Configuration;
+    using System.Linq.Expressions;
 
     /// <summary>
     /// Provides options for specifying the type of mapping to perform.

@@ -5,8 +5,13 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using TestClasses;
+#if !NET35
     using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingOnToEnumerableMembers
     {
         [Fact]
@@ -89,6 +94,7 @@
             result.Value.ShouldBe(r => r.Value, 123, 456, 789);
         }
 
+#if !NET35
         [Fact]
         public void ShouldMergeAComplexTypeIReadOnlyCollectionList()
         {
@@ -107,7 +113,7 @@
             result.Value.ShouldBeSameAs(target.Value);
             result.Value.ShouldBe(r => r.Value, 123, 456, 789);
         }
-
+#endif
         [Fact]
         public void ShouldMergeAnIdentifiableComplexTypeList()
         {
@@ -165,6 +171,7 @@
             result.Value.ShouldBe(r => r.ProductId, "Science", "Magic");
         }
 
+#if !NET35
         [Fact]
         public void ShouldMergeAnIdentifiableComplexTypeIReadOnlyCollectionArray()
         {
@@ -193,7 +200,7 @@
             result.Value.Second().Price.ShouldBe(1000.00);
             result.Value.ShouldBe(r => r.ProductId, "Magic", "Science");
         }
-
+#endif
         [Fact]
         public void ShouldHandleANullSourceMember()
         {
@@ -246,6 +253,7 @@
             result.Value.First().Id.ShouldBe(source.Value.First().Id);
         }
 
+#if !NET35
         [Fact]
         public void ShouldHandleANullIReadOnlyCollection()
         {
@@ -261,7 +269,7 @@
             result.Value.ShouldNotBeNull();
             result.Value.ShouldBe('X', 'Y', 'Z');
         }
-
+#endif
         [Fact]
         public void ShouldHandleNoMatchingSourceMember()
         {

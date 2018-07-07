@@ -1,9 +1,13 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
-    using System.Linq.Expressions;
     using DataSources;
     using Extensions.Internal;
     using Members.Dictionaries;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class SourceInstanceDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {

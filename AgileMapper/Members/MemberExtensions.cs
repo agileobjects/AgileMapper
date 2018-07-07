@@ -5,18 +5,23 @@
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+    using LinqExp = System.Linq.Expressions;
+#else
+    using System.Linq.Expressions;
+#endif
     using static System.StringComparison;
     using static Constants;
 
     internal static class MemberExtensions
     {
         public static string GetFullName(this IEnumerable<Member> members)
-            => string.Join(string.Empty, members.Project(m => m.JoiningName));
+            => members.Project(m => m.JoiningName).Join(string.Empty);
 
         public static string GetFriendlySourcePath(this IQualifiedMember sourceMember, IMemberMapperData rootMapperData)
             => GetFriendlyMemberPath(sourceMember, rootMapperData.SourceMember);
@@ -250,6 +255,10 @@
             return population;
         }
 
+#if NET35
+        public static QualifiedMember ToSourceMember(this LinqExp.Expression memberAccess, MapperContext mapperContext)
+            => memberAccess.ToDlrExpression().ToSourceMember(mapperContext);
+#endif
         public static QualifiedMember ToSourceMember(this Expression memberAccess, MapperContext mapperContext)
         {
             return CreateMember(
@@ -259,6 +268,10 @@
                 mapperContext);
         }
 
+#if NET35
+        public static QualifiedMember ToTargetMember(this LinqExp.LambdaExpression memberAccess, MapperContext mapperContext)
+            => memberAccess.ToDlrExpression().ToTargetMember(mapperContext);
+#endif
         public static QualifiedMember ToTargetMember(this LambdaExpression memberAccess, MapperContext mapperContext)
         {
             return CreateMember(
@@ -360,10 +373,16 @@
             {
                 return methodCall;
             }
-
-            // ReSharper disable once PossibleNullReferenceException
-            var methodInfo = (MethodInfo)((ConstantExpression)methodCall.Object).Value;
+#if NET35
+            var methodInfoValue = methodCall.Arguments.Last();
+            var instance = methodCall.Arguments[1];
+#else
+            var methodInfoValue = methodCall.Object;
             var instance = methodCall.Arguments.Last();
+#endif
+            // ReSharper disable once PossibleNullReferenceException
+            var methodInfo = (MethodInfo)((ConstantExpression)methodInfoValue).Value;
+
             var valueParameter = Parameters.Create(methodInfo.GetParameters().First().ParameterType, "value");
 
             return Expression.Call(instance, methodInfo, valueParameter);

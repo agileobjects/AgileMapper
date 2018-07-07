@@ -1,12 +1,17 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using System.Linq.Expressions;
+    using System.Collections.Generic;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
     {
@@ -155,6 +160,9 @@
         }
 
         int IComparable<UserConfiguredItemBase>.CompareTo(UserConfiguredItemBase other)
+            => DoComparisonTo(other);
+
+        protected int DoComparisonTo(UserConfiguredItemBase other)
         {
             if (ReferenceEquals(this, other))
             {

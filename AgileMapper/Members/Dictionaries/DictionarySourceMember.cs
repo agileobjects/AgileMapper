@@ -1,8 +1,12 @@
 namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
-    using System.Linq.Expressions;
     using Extensions.Internal;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class DictionarySourceMember : IQualifiedMember
     {

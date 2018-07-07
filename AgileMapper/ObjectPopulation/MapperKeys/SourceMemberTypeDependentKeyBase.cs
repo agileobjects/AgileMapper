@@ -2,9 +2,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
     using System;
     using System.Linq;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal abstract class SourceMemberTypeDependentKeyBase
     {

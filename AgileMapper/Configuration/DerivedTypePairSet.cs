@@ -31,8 +31,7 @@
                 {
                     RemoveConflictingPairIfAppropriate(typePair, typePairs);
 
-                    typePairs.Add(typePair);
-                    typePairs.Sort(DerivedTypePairComparer.Instance);
+                    typePairs.AddSorted(typePair);
                 }
                 else
                 {
@@ -272,39 +271,7 @@
 
         #endregion
 
-        public void Reset()
-        {
-            _typePairsByTargetType.Clear();
-        }
-
-        #region Helper Class
-
-        private class DerivedTypePairComparer : IComparer<DerivedTypePair>
-        {
-            public static readonly IComparer<DerivedTypePair> Instance = new DerivedTypePairComparer();
-
-            public int Compare(DerivedTypePair x, DerivedTypePair y)
-            {
-                // ReSharper disable PossibleNullReferenceException
-                var targetTypeX = x.DerivedTargetType;
-                var targetTypeY = y.DerivedTargetType;
-                // ReSharper restore PossibleNullReferenceException
-
-                if (targetTypeX == targetTypeY)
-                {
-                    return 0;
-                }
-
-                if (targetTypeX.IsAssignableTo(targetTypeY))
-                {
-                    return -1;
-                }
-
-                return 1;
-            }
-        }
-
-        #endregion
+        public void Reset() => _typePairsByTargetType.Clear();
 
         public void CloneTo(DerivedTypePairSet derivedTypes)
         {

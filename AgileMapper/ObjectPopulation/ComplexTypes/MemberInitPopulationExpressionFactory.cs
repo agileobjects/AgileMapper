@@ -1,9 +1,13 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Extensions.Internal;
     using Members.Population;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class MemberInitPopulationExpressionFactory : PopulationExpressionFactoryBase
     {

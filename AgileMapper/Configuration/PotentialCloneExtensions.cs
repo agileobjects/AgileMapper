@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Extensions.Internal;
@@ -19,8 +20,29 @@
             return clonedItems;
         }
 
+        public static void AddSorted<T>(this List<T> items, T newItem)
+            where T : IComparable<T>
+        {
+            if (items.None())
+            {
+                items.Add(newItem);
+                return;
+            }
+
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (items[i].CompareTo(newItem) == 1)
+                {
+                    items.Insert(i, newItem);
+                    return;
+                }
+            }
+
+            items.Add(newItem);
+        }
+
         public static void AddSortFilter<T>(this List<T> cloneableItems, T newItem)
-            where T : IPotentialClone
+            where T : IPotentialClone, IComparable<T>
         {
             if (cloneableItems.None())
             {
@@ -40,8 +62,7 @@
                 return;
             }
 
-            cloneableItems.Add(newItem);
-            cloneableItems.Sort();
+            cloneableItems.AddSorted(newItem);
         }
     }
 }

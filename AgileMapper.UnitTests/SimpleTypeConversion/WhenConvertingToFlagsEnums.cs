@@ -1,9 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.SimpleTypeConversion
 {
     using TestClasses;
-    using Xunit;
     using static TestClasses.Status;
+#if !NET35
+    using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenConvertingToFlagsEnums
     {
         [Fact]
@@ -21,9 +26,9 @@
             var source = new PublicField<short> { Value = (short)(InProgress | Assigned) };
             var result = Mapper.Map(source).ToANew<PublicField<Status>>();
 
-            result.Value.HasFlag(InProgress).ShouldBeTrue();
-            result.Value.HasFlag(Assigned).ShouldBeTrue();
-            result.Value.HasFlag(Cancelled).ShouldBeFalse();
+            result.Value.ShouldHaveFlag(InProgress);
+            result.Value.ShouldHaveFlag(Assigned);
+            result.Value.ShouldNotHaveFlag(Cancelled);
             result.Value.ShouldBe(InProgress | Assigned);
         }
 

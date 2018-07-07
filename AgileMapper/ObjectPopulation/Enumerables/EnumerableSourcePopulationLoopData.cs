@@ -3,10 +3,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class EnumerableSourcePopulationLoopData : IPopulationLoopData
     {

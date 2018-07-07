@@ -2,12 +2,16 @@ namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using Configuration;
     using DataSources.Finders;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
 
     internal class MemberPopulatorFactory
     {
