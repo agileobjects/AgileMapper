@@ -42,6 +42,23 @@
         /// </summary>
         public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.Mapper);
 
+        #region Service Providers
+
+        /// <summary>
+        /// Use the given <paramref name="serviceFactory"/> to create unnamed service instances during
+        /// a mapping.
+        /// </summary>
+        /// <param name="serviceFactory"></param>
+        public IGlobalMappingSettings UseServiceProvider(Func<Type, object> serviceFactory)
+        {
+            var provider = new ConfiguredServiceProvider(_configInfo, serviceFactory);
+
+            MapperContext.UserConfigurations.Add(provider);
+            return this;
+        }
+
+        #endregion
+
         #region Exception Handling
 
         /// <summary>

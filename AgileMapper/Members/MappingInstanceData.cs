@@ -5,9 +5,15 @@
     internal class MappingInstanceData<TSource, TTarget> : IMappingData<TSource, TTarget>, IMappingData
     {
         private readonly IMappingData _parent;
+        private readonly IMappingContext _mappingContext;
 
         protected MappingInstanceData(IMappingData<TSource, TTarget> mappingData)
-            : this(mappingData.Source, mappingData.Target, mappingData.EnumerableIndex, mappingData.Parent)
+            : this(
+                mappingData.Source,
+                mappingData.Target,
+                mappingData.EnumerableIndex,
+                mappingData.Parent,
+              ((MappingInstanceData<TSource, TTarget>)mappingData)._mappingContext)
         {
         }
 
@@ -15,9 +21,11 @@
             TSource source,
             TTarget target,
             int? enumerableIndex,
-            IMappingData parent)
+            IMappingData parent,
+            IMappingContext mappingContext)
         {
             _parent = parent;
+            _mappingContext = mappingContext;
             Source = source;
             Target = target;
             EnumerableIndex = enumerableIndex;
@@ -63,7 +71,15 @@
                 thisMappingData.GetSource<TDataSource>(),
                 thisMappingData.GetTarget<TDataTarget>(),
                 GetEnumerableIndex(),
-                _parent);
+                _parent,
+                _mappingContext);
+        }
+
+        TService IMappingData<TSource, TTarget>.GetService<TService>()
+        {
+            return _mappingContext
+                .MapperContext
+                .UserConfigurations;
         }
     }
 }

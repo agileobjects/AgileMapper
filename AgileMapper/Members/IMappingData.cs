@@ -77,5 +77,14 @@
         /// <see cref="IMappingData{TSource, TTarget}"/>, if applicable.
         /// </summary>
         int? EnumerableIndex { get; }
+
+        /// <summary>
+        /// Use the registered service provider to resolve an instance of the given <typeparamref name="TService"/>.
+        /// </summary>
+        /// <typeparam name="TService">The Type of service to resolve.</typeparam>
+        /// <returns>
+        /// The <typeparamref name="TService"/> instance resolved by the registered service provider.
+        /// </returns>
+        TService GetService<TService>() where TService : class;
     }
 }

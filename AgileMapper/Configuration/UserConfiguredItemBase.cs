@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using System.Collections.Generic;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;

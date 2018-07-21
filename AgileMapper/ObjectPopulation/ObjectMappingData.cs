@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IObjectMappingData declaredTypeMappingData,
             IObjectMappingData parent,
             bool createMapper)
-            : base(source, target, enumerableIndex, parent)
+            : base(source, target, enumerableIndex, parent, mappingContext)
         {
             MappingTypes = mappingTypes;
             MappingContext = mappingContext;

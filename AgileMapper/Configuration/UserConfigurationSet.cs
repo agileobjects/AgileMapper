@@ -21,6 +21,7 @@
         private List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
         private List<MapToNullCondition> _mapToNullConditions;
         private List<NullCollectionsSetting> _nullCollectionsSettings;
+        private List<ConfiguredServiceProvider> _serviceProviders;
         private List<ConfiguredObjectFactory> _objectFactories;
         private MemberIdentifierSet _identifiers;
         private List<ConfiguredIgnoredMember> _ignoredMembers;
@@ -105,6 +106,18 @@
 
         public bool MapToNullCollections(IBasicMapperData basicData)
             => _nullCollectionsSettings?.Any(s => s.AppliesTo(basicData)) == true;
+
+        #endregion
+
+        #region ServiceProviders
+
+        private List<ConfiguredServiceProvider> ServiceProviders =>
+            _serviceProviders ?? (_serviceProviders = new List<ConfiguredServiceProvider>());
+
+        public void Add(ConfiguredServiceProvider serviceProvider)
+        {
+            ServiceProviders.Add(serviceProvider);
+        }
 
         #endregion
 
