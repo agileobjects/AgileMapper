@@ -75,11 +75,12 @@
                 _mappingContext);
         }
 
-        TService IMappingData<TSource, TTarget>.GetService<TService>()
+        TService IMappingData<TSource, TTarget>.GetService<TService>(string name)
         {
             return _mappingContext
                 .MapperContext
-                .UserConfigurations;
+                .UserConfigurations
+                .GetService<TService>(name);
         }
     }
 }

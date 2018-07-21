@@ -119,6 +119,9 @@
             ServiceProviders.Add(serviceProvider);
         }
 
+        public TService GetService<TService>(string name)
+            => _serviceProviders.First().GetService<TService>(name);
+
         #endregion
 
         #region ObjectFactories

@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using TestClasses;
 #if !NET35
@@ -31,6 +32,36 @@
 
                 logger.EntryCount.ShouldBe(1);
             }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredNamedServiceProvider()
+        {
+            var logger = new Logger();
+
+            var mappingEx = Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .UseServiceProvider((t, name) => (name == "Frank") ? logger : null);
+
+                    mapper.Before
+                        .MappingBegins
+                        .Call(ctx => ctx.GetService<Logger>("Frank").Log("Mapping!"))
+                        .And
+                        .After
+                        .MappingEnds
+                        .Call(ctx => ctx.GetService<Logger>().Log("This will be null!"));
+
+                    var source = new PublicField<string> { Value = "Logging!" };
+
+                    mapper.Map(source).Over(new PublicField<string>());
+                }
+            });
+
+            mappingEx.InnerException.ShouldBeOfType<NullReferenceException>();
+            logger.EntryCount.ShouldBe(1);
         }
 
         #region Helper Classes

@@ -1,17 +1,27 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using System.Linq.Expressions;
-    using Extensions.Internal;
 
-    internal class ConfiguredServiceProvider : UserConfiguredItemBase
+    internal class ConfiguredServiceProvider
     {
-        private ConstantExpression _serviceFactory;
+        private readonly Func<Type, object> _unnamedServiceFactory;
+        private readonly Func<Type, string, object> _namedServiceFactory;
 
-        public ConfiguredServiceProvider(MappingConfigInfo configInfo, Func<Type, object> serviceFactory)
-            : base(configInfo)
+        public ConfiguredServiceProvider(Func<Type, object> serviceFactory)
         {
-            _serviceFactory = serviceFactory.ToConstantExpression();
+            _unnamedServiceFactory = serviceFactory;
+        }
+
+        public ConfiguredServiceProvider(Func<Type, string, object> serviceFactory)
+        {
+            _namedServiceFactory = serviceFactory;
+        }
+
+        public TService GetService<TService>(string name)
+        {
+            return string.IsNullOrEmpty(name)
+                ? (TService)_unnamedServiceFactory.Invoke(typeof(TService))
+                : (TService)_namedServiceFactory.Invoke(typeof(TService), name);
         }
     }
 }

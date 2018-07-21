@@ -48,10 +48,29 @@
         /// Use the given <paramref name="serviceFactory"/> to create unnamed service instances during
         /// a mapping.
         /// </summary>
-        /// <param name="serviceFactory"></param>
+        /// <param name="serviceFactory">The service factory to use.</param>
+        /// <returns>
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
         public IGlobalMappingSettings UseServiceProvider(Func<Type, object> serviceFactory)
         {
-            var provider = new ConfiguredServiceProvider(_configInfo, serviceFactory);
+            var provider = new ConfiguredServiceProvider(serviceFactory);
+
+            MapperContext.UserConfigurations.Add(provider);
+            return this;
+        }
+
+        /// <summary>
+        /// Use the given <paramref name="serviceFactory"/> to create named service instances during
+        /// a mapping.
+        /// </summary>
+        /// <param name="serviceFactory">The service factory to use.</param>
+        /// <returns>
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalMappingSettings UseServiceProvider(Func<Type, string, object> serviceFactory)
+        {
+            var provider = new ConfiguredServiceProvider(serviceFactory);
 
             MapperContext.UserConfigurations.Add(provider);
             return this;
