@@ -64,6 +64,29 @@
             logger.EntryCount.ShouldBe(1);
         }
 
+        [Fact]
+        public void ShouldUseAConfiguredNamedServiceProviderObjectGetService()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var logger = new Logger();
+                var serviceProvider = new LoggerServiceProvider(logger);
+
+                mapper.WhenMapping
+                    .UseServiceProvider(serviceProvider);
+
+                mapper.Before
+                    .MappingBegins
+                    .Call(ctx => ctx.GetService<Logger>().Log("Mapping!"));
+
+                var source = new PublicField<string> { Value = "Logging!" };
+
+                mapper.Map(source).Over(new PublicField<string>());
+
+                logger.EntryCount.ShouldBe(1);
+            }
+        }
+
         #region Helper Classes
 
         public class Logger
@@ -81,6 +104,18 @@
             {
                 _logs.Add(message);
             }
+        }
+
+        public class LoggerServiceProvider
+        {
+            private readonly Logger _logger;
+
+            public LoggerServiceProvider(Logger logger)
+            {
+                _logger = logger;
+            }
+
+            public object GetService(Type serviceType) => _logger;
         }
 
         #endregion
