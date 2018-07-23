@@ -44,7 +44,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .UseServiceProvider((t, name) => (name == "Frank") ? logger : null);
+                        .UseServiceProvider((t, name) => (name == "Frank") ? logger : throw new NotSupportedException("NO!"));
 
                     mapper.Before
                         .MappingBegins
@@ -60,20 +60,22 @@
                 }
             });
 
-            mappingEx.InnerException.ShouldBeOfType<NullReferenceException>();
             logger.EntryCount.ShouldBe(1);
+            mappingEx.InnerException.ShouldBeOfType<NotSupportedException>();
+
+            // ReSharper disable once PossibleNullReferenceException
+            mappingEx.InnerException.Message.ShouldBe("NO!");
         }
 
         [Fact]
-        public void ShouldUseAConfiguredNamedServiceProviderObjectGetService()
+        public void ShouldUseAConfiguredServiceProviderObjectGetService()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 var logger = new Logger();
-                var serviceProvider = new LoggerServiceProvider(logger);
+                var serviceProvider = new GetServiceServiceProvider(logger);
 
-                mapper.WhenMapping
-                    .UseServiceProvider(serviceProvider);
+                mapper.WhenMapping.UseServiceProvider(serviceProvider);
 
                 mapper.Before
                     .MappingBegins
@@ -85,6 +87,39 @@
 
                 logger.EntryCount.ShouldBe(1);
             }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredServiceProviderObjectGetNamedService()
+        {
+            var logger = new Logger();
+            var serviceProvider = new GetServiceWithNameServiceProvider(logger, "Dee");
+
+            var mappingEx = Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider(serviceProvider);
+
+                    mapper.Before
+                        .MappingBegins
+                        .Call(ctx => ctx.GetService<Logger>("Dee").Log("Mapping!"))
+                        .And
+                        .After
+                        .MappingEnds
+                        .Call(ctx => ctx.GetService<Logger>().Log("Unnamed not supported!"));
+
+                    var source = new PublicField<string> { Value = "Logging!" };
+
+                    mapper.Map(source).Over(new PublicField<string>());
+                }
+            });
+
+            logger.EntryCount.ShouldBe(1);
+            mappingEx.InnerException.ShouldBeOfType<NotSupportedException>();
+
+            // ReSharper disable once PossibleNullReferenceException
+            mappingEx.InnerException.Message.ShouldBe("Dee");
         }
 
         #region Helper Classes
@@ -106,16 +141,31 @@
             }
         }
 
-        public class LoggerServiceProvider
+        public class GetServiceServiceProvider
         {
             private readonly Logger _logger;
 
-            public LoggerServiceProvider(Logger logger)
+            public GetServiceServiceProvider(Logger logger)
             {
                 _logger = logger;
             }
 
             public object GetService(Type serviceType) => _logger;
+        }
+
+        public class GetServiceWithNameServiceProvider
+        {
+            private readonly Logger _logger;
+            private readonly string _name;
+
+            public GetServiceWithNameServiceProvider(Logger logger, string name)
+            {
+                _logger = logger;
+                _name = name;
+            }
+
+            public object GetService(Type serviceType, string name)
+                => (name == _name) ? _logger : throw new NotSupportedException(_name);
         }
 
         #endregion

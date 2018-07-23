@@ -6,18 +6,19 @@
     using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
     using LinqExp = System.Linq.Expressions;
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.ExpressionType;
 #endif
 
     internal class ConfiguredServiceProvider
     {
         private static readonly ParameterExpression _serviceType = Expression.Parameter(typeof(Type), "serviceType");
+        private static readonly ParameterExpression _serviceName = Expression.Parameter(typeof(string), "name");
         private static readonly string[] _serviceProviderMethodNames = { "GetService", "GetInstance", "Resolve" };
 
         private readonly Func<Type, object> _unnamedServiceFactory;
@@ -33,11 +34,33 @@
             _namedServiceFactory = serviceFactory;
         }
 
+        public bool IsNamed => _namedServiceFactory != null;
+
         public TService GetService<TService>(string name)
         {
-            return string.IsNullOrEmpty(name)
-                ? (TService)_unnamedServiceFactory.Invoke(typeof(TService))
-                : (TService)_namedServiceFactory.Invoke(typeof(TService), name);
+            var hasName = !string.IsNullOrEmpty(name);
+
+            if ((_unnamedServiceFactory == null) || hasName)
+            {
+                return GetNamedService<TService>(hasName ? name : null);
+            }
+
+            return (TService)_unnamedServiceFactory.Invoke(typeof(TService));
+
+        }
+
+        private TService GetNamedService<TService>(string name)
+        {
+            if (_namedServiceFactory != null)
+            {
+                return (TService)_namedServiceFactory.Invoke(typeof(TService), name);
+            }
+
+            var serviceName = typeof(TService).GetFriendlyName();
+
+            throw new MappingConfigurationException((name != null)
+                ? $"Unable to resolve {serviceName} service with name '{name}'; no named service provider has been configured"
+                : $"Unable to resolve {serviceName} service; no service provider has been configured");
         }
 
         public static IEnumerable<ConfiguredServiceProvider> CreateFromOrThrow(object serviceProviderInstance)
@@ -80,7 +103,7 @@
                 return null;
             }
 
-            if (parameters.Length != 2)
+            if (parameters.Length == 2)
             {
                 return NamedServiceProviderFor(method, providerObject);
             }
@@ -108,7 +131,10 @@
 
         private static ConfiguredServiceProvider NamedServiceProviderFor(MethodInfo method, Expression providerObject)
         {
-            return null;
+            var getServiceCall = Expression.Call(providerObject, method, _serviceType, _serviceName);
+            var getServiceLambda = Expression.Lambda<Func<Type, string, object>>(getServiceCall, _serviceType, _serviceName);
+
+            return new ConfiguredServiceProvider(getServiceLambda.Compile());
         }
 
         private static ConfiguredServiceProvider NamedServiceProviderFor(

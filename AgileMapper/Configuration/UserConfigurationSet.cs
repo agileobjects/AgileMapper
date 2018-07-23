@@ -21,7 +21,8 @@
         private List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
         private List<MapToNullCondition> _mapToNullConditions;
         private List<NullCollectionsSetting> _nullCollectionsSettings;
-        private List<ConfiguredServiceProvider> _serviceProviders;
+        private ConfiguredServiceProvider _serviceProvider;
+        private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
         private MemberIdentifierSet _identifiers;
         private List<ConfiguredIgnoredMember> _ignoredMembers;
@@ -111,16 +112,25 @@
 
         #region ServiceProviders
 
-        private List<ConfiguredServiceProvider> ServiceProviders =>
-            _serviceProviders ?? (_serviceProviders = new List<ConfiguredServiceProvider>());
-
         public void Add(ConfiguredServiceProvider serviceProvider)
         {
-            ServiceProviders.Add(serviceProvider);
+            if (serviceProvider.IsNamed)
+            {
+                _namedServiceProvider = serviceProvider;
+                return;
+            }
+
+            _serviceProvider = serviceProvider;
         }
 
         public TService GetService<TService>(string name)
-            => _serviceProviders.First().GetService<TService>(name);
+        {
+            var serviceProvider = string.IsNullOrEmpty(name)
+                ? _serviceProvider ?? _namedServiceProvider
+                : _namedServiceProvider ?? throw new MappingConfigurationException("Unable to resolve service provider");
+
+            return serviceProvider.GetService<TService>(name);
+        }
 
         #endregion
 
