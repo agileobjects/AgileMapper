@@ -122,6 +122,58 @@
             mappingEx.InnerException.Message.ShouldBe("Dee");
         }
 
+        [Fact]
+        public void ShouldUseAConfiguredServiceProviderObjectGetInstanceService()
+        {
+            var logger = new Logger();
+            var serviceProvider = new GetInstancesServiceProvider(logger, "Mac");
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.UseServiceProvider(serviceProvider);
+
+                mapper.Before
+                    .MappingBegins
+                    .Call(ctx => ctx.GetService<Logger>("Mac").Log("Mapping!"))
+                    .And
+                    .After
+                    .MappingEnds
+                    .Call(ctx => ctx.GetService<Logger>().Log("More mapping!"));
+
+                var source = new PublicField<string> { Value = "Logging!" };
+
+                mapper.Map(source).Over(new PublicField<string>());
+            }
+
+            logger.EntryCount.ShouldBe(2);
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredServiceProviderObjectResolveService()
+        {
+            var logger = new Logger();
+            var serviceProvider = new ResolveServiceProvider(logger, "Charlie");
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.UseServiceProvider(serviceProvider);
+
+                mapper.Before
+                    .MappingBegins
+                    .Call(ctx => ctx.GetService<Logger>("Charlie").Log("Mapping!"))
+                    .And
+                    .After
+                    .MappingEnds
+                    .Call(ctx => ctx.GetService<Logger>().Log("More mapping!"));
+
+                var source = new PublicField<string> { Value = "Logging!" };
+
+                mapper.Map(source).Over(new PublicField<string>());
+            }
+
+            logger.EntryCount.ShouldBe(2);
+        }
+
         #region Helper Classes
 
         public class Logger
@@ -165,6 +217,40 @@
             }
 
             public object GetService(Type serviceType, string name)
+                => (name == _name) ? _logger : throw new NotSupportedException(_name);
+        }
+
+        public class GetInstancesServiceProvider
+        {
+            private readonly Logger _logger;
+            private readonly string _name;
+
+            public GetInstancesServiceProvider(Logger logger, string name = null)
+            {
+                _logger = logger;
+                _name = name;
+            }
+
+            public object GetInstance(Type serviceType) => _logger;
+
+            public object GetInstance(Type serviceType, string name)
+                => (name == _name) ? _logger : throw new NotSupportedException(_name);
+        }
+
+        public class ResolveServiceProvider
+        {
+            private readonly Logger _logger;
+            private readonly string _name;
+
+            public ResolveServiceProvider(Logger logger, string name = null)
+            {
+                _logger = logger;
+                _name = name;
+            }
+
+            public object GetInstance(Type serviceType) => _logger;
+
+            public object GetInstance(Type serviceType, string name, string extraString = null, params object[] objects)
                 => (name == _name) ? _logger : throw new NotSupportedException(_name);
         }
 

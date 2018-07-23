@@ -140,9 +140,15 @@
         private static ConfiguredServiceProvider NamedServiceProviderFor(
             MethodInfo method,
             Expression providerObject,
-            ParameterInfo[] parameters)
+            IEnumerable<ParameterInfo> parameters)
         {
-            return null;
+            var extraArguments = parameters.Skip(2).Project<ParameterInfo, Expression>(p => Expression.Default(p.ParameterType));
+            var arguments = new Expression[] { _serviceType, _serviceName }.Concat(extraArguments);
+
+            var getServiceCall = Expression.Call(providerObject, method, arguments);
+            var getServiceLambda = Expression.Lambda<Func<Type, string, object>>(getServiceCall, _serviceType, _serviceName);
+
+            return new ConfiguredServiceProvider(getServiceLambda.Compile());
         }
 
         private static void ThrowIfNoProvidersFound(ICollection<ConfiguredServiceProvider> providers)
