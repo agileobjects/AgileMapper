@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
+    using Configuration;
+
     /// <summary>
     /// Provides the data being used at a particular point during a mapping.
     /// </summary>
@@ -86,7 +88,16 @@
         /// <returns>
         /// The <typeparamref name="TService"/> instance resolved by the registered service provider.
         /// </returns>
-        TService GetService<TService>(string name = null) 
+        TService GetService<TService>(string name = null)
             where TService : class;
+
+        /// <summary>
+        /// Retrieve a previously-registered service provider object of type <typeparamref name="TServiceProvider"/>.
+        /// If no service provider object of the given type exists a <see cref="MappingConfigurationException"/> is thrown.
+        /// </summary>
+        /// <typeparam name="TServiceProvider">The type of previously-registered service provider object to retrieve.</typeparam>
+        /// <returns>The previously-registered service provider object of type <typeparamref name="TServiceProvider"/>.</returns>
+        TServiceProvider GetServiceProvider<TServiceProvider>()
+            where TServiceProvider : class;
     }
 }

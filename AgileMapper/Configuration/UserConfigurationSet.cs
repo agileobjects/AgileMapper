@@ -9,6 +9,7 @@
     using Members;
     using ObjectPopulation;
     using Projection;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -123,13 +124,47 @@
             _serviceProvider = serviceProvider;
         }
 
-        public TService GetService<TService>(string name)
+        public TService GetServiceOrThrow<TService>(string name)
         {
-            var serviceProvider = string.IsNullOrEmpty(name)
-                ? _serviceProvider ?? _namedServiceProvider
-                : _namedServiceProvider ?? throw new MappingConfigurationException("Unable to resolve service provider");
+            var hasName = !string.IsNullOrEmpty(name);
 
-            return serviceProvider.GetService<TService>(name);
+            var serviceProvider = hasName
+                ? _namedServiceProvider
+                : _serviceProvider ?? _namedServiceProvider;
+
+            if (serviceProvider != null)
+            {
+                return serviceProvider.GetService<TService>(name);
+            }
+
+            if (hasName)
+            {
+                throw new MappingConfigurationException(
+                    "No named service providers configured. " +
+                    "Use Mapper.WhenMapping.UseServiceProvider(provider) to configure a named service provider");
+            }
+
+            throw new MappingConfigurationException(
+                "No service providers configured. " +
+                "Use Mapper.WhenMapping.UseServiceProvider(provider) to configure a service provider");
+        }
+
+        public TServiceProvider GetServiceProviderOrThrow<TServiceProvider>()
+            where TServiceProvider : class
+        {
+            var serviceProvider =
+                _serviceProvider?.ProviderObject as TServiceProvider ??
+                _namedServiceProvider?.ProviderObject as TServiceProvider;
+
+            if (serviceProvider != null)
+            {
+                return serviceProvider;
+            }
+
+            var providerType = typeof(TServiceProvider).GetFriendlyName();
+
+            throw new MappingConfigurationException(
+                $"No service provider of type {providerType} is configured");
         }
 
         #endregion

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using AgileMapper.Configuration;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -172,6 +173,118 @@
             }
 
             logger.EntryCount.ShouldBe(2);
+        }
+
+        [Fact]
+        public void ShouldExposeAConfiguredServiceProvider()
+        {
+            var logger = new Logger();
+            var serviceProvider = new ResolveServiceProvider(logger, "Charlie");
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.UseServiceProvider(serviceProvider);
+
+                mapper.Before
+                    .MappingBegins
+                    .Call(ctx =>
+                    {
+                        var log = (Logger)ctx
+                            .GetServiceProvider<ResolveServiceProvider>()
+                            .GetInstance(typeof(Logger));
+
+                        log.Log("Logged!");
+                    });
+
+                var source = new PublicField<string> { Value = "Logging!" };
+
+                mapper.Map(source).Over(new PublicField<string>());
+            }
+
+            logger.EntryCount.ShouldBe(1);
+        }
+
+        [Fact]
+        public void ShouldErrorIfNoServiceProviderConfigured()
+        {
+            var mappingEx = Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.Before
+                        .MappingBegins
+                        .Call(ctx => ctx.GetService<Logger>().Log("Mapping!"));
+
+                    var source = new PublicField<string> { Value = "Logging!" };
+
+                    mapper.Map(source).Over(new PublicField<string>());
+                }
+            });
+
+            mappingEx.InnerException.ShouldNotBeNull();
+
+            // ReSharper disable once PossibleNullReferenceException
+            mappingEx.InnerException.Message.ShouldContain("No service providers configured");
+        }
+
+        [Fact]
+        public void ShouldErrorIfNoNamedServiceProviderConfigured()
+        {
+            var mappingEx = Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider(t => new Logger());
+
+                    mapper.Before
+                        .MappingBegins
+                        .Call(ctx => ctx.GetService<Logger>("SpecialLogger"));
+
+                    var source = new PublicField<string> { Value = "Logging!" };
+
+
+                    mapper.Map(source).Over(new PublicField<string>());
+                }
+            });
+
+            mappingEx.InnerException.ShouldNotBeNull();
+
+            // ReSharper disable once PossibleNullReferenceException
+            mappingEx.InnerException.Message.ShouldContain("No named service providers configured");
+        }
+
+        [Fact]
+        public void ShouldErrorWithServiceProviderInstanceTypeMismatch()
+        {
+            var mappingEx = Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider(new GetServiceServiceProvider(new Logger()));
+
+                    mapper.Before
+                        .MappingBegins
+                        .Call(ctx => ctx.GetServiceProvider<GetInstancesServiceProvider>());
+                }
+            });
+
+            mappingEx.InnerException.ShouldNotBeNull();
+
+            // ReSharper disable once PossibleNullReferenceException
+            mappingEx.InnerException.Message.ShouldContain("No named service providers configured");
+        }
+
+        [Fact]
+        public void ShouldErrorIfNoServiceProviderMethodsAvailable()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping.UseServiceProvider(new Logger()));
+
+            configEx.Message.ShouldContain("No supported service provider methods were found");
+            configEx.Message.ShouldContain("Logger");
+            configEx.Message.ShouldContain("GetService");
+            configEx.Message.ShouldContain("GetInstance");
+            configEx.Message.ShouldContain("Resolve");
         }
 
         #region Helper Classes

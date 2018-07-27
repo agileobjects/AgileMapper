@@ -9,8 +9,6 @@
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
-    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
 #endif
@@ -24,17 +22,29 @@
         private readonly Func<Type, object> _unnamedServiceFactory;
         private readonly Func<Type, string, object> _namedServiceFactory;
 
-        public ConfiguredServiceProvider(Func<Type, object> serviceFactory)
+        public ConfiguredServiceProvider(Func<Type, object> serviceFactory, ConstantExpression providerObject = null)
+            : this(providerObject)
         {
             _unnamedServiceFactory = serviceFactory;
         }
 
-        public ConfiguredServiceProvider(Func<Type, string, object> serviceFactory)
+        public ConfiguredServiceProvider(Func<Type, string, object> serviceFactory, ConstantExpression providerObject = null)
+            : this(providerObject)
         {
             _namedServiceFactory = serviceFactory;
         }
 
+        private ConfiguredServiceProvider(ConstantExpression providerObject)
+        {
+            if (providerObject != null)
+            {
+                ProviderObject = providerObject.Value;
+            }
+        }
+
         public bool IsNamed => _namedServiceFactory != null;
+
+        public object ProviderObject { get; }
 
         public TService GetService<TService>(string name)
         {
@@ -50,18 +60,7 @@
         }
 
         private TService GetNamedService<TService>(string name)
-        {
-            if (_namedServiceFactory != null)
-            {
-                return (TService)_namedServiceFactory.Invoke(typeof(TService), name);
-            }
-
-            var serviceName = typeof(TService).GetFriendlyName();
-
-            throw new MappingConfigurationException((name != null)
-                ? $"Unable to resolve {serviceName} service with name '{name}'; no named service provider has been configured"
-                : $"Unable to resolve {serviceName} service; no service provider has been configured");
-        }
+            => (TService)_namedServiceFactory.Invoke(typeof(TService), name);
 
         public static IEnumerable<ConfiguredServiceProvider> CreateFromOrThrow(object serviceProviderInstance)
         {
@@ -74,12 +73,12 @@
                 .WhereNotNull()
                 .ToArray();
 
-            ThrowIfNoProvidersFound(providers);
+            ThrowIfNoProvidersFound(providers, providerObject);
 
             return providers;
         }
 
-        private static ConfiguredServiceProvider GetServiceProviderOrNull(MethodInfo method, Expression providerObject)
+        private static ConfiguredServiceProvider GetServiceProviderOrNull(MethodInfo method, ConstantExpression providerObject)
         {
             if (Array.IndexOf(_serviceProviderMethodNames, method.Name) == -1)
             {
@@ -121,25 +120,25 @@
             return NamedServiceProviderFor(method, providerObject, parameters);
         }
 
-        private static ConfiguredServiceProvider UnnamedServiceProviderFor(MethodInfo method, Expression providerObject)
+        private static ConfiguredServiceProvider UnnamedServiceProviderFor(MethodInfo method, ConstantExpression providerObject)
         {
             var getServiceCall = Expression.Call(providerObject, method, _serviceType);
             var getServiceLambda = Expression.Lambda<Func<Type, object>>(getServiceCall, _serviceType);
 
-            return new ConfiguredServiceProvider(getServiceLambda.Compile());
+            return new ConfiguredServiceProvider(getServiceLambda.Compile(), providerObject);
         }
 
-        private static ConfiguredServiceProvider NamedServiceProviderFor(MethodInfo method, Expression providerObject)
+        private static ConfiguredServiceProvider NamedServiceProviderFor(MethodInfo method, ConstantExpression providerObject)
         {
             var getServiceCall = Expression.Call(providerObject, method, _serviceType, _serviceName);
             var getServiceLambda = Expression.Lambda<Func<Type, string, object>>(getServiceCall, _serviceType, _serviceName);
 
-            return new ConfiguredServiceProvider(getServiceLambda.Compile());
+            return new ConfiguredServiceProvider(getServiceLambda.Compile(), providerObject);
         }
 
         private static ConfiguredServiceProvider NamedServiceProviderFor(
             MethodInfo method,
-            Expression providerObject,
+            ConstantExpression providerObject,
             IEnumerable<ParameterInfo> parameters)
         {
             var extraArguments = parameters.Skip(2).Project<ParameterInfo, Expression>(p => Expression.Default(p.ParameterType));
@@ -148,11 +147,29 @@
             var getServiceCall = Expression.Call(providerObject, method, arguments);
             var getServiceLambda = Expression.Lambda<Func<Type, string, object>>(getServiceCall, _serviceType, _serviceName);
 
-            return new ConfiguredServiceProvider(getServiceLambda.Compile());
+            return new ConfiguredServiceProvider(getServiceLambda.Compile(), providerObject);
         }
 
-        private static void ThrowIfNoProvidersFound(ICollection<ConfiguredServiceProvider> providers)
+        private static void ThrowIfNoProvidersFound(ICollection<ConfiguredServiceProvider> providers, ConstantExpression providerObject)
         {
+            if (providers.Any())
+            {
+                return;
+            }
+
+            var providerType = providerObject.Type.GetFriendlyName();
+
+            throw new MappingConfigurationException(
+                $@"
+No supported service provider methods were found on provider object of type {providerType}.
+The given object must expose one of the following public, instance methods:
+  - GetService(Type type)
+  - GetService(Type type, string name)
+  - GetInstance(Type type)
+  - GetInstance(Type type, string name)
+  - Resolve(Type type)
+  - Resolve(Type type, string name)
+Overloads with a 'name' parameter can also take one or more optional or params array parameters.".TrimStart());
         }
     }
 }

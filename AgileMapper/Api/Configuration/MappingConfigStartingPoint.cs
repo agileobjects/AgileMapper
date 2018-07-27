@@ -46,13 +46,13 @@
 
         /// <summary>
         /// Use the given <paramref name="serviceProvider"/> instance to create named service instances during
-        /// a mapping. The given object much expose one of the following public, instance methods:
+        /// a mapping. The given object must expose one of the following public, instance methods:
         /// - GetService(Type type)
         /// - GetService(Type type, string name)
         /// - GetInstance(Type type)
         /// - GetInstance(Type type, string name)
-        /// - GetResolve(Type type)
-        /// - GetResolve(Type type, string name)
+        /// - Resolve(Type type)
+        /// - Resolve(Type type, string name)
         /// Overloads with a 'name' parameter can also take one or more optional or params array parameters. If
         /// no useable methods are found, a <see cref="MappingConfigurationException"/> is thrown.
         /// </summary>

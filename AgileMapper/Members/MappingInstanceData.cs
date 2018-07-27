@@ -13,7 +13,7 @@
                 mappingData.Target,
                 mappingData.EnumerableIndex,
                 mappingData.Parent,
-              ((MappingInstanceData<TSource, TTarget>)mappingData)._mappingContext)
+                ((MappingInstanceData<TSource, TTarget>)mappingData)._mappingContext)
         {
         }
 
@@ -80,7 +80,15 @@
             return _mappingContext
                 .MapperContext
                 .UserConfigurations
-                .GetService<TService>(name);
+                .GetServiceOrThrow<TService>(name);
+        }
+
+        TServiceProvider IMappingData<TSource, TTarget>.GetServiceProvider<TServiceProvider>()
+        {
+            return _mappingContext
+                .MapperContext
+                .UserConfigurations
+                .GetServiceProviderOrThrow<TServiceProvider>();
         }
     }
 }
