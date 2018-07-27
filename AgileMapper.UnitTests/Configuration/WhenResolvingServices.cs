@@ -242,7 +242,6 @@
 
                     var source = new PublicField<string> { Value = "Logging!" };
 
-
                     mapper.Map(source).Over(new PublicField<string>());
                 }
             });
@@ -265,13 +264,19 @@
                     mapper.Before
                         .MappingBegins
                         .Call(ctx => ctx.GetServiceProvider<GetInstancesServiceProvider>());
+
+                    var source = new PublicField<string> { Value = "Logging!" };
+
+                    mapper.Map(source).Over(new PublicField<string>());
                 }
             });
 
             mappingEx.InnerException.ShouldNotBeNull();
 
             // ReSharper disable once PossibleNullReferenceException
-            mappingEx.InnerException.Message.ShouldContain("No named service providers configured");
+            mappingEx.InnerException.Message.ShouldContain("No service provider of type");
+            mappingEx.InnerException.Message.ShouldContain("GetInstancesServiceProvider");
+            mappingEx.InnerException.Message.ShouldContain("is configured");
         }
 
         [Fact]
