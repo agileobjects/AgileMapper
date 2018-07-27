@@ -253,6 +253,21 @@
         }
 
         [Fact]
+        public void ShouldErrorIfDuplicateServiceProviderConfigured()
+        {
+            var mappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider(t => new Logger());
+                    mapper.WhenMapping.UseServiceProvider(t => new object());
+                }
+            });
+
+            mappingEx.Message.ShouldContain("No named service providers configured");
+        }
+
+        [Fact]
         public void ShouldErrorWithServiceProviderInstanceTypeMismatch()
         {
             var mappingEx = Should.Throw<MappingException>(() =>
