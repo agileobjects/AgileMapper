@@ -75,6 +75,9 @@
                 _mappingContext);
         }
 
+        TService IMappingData<TSource, TTarget>.GetService<TService>()
+            => ((IMappingData<TSource, TTarget>)this).GetService<TService>(name: null);
+
         TService IMappingData<TSource, TTarget>.GetService<TService>(string name)
         {
             return _mappingContext

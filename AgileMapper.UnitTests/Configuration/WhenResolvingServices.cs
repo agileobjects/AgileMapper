@@ -157,6 +157,7 @@
 
             using (var mapper = Mapper.CreateNew())
             {
+
                 mapper.WhenMapping.UseServiceProvider(serviceProvider);
 
                 mapper.Before
@@ -173,6 +174,28 @@
             }
 
             logger.EntryCount.ShouldBe(2);
+        }
+
+        [Fact]
+        public void ShouldUseTheFirstMatchingServiceProviderMethodOnAnObject()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.UseServiceProvider(new GetServiceOrInstanceServiceProvider());
+
+                mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .Over<PublicField<string>>()
+                    .Map(ctx => ctx.GetService<StringProvider>().Value)
+                    .To(pf => pf.Value);
+
+                var source = new PublicField<string> { Value = "Logging!" };
+                var target = new PublicField<string> { Value = "Overwrite THIS" };
+
+                mapper.Map(source).Over(target);
+
+                target.Value.ShouldBe(nameof(StringProvider));
+            }
         }
 
         [Fact]
@@ -264,7 +287,40 @@
                 }
             });
 
-            mappingEx.Message.ShouldContain("No named service providers configured");
+            mappingEx.Message.ShouldContain("already been configured");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateNamedServiceProviderConfigured()
+        {
+            var mappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider((t, name) => new Logger());
+                    mapper.WhenMapping.UseServiceProvider((t, name) => new object());
+                }
+            });
+
+            mappingEx.Message.ShouldContain("named");
+            mappingEx.Message.ShouldContain("already been configured");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateServiceProviderObjectConfigured()
+        {
+            var mappingEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                var logger = new Logger();
+
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider(new GetServiceServiceProvider(logger));
+                    mapper.WhenMapping.UseServiceProvider(new ResolveServiceProvider(logger));
+                }
+            });
+
+            mappingEx.Message.ShouldContain("already been configured");
         }
 
         [Fact]
@@ -326,6 +382,11 @@
             }
         }
 
+        public class StringProvider
+        {
+            public string Value => nameof(StringProvider);
+        }
+
         public class GetServiceServiceProvider
         {
             private readonly Logger _logger;
@@ -385,6 +446,13 @@
 
             public object GetInstance(Type serviceType, string name, string extraString = null, params object[] objects)
                 => (name == _name) ? _logger : throw new NotSupportedException(_name);
+        }
+
+        public class GetServiceOrInstanceServiceProvider
+        {
+            public object GetService(Type serviceType) => Activator.CreateInstance(serviceType);
+
+            public object GetInstance(Type serviceType) => Activator.CreateInstance(serviceType);
         }
 
         #endregion

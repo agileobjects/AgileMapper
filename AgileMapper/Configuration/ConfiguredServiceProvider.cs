@@ -67,9 +67,16 @@
             var providerType = serviceProviderInstance.GetType();
             var providerObject = Expression.Constant(serviceProviderInstance, providerType);
 
+            var unnamedServiceProviderFound = false;
+            var namedServiceProviderFound = false;
+
             var providers = providerType
                 .GetPublicInstanceMethods()
-                .Project(m => GetServiceProviderOrNull(m, providerObject))
+                .Project(method => GetServiceProviderOrNull(
+                    method,
+                    providerObject,
+                    ref unnamedServiceProviderFound,
+                    ref namedServiceProviderFound))
                 .WhereNotNull()
                 .ToArray();
 
@@ -78,7 +85,11 @@
             return providers;
         }
 
-        private static ConfiguredServiceProvider GetServiceProviderOrNull(MethodInfo method, ConstantExpression providerObject)
+        private static ConfiguredServiceProvider GetServiceProviderOrNull(
+            MethodInfo method,
+            ConstantExpression providerObject,
+            ref bool unnamedServiceProviderFound,
+            ref bool namedServiceProviderFound)
         {
             if (Array.IndexOf(_serviceProviderMethodNames, method.Name) == -1)
             {
@@ -94,7 +105,7 @@
 
             if (parameters.HasOne())
             {
-                return UnnamedServiceProviderFor(method, providerObject);
+                return UnnamedServiceProviderFor(method, providerObject, ref unnamedServiceProviderFound);
             }
 
             if (parameters[1].ParameterType != typeof(string))
@@ -104,7 +115,7 @@
 
             if (parameters.Length == 2)
             {
-                return NamedServiceProviderFor(method, providerObject);
+                return NamedServiceProviderFor(method, providerObject, ref namedServiceProviderFound);
             }
 
             for (var i = 2; i < parameters.Length; i++)
@@ -117,19 +128,39 @@
                 }
             }
 
-            return NamedServiceProviderFor(method, providerObject, parameters);
+            return NamedServiceProviderFor(method, providerObject, parameters, ref namedServiceProviderFound);
         }
 
-        private static ConfiguredServiceProvider UnnamedServiceProviderFor(MethodInfo method, ConstantExpression providerObject)
+        private static ConfiguredServiceProvider UnnamedServiceProviderFor(
+            MethodInfo method,
+            ConstantExpression providerObject,
+            ref bool unnamedServiceProviderFound)
         {
+            if (unnamedServiceProviderFound)
+            {
+                return null;
+            }
+
+            unnamedServiceProviderFound = true;
+
             var getServiceCall = Expression.Call(providerObject, method, _serviceType);
             var getServiceLambda = Expression.Lambda<Func<Type, object>>(getServiceCall, _serviceType);
 
             return new ConfiguredServiceProvider(getServiceLambda.Compile(), providerObject);
         }
 
-        private static ConfiguredServiceProvider NamedServiceProviderFor(MethodInfo method, ConstantExpression providerObject)
+        private static ConfiguredServiceProvider NamedServiceProviderFor(
+            MethodInfo method,
+            ConstantExpression providerObject,
+            ref bool namedServiceProviderFound)
         {
+            if (namedServiceProviderFound)
+            {
+                return null;
+            }
+
+            namedServiceProviderFound = true;
+
             var getServiceCall = Expression.Call(providerObject, method, _serviceType, _serviceName);
             var getServiceLambda = Expression.Lambda<Func<Type, string, object>>(getServiceCall, _serviceType, _serviceName);
 
@@ -139,8 +170,16 @@
         private static ConfiguredServiceProvider NamedServiceProviderFor(
             MethodInfo method,
             ConstantExpression providerObject,
-            IEnumerable<ParameterInfo> parameters)
+            IEnumerable<ParameterInfo> parameters,
+            ref bool namedServiceProviderFound)
         {
+            if (namedServiceProviderFound)
+            {
+                return null;
+            }
+
+            namedServiceProviderFound = true;
+
             var extraArguments = parameters.Skip(2).Project<ParameterInfo, Expression>(p => Expression.Default(p.ParameterType));
             var arguments = new Expression[] { _serviceType, _serviceName }.Concat(extraArguments);
 

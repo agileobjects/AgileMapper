@@ -84,11 +84,22 @@
         /// Use the registered service provider to resolve an instance of the given <typeparamref name="TService"/>.
         /// </summary>
         /// <typeparam name="TService">The Type of service to resolve.</typeparam>
-        /// <param name="name">The name of the registered service instance to resolve, if applicable.</param>
         /// <returns>
         /// The <typeparamref name="TService"/> instance resolved by the registered service provider.
         /// </returns>
-        TService GetService<TService>(string name = null)
+        TService GetService<TService>()
+            where TService : class;
+
+        /// <summary>
+        /// Use the registered service provider to resolve the instance of the given <typeparamref name="TService"/>
+        /// with the given <paramref name="name"/>.
+        /// </summary>
+        /// <typeparam name="TService">The Type of service to resolve.</typeparam>
+        /// <param name="name">The name of the registered service instance to resolve.</param>
+        /// <returns>
+        /// The named <typeparamref name="TService"/> instance resolved by the registered service provider.
+        /// </returns>
+        TService GetService<TService>(string name)
             where TService : class;
 
         /// <summary>

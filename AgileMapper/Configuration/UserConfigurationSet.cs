@@ -117,8 +117,18 @@
         {
             if (serviceProvider.IsNamed)
             {
+                if (_namedServiceProvider != null)
+                {
+                    throw new MappingConfigurationException("A named service provider has already been configured.");
+                }
+
                 _namedServiceProvider = serviceProvider;
                 return;
+            }
+
+            if (_serviceProvider != null)
+            {
+                throw new MappingConfigurationException("A service provider has already been configured.");
             }
 
             _serviceProvider = serviceProvider;
