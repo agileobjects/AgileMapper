@@ -52,7 +52,7 @@
     /// </summary>
     /// <typeparam name="TSource">The type of source object being mapped from in the current context.</typeparam>
     /// <typeparam name="TTarget">The type of target object being mapped to in the current context.</typeparam>
-    public interface IMappingData<out TSource, out TTarget>
+    public interface IMappingData<out TSource, out TTarget> : IServiceProviderAccessor
     {
         /// <summary>
         /// Gets the data of the mapping context directly 'above' that described by the 

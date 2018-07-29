@@ -42,6 +42,68 @@
         /// </summary>
         public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.Mapper);
 
+        #region Service Providers
+
+        /// <summary>
+        /// Use the given <paramref name="serviceProvider"/> instance to create named service instances during
+        /// a mapping. The given object must expose one of the following public, instance methods:
+        /// - GetService(Type type)
+        /// - GetService(Type type, string name)
+        /// - GetInstance(Type type)
+        /// - GetInstance(Type type, string name)
+        /// - Resolve(Type type)
+        /// - Resolve(Type type, string name)
+        /// Overloads with a 'name' parameter can also take one or more optional or params array parameters. If
+        /// no useable methods are found, a <see cref="MappingConfigurationException"/> is thrown.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider instance to use.</param>
+        /// <returns>
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalMappingSettings UseServiceProvider(object serviceProvider)
+        {
+            foreach (var provider in ConfiguredServiceProvider.CreateFromOrThrow(serviceProvider))
+            {
+                MapperContext.UserConfigurations.Add(provider);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Use the given <paramref name="serviceFactory"/> to create unnamed service instances during
+        /// a mapping.
+        /// </summary>
+        /// <param name="serviceFactory">The service factory to use.</param>
+        /// <returns>
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalMappingSettings UseServiceProvider(Func<Type, object> serviceFactory)
+        {
+            var provider = new ConfiguredServiceProvider(serviceFactory);
+
+            MapperContext.UserConfigurations.Add(provider);
+            return this;
+        }
+
+        /// <summary>
+        /// Use the given <paramref name="serviceFactory"/> to create named service instances during
+        /// a mapping.
+        /// </summary>
+        /// <param name="serviceFactory">The service factory to use.</param>
+        /// <returns>
+        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalMappingSettings UseServiceProvider(Func<Type, string, object> serviceFactory)
+        {
+            var provider = new ConfiguredServiceProvider(serviceFactory);
+
+            MapperContext.UserConfigurations.Add(provider);
+            return this;
+        }
+
+        #endregion
+
         #region Exception Handling
 
         /// <summary>

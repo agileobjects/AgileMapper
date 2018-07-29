@@ -6,7 +6,7 @@
     /// Provides the data being used at a particular point during a mapping when an
     /// Exception occurred.
     /// </summary>
-    public interface IMappingExceptionData
+    public interface IMappingExceptionData : IServiceProviderAccessor
     {
         /// <summary>
         /// Gets the source object that was being being mapped from when the mapping

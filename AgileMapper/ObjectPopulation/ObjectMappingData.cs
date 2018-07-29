@@ -16,6 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
+        IMappingContextOwner,
         IObjectMappingData,
         IObjectMappingData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TTarget>
@@ -53,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IObjectMappingData declaredTypeMappingData,
             IObjectMappingData parent,
             bool createMapper)
-            : base(source, target, enumerableIndex, parent)
+            : base(source, target, enumerableIndex, parent, mappingContext)
         {
             MappingTypes = mappingTypes;
             MappingContext = mappingContext;

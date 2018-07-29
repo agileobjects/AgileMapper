@@ -105,6 +105,7 @@
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurations.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
+    <Compile Include="Configuration\WhenResolvingServices.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToEnumerableMembers.cs" />

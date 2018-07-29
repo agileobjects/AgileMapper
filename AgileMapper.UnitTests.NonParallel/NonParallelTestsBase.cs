@@ -8,6 +8,8 @@
         {
             try
             {
+                Mapper.ResetDefaultInstance();
+
                 testAction.Invoke();
             }
             finally

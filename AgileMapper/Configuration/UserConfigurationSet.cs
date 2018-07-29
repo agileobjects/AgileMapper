@@ -9,6 +9,7 @@
     using Members;
     using ObjectPopulation;
     using Projection;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -21,6 +22,8 @@
         private List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
         private List<MapToNullCondition> _mapToNullConditions;
         private List<NullCollectionsSetting> _nullCollectionsSettings;
+        private ConfiguredServiceProvider _serviceProvider;
+        private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
         private MemberIdentifierSet _identifiers;
         private List<ConfiguredIgnoredMember> _ignoredMembers;
@@ -105,6 +108,74 @@
 
         public bool MapToNullCollections(IBasicMapperData basicData)
             => _nullCollectionsSettings?.Any(s => s.AppliesTo(basicData)) == true;
+
+        #endregion
+
+        #region ServiceProviders
+
+        public void Add(ConfiguredServiceProvider serviceProvider)
+        {
+            if (serviceProvider.IsNamed)
+            {
+                if (_namedServiceProvider != null)
+                {
+                    throw new MappingConfigurationException("A named service provider has already been configured.");
+                }
+
+                _namedServiceProvider = serviceProvider;
+                return;
+            }
+
+            if (_serviceProvider != null)
+            {
+                throw new MappingConfigurationException("A service provider has already been configured.");
+            }
+
+            _serviceProvider = serviceProvider;
+        }
+
+        public TService GetServiceOrThrow<TService>(string name)
+        {
+            var hasName = !string.IsNullOrEmpty(name);
+
+            var serviceProvider = hasName
+                ? _namedServiceProvider
+                : _serviceProvider ?? _namedServiceProvider;
+
+            if (serviceProvider != null)
+            {
+                return serviceProvider.GetService<TService>(name);
+            }
+
+            if (hasName)
+            {
+                throw new MappingConfigurationException(
+                    "No named service providers configured. " +
+                    "Use Mapper.WhenMapping.UseServiceProvider(provider) to configure a named service provider");
+            }
+
+            throw new MappingConfigurationException(
+                "No service providers configured. " +
+                "Use Mapper.WhenMapping.UseServiceProvider(provider) to configure a service provider");
+        }
+
+        public TServiceProvider GetServiceProviderOrThrow<TServiceProvider>()
+            where TServiceProvider : class
+        {
+            var serviceProvider =
+                _serviceProvider?.ProviderObject as TServiceProvider ??
+                _namedServiceProvider?.ProviderObject as TServiceProvider;
+
+            if (serviceProvider != null)
+            {
+                return serviceProvider;
+            }
+
+            var providerType = typeof(TServiceProvider).GetFriendlyName();
+
+            throw new MappingConfigurationException(
+                $"No service provider of type {providerType} is configured");
+        }
 
         #endregion
 
