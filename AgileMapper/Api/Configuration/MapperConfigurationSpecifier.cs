@@ -14,74 +14,51 @@
     /// </summary>
     public class MapperConfigurationSpecifier
     {
-        private static readonly IDictionary<Type, object> _noServices = new Dictionary<Type, object>();
+        private readonly IMapperInternal _mapper;
 
-        private readonly IMapper _mapper;
-
-        internal MapperConfigurationSpecifier(IMapper mapper)
+        internal MapperConfigurationSpecifier(IMapperInternal mapper)
         {
             _mapper = mapper;
         }
 
+#if !NET_STANDARD
         /// <summary>
-        /// Apply the configuration in the <see cref="MapperConfiguration"/> of the given
-        /// <typeparamref name="TConfiguration"/> instance.
+        /// Apply all the <see cref="MapperConfiguration"/>s defined in the Assemblies loaded into the current
+        /// AppDomain.
         /// </summary>
-        /// <typeparam name="TConfiguration">The <see cref="MapperConfiguration"/> implementation to apply.</typeparam>
-        /// <param name="services">
-        /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
-        /// via the GetService() method.
+        /// <returns>
+        /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
+        /// to be registered.
+        /// </returns>
+        public MapperConfigurationSpecifier FromCurrentAppDomain()
+            => FromCurrentAppDomain(AllAssemblies);
+
+        /// <summary>
+        /// Apply all the <see cref="MapperConfiguration"/>s defined in the Assemblies loaded into the current
+        /// AppDomain.
+        /// </summary>
+        /// <param name="filter">
+        /// A filter which assemblies should match before being checked for <see cref="MapperConfiguration"/>s.
         /// </param>
         /// <returns>
         /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
         /// to be registered.
         /// </returns>
-        public MapperConfigurationSpecifier From<TConfiguration>(params object[] services)
-            where TConfiguration : MapperConfiguration, new()
-        {
-            var configuration = new TConfiguration();
-
-            Apply(configuration, CreateServiceCache(services));
-            return this;
-        }
-
-        /// <summary>
-        /// Apply all the <see cref="MapperConfiguration"/>s defined in the Assembly in which the given
-        /// <typeparamref name="T">Type</typeparamref> is defined.
-        /// </summary>
-        /// <typeparam name="T">
-        /// The type belonging to the Assembly in which to look for <see cref="MapperConfiguration"/>s.
-        /// </typeparam>
-        /// <param name="services">
-        /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
-        /// via the GetService() method.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
-        /// to be registered.
-        /// </returns>
-        public MapperConfigurationSpecifier FromAssemblyOf<T>(params object[] services)
-        {
-            ApplyConfigurationsIn(typeof(T).GetAssembly(), services);
-            return this;
-        }
-
+        public MapperConfigurationSpecifier FromCurrentAppDomain(Func<Assembly, bool> filter)
+            => From(AppDomain.CurrentDomain.GetAssemblies(), filter);
+#endif
         /// <summary>
         /// Apply all the <see cref="MapperConfiguration"/>s defined in the given <paramref name="assemblies"/>.
         /// </summary>
         /// <param name="assemblies">
         /// One or more assemblies in which to look for <see cref="MapperConfiguration"/>s.
         /// </param>
-        /// <param name="services">
-        /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
-        /// via the GetService() method.
-        /// </param>
         /// <returns>
         /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
         /// to be registered.
         /// </returns>
-        public MapperConfigurationSpecifier From(IEnumerable<Assembly> assemblies, params object[] services)
-            => From(assemblies, a => true, services);
+        public MapperConfigurationSpecifier From(IEnumerable<Assembly> assemblies)
+            => From(assemblies, AllAssemblies);
 
         /// <summary>
         /// Apply all the <see cref="MapperConfiguration"/>s defined in the given <paramref name="assemblies"/>
@@ -93,18 +70,11 @@
         /// <param name="filter">
         /// A filter which assemblies should match before being checked for <see cref="MapperConfiguration"/>s.
         /// </param>
-        /// <param name="services">
-        /// Zero or more service objects which should be made accessible to <see cref="MapperConfiguration"/>s
-        /// via the GetService() method.
-        /// </param>
         /// <returns>
         /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
         /// to be registered.
         /// </returns>
-        public MapperConfigurationSpecifier From(
-            IEnumerable<Assembly> assemblies,
-            Func<Assembly, bool> filter,
-            params object[] services)
+        public MapperConfigurationSpecifier From(IEnumerable<Assembly> assemblies, Func<Assembly, bool> filter)
         {
             ThrowIfInvalidAssembliesSupplied(assemblies != null, nullSupplied: true);
 
@@ -112,7 +82,7 @@
 
             foreach (var assembly in assemblies.Filter(filter))
             {
-                ApplyConfigurationsIn(assembly, services);
+                ApplyConfigurationsIn(assembly);
                 assembliesChecked = true;
             }
 
@@ -120,7 +90,42 @@
             return this;
         }
 
-        private void ApplyConfigurationsIn(Assembly assembly, ICollection<object> services)
+        /// <summary>
+        /// Apply the configuration in the <see cref="MapperConfiguration"/> of the given
+        /// <typeparamref name="TConfiguration"/> instance.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The <see cref="MapperConfiguration"/> implementation to apply.</typeparam>
+        /// <returns>
+        /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
+        /// to be registered.
+        /// </returns>
+        public MapperConfigurationSpecifier From<TConfiguration>()
+            where TConfiguration : MapperConfiguration, new()
+        {
+            var configuration = new TConfiguration();
+
+            Apply(configuration);
+            return this;
+        }
+
+        /// <summary>
+        /// Apply all the <see cref="MapperConfiguration"/>s defined in the Assembly in which the given
+        /// <typeparamref name="T">Type</typeparamref> is defined.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type belonging to the Assembly in which to look for <see cref="MapperConfiguration"/>s.
+        /// </typeparam>
+        /// <returns>
+        /// The <see cref="MapperConfigurationSpecifier"/>, to enable further <see cref="MapperConfiguration"/>s
+        /// to be registered.
+        /// </returns>
+        public MapperConfigurationSpecifier FromAssemblyOf<T>()
+        {
+            ApplyConfigurationsIn(typeof(T).GetAssembly());
+            return this;
+        }
+
+        private void ApplyConfigurationsIn(Assembly assembly)
         {
             ThrowIfInvalidAssemblySupplied(assembly);
 
@@ -129,36 +134,17 @@
                 .Filter(t => !t.IsAbstract() && t.IsDerivedFrom(typeof(MapperConfiguration)))
                 .Project(t => (MapperConfiguration)Activator.CreateInstance(t));
 
-            var servicesByType = CreateServiceCache(services);
-
             foreach (var configuration in configurations)
             {
-                Apply(configuration, servicesByType);
+                Apply(configuration);
             }
         }
 
-        private static IDictionary<Type, object> CreateServiceCache(ICollection<object> services)
-        {
-            if (services.None())
-            {
-                return _noServices;
-            }
-
-            var serviceCache = new Dictionary<Type, object>(services.Count);
-
-            foreach (var service in services)
-            {
-                serviceCache[service.GetType()] = service;
-            }
-
-            return serviceCache;
-        }
-
-        private void Apply(MapperConfiguration configuration, IDictionary<Type, object> servicesByType)
+        private void Apply(MapperConfiguration configuration)
         {
             try
             {
-                configuration.ApplyTo(_mapper, servicesByType);
+                configuration.ApplyTo(_mapper);
             }
             catch (Exception ex)
             {
@@ -194,5 +180,7 @@
             // ReSharper disable once NotResolvedInText
             return new MappingConfigurationException(message, new ArgumentNullException("assemblies"));
         }
+
+        private static bool AllAssemblies(Assembly assembly) => true;
     }
 }

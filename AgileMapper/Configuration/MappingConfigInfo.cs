@@ -39,7 +39,7 @@
 
         public MapperContext MapperContext { get; }
 
-        public IMapper Mapper => MapperContext.Mapper;
+        public IMapperInternal Mapper => MapperContext.Mapper;
 
         public Type SourceType { get; private set; }
 

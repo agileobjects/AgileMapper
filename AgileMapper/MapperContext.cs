@@ -27,7 +27,7 @@
             QueryProjectionMappingContext = new SimpleMappingContext(RuleSets.Project, this);
         }
 
-        public IMapper Mapper { get; set; }
+        public IMapperInternal Mapper { get; set; }
 
         public CacheSet Cache { get; }
 

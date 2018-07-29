@@ -31,7 +31,7 @@
 
         /// <summary>
         /// Retrieve a previously-registered service provider object of type <typeparamref name="TServiceProvider"/>.
-        /// If no service provider object of the given type exists a <see cref="MappingConfigurationException"/> is thrown.
+        /// If no service provider object of the given type exists, a <see cref="MappingConfigurationException"/> is thrown.
         /// </summary>
         /// <typeparam name="TServiceProvider">The type of previously-registered service provider object to retrieve.</typeparam>
         /// <returns>The previously-registered service provider object of type <typeparamref name="TServiceProvider"/>.</returns>

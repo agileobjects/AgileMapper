@@ -1,9 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
-#if NET40
     using System;
-#endif
     using System.Collections.Generic;
+    using System.Linq;
     using AgileMapper.Configuration;
     using MoreTestClasses;
     using NetStandardPolyfills;
@@ -40,6 +39,7 @@
                     using (var mapper = Mapper.CreateNew())
                     {
                         mapper.WhenMapping
+                            .UseServiceProvider(t => null)
                             .UseConfigurations.FromAssemblyOf<WhenApplyingMapperConfigurations>();
 
                         PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
@@ -58,7 +58,8 @@
                     var mappersByName = new Dictionary<string, IMapper>();
 
                     mapper.WhenMapping
-                        .UseConfigurations.FromAssemblyOf<AnimalBase>(mappersByName);
+                        .UseServiceProvider(t => mappersByName)
+                        .UseConfigurations.FromAssemblyOf<AnimalBase>();
 
                     ServiceDictionaryMapperConfiguration
                         .VerifyConfigured(mappersByName)
@@ -67,7 +68,7 @@
             });
         }
 
-#if NET40
+#if !NET_STANDARD
         [Fact]
         public void ShouldApplyMapperConfigurationsFromGivenAssemblies()
         {
@@ -78,7 +79,31 @@
                     var mappersByName = new Dictionary<string, IMapper>();
 
                     mapper.WhenMapping
-                        .UseConfigurations.From(AppDomain.CurrentDomain.GetAssemblies(), mappersByName);
+                        .UseServiceProvider(new SingletonServiceProvider(mappersByName))
+                        .UseConfigurations.From(AppDomain.CurrentDomain.GetAssemblies());
+
+                    PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                    PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+
+                    ServiceDictionaryMapperConfiguration
+                        .VerifyConfigured(mappersByName)
+                        .ShouldBeTrue();
+                }
+            });
+        }
+
+        [Fact]
+        public void ShouldApplyMapperConfigurationsFromCurrentAppDomain()
+        {
+            TestThenReset(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    var mappersByName = new Dictionary<string, IMapper>();
+
+                    mapper.WhenMapping
+                        .UseServiceProvider(new SingletonServiceProvider(mappersByName))
+                        .UseConfigurations.FromCurrentAppDomain();
 
                     PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
                     PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
@@ -98,13 +123,15 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper.WhenMapping.UseConfigurations.From(
-                        new[]
-                        {
-                        typeof(PfiToPfsMapperConfiguration).GetAssembly(),
-                        typeof(ServiceDictionaryMapperConfiguration).GetAssembly()
-                        },
-                        assembly => !assembly.FullName.Contains(nameof(MoreTestClasses)));
+                    mapper.WhenMapping
+                        .UseServiceProvider(t => null)
+                        .UseConfigurations.From(
+                            new[]
+                            {
+                                typeof(PfiToPfsMapperConfiguration).GetAssembly(),
+                                typeof(ServiceDictionaryMapperConfiguration).GetAssembly()
+                            },
+                            assembly => !assembly.FullName.Contains(nameof(MoreTestClasses)));
 
                     PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
                     PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
@@ -120,7 +147,8 @@
                 var data = new Dictionary<string, object>();
 
                 mapper.WhenMapping
-                    .UseConfigurations.From<CallbacksMapperConfiguration>(data);
+                    .UseServiceProvider(t => data)
+                    .UseConfigurations.From<CallbacksMapperConfiguration>();
 
                 var source = new Address { Line1 = "One", Line2 = "Two" };
                 var result = mapper.DeepClone(source);
@@ -184,7 +212,7 @@
         {
             protected override void Configure()
             {
-                var dataByKey = GetServiceOrNull<Dictionary<string, object>>();
+                var dataByKey = GetService<Dictionary<string, object>>();
 
                 if (dataByKey == null)
                 {
@@ -200,6 +228,19 @@
                     .After.MappingEnds
                     .Call(ctx => dataByKey["TargetAddress"] = ctx.Target);
             }
+        }
+
+        public class SingletonServiceProvider
+        {
+            private readonly Dictionary<Type, object> _objectsByType;
+
+            public SingletonServiceProvider(params object[] services)
+            {
+                _objectsByType = services.ToDictionary(s => s.GetType());
+            }
+
+            public object GetInstance(Type type)
+                => _objectsByType.TryGetValue(type, out var service) ? service : null;
         }
 
         #endregion

@@ -1,25 +1,20 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
     using Api;
     using Api.Configuration;
     using Queryables.Api;
-    using ReadableExpressions.Extensions;
 
     /// <summary>
     /// Base class for multiple, dedicated mapper configuration classes.
     /// </summary>
     public abstract class MapperConfiguration
     {
-        private IDictionary<Type, object> _servicesByType;
-        private IMapper _mapper;
+        private IMapperInternal _mapper;
 
-        internal void ApplyTo(IMapper mapper, IDictionary<Type, object> servicesByType)
+        internal void ApplyTo(IMapperInternal mapper)
         {
             _mapper = mapper;
-            _servicesByType = servicesByType;
 
             Configure();
         }
@@ -30,31 +25,32 @@
         protected abstract void Configure();
 
         /// <summary>
-        /// Get the registered <typeparamref name="TService"/> instance to assist with mapper configuration.
+        /// Use the previously-registered service provider to resolve the instance of the given
+        /// <typeparamref name="TService"/>, optionally with the given <paramref name="name"/>. Register
+        /// a service provider using Mapper.WhenMapping.UseServiceProvider().
         /// </summary>
-        /// <typeparam name="TService">The type of the service to retrieve.</typeparam>
-        /// <returns>The registered <typeparamref name="TService"/> instance, or null if none is registered.</returns>
-        protected TService GetServiceOrThrow<TService>()
+        /// <typeparam name="TService">The Type of service to resolve.</typeparam>
+        /// <param name="name">The name of the registered service instance to resolve.</param>
+        /// <returns>
+        /// The named <typeparamref name="TService"/> instance resolved by the registered service provider.
+        /// </returns>
+        protected TService GetService<TService>(string name = null)
             where TService : class
         {
-            return GetServiceOrNull<TService>()
-                ?? throw new MappingConfigurationException($"No service of type {typeof(TService).GetFriendlyName()} is available");
+            return _mapper.Context.UserConfigurations.GetServiceOrThrow<TService>(name);
         }
 
         /// <summary>
-        /// Get the registered <typeparamref name="TService"/> instance to assist with mapper configuration.
+        /// Retrieve a previously-registered service provider object of type <typeparamref name="TServiceProvider"/>.
+        /// If no service provider object of the given type exists, a <see cref="MappingConfigurationException"/> is
+        /// thrown. Register a service provider using Mapper.WhenMapping.UseServiceProvider().
         /// </summary>
-        /// <typeparam name="TService">The type of the service to retrieve.</typeparam>
-        /// <returns>The registered <typeparamref name="TService"/> instance, or null if none is registered.</returns>
-        protected TService GetServiceOrNull<TService>()
-            where TService : class
+        /// <typeparam name="TServiceProvider">The type of previously-registered service provider object to retrieve.</typeparam>
+        /// <returns>The previously-registered service provider object of type <typeparamref name="TServiceProvider"/>.</returns>
+        protected TServiceProvider GetServiceProvider<TServiceProvider>()
+            where TServiceProvider : class
         {
-            if (_servicesByType.TryGetValue(typeof(TService), out var service))
-            {
-                return (TService)service;
-            }
-
-            return null;
+            return _mapper.Context.UserConfigurations.GetServiceProviderOrThrow<TServiceProvider>();
         }
 
         #region Configuration Members

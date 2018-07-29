@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using AgileMapper.Configuration;
     using Members;
 
     /// <summary>
@@ -134,6 +135,11 @@
         /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         IGlobalMappingSettings MapNullCollectionsToNull();
+
+        /// <summary>
+        /// Setup Mapper configuration via <see cref="MapperConfiguration"/> instances.
+        /// </summary>
+        MapperConfigurationSpecifier UseConfigurations {get;}
 
         /// <summary>
         /// Gets a link back to the full <see cref="MappingConfigStartingPoint"/>, for api fluency.
