@@ -14,8 +14,7 @@
             {
                 var mappedTypes = new List<Type>();
 
-                Mapper
-                    .Before
+                Mapper.Before
                     .MappingBegins
                     .Call((s, t) => mappedTypes.AddRange(new[] { s.GetType(), t?.GetType() }));
 
@@ -34,8 +33,7 @@
             {
                 var mappedTypes = new List<Type>();
 
-                Mapper
-                    .After
+                Mapper.After
                     .MappingEnds
                     .If((s, t) => SourceIsPersonViewModel(s, t))
                     .Call((s, t) => mappedTypes.AddRange(new[] { s.GetType(), t.GetType() }));
@@ -49,10 +47,7 @@
         }
 
         // ReSharper disable once UnusedParameter.Local
-        private static bool SourceIsPersonViewModel(object source, object target)
-        {
-            return source is PersonViewModel;
-        }
+        private static bool SourceIsPersonViewModel(object source, object target) => source is PersonViewModel;
 
         [Fact]
         public void ShouldExecutePreAndPostMappingCallbacksForASpecifiedMemberConditionallyViaTheStaticApi()
@@ -63,8 +58,7 @@
                 var customersAdded = 0;
                 var customersRemoved = 0;
 
-                Mapper
-                    .WhenMapping
+                Mapper.WhenMapping
                     .To<Customer>()
                     .Before
                     .Mapping(c => c.Discount)
@@ -103,24 +97,24 @@
         }
 
         [Fact]
-        public void ShouldExecuteAPreMappingCallbackForAConstructorOnlyTarget()
+        public void ShouldExecuteAPreMappingCallbackForAConstructorOnlyTargetViaTheStaticApi()
         {
-            using (var mapper = Mapper.CreateNew())
+            TestThenReset(() =>
             {
                 var callbackCalled = false;
 
-                mapper.WhenMapping
+                Mapper.WhenMapping
                     .To<PublicCtor<string>>()
                     .Before
                     .MappingBegins
                     .Call(ctx => callbackCalled = true);
 
                 var source = new PublicProperty<Guid> { Value = Guid.NewGuid() };
-                var result = mapper.Map(source).ToANew<PublicCtor<string>>();
+                var result = Mapper.Map(source).ToANew<PublicCtor<string>>();
 
                 result.Value.ShouldBe(source.Value.ToString());
                 callbackCalled.ShouldBeTrue();
-            }
+            });
         }
     }
 }

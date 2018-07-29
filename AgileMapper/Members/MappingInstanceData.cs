@@ -13,7 +13,7 @@
                 mappingData.Target,
                 mappingData.EnumerableIndex,
                 mappingData.Parent,
-                ((MappingInstanceData<TSource, TTarget>)mappingData)._mappingContext)
+                ((IMappingContextOwner)mappingData).MappingContext)
         {
         }
 
