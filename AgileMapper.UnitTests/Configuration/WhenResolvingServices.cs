@@ -205,23 +205,22 @@
             var logger = new Logger();
             var provider = new ResolveServiceProvider(logger);
 
-            Should.Throw<MappingException>(() =>
+            using (var mapper = Mapper.CreateNew())
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .UseServiceProvider(provider)
-                        .PassExceptionsTo(exData => exData
-                            .GetService<Logger>()
-                            .Log(exData.Exception.ToString()));
+                mapper.WhenMapping
+                    .UseServiceProvider(provider)
+                    .PassExceptionsTo(exData => exData
+                        .GetService<Logger>()
+                        .Log(exData.Exception.ToString()));
 
-                    mapper.After
-                        .CreatingInstances
-                        .Call(ctx => throw new InvalidOperationException("NO"));
+                mapper.After
+                    .CreatingInstances
+                    .Call(ctx => throw new InvalidOperationException("NO"));
 
-                    new PublicField<int> { Value = 123 }.DeepCloneUsing(mapper);
-                }
-            });
+                new PublicField<int> { Value = 123 }
+                    .MapUsing(mapper)
+                    .ToANew<PublicField<long>>();
+            }
 
             logger.EntryCount.ShouldBe(1);
         }
@@ -253,6 +252,60 @@
             }
 
             logger.EntryCount.ShouldBe(1);
+        }
+
+        [Fact]
+        public void ShouldErrorIfNullProviderSupplied()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider(default(Func<Type, object>));
+                }
+            });
+
+            configEx.InnerException.ShouldNotBeNull();
+            configEx.InnerException.ShouldBeOfType<ArgumentNullException>();
+
+            // ReSharper disable once PossibleNullReferenceException
+            configEx.InnerException.Message.ShouldContain("serviceProvider");
+        }
+
+        [Fact]
+        public void ShouldErrorIfNullNamedProviderSupplied()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider(default(Func<Type, string, object>));
+                }
+            });
+
+            configEx.InnerException.ShouldNotBeNull();
+            configEx.InnerException.ShouldBeOfType<ArgumentNullException>();
+
+            // ReSharper disable once PossibleNullReferenceException
+            configEx.InnerException.Message.ShouldContain("serviceProvider");
+        }
+
+        [Fact]
+        public void ShouldErrorIfNullProviderObjectSupplied()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseServiceProvider(default(object));
+                }
+            });
+
+            configEx.InnerException.ShouldNotBeNull();
+            configEx.InnerException.ShouldBeOfType<ArgumentNullException>();
+
+            // ReSharper disable once PossibleNullReferenceException
+            configEx.InnerException.Message.ShouldContain("serviceProvider");
         }
 
         [Fact]

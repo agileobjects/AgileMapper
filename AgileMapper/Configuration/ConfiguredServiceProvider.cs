@@ -25,12 +25,16 @@
         public ConfiguredServiceProvider(Func<Type, object> serviceFactory, ConstantExpression providerObject = null)
             : this(providerObject)
         {
+            ThrowIfNull(serviceFactory);
+
             _unnamedServiceFactory = serviceFactory;
         }
 
         public ConfiguredServiceProvider(Func<Type, string, object> serviceFactory, ConstantExpression providerObject = null)
             : this(providerObject)
         {
+            ThrowIfNull(serviceFactory);
+
             _namedServiceFactory = serviceFactory;
         }
 
@@ -64,6 +68,8 @@
 
         public static IEnumerable<ConfiguredServiceProvider> CreateFromOrThrow(object serviceProviderInstance)
         {
+            ThrowIfNull(serviceProviderInstance);
+
             var providerType = serviceProviderInstance.GetType();
             var providerObject = Expression.Constant(serviceProviderInstance, providerType);
 
@@ -83,6 +89,16 @@
             ThrowIfNoProvidersFound(providers, providerObject);
 
             return providers;
+        }
+
+        private static void ThrowIfNull(object serviceProvider)
+        {
+            if (serviceProvider == null)
+            {
+                throw new MappingConfigurationException(
+                    "No Service Provider supplied",
+                    new ArgumentNullException(nameof(serviceProvider)));
+            }
         }
 
         private static ConfiguredServiceProvider GetServiceProviderOrNull(
