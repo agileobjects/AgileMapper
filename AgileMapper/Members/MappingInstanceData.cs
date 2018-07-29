@@ -75,10 +75,10 @@
                 _mappingContext);
         }
 
-        TService IMappingData<TSource, TTarget>.GetService<TService>()
-            => ((IMappingData<TSource, TTarget>)this).GetService<TService>(name: null);
+        TService IServiceProviderAccessor.GetService<TService>()
+            => ((IServiceProviderAccessor)this).GetService<TService>(name: null);
 
-        TService IMappingData<TSource, TTarget>.GetService<TService>(string name)
+        TService IServiceProviderAccessor.GetService<TService>(string name)
         {
             return _mappingContext
                 .MapperContext
@@ -86,7 +86,7 @@
                 .GetServiceOrThrow<TService>(name);
         }
 
-        TServiceProvider IMappingData<TSource, TTarget>.GetServiceProvider<TServiceProvider>()
+        TServiceProvider IServiceProviderAccessor.GetServiceProvider<TServiceProvider>()
         {
             return _mappingContext
                 .MapperContext

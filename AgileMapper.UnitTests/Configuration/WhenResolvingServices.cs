@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using AgileMapper.Configuration;
+    using AgileMapper.Extensions;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -196,6 +197,33 @@
 
                 target.Value.ShouldBe(nameof(StringProvider));
             }
+        }
+
+        [Fact]
+        public void ShouldUseAServiceProviderInAnExceptionHandler()
+        {
+            var logger = new Logger();
+            var provider = new ResolveServiceProvider(logger);
+
+            Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .UseServiceProvider(provider)
+                        .PassExceptionsTo(exData => exData
+                            .GetService<Logger>()
+                            .Log(exData.Exception.ToString()));
+
+                    mapper.After
+                        .CreatingInstances
+                        .Call(ctx => throw new InvalidOperationException("NO"));
+
+                    new PublicField<int> { Value = 123 }.DeepCloneUsing(mapper);
+                }
+            });
+
+            logger.EntryCount.ShouldBe(1);
         }
 
         [Fact]
