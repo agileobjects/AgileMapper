@@ -95,8 +95,9 @@ namespace AgileObjects.AgileMapper.DataSources
             return Expression.Block(sourceValueKeyAssignment, ifKeyNotFoundShortCircuit);
         }
 
-        public Expression GetMatchingKeyAssignment()
-            => GetMatchingKeyAssignment(MapperData.GetTargetMemberDictionaryKey());
+        public Expression GetMatchingKeyAssignment() => GetMatchingKeyAssignment(GetTargetMemberKey());
+
+        private Expression GetTargetMemberKey() => TargetMemberKey ?? MapperData.GetTargetMemberDictionaryKey();
 
         public Expression GetMatchingKeyAssignment(Expression targetMemberKey)
         {
@@ -128,6 +129,9 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression GetKeyAssignment(Expression value) => Key.AssignTo(value);
 
+        public Expression GetNoKeysWithMatchingStartQuery()
+            => GetNoKeysWithMatchingStartQuery(GetTargetMemberKey());
+
         public Expression GetNoKeysWithMatchingStartQuery(Expression targetMemberKey)
         {
             TargetMemberKey = targetMemberKey;
@@ -141,12 +145,8 @@ namespace AgileObjects.AgileMapper.DataSources
             return noKeysStartWithTarget;
         }
 
-        public Expression GetKeyStartsWithIgnoreCaseCall(
-            Expression keyAccess,
-            Expression targetKey)
-        {
-            return GetKeyStartsWithCall(keyAccess, targetKey, StringComparison.OrdinalIgnoreCase);
-        }
+        public Expression GetKeyStartsWithIgnoreCaseCall(Expression keyAccess, Expression targetKey)
+            => GetKeyStartsWithCall(keyAccess, targetKey, StringComparison.OrdinalIgnoreCase);
 
         private static Expression GetKeyStartsWithCall(
             Expression keyParameter,

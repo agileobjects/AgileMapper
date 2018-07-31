@@ -117,5 +117,17 @@
             result.Value.Second().Value.Value.First().Address.Line1.ShouldBe("Some place");
             result.Value.Second().Value.Value.First().Address.Line2.ShouldBeDefault();
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/76
+        [Fact]
+        public void ShouldNotPopulateAComplexTypeMemberWithNoMatchingMembers()
+        {
+            var source = new Dictionary<string, object> { ["Name"] = "Bob", ["Discount"] = 0.2 };
+            var result = Mapper.Map(source).ToANew<Customer>();
+
+            result.Name.ShouldBe("Bob");
+            result.Discount.ShouldBe(0.2m);
+            result.Address.ShouldBeNull();
+        }
     }
 }

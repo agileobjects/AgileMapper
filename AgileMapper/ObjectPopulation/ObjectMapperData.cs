@@ -481,9 +481,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapCall;
         }
 
-        public MethodCallExpression GetMapCall(Expression sourceElement)
-            => GetMapCall(sourceElement, TargetMember.ElementType.ToDefaultExpression());
-
         public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
         {
             if (!TargetMember.IsEnumerable && this.TargetMemberIsEnumerableElement())
