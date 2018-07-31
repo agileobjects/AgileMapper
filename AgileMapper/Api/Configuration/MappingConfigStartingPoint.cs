@@ -56,11 +56,13 @@
         /// Overloads with a 'name' parameter can also take one or more optional or params array parameters. If
         /// no useable methods are found, a <see cref="MappingConfigurationException"/> is thrown.
         /// </summary>
+        /// <typeparam name="TServiceProvider">The Type of the service provider object to use.</typeparam>
         /// <param name="serviceProvider">The service provider instance to use.</param>
         /// <returns>
         /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalMappingSettings UseServiceProvider(object serviceProvider)
+        public IGlobalMappingSettings UseServiceProvider<TServiceProvider>(TServiceProvider serviceProvider)
+            where TServiceProvider : class
         {
             foreach (var provider in ConfiguredServiceProvider.CreateFromOrThrow(serviceProvider))
             {

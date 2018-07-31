@@ -66,17 +66,16 @@
         private TService GetNamedService<TService>(string name)
             => (TService)_namedServiceFactory.Invoke(typeof(TService), name);
 
-        public static IEnumerable<ConfiguredServiceProvider> CreateFromOrThrow(object serviceProviderInstance)
+        public static IEnumerable<ConfiguredServiceProvider> CreateFromOrThrow<TServiceProvider>(TServiceProvider serviceProviderInstance)
         {
             ThrowIfNull(serviceProviderInstance);
 
-            var providerType = serviceProviderInstance.GetType();
-            var providerObject = Expression.Constant(serviceProviderInstance, providerType);
+            var providerObject = Expression.Constant(serviceProviderInstance, typeof(TServiceProvider));
 
             var unnamedServiceProviderFound = false;
             var namedServiceProviderFound = false;
 
-            var providers = providerType
+            var providers = providerObject.Type
                 .GetPublicInstanceMethods()
                 .Project(method => GetServiceProviderOrNull(
                     method,
