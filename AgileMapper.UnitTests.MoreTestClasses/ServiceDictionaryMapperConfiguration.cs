@@ -7,7 +7,7 @@
     {
         protected override void Configure()
         {
-            var mappersByName = GetServiceOrThrow<Dictionary<string, IMapper>>();
+            var mappersByName = GetService<Dictionary<string, IMapper>>();
 
             var mapper1 = CreateNewMapper();
 

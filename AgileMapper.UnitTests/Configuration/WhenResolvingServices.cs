@@ -5,6 +5,9 @@
     using AgileMapper.Configuration;
     using AgileMapper.Extensions;
     using TestClasses;
+#if NET_STANDARD
+    using Microsoft.Extensions.DependencyInjection;
+#endif
 #if !NET35
     using Xunit;
 #else
@@ -254,6 +257,70 @@
             logger.EntryCount.ShouldBe(1);
         }
 
+#if NET_STANDARD
+        [Fact]
+        public void ShouldUseAConfiguredServiceCollectionServiceProvider()
+        {
+            var collection = new ServiceCollection();
+
+            collection.AddSingleton(new Logger());
+
+            var provider = collection.BuildServiceProvider();
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .UseServiceProvider(provider)
+                    .PassExceptionsTo(exData => exData
+                        .GetService<Logger>()
+                        .Log(exData.Exception.ToString()));
+
+                mapper.After
+                    .CreatingInstances
+                    .Call(ctx => throw new InvalidOperationException("NO"));
+
+                new PublicField<int> { Value = 123 }
+                    .MapUsing(mapper)
+                    .ToANew<PublicField<long>>();
+            }
+
+            provider.GetService<Logger>().EntryCount.ShouldBe(1);
+        }
+
+
+        [Fact]
+        public void ShouldExposeAConfiguredServiceCollectionServiceProvider()
+        {
+            var collection = new ServiceCollection();
+
+            collection.AddSingleton<ILogger>(new Logger());
+
+            var provider = collection.BuildServiceProvider();
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.UseServiceProvider(provider);
+
+                mapper.Before
+                    .MappingBegins
+                    .Call(ctx =>
+                    {
+                        var log = ctx
+                            .GetServiceProvider<IServiceProvider>()
+                            .GetService<ILogger>();
+
+                        log.Log("Logged!");
+                    });
+
+                var source = new PublicField<string> { Value = "Logging!" };
+
+                mapper.Map(source).Over(new PublicField<string>());
+            }
+
+            provider.GetService<ILogger>().EntryCount.ShouldBe(1);
+        }
+#endif
+
         [Fact]
         public void ShouldErrorIfNullProviderSupplied()
         {
@@ -446,7 +513,14 @@
 
         #region Helper Classes
 
-        public class Logger
+        public interface ILogger
+        {
+            int EntryCount { get; }
+
+            void Log(string message);
+        }
+
+        public class Logger : ILogger
         {
             private readonly List<string> _logs;
 

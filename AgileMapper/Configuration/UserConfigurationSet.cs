@@ -415,6 +415,7 @@
             _mappedObjectCachingSettings?.Clear();
             _mapToNullConditions?.Clear();
             _nullCollectionsSettings?.Clear();
+            _serviceProvider = _namedServiceProvider = null;
             _objectFactories?.Clear();
             _identifiers?.Reset();
             _ignoredMembers?.Clear();

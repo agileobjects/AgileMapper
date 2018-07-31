@@ -13,11 +13,13 @@
             TestThenReset(() =>
             {
                 var mappersByName = new Dictionary<string, IMapper>();
+                var serviceProvider = new UnitTestsMapperConfigurations.SingletonServiceProvider(mappersByName);
 
                 Mapper.WhenMapping
+                    .UseServiceProvider(serviceProvider)
                     .UseConfigurations
-                    .FromAssemblyOf<UnitTestsMapperConfigurations>()
-                    .FromAssemblyOf<AnimalBase>(mappersByName);
+                        .FromAssemblyOf<UnitTestsMapperConfigurations>()
+                        .FromAssemblyOf<AnimalBase>();
 
                 UnitTestsMapperConfigurations.PfiToPfsMapperConfiguration.VerifyConfigured(Mapper.Default);
                 UnitTestsMapperConfigurations.PfsToPfiMapperConfiguration.VerifyConfigured(Mapper.Default);
@@ -36,7 +38,8 @@
             TestThenReset(() =>
             {
                 Mapper.WhenMapping
-                    .UseConfigurations.From<ServiceDictionaryMapperConfiguration>(mappersByName);
+                    .UseServiceProvider(t => mappersByName)
+                    .UseConfigurations.From<ServiceDictionaryMapperConfiguration>();
 
                 ServiceDictionaryMapperConfiguration
                     .VerifyConfigured(mappersByName)
