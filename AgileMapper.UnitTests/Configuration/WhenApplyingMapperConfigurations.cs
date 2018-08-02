@@ -303,7 +303,7 @@
         }
 
         [ApplyAfter(typeof(ParentMapperConfiguration))]
-        private class GrandParentMapperConfiguration : MapperConfiguration
+        internal class GrandParentMapperConfiguration : MapperConfiguration
         {
             protected override void Configure()
             {
@@ -316,7 +316,7 @@
         }
 
         [ApplyAfter(typeof(ChildMapperConfiguration))]
-        private class ParentMapperConfiguration : MapperConfiguration
+        internal class ParentMapperConfiguration : MapperConfiguration
         {
             protected override void Configure()
                 => GetPlansFor<Parent>().To<ParentDto>();
@@ -330,7 +330,7 @@
             }
         }
 
-        private class ChildMapperConfiguration : MapperConfiguration
+        internal class ChildMapperConfiguration : MapperConfiguration
         {
             protected override void Configure()
             {
