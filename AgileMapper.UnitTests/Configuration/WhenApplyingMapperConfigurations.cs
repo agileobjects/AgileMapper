@@ -169,7 +169,10 @@
             var values = new List<int> { 1, 2, 3 };
             var provider = new StubServiceProvider(values);
 
-            var parent = new Parent { MyChild = new Child() };
+            var grandParent = new GrandParent
+            {
+                Child = new Parent { MyChild = new Child() }
+            };
 
             using (var mapper = Mapper.CreateNew())
             {
@@ -178,10 +181,11 @@
                     .UseConfigurations
                     .FromAssemblyOf<ParentMapperConfiguration>();
 
-                var parentFirstResult = mapper.Map(parent).ToANew<ParentDto>();
+                var result = mapper.Map(grandParent).ToANew<GrandParentDto>();
 
-                parentFirstResult.MyChild.ShouldNotBeNull();
-                parentFirstResult.MyChild.IsMyCountGtrZero.ShouldBeTrue();
+                result.MyChild.ShouldNotBeNull();
+                result.MyChild.MyChild.ShouldNotBeNull();
+                result.MyChild.MyChild.IsMyCountGtrZero.ShouldBeTrue();
             }
         }
 
@@ -267,6 +271,16 @@
                 => _objectsByType.TryGetValue(type, out var service) ? service : null;
         }
 
+        private class GrandParent
+        {
+            public Parent Child { get; set; }
+        }
+
+        private class GrandParentDto
+        {
+            public ParentDto MyChild { get; set; }
+        }
+
         private class Parent
         {
             public Child MyChild { get; set; }
@@ -288,11 +302,32 @@
             public bool IsMyCountGtrZero { get; set; }
         }
 
+        [ApplyAfter(typeof(ParentMapperConfiguration))]
+        private class GrandParentMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+            {
+                WhenMapping
+                    .From<GrandParent>()
+                    .To<GrandParentDto>()
+                    .Map(ctx => ctx.Source.Child)
+                    .To(dto => dto.MyChild);
+            }
+        }
+
         [ApplyAfter(typeof(ChildMapperConfiguration))]
         private class ParentMapperConfiguration : MapperConfiguration
         {
             protected override void Configure()
                 => GetPlansFor<Parent>().To<ParentDto>();
+        }
+
+        [ApplyAfter(typeof(ParentMapperConfiguration), typeof(ChildMapperConfiguration))]
+        private class CousinMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+            {
+            }
         }
 
         private class ChildMapperConfiguration : MapperConfiguration
