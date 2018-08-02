@@ -54,7 +54,7 @@
 
             if (nonConfigurationTypes.Any())
             {
-                var typeNames = string.Join(", ", nonConfigurationTypes.Select(t => t.GetFriendlyName()));
+                var typeNames = nonConfigurationTypes.Select(t => t.GetFriendlyName()).Join(", ");
 
                 throw new MappingConfigurationException(
                     $"The following configuration type(s) do not derive from {nameof(MapperConfiguration)}: {typeNames}");

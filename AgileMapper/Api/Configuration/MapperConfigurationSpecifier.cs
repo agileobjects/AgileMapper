@@ -128,46 +128,93 @@
                 .Select(t => new ConfigurationData(t))
                 .ToList();
 
-            var configurationCount = configurationData.Count;
-            var orderedConfigurations = new List<MapperConfiguration>(configurationCount);
-
-            for (var i = 0; i < configurationCount; i++)
+            if (configurationData.None(d => d.DependedOnConfigurationTypes.Any()))
             {
-                if (configurationData[i].ApplyAfter.None())
+                Apply(configurationData.Project(d => d.Configuration));
+                return;
+            }
+
+            var configurationCount = configurationData.Count;
+            var configurationDataByType = configurationData.ToDictionary(d => d.ConfigurationType);
+            var configurationIndexesByType = new Dictionary<Type, int>(configurationCount);
+
+            var configurationIndex = -1;
+
+            for (var i = configurationCount - 1; i >= 0; --i)
+            {
+                if (configurationData[i].DependedOnConfigurationTypes.None())
                 {
-                    orderedConfigurations.Add(configurationData[i].Configuration);
+                    configurationIndexesByType.Add(configurationData[i].ConfigurationType, ++configurationIndex);
                     configurationData.RemoveAt(i);
                 }
             }
 
-            if (configurationData.None())
-            {
-                Apply(orderedConfigurations);
-                return;
-            }
-
             foreach (var configurationItem in configurationData)
             {
-                if (configurationItem.Index > -1)
+                if (configurationIndexesByType.ContainsKey(configurationItem.ConfigurationType))
                 {
                     // Already added by virtue of another configuration
                     // depending on it:
                     continue;
                 }
-              
-                InsertInOrder(configurationItem, configurationData, orderedConfigurations);
+
+                InsertWithOrder(
+                    configurationItem,
+                    configurationIndexesByType,
+                    configurationDataByType);
             }
+
+            var orderedConfigurations = configurationIndexesByType
+                .OrderBy(kvp => kvp.Value)
+                .Project(kvp => configurationDataByType[kvp.Key].Configuration);
+
+            Apply(orderedConfigurations);
         }
 
-        private static void InsertInOrder(
+        private static void InsertWithOrder(
             ConfigurationData configurationItem,
-            ICollection<ConfigurationData> allConfigurationData,
-            ICollection<MapperConfiguration> orderedConfigurations)
+            IDictionary<Type, int> configurationIndexesByType,
+            IDictionary<Type, ConfigurationData> configurationDataByType)
         {
-            // Get largest Index of any ApplyAfter dependencies
-            // InsertAfter(largest index)
+            var typeIndex = -1;
 
-                
+            foreach (var configurationType in configurationItem.DependedOnConfigurationTypes)
+            {
+                var index = GetIndexOf(
+                    configurationType,
+                    configurationIndexesByType,
+                    configurationDataByType);
+
+                if (index > typeIndex)
+                {
+                    typeIndex = index + 1;
+                }
+            }
+
+            while (configurationIndexesByType.Values.Contains(typeIndex))
+            {
+                ++typeIndex;
+            }
+
+            configurationIndexesByType.Add(configurationItem.ConfigurationType, typeIndex);
+        }
+
+        private static int GetIndexOf(
+            Type configurationType,
+            IDictionary<Type, int> configurationIndexesByType,
+            IDictionary<Type, ConfigurationData> configurationDataByType)
+        {
+            if (configurationIndexesByType.TryGetValue(configurationType, out var index))
+            {
+                return index;
+            }
+
+            InsertWithOrder(
+                configurationDataByType[configurationType],
+                configurationIndexesByType,
+                configurationDataByType);
+
+            return configurationIndexesByType[configurationType];
         }
 
         private void Apply(IEnumerable<MapperConfiguration> configurations)
@@ -236,19 +283,18 @@
             {
                 ConfigurationType = configurationType;
                 Configuration = (MapperConfiguration)Activator.CreateInstance(configurationType);
-                ApplyAfter = configurationType.GetAttributes<ApplyAfterAttribute>().ToArray();
-                Index = -1;
+                DependedOnConfigurationTypes = configurationType
+                    .GetAttributes<ApplyAfterAttribute>()
+                    .SelectMany(attr => attr.PreceedingMapperConfigurationTypes)
+                    .Distinct()
+                    .ToArray();
             }
 
             public Type ConfigurationType { get; }
 
             public MapperConfiguration Configuration { get; }
 
-            public ApplyAfterAttribute[] ApplyAfter { get; }
-
-            public bool HasBeenAdded => Index > -1;
-
-            public int Index { get; }
+            public Type[] DependedOnConfigurationTypes { get; }
         }
     }
 }
