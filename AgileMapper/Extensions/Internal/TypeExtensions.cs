@@ -273,5 +273,15 @@
         public static bool EndsWith(this string value, char character) => value[value.Length - 1] == character;
 
         public static bool CannotBeNull(this Type type) => !type.CanBeNull();
+
+        public static IEnumerable<TAttribute> GetAttributes<TAttribute>(this Type type)
+            where TAttribute : Attribute
+        {
+#if NET_STANDARD
+            return type.GetTypeInfo().GetCustomAttributes<TAttribute>();
+#else
+            return type.GetCustomAttributes(typeof(TAttribute), inherit: false).Project(attr => (TAttribute)attr);
+#endif
+        }
     }
 }

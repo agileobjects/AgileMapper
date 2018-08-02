@@ -103,6 +103,7 @@
     <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
     <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
+    <Compile Include="Configuration\StubServiceProvider.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurations.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
     <Compile Include="Configuration\WhenResolvingServices.cs" />

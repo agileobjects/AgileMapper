@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AgileMapper.Configuration;
+    using AgileMapper.Extensions.Internal;
     using MoreTestClasses;
     using NetStandardPolyfills;
     using TestClasses;
@@ -161,6 +162,29 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/74
+        [Fact]
+        public void ShouldApplyMapperConfigurationsInOrder()
+        {
+            var values = new List<int> { 1, 2, 3 };
+            var provider = new StubServiceProvider(values);
+
+            var parent = new Parent { MyChild = new Child() };
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .UseServiceProvider(provider)
+                    .UseConfigurations
+                    .FromAssemblyOf<ParentMapperConfiguration>();
+
+                var parentFirstResult = mapper.Map(parent).ToANew<ParentDto>();
+
+                parentFirstResult.MyChild.ShouldNotBeNull();
+                parentFirstResult.MyChild.IsMyCountGtrZero.ShouldBeTrue();
+            }
+        }
+
         #region Helper Classes
 
         public class PfiToPfsMapperConfiguration : MapperConfiguration
@@ -241,6 +265,47 @@
 
             public object GetInstance(Type type)
                 => _objectsByType.TryGetValue(type, out var service) ? service : null;
+        }
+
+        private class Parent
+        {
+            public Child MyChild { get; set; }
+        }
+
+        private class ParentDto
+        {
+            public ChildDto MyChild { get; set; }
+        }
+
+        private class Child
+        {
+            public bool IsMyCountGtrZero(ICollection<int> values)
+                => values.Count > 0;
+        }
+
+        private class ChildDto
+        {
+            public bool IsMyCountGtrZero { get; set; }
+        }
+
+        [ApplyAfter(typeof(ChildMapperConfiguration))]
+        private class ParentMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+                => GetPlansFor<Parent>().To<ParentDto>();
+        }
+
+        private class ChildMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+            {
+                WhenMapping
+                    .From<Child>()
+                    .To<ChildDto>()
+                    .Map(ctx => ctx.Source.IsMyCountGtrZero(ctx.GetService<List<int>>())).To(o => o.IsMyCountGtrZero);
+
+                GetPlansFor<Child>().To<ChildDto>();
+            }
         }
 
         #endregion

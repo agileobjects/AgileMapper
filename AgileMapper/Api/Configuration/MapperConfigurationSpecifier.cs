@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using AgileMapper.Configuration;
     using Extensions.Internal;
@@ -78,15 +79,11 @@
         {
             ThrowIfInvalidAssembliesSupplied(assemblies != null, nullSupplied: true);
 
-            var assembliesChecked = false;
+            var matchingAssemblies = assemblies.Filter(filter).ToArray();
 
-            foreach (var assembly in assemblies.Filter(filter))
-            {
-                ApplyConfigurationsIn(assembly);
-                assembliesChecked = true;
-            }
+            ThrowIfInvalidAssembliesSupplied(matchingAssemblies.Any(), nullSupplied: false);
 
-            ThrowIfInvalidAssembliesSupplied(assembliesChecked, nullSupplied: false);
+            ApplyConfigurationsIn(matchingAssemblies.SelectMany(QueryConfigurationTypesIn));
             return this;
         }
 
@@ -121,23 +118,73 @@
         /// </returns>
         public MapperConfigurationSpecifier FromAssemblyOf<T>()
         {
-            ApplyConfigurationsIn(typeof(T).GetAssembly());
+            ApplyConfigurationsIn(QueryConfigurationTypesIn(typeof(T).GetAssembly()));
             return this;
         }
 
-        private void ApplyConfigurationsIn(Assembly assembly)
+        private void ApplyConfigurationsIn(IEnumerable<Type> configurationTypes)
         {
-            ThrowIfInvalidAssemblySupplied(assembly);
+            var configurationData = configurationTypes
+                .Select(t => new ConfigurationData(t))
+                .ToList();
 
-            var configurations = assembly
-                .QueryTypes()
-                .Filter(t => !t.IsAbstract() && t.IsDerivedFrom(typeof(MapperConfiguration)))
-                .Project(t => (MapperConfiguration)Activator.CreateInstance(t));
+            var configurationCount = configurationData.Count;
+            var orderedConfigurations = new List<MapperConfiguration>(configurationCount);
 
+            for (var i = 0; i < configurationCount; i++)
+            {
+                if (configurationData[i].ApplyAfter.None())
+                {
+                    orderedConfigurations.Add(configurationData[i].Configuration);
+                    configurationData.RemoveAt(i);
+                }
+            }
+
+            if (configurationData.None())
+            {
+                Apply(orderedConfigurations);
+                return;
+            }
+
+            foreach (var configurationItem in configurationData)
+            {
+                if (configurationItem.Index > -1)
+                {
+                    // Already added by virtue of another configuration
+                    // depending on it:
+                    continue;
+                }
+              
+                InsertInOrder(configurationItem, configurationData, orderedConfigurations);
+            }
+        }
+
+        private static void InsertInOrder(
+            ConfigurationData configurationItem,
+            ICollection<ConfigurationData> allConfigurationData,
+            ICollection<MapperConfiguration> orderedConfigurations)
+        {
+            // Get largest Index of any ApplyAfter dependencies
+            // InsertAfter(largest index)
+
+                
+        }
+
+        private void Apply(IEnumerable<MapperConfiguration> configurations)
+        {
             foreach (var configuration in configurations)
             {
                 Apply(configuration);
             }
+        }
+
+        private static IEnumerable<Type> QueryConfigurationTypesIn(Assembly assembly)
+        {
+            ThrowIfInvalidAssemblySupplied(assembly);
+
+            return assembly
+                .QueryTypes()
+                .Filter(t => !t.IsAbstract() && t.IsDerivedFrom(typeof(MapperConfiguration)));
         }
 
         private void Apply(MapperConfiguration configuration)
@@ -182,5 +229,26 @@
         }
 
         private static bool AllAssemblies(Assembly assembly) => true;
+
+        private class ConfigurationData
+        {
+            public ConfigurationData(Type configurationType)
+            {
+                ConfigurationType = configurationType;
+                Configuration = (MapperConfiguration)Activator.CreateInstance(configurationType);
+                ApplyAfter = configurationType.GetAttributes<ApplyAfterAttribute>().ToArray();
+                Index = -1;
+            }
+
+            public Type ConfigurationType { get; }
+
+            public MapperConfiguration Configuration { get; }
+
+            public ApplyAfterAttribute[] ApplyAfter { get; }
+
+            public bool HasBeenAdded => Index > -1;
+
+            public int Index { get; }
+        }
     }
 }
