@@ -99,10 +99,40 @@
         public MapperConfigurationSpecifier From<TConfiguration>()
             where TConfiguration : MapperConfiguration, new()
         {
+            ThrowIfDependedOnConfigurationNotApplied(typeof(TConfiguration));
+
             var configuration = new TConfiguration();
 
             Apply(configuration);
             return this;
+        }
+
+        private void ThrowIfDependedOnConfigurationNotApplied(Type configurationType)
+        {
+            var dependedOnTypes = GetDependedOnConfigurationTypesFor(configurationType);
+
+            if (dependedOnTypes.None())
+            {
+                return;
+            }
+
+            var missingDependencies = dependedOnTypes
+                .Filter(t => !_mapper
+                    .Context
+                    .UserConfigurations
+                    .AppliedConfigurationTypes.Contains(t))
+                .ToArray();
+
+            if (missingDependencies.None())
+            {
+                return;
+            }
+
+            var configurationTypeName = configurationType.GetFriendlyName();
+            var dependencyNames = missingDependencies.Project(d => d.GetFriendlyName()).Join(", ");
+
+            throw new MappingConfigurationException(
+                $"Configuration {configurationTypeName} must be registered after configuration(s) {dependencyNames}");
         }
 
         /// <summary>
@@ -217,14 +247,6 @@
             return configurationIndexesByType[configurationType];
         }
 
-        private void Apply(IEnumerable<MapperConfiguration> configurations)
-        {
-            foreach (var configuration in configurations)
-            {
-                Apply(configuration);
-            }
-        }
-
         private static IEnumerable<Type> QueryConfigurationTypesIn(Assembly assembly)
         {
             ThrowIfInvalidAssemblySupplied(assembly);
@@ -232,6 +254,14 @@
             return assembly
                 .QueryTypes()
                 .Filter(t => !t.IsAbstract() && t.IsDerivedFrom(typeof(MapperConfiguration)));
+        }
+
+        private void Apply(IEnumerable<MapperConfiguration> configurations)
+        {
+            foreach (var configuration in configurations)
+            {
+                Apply(configuration);
+            }
         }
 
         private void Apply(MapperConfiguration configuration)
@@ -242,8 +272,10 @@
             }
             catch (Exception ex)
             {
+                var configurationName = configuration.GetType().GetFriendlyName();
+
                 throw new MappingConfigurationException(
-                    $"Exception encountered while applying configuration from {configuration.GetType().GetFriendlyName()}.",
+                    $"Exception encountered while applying configuration from {configurationName}.",
                     ex);
             }
         }
@@ -283,11 +315,7 @@
             {
                 ConfigurationType = configurationType;
                 Configuration = (MapperConfiguration)Activator.CreateInstance(configurationType);
-                DependedOnConfigurationTypes = configurationType
-                    .GetAttributes<ApplyAfterAttribute>()
-                    .SelectMany(attr => attr.PreceedingMapperConfigurationTypes)
-                    .Distinct()
-                    .ToArray();
+                DependedOnConfigurationTypes = GetDependedOnConfigurationTypesFor(configurationType);
             }
 
             public Type ConfigurationType { get; }
@@ -295,6 +323,15 @@
             public MapperConfiguration Configuration { get; }
 
             public Type[] DependedOnConfigurationTypes { get; }
+        }
+
+        private static Type[] GetDependedOnConfigurationTypesFor(Type configurationType)
+        {
+            return configurationType
+                .GetAttributes<ApplyAfterAttribute>()
+                .SelectMany(attr => attr.PreceedingMapperConfigurationTypes)
+                .Distinct()
+                .ToArray();
         }
     }
 }

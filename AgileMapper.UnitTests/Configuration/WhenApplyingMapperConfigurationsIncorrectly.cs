@@ -16,52 +16,43 @@
         [Fact]
         public void ShouldErrorIfNullAssemblyCollectionSupplied()
         {
-            TestThenReset(() =>
+            var configError = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configError = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
                 {
-                    using (var mapper = Mapper.CreateNew())
-                    {
-                        mapper.WhenMapping.UseConfigurations.From(default(IEnumerable<Assembly>));
-                    }
-                });
-
-                configError.Message.ShouldContain("cannot be null");
+                    mapper.WhenMapping.UseConfigurations.From(default(IEnumerable<Assembly>));
+                }
             });
+
+            configError.Message.ShouldContain("cannot be null");
         }
 
         [Fact]
         public void ShouldErrorIfEmptyAssemblyCollectionSupplied()
         {
-            TestThenReset(() =>
+            var configError = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configError = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
                 {
-                    using (var mapper = Mapper.CreateNew())
-                    {
-                        mapper.WhenMapping.UseConfigurations.From(Enumerable<Assembly>.Empty);
-                    }
-                });
-
-                configError.Message.ShouldContain("cannot be empty");
+                    mapper.WhenMapping.UseConfigurations.From(Enumerable<Assembly>.Empty);
+                }
             });
+
+            configError.Message.ShouldContain("cannot be empty");
         }
 
         [Fact]
         public void ShouldErrorIfNullAssemblySupplied()
         {
-            TestThenReset(() =>
+            var configError = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configError = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
                 {
-                    using (var mapper = Mapper.CreateNew())
-                    {
-                        mapper.WhenMapping.UseConfigurations.From(new[] { default(Assembly) });
-                    }
-                });
-
-                configError.Message.ShouldContain("assemblies must be non-null");
+                    mapper.WhenMapping.UseConfigurations.From(new[] { default(Assembly) });
+                }
             });
+
+            configError.Message.ShouldContain("assemblies must be non-null");
         }
 
         [Fact]
