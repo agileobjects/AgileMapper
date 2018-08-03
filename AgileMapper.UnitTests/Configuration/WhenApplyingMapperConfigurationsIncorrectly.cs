@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Reflection;
     using AgileMapper.Configuration;
@@ -89,6 +90,27 @@
                 configError.Message.ShouldContain("Exception encountered");
                 configError.Message.ShouldContain(nameof(ServiceDictionaryMapperConfiguration));
             });
+        }
+
+        [Fact]
+        public void ShouldErrorIfDependencyAttributeGivenNoTypes()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+                new ApplyAfterAttribute());
+        }
+
+        [Fact]
+        public void ShouldErrorIfDependencyAttributeGivenNullType()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+                new ApplyAfterAttribute(default(Type)));
+        }
+
+        [Fact]
+        public void ShouldErrorIfDependencyAttributeGivenNonConfigurationType()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+                new ApplyAfterAttribute(typeof(string)));
         }
     }
 }
