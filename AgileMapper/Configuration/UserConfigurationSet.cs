@@ -19,6 +19,7 @@
     internal class UserConfigurationSet
     {
         private readonly MapperContext _mapperContext;
+        private ICollection<Type> _appliedConfigurationTypes;
         private List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
         private List<MapToNullCondition> _mapToNullConditions;
         private List<NullCollectionsSetting> _nullCollectionsSettings;
@@ -42,6 +43,9 @@
         }
 
         public bool ValidateMappingPlans { get; set; }
+
+        public ICollection<Type> AppliedConfigurationTypes
+            => _appliedConfigurationTypes ?? (_appliedConfigurationTypes = new List<Type>());
 
         #region MappedObjectCachingSettings
 
@@ -412,6 +416,7 @@
         public void Reset()
         {
             ValidateMappingPlans = false;
+            _appliedConfigurationTypes?.Clear();
             _mappedObjectCachingSettings?.Clear();
             _mapToNullConditions?.Clear();
             _nullCollectionsSettings?.Clear();

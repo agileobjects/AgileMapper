@@ -75,7 +75,8 @@
             var unnamedServiceProviderFound = false;
             var namedServiceProviderFound = false;
 
-            var providers = providerObject.Type
+            var providers = providerObject
+                .Type
                 .GetPublicInstanceMethods()
                 .Project(method => GetServiceProviderOrNull(
                     method,

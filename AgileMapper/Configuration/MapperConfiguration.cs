@@ -16,8 +16,13 @@
         {
             _mapper = mapper;
 
+            UserConfigurations.AppliedConfigurationTypes.Add(GetType());
+
             Configure();
         }
+
+        private UserConfigurationSet UserConfigurations
+            => _mapper.Context.UserConfigurations;
 
         /// <summary>
         /// Configure how mappings should be performed.
@@ -37,7 +42,7 @@
         protected TService GetService<TService>(string name = null)
             where TService : class
         {
-            return _mapper.Context.UserConfigurations.GetServiceOrThrow<TService>(name);
+            return UserConfigurations.GetServiceOrThrow<TService>(name);
         }
 
         /// <summary>
@@ -50,7 +55,7 @@
         protected TServiceProvider GetServiceProvider<TServiceProvider>()
             where TServiceProvider : class
         {
-            return _mapper.Context.UserConfigurations.GetServiceProviderOrThrow<TServiceProvider>();
+            return UserConfigurations.GetServiceProviderOrThrow<TServiceProvider>();
         }
 
         #region Configuration Members

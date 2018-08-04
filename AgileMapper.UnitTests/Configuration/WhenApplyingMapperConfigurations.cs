@@ -19,33 +19,27 @@
         [Fact]
         public void ShouldApplyAGivenMapperConfiguration()
         {
-            TestThenReset(() =>
+            using (var mapper = Mapper.CreateNew())
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .UseConfigurations.From<PfiToPfsMapperConfiguration>();
+                mapper.WhenMapping
+                    .UseConfigurations.From<PfiToPfsMapperConfiguration>();
 
-                    PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
-                }
-            });
+                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+            }
         }
 
         [Fact]
         public void ShouldApplyMapperConfigurationsInAGivenTypeAssembly()
         {
-            TestThenReset(() =>
-                {
-                    using (var mapper = Mapper.CreateNew())
-                    {
-                        mapper.WhenMapping
-                            .UseServiceProvider(t => null)
-                            .UseConfigurations.FromAssemblyOf<WhenApplyingMapperConfigurations>();
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .UseServiceProvider(t => null)
+                    .UseConfigurations.FromAssemblyOf<WhenApplyingMapperConfigurations>();
 
-                        PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
-                        PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
-                    }
-                });
+                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+            }
         }
 
         [Fact]
@@ -72,71 +66,62 @@
         [Fact]
         public void ShouldApplyMapperConfigurationsFromGivenAssemblies()
         {
-            TestThenReset(() =>
+            using (var mapper = Mapper.CreateNew())
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    var mappersByName = new Dictionary<string, IMapper>();
+                var mappersByName = new Dictionary<string, IMapper>();
 
-                    mapper.WhenMapping
-                        .UseServiceProvider(new SingletonServiceProvider(mappersByName))
-                        .UseConfigurations.From(AppDomain.CurrentDomain.GetAssemblies());
+                mapper.WhenMapping
+                    .UseServiceProvider(new SingletonServiceProvider(mappersByName))
+                    .UseConfigurations.From(AppDomain.CurrentDomain.GetAssemblies());
 
-                    PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
-                    PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
 
-                    ServiceDictionaryMapperConfiguration
-                        .VerifyConfigured(mappersByName)
-                        .ShouldBeTrue();
-                }
-            });
+                ServiceDictionaryMapperConfiguration
+                    .VerifyConfigured(mappersByName)
+                    .ShouldBeTrue();
+            }
         }
 
         [Fact]
         public void ShouldApplyMapperConfigurationsFromCurrentAppDomain()
         {
-            TestThenReset(() =>
+            using (var mapper = Mapper.CreateNew())
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    var mappersByName = new Dictionary<string, IMapper>();
+                var mappersByName = new Dictionary<string, IMapper>();
 
-                    mapper.WhenMapping
-                        .UseServiceProvider(new SingletonServiceProvider(mappersByName))
-                        .UseConfigurations.FromCurrentAppDomain();
+                mapper.WhenMapping
+                    .UseServiceProvider(new SingletonServiceProvider(mappersByName))
+                    .UseConfigurations.FromCurrentAppDomain();
 
-                    PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
-                    PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
 
-                    ServiceDictionaryMapperConfiguration
-                        .VerifyConfigured(mappersByName)
-                        .ShouldBeTrue();
-                }
-            });
+                ServiceDictionaryMapperConfiguration
+                    .VerifyConfigured(mappersByName)
+                    .ShouldBeTrue();
+            }
         }
 #endif
 
         [Fact]
         public void ShouldFilterMapperConfigurationsFromGivenAssemblies()
         {
-            TestThenReset(() =>
+            using (var mapper = Mapper.CreateNew())
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .UseServiceProvider(t => null)
-                        .UseConfigurations.From(
-                            new[]
-                            {
-                                typeof(PfiToPfsMapperConfiguration).GetAssembly(),
-                                typeof(ServiceDictionaryMapperConfiguration).GetAssembly()
-                            },
-                            assembly => !assembly.FullName.Contains(nameof(MoreTestClasses)));
+                mapper.WhenMapping
+                    .UseServiceProvider(t => null)
+                    .UseConfigurations.From(
+                        new[]
+                        {
+                            typeof(PfiToPfsMapperConfiguration).GetAssembly(),
+                            typeof(ServiceDictionaryMapperConfiguration).GetAssembly()
+                        },
+                        assembly => !assembly.FullName.Contains(nameof(MoreTestClasses)));
 
-                    PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
-                    PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
-                }
-            });
+                PfiToPfsMapperConfiguration.VerifyConfigured(mapper);
+                PfsToPfiMapperConfiguration.VerifyConfigured(mapper);
+            }
         }
 
         [Fact]
@@ -158,6 +143,33 @@
 
                 data["SourceAddress"].ShouldBe(source);
                 data["TargetAddress"].ShouldBe(result);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/74
+        [Fact]
+        public void ShouldApplyMapperConfigurationsInOrder()
+        {
+            var values = new List<int> { 1, 2, 3 };
+            var provider = new StubServiceProvider(values);
+
+            var grandParent = new GrandParent
+            {
+                DatChild = new Parent { MyChild = new Child() }
+            };
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .UseServiceProvider(provider)
+                    .UseConfigurations
+                    .FromAssemblyOf<ParentMapperConfiguration>();
+
+                var result = mapper.Map(grandParent).ToANew<GrandParentDto>();
+
+                result.MyChild.ShouldNotBeNull();
+                result.MyChild.MyChild.ShouldNotBeNull();
+                result.MyChild.MyChild.IsMyCountGtrZero.ShouldBeTrue();
             }
         }
 
@@ -185,7 +197,6 @@
             }
         }
 
-        // ReSharper disable once ClassNeverInstantiated.Local
         public class PfsToPfiMapperConfiguration : MapperConfiguration
         {
             protected override void Configure()
@@ -242,6 +253,84 @@
             public object GetInstance(Type type)
                 => _objectsByType.TryGetValue(type, out var service) ? service : null;
         }
+
+        // ReSharper disable ClassNeverInstantiated.Local
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
+        // ReSharper disable UnusedMember.Local
+        private class GrandParent
+        {
+            public Parent DatChild { get; set; }
+        }
+
+        private class GrandParentDto
+        {
+            public ParentDto MyChild { get; set; }
+        }
+
+        private class Parent
+        {
+            public Child MyChild { get; set; }
+        }
+
+        private class ParentDto
+        {
+            public ChildDto MyChild { get; set; }
+        }
+
+        private class Child
+        {
+            public bool IsMyCountGtrZero(ICollection<int> values)
+                => values.Count > 0;
+        }
+
+        private class ChildDto
+        {
+            public bool IsMyCountGtrZero { get; set; }
+        }
+
+        [ApplyAfter(typeof(ParentMapperConfiguration))]
+        internal class GrandParentMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+            {
+                WhenMapping
+                    .From<GrandParent>()
+                    .To<GrandParentDto>()
+                    .Map(ctx => ctx.Source.DatChild)
+                    .To(dto => dto.MyChild);
+            }
+        }
+
+        [ApplyAfter(typeof(ChildMapperConfiguration))]
+        internal class ParentMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+                => GetPlansFor<Parent>().To<ParentDto>();
+        }
+
+        [ApplyAfter(typeof(ParentMapperConfiguration), typeof(ChildMapperConfiguration))]
+        private class CousinMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+            {
+            }
+        }
+
+        internal class ChildMapperConfiguration : MapperConfiguration
+        {
+            protected override void Configure()
+            {
+                WhenMapping
+                    .From<Child>()
+                    .To<ChildDto>()
+                    .Map(ctx => ctx.Source.IsMyCountGtrZero(ctx.GetService<List<int>>())).To(o => o.IsMyCountGtrZero);
+
+                GetPlansFor<Child>().To<ChildDto>();
+            }
+        }
+        // ReSharper restore UnusedMember.Local
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
+        // ReSharper restore ClassNeverInstantiated.Local
 
         #endregion
     }
