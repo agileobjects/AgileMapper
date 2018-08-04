@@ -120,6 +120,22 @@
         }
 
         [Fact]
+        public void ShouldCreateANewComplexTypeHashSet()
+        {
+            var source = new PublicField<MegaProduct[]>
+            {
+                Value = new[] { new MegaProduct { ProductId = "6387", HowMega = 100.00m } }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicProperty<HashSet<MegaProduct>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldHaveSingleItem();
+            result.Value.First().ProductId.ShouldBe("6387");
+            result.Value.First().HowMega.ShouldBe(100.00m);
+        }
+
+        [Fact]
         public void ShouldCreateANewNestedComplexTypeEnumerable()
         {
             var source = new PublicField<IEnumerable<PublicField<IEnumerable<PersonViewModel>>>>

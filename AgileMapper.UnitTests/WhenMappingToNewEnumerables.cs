@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -125,6 +126,21 @@
             result.ShouldBe((short)1, (short)2, (short)3);
         }
 #endif
+
+        [Fact]
+        public void ShouldMapFromAHashset()
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(+1);
+            var yesterday = today.AddDays(-1);
+
+            var source = new HashSet<DateTime> { yesterday, today, tomorrow };
+            var result = Mapper.Map(source).ToANew<DateTime[]>();
+
+            result.ShouldNotBeNull();
+            result.ShouldBe(yesterday, today, tomorrow);
+        }
+
         [Fact]
         public void ShouldHandleANullComplexTypeElement()
         {

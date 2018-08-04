@@ -173,6 +173,19 @@
         }
 
         [Fact]
+        public void ShouldOverwriteANonNullReadOnlyNestedHashSet()
+        {
+            var source = new PublicField<int[]> { Value = new[] { 1, 2, 3 } };
+            var ints = new HashSet<int> { 4, 5, 6 };
+            var target = new PublicReadOnlyField<HashSet<int>>(ints);
+            var result = Mapper.Map(source).Over(target);
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldBeSameAs(ints);
+            result.Value.ShouldBe(1, 2, 3);
+        }
+
+        [Fact]
         public void ShouldOverwriteANonNullReadOnlyNestedCollection()
         {
             var source = new PublicField<string[]> { Value = new[] { "One!", "Two!", "Three" } };

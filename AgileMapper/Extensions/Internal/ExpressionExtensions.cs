@@ -381,13 +381,7 @@
                 return GetReadOnlyCollectionCreation(typeHelper, GetEmptyArray(elementType));
             }
 
-            var fallbackType = typeHelper.IsCollection
-                ? typeHelper.CollectionType
-                : typeHelper.IsDictionary
-                    ? GetDictionaryType(typeHelper.EnumerableType)
-                    : typeHelper.ListType;
-
-            return Expression.New(fallbackType);
+            return Expression.New(typeHelper.GetEmptyInstanceCreationFallbackType());
         }
 
         private static Expression GetEmptyArray(Type elementType)
@@ -409,7 +403,7 @@
                 list);
         }
 
-        private static Type GetDictionaryType(Type dictionaryType)
+        public static Type GetDictionaryConcreteType(this Type dictionaryType)
         {
             return dictionaryType.IsInterface()
                 ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericTypeArguments())
@@ -517,10 +511,10 @@
 #if NET35
         public static LambdaExpression ToDlrExpression(this LinqExp.LambdaExpression linqLambda)
             => LinqExpressionToDlrExpressionConverter.Convert(linqLambda);
-        
+
         public static Expression<TDelegate> ToDlrExpression<TDelegate>(this LinqExp.Expression<TDelegate> linqLambda)
             => (Expression<TDelegate>)LinqExpressionToDlrExpressionConverter.Convert(linqLambda);
-        
+
         public static Expression ToDlrExpression(this LinqExp.Expression linqExpression)
             => LinqExpressionToDlrExpressionConverter.Convert(linqExpression);
 #endif

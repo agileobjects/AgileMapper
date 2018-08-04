@@ -359,8 +359,7 @@
             {
                 nonNullTargetVariableValue = GetNonNullEnumerableTargetVariableValue();
             }
-            else if (TargetTypeHelper.HasCollectionInterface &&
-                   !(TargetTypeHelper.IsList || TargetTypeHelper.IsCollection))
+            else if (TargetTypeHelper.HasCollectionInterface && TargetTypeHelper.CouldBeReadOnly)
             {
                 var isReadOnlyProperty = TargetTypeHelper
                     .CollectionInterfaceType
@@ -405,16 +404,20 @@
 
             return SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
                 ? Expression.New(nullTargetVariableType)
+#if NET35
+                : Expression.New(nullTargetVariableType.GetPublicInstanceConstructor());
+#else
                 : Expression.New(
                     nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
                     GetSourceCountAccess());
+#endif
         }
 
         private Expression GetNonNullEnumerableTargetVariableValue()
         {
             if (TargetTypeHelper.IsReadOnly)
             {
-                return GetCopyIntoListConstruction();
+                return GetCopyIntoObjectConstruction();
             }
 
             var targetAsCollection = Expression
@@ -447,15 +450,11 @@
         {
             return MapperData.TargetMember.IsReadOnly
                 ? fallbackCollectionType.ToDefaultExpression()
-                : GetCopyIntoListConstruction();
+                : GetCopyIntoObjectConstruction();
         }
 
-        private Expression GetCopyIntoListConstruction()
-        {
-            return Expression.New(
-                TargetTypeHelper.ListType.GetPublicInstanceConstructor(TargetTypeHelper.EnumerableInterfaceType),
-                MapperData.TargetObject);
-        }
+        private Expression GetCopyIntoObjectConstruction()
+            => TargetTypeHelper.GetCopyIntoObjectConstruction(MapperData.TargetObject);
 
         private Type GetNullTargetVariableType(Type nonNullTargetVariableType)
         {
@@ -465,14 +464,7 @@
         }
 
         private bool TargetCouldBeUnusable()
-        {
-            if (MapperData.TargetMember.LeafMember.IsWriteable)
-            {
-                return false;
-            }
-
-            return !(TargetTypeHelper.IsList || TargetTypeHelper.IsCollection);
-        }
+            => !MapperData.TargetMember.LeafMember.IsWriteable && TargetTypeHelper.CouldBeReadOnly;
 
         #endregion
 

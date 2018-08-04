@@ -18,6 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type _listType;
         private Type _listInterfaceType;
         private Type _collectionType;
+        private Type _hashSetType;
         private Type _readOnlyCollectionType;
         private Type _collectionInterfaceType;
         private Type _enumerableInterfaceType;
@@ -44,6 +45,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool IsCollection => EnumerableType.IsAssignableTo(CollectionType);
 
+        public bool IsHashSet => EnumerableType == HashSetType;
+
         public bool IsReadOnlyCollection => EnumerableType == ReadOnlyCollectionType;
 
         public bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
@@ -54,6 +57,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool IsDeclaredReadOnly
             => IsReadOnly || IsEnumerableInterface || IsReadOnlyCollectionInterface();
+
+        public bool CouldBeReadOnly => !(IsList || IsHashSet || IsCollection);
 
         private bool IsReadOnlyCollectionInterface()
         {
@@ -75,6 +80,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public Type ListInterfaceType => GetEnumerableType(ref _listInterfaceType, typeof(IList<>));
 
         public Type CollectionType => GetEnumerableType(ref _collectionType, typeof(Collection<>));
+
+        public Type HashSetType => GetEnumerableType(ref _hashSetType, typeof(HashSet<>));
 
         public Type ReadOnlyCollectionType => GetEnumerableType(ref _readOnlyCollectionType, typeof(ReadOnlyCollection<>));
 
@@ -102,6 +109,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             }
 
             return enumerableType.GetEmptyInstanceCreation(ElementType);
+        }
+
+        public Expression GetCopyIntoObjectConstruction(Expression targetObject)
+        {
+            var objectType = IsHashSet ? HashSetType : ListType;
+
+            return Expression.New(
+                objectType.GetPublicInstanceConstructor(EnumerableInterfaceType),
+                targetObject);
         }
 
         public Expression GetWrapperConstruction(Expression existingItems, Expression newItemsCount)
@@ -143,5 +159,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetCountFor(Expression instance, Type countType = null)
             => instance.GetCount(countType, exp => CollectionInterfaceType);
+
+        public Type GetEmptyInstanceCreationFallbackType()
+        {
+            return IsDictionary
+                ? EnumerableType.GetDictionaryConcreteType()
+                : IsCollection
+                    ? CollectionType
+                    : IsHashSet
+                        ? HashSetType
+                        : ListType;
+        }
     }
 }

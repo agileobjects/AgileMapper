@@ -100,6 +100,17 @@
         }
 
         [Fact]
+        public void ShouldMergeARootSimpleTypeHashSet()
+        {
+            var source = new[] { 1.0m, 2.0m, 3.0m };
+            var target = new HashSet<double> { 2.0, 3.0, 4.0 };
+
+            Mapper.Map(source).OnTo(target);
+
+            target.ShouldBe(2.0, 3.0, 4.0, 1.0);
+        }
+
+        [Fact]
         public void ShouldMergeARootComplexTypeReadOnlyCollection()
         {
             var source = new[]
