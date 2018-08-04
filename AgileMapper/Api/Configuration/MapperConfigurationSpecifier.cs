@@ -99,12 +99,22 @@
         public MapperConfigurationSpecifier From<TConfiguration>()
             where TConfiguration : MapperConfiguration, new()
         {
+            ThrowIfConfigurationAlreadyApplied(typeof(TConfiguration));
             ThrowIfDependedOnConfigurationNotApplied(typeof(TConfiguration));
 
             var configuration = new TConfiguration();
 
             Apply(configuration);
             return this;
+        }
+
+        private void ThrowIfConfigurationAlreadyApplied(Type configurationType)
+        {
+            if (ConfigurationApplied(configurationType))
+            {
+                throw new MappingConfigurationException(
+                    $"MapperConfiguration {configurationType.GetFriendlyName()} has already been applied");
+            }
         }
 
         private void ThrowIfDependedOnConfigurationNotApplied(Type configurationType)
@@ -117,10 +127,7 @@
             }
 
             var missingDependencies = dependedOnTypes
-                .Filter(t => !_mapper
-                    .Context
-                    .UserConfigurations
-                    .AppliedConfigurationTypes.Contains(t))
+                .Filter(t => !ConfigurationApplied(t))
                 .ToArray();
 
             if (missingDependencies.None())
@@ -132,8 +139,11 @@
             var dependencyNames = missingDependencies.Project(d => d.GetFriendlyName()).Join(", ");
 
             throw new MappingConfigurationException(
-                $"Configuration {configurationTypeName} must be registered after configuration(s) {dependencyNames}");
+                $"Configuration {configurationTypeName} must be registered after depended-on configuration(s) {dependencyNames}");
         }
+
+        private bool ConfigurationApplied(Type configurationType)
+            => _mapper.Context.UserConfigurations.AppliedConfigurationTypes.Contains(configurationType);
 
         /// <summary>
         /// Apply all the <see cref="MapperConfiguration"/>s defined in the Assembly in which the given

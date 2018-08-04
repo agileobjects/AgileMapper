@@ -57,6 +57,23 @@
         }
 
         [Fact]
+        public void ShouldErrorIfDuplicateConfigurationAdded()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseConfigurations
+                        .From<WhenApplyingMapperConfigurations.ChildMapperConfiguration>()
+                        .From<WhenApplyingMapperConfigurations.ChildMapperConfiguration>();
+                }
+            });
+
+            configEx.Message.ShouldContain("ChildMapperConfiguration");
+            configEx.Message.ShouldContain("already been applied");
+        }
+
+        [Fact]
         public void ShouldErrorIfDependentConfigurationAddedBeforeDependedOnConfiguration()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
@@ -64,8 +81,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping.UseConfigurations
-                        .From<WhenApplyingMapperConfigurations.ParentMapperConfiguration>()
-                        .From<WhenApplyingMapperConfigurations.ChildMapperConfiguration>();
+                        .From<WhenApplyingMapperConfigurations.ParentMapperConfiguration>();
                 }
             });
 
