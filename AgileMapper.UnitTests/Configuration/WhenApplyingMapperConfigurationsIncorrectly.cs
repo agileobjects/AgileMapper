@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Reflection;
     using AgileMapper.Configuration;
@@ -16,52 +17,76 @@
         [Fact]
         public void ShouldErrorIfNullAssemblyCollectionSupplied()
         {
-            TestThenReset(() =>
+            var configError = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configError = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
                 {
-                    using (var mapper = Mapper.CreateNew())
-                    {
-                        mapper.WhenMapping.UseConfigurations.From(default(IEnumerable<Assembly>));
-                    }
-                });
-
-                configError.Message.ShouldContain("cannot be null");
+                    mapper.WhenMapping.UseConfigurations.From(default(IEnumerable<Assembly>));
+                }
             });
+
+            configError.Message.ShouldContain("cannot be null");
         }
 
         [Fact]
         public void ShouldErrorIfEmptyAssemblyCollectionSupplied()
         {
-            TestThenReset(() =>
+            var configError = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configError = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
                 {
-                    using (var mapper = Mapper.CreateNew())
-                    {
-                        mapper.WhenMapping.UseConfigurations.From(Enumerable<Assembly>.Empty);
-                    }
-                });
-
-                configError.Message.ShouldContain("cannot be empty");
+                    mapper.WhenMapping.UseConfigurations.From(Enumerable<Assembly>.Empty);
+                }
             });
+
+            configError.Message.ShouldContain("cannot be empty");
         }
 
         [Fact]
         public void ShouldErrorIfNullAssemblySupplied()
         {
-            TestThenReset(() =>
+            var configError = Should.Throw<MappingConfigurationException>(() =>
             {
-                var configError = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
                 {
-                    using (var mapper = Mapper.CreateNew())
-                    {
-                        mapper.WhenMapping.UseConfigurations.From(new[] { default(Assembly) });
-                    }
-                });
-
-                configError.Message.ShouldContain("assemblies must be non-null");
+                    mapper.WhenMapping.UseConfigurations.From(new[] { default(Assembly) });
+                }
             });
+
+            configError.Message.ShouldContain("assemblies must be non-null");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateConfigurationAdded()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseConfigurations
+                        .From<WhenApplyingMapperConfigurations.ChildMapperConfiguration>()
+                        .From<WhenApplyingMapperConfigurations.ChildMapperConfiguration>();
+                }
+            });
+
+            configEx.Message.ShouldContain("ChildMapperConfiguration");
+            configEx.Message.ShouldContain("already been applied");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDependentConfigurationAddedBeforeDependedOnConfiguration()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseConfigurations
+                        .From<WhenApplyingMapperConfigurations.ParentMapperConfiguration>();
+                }
+            });
+
+            configEx.Message.ShouldContain("ParentMapperConfiguration");
+            configEx.Message.ShouldContain("ChildMapperConfiguration");
         }
 
         [Fact]
@@ -81,6 +106,27 @@
                 configError.Message.ShouldContain("Exception encountered");
                 configError.Message.ShouldContain(nameof(ServiceDictionaryMapperConfiguration));
             });
+        }
+
+        [Fact]
+        public void ShouldErrorIfDependencyAttributeGivenNoTypes()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+                new ApplyAfterAttribute());
+        }
+
+        [Fact]
+        public void ShouldErrorIfDependencyAttributeGivenNullType()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+                new ApplyAfterAttribute(default(Type)));
+        }
+
+        [Fact]
+        public void ShouldErrorIfDependencyAttributeGivenNonConfigurationType()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+                new ApplyAfterAttribute(typeof(string)));
         }
     }
 }
