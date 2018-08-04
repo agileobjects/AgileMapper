@@ -179,6 +179,8 @@
                 }
             }
 
+            var checkedTypes = new List<Type>(configurationCount + 1);
+
             foreach (var configurationItem in configurationData)
             {
                 if (configurationIndexesByType.ContainsKey(configurationItem.ConfigurationType))
@@ -191,7 +193,8 @@
                 InsertWithOrder(
                     configurationItem,
                     configurationIndexesByType,
-                    configurationDataByType);
+                    configurationDataByType,
+                    checkedTypes);
             }
 
             var orderedConfigurations = configurationIndexesByType
@@ -204,8 +207,11 @@
         private static void InsertWithOrder(
             ConfigurationData configurationItem,
             IDictionary<Type, int> configurationIndexesByType,
-            IDictionary<Type, ConfigurationData> configurationDataByType)
+            IDictionary<Type, ConfigurationData> configurationDataByType,
+            ICollection<Type> checkedTypes)
         {
+            ThrowIfCircularDependencyDetected(configurationItem, checkedTypes);
+
             var typeIndex = -1;
 
             foreach (var configurationType in configurationItem.DependedOnConfigurationTypes)
@@ -213,7 +219,8 @@
                 var index = GetIndexOf(
                     configurationType,
                     configurationIndexesByType,
-                    configurationDataByType);
+                    configurationDataByType,
+                    checkedTypes);
 
                 if (index > typeIndex)
                 {
@@ -229,10 +236,29 @@
             configurationIndexesByType.Add(configurationItem.ConfigurationType, typeIndex);
         }
 
+        private static void ThrowIfCircularDependencyDetected(ConfigurationData configurationItem, ICollection<Type> checkedTypes)
+        {
+            if (!checkedTypes.Contains(configurationItem.ConfigurationType))
+            {
+                checkedTypes.Add(configurationItem.ConfigurationType);
+                return;
+            }
+
+            checkedTypes.Add(configurationItem.ConfigurationType);
+
+            var dependencies = checkedTypes
+                .Project(configurationType => configurationType.GetFriendlyName())
+                .Join(" > ");
+
+            throw new MappingConfigurationException(
+                $"Circular dependency detected in {nameof(MapperConfiguration)}s: {dependencies}");
+        }
+
         private static int GetIndexOf(
             Type configurationType,
             IDictionary<Type, int> configurationIndexesByType,
-            IDictionary<Type, ConfigurationData> configurationDataByType)
+            IDictionary<Type, ConfigurationData> configurationDataByType,
+            ICollection<Type> checkedTypes)
         {
             if (configurationIndexesByType.TryGetValue(configurationType, out var index))
             {
@@ -242,7 +268,8 @@
             InsertWithOrder(
                 configurationDataByType[configurationType],
                 configurationIndexesByType,
-                configurationDataByType);
+                configurationDataByType,
+                checkedTypes);
 
             return configurationIndexesByType[configurationType];
         }

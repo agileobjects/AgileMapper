@@ -416,6 +416,7 @@
         public void Reset()
         {
             ValidateMappingPlans = false;
+            _appliedConfigurationTypes?.Clear();
             _mappedObjectCachingSettings?.Clear();
             _mapToNullConditions?.Clear();
             _nullCollectionsSettings?.Clear();
