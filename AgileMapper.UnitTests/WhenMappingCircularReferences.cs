@@ -506,6 +506,52 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/77
+        [Fact]
+        public void ShouldMapMultipleLinkRelationships()
+        {
+            var warehouse = new Issue77.Warehouse
+            {
+                Id = 1,
+                Name = "Test Warehouse 1",
+                Description = "The test warehouse"
+            };
+
+            var branch = new Issue77.Branch
+            {
+                Id = 2,
+                Name = "Test Branch 1",
+                Description = "The test branch"
+            };
+
+            var product = new Issue77.Product
+            {
+                Id = 3,
+                Name = "Test Product",
+                Description = "The test product"
+            };
+
+            var warehouseBranch = new Issue77.WarehouseProduct
+            {
+                Id = 3,
+                WarehouseId = warehouse.Id,
+                Warehouse = warehouse,
+                ProductId = product.Id,
+                Product = product
+            };
+
+            var warehouseTag = new Issue77.WarehouseTag();
+
+            warehouse.BranchId = branch.Id;
+            warehouse.Branch = branch;
+            warehouse.Products.Add(warehouseBranch);
+            warehouse.Tags.Add(warehouseTag);
+
+            branch.Warehouses.Add(warehouse);
+
+            Mapper.DeepClone(warehouse);
+        }
+
         [Fact]
         public void ShouldNotMapANullParentMember()
         {
@@ -626,7 +672,7 @@
             public Presenter Presenter { get; set; }
         }
 
-        public class Issue62
+        public static class Issue62
         {
             public class Location
             {
@@ -653,7 +699,7 @@
             }
         }
 
-        public class Issue63
+        public static class Issue63
         {
             public class Location
             {
@@ -702,6 +748,184 @@
                 public int Id { get; set; }
 
                 public string Name { get; set; }
+            }
+        }
+
+        public static class Issue77
+        {
+            internal class Tag : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<BranchTag> Branches { get; set; } = new HashSet<BranchTag>();
+
+                public HashSet<LocationTag> Locations { get; set; } = new HashSet<LocationTag>();
+
+                public HashSet<WarehouseTag> Warehouses { get; set; } = new HashSet<WarehouseTag>();
+
+                public HashSet<ProductTag> Products { get; set; } = new HashSet<ProductTag>();
+
+                public HashSet<MovementTag> Movements { get; set; } = new HashSet<MovementTag>();
+
+                public HashSet<AssociateTag> Associates { get; set; } = new HashSet<AssociateTag>();
+
+                public HashSet<WarehouseProductTag> WarehouseProducts { get; set; } = new HashSet<WarehouseProductTag>();
+            }
+
+            internal class BranchTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int BranchId { get; set; }
+
+                public Branch Branch { get; set; }
+            }
+
+            internal class Branch : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<Warehouse> Warehouses { get; set; } = new HashSet<Warehouse>();
+
+                public HashSet<BranchTag> Tags { get; set; } = new HashSet<BranchTag>();
+            }
+
+            internal class LocationTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int LocationId { get; set; }
+
+                public Location Location { get; set; }
+            }
+
+            internal class Location : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<LocationTag> Tags { get; set; } = new HashSet<LocationTag>();
+            }
+
+            internal class WarehouseTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int WarehouseId { get; set; }
+
+                public Warehouse Warehouse { get; set; }
+            }
+
+            internal class Warehouse : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public int BranchId { get; set; }
+
+                public Branch Branch { get; set; }
+
+                public HashSet<WarehouseProduct> Products { get; set; } = new HashSet<WarehouseProduct>();
+
+                public HashSet<WarehouseTag> Tags { get; set; } = new HashSet<WarehouseTag>();
+            }
+
+            internal class ProductTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int ProductId { get; set; }
+
+                public Product Product { get; set; }
+            }
+
+            internal class Product : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<WarehouseProduct> Warehouses { get; set; } = new HashSet<WarehouseProduct>();
+
+                public HashSet<ProductTag> Tags { get; set; } = new HashSet<ProductTag>();
+            }
+
+            internal class MovementTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int MovementId { get; set; }
+
+                public Movement Movement { get; set; }
+            }
+
+            internal class Movement : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<MovementTag> Tags { get; set; } = new HashSet<MovementTag>();
+            }
+
+            internal class AssociateTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int AssociateId { get; set; }
+
+                public Associate Associate { get; set; }
+            }
+
+            internal class Associate : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<AssociateTag> Tags { get; set; } = new HashSet<AssociateTag>();
+            }
+
+            internal class WarehouseProductTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int WarehouseProductId { get; set; }
+
+                public WarehouseProduct WarehouseProduct { get; set; }
+            }
+
+            internal class WarehouseProduct : EntityBase
+            {
+                public int WarehouseId { get; set; }
+
+                public Warehouse Warehouse { get; set; }
+
+                public int ProductId { get; set; }
+
+                public Product Product { get; set; }
+
+                public HashSet<WarehouseProductTag> Tags { get; set; } = new HashSet<WarehouseProductTag>();
             }
         }
 
