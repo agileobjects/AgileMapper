@@ -1,195 +1,24 @@
-Warehouse
-  -> Branch
-    -> Warehouses[]
-    -> Tags[]
-      -> Branches[]
-      -> Locations[]
-      -> Warehouses[]
-      -> Products[]
-      -> Movements[]
-      -> Associates[]
-      -> WarehouseProducts[]
-  -> Products[]
-    -> Warehouse
-    -> Product
-    -> Tags[]
-      -> Branches[]
-      -> Locations[]
-      -> Warehouses[]
-      -> Products[]
-      -> Movements[]
-      -> Associates[]
-      -> WarehouseProducts[]
-  -> Tags[]
-    -> Branches[]
-    -> Locations[]
-    -> Warehouses[]
-    -> Products[]
-    -> Movements[]
-    -> Associates[]
-    -> WarehouseProducts[]
-
 1. Warehouse -> Warehouse
 Warehouse
   -> Branch
-    -> Warehouses[] -> 2
+    -> Warehouses[]
+      -> Warehouse -> 2
     -> Tags[] -> 3
   -> Products[]
-    -> Warehouse -> 9
-    -> Product -> 2
-    -> Tags[] -> 3
-  -> Tags[]
-    -> Branches[] -> 4
-    -> Locations[] -> 5
-    -> Warehouses[] -> 2
-    -> Products[] -> 6
-    -> Movements[] -> 7
-    -> Associates[] -> 8
-    -> WarehouseProducts[] -> 9
-
-2. Warehouse -> Warehouse
-Warehouse
-  -> Branch
-    -> Warehouses[] -> 2
-    -> Tags[] -> 3
-  -> Products[]
-    -> Warehouse -> 9
-    -> Product -> 6
-    -> Tags[] -> 3
-  -> Tags[]
-    -> Branches[] -> 4
-    -> Locations[] -> 5
-    -> Warehouses[] -> 2
-    -> Products[] -> 6
-    -> Movements[] -> 7
-    -> Associates[] -> 8
-    -> WarehouseProducts[] -> 9
-
-3. Tag -> Tag
-Tag
-  -> Branches[]
-    -> Warehouses[] -> 2
-    -> Tags[] -> 3
-  -> Locations[]
-    -> Tags[] -> 3
-  -> Warehouses[]
-    -> Branch -> 
-    -> Tags[] -> 3
-  -> Products[]
-    -> Warehouses[] -> 9
-    -> Tags[] -> 3
-  -> Movements[]
-    -> Tags[] -> 3
-  -> Associates[]
-    -> Tags[] -> 3
-  -> WarehouseProducts[]
     -> Warehouse -> 2
-    -> Product -> 6
-    -> Tags[] -> 3
-
-4. Branch -> Branch
-Branch
-  -> Warehouses[]
-    -> Branch -> 4
-    -> Products[] -> 9
-    -> Tags[] -> 3
-  -> Tags[]
-    -> Branches[] -> 4
-    -> Locations[] -> 5
-    -> Warehouses[] -> 2
-    -> Products[] -> 6
-    -> Movements[] -> 7
-    -> Associates[] -> 8
-    -> WarehouseProducts[] -> 9
-
-5. Location -> Location
-Location
-  -> Tags[]
-    -> Branches[] -> 4
-    -> Locations[] -> 5
-    -> Warehouses[] -> 2
-    -> Products[] -> 6
-    -> Movements[] -> 7
-    -> Associates[] -> 8
-    -> WarehouseProducts[] -> 9
-
-6. Product -> Product
-Product
-  -> Warehouses[]
-    -> Warehouse -> 2
-    -> Product -> 6
-    -> Tags[] -> 3
-  -> Tags[]
-    -> Branches[] -> 4
-    -> Locations[] -> 5
-    -> Warehouses[] -> 2
-    -> Products[] -> 6
-    -> Movements[] -> 7
-    -> Associates[] -> 8
-    -> WarehouseProducts[] -> 9
-
-7. Movement -> Movement
-Movement
-  -> Tags[]
-    -> Branches[] -> 4
-    -> Locations[] -> 5
-    -> Warehouses[] -> 2
-    -> Products[] -> 6
-    -> Movements[] -> 7
-    -> Associates[] -> 8
-    -> WarehouseProducts[] -> 9
-
-8. Associate -> Associate
-Associate
-  -> Tags[]
-    -> Branches[] -> 4
-    -> Locations[] -> 5
-    -> Warehouses[] -> 2
-    -> Products[] -> 6
-    -> Movements[] -> 7
-    -> Associates[] -> 8
-    -> WarehouseProducts[] -> 9
-
-9. WarehouseProduct-> WarehouseProduct
-WarehouseProduct
-  -> Warehouse
-    -> Branch -> 4
-    -> Products[] -> 9
-    -> Tags[] -> 3
-  -> Product
-    -> Warehouses[] -> 9
-    -> Tags[] -> 3
-  -> Tags[]
-    -> Branches[] -> 4
-    -> Locations[] -> 5
-    -> Warehouses[] -> 2
-    -> Products[] -> 6
-    -> Movements[] -> 7
-    -> Associates[] -> 8
-    -> WarehouseProducts[] -> 9
-
-- - - - - - - - - - - - - - - - - -
-- - - - - - - - - - - - - - - - - -
-
-1. Warehouse -> Warehouse
-Warehouse
-  -> Branch
-    -> Warehouses[] -> 2
-    -> Tags[] -> 3
-  -> Products[]
-    -> Warehouse -> 9
-    -> Product -> 6
+    -> Product -> 5
     -> Tags[] -> 3
   -> Tags[] -> 3
 
 2. Warehouse -> Warehouse
 Warehouse
   -> Branch
-    -> Warehouses[] -> 2
+    -> Warehouses[]
+      -> Warehouse -> 2
     -> Tags[] -> 3
   -> Products[]
-    -> Warehouse -> 9
-    -> Product -> 2
+    -> Warehouse -> 2
+    -> Product -> 5
     -> Tags[] -> 3
   -> Tags[] -> 3
 
@@ -197,67 +26,66 @@ Warehouse
 Tag[]
   -> Tag
     -> Branches[]
-      -> Warehouses[] -> 2
-      -> Tags[] -> 3
+      -> Branch
+        -> Warehouses[]
+          -> Warehouse -> 2
+        -> Tags[] -> 3
     -> Locations[]
-      -> Tags[] -> 3
+      -> Location
+        -> Tags[] -> 3
     -> Warehouses[]
-      -> Branch -> 4
-      -> Tags[] -> 3
+      -> Warehouse
+        -> Branch -> 4
+        -> Tags[] -> 3
     -> Products[]
-      -> Warehouses[] -> 9
-      -> Tags[] -> 3
+      -> Product
+        -> Warehouses[] -> 6
+          -> WarehouseProduct -> 6
+        -> Tags[] -> 3
     -> Movements[]
-      -> Tags[] -> 3
+      -> Movement
+        -> Tags[] -> 3
     -> Associates[]
-      -> Tags[] -> 3
+      -> Associate
+        -> Tags[] -> 3
     -> WarehouseProducts[]
-      -> Warehouse -> 2
-      -> Product -> 6
-      -> Tags[] -> 3
+      -> WarehouseProduct
+        -> Warehouse -> 2
+        -> Product -> 5
+        -> Tags[] -> 3
 
 4. Branch -> Branch
 Branch
   -> Warehouses[]
     -> Branch -> 4
-    -> Products[] -> 9
+    -> Products[] -> 6
+      -> WarehouseProduct -> 6
     -> Tags[] -> 3
   -> Tags[] -> 3
 
-5. Location -> Location
-Location
-  -> Tags[] -> 3
-
-6. Product -> Product
+5. Product -> Product
 Product
-  -> Warehouses[]
+  -> Warehouses[] (7)
     -> Warehouse -> 2
-    -> Product -> 6
+    -> Product -> 5
     -> Tags[] -> 3
   -> Tags[] -> 3
 
-7. Movement -> Movement
-Movement
-  -> Tags[] -> 3
-
-8. Associate -> Associate
-Associate
-  -> Tags[] -> 3
-
-9. WarehouseProduct-> WarehouseProduct
+6. WarehouseProduct-> WarehouseProduct
 WarehouseProduct
   -> Warehouse
     -> Branch -> 4
-    -> Products[] -> 9
+    -> Products[] -> 6
     -> Tags[] -> 3
   -> Product
-    -> Warehouses[] -> 9
+    -> Warehouses[] -> 6
     -> Tags[] -> 3
   -> Tags[] -> 3
 
 
 Repeat mapping:
-  TargetMember.IsRepeated
+  TargetMember.IsRepeated:
+    SourceType -> TargetType pair exists with 2 differing parent SourceType -> TargetType pairs
   TargetMember.NeedsOwnMapper -> IsRepeated && HasComplexTypeChildMembers
 
   
