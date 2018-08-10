@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
+﻿namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 {
     using System;
     using Extensions.Internal;
@@ -9,9 +9,9 @@
     using System.Linq.Expressions;
 #endif
 
-    internal struct MapRecursionCallRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
+    internal struct MapRepeatedCallRepeatMappingStrategy : IRepeatMappingStrategy
     {
-        public Expression GetMapRecursionCallFor(
+        public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
             Expression sourceValue,
             int dataSourceIndex,
@@ -19,7 +19,7 @@
         {
             var childMapperData = childMappingData.MapperData;
 
-            if (DoNotMapRecursion(childMapperData))
+            if (DoNotMap(childMapperData))
             {
                 return Constants.EmptyExpression;
             }
@@ -28,15 +28,15 @@
 
             childMapperData.RegisterRequiredMapperFunc(childMappingData);
 
-            var mapRecursionCall = declaredTypeMapperData.GetMapRecursionCall(
+            var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
                 sourceValue,
                 childMapperData.TargetMember,
                 dataSourceIndex);
 
-            return mapRecursionCall;
+            return mapRepeatedCall;
         }
 
-        private static bool DoNotMapRecursion(IMemberMapperData mapperData)
+        private static bool DoNotMap(IMemberMapperData mapperData)
         {
             if (mapperData.SourceType.IsDictionary())
             {

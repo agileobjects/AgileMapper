@@ -252,7 +252,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                     return false;
 
-                case Assign when IsMapRecursionCall(((BinaryExpression)expression).Right):
+                case Assign when IsMapRepeatedCall(((BinaryExpression)expression).Right):
                     return false;
 
                 default:
@@ -263,10 +263,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static bool IsCallTo(Expression call, string methodName)
             => ((MethodCallExpression)call).Method.Name == methodName;
 
-        private static bool IsMapRecursionCall(Expression expression)
+        private static bool IsMapRepeatedCall(Expression expression)
         {
             return (expression.NodeType == Call) &&
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRecursion));
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRepeated));
         }
 
         private Expression GetMappingBlock(MappingCreationContext context)

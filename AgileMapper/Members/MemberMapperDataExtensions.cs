@@ -229,6 +229,16 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)
             => mapperData.TargetMember.IsComplex && mapperData.TargetMember.Type.IsValueType();
 
+        public static bool IsRepeatMapping(this IMemberMapperData mapperData)
+        {
+            if (mapperData.TargetMember.IsRecursion)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool TargetMemberEverRecurses(this IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsRecursion)
@@ -246,7 +256,7 @@ namespace AgileObjects.AgileMapper.Members
                     // it's being mapped as part of the mapping of a recursive member. 
                     // We therefore check if this member recurses later; if so we'll 
                     // map it by calling MapRecursion, and it'll be the entry point of 
-                    // the RecursionMapperFunc which performs the recursive mapping:
+                    // the RepeatedMapperFunc which performs the recursive mapping:
                     return TargetMemberIsRecursionWithin(
                         parentMapperData.TargetMember,
                         mapperData.TargetMember.LeafMember,

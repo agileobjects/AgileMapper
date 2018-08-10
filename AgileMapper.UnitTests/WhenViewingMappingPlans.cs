@@ -232,7 +232,7 @@
         }
 
         [Fact]
-        public void ShouldShowObjectTrackingAndRecursionFuncs()
+        public void ShouldShowObjectTrackingAndRepeatedMappingFuncs()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -241,7 +241,7 @@
                 plan.ShouldContain("pToPData.Register(sourceParent, parent)");
                 plan.ShouldContain("pToPData.Register(sourceParent.EldestChild, child)");
 
-                plan.ShouldContain("Recursion Mapper");
+                plan.ShouldContain("Repeated Mapping Mapper");
 
                 plan.ShouldContain("Parent -> Parent");
                 plan.ShouldContain("pToPData2.TryGet(pToPData2.Source, out parent)");

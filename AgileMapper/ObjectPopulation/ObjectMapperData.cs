@@ -21,8 +21,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
-        private static readonly MethodInfo _mapRecursionMethod =
-            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRecursion");
+        private static readonly MethodInfo _mapRepeatedMethod =
+            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated");
 
         private readonly List<ObjectMapperData> _childMapperDatas;
         private ObjectMapperData _entryPointMapperData;
@@ -423,7 +423,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool IsEntryPoint => IsRoot || Context.IsStandalone || TargetMember.IsRecursion;
+        public bool IsEntryPoint => IsRoot || Context.IsStandalone || this.IsRepeatMapping();
 
         public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)
         {
@@ -507,21 +507,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GetPublicInstanceMethod("Map", parameterCount: numberOfArguments);
         }
 
-        public MethodCallExpression GetMapRecursionCall(
+        public MethodCallExpression GetMapRepeatedCall(
             Expression sourceObject,
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
-            var mapCall = Expression.Call(
+            var mapRepeatedCall = Expression.Call(
                 EntryPointMapperData.MappingDataObject,
-                _mapRecursionMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
+                _mapRepeatedMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(this),
                 EnumerableIndex,
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());
 
-            return mapCall;
+            return mapRepeatedCall;
         }
 
         public IBasicMapperData WithNoTargetMember()

@@ -251,7 +251,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return (TTargetElement)_mapper.MapSubObject(elementMappingData);
         }
 
-        TDeclaredTarget IObjectMappingDataUntyped.MapRecursion<TDeclaredSource, TDeclaredTarget>(
+        TDeclaredTarget IObjectMappingDataUntyped.MapRepeated<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? enumerableIndex,
@@ -267,10 +267,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     targetMemberName,
                     dataSourceIndex);
 
-                return (TDeclaredTarget)_mapper.MapRecursion(childMappingData);
+                return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
             }
 
-            return Parent.MapRecursion(
+            return Parent.MapRepeated(
                 sourceValue,
                 targetValue,
                 enumerableIndex,

@@ -2,24 +2,25 @@
 {
     using Members;
     using ObjectPopulation;
-    using ObjectPopulation.Recursion;
+    using ObjectPopulation.RepeatedMappings;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
 
-    internal struct MapToDepthRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
+    internal struct MapToDepthRepeatMappingStrategy : IRepeatMappingStrategy
     {
-        public Expression GetMapRecursionCallFor(
+        public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
             Expression sourceValue,
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
-            if (ShortCircuitRecursion(childMappingData))
+            if (childMappingData.MapperData.TargetMember.IsRecursion &&
+                ShortCircuitRecursion(childMappingData))
             {
-                return GetRecursionShortCircuit(childMappingData);
+                return GetMappingShortCircuit(childMappingData);
             }
 
             var mappingValues = new MappingValues(
@@ -44,7 +45,7 @@
                 .ShortCircuitRecursion(childMappingData.MapperData);
         }
 
-        private static Expression GetRecursionShortCircuit(IObjectMappingData childMappingData)
+        private static Expression GetMappingShortCircuit(IObjectMappingData childMappingData)
         {
             if (childMappingData.MapperData.TargetMember.IsComplex)
             {

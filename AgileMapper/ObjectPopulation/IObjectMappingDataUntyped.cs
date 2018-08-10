@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         /// <summary>
         /// Map the given <paramref name="sourceValue"/> to the given <paramref name="targetValue"/> as 
-        /// part of the mapping of a recursive relationship.
+        /// part of the mapping of a source and target type mapped multiple times within the object graph.
         /// </summary>
         /// <typeparam name="TDeclaredSource">
         /// The declared type of the given <paramref name="sourceValue"/>.
@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// The index of the data source being used to perform the mapping.
         /// </param>
         /// <returns>The mapping result.</returns>
-        TDeclaredTarget MapRecursion<TDeclaredSource, TDeclaredTarget>(
+        TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? enumerableIndex,

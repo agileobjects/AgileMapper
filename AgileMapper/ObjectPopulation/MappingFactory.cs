@@ -56,18 +56,18 @@
         {
             var childMapperData = childMappingData.MapperData;
 
-            if (childMapperData.TargetMemberEverRecurses())
+            if (childMapperData.IsRepeatMapping())
             {
-                var mapRecursionCall = childMapperData
+                var repeatMappingCall = childMapperData
                     .RuleSet
-                    .RecursiveMemberMappingStrategy
-                    .GetMapRecursionCallFor(
+                    .RepeatMappingStrategy
+                    .GetMapRepeatedCallFor(
                         childMappingData,
                         mappingValues.SourceValue,
                         dataSourceIndex,
                         declaredTypeMapperData);
 
-                return mapRecursionCall;
+                return repeatMappingCall;
             }
 
             var inlineMappingBlock = GetInlineMappingBlock(

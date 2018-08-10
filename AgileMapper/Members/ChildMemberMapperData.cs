@@ -33,7 +33,7 @@
 
         public MapperContext MapperContext => Parent.MapperContext;
 
-        public bool IsEntryPoint => Context.IsStandalone || TargetMember.IsRecursion;
+        public bool IsEntryPoint => Context.IsStandalone || this.IsRepeatMapping();
 
         public ObjectMapperData Parent { get; }
 

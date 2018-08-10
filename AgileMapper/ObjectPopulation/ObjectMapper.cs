@@ -4,8 +4,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using Caching;
     using MapperKeys;
-    using Recursion;
     using NetStandardPolyfills;
+    using RepeatedMappings;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly ObjectMapperKeyBase _mapperKey;
         private readonly MapperFunc<TSource, TTarget> _mapperFunc;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
-        private readonly ICache<ObjectMapperKeyBase, IRecursionMapperFunc> _recursionMapperFuncsByKey;
+        private readonly ICache<ObjectMapperKeyBase, IRepeatedMapperFunc> _repeatedMappingFuncsByKey;
         private Action _resetCallback;
 
         public ObjectMapper(
@@ -44,20 +44,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (MapperData.HasMapperFuncs)
             {
-                _recursionMapperFuncsByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRecursionMapperFunc>();
+                _repeatedMappingFuncsByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRepeatedMapperFunc>();
                 MapperData.Mapper = this;
                 
-                CacheRecursionMapperFuncs();
+                CacheRepeatedMappingFuncs();
             }
         }
 
         #region Setup
 
-        public void CacheRecursionMapperFuncs()
+        public void CacheRepeatedMappingFuncs()
         {
-            // Using a for loop here because creation of a recursion mapper func can
+            // Using a for loop here because creation of a repeated mapping func can
             // cause additions to MapperData.RequiredMapperFuncKeys
-            for (var i = _recursionMapperFuncsByKey.Count; i < MapperData.RequiredMapperFuncKeys.Count; i++)
+            for (var i = _repeatedMappingFuncsByKey.Count; i < MapperData.RequiredMapperFuncKeys.Count; i++)
             {
                 var mapperKey = MapperData.RequiredMapperFuncKeys[i];
 
@@ -67,7 +67,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var mapperFuncCreator = GlobalContext.Instance.Cache.GetOrAdd(typesKey, key =>
                 {
-                    var mapperFuncType = typeof(RecursionMapperFunc<,>).MakeGenericType(key.SourceType, key.TargetType);
+                    var mapperFuncType = typeof(RepeatedMapperFunc<,>).MakeGenericType(key.SourceType, key.TargetType);
                     var mapperDataParameter = Parameters.Create<IObjectMappingData>("mappingData");
                     var lazyLoadParameter = Parameters.Create<bool>("lazyLoadFuncs");
 
@@ -76,7 +76,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         mapperDataParameter,
                         lazyLoadParameter);
 
-                    var mapperCreationLambda = Expression.Lambda<Func<IObjectMappingData, bool, IRecursionMapperFunc>>(
+                    var mapperCreationLambda = Expression.Lambda<Func<IObjectMappingData, bool, IRepeatedMapperFunc>>(
                         mapperFuncCreation,
                         mapperDataParameter,
                         lazyLoadParameter);
@@ -86,9 +86,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var mapperFunc = mapperFuncCreator.Invoke(
                     mapperKey.MappingData,
-                    mapperKey.MappingData.MappingContext.LazyLoadRecursionMappingFuncs);
+                    mapperKey.MappingData.MappingContext.LazyLoadRepeatMappingFuncs);
 
-                _recursionMapperFuncsByKey.GetOrAdd(mapperKey, k => mapperFunc);
+                _repeatedMappingFuncsByKey.GetOrAdd(mapperKey, k => mapperFunc);
             }
         }
 
@@ -100,7 +100,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData MapperData { get; }
 
-        public IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs => _recursionMapperFuncsByKey.Values;
+        public IEnumerable<IRepeatedMapperFunc> RepeatedMappingFuncs => _repeatedMappingFuncsByKey.Values;
 
         public bool IsStaticallyCacheable()
         {
@@ -142,9 +142,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapper.Map(mappingData);
         }
 
-        public object MapRecursion(IObjectMappingData childMappingData)
+        public object MapRepeated(IObjectMappingData childMappingData)
         {
-            var mapperFunc = _recursionMapperFuncsByKey
+            var mapperFunc = _repeatedMappingFuncsByKey
                 .GetOrAdd(childMappingData.MapperKey, null);
 
             return mapperFunc.Map(childMappingData);

@@ -14,6 +14,6 @@
 
         public bool AddUnsuccessfulMemberPopulations { get; set; }
 
-        public bool LazyLoadRecursionMappingFuncs { get; set; }
+        public bool LazyLoadRepeatMappingFuncs { get; set; }
     }
 }

@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper
     using Members.Population;
     using ObjectPopulation.Enumerables;
     using ObjectPopulation.MapperKeys;
-    using ObjectPopulation.Recursion;
+    using ObjectPopulation.RepeatedMappings;
     using Queryables;
     using Queryables.Recursion;
 
@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper
             Constants.CreateNew,
             MappingRuleSetSettings.ForInMemoryMapping(),
             default(CopySourceEnumerablePopulationStrategy),
-            default(MapRecursionCallRecursiveMemberMappingStrategy),
+            default(MapRepeatedCallRepeatMappingStrategy),
             DefaultMemberPopulationFactory.Instance,
             default(ExistingOrDefaultValueDataSourceFactory),
             default(RootMapperKeyFactory));
@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper
             Constants.Overwrite,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
             default(OverwriteEnumerablePopulationStrategy),
-            default(MapRecursionCallRecursiveMemberMappingStrategy),
+            default(MapRepeatedCallRepeatMappingStrategy),
             DefaultMemberPopulationFactory.Instance,
             default(DefaultValueDataSourceFactory),
             default(RootMapperKeyFactory));
@@ -43,7 +43,7 @@ namespace AgileObjects.AgileMapper
                 AllowEnumerableAssignment = true
             },
             default(ProjectSourceEnumerablePopulationStrategy),
-            default(MapToDepthRecursiveMemberMappingStrategy),
+            default(MapToDepthRepeatMappingStrategy),
             DefaultMemberPopulationFactory.Instance,
             default(DefaultValueDataSourceFactory),
             default(QueryProjectorMapperKeyFactory));
@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper
             Constants.Merge,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
             default(MergeEnumerablePopulationStrategy),
-            default(MapRecursionCallRecursiveMemberMappingStrategy),
+            default(MapRepeatedCallRepeatMappingStrategy),
             new MemberMergePopulationFactory(),
             default(ExistingOrDefaultValueDataSourceFactory),
             default(RootMapperKeyFactory));

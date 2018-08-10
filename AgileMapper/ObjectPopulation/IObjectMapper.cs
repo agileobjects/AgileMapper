@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
-    using Recursion;
+    using RepeatedMappings;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -14,9 +14,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ObjectMapperData MapperData { get; }
 
-        IEnumerable<IRecursionMapperFunc> RecursionMapperFuncs { get; }
+        IEnumerable<IRepeatedMapperFunc> RepeatedMappingFuncs { get; }
 
-        void CacheRecursionMapperFuncs();
+        void CacheRepeatedMappingFuncs();
 
         bool IsStaticallyCacheable();
 
