@@ -13,7 +13,7 @@
     {
         public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
-            Expression sourceValue,
+            MappingValues mappingValues,
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
@@ -29,8 +29,8 @@
             childMapperData.RegisterRequiredMapperFunc(childMappingData);
 
             var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
-                sourceValue,
                 childMapperData.TargetMember,
+                mappingValues,
                 dataSourceIndex);
 
             return mapRepeatedCall;

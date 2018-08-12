@@ -29,6 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
         private MappedObjectCachingMode _mappedObjectCachingMode;
+        private bool? _isRepeatMapping;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -423,7 +424,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool IsEntryPoint => IsRoot || Context.IsStandalone || this.IsRepeatMapping();
+        public bool IsEntryPoint => IsRoot || Context.IsStandalone || IsRepeatMapping;
+
+        public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 
         public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)
         {
@@ -508,15 +511,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public MethodCallExpression GetMapRepeatedCall(
-            Expression sourceObject,
             QualifiedMember targetMember,
+            MappingValues mappingValues,
             int dataSourceIndex)
         {
+            var mapRepeatedMethod = _mapRepeatedMethod.MakeGenericMethod(
+                mappingValues.SourceValue.Type,
+                mappingValues.TargetValue.Type);
+
             var mapRepeatedCall = Expression.Call(
                 EntryPointMapperData.MappingDataObject,
-                _mapRepeatedMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
-                sourceObject,
-                targetMember.GetAccess(this),
+                mapRepeatedMethod,
+                mappingValues.SourceValue,
+                mappingValues.TargetValue,
                 EnumerableIndex,
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());

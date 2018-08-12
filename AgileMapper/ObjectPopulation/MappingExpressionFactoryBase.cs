@@ -132,8 +132,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var configuredRootDataSource = configuredRootDataSources[i];
                 var newSourceContext = context.WithDataSource(configuredRootDataSource);
 
-                newSourceContext.InstantiateLocalVariable = false;
-
                 var memberPopulations = GetObjectPopulation(newSourceContext).WhereNotNull().ToArray();
 
                 if (memberPopulations.None())
@@ -304,7 +302,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return returnExpression;
             }
 
-            CreateFullMappingBlock:
+        CreateFullMappingBlock:
 
             returnExpression = GetReturnExpression(GetReturnValue(context.MapperData), context);
 
@@ -463,7 +461,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 PreMappingCallback = preMappingCallback;
                 PostMappingCallback = postMappingCallback;
                 MapToNullCondition = mapToNullCondition;
-                InstantiateLocalVariable = true;
+                InstantiateLocalVariable = !mappingData.MapperData.IsRepeatMapping;
                 MappingExpressions = mappingExpressions ?? new List<Expression>();
             }
 
@@ -498,7 +496,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     newSourceMappingData.MappingTypes,
                     new FixedMembersMembersSource(newDataSource.SourceMember, TargetMember));
 
-                var newContext = new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions);
+                var newContext = new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions)
+                {
+                    InstantiateLocalVariable = false
+                };
 
                 newContext.MapperData.SourceObject = newDataSource.Value;
                 newContext.MapperData.TargetObject = MapperData.TargetObject;

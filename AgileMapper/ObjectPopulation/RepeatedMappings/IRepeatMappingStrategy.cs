@@ -11,7 +11,7 @@
     {
         Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
-            Expression sourceValue,
+            MappingValues mappingValues,
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData);
     }

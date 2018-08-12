@@ -9,6 +9,8 @@
 
     internal class ChildMemberMapperData : BasicMapperData, IMemberMapperData
     {
+        private bool? _isRepeatMapping;
+
         public ChildMemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
             : this(
                 parent.SourceMember,
@@ -33,7 +35,9 @@
 
         public MapperContext MapperContext => Parent.MapperContext;
 
-        public bool IsEntryPoint => Context.IsStandalone || this.IsRepeatMapping();
+        public bool IsEntryPoint => Context.IsStandalone || IsRepeatMapping;
+
+        public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 
         public ObjectMapperData Parent { get; }
 

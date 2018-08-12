@@ -242,13 +242,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTargetElement targetElement,
             int enumerableIndex)
         {
-            var elementMappingData = ObjectMappingDataFactory.ForElement(
+            var elementMappingData = GetElementMappingData(sourceElement, targetElement, enumerableIndex);
+
+            return (TTargetElement)_mapper.MapSubObject(elementMappingData);
+        }
+
+        private IObjectMappingData GetElementMappingData<TSourceElement, TTargetElement>(
+            TSourceElement sourceElement,
+            TTargetElement targetElement,
+            int enumerableIndex)
+        {
+            return ObjectMappingDataFactory.ForElement(
                 sourceElement,
                 targetElement,
                 enumerableIndex,
                 this);
-
-            return (TTargetElement)_mapper.MapSubObject(elementMappingData);
         }
 
         TDeclaredTarget IObjectMappingDataUntyped.MapRepeated<TDeclaredSource, TDeclaredTarget>(
@@ -260,6 +268,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
+                // TODO: Create element mapping data if needed?
+
                 var childMappingData = GetChildMappingData(
                     sourceValue,
                     targetValue,

@@ -106,13 +106,6 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            if (LeafMember.IsEnumerableElement())
-            {
-                // Recurse on enumerable and complex type members, 
-                // not enumerable elements:
-                return false;
-            }
-
             for (var i = MemberChain.Length - 2; i >= 0; --i)
             {
                 if (LeafMember.Type == MemberChain[i].Type)

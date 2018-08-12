@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Diagnostics;
     using System.Linq;
     using AgileMapper.Extensions;
     using AgileMapper.Extensions.Internal;
@@ -549,7 +550,13 @@
 
             branch.Warehouses.Add(warehouse);
 
-            Mapper.DeepClone(warehouse);
+            var stopwatch = Stopwatch.StartNew();
+
+            Mapper.GetPlanFor<Issue77.Warehouse>().ToANew<Issue77.Warehouse>();
+
+            stopwatch.Stop();
+
+            var cloned = Mapper.DeepClone(warehouse);
         }
 
         [Fact]

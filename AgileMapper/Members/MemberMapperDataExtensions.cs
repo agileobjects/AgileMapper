@@ -50,6 +50,7 @@ namespace AgileObjects.AgileMapper.Members
         public static bool MapToNullCollections(this IMemberMapperData mapperData)
             => mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
 
+        [DebuggerStepThrough]
         public static ObjectMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
             while (!mapperData.IsRoot)
@@ -236,56 +237,37 @@ namespace AgileObjects.AgileMapper.Members
                 return true;
             }
 
-            return false;
-        }
-
-        public static bool TargetMemberEverRecurses(this IMemberMapperData mapperData)
-        {
-            if (mapperData.TargetMember.IsRecursion)
+            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
+                mapperData.TargetMember.IsEnumerable ||
+               (mapperData.TargetMember.MemberChain.Length == 2))
             {
-                return true;
+                return false;
             }
 
-            var parentMapperData = mapperData.Parent;
-
-            while (!parentMapperData.Context.IsStandalone)
+            if (GetTargetMembers(mapperData.TargetType).All(tm => tm.IsSimple))
             {
-                if (parentMapperData.TargetMember.IsRecursion)
-                {
-                    // The target member we're mapping right now isn't recursive, but 
-                    // it's being mapped as part of the mapping of a recursive member. 
-                    // We therefore check if this member recurses later; if so we'll 
-                    // map it by calling MapRecursion, and it'll be the entry point of 
-                    // the RepeatedMapperFunc which performs the recursive mapping:
-                    return TargetMemberIsRecursionWithin(
-                        parentMapperData.TargetMember,
-                        mapperData.TargetMember.LeafMember,
-                        new List<Type>());
-                }
-
-                parentMapperData = parentMapperData.Parent;
+                return false;
             }
 
-            return false;
+            // The target member we're mapping right now isn't recursive, but 
+            // it might recurse elsewhere within the mapping graph. 
+            // We therefore check if this member ever recurses; if so we'll 
+            // map it by calling MapRepeated, and it'll be the entry point of 
+            // the RepeatedMapperFunc which performs the repeated mapping:
+            var rootMember = mapperData.GetRootMapperData().TargetMember;
+
+            return TargetMemberEverRecursesWithin(rootMember, mapperData.TargetMember);
         }
 
-        private static bool TargetMemberIsRecursionWithin(
-            QualifiedMember parentMember,
-            Member member,
-            ICollection<Type> checkedTypes)
+        private static IList<Member> GetTargetMembers(Type targetType)
+            => GlobalContext.Instance.MemberCache.GetTargetMembers(targetType);
+
+        private static bool TargetMemberEverRecursesWithin(QualifiedMember parentMember, QualifiedMember subjectMember)
         {
             while (true)
             {
-                if (parentMember.IsEnumerable)
-                {
-                    parentMember = parentMember.GetElementMember();
-                    continue;
-                }
-
-                var nonSimpleChildMembers = GlobalContext.Instance
-                    .MemberCache
-                    .GetTargetMembers(parentMember.Type)
-                    .Filter(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
+                var nonSimpleChildMembers = GetTargetMembers(parentMember.Type)
+                    .Filter(m => !m.IsSimple)
                     .ToArray();
 
                 if (nonSimpleChildMembers.None())
@@ -293,19 +275,40 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                var matchingChildMember = nonSimpleChildMembers.FirstOrDefault(cm => cm.Equals(member));
+                var matchingChildMember = nonSimpleChildMembers
+                    .FirstOrDefault(cm => cm.Equals(subjectMember.LeafMember));
 
                 if (matchingChildMember != null)
                 {
                     var childMember = parentMember.Append(matchingChildMember);
 
-                    return childMember.IsRecursion;
+                    if (childMember != subjectMember)
+                    {
+                        return childMember.IsRecursion;
+                    }
                 }
 
-                checkedTypes.Add(parentMember.Type);
+                foreach (var childMember in nonSimpleChildMembers)
+                {
+                    var qualifiedChildMember = parentMember.Append(childMember);
 
-                return nonSimpleChildMembers.Any(m =>
-                    TargetMemberIsRecursionWithin(parentMember.Append(m), member, checkedTypes));
+                    if (qualifiedChildMember.IsEnumerable)
+                    {
+                        qualifiedChildMember = qualifiedChildMember.GetElementMember();
+                    }
+
+                    if (qualifiedChildMember.IsRecursion)
+                    {
+                        continue;
+                    }
+
+                    if (TargetMemberEverRecursesWithin(qualifiedChildMember, subjectMember))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Recursion
 {
-    using Members;
     using ObjectPopulation;
     using ObjectPopulation.RepeatedMappings;
 #if NET35
@@ -13,7 +12,7 @@
     {
         public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
-            Expression sourceValue,
+            MappingValues mappingValues,
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
@@ -22,11 +21,6 @@
             {
                 return GetMappingShortCircuit(childMappingData);
             }
-
-            var mappingValues = new MappingValues(
-                sourceValue,
-                childMappingData.MapperData.GetTargetMemberDefault(),
-                declaredTypeMapperData.EnumerableIndex);
 
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(
                 childMappingData,
