@@ -524,7 +524,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapRepeatedMethod,
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
-                EnumerableIndex,
+                mappingValues.EnumerableIndex.GetConversionTo<int?>(),
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());
 

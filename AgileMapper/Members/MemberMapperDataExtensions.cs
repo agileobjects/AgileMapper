@@ -232,6 +232,11 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool IsRepeatMapping(this IMemberMapperData mapperData)
         {
+            if (mapperData.IsRoot)
+            {
+                return false;
+            }
+
             if (mapperData.TargetMember.IsRecursion)
             {
                 return true;
@@ -275,27 +280,20 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                var matchingChildMember = nonSimpleChildMembers
-                    .FirstOrDefault(cm => cm.Equals(subjectMember.LeafMember));
+                var sameTypedChildMembers = nonSimpleChildMembers
+                    .Filter(cm => (cm.IsEnumerable ? cm.ElementType : cm.Type) == subjectMember.Type)
+                    .ToArray();
 
-                if (matchingChildMember != null)
+                if (sameTypedChildMembers
+                        .Project(cm => GetNonEnumerableChildMember(parentMember, cm))
+                        .Any(cm => cm != subjectMember))
                 {
-                    var childMember = parentMember.Append(matchingChildMember);
-
-                    if (childMember != subjectMember)
-                    {
-                        return childMember.IsRecursion;
-                    }
+                    return true;
                 }
 
                 foreach (var childMember in nonSimpleChildMembers)
                 {
-                    var qualifiedChildMember = parentMember.Append(childMember);
-
-                    if (qualifiedChildMember.IsEnumerable)
-                    {
-                        qualifiedChildMember = qualifiedChildMember.GetElementMember();
-                    }
+                    var qualifiedChildMember = GetNonEnumerableChildMember(parentMember, childMember);
 
                     if (qualifiedChildMember.IsRecursion)
                     {
@@ -310,6 +308,18 @@ namespace AgileObjects.AgileMapper.Members
 
                 return false;
             }
+        }
+
+        private static QualifiedMember GetNonEnumerableChildMember(QualifiedMember parentMember, Member childMember)
+        {
+            var qualifiedChildMember = parentMember.Append(childMember);
+
+            if (qualifiedChildMember.IsEnumerable)
+            {
+                qualifiedChildMember = qualifiedChildMember.GetElementMember();
+            }
+
+            return qualifiedChildMember;
         }
 
         public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)
