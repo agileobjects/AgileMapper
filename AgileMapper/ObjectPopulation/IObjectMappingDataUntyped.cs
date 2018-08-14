@@ -69,6 +69,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex);
 
         /// <summary>
+        /// Map the given <paramref name="sourceValue"/> to the given <paramref name="targetValue"/> as 
+        /// part of the mapping of a source and target type mapped multiple times within the object graph.
+        /// </summary>
+        /// <typeparam name="TDeclaredSource">
+        /// The declared type of the given <paramref name="sourceValue"/>.
+        /// </typeparam>
+        /// <typeparam name="TDeclaredTarget">
+        /// The declared type of the given <paramref name="targetValue"/>.
+        /// </typeparam>
+        /// <param name="sourceValue">The source object from which to map.</param>
+        /// <param name="targetValue">The target object to which to map.</param>
+        /// <param name="enumerableIndex">
+        /// The index of the current enumerable being mapped in the mapping context described by the 
+        /// <see cref="IObjectMappingDataUntyped"/>, if applicable.
+        /// </param>
+        /// <returns>The mapping result.</returns>
+        TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceValue,
+            TDeclaredTarget targetValue,
+            int enumerableIndex);
+
+        /// <summary>
         /// Gets the <see cref="IObjectMappingDataUntyped"/> typed as a 
         /// <see cref="IObjectMappingData{TNewSource, TNewTarget}"/>.
         /// </summary>

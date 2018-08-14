@@ -515,6 +515,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingValues mappingValues,
             int dataSourceIndex)
         {
+            if (targetMember.LeafMember.IsEnumerableElement())
+            {
+                
+            }
+
             var mapRepeatedMethod = _mapRepeatedMethod.MakeGenericMethod(
                 mappingValues.SourceValue.Type,
                 mappingValues.TargetValue.Type);
@@ -524,6 +529,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapRepeatedMethod,
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
+                //EnumerableIndex,
                 mappingValues.EnumerableIndex.GetConversionTo<int?>(),
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());

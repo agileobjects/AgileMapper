@@ -232,7 +232,10 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool IsRepeatMapping(this IMemberMapperData mapperData)
         {
-            if (mapperData.IsRoot)
+            if (mapperData.IsRoot ||
+                mapperData.TargetMember.IsEnumerable ||
+                mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
+               (mapperData.TargetMember.MemberChain.Length == 2))
             {
                 return false;
             }
@@ -240,13 +243,6 @@ namespace AgileObjects.AgileMapper.Members
             if (mapperData.TargetMember.IsRecursion)
             {
                 return true;
-            }
-
-            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
-                mapperData.TargetMember.IsEnumerable ||
-               (mapperData.TargetMember.MemberChain.Length == 2))
-            {
-                return false;
             }
 
             if (GetTargetMembers(mapperData.TargetType).All(tm => tm.IsSimple))

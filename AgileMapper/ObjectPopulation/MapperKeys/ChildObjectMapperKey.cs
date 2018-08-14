@@ -45,14 +45,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 
         public override bool Equals(object obj)
         {
-            var otherKey = (ChildObjectMapperKey)obj;
-
-            if (TypesMatch(otherKey) &&
-                // ReSharper disable once PossibleNullReferenceException
-                (otherKey._dataSourceIndex == _dataSourceIndex) &&
-                (otherKey._targetMemberRegistrationName == _targetMemberRegistrationName))
+            if (!(obj is ChildObjectMapperKey otherChildKey))
             {
-                return SourceHasRequiredTypes(otherKey);
+                return Equals((ITypedMapperKey)obj);
+            }
+
+            if (TypesMatch(otherChildKey) &&
+               (otherChildKey._dataSourceIndex == _dataSourceIndex) &&
+               (otherChildKey._targetMemberRegistrationName == _targetMemberRegistrationName))
+            {
+                return SourceHasRequiredTypes(otherChildKey);
             }
 
             return false;
