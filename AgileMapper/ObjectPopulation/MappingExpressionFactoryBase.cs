@@ -461,7 +461,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 PreMappingCallback = preMappingCallback;
                 PostMappingCallback = postMappingCallback;
                 MapToNullCondition = mapToNullCondition;
-                InstantiateLocalVariable = !mappingData.MapperData.IsRepeatMapping;
+                InstantiateLocalVariable = true;
                 MappingExpressions = mappingExpressions ?? new List<Expression>();
             }
 

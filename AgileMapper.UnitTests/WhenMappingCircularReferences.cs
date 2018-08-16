@@ -513,7 +513,7 @@
             var warehouse = new Issue77.Warehouse
             {
                 Id = 16473,
-                Name = "Test Warehouse 1",
+                Name = "Test Warehouse 16473",
                 Description = "The test warehouse"
             };
 
@@ -533,7 +533,7 @@
             var branch = new Issue77.Branch
             {
                 Id = 27362,
-                Name = "Test Branch 1",
+                Name = "Test Branch 27362",
                 Description = "The test branch"
             };
 
@@ -639,22 +639,107 @@
             warehouse.Tags.Add(warehouseTag);
             tagForWarehouse.Warehouses.Add(warehouseTag);
             tagForWarehouseLocation.Locations.Add(warehouseLocationTag);
+            warehouseLocation.Tags.Add(warehouseLocationTag);
 
+            branch.Location = branchLocation;
             branch.Warehouses.Add(warehouse);
             branch.Tags.Add(branchTag);
             tagForBranch.Branches.Add(branchTag);
             tagForBranchLocation.Locations.Add(branchLocationTag);
+            branchLocation.Tags.Add(branchLocationTag);
 
             product.Tags.Add(productTag);
             tagForProduct.Products.Add(productTag);
 
             warehouse.Products.Add(warehouseProduct);
             product.Warehouses.Add(warehouseProduct);
+            warehouseProduct.Tags.Add(warehouseProductTag);
             tagForWarehouseProduct.WarehouseProducts.Add(warehouseProductTag);
 
-            string plan = Mapper.GetPlanFor<Issue77.Warehouse>().ToANew<Issue77.Warehouse>();
+            Mapper.GetPlanFor<Issue77.Warehouse>().ToANew<Issue77.Warehouse>();
 
-            var cloned = Mapper.DeepClone(warehouse);
+            var clonedWarehouse = Mapper.DeepClone(warehouse);
+
+            Mapper.Default.Context.ObjectMapperFactory.RootMappers.ShouldHaveSingleItem();
+
+            clonedWarehouse.ShouldNotBeSameAs(warehouse);
+            clonedWarehouse.Id.ShouldBe(16473);
+            clonedWarehouse.Name.ShouldBe("Test Warehouse 16473");
+            clonedWarehouse.Description.ShouldBe("The test warehouse");
+            clonedWarehouse.BranchId.ShouldBe(27362);
+            clonedWarehouse.LocationId.ShouldBe(63672);
+
+            var clonedWarehouseTag = clonedWarehouse.Tags.ShouldHaveSingleItem();
+            clonedWarehouseTag.Warehouse.ShouldBe(clonedWarehouse);
+            var clonedTagForWarehouse = clonedWarehouseTag.Tag.ShouldNotBeNull();
+            clonedTagForWarehouse.Warehouses.ShouldHaveSingleItem().ShouldBe(clonedWarehouseTag);
+
+            var clonedBranch = clonedWarehouse.Branch.ShouldNotBeNull();
+            clonedBranch.ShouldNotBeSameAs(branch);
+            clonedBranch.Id.ShouldBe(27362);
+            clonedBranch.Name.ShouldBe("Test Branch 27362");
+            clonedBranch.Description.ShouldBe("The test branch");
+            clonedBranch.Warehouses.ShouldHaveSingleItem().ShouldBeSameAs(clonedWarehouse);
+
+            var clonedBranchTag = clonedBranch.Tags.ShouldHaveSingleItem();
+            clonedBranchTag.Branch.ShouldBeSameAs(clonedBranch);
+            var clonedTagForBranch = clonedBranchTag.Tag.ShouldNotBeNull();
+            clonedTagForBranch.ShouldNotBeSameAs(tagForBranch);
+            clonedTagForBranch.Id.ShouldBe(57832);
+            clonedTagForBranch.Branches.ShouldHaveSingleItem().ShouldBeSameAs(clonedBranchTag);
+
+            var clonedWarehouseLocation = clonedWarehouse.Location.ShouldNotBeNull();
+            clonedWarehouseLocation.ShouldNotBeSameAs(warehouseLocation);
+            clonedWarehouseLocation.Id.ShouldBe(63672);
+            clonedWarehouseLocation.Name.ShouldBe("Warehouse Location");
+            clonedWarehouseLocation.Description.ShouldBe("Warehouse Street, Warehouse Land");
+
+            var clonedWarehouseLocationTag = clonedWarehouseLocation.Tags.ShouldHaveSingleItem();
+            clonedWarehouseLocationTag.Location.ShouldBeSameAs(clonedWarehouseLocation);
+            var clonedTagForWarehouseLocation = clonedWarehouseLocationTag.Tag.ShouldNotBeNull();
+            clonedTagForWarehouseLocation.ShouldNotBeSameAs(tagForWarehouseLocation);
+            clonedTagForWarehouseLocation.Id.ShouldBe(53627);
+            clonedTagForWarehouseLocation.Locations.ShouldHaveSingleItem().ShouldBeSameAs(clonedWarehouseLocationTag);
+
+            var clonedBranchLocation = clonedBranch.Location.ShouldNotBeNull();
+            clonedBranchLocation.ShouldNotBeSameAs(branchLocation);
+            clonedBranchLocation.Id.ShouldBe(73726);
+            clonedBranchLocation.Name.ShouldBe("Branch Location");
+            clonedBranchLocation.Description.ShouldBe("Branch Street, Branch Land");
+
+            var clonedBranchLocationTag = clonedBranchLocation.Tags.ShouldHaveSingleItem();
+            clonedBranchLocationTag.Location.ShouldBeSameAs(clonedBranchLocation);
+            var clonedTagForBranchLocation = clonedBranchLocationTag.Tag.ShouldNotBeNull();
+            clonedTagForBranchLocation.ShouldNotBeSameAs(tagForBranchLocation);
+            clonedTagForBranchLocation.Id.ShouldBe(53272);
+            clonedTagForBranchLocation.Locations.ShouldHaveSingleItem().ShouldBeSameAs(clonedBranchLocationTag);
+
+            var clonedWarehouseProduct = clonedWarehouse.Products.ShouldHaveSingleItem();
+            clonedWarehouseProduct.ShouldNotBeSameAs(warehouseProduct);
+            clonedWarehouseProduct.WarehouseId.ShouldBe(16473);
+            clonedWarehouseProduct.Warehouse.ShouldNotBeNull().ShouldBeSameAs(clonedWarehouse);
+
+            var clonedWarehouseProductTag = clonedWarehouseProduct.Tags.ShouldHaveSingleItem();
+            clonedWarehouseProductTag.WarehouseProduct.ShouldBeSameAs(clonedWarehouseProduct);
+            var clonedTagForWarehouseProduct = clonedWarehouseProductTag.Tag.ShouldNotBeNull();
+            clonedTagForWarehouseProduct.ShouldNotBeSameAs(tagForWarehouseProduct);
+            clonedTagForWarehouseProduct.Id.ShouldBe(63463);
+            clonedTagForWarehouseProduct.WarehouseProducts.ShouldHaveSingleItem().ShouldBeSameAs(clonedWarehouseProductTag);
+            clonedWarehouseProduct.ProductId.ShouldBe(37638);
+
+            var clonedProduct = clonedWarehouseProduct.Product.ShouldNotBeNull();
+            clonedProduct.ShouldNotBeSameAs(product);
+            clonedProduct.Id.ShouldBe(37638);
+            clonedProduct.Name.ShouldBe("Test Product");
+            clonedProduct.Description.ShouldBe("The test product");
+            clonedProduct.Warehouses.ShouldHaveSingleItem().ShouldBeSameAs(clonedWarehouseProduct);
+
+            var clonedProductTag = clonedProduct.Tags.ShouldHaveSingleItem();
+            clonedProductTag.Product.ShouldBeSameAs(clonedProduct);
+            var clonedTagForProduct = clonedProductTag.Tag.ShouldNotBeNull();
+            clonedTagForProduct.ShouldNotBeSameAs(tagForProduct);
+            clonedTagForProduct.Id.ShouldBe(58276);
+            clonedTagForProduct.Products.ShouldHaveSingleItem().ShouldBeSameAs(clonedProductTag);
         }
 
         [Fact]

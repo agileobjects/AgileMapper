@@ -80,32 +80,35 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             DataSourcesByTargetMember = new Dictionary<QualifiedMember, DataSourceSet>();
 
+            ReturnLabelTarget = Expression.Label(TargetType, "Return");
+            _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
+
             if (targetMember.IsEnumerable)
             {
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
             }
-            else if (!this.TargetMemberIsEnumerableElement())
-            {
-                TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
-                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
-            }
-
-            ReturnLabelTarget = Expression.Label(TargetType, "Return");
-            _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
 
             if (IsRoot)
             {
+                TargetTypeHasNotYetBeenMapped = true;
+                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
                 Context = new MapperDataContext(this, true, isPartOfDerivedTypeMapping);
                 return;
+            }
+
+            parent._childMapperDatas.Add(this);
+            Parent = parent;
+            
+            if (!this.TargetMemberIsEnumerableElement())
+            {
+                TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
+                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
             }
 
             Context = new MapperDataContext(
                 this,
                 isForStandaloneMapping,
                 isPartOfDerivedTypeMapping || parent.Context.IsForDerivedType);
-
-            parent._childMapperDatas.Add(this);
-            Parent = parent;
         }
 
         #region Setup
@@ -150,9 +153,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private bool IsTargetTypeFirstMapping(ObjectMapperData parent)
         {
-            if (IsRoot)
+            if (IsRepeatMapping)
             {
-                return true;
+                return false;
             }
 
             while (parent != null)
@@ -205,6 +208,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private bool IsTargetTypeLastMapping(ObjectMapperData parent)
         {
+            if (IsRepeatMapping)
+            {
+                return false;
+            }
+
             while (parent != null)
             {
                 if (parent.TargetTypeWillBeMappedAgain)
