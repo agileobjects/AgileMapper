@@ -21,8 +21,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
-        private static readonly MethodInfo _mapRepeatedMethod =
-            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated");
+        private static readonly MethodInfo _mapRepeatedChildMethod =
+            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 5);
+
+        private static readonly MethodInfo _mapRepeatedElementMethod =
+            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 3);
 
         private readonly List<ObjectMapperData> _childMapperDatas;
         private ObjectMapperData _entryPointMapperData;
@@ -507,7 +510,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
         {
             return mappingDataType
-                .GetPublicInstanceMethod("Map", parameterCount: numberOfArguments);
+                .GetPublicInstanceMethod("Map", numberOfArguments);
         }
 
         public MethodCallExpression GetMapRepeatedCall(
@@ -515,24 +518,42 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingValues mappingValues,
             int dataSourceIndex)
         {
+            MethodInfo mapRepeatedMethod;
+            Expression[] arguments;
+
             if (targetMember.LeafMember.IsEnumerableElement())
             {
-                
+                mapRepeatedMethod = _mapRepeatedElementMethod;
+
+                arguments = new[]
+                {
+                    mappingValues.SourceValue,
+                    mappingValues.TargetValue,
+                    mappingValues.EnumerableIndex,
+                };
+            }
+            else
+            {
+                mapRepeatedMethod = _mapRepeatedChildMethod;
+
+                arguments = new[]
+                {
+                    mappingValues.SourceValue,
+                    mappingValues.TargetValue,
+                    EnumerableIndex,
+                    targetMember.RegistrationName.ToConstantExpression(),
+                    dataSourceIndex.ToConstantExpression()
+                };
             }
 
-            var mapRepeatedMethod = _mapRepeatedMethod.MakeGenericMethod(
+            mapRepeatedMethod = mapRepeatedMethod.MakeGenericMethod(
                 mappingValues.SourceValue.Type,
                 mappingValues.TargetValue.Type);
 
             var mapRepeatedCall = Expression.Call(
                 EntryPointMapperData.MappingDataObject,
                 mapRepeatedMethod,
-                mappingValues.SourceValue,
-                mappingValues.TargetValue,
-                //EnumerableIndex,
-                mappingValues.EnumerableIndex.GetConversionTo<int?>(),
-                targetMember.RegistrationName.ToConstantExpression(),
-                dataSourceIndex.ToConstantExpression());
+                arguments);
 
             return mapRepeatedCall;
         }

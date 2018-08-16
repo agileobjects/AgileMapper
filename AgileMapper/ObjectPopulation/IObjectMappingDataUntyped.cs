@@ -69,25 +69,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int dataSourceIndex);
 
         /// <summary>
-        /// Map the given <paramref name="sourceValue"/> to the given <paramref name="targetValue"/> as 
-        /// part of the mapping of a source and target type mapped multiple times within the object graph.
+        /// Map the given <paramref name="sourceElement"/> to the given <paramref name="targetElement"/> as 
+        /// part of the mapping of a source and target element type mapped multiple times within the
+        /// object graph.
         /// </summary>
         /// <typeparam name="TDeclaredSource">
-        /// The declared type of the given <paramref name="sourceValue"/>.
+        /// The declared type of the given <paramref name="sourceElement"/>.
         /// </typeparam>
         /// <typeparam name="TDeclaredTarget">
-        /// The declared type of the given <paramref name="targetValue"/>.
+        /// The declared type of the given <paramref name="targetElement"/>.
         /// </typeparam>
-        /// <param name="sourceValue">The source object from which to map.</param>
-        /// <param name="targetValue">The target object to which to map.</param>
+        /// <param name="sourceElement">The source element from which to map.</param>
+        /// <param name="targetElement">The target element to which to map.</param>
         /// <param name="enumerableIndex">
         /// The index of the current enumerable being mapped in the mapping context described by the 
-        /// <see cref="IObjectMappingDataUntyped"/>, if applicable.
+        /// <see cref="IObjectMappingDataUntyped"/>
         /// </param>
         /// <returns>The mapping result.</returns>
         TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceValue,
-            TDeclaredTarget targetValue,
+            TDeclaredSource sourceElement,
+            TDeclaredTarget targetElement,
             int enumerableIndex);
 
         /// <summary>

@@ -268,8 +268,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
-                // TODO: Create element mapping data if needed?
-
                 var childMappingData = GetChildMappingData(
                     sourceValue,
                     targetValue,
@@ -286,6 +284,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableIndex,
                 targetMemberName,
                 dataSourceIndex);
+        }
+
+        TDeclaredTarget IObjectMappingDataUntyped.MapRepeated<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceElement,
+            TDeclaredTarget targetElement,
+            int enumerableIndex)
+        {
+            if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
+            {
+                var childMappingData = GetElementMappingData(
+                    sourceElement,
+                    targetElement,
+                    enumerableIndex);
+
+                return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
+            }
+
+            return Parent.MapRepeated(
+                sourceElement,
+                targetElement,
+                enumerableIndex);
         }
 
         #endregion

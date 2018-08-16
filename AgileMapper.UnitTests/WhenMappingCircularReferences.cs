@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Diagnostics;
     using System.Linq;
     using AgileMapper.Extensions;
     using AgileMapper.Extensions.Internal;
@@ -513,48 +512,147 @@
         {
             var warehouse = new Issue77.Warehouse
             {
-                Id = 1,
+                Id = 16473,
                 Name = "Test Warehouse 1",
                 Description = "The test warehouse"
             };
 
+            var tagForWarehouse = new Issue77.Tag
+            {
+                Id = 46437
+            };
+
+            var warehouseTag = new Issue77.WarehouseTag
+            {
+                WarehouseId = warehouse.Id,
+                Warehouse = warehouse,
+                TagId = tagForWarehouse.Id,
+                Tag = tagForWarehouse
+            };
+
             var branch = new Issue77.Branch
             {
-                Id = 2,
+                Id = 27362,
                 Name = "Test Branch 1",
                 Description = "The test branch"
             };
 
+            var tagForBranch = new Issue77.Tag
+            {
+                Id = 57832
+            };
+
+            var branchTag = new Issue77.BranchTag
+            {
+                BranchId = branch.Id,
+                Branch = branch,
+                TagId = tagForBranch.Id,
+                Tag = tagForBranch
+            };
+
+            var warehouseLocation = new Issue77.Location
+            {
+                Id = 63672,
+                Name = "Warehouse Location",
+                Description = "Warehouse Street, Warehouse Land"
+            };
+
+            var tagForWarehouseLocation = new Issue77.Tag
+            {
+                Id = 53627
+            };
+
+            var warehouseLocationTag = new Issue77.LocationTag
+            {
+                LocationId = warehouseLocation.Id,
+                Location = warehouseLocation,
+                TagId = tagForWarehouseLocation.Id,
+                Tag = tagForWarehouseLocation
+            };
+
+            var branchLocation = new Issue77.Location
+            {
+                Id = 73726,
+                Name = "Branch Location",
+                Description = "Branch Street, Branch Land"
+            };
+
+            var tagForBranchLocation = new Issue77.Tag
+            {
+                Id = 53272
+            };
+
+            var branchLocationTag = new Issue77.LocationTag
+            {
+                LocationId = branchLocation.Id,
+                Location = branchLocation,
+                TagId = tagForBranchLocation.Id,
+                Tag = tagForBranchLocation
+            };
+
             var product = new Issue77.Product
             {
-                Id = 3,
+                Id = 37638,
                 Name = "Test Product",
                 Description = "The test product"
             };
 
-            var warehouseBranch = new Issue77.WarehouseProduct
+            var tagForProduct = new Issue77.Tag
             {
-                Id = 3,
+                Id = 58276
+            };
+
+            var productTag = new Issue77.ProductTag
+            {
+                ProductId = product.Id,
+                Product = product,
+                TagId = tagForProduct.Id,
+                Tag = tagForProduct
+            };
+
+            var warehouseProduct = new Issue77.WarehouseProduct
+            {
+                Id = 38376,
                 WarehouseId = warehouse.Id,
                 Warehouse = warehouse,
                 ProductId = product.Id,
                 Product = product
             };
 
-            var warehouseTag = new Issue77.WarehouseTag();
+            var tagForWarehouseProduct = new Issue77.Tag
+            {
+                Id = 63463
+            };
+
+            var warehouseProductTag = new Issue77.WarehouseProductTag
+            {
+                WarehouseProductId = warehouseProduct.Id,
+                WarehouseProduct = warehouseProduct,
+                TagId = tagForWarehouseProduct.Id,
+                Tag = tagForWarehouseProduct
+            };
 
             warehouse.BranchId = branch.Id;
             warehouse.Branch = branch;
-            warehouse.Products.Add(warehouseBranch);
+            warehouse.LocationId = warehouseLocation.Id;
+            warehouse.Location = warehouseLocation;
             warehouse.Tags.Add(warehouseTag);
+            tagForWarehouse.Warehouses.Add(warehouseTag);
+            tagForWarehouseLocation.Locations.Add(warehouseLocationTag);
 
             branch.Warehouses.Add(warehouse);
+            branch.Tags.Add(branchTag);
+            tagForBranch.Branches.Add(branchTag);
+            tagForBranchLocation.Locations.Add(branchLocationTag);
 
-            var stopwatch = Stopwatch.StartNew();
+            product.Tags.Add(productTag);
+            tagForProduct.Products.Add(productTag);
 
-            Mapper.GetPlanFor<Issue77.Warehouse>().ToANew<Issue77.Warehouse>();
+            warehouse.Products.Add(warehouseProduct);
+            product.Warehouses.Add(warehouseProduct);
+            tagForWarehouseProduct.WarehouseProducts.Add(warehouseProductTag);
 
-            stopwatch.Stop();
+            string plan = Mapper.GetPlanFor<Issue77.Warehouse>().ToANew<Issue77.Warehouse>();
 
             var cloned = Mapper.DeepClone(warehouse);
         }
@@ -798,6 +896,8 @@
 
                 public string Description { get; set; }
 
+                public Location Location { get; set; }
+
                 public HashSet<Warehouse> Warehouses { get; set; } = new HashSet<Warehouse>();
 
                 public HashSet<BranchTag> Tags { get; set; } = new HashSet<BranchTag>();
@@ -843,6 +943,10 @@
                 public int BranchId { get; set; }
 
                 public Branch Branch { get; set; }
+
+                public int LocationId { get; set; }
+
+                public Location Location { get; set; }
 
                 public HashSet<WarehouseProduct> Products { get; set; } = new HashSet<WarehouseProduct>();
 
