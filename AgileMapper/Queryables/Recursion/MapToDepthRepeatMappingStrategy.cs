@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Recursion
 {
+    using Members;
     using ObjectPopulation;
     using ObjectPopulation.RepeatedMappings;
 #if NET35
@@ -10,14 +11,16 @@
 
     internal struct MapToDepthRepeatMappingStrategy : IRepeatMappingStrategy
     {
+        public bool AppliesTo(IMemberMapperData mapperData)
+            => !mapperData.TargetMemberIsEnumerableElement();
+
         public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
             MappingValues mappingValues,
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
-            if (childMappingData.MapperData.TargetMember.IsRecursion &&
-                ShortCircuitRecursion(childMappingData))
+            if (ShortCircuitRecursion(childMappingData))
             {
                 return GetMappingShortCircuit(childMappingData);
             }
@@ -32,6 +35,11 @@
 
         private static bool ShortCircuitRecursion(IObjectMappingData childMappingData)
         {
+            if (!childMappingData.MapperData.TargetMember.IsRecursion)
+            {
+                return false;
+            }
+
             return childMappingData
                 .MappingContext
                 .MapperContext

@@ -11,13 +11,15 @@
 
     internal struct MapRepeatedCallRepeatMappingStrategy : IRepeatMappingStrategy
     {
+        public bool AppliesTo(IMemberMapperData mapperData) => !mapperData.TargetMember.IsEnumerable;
+
         public Expression GetMapRepeatedCallFor(
-            IObjectMappingData childMappingData,
+            IObjectMappingData mappingData,
             MappingValues mappingValues,
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
-            var childMapperData = childMappingData.MapperData;
+            var childMapperData = mappingData.MapperData;
 
             if (DoNotMap(childMapperData))
             {
@@ -26,7 +28,7 @@
 
             childMapperData.CacheMappedObjects = true;
 
-            childMapperData.RegisterRequiredMapperFunc(childMappingData);
+            childMapperData.RegisterRequiredMapperFunc(mappingData);
 
             var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
                 childMapperData.TargetMember,

@@ -656,11 +656,16 @@
             warehouseProduct.Tags.Add(warehouseProductTag);
             tagForWarehouseProduct.WarehouseProducts.Add(warehouseProductTag);
 
-            Mapper.GetPlanFor<Issue77.Warehouse>().ToANew<Issue77.Warehouse>();
+            Issue77.Warehouse clonedWarehouse;
 
-            var clonedWarehouse = Mapper.DeepClone(warehouse);
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlanFor<Issue77.Warehouse>().ToANew<Issue77.Warehouse>();
 
-            Mapper.Default.Context.ObjectMapperFactory.RootMappers.ShouldHaveSingleItem();
+                clonedWarehouse = mapper.DeepClone(warehouse);
+
+                ((IMapperInternal)mapper).Context.ObjectMapperFactory.RootMappers.ShouldHaveSingleItem();
+            }
 
             clonedWarehouse.ShouldNotBeSameAs(warehouse);
             clonedWarehouse.Id.ShouldBe(16473);
@@ -773,7 +778,7 @@
 
             plan.ShouldNotBeNull();
             plan.ShouldContain("WhenMappingCircularReferences.Video -> WhenMappingCircularReferences.Video");
-            plan.ShouldContain(".MapRecursion(");
+            plan.ShouldContain(".MapRepeated(");
         }
 
         [Fact]
@@ -784,7 +789,7 @@
                 .ToANew<Parent>();
 
             plan.ShouldContain("Map Parent -> Parent");
-            plan.ShouldContain(".MapRecursion(");
+            plan.ShouldContain(".MapRepeated(");
         }
 
         #region Helper Classes

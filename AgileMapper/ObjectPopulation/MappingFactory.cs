@@ -56,7 +56,8 @@
         {
             var childMapperData = childMappingData.MapperData;
 
-            if (childMapperData.IsRepeatMapping)
+            if (childMapperData.IsRepeatMapping &&
+                childMapperData.RuleSet.RepeatMappingStrategy.AppliesTo(childMapperData))
             {
                 var repeatMappingCall = childMapperData
                     .RuleSet
@@ -143,7 +144,8 @@
 
             elementMapperData.Context.IsForNewElement = targetElementValue.NodeType == ExpressionType.Default;
 
-            if (elementMapperData.IsRepeatMapping)
+            if (elementMapperData.IsRepeatMapping &&
+                elementMapperData.RuleSet.RepeatMappingStrategy.AppliesTo(elementMapperData))
             {
                 var repeatMappingCall = elementMapperData
                     .RuleSet
