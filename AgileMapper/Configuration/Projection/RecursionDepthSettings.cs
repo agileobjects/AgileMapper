@@ -23,7 +23,7 @@
 
             while (mapperData != null)
             {
-                if (mapperData.TargetMember.IsRecursion)
+                if (mapperData.TargetMember.IsRecursion && !mapperData.TargetMemberIsEnumerableElement())
                 {
                     ++recursionDepth;
                 }
