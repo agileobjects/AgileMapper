@@ -7,7 +7,7 @@
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Projection;
     using Dictionaries;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using Dynamics;
 #endif
     using Extensions.Internal;
@@ -46,7 +46,7 @@
         public ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries
             => new TargetDictionaryMappingConfigurator<TSource, TTarget>(ConfigInfo);
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         public ITargetDynamicMappingInlineConfigurator<TSource> ForDynamics
             => new TargetDynamicMappingConfigurator<TSource>(ConfigInfo);
 #endif

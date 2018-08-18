@@ -7,7 +7,7 @@
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore2_1</AssemblyName>
     <PackageId>AgileObjects.AgileMapper.UnitTests.NetCore2_1</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <RuntimeFrameworkVersion>2.1.0-rc1</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion>2.1.2</RuntimeFrameworkVersion>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>

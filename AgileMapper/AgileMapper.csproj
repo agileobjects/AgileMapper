@@ -27,6 +27,26 @@
     <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.12.1" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
+    <PackageReference Include="DynamicLanguageRuntime">
+      <Version>1.1.2</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
+    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
+    <DefineConstants>$(DefineConstants);NET_35;</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_COLLECTION_CAPACITY;NET_40;</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Linq.Queryable">
@@ -35,7 +55,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;DYNAMIC_SUPPORTED;</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;FEATURE_DYNAMIC;NET_STANDARD_1;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -47,26 +67,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;SERIALIZATION_SUPPORTED;DYNAMIC_SUPPORTED;</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);SERIALIZATION_SUPPORTED;DYNAMIC_SUPPORTED;</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
-    <PackageReference Include="DynamicLanguageRuntime">
-      <Version>1.1.2</Version>
-    </PackageReference>
-  </ItemGroup>
-
-  <PropertyGroup>
-    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_COLLECTION_CAPACITY;NET_STANDARD_2;</DefineConstants>
   </PropertyGroup>
 
 </Project>

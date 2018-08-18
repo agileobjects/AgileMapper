@@ -2,7 +2,7 @@
 {
     using System;
     using System.Reflection;
-#if SERIALIZATION_SUPPORTED
+#if FEATURE_SERIALIZATION
     using System.Runtime.Serialization;
 #endif
     using Extensions.Internal;
@@ -18,7 +18,7 @@
     /// Represents an error that occurred during a mapping.
     /// </summary>
     #region Serialization Support
-#if SERIALIZATION_SUPPORTED
+#if FEATURE_SERIALIZATION
     [Serializable]
 #endif
     #endregion
@@ -28,7 +28,7 @@
             typeof(MappingException).GetPublicStaticMethod("For");
 
         #region Serialization Support
-#if SERIALIZATION_SUPPORTED
+#if FEATURE_SERIALIZATION
         /// <summary>
         /// Initializes a new instance of the MappingException class. This constructor is provided
         /// to support deserialization.

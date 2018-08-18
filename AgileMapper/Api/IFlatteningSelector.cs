@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using System.Dynamic;
 #endif
     using System.Linq.Expressions;
@@ -14,7 +14,7 @@
     /// <typeparam name="TSource">The Type of object to be flattened.</typeparam>
     public interface IFlatteningSelector<TSource>
     {
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         /// <summary>
         /// Flatten to an ExpandoObject using the default <see cref="IMapper"/> and any given 
         /// <paramref name="configurations"/>.

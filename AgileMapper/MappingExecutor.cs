@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using System.Dynamic;
 #endif
     using System.Linq.Expressions;
@@ -146,7 +146,7 @@
 
         #region IFlatteningSelector Members
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         dynamic IFlatteningSelector<TSource>.ToDynamic(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, ExpandoObject>>>[] configurations)
         {

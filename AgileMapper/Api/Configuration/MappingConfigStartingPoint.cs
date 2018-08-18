@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using System.Dynamic;
 #endif
     using System.Linq.Expressions;
@@ -9,7 +9,7 @@
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
     using Dictionaries;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using Dynamics;
 #endif
     using Extensions.Internal;
@@ -481,7 +481,7 @@
         public ISourceDictionaryTargetTypeSelector<TValue> FromDictionariesWithValueType<TValue>()
             => CreateDictionaryConfigurator<TValue>(Dictionary);
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         /// <summary>
         /// Configure how this mapper performs mappings from or to ExpandoObject instances.
         /// </summary>
