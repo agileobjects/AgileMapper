@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.Manual
 {
     using AbstractMappers;
-    using TestClasses;
+    using static TestClasses.Ctor;
 
     internal class ManualCtorMapper : CtorMapperBase
     {

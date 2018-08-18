@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using AbstractMappers;
     using global::Mapster;
-    using TestClasses;
+    using static TestClasses.Deep;
 
     internal class MapsterDeepMapper : DeepMapperBase
     {

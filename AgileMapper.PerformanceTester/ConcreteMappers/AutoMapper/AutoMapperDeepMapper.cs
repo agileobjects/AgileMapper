@@ -2,7 +2,7 @@
 {
     using AbstractMappers;
     using global::AutoMapper;
-    using TestClasses;
+    using static TestClasses.Deep;
 
     internal class AutoMapperDeepMapper : DeepMapperBase
     {
@@ -21,8 +21,6 @@
         }
 
         protected override CustomerDto Map(Customer customer)
-        {
-            return _mapper.Map<Customer, CustomerDto>(customer);
-        }
+            => _mapper.Map<Customer, CustomerDto>(customer);
     }
 }

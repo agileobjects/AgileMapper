@@ -4,7 +4,7 @@
     using System.Linq;
     using AbstractMappers;
     using global::Mapster;
-    using TestClasses;
+    using static TestClasses.Complex;
 
     internal class MapsterComplexTypeMapper : ComplexTypeMapperBase
     {
@@ -18,9 +18,6 @@
                 .Compile();
         }
 
-        protected override Foo Clone(Foo foo)
-        {
-            return foo.Adapt<Foo, Foo>();
-        }
+        protected override Foo Clone(Foo foo) => foo.Adapt<Foo, Foo>();
     }
 }

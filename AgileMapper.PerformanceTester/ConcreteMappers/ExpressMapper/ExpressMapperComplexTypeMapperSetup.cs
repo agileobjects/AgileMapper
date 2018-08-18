@@ -5,7 +5,7 @@
     using AbstractMappers;
     using global::ExpressMapper;
     using global::ExpressMapper.Extensions;
-    using TestClasses;
+    using static TestClasses.Complex;
 
     internal class ExpressMapperComplexTypeMapperSetup : ComplexTypeMapperSetupBase
     {

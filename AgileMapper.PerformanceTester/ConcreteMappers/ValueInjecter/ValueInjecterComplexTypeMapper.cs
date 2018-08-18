@@ -8,7 +8,7 @@
     using AbstractMappers;
     using Omu.ValueInjecter;
     using Omu.ValueInjecter.Injections;
-    using TestClasses;
+    using static TestClasses.Complex;
 
     internal class ValueInjecterComplexTypeMapper : ComplexTypeMapperBase
     {
