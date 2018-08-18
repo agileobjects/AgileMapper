@@ -10,11 +10,6 @@
         {
         }
 
-        protected override void Reset()
-        {
-            Mapper.Reset();
-        }
-
         protected override void SetupDeepMapper()
         {
             Mapper.Initialize(cfg =>
@@ -26,5 +21,7 @@
 
             Mapper.Map<Customer, CustomerDto>(new Customer());
         }
+
+        protected override void Reset() => Mapper.Reset();
     }
 }

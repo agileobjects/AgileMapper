@@ -11,11 +11,6 @@
         {
         }
 
-        protected override void Reset()
-        {
-            TypeAdapterConfig<Customer, CustomerDto>.Clear();
-        }
-
         protected override void SetupDeepMapper()
         {
             TypeAdapterConfig<Customer, CustomerDto>.NewConfig()
@@ -25,5 +20,8 @@
 
             new Customer().Adapt<Customer, CustomerDto>();
         }
+
+        protected override void Reset() 
+            => TypeAdapterConfig<Customer, CustomerDto>.Clear();
     }
 }

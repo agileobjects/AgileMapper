@@ -77,10 +77,12 @@
     </Compile>
     <Compile Include="AbstractMappers\DeepMapperSetupBase.cs" />
     <Compile Include="AbstractMappers\EntityMapperBase.cs" />
+    <Compile Include="AbstractMappers\EntityMapperSetupBase.cs" />
     <Compile Include="AbstractMappers\MapperSetupTestBase.cs" />
     <Compile Include="AbstractMappers\MapperTestBase.cs" />
     <Compile Include="AbstractMappers\UnflatteningMapperSetupBase.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperEntityMapper.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperEntityMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperUnflatteningMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperComplexTypeMapperSetup.cs" />
     <Compile Include="AbstractMappers\ComplexTypeMapperSetupBase.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="AbstractMappers\DeepMapperBase.cs" />
     <Compile Include="AbstractMappers\FlatteningMapperBase.cs" />
     <Compile Include="AbstractMappers\IObjectMapperTest.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperEntityMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperEntityMapper.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperUnflatteningMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperDeepMapperSetup.cs" />
@@ -116,6 +119,7 @@
     <Compile Include="ConcreteMappers\Manual\ManualDeepMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualFlatteningMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\Mapster\MapsterEntityMapperSetup.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterEntityMapper.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterDeepMapperSetup.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterComplexTypeMapperSetup.cs" />
